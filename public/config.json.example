@@ -3,6 +3,7 @@
 	"apiPort": "3000",
 	"apiProtocol": "http",
 	"apps": [
+		{ "name": "EMC", "available": true },
 		{ "name": "ART", "available": true },
 		{ "name": "LOS", "available": true }
 	]
