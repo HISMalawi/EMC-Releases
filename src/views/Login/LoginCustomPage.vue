@@ -67,6 +67,8 @@
 import ApiClient from "@/services/api_client";
 import { toastWarning } from "@/utils/Alerts";
 import { defineComponent } from 'vue';
+import HisApp from "@/apps/app_lib"
+
 export default defineComponent({
   props: ["keys"],
   data: function () {
@@ -160,14 +162,24 @@ export default defineComponent({
         );
         if (response) {
           if (response.status === 200) {
-            const {
-              authorization: { token, user },
-            } = await response.json();
+            const { authorization: { token, user }} = await response.json();
             sessionStorage.setItem("apiKey", token);
             sessionStorage.setItem("username", user.username);
             sessionStorage.setItem("userID", user.user_id);
             sessionStorage.setItem("userRoles", JSON.stringify(user.roles));
-            this.$router.push("/select_hc_location");
+            // Select Program application here
+            const app = await HisApp.selectApplication()
+            if (!app) {
+              return 
+            }
+            if (app.isPocApp) {
+              this.$router.push("/select_hc_location");
+            } else {
+              if (app.appLandingPage) {
+                this.$router.push(app.appLandingPage)
+              }
+            }
+            
           } else if (response.status === 401) {
             toastWarning("Invalid username or password");
           } else {
