@@ -8,6 +8,7 @@ import HisDate from "@/utils/Date"
 
 const LOS: AppInterface = {
     programID: 23,
+    isPocApp: true,
     applicationName: 'LOS',
     applicationIcon: 'order.png',
     applicationDescription: "Lab Order System",

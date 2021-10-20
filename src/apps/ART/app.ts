@@ -15,6 +15,7 @@ import {
 
 const ART: AppInterface = {
     init,
+    isPocApp: true,
     programID: 1,
     applicationName: 'ART',
     applicationIcon: 'aids.png',

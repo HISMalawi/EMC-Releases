@@ -48,6 +48,11 @@ export interface AppInterface {
      */
     readonly appRoutes: Array<RouteRecordRaw>;
     /**
+     * Flag that helps indicate whether the app is a POC App or other.
+     * Pcs Apps will use the same generic workflow
+     */
+    readonly isPocApp: boolean;
+    /**
      * Identifiers available for search / reference that are unique to this programme
     */
     readonly programPatientIdentifiers?: Record<
