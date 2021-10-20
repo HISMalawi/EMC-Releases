@@ -53,6 +53,10 @@ export interface AppInterface {
      */
     readonly isPocApp: boolean;
     /**
+     * Define the landing page for the app
+     */
+    readonly appLandingPage?: string;
+    /**
      * Identifiers available for search / reference that are unique to this programme
     */
     readonly programPatientIdentifiers?: Record<
