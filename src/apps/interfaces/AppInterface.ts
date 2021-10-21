@@ -57,6 +57,10 @@ export interface AppInterface {
      */
     readonly appLandingPage?: string;
     /**
+     * Vue menu component that will be template menu for all pages
+     */
+    readonly appSideMenuTemplate?: any;
+    /**
      * Identifiers available for search / reference that are unique to this programme
     */
     readonly programPatientIdentifiers?: Record<

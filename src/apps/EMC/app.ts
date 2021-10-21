@@ -1,5 +1,6 @@
 import { AppInterface } from "../interfaces/AppInterface";
 import { GlobalPropertyService } from "@/services/global_property_service"
+import EmcRoutes from "./Config/EmcRoutes";
 
 const EMC: AppInterface = {
     programID: 1,
@@ -8,7 +9,7 @@ const EMC: AppInterface = {
     applicationName: 'EMC',
     applicationIcon: 'aids.png',
     applicationDescription: "HIV Electronic Master card App",
-    appRoutes: [],
+    appRoutes: EmcRoutes,
     homeOverviewComponent: {},
     primaryPatientActivites: [],
     secondaryPatientActivites: [],
