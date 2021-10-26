@@ -48,8 +48,18 @@ export interface DtFieldInterface {
     /**
      * Preset a value on a field that allows for a single value 
     */
-    defaultValue?: string;
-    onUpdateDefaultValue?: DerivedInterface;
+    defaultValueInput?: string | boolean | number;
+    onUpdateDefaultValueInput?: DerivedInterface;
+    /**
+     * Default values to be checked from optionsList
+     */
+    defaultCheckedOptions?: Option[];
+    onUpdateDefaultCheckOptions?: DerivedInterface;
+    /**
+     * Default single value Option
+     */
+    defaultValueOption?: Option | Promise<Option>;
+    onUpdateDefaultValueOption?: DerivedInterface;
     /**
      * List of selection options for a field
      */

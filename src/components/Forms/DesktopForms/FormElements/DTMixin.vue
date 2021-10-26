@@ -28,18 +28,49 @@ export default defineComponent({
             type: Boolean,
             default: false
         },
-        defaultValue: {
-            type: Object
+        defaultCheckedOptions: {
+            type: Array,
+            default: () => []
+        },
+        defaultValueOption: {
+            type: Object,
+            default: () => ({})
+        },
+        defaultValueInput: {
+            type: String,
+            default: ''
         }
     },
     emits: [
         'onValue'
     ],
     watch: {
-        defaultValue: {
+        defaultValueInput: {
             async handler(value: Promise<string | number>) {
                 try{
                     this.valueInput = await value
+                }catch(e){
+                    console.warn('default_value_handler', e)
+                }
+            },
+            deep: true,
+            immediate: true
+        },
+        defaultValueOption: {
+            async handler(value: Promise<Option> | Option) {
+                try{
+                    this.valueOption = await value
+                }catch(e){
+                    console.warn('default_value_handler', e)
+                }
+            },
+            deep: true,
+            immediate: true
+        },
+        defaultCheckedOptions: {
+            async handler(value: Promise<Option[]> | Option[] | null) {
+                try{
+                    this.checkedOptionList = await value
                 }catch(e){
                     console.warn('default_value_handler', e)
                 }
@@ -83,17 +114,17 @@ export default defineComponent({
         valueOption(option: Option | null) {
             this.$emit('onValue', option)
         },
-        valueInput: {
-            handler(val: string | number | boolean) {
-                if (val) {
-                    this.$emit('onValue', { 
-                        label: val, value: val
-                    })
-                } else {
-                    this.$emit('onValue', null)
-                }
-            },
-            immediate: true
+        checkedOptionList(option: Option | null) {
+            this.$emit('onValue', option)
+        },
+        valueInput(val: string | number | boolean) {
+            if (val) {
+                this.$emit('onValue', { 
+                    label: val, value: val
+                })
+            } else {
+                this.$emit('onValue', null)
+            }
         }
     }
 })

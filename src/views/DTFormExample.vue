@@ -139,6 +139,12 @@ export default defineComponent({
                 helpText: 'Current District',
                 type: DTFieldType.DT_MULTIPLE_SELECT,
                 group: 'physical-address',
+                onUpdateDefaultCheckOptions: {
+                    observes: ['current_region'],
+                    update: () => {
+                        return []
+                    }
+                },
                 onUpdateOptions: {
                     observes: ['current_region'],
                     update: ({value}: any) => {

@@ -32,7 +32,9 @@
                         :key="field.id"
                         :required="updateFieldRequired(field)"
                         :options="updateFieldOptions(field)"
-                        :defaultValue="updateFieldDefaultValue(field)"
+                        :defaultValueInput="updateFieldDefaultValueInput(field)"
+                        :defaultValueOption="updateFieldDefaultValueOption(field)"
+                        :defaultCheckedOptions="updateFieldDefaultCheckedOptions(field)"
                         :disabled="updateFieldDisabled(field)"
                         :config="field.config ? field.config: {}"
                         @onValue="(val) => onValue(val, field)">
@@ -103,10 +105,13 @@ export default defineComponent({
         }
     },
     methods: {
+        /**
+         * Updates field values in value store and performs validation prior to 
+         * value update
+         */
         onValue(value: Option | Option[] | null, field: DtFieldInterface) {
             this.curFieldUpdate = {
-                field: field.id,  
-                value
+                field: field.id, value
             }
             this.formData[field.id] = value
             if (field.validation) {
@@ -159,6 +164,8 @@ export default defineComponent({
                 | string
                 | number
                 | boolean
+                | Option
+                | Promise<Option>
                 | Option[]
                 | Promise<Option[]>,
             defaultValue: any) {
@@ -190,8 +197,14 @@ export default defineComponent({
         updateFieldVisibility(field: DtFieldInterface) {
             return this.updateField(field.id, field.onUpdateCondition, field.condition, true)
         },
-        updateFieldDefaultValue(field: DtFieldInterface) {
-            return this.updateField(field.id, field.onUpdateDefaultValue, field.defaultValue, null)
+        updateFieldDefaultValueInput(field: DtFieldInterface) {
+            return this.updateField(field.id, field.onUpdateDefaultValueInput, field.defaultValueInput, null)
+        },
+        updateFieldDefaultValueOption(field: DtFieldInterface) {
+            return this.updateField(field.id, field.onUpdateDefaultValueOption, field.defaultValueOption, null)
+        },
+        updateFieldDefaultCheckedOptions(field: DtFieldInterface) {
+            return this.updateField(field.id, field.onUpdateDefaultCheckOptions, field.defaultCheckedOptions, null)
         },
         updateFieldDisabled(field: DtFieldInterface) {
             return this.updateField(field.id, field.onUpdateDisabled, field.disabled, false)
