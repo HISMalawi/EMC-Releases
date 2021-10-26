@@ -53,7 +53,7 @@ export interface DtFieldInterface {
     /**
      * List of selection options for a field
      */
-    options?: Option[];
+    options?: Option[] | Promise<Option[]>;
     onUpdateOptions?: DerivedInterface;
     /**
      * Toggle field visibility when formData changes

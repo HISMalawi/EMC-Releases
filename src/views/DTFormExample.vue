@@ -9,6 +9,12 @@ import { DtFieldInterface } from '@/components/Forms/DesktopForms/DTFieldInterfa
 import { DTFieldType } from '@/components/Forms/DesktopForms/DTFormElements'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Option } from '@/components/Forms/FieldInterface'
+import { 
+    getRegions, 
+    getDistricts, 
+    getTraditionalAuthorities, 
+    getVillages
+} from "@/utils/HisFormHelpers/LocationFieldOptions"
 
 export default defineComponent({
     components: { Form },
@@ -122,26 +128,26 @@ export default defineComponent({
                 ) => Validation.isMWPhoneNumber(val)
             },
             {
-                id: 'home_village',
-                helpText: 'Home village',
+                id: 'current_region',
+                helpText: 'Current Region',
                 type: DTFieldType.DT_SELECT,
                 group: 'physical-address',
-                options: [
-                    { label: 'Lilongwe village', value: 'Lilognwe Village'},
-                    { label: 'Blantyre village', value: 'Blantyre village'},
-                    { label: 'Zomba village', value: 'Zomba village'}
-                ]
+                options: getRegions()
             },
             {
-                id: 'district',
-                helpText: 'District',
+                id: 'current_district',
+                helpText: 'Current District',
                 type: DTFieldType.DT_SELECT,
                 group: 'physical-address',
-                options: [
-                    { label: 'Lilongwe village', value: 'Lilognwe Village'},
-                    { label: 'Blantyre village', value: 'Blantyre village'},
-                    { label: 'Zomba village', value: 'Zomba village'}
-                ]
+                onUpdateOptions: {
+                    observes: ['current_region'],
+                    update: ({value}: any) => {
+                        if (value) {
+                            return getDistricts(value.value)
+                        }
+                        return []
+                    }
+                }
             },
             {
                 id: 'ta',

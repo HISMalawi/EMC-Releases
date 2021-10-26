@@ -1,9 +1,8 @@
 <template>
     <ion-item> 
         <ion-label> Select </ion-label>
-        <ion-select> 
+        <ion-select v-model="valueOption"> 
             <ion-select-option
-                v-model="valueOption"
                 :key="index"
                 :value="option"
                 v-for="(option, index) in optionList"

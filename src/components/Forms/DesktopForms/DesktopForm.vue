@@ -160,7 +160,8 @@ export default defineComponent({
                 | string
                 | number
                 | boolean
-                | Option[],
+                | Option[]
+                | Promise<Option[]>,
             defaultValue: any) {
             if (watcher!=undefined && !isEmpty(this.curFieldUpdate)) {
                 if (isEmpty(watcher.observes) 
