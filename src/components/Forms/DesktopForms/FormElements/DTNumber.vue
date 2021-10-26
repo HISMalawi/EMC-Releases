@@ -5,6 +5,7 @@
             :placeholder="config?.component?.placeholder || ''"
             type="Number"
             inputmode="Number"
+            :disabled="isDisabled"
             :max="config?.component?.max || null"
             :min="config?.component?.max || null"/>
     </ion-item>

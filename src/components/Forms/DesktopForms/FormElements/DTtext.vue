@@ -4,6 +4,8 @@
             type="text"
             inputmode="text"
             v-model="valueInput"
+            :disabled="isDisabled"
+            :value="valueInput"
             :placeholder="config?.component?.placeholder || ''"
             :max="config?.component?.max || null"
             :min="config?.component?.max || null"/>

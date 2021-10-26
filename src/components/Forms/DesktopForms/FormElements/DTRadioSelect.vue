@@ -1,11 +1,16 @@
 <template>
     <ion-radio-group v-model="valueOption">
         <ion-item
-            v-for="(option, index) in optionList"
             :key="index"
-            > 
-            <ion-label>{{ option.label }}</ion-label>
-            <ion-radio slot="end" :value="option.value"> </ion-radio>
+            v-for="(option, index) in optionList"> 
+            <ion-label>
+                {{ option.label }}
+            </ion-label>
+            <ion-radio 
+                slot="end" 
+                :value="option"            
+                :disabled="isDisabled"> 
+            </ion-radio>
         </ion-item>
     </ion-radio-group>
 </template>

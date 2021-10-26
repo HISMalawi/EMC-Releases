@@ -4,6 +4,7 @@
             v-model="valueInput"
             type="Date"
             inputmode="Date"
+            :disabled="isDisabled"
         />
     </ion-item>
 </template>

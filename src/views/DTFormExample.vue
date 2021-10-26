@@ -30,6 +30,18 @@ export default defineComponent({
                 required: true
             },
             {
+                id: 'full_name',
+                type: FieldType.DT_TEXT,
+                disabled: true,
+                helpText: 'Full name',
+                onUpdateDefaultValue: {
+                    observes: ['first_name', 'last_name'],
+                    update: (_: any, form: any) => {
+                        return `Hello ${form?.first_name?.value || ''} ${form?.last_name?.value || ''}`
+                    }
+                }
+            },
+            {
                 id: 'gender',
                 type: FieldType.DT_RADIO,
                 helpText: 'Gender',
@@ -54,7 +66,7 @@ export default defineComponent({
                 helpText: 'Birth date',
                 type: FieldType.DT_DATE,
                 required: true
-            }
+            },
         ]
     }
 })
