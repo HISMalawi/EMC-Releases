@@ -10,11 +10,11 @@ export default defineComponent({
         isDisabled: false as boolean
     }),
     props: {
-        required: Object,
+        required: Object as PropType<boolean | Promise<boolean>>,
         config: Object,
-        options: Object as PropType<Option>,
-        disabled: Boolean,
-        defaultValue: Object as PropType<string | number | Array<any>>
+        options: Object as PropType<Option[] | Promise<Option[]>>,
+        disabled: Object as PropType<boolean | Promise<boolean>>,
+        defaultValue: Object as PropType<any>
     },
     emits: [
         'onValue'
@@ -32,7 +32,7 @@ export default defineComponent({
             immediate: true
         },
         disabled: {
-            async handler(disabled: Promise<boolean>) {
+            async handler(disabled: Promise<boolean> | boolean) {
                 try {
                     this.isDisabled = await disabled
                 }catch(e) {
@@ -43,7 +43,7 @@ export default defineComponent({
             immediate: true
         },
         required: {
-            async handler(required: Promise<boolean>) {
+            async handler(required: Promise<boolean> | boolean) {
                 try {
                     this.isRequired = await required
                 } catch(e) {
@@ -54,7 +54,7 @@ export default defineComponent({
             immediate: true
         },
         options: {
-            async handler(options: Promise<Option[]>) {
+            async handler(options: Promise<Option[]> | Option[]) {
                 try {
                     this.optionList = (await options) || []
                 } catch(e) {

@@ -55,7 +55,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/example/desktop',
     name: 'Desktop Example',
-    component: () => import('@/views/DTForm.vue')
+    component: () => import('@/views/DTFormExample.vue')
   },
   {
     name: 'Update site location',
