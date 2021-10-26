@@ -58,8 +58,8 @@ export interface DtFieldInterface {
     /**
      * Toggle field visibility when formData changes
     */
-    visible?: boolean;
-    onUpdateVisible?: DerivedInterface; 
+    condition?: boolean;
+    onUpdateCondition?: DerivedInterface; 
     /**
      * Disable a field component's actions
      */

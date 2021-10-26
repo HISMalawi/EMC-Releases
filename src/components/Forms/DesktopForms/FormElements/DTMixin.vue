@@ -11,11 +11,25 @@ export default defineComponent({
         isDisabled: false as boolean
     }),
     props: {
-        required: Object as PropType<boolean | Promise<boolean>>,
-        config: Object,
-        options: Object as PropType<Option[] | Promise<Option[]>>,
-        disabled: Object as PropType<boolean | Promise<boolean>>,
-        defaultValue: Object as PropType<any>
+        required: {
+            type: Boolean,
+            default: true
+        },
+        config: {
+            type: Object,
+            default: ()=>({})
+        },
+        options: {
+            type: Array,
+            default: () => []
+        },
+        disabled: {
+            type: Boolean,
+            default: false
+        },
+        defaultValue: {
+            type: Object
+        }
     },
     emits: [
         'onValue'
@@ -69,7 +83,7 @@ export default defineComponent({
             this.$emit('onValue', option)
         },
         valueInput: {
-            handler(val: string | number) {
+            handler(val: string | number | boolean) {
                 if (val) {
                     this.$emit('onValue', { 
                         label: val, value: val

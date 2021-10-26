@@ -22,6 +22,11 @@ export default defineComponent({
                 helpText: 'First name',
                 type: DTFieldType.DT_TEXT,
                 group: 'name',
+                colSizes: {
+                    md: 4,
+                    lg: 4,
+                    sm: 12
+                },
                 validation: (val: Option | Option[] | null) => Validation.isName(val),
                 required: true
             },
@@ -30,6 +35,11 @@ export default defineComponent({
                 type: DTFieldType.DT_TEXT,
                 helpText: 'Middle Name',
                 group: 'name',
+                colSizes: {
+                    md: 4,
+                    lg: 4,
+                    sm: 12
+                },
                 required: false,
                 validation: (val: Option | Option[] | null) => Validation.isName(val)
             },
@@ -37,24 +47,59 @@ export default defineComponent({
                 id: 'last_name',
                 type: DTFieldType.DT_TEXT,
                 group: 'name',
+                colSizes: {
+                    md: 4,
+                    lg: 4,
+                    sm: 12
+                },
                 validation: (val: any) => Validation.isName(val),
                 helpText: 'Last name',
                 required: true
             },
             {
+                id: 'is_birth_estimate',
+                helpText: 'Is birth unknown?',
+                group: 'birth-date',
+                type: DTFieldType.DT_SINGLE_CHECKBOX
+            },
+            {
                 id: 'birth_date',
                 helpText: 'Birth date',
-                group: 'birthdate-gender-section',
-                type: DTFieldType.DT_DATE
+                group: 'birth-date',
+                type: DTFieldType.DT_DATE,
+                onUpdateCondition: {
+                    observes: ['is_birth_estimate'],
+                    update: ({value}: any) => {
+                        if (value) {
+                            return value.label === false
+                        }
+                        return true
+                    }
+                },
+            },
+            {
+                id: 'birth_estimate',
+                helpText: 'Estimate Age',
+                group: 'birth-date',
+                type: DTFieldType.DT_NUMBER,
+                condition: false,
+                onUpdateCondition: {
+                    observes: ['is_birth_estimate'],
+                    update: ({value}: any) => {
+                        if (value) {
+                            return value.label === true
+                        }
+                        return false
+                    }
+                }
             },
             {
                 id: 'gender',
                 type: DTFieldType.DT_SELECT,
-                group: 'birthdate-gender-section',
                 helpText: 'Gender',
                 colSizes: {
-                    md: 6,
-                    lg: 6,
+                    md: 12,
+                    lg: 12,
                     sm: 12
                 },
                 options: [
@@ -75,6 +120,38 @@ export default defineComponent({
                 validation: (
                     val: Option | Option[] | null
                 ) => Validation.isMWPhoneNumber(val)
+            },
+            {
+                id: 'home_village',
+                helpText: 'Home village',
+                type: DTFieldType.DT_SELECT,
+                group: 'physical-address',
+                options: [
+                    { label: 'Lilongwe village', value: 'Lilognwe Village'},
+                    { label: 'Blantyre village', value: 'Blantyre village'},
+                    { label: 'Zomba village', value: 'Zomba village'}
+                ]
+            },
+            {
+                id: 'district',
+                helpText: 'District',
+                type: DTFieldType.DT_SELECT,
+                group: 'physical-address',
+                options: [
+                    { label: 'Lilongwe village', value: 'Lilognwe Village'},
+                    { label: 'Blantyre village', value: 'Blantyre village'},
+                    { label: 'Zomba village', value: 'Zomba village'}
+                ]
+            },
+            {
+                id: 'ta',
+                helpText: 'Traditional Authority',
+                type: DTFieldType.DT_SELECT,
+                options: [
+                    { label: 'Lilongwe village', value: 'Lilognwe Village'},
+                    { label: 'Blantyre village', value: 'Blantyre village'},
+                    { label: 'Zomba village', value: 'Zomba village'}
+                ]
             }
         ]
     }

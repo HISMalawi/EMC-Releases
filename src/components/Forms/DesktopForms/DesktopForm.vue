@@ -2,22 +2,27 @@
     <ion-grid> 
         <ion-row
             v-for="(fields, rowIndex) in fieldRows"
-            :key="rowIndex"> 
+            :key="rowIndex"
+            >
             <ion-col
                 v-for="(field, fieldIndex) in fields" 
-                :key="fieldIndex"
                 :size-sm="field?.colSizes?.sm || ''"
                 :size-md="field?.colSizes?.md || ''"
-                :size-lg="field?.colSizes?.lg || ''" >
+                :size-lg="field?.colSizes?.lg || ''" 
+                :key="fieldIndex"
+                v-show="updateFieldVisibility(field)"
+                >
                 <ion-row> 
                     <ion-col> 
-                    <ion-label 
-                    position="stacked"
-                    :class="{'field-errors': hasErrors(field.id)}"
-                    >
-                    {{ updateFieldHelpText(field) }}
-                    <span v-if="updateFieldRequired(field)">(*)</span>
-                    </ion-label>
+                        <ion-label 
+                            position="stacked"
+                            :style="{ fontWeight: 'bold'}"
+                            :class="{
+                                'field-errors': hasErrors(field.id)
+                            }">
+                            {{ updateFieldHelpText(field) }}
+                            <span v-if="updateFieldRequired(field)">(*)</span>
+                        </ion-label>
                     </ion-col>
                 </ion-row>
                 <ion-row> 
@@ -25,8 +30,7 @@
                     <keep-alive> 
                     <component
                         v-bind:is="field.type"
-                        v-if="updateFieldVisibility(field)"
-                        :beforeValue="field.beforeValue"
+                        :key="field.id"
                         :required="updateFieldRequired(field)"
                         :options="updateFieldOptions(field)"
                         :defaultValue="updateFieldDefaultValue(field)"
@@ -62,7 +66,7 @@ import { isEmpty } from 'lodash'
 export default defineComponent({
     components: { 
         IonGrid, 
-        IonRow, 
+        IonRow,
         IonCol,
         IonItem,
         IonLabel,
@@ -101,18 +105,20 @@ export default defineComponent({
     },
     methods: {
         onValue(value: Option | Option[] | null, field: DtFieldInterface) {
-            this.curFieldUpdate.field = field.id
-            this.curFieldUpdate.value = value
+            this.curFieldUpdate = {
+                field: field.id,  
+                value
+            }
             this.formData[field.id] = value
             if (field.validation) {
                 const errors = field.validation(value, this.formData, this.computedData)
                 if (errors) {
-                    this.fieldErrors[field.id] = errors
+                    return this.fieldErrors[field.id] = errors
                 } else {
                     this.fieldErrors[field.id] = []
                 }
             }
-            if (value) {
+            if (value != null) {
                 if (field.computeValue && value) {
                     this.computedData[field.id] = field.computeValue(
                         value, this.formData, this.computedData
@@ -120,6 +126,9 @@ export default defineComponent({
                 }
             }
         },
+        /**
+         * Initialise data collection Hashes
+         */
         setFormData(fields: Array<DtFieldInterface>): void {
             this.formData = {};
             fields.forEach((field) => {
@@ -127,12 +136,22 @@ export default defineComponent({
                 this.fieldErrors[field.id] = []
             })
         },
+        /**
+         * Checks Errors Array with associated field ID
+         */
         hasErrors(fieldID: string) {
             return !isEmpty(this.fieldErrors[fieldID])  
         },
+        /**
+         * Get Errors from Array with associated Field ID
+         */
         getErrors(fieldID: string) {
             return this.fieldErrors[fieldID].join(',')
         },
+        /**
+         * Updates fields which derive data from other fields by running
+         * watcher functions
+         */
         updateField(
             fieldID: string,
             watcher: DerivedInterface | undefined, 
@@ -142,8 +161,7 @@ export default defineComponent({
                 | number
                 | boolean
                 | Option[],
-            defaultValue: any,
-            ) {
+            defaultValue: any) {
             if (watcher!=undefined && !isEmpty(this.curFieldUpdate)) {
                 if (isEmpty(watcher.observes) 
                     || watcher.observes.includes(this.curFieldUpdate.field)) {
@@ -154,7 +172,7 @@ export default defineComponent({
                     )
                     return this.observerValueCache[fieldID]
                 }
-                if (this.observerValueCache[fieldID]) {
+                if (this.observerValueCache[fieldID] != undefined) {
                     return this.observerValueCache[fieldID]
                 }
             }
@@ -170,7 +188,7 @@ export default defineComponent({
             return this.updateField(field.id, field.onUpdateOptions, field.options, [])             
         },
         updateFieldVisibility(field: DtFieldInterface) {
-            return this.updateField(field.id, field.onUpdateVisible, field.visible, true)
+            return this.updateField(field.id, field.onUpdateCondition, field.condition, true)
         },
         updateFieldDefaultValue(field: DtFieldInterface) {
             return this.updateField(field.id, field.onUpdateDefaultValue, field.defaultValue, null)
@@ -181,6 +199,9 @@ export default defineComponent({
         updateFieldRequired(field: DtFieldInterface) {
             return this.updateField(field.id, field.onUpdateRequired, field.required, true)
         },
+        /**
+         * Converts fields into turples to represet rows on the form
+         */
         buildFieldRows(fields: Array<DtFieldInterface>): Array<DtFieldInterface[]> {
             const collection: any = { }
             fields.forEach(field => {
