@@ -2,8 +2,10 @@
     <ion-item>
         <ion-input
             v-model="valueInput"
-            type="Date"
-            inputmode="Date"
+            type="Password"
+            inputmode="Password"
+            :max="config?.component?.max || null"
+            :min="config?.component?.max || null"
         />
     </ion-item>
 </template>
@@ -14,7 +16,7 @@ import DTMixinVue from './DTMixin.vue'
 import { IonInput, IonItem } from "@ionic/vue"
 
 export default defineComponent({
-    name: 'DT_CHECKBOX',
+    name: 'DT_SECRET',
     components: { IonInput, IonItem },
     emits: ['onValue'],
     mixins:[DTMixinVue]

@@ -1,12 +1,12 @@
 <template>
     <ion-item>
         <ion-input
-            v-model="data"
-            :type="config?.component?.type || 'text'"
-            :inputmode="config?.component?.inputmode || 'text'"
+            type="text"
+            inputmode="text"
+            v-model="valueInput"
+            :placeholder="config?.component?.placeholder || ''"
             :max="config?.component?.max || null"
-            :min="config?.component?.max || null"
-            :required="required"/>
+            :min="config?.component?.max || null"/>
     </ion-item>
 </template>
 
@@ -16,11 +16,9 @@ import DTMixinVue from './DTMixin.vue'
 import { IonInput, IonItem } from "@ionic/vue"
 
 export default defineComponent({
+    name: 'DT_TEXT',
     components: { IonInput, IonItem },
     emits: ['onValue'],
-    mixins:[DTMixinVue],
-    watch: {
-
-    }
+    mixins:[DTMixinVue]
 })
 </script>

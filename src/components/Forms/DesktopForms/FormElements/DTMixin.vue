@@ -5,6 +5,7 @@ import { Option } from '../../FieldInterface'
 export default defineComponent({
     data: () => ({
         valueInput: '' as string | number,
+        valueOption: {} as Option | null,
         optionList: [] as Option[],
         isRequired: false as boolean,
         isDisabled: false as boolean
@@ -63,6 +64,9 @@ export default defineComponent({
             },
             deep: true,
             immediate: true
+        },
+        valueOption(option: Option | null) {
+            this.$emit('onValue', option)
         },
         valueInput: {
             handler(val: string | number) {

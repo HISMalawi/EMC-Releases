@@ -1,5 +1,5 @@
 <template>
-    <ion-radio-group>
+    <ion-radio-group v-model="valueOption">
         <ion-item
             v-for="(option, index) in optionList"
             :key="index"
@@ -20,6 +20,7 @@ import {
     IonItem
 } from "@ionic/vue"
 export default defineComponent({
+    name: 'DT_RADIO',
     components: {
         IonRadioGroup,
         IonLabel,

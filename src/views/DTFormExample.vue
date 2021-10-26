@@ -20,24 +20,14 @@ export default defineComponent({
                 type: FieldType.DT_TEXT,
                 group: 'name',
                 helpText: 'First name',
-                required: true,
-                config: {
-                    component: {
-                        type: 'text'
-                    }
-                }
+                required: true
             },
             {
                 id: 'last_name',
                 type: FieldType.DT_TEXT,
                 group: 'name',
                 helpText: 'Last name',
-                required: true,
-                config: {
-                    component: {
-                        type: 'text'
-                    }
-                }
+                required: true
             },
             {
                 id: 'gender',
@@ -60,13 +50,10 @@ export default defineComponent({
                 ]
             },
             {
-                id: 'dynamic_help_text',
-                type: FieldType.DT_TEXT,
-                required: false,
-                onUpdateHelpText: {
-                    watch: [],
-                    update: () => `Dynamic helptext`   
-                }
+                id: 'birth_date',
+                helpText: 'Birth date',
+                type: FieldType.DT_DATE,
+                required: true
             }
         ]
     }

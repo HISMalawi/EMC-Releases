@@ -2,9 +2,11 @@
     <ion-item>
         <ion-input
             v-model="valueInput"
-            type="Date"
-            inputmode="Date"
-        />
+            :placeholder="config?.component?.placeholder || ''"
+            type="Number"
+            inputmode="Number"
+            :max="config?.component?.max || null"
+            :min="config?.component?.max || null"/>
     </ion-item>
 </template>
 
