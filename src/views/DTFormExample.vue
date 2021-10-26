@@ -137,7 +137,7 @@ export default defineComponent({
             {
                 id: 'current_district',
                 helpText: 'Current District',
-                type: DTFieldType.DT_SELECT,
+                type: DTFieldType.DT_MULTIPLE_SELECT,
                 group: 'physical-address',
                 onUpdateOptions: {
                     observes: ['current_region'],

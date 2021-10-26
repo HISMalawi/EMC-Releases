@@ -6,6 +6,7 @@ export default defineComponent({
     data: () => ({
         valueInput: '' as string | number,
         valueOption: {} as Option | null,
+        checkedOptionList: [] as Option[] | null,
         optionList: [] as Option[],
         isRequired: false as boolean,
         isDisabled: false as boolean

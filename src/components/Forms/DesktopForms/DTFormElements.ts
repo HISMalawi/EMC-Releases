@@ -1,6 +1,6 @@
 import Checkboxes from "@/components/Forms/DesktopForms/FormElements/DTtext.vue"
 import DatePicker from "@/components/Forms/DesktopForms/FormElements/DTDatePicker.vue"
-import MultipleSelect from "@/components/Forms/DesktopForms/FormElements/DTtext.vue"
+import MultipleSelect from "@/components/Forms/DesktopForms/FormElements/DTMultipleSelect.vue"
 import RadioSelect from "@/components/Forms/DesktopForms/FormElements/DTRadioSelect.vue"
 import Select from "@/components/Forms/DesktopForms/FormElements/DTSelect.vue"
 import Text from "@/components/Forms/DesktopForms/FormElements/DTtext.vue"
