@@ -2,8 +2,15 @@ import { Option } from "../FieldInterface";
 import { FieldType } from "@/components/Forms/DesktopForms/DTFormElements"
 
 export interface DerivedInterface {
-    watch: string[];
-    update: (FormData: Record<string, any>, computedData: Record<string, any>) => any;
+    observes: string[];
+    update: (
+        tracking: {
+            field: string;
+            value: Option | Option[] | null;
+        },
+        FormData: Record<string, any>, 
+        computedData: Record<string, any>
+    ) => any;
 }
 
 export interface DtFieldInterface {
