@@ -8,7 +8,7 @@ import Text from "@/components/Forms/DesktopForms/FormElements/DTtext.vue"
 import Number from "@/components/Forms/DesktopForms/FormElements/DTNumber.vue"
 import Secret from "@/components/Forms/DesktopForms/FormElements/DTsecret.vue"
 
-export enum FieldType {
+export enum DTFieldType {
     DT_NUMBER = 'Number',
     DT_SECRET = 'Secret',
     DT_SELECT= 'Select',

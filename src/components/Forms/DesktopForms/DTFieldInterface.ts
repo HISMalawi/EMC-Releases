@@ -1,5 +1,5 @@
 import { Option } from "../FieldInterface";
-import { FieldType } from "@/components/Forms/DesktopForms/DTFormElements"
+import { DTFieldType } from "@/components/Forms/DesktopForms/DTFormElements"
 
 export interface DerivedInterface {
     observes: string[];
@@ -22,7 +22,7 @@ export interface DtFieldInterface {
     /**
      * Type of component to use for this field
      */
-    type: FieldType;
+    type: DTFieldType;
     /**
      * Group form fields together in a single row
      */
@@ -72,7 +72,11 @@ export interface DtFieldInterface {
     /**
      * Validation check that runs before submission
     */
-    validation?: (value: Option, formData: any, computedData: any) => null | Array<string>;
+    validation?: (
+        value:  Option | Option[] | null, 
+        formData: any, 
+        computedData: any
+    ) => null | Array<string>;
     /**
      * Run value check before registering it
      */
