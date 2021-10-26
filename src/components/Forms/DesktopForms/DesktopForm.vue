@@ -7,48 +7,31 @@
             <ion-col
                 v-for="(field, fieldIndex) in fields" 
                 :key="fieldIndex"
-                :size-sm="field.colSizes.sm"
-                :size-md="field.colSizes.md"
-                :size-lg="field.colSizes.lg"
-                > 
+                :size-sm="field?.colSizes?.sm || ''"
+                :size-md="field?.colSizes?.md || ''"
+                :size-lg="field?.colSizes?.lg || ''" >
                 <ion-row> 
-                    <ion-col>
-                        <ion-label>
-                            {{ field.helpText(formData, computedData) }}
-                            <span v-if="field.required(formData, computedData)"> 
-                                (*)
-                            </span>
+                    <ion-col> 
+                        <ion-label position="stacked">
+                        {{ updateFieldHelpText(field) }}
+                        <span v-if="updateFieldRequired(field)">(*)</span>
                         </ion-label>
                     </ion-col>
                 </ion-row>
                 <ion-row> 
-                    <ion-col> 
-                        <keep-alive> 
-                            <component
-                                v-bind:is="field.type"
-                                :beforeValue="field.beforeValue"
-                                :required="field.required(formData, computedData)"
-                                v-if="field.visible 
-                                    ? field.visible(formData, computedData)
-                                    : true"
-                                :options="
-                                    field.options 
-                                    ? field.options(formData, computedData) 
-                                    :[]"
-                                :defaultValue="
-                                    field.defaultValue 
-                                    ? field.defaultValue(formData, computedData)
-                                    : null"
-                                :disabled="
-                                    field.disabled 
-                                    ? field.disabled(formData, computedData)
-                                    : false"
-                                :config="field.config
-                                    ? field.config
-                                    : {}"
-                            >
-                            </component>
-                        </keep-alive>
+                    <ion-col>    
+                    <keep-alive> 
+                    <component
+                        v-bind:is="field.type"
+                        :beforeValue="field.beforeValue"
+                        :required="updateFieldRequired(field)"
+                        v-if="updateFieldVisibility(field)"
+                        :options="updateFieldOptions(field)"
+                        :defaultValue="updateFieldDefaultValue(field)"
+                        :disabled="updateFieldDisabled(field)"
+                        :config="field.config ? field.config: {}">
+                    </component>
+                    </keep-alive>
                     </ion-col>
                 </ion-row>
                 <ion-row> 
@@ -63,20 +46,25 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { DtFieldInterface } from "@/components/Forms/DesktopForms/DTFieldInterface"
+import { DerivedInterface, DtFieldInterface } from "@/components/Forms/DesktopForms/DTFieldInterface"
 import { Option } from "@/components/Forms/FieldInterface"
+import { DesktopFormElements } from "@/components/Forms/DesktopForms/DTFormElements"
 import {
     IonGrid,
     IonRow,
     IonCol,
-    IonLabel
+    IonLabel,
+    IonItem,
 } from "@ionic/vue"
+import { isEmpty } from 'lodash'
 export default defineComponent({
     components: { 
         IonGrid, 
         IonRow, 
-        IonCol, 
-        IonLabel 
+        IonCol,
+        IonItem,
+        IonLabel,
+        ...DesktopFormElements
     },
     props: {
         fields: {
@@ -89,12 +77,63 @@ export default defineComponent({
         formData: {} as Record<string, Option | Option[] | null>,
         computedData: {} as Record<string, any>
     }),
+    watch: {
+        fields: {
+            handler(fields: DtFieldInterface[]) {
+                if (!isEmpty(fields)) {
+                    this.setFormData(fields)
+                    this.fieldRows = this.buildFieldRows(fields)
+                }
+            },
+            deep: true,
+            immediate: true
+        }
+    },
     methods: {
-        buildFormData(fields: Array<DtFieldInterface>): void {
+        setFormData(fields: Array<DtFieldInterface>): void {
             this.formData = {};
             fields.forEach((field) => this.formData[field.id] = null)
         },
-        buildFieldRows(fields: Array<DtFieldInterface>) {
+        updateField(
+            watcher: DerivedInterface | undefined, 
+            configuredValue: 
+                undefined 
+                | string 
+                | number 
+                | boolean
+                | Option[],
+            defaultValue: any,
+            ) {
+
+            if (watcher!=undefined){
+                return watcher.update(this.formData, this.computedData)
+            }
+
+            if (configuredValue != undefined) {
+                return configuredValue
+            } 
+
+            return defaultValue
+        },
+        updateFieldHelpText(field: DtFieldInterface) {
+            return this.updateField(field.onUpdateHelpText, field.helpText, 'Unknown')
+        },
+        updateFieldOptions(field: DtFieldInterface) {
+            return this.updateField(field.onUpdateOptions, field.options, [])             
+        },
+        updateFieldVisibility(field: DtFieldInterface) {
+            return this.updateField(field.onUpdateVisible, field.visible, true)
+        },
+        updateFieldDefaultValue(field: DtFieldInterface) {
+            return this.updateField(field.onUpdateDefaultValue, field.defaultValue, null)
+        },
+        updateFieldDisabled(field: DtFieldInterface) {
+            return this.updateField(field.onUpdateDisabled, field.disabled, false)
+        },
+        updateFieldRequired(field: DtFieldInterface) {
+            return this.updateField(field.onUpdateRequired, field.required, true)
+        },
+        buildFieldRows(fields: Array<DtFieldInterface>): Array<DtFieldInterface[]> {
             const collection: any = { }
             fields.forEach(field => {
                 //Group fields with similar group name

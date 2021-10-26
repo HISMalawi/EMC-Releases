@@ -1,6 +1,11 @@
 import { Option } from "../FieldInterface";
 import { FieldType } from "@/components/Forms/DesktopForms/DTFormElements"
 
+export interface DerivedInterface {
+    watch: string[];
+    update: (FormData: Record<string, any>, computedData: Record<string, any>) => any;
+}
+
 export interface DtFieldInterface {
     /**
      * Uniquely identifies a field and might be used
@@ -18,7 +23,7 @@ export interface DtFieldInterface {
     /**
      * Configure row size as displayed on different device  
      */
-    colSizes: {
+    colSizes?: {
         sm: number;
         md: number;
         lg: number;
@@ -26,28 +31,33 @@ export interface DtFieldInterface {
     /**
      * Label for field
      */
-    helpText: {
-        derive: Array<string> | 'All' | 'None';
-        handler: (formData: any, computedData: any) => string;
-    };
+    helpText?: string;
+    onUpdateHelpText?: DerivedInterface;
     /**
      * Field wont be allow to be empty if set to true
      */
-    required?:  {
-        derive: Array<string> | 'All' | 'None';
-        handler: (formData: any, computedData: any) => boolean;
-    };
+    required?: boolean;
+    onUpdateRequired?: DerivedInterface;
     /**
      * Preset a value on a field that allows for a single value 
     */
-    defaultValue?: (formData: any, computedData: any) => string | number;
+    defaultValue?: string;
+    onUpdateDefaultValue?: DerivedInterface;
     /**
      * List of selection options for a field
      */
-    options?: {
-        derive: Array<string> | 'All' | 'None';
-        handler: (formData: any, computedData: any) => Promise<Option[]> | Option[];
-    };
+    options?: Option[];
+    onUpdateOptions?: DerivedInterface;
+    /**
+     * Toggle field visibility when formData changes
+    */
+    visible?: boolean;
+    onUpdateVisible?: DerivedInterface; 
+    /**
+     * Disable a field component's actions
+     */
+    disabled?: boolean;
+    onUpdateDisabled?: DerivedInterface;
     /**
      * Convert current input into something else
      */
@@ -61,17 +71,9 @@ export interface DtFieldInterface {
      */
     beforeValue?: (val: Option | Option[]) => boolean;
     /**
-     * Toggle field visibility when formData changes
-     */
-    visible?: (formData: any, computedData: any) => boolean;
-    /**
-     * Disable a field component's actions
-     */
-    disabled?: (formData: any, computedData: any) => boolean;
-    /**
      * Miscelleneous configurations for field
-    */
-    config: {
+     */
+    config?: {
         component?: Record<string, any>;
         global?: Record<string, any>;
     };
