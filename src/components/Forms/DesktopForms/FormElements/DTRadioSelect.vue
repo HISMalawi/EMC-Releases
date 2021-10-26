@@ -1,5 +1,5 @@
 <template>
-    <ion-radio-group v-model="valueOption">
+    <ion-radio-group :disabled="isDisabled" v-model="valueOption">
         <ion-item
             :key="index"
             v-for="(option, index) in optionList"> 
@@ -9,7 +9,7 @@
             <ion-radio 
                 slot="end" 
                 :value="option"            
-                :disabled="isDisabled"> 
+                > 
             </ion-radio>
         </ion-item>
     </ion-radio-group>

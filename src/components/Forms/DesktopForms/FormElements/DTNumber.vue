@@ -2,7 +2,7 @@
     <ion-item>
         <ion-input
             v-model="valueInput"
-            :placeholder="config?.component?.placeholder || ''"
+            :placeholder="config?.component?.placeholder || 'Enter numeric values only'"
             type="Number"
             inputmode="Number"
             :disabled="isDisabled"

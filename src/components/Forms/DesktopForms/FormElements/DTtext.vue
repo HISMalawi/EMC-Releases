@@ -6,7 +6,7 @@
             v-model="valueInput"
             :disabled="isDisabled"
             :value="valueInput"
-            :placeholder="config?.component?.placeholder || ''"
+            :placeholder="config?.component?.placeholder || 'Enter something'"
             :max="config?.component?.max || null"
             :min="config?.component?.max || null"/>
     </ion-item>

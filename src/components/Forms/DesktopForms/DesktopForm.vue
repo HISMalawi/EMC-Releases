@@ -15,7 +15,6 @@
                 <ion-row> 
                     <ion-col> 
                         <ion-label 
-                            position="stacked"
                             :style="{ fontWeight: 'bold'}"
                             :class="{
                                 'field-errors': hasErrors(field.id)

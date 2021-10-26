@@ -4,6 +4,7 @@
             v-model="valueInput"
             type="Password"
             inputmode="Password"
+            :disabled="isDisabled"
             :max="config?.component?.max || null"
             :min="config?.component?.max || null"
         />
