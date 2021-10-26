@@ -8,6 +8,7 @@ import Form from "@/components/Forms/DesktopForms/DesktopForm.vue"
 import { DtFieldInterface } from '@/components/Forms/DesktopForms/DTFieldInterface'
 import { DTFieldType } from '@/components/Forms/DesktopForms/DTFormElements'
 import Validation from "@/components/Forms/validations/StandardValidations"
+import { Option } from '@/components/Forms/FieldInterface'
 
 export default defineComponent({
     components: { Form },
@@ -18,11 +19,19 @@ export default defineComponent({
         this.fields = [
             {
                 id: 'first_name',
+                helpText: 'First name',
                 type: DTFieldType.DT_TEXT,
                 group: 'name',
-                validation: (val: any) => Validation.isName(val),
-                helpText: 'First name',
+                validation: (val: Option | Option[] | null) => Validation.isName(val),
                 required: true
+            },
+            {
+                id: 'middle_name',
+                type: DTFieldType.DT_TEXT,
+                helpText: 'Middle Name',
+                group: 'name',
+                required: false,
+                validation: (val: Option | Option[] | null) => Validation.isName(val)
             },
             {
                 id: 'last_name',
@@ -33,8 +42,15 @@ export default defineComponent({
                 required: true
             },
             {
+                id: 'birth_date',
+                helpText: 'Birth date',
+                group: 'birthdate-gender-section',
+                type: DTFieldType.DT_DATE
+            },
+            {
                 id: 'gender',
-                type: DTFieldType.DT_RADIO,
+                type: DTFieldType.DT_SELECT,
+                group: 'birthdate-gender-section',
                 helpText: 'Gender',
                 colSizes: {
                     md: 6,
@@ -53,11 +69,13 @@ export default defineComponent({
                 ]
             },
             {
-                id: 'birth_date',
-                helpText: 'Birth date',
-                type: DTFieldType.DT_DATE,
-                required: true
-            },
+                id: 'cellphone',
+                helpText: 'Cellphone Number',
+                type: DTFieldType.DT_TEXT,
+                validation: (
+                    val: Option | Option[] | null
+                ) => Validation.isMWPhoneNumber(val)
+            }
         ]
     }
 })

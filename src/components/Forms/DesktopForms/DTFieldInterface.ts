@@ -31,9 +31,9 @@ export interface DtFieldInterface {
      * Configure row size as displayed on different device  
      */
     colSizes?: {
-        sm: number;
-        md: number;
-        lg: number;
+        sm?: number;
+        md?: number;
+        lg?: number;
     };
     /**
      * Label for field
