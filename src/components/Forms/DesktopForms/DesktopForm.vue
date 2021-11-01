@@ -1,5 +1,5 @@
 <template>
-    <ion-grid> 
+    <ion-grid :style="{height:'99%', overflowX: 'auto'}"> 
         <ion-row
             v-for="(fields, rowIndex) in fieldRows"
             :key="rowIndex"
