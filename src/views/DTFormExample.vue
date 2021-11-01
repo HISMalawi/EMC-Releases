@@ -12,9 +12,9 @@ import { Option } from '@/components/Forms/FieldInterface'
 import { 
     getRegions, 
     getDistricts, 
-    getTraditionalAuthorities, 
-    getVillages
+
 } from "@/utils/HisFormHelpers/LocationFieldOptions"
+import { isEmpty } from "lodash"
 
 export default defineComponent({
     components: { Form },
@@ -28,11 +28,6 @@ export default defineComponent({
                 helpText: 'First name',
                 type: DTFieldType.DT_TEXT,
                 group: 'name',
-                colSizes: {
-                    md: 4,
-                    lg: 4,
-                    sm: 12
-                },
                 validation: (val: Option | Option[] | null) => Validation.isName(val),
                 required: true
             },
@@ -41,11 +36,6 @@ export default defineComponent({
                 type: DTFieldType.DT_TEXT,
                 helpText: 'Middle Name',
                 group: 'name',
-                colSizes: {
-                    md: 4,
-                    lg: 4,
-                    sm: 12
-                },
                 required: false,
                 validation: (val: Option | Option[] | null) => Validation.isName(val)
             },
@@ -53,11 +43,6 @@ export default defineComponent({
                 id: 'last_name',
                 type: DTFieldType.DT_TEXT,
                 group: 'name',
-                colSizes: {
-                    md: 4,
-                    lg: 4,
-                    sm: 12
-                },
                 validation: (val: any) => Validation.isName(val),
                 helpText: 'Last name',
                 required: true
@@ -75,9 +60,9 @@ export default defineComponent({
                 type: DTFieldType.DT_DATE,
                 onUpdateCondition: {
                     observes: ['is_birth_estimate'],
-                    update: ({value}: any) => {
-                        if (value) {
-                            return value.label === false
+                    update: (_: string, data: any) => {
+                        if (data) {
+                            return data.label === false
                         }
                         return true
                     }
@@ -91,9 +76,9 @@ export default defineComponent({
                 condition: false,
                 onUpdateCondition: {
                     observes: ['is_birth_estimate'],
-                    update: ({value}: any) => {
-                        if (value) {
-                            return value.label === true
+                    update: (_: string, data: any) => {
+                        if (data) {
+                            return data.label === true
                         }
                         return false
                     }
@@ -103,11 +88,6 @@ export default defineComponent({
                 id: 'gender',
                 type: DTFieldType.DT_SELECT,
                 helpText: 'Gender',
-                colSizes: {
-                    md: 12,
-                    lg: 12,
-                    sm: 12
-                },
                 options: [
                     {
                         label: 'Male',
@@ -137,22 +117,17 @@ export default defineComponent({
             {
                 id: 'current_district',
                 helpText: 'Current District',
-                type: DTFieldType.DT_MULTIPLE_SELECT,
+                type: DTFieldType.DT_SELECT,
                 group: 'physical-address',
-                onUpdateDefaultCheckOptions: {
+                onUpdateDefaultValueOption: {
                     observes: ['current_region'],
-                    update: () => {
-                        return []
-                    }
+                    update: () => ({})
                 },
                 onUpdateOptions: {
                     observes: ['current_region'],
-                    update: ({value}: any) => {
-                        if (value) {
-                            return getDistricts(value.value)
-                        }
-                        return []
-                    }
+                    update: (_, data: any) => {
+                        return !isEmpty(data) ? getDistricts(data.value) : []
+                    } 
                 }
             },
             {
