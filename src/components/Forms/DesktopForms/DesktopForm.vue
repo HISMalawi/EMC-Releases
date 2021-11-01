@@ -153,8 +153,7 @@ export default defineComponent({
          * Iterate all fields and detect validation errors
         */
         checkFieldErrors() {
-            const allAreValid = this.fields.map((f) => this.validate(f))
-            return allAreValid.every(Boolean)
+            return this.fields.map((f) => this.validate(f)).every(Boolean)
         },
         /**
          * Updates field values in value store and performs validation prior to 
@@ -163,8 +162,7 @@ export default defineComponent({
         onValue(value: Option | Option[] | null, field: DtFieldInterface) {
             this.curFieldUpdate = { field: field.id, value }
             this.formData[field.id] = value
-            const isvalid = this.validate(field)
-            if (!isvalid)
+            if (!this.validate(field))
                 return
             if (value != null) {
                 if (field.computeValue && value) {
