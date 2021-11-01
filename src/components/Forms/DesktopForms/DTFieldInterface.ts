@@ -4,10 +4,8 @@ import { DTFieldType } from "@/components/Forms/DesktopForms/DTFormElements"
 export interface DerivedInterface {
     observes: string[];
     update: (
-        tracking: {
-            field: string;
-            value: Option | Option[] | null;
-        },
+        field: string,
+        fieldData: Option | Option[] | null,
         FormData: Record<string, any>, 
         computedData: Record<string, any>
     ) => any;
@@ -27,14 +25,6 @@ export interface DtFieldInterface {
      * Group form fields together in a single row
      */
     group?: string;
-    /**
-     * Configure row size as displayed on different device  
-     */
-    colSizes?: {
-        sm?: number;
-        md?: number;
-        lg?: number;
-    };
     /**
      * Label for field
      */

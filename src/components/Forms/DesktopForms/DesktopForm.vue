@@ -6,11 +6,10 @@
             >
             <ion-col
                 v-for="(field, fieldIndex) in fields" 
-                :size-sm="field?.colSizes?.sm || ''"
-                :size-md="field?.colSizes?.md || ''"
-                :size-lg="field?.colSizes?.lg || ''" 
                 :key="fieldIndex"
-                v-show="updateFieldVisibility(field)"
+                size="12" 
+                size-sm
+                v-show="updateFieldCondition(field)"
                 >
                 <ion-row> 
                     <ion-col> 
@@ -30,13 +29,11 @@
                     <component
                         v-bind:is="field.type"
                         :key="field.id"
-                        :required="updateFieldRequired(field)"
-                        :options="updateFieldOptions(field)"
-                        :defaultValueInput="updateFieldDefaultValueInput(field)"
-                        :defaultValueOption="updateFieldDefaultValueOption(field)"
-                        :defaultCheckedOptions="updateFieldDefaultCheckedOptions(field)"
-                        :disabled="updateFieldDisabled(field)"
-                        :config="field.config ? field.config: {}"
+                        :fdata="formData"
+                        :cdata="computedData"
+                        :field="field"
+                        :config="field.config"
+                        :formUpdate="curFieldUpdate"
                         @onValue="(val) => onValue(val, field)">
                     </component>
                     </keep-alive>
@@ -173,7 +170,8 @@ export default defineComponent({
                 if (isEmpty(watcher.observes) 
                     || watcher.observes.includes(this.curFieldUpdate.field)) {
                     this.observerValueCache[fieldID] = watcher.update(
-                        this.curFieldUpdate, 
+                        this.curFieldUpdate.field,
+                        this.curFieldUpdate.value,  
                         this.formData, 
                         this.computedData
                     )
@@ -191,23 +189,8 @@ export default defineComponent({
         updateFieldHelpText(field: DtFieldInterface) {
             return this.updateField(field.id, field.onUpdateHelpText, field.helpText, 'Unknown')
         },
-        updateFieldOptions(field: DtFieldInterface) {
-            return this.updateField(field.id, field.onUpdateOptions, field.options, [])             
-        },
-        updateFieldVisibility(field: DtFieldInterface) {
+        updateFieldCondition(field: DtFieldInterface) {
             return this.updateField(field.id, field.onUpdateCondition, field.condition, true)
-        },
-        updateFieldDefaultValueInput(field: DtFieldInterface) {
-            return this.updateField(field.id, field.onUpdateDefaultValueInput, field.defaultValueInput, null)
-        },
-        updateFieldDefaultValueOption(field: DtFieldInterface) {
-            return this.updateField(field.id, field.onUpdateDefaultValueOption, field.defaultValueOption, null)
-        },
-        updateFieldDefaultCheckedOptions(field: DtFieldInterface) {
-            return this.updateField(field.id, field.onUpdateDefaultCheckOptions, field.defaultCheckedOptions, null)
-        },
-        updateFieldDisabled(field: DtFieldInterface) {
-            return this.updateField(field.id, field.onUpdateDisabled, field.disabled, false)
         },
         updateFieldRequired(field: DtFieldInterface) {
             return this.updateField(field.id, field.onUpdateRequired, field.required, true)
