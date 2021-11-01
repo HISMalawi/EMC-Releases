@@ -1,5 +1,5 @@
 <template>
-    <Form :fields="fields"/>
+    <Form :fields="fields" :onSubmitForm="onfinish"/>
 </template>
 
 <script lang="ts">
@@ -21,6 +21,11 @@ export default defineComponent({
     data: () => ({
         fields: [] as DtFieldInterface[]
     }),
+    methods: {
+        onfinish(f: any, c: any) {
+            console.log(f, c)
+        }
+    },
     created() {
         this.fields = [
             {
