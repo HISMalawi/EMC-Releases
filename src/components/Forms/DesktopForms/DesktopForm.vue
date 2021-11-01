@@ -49,7 +49,7 @@
         <ion-row>
             <ion-col>
                 <ion-button 
-                    :disabled="formHasErrors" 
+                    :disabled="isSubmitting || formHasErrors" 
                     @click="onSubmit">
                     Submit
                 </ion-button>
