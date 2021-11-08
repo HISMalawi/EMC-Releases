@@ -255,6 +255,7 @@ export default defineComponent({
         updateFieldCondition(field: DtFieldInterface) {
             const ok = this.updateField(field.id, field.onUpdateCondition, field.condition, true)
             if (!ok) {
+                this.fieldErrors[field.id] = []
                 this.formData[field.id] = null
                 if (field.computeValue) {
                     this.computedData[field.id] = null

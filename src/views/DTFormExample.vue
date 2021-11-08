@@ -42,6 +42,12 @@ export default defineComponent({
                 helpText: 'Middle Name',
                 group: 'name',
                 required: false,
+                onUpdateRequired: {
+                    observes: ['first_name'],
+                    update: (f: any, d: any) => {
+                        return !isEmpty(d)
+                    }
+                },
                 validation: (val: Option | Option[] | null) => Validation.isName(val)
             },
             {
