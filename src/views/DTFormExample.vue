@@ -116,6 +116,7 @@ export default defineComponent({
                 id: 'current_region',
                 helpText: 'Current Region',
                 type: DTFieldType.DT_SELECT,
+                required: true,
                 group: 'physical-address',
                 options: getRegions()
             },
@@ -124,6 +125,7 @@ export default defineComponent({
                 helpText: 'Current District',
                 type: DTFieldType.DT_SELECT,
                 group: 'physical-address',
+                required: true,
                 onUpdateDefaultValueOption: {
                     observes: ['current_region'],
                     update: () => ({})
@@ -139,6 +141,7 @@ export default defineComponent({
                 id: 'ta',
                 helpText: 'Traditional Authority',
                 type: DTFieldType.DT_SELECT,
+                required: true,
                 options: [
                     { label: 'Lilongwe village', value: 'Lilognwe Village'},
                     { label: 'Blantyre village', value: 'Blantyre village'},

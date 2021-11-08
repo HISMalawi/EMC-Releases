@@ -173,6 +173,7 @@ export default defineComponent({
             }
         },
         validate(field: DtFieldInterface) {
+            this.fieldErrors[field.id] = []
             const val = this.formData[field.id]
             if (field.required && isEmpty(val)) {
                 this.fieldErrors[field.id] = ['Value can not be Empty']
@@ -183,8 +184,6 @@ export default defineComponent({
                 if (errors) {
                     this.fieldErrors[field.id] = errors
                     return true
-                } else {
-                    this.fieldErrors[field.id] = []
                 }
             }
             return false
