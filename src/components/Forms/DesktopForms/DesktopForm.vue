@@ -251,7 +251,14 @@ export default defineComponent({
             return this.updateField(field.id, field.onUpdateHelpText, field.helpText, 'Unknown')
         },
         updateFieldCondition(field: DtFieldInterface) {
-            return this.updateField(field.id, field.onUpdateCondition, field.condition, true)
+            const ok = this.updateField(field.id, field.onUpdateCondition, field.condition, true)
+            if (!ok) {
+                this.formData[field.id] = null
+                if (field.computeValue) {
+                    this.computedData[field.id] = null
+                }
+            }
+            return ok
         },
         updateFieldRequired(field: DtFieldInterface) {
             return this.updateField(field.id, field.onUpdateRequired, field.required, true)
