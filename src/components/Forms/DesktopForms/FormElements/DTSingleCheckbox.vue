@@ -16,6 +16,11 @@ import { IonCheckbox, IonItem } from "@ionic/vue"
 export default defineComponent({
     name: "DT_CHECKBOX",
     components: { IonCheckbox, IonItem },
-    mixins:[DTMixinVue]
+    mixins:[DTMixinVue],
+    created() {
+        if (typeof this.valueInput === 'string') {
+            this.valueInput = false
+        }
+    }
 })
 </script>

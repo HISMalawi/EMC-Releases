@@ -6,7 +6,7 @@ import { isEmpty } from "lodash"
 
 export default defineComponent({
     data: () => ({
-        valueInput: '' as string | number,
+        valueInput: '' as string | number | boolean,
         valueOption: {} as Option | null,
         checkedOptionList: [] as Option[] | null,
         optionList: [] as Option[],
