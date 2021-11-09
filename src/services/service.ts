@@ -24,9 +24,12 @@ export class Service {
 
     static async postJson(url: string, data: any, genericError='Unable to save record') {
         const req = await ApiClient.post(url, data)
-
-        if (req && req.ok) return req?.json()
-
+        if (req && req.ok) {
+            if ([200, 201].includes(req.status)) {
+                return req?.json()
+            }
+            return {}
+        }
         throw genericError
     }
 
@@ -55,6 +58,11 @@ export class Service {
 
     static getActiveApp(): AppInterface | {} { 
         return HisApp.getActiveApp() || {}
+    }
+
+    static getUserID(): null | number {
+        const userID = sessionStorage.getItem('userID')
+        return userID ? parseInt(userID): null
     }
 
     static getUserLocation() {

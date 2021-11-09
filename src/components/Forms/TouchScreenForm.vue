@@ -2,6 +2,7 @@
   <!-- 
     HACK: dont remove the this, 
     some components dont render without it's presence
+    See: ProgrammeManagement.vue
   --->
   {{currentField}}
   <!-- END OF HACK --->
@@ -305,7 +306,7 @@ export default defineComponent({
             onload: () => visibilityCondition()
           },
         },
-        onClick: () => this.onFinishAction(),
+        onClick: () => this.goNext(),
       };
     },
     /**
@@ -409,19 +410,33 @@ export default defineComponent({
       };
     },
     /**
+     * Filters out fields with null values
+     */
+    resolveFormValues(formObj: Record<string, any>) {
+      const resolved: any = {}
+      for(const i in formObj) {
+        if (formObj[i] != null) {
+          resolved[i] = formObj[i]
+        }
+      }
+      return resolved
+    },
+    /**
      * Run default action when the form is submitted
     */
     async onFinishAction() {
+      const formData = this.resolveFormValues(this.formData)
+      const computedData = this.resolveFormValues(this.computedFormData)
       if (this.onFinish) {
         try {
           this.state = 'onsubmit'
-          return await this.onFinish(this.formData, this.computedFormData)
+          await this.onFinish(formData ,computedData)
         }catch(e) { 
           toastDanger(e) 
         }
       }
       this.state = 'onfinish'
-      this.$emit('onFinish', this.formData, this.computedFormData)
+      this.$emit('onFinish', formData, computedData)
     },
     /**
      * Goes to next component if they're no errors on the page
@@ -431,10 +446,8 @@ export default defineComponent({
       if (this.currentField.validation) {
         const value = this.formData[this.currentField.id];
         const errors = this.currentField.validation(
-          value,
-          this.formData,
-          this.computedFormData
-        );
+          value, this.formData, this.computedFormData
+        )
         if (errors) {
           return toastWarning(errors.join(", "), 3500);
         }
@@ -459,7 +472,7 @@ export default defineComponent({
 
         try {
           if (field.condition && !field.condition(this.formData)) {
-            this.formData[field.id] = null;
+            this.setDefaultOutputValue(field)
             continue;
           }
         } catch (e) {
@@ -467,6 +480,16 @@ export default defineComponent({
         }
         await this.setActiveField(i, "prev");
         return
+      }
+    },
+    setDefaultOutputValue(field: Field) {
+      this.formData[field.id] = field.defaultOutput 
+        ? field.defaultOutput(this.formData, this.computedFormData) 
+        : null;
+      if (field.computedValue) {
+        this.computedFormData[field.id] = field.defaultComputedOutput
+          ? field.defaultComputedOutput(this.formData, this.computedFormData)
+          : null
       }
     },
     /**
@@ -548,12 +571,11 @@ export default defineComponent({
 
         try {
           if (field.condition && !field.condition(this.formData)) {
-            this.formData[field.id] = null;
+            this.setDefaultOutputValue(field)
             continue;
           }
-        } catch (e) {
-          continue;
-        }
+        } catch (e) { continue }
+
         await this.setActiveField(i, "next");
         return;
       }

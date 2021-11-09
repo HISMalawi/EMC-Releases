@@ -1,6 +1,46 @@
 export default [
    {
       "categories": [],
+      "concept_id": 7054,
+      "name": "Art clinic location"
+   },
+   {
+      "categories": [
+         'art_patient_type'
+      ],
+      "order": 1,
+      "concept_id": 7572,
+      "name": "New patient"
+   },
+   {
+      "categories": ['art_patient_type'],
+      "order": 2,
+      "concept_id": 10522,
+      "name": "Drug Refill"
+   },
+   {
+      "categories": ['risk factors'],
+      "concept_id": 3720,
+      "name": "Diabetes"
+   },{
+      "categories": ['risk factors'],
+      "concept_id": 7623,
+      "name": "CKD"
+   },{
+      "categories": ['risk factors'],
+      "concept_id": 9499,
+      "name": "history of CVD"
+   },{
+      "categories": ['risk factors'],
+      "concept_id": 9501,
+      "name": "relative with CVD"
+   },{
+      "categories": ['risk factors'],
+      "concept_id": 3339,
+      "name": "patient smokes"
+   },
+   {
+      "categories": [],
       "concept_id": 3003,
       "name": "Transfer to"
    },
@@ -816,13 +856,6 @@ export default [
       "categories": [
          ""
       ],
-      "concept_id": 7572,
-      "name": "New patient"
-   },
-   {
-      "categories": [
-         ""
-      ],
       "concept_id": 5096,
       "name": "Appointment date"
    },
@@ -835,9 +868,10 @@ export default [
    },
    {
       "categories": [
-         ""
+         'art_patient_type'
       ],
       "concept_id": 9684,
+      "order": 3,
       "name": "External consultation"
    },
    {

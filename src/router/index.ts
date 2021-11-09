@@ -53,6 +53,11 @@ const routes: Array<RouteRecordRaw> = [
     }, 
   },
   {
+    path: '/example/desktop',
+    name: 'Desktop Example',
+    component: () => import('@/views/DTFormExample.vue')
+  },
+  {
     name: 'Update site location',
     path:'/location/update/site',
     component: () => import('@/views/SiteLocation.vue')
@@ -108,7 +113,7 @@ const routes: Array<RouteRecordRaw> = [
     component: PatientRegistration
   },
   {
-    path: '/guardian/registration',
+    path: '/guardian/registration/:patient_id',
     name: 'Guardian Registration',
     component: GuardianRegistration
   },

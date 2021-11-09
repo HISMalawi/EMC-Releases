@@ -39,6 +39,7 @@ const LOS: AppInterface = {
         {
             name: 'Clinical',
             icon: 'reports.png',
+            defaultFilesIcon: 'reports.png',
             files: [
                 {
                     name: 'Test requested',
