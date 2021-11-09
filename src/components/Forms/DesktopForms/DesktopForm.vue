@@ -48,11 +48,19 @@
             </ion-col>
         </ion-row>
         <ion-row>
-            <ion-col>
+            <ion-col size="6">
                 <ion-button 
                     :disabled="isSubmitting || formHasErrors" 
                     @click="onSubmit">
                     Submit
+                </ion-button>
+            </ion-col>
+            <ion-col size="6">
+                <ion-button
+                    color="danger"
+                    :disabled="isSubmitting" 
+                    @click="clearField='ALL'">
+                    Clear
                 </ion-button>
             </ion-col>
         </ion-row>

@@ -45,7 +45,7 @@ export default defineComponent({
     ],
     watch: {
         clear(f: string) {
-            if (f === this.field.id) {
+            if (f === this.field.id || f === 'ALL') {
                 this.valueInput = ''
                 this.valueOption = null
                 this.checkedOptionList = []
