@@ -154,6 +154,19 @@ export default defineComponent({
                     { label: 'Blantyre village', value: 'Blantyre village'},
                     { label: 'Zomba village', value: 'Zomba village'}
                 ]
+            },
+            {
+                id: "hobbies",
+                helpText: "Select your hobbies",
+                type: DTFieldType.DT_MULTIPLE_SELECT,
+                required: false,
+                options: [
+                    {label: 'Joggin', value: 'Jogging'},
+                    {label: 'walking', value: 'walking'},
+                    {label: 'running', value: 'running'},
+                    {label: 'cycling', value: 'cycling'},
+                    {label: 'jumping', value: 'jumping'}
+                ]
             }
         ]
     }

@@ -1,7 +1,7 @@
 <template>
     <ion-item>
         <ion-label> Select </ion-label>
-        <ion-select :disabled="isDisabled" multiple="true"> 
+        <ion-select :disabled="isDisabled" v-model="checkedOptionList" multiple="true"> 
             <ion-select-option
                 :key="index"
                 :value="option"
