@@ -14,6 +14,9 @@ export default defineComponent({
         isDisabled: false as boolean
     }),
     props: {
+        clear: {
+            type: String
+        },
         fdata: {
             type: Object,
             required: true
@@ -41,6 +44,13 @@ export default defineComponent({
         'onValue'
     ],
     watch: {
+        clear(f: string) {
+            if (f === this.field.id) {
+                this.valueInput = ''
+                this.valueOption = null
+                this.checkedOptionList = []
+            }
+        },
         field: {
             async handler(field: DtFieldInterface) {
                 if (!field) 

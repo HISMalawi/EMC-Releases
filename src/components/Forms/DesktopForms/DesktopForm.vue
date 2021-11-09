@@ -32,6 +32,7 @@
                         :fdata="formData"
                         :cdata="computedData"
                         :field="field"
+                        :clear="clearField"
                         :config="field.config"
                         :formUpdate="curFieldUpdate"
                         @onValue="(val) => onValue(val, field)">
@@ -94,6 +95,7 @@ export default defineComponent({
         }
     },
     data: () => ({
+        clearField: '' as string,
         fieldRows: [] as Array<DtFieldInterface[]>,
         formData: {} as Record<string, Option | Option[] | null>,
         computedData: {} as Record<string, any>,
@@ -283,6 +285,8 @@ export default defineComponent({
                 // Reset everything about this field
                 this.fieldErrors[field.id] = []
                 this.formData[field.id] = null
+                // Force active field to clear it's data store
+                this.clearField = field.id
                 if (field.computeValue) 
                     this.computedData[field.id] = null
             }
