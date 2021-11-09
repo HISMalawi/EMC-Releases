@@ -62,6 +62,7 @@ export default defineComponent({
                 id: 'is_birth_estimate',
                 helpText: 'Is birth unknown?',
                 group: 'birth-date',
+                required: false,
                 type: DTFieldType.DT_SINGLE_CHECKBOX
             },
             {
