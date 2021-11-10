@@ -1,16 +1,15 @@
 <template>
   <ion-menu menu-id="app-menu" content-id="main-content" type="push">
-    <ion-header>
+    <ion-header class="toolbar-size">
       <ion-toolbar>
-        <ion-title class="main-title">
-          <img :src="logo" alt="Master card logo" style="max-width: 14%"/>
-          <span class="ion-padding-start">
-            E-MASTERCARD
-          </span>
-        </ion-title>
+        <ion-item lines="none"> 
+          <ion-thumbnail slot="start"> 
+            <img :src="logo" class="logo" alt="Master card logo"/>
+          </ion-thumbnail>
+          <ion-label> E-MASTERCARD </ion-label>
+        </ion-item>
       </ion-toolbar>
     </ion-header>
-
     <ion-content>
       <ion-list>
         <ion-item
@@ -24,12 +23,11 @@
       </ion-list>
     </ion-content>
   </ion-menu>
-
   <ion-page id="main-content">
-    <ion-header>
+    <ion-header class="toolbar-size">
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-menu-button auto-hide="false" menu="start"> </ion-menu-button>
+          <ion-menu-button auto-hide="false"> </ion-menu-button>
         </ion-buttons>
         <ion-title>{{ title }}</ion-title>
       </ion-toolbar>
@@ -37,29 +35,22 @@
     <ion-content class="ion-padding">
       <slot> </slot>
     </ion-content>
-    <ion-footer>
-      <ion-toolbar color="light"> 
-        <ion-button slot="end" size="large"> Applications </ion-button>
-      </ion-toolbar>
-    </ion-footer>
   </ion-page>
 </template>
-
 <script lang="ts">
 import HisApp from "@/apps/EMC/app"
 import Img from "@/utils/Img"
 import { defineComponent } from "vue";
 import {
   IonPage,
-  IonFooter,
   IonContent,
   IonItem,
   IonList,
   IonMenu,
+  IonThumbnail,
   IonButtons,
   IonMenuButton,
   menuController,
-  IonMenuToggle,
   IonToolbar,
   IonHeader,
   IonTitle,
@@ -80,8 +71,8 @@ export default defineComponent({
     IonList,
     IonMenu,
     IonTitle,
+    IonThumbnail,
     IonButtons,
-    IonFooter,
     IonToolbar,
     IonHeader,
     IonMenuButton,
@@ -121,3 +112,8 @@ export default defineComponent({
   },
 });
 </script>
+<style scoped>
+  .toolbar-size {
+    height: 9vh;
+  }
+</style>
