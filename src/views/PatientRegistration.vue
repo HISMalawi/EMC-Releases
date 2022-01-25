@@ -217,10 +217,22 @@ export default defineComponent({
         return name
     },
     genderField(): Field {
+        const IS_ANC_APP = this.app.applicationName === 'ANC'
         const gender: Field = PersonField.getGenderField()
         gender.requireNext = this.isEditMode()
-        gender.condition = () => this.editConditionCheck(['gender'])
         gender.defaultValue = () => this.presets.gender
+        gender.condition = () => {
+            if (!this.isEditMode() && IS_ANC_APP) {
+                return false
+            }
+            return this.editConditionCheck(['gender'])
+        }
+
+        if (IS_ANC_APP && !this.isEditMode()) {
+            gender.defaultOutput = () => ({ label: 'Female', value: 'F' })
+            gender.defaultComputedOutput = () => ({ person: 'F' })
+        } 
+
         gender.beforeNext = async (data: Option) => {
             /**
              * Provide warning when changing gender in edit mode
