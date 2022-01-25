@@ -30,12 +30,11 @@ export default defineComponent({
             const data = await AncService.getStats()
             const keys = [1, 2, 3, 4, '>5']
             return keys.map((i: string | number) => [
-                    table.td(`${i} ${i === 1 ? 'visit' : 'visits'}`), 
-                    table.td(data.user[i]),
-                    table.td(data.today[i]),
-                    table.td(data.year[i])
-                ]
-            )
+                table.td(`${i} ${i === 1 ? 'visit' : 'visits'}`), 
+                table.td(data.user[i]),
+                table.td(data.today[i]),
+                table.td(data.year[i])
+            ])
         }        
         return {
             getRows,
