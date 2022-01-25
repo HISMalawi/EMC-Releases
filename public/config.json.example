@@ -5,6 +5,7 @@
 	"apps": [
 		{ "name": "ART", "available": true },
 		{ "name": "LOS", "available": true },
-		{ "name": "OPD", "available": true }
+		{ "name": "OPD", "available": true },
+		{ "name": "ANC", "available": true }
 	]
 }
