@@ -1,6 +1,11 @@
 export default [
    {
       "categories": [],
+      "concept_id": 7124,
+      "name": "Tetanus toxoid vaccine"
+   },
+   {
+      "categories": [],
       "concept_id": 2592,
       "name": "Clinician notes"
    },
