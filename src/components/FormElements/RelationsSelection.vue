@@ -93,7 +93,7 @@ export default defineComponent({
 <style scoped>
 .view-port-content {
     overflow-x: auto;
-    height: 80%;
+    height: 81%;
 }
 .tool-bar-medium-card {
     height: 105px;    
@@ -105,7 +105,7 @@ export default defineComponent({
     text-align: center;
 }
 .his-card {
-    height: 110px;
+    /* height: 110px; */
     margin: 0;
     padding: 0;
     overflow: hidden;
