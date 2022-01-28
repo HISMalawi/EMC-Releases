@@ -4,14 +4,14 @@
       <ion-title>Select activities</ion-title>
     </ion-toolbar>
   </ion-header>
-  <ion-content class="ion-padding">
-    <ion-list style="height: 90%; overflow-x: auto;">
+  <ion-content>
+    <ion-list style="height: 90%; overflow-x: auto; margin: 10px;">
       <ion-item v-for="(entry, index) in appActivities" :key="index" color="light">
         <ion-label> {{ entry.value }} </ion-label>
         <ion-checkbox v-model="entry.selected" slot="start"/>
       </ion-item>
     </ion-list>
-    <ion-button @click="postActivities" :disabled="selectedActivities.length == 0">finish</ion-button>
+    <ion-button @click="postActivities" :disabled="selectedActivities.length == 0"  class="custom-button">finish</ion-button>
   </ion-content>
 </template>
 <script lang="ts">
@@ -119,3 +119,11 @@ export default defineComponent({
   },
 });
 </script>
+<style scoped>
+  .custom-button{
+    float: right;
+    margin-top: -6px;
+    margin-right: 12px;
+    height: 43px;
+  }
+</style>

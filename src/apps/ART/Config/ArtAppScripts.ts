@@ -53,7 +53,7 @@ async function showArtActivities() {
         }))
     const modal = await modalController.create({
         component: ActivitiesModal,
-        cssClass: "my-custom-class",
+        cssClass: "large-modal",
         backdropDismiss: false,
         componentProps: {
             activities
