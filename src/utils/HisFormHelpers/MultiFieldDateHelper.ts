@@ -92,7 +92,10 @@ export function getAgeEstimateField(id: string, name: string): Field {
     return {
         id,
         helpText: `${name} Age Estimate`,
-        type: FieldType.TT_NUMBER,
+        type: FieldType.TT_TEXT,
+        config: {
+            customKeyboard: [NUMBER_PAD_LO, [["Delete"]]],
+        },
         appearInSummary: () => false
     }
 }
