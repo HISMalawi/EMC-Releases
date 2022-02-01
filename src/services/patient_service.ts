@@ -55,14 +55,23 @@ export class Patientservice extends Service {
         return JSON.stringify(value);
     }
 
-    public static async getPatientVisits(patientId: number) {
+    public static async getPatientVisits(patientId: number, includeDefaulterDates: boolean) {
         const dates: string[] = await super.getJson(`patients/${patientId}/visits`, {
-            'program_id': super.getProgramID()
+            'program_id': super.getProgramID(),
+            'include_defaulter_dates': (includeDefaulterDates == true)
         })
         if (dates) {
             return dates.sort((a, b) => new Date(a) < new Date(b) ? 1 : 0)
         }
         return []
+    }
+
+    getWeightLossPercentageFromTrail(trail: any) {
+      const [curWeight, prevWeight] = trail.map((w: any) => w.weight)
+      if (!(curWeight && prevWeight)) return false
+      const decrease = parseFloat(prevWeight) - parseFloat(curWeight)
+      const weightLossPercent = (decrease / prevWeight) * 100
+      return Math.round(weightLossPercent)
     }
 
     getGuardian() {
@@ -82,8 +91,14 @@ export class Patientservice extends Service {
     }
 
     async isPregnant() {
-        const query = await ObservationService.getFirstValueCoded(this.getID(), 'Is patient pregnant')
-        return query ? query === 'Yes' : false
+        const obs = await ObservationService.getFirstObs(this.getID(), 'Is patient pregnant')
+        return obs && (obs.value_coded.match(/Yes/i) ? true : false) 
+            && ObservationService.obsInValidPeriod(obs)
+    }
+
+    async hasPregnancyObsToday() {
+        const date = await ObservationService.getFirstObsDatetime(this.getID(), 'Is patient pregnant')
+        return date && HisDate.toStandardHisFormat(date) === Service.getSessionDate() && this.isFemale()
     }
 
     isChildBearing() {
@@ -223,6 +238,11 @@ export class Patientservice extends Service {
 
     getFullName() {
         return getFullName(this.patient.person.names[0]);
+    }
+
+    getDocID() {
+        const id = this.findIdentifierByType('DDE person document ID')
+        return id.match(/unknown/i) ? null : id
     }
 
     getNationalID() {

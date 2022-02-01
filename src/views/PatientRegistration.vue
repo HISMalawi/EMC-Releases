@@ -102,7 +102,7 @@ export default defineComponent({
         fields.push(this.currentDistrictField())
         fields.push(this.currentTAField())
         fields.push(this.currentVillage())
-        fields.push(this.landmarkField())
+        fields = fields.concat(this.landmarkFields())
         fields.push(this.cellPhoneField())
         fields.push(this.patientTypeField())
         fields.push(this.facilityLocationField())
@@ -227,10 +227,22 @@ export default defineComponent({
         return name
     },
     genderField(): Field {
+        const IS_CXCA = this.app.applicationName === 'CxCa'
         const gender: Field = PersonField.getGenderField()
         gender.requireNext = this.isEditMode()
-        gender.condition = () => this.editConditionCheck(['gender'])
         gender.defaultValue = () => this.presets.gender
+        gender.condition = () => {
+            if (!this.isEditMode() && IS_CXCA) {
+                return false
+            }
+            return this.editConditionCheck(['gender'])
+        }
+
+        if (IS_CXCA && !this.isEditMode()) {
+            gender.defaultOutput = () => ({ label: 'Female', value: 'F' })
+            gender.defaultComputedOutput = () => ({ person: 'F' })
+        } 
+
         gender.beforeNext = async (data: Option) => {
             /**
              * Provide warning when changing gender in edit mode
@@ -323,10 +335,10 @@ export default defineComponent({
        ].includes(form.patient_type.value)
        return facility
     },
-    landmarkField(): Field {
-        const landmark: Field = PersonField.getLandmarkField()
-        landmark.condition = () => this.editConditionCheck(['land_mark'])
-        return landmark
+    landmarkFields(): Field[] {
+        const landmarks: Field[] = PersonField.getLandmarkFields()
+        landmarks[0].condition = () => this.editConditionCheck(['landmark'])
+        return landmarks
     },
     patientTypeField(): Field {
         return {
@@ -426,12 +438,13 @@ export default defineComponent({
         })
     },
     relationshipField(): Field {
+        const IS_CXCA = this.app.applicationName === 'CxCa'
         return {
             id: 'relationship',
             helpText: 'Register guardian?',
             type: FieldType.TT_SELECT,
             computedValue: (val: Option) => ({person: val.value}),
-            condition: () => this.editConditionCheck(['relationship']),
+            condition: () => this.editConditionCheck(['relationship']) && !IS_CXCA,
             validation: (val: any) => Validation.required(val),
             options: () => this.mapToOption(['Yes', 'No'])
         }
