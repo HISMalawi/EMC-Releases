@@ -281,6 +281,37 @@ export default defineComponent({
                     validation: (val: Option) => Validation.required(val)
                 },
                 {
+                    id: 'current_regimen',
+                    helpText: 'Last ARV drugs taken',
+                    type: FieldType.TT_SELECT,
+                    options: () => [
+                        { label: 'Placeholder', value: 'Placeholder'}
+                    ],
+                    condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i) ? true : false,
+                    validation: (v: Option) => Validation.required(v),
+                },
+                {
+                    id: 'other_regimen_received',
+                    helpText: 'Last ARV drugs taken',
+                    type: FieldType.TT_MULTIPLE_SELECT,
+                    options: () => [
+                        { label: 'Placeholder', value: 'Placeholder'}
+                    ],
+                    validation: (v: Option[]) => Validation.required(v),
+                    condition: (f: any) => `${f.current_regimen.value}`.match(/other/i) ? true : false 
+                },
+                {
+                    id: 'arv_quantity',
+                    helpText: 'Amount of medication received',
+                    type: FieldType.TT_ADHERENCE_INPUT,
+                    validation: (v: Option[]) => Validation.required(v),
+                    options: () => [
+                        {label: 'Placeholder', value: ''},
+                        {label: 'Placeholder2', value:''},
+                    ],
+                    condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i) ? true : false
+                },
+                {
                     id: 'has_transfer_letter',
                     helpText: 'Has staging information?',
                     type: FieldType.TT_SELECT,
