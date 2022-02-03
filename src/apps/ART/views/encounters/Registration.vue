@@ -5,7 +5,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { FieldType } from "@/components/Forms/BaseFormElements"
-import { Option } from "@/components/Forms/FieldInterface"
+import { Field, Option } from "@/components/Forms/FieldInterface"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import StagingMixin from "@/apps/ART/views/encounters/StagingMixin.vue"
 import {ClinicRegistrationService} from "@/apps/ART/services/registration_service"
@@ -17,6 +17,8 @@ import { generateDateFields, EstimationFieldType } from "@/utils/HisFormHelpers/
 import { infoActionSheet } from "@/utils/ActionSheets"
 import HisDate from "@/utils/Date"
 import dayjs from "dayjs";
+import { PrescriptionService } from '../../services/prescription_service'
+import { isEmpty } from 'lodash'
 
 export default defineComponent({
     mixins: [StagingMixin],
@@ -282,34 +284,56 @@ export default defineComponent({
                 },
                 {
                     id: 'current_regimen',
+                    proxyID: 'arvs_received',
                     helpText: 'Last ARV drugs taken',
                     type: FieldType.TT_SELECT,
                     options: () => [
-                        { label: 'Placeholder', value: 'Placeholder'}
+                        { label: 'Other', value: 'Other' }
                     ],
-                    condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i) ? true : false,
                     validation: (v: Option) => Validation.required(v),
+                    condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i) ? true : false
+                },
+                {
+                    id: 'amount_of_arv',
+                    helpText: 'Enter amount received',
+                    type: FieldType.TT_NUMBER,
+                    dynamicHelpText: (f: any) => `Amount received for ${f.current_regimen.label}`,
+                    validation: (v: Option) => Validation.required(v),
+                    condition: (f: any) => !f.current_regimen.value.match(/other/i)
                 },
                 {
                     id: 'other_regimen_received',
+                    proxyID: 'arvs_received',
                     helpText: 'Last ARV drugs taken',
                     type: FieldType.TT_MULTIPLE_SELECT,
-                    options: () => [
-                        { label: 'Placeholder', value: 'Placeholder'}
-                    ],
                     validation: (v: Option[]) => Validation.required(v),
-                    condition: (f: any) => `${f.current_regimen.value}`.match(/other/i) ? true : false 
+                    options: async () => {
+                        const p = new PrescriptionService(this.patientID, this.providerID)
+                        const drugs = await p.getCustomIngridients()
+                        return drugs.map((drug: any ) => ({
+                            label: drug.name,
+                            value: drug.drug_id,
+                            other: { ...drug }
+                        }))
+                    },
+                    config: {
+                        showKeyboard: true
+                    },
+                    condition: (f: any) => `${f.current_regimen.value}`.match(/other/i)
                 },
                 {
                     id: 'arv_quantity',
                     helpText: 'Amount of medication received',
                     type: FieldType.TT_ADHERENCE_INPUT,
                     validation: (v: Option[]) => Validation.required(v),
-                    options: () => [
-                        {label: 'Placeholder', value: ''},
-                        {label: 'Placeholder2', value:''},
-                    ],
-                    condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i) ? true : false
+                    options: (f: any) => {
+                        return f.arvs_received.map((d: Option) => ({
+                            label: d.label,
+                            value: '',
+                            other: d.other
+                        }))
+                    },
+                    condition: (f: any) => `${f.current_regimen.value}`.match(/other/i)
                 },
                 {
                     id: 'has_transfer_letter',
