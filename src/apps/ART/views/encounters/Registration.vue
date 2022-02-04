@@ -306,11 +306,11 @@ export default defineComponent({
                 },
                 ...generateDateFields({
                     id: 'date_last_received_arvs',
-                    helpText: 'Last ARV Dispensation',
+                    helpText: 'Last ARVs Received',
                     required: true,
                     condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i) ? true : false,
-                    minDate: () => this.patient.getBirthdate(),
-                    maxDate: (f: any, c: any) => c['date_started_art'].date,
+                    minDate: (f: any, c: any) => c['date_started_art'].date,
+                    maxDate: () => this.registration.getDate(),
                     computeValue: (date: string) => {
                         this.prescription.setDate(date)
                         this.dispensation.setDate(date)
@@ -323,7 +323,7 @@ export default defineComponent({
                 {
                     id: 'arv_regimen_selection',
                     proxyID: 'arvs_received',
-                    helpText: 'Last ARV drugs taken',
+                    helpText: 'Last ARV Regimens received',
                     type: FieldType.TT_ART_REGIMEN_SELECTION,
                     computedValue: (v: Option) => v.other,
                     options: async () => {
@@ -350,7 +350,7 @@ export default defineComponent({
                 {
                     id: 'other_arv_regimens_received',
                     proxyID: 'arvs_received',
-                    helpText: 'Last ARV drugs taken',
+                    helpText: 'Other Last ARV drugs received',
                     type: FieldType.TT_MULTIPLE_SELECT,
                     validation: (v: Option[]) => Validation.required(v),
                     computedValue: (v: Option[]) => v.map(d => d.other),
@@ -372,7 +372,7 @@ export default defineComponent({
                 },
                 {
                     id: 'arv_quantities',
-                    helpText: 'Amount of medication received',
+                    helpText: 'Amount of drugs received',
                     type: FieldType.TT_ADHERENCE_INPUT,
                     validation: (v: Option[]) => Validation.required(v),
                     computedValue: (v: Option[]) => {
