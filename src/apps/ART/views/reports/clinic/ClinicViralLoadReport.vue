@@ -85,7 +85,6 @@ export default defineComponent({
             this.setRows((await this.report.getViralLoadResults(resultType.value.toLowerCase())))
         },
         async setRows(data: Array<any>) {
-            console.log(data)
             data.forEach((d: any) => {
                this.rows.push([
                     table.td(d.arv_number),
@@ -93,7 +92,7 @@ export default defineComponent({
                     table.tdDate(d.birthdate),
                     table.td(d.specimen),
                     table.tdDate(d.order_date),
-                    table.td(d.result),
+                    table.td(`${d.result_modifier || ''} ${d.result}`),
                     table.tdDate(d.result_date)                    
                ])
             })
