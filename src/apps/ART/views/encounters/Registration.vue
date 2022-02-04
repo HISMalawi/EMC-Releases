@@ -25,6 +25,8 @@ export default defineComponent({
     mixins: [StagingMixin],
     data: () => ({
         registration: {} as any,
+        regimens: [] as Option[],
+        customRegimens: [] as Option[],
         vitals: {} as any,
     }),
     watch: {
@@ -284,12 +286,16 @@ export default defineComponent({
                     validation: (val: Option) => Validation.required(val)
                 },
                 {
-                    id: 'current_regimen',
+                    id: 'arv_regimen_selection',
                     proxyID: 'arvs_received',
                     helpText: 'Last ARV drugs taken',
                     type: FieldType.TT_ART_REGIMEN_SELECTION,
-                    computedValue: (v: Option) =>({ arvs: v.other }),
+                    computedValue: (v: Option) =>({ 
+                        tag: 'arvs', obs: v.other 
+                    }),
                     options: async () => {
+                        if (!isEmpty(this.regimens)) return this.regimens
+
                         const regimens = await RegimenService.getAllArvRegimens()
                         const options = Object.keys(regimens)
                             .map((r: string) => {
@@ -303,53 +309,59 @@ export default defineComponent({
                                     other: drugs
                                 }
                             })
-                        return [ ...options, this.toOption('Other')]
+
+                        this.regimens = [ ...options, this.toOption('Other')]
+                        return this.regimens
                     },
                     validation: (v: Option) => Validation.required(v),
                     condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i) ? true : false
                 },
                 {
-                    id: 'amount_of_arv',
-                    helpText: 'Enter amount received',
-                    type: FieldType.TT_NUMBER,
-                    dynamicHelpText: (f: any) => `Amount received for ${f.current_regimen.label}`,
-                    validation: (v: Option) => Validation.required(v),
-                    condition: (f: any) => !f.current_regimen.value.match(/other/i)
-                },
-                {
-                    id: 'other_regimen_received',
+                    id: 'other_arv_regimens_received',
                     proxyID: 'arvs_received',
                     helpText: 'Last ARV drugs taken',
                     type: FieldType.TT_MULTIPLE_SELECT,
                     validation: (v: Option[]) => Validation.required(v),
-                    computedValue: (v: Option[]) => ({ arvs: v.map(d => d.other) }),
+                    computedValue: (v: Option[]) => ({ 
+                        tag: 'arvs',
+                        obs: v.map(d => d.other)
+                    }),
                     options: async () => {
+                        if (!isEmpty(this.customRegimens)) return this.customRegimens
                         const p = new PrescriptionService(this.patientID, this.providerID)
-                        const drugs = await p.getCustomIngridients()
-                        return drugs.map((drug: any ) => ({
-                            label: drug.name,
-                            value: drug.drug_id,
-                            other: { ...drug }
-                        }))
+                        this.customRegimens = (await p.getCustomIngridients())
+                            .map((drug: any ) => ({
+                                label: drug.name,
+                                value: drug.drug_id,
+                                other: { ...drug }
+                            })) as Option[]
+                        return this.customRegimens
                     },
                     config: {
                         showKeyboard: true
                     },
-                    condition: (f: any) => `${f.current_regimen.value}`.match(/other/i)
+                    condition: (f: any) => `${f.arv_regimen_selection.value}`.match(/other/i)
                 },
                 {
                     id: 'arv_quantity',
                     helpText: 'Amount of medication received',
                     type: FieldType.TT_ADHERENCE_INPUT,
                     validation: (v: Option[]) => Validation.required(v),
-                    options: (f: any) => {
-                        return f.arvs_received.map((d: Option) => ({
-                            label: d.label,
-                            value: '',
-                            other: d.other
-                        }))
+                    options: (_: any, c: any) => {
+                        return c.arvs_received.obs
+                            .map((d: any) => ({
+                                label: d['alternative_drug_name'] || d['drug_name'] || d['name'],
+                                value: '',
+                                other: d
+                            }))
                     },
-                    condition: (f: any) => `${f.current_regimen.value}`.match(/other/i)
+                    condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i),
+                    config: {
+                        titles: {
+                            label: 'Drugs',
+                            value: 'Amount Received'
+                        }
+                    }
                 },
                 {
                     id: 'has_transfer_letter',
