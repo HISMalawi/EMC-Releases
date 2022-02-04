@@ -19,6 +19,7 @@ import HisDate from "@/utils/Date"
 import dayjs from "dayjs";
 import { PrescriptionService } from '../../services/prescription_service'
 import { isEmpty } from 'lodash'
+import { RegimenService } from '@/services/regimen_service'
 
 export default defineComponent({
     mixins: [StagingMixin],
@@ -286,10 +287,24 @@ export default defineComponent({
                     id: 'current_regimen',
                     proxyID: 'arvs_received',
                     helpText: 'Last ARV drugs taken',
-                    type: FieldType.TT_SELECT,
-                    options: () => [
-                        { label: 'Other', value: 'Other' }
-                    ],
+                    type: FieldType.TT_ART_REGIMEN_SELECTION,
+                    computedValue: (v: Option) =>({ arvs: v.other }),
+                    options: async () => {
+                        const regimens = await RegimenService.getAllArvRegimens()
+                        const options = Object.keys(regimens)
+                            .map((r: string) => {
+                                const drugs = regimens[r]
+                                const label = drugs.map((d: any) => 
+                                    d.alternative_drug_name || d.concept_name)
+                                    .join(' + ')
+                                return { 
+                                    label,
+                                    value: r,
+                                    other: drugs
+                                }
+                            })
+                        return [ ...options, this.toOption('Other')]
+                    },
                     validation: (v: Option) => Validation.required(v),
                     condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i) ? true : false
                 },
@@ -307,6 +322,7 @@ export default defineComponent({
                     helpText: 'Last ARV drugs taken',
                     type: FieldType.TT_MULTIPLE_SELECT,
                     validation: (v: Option[]) => Validation.required(v),
+                    computedValue: (v: Option[]) => ({ arvs: v.map(d => d.other) }),
                     options: async () => {
                         const p = new PrescriptionService(this.patientID, this.providerID)
                         const drugs = await p.getCustomIngridients()
