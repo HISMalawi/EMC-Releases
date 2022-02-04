@@ -63,7 +63,7 @@ export default defineComponent({
   },
   async activated() {
     this.$emit('onFieldActivated', this)
-    this.listData = await this.options(this.fdata, this.cdata)
+    this.listData = await this.options(this.fdata, this.cdata, this.listData)
   },
   methods: {
     async launchKeyPad(item: Option) {

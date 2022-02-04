@@ -309,7 +309,7 @@ export default defineComponent({
                  */
                 ...generateDateFields({
                     id: 'date_last_received_arvs',
-                    helpText: 'Last ARVs Received',
+                    helpText: 'Last ARV Dispensation',
                     required: true,
                     condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i) ? true : false,
                     minDate: (f: any, c: any) => c['date_started_art'].date,
@@ -326,7 +326,7 @@ export default defineComponent({
                 {
                     id: 'arv_regimen_selection',
                     proxyID: 'arvs_received',
-                    helpText: 'Last ARV Regimen received',
+                    helpText: 'Last ARV Regimen dispensed',
                     type: FieldType.TT_ART_REGIMEN_SELECTION,
                     computedValue: (v: Option) => v.other,
                     options: async () => {
@@ -353,7 +353,7 @@ export default defineComponent({
                 {
                     id: 'other_arv_regimens_received',
                     proxyID: 'arvs_received',
-                    helpText: 'Other Last ARV drugs received',
+                    helpText: 'Other Last ARV drugs dispensed',
                     type: FieldType.TT_MULTIPLE_SELECT,
                     validation: (v: Option[]) => Validation.required(v),
                     computedValue: (v: Option[]) => v.map(d => d.other),
@@ -375,7 +375,7 @@ export default defineComponent({
                 },
                 {
                     id: 'arv_quantities',
-                    helpText: 'Amount of drugs received',
+                    helpText: 'Amount of drugs dispensed',
                     type: FieldType.TT_ADHERENCE_INPUT,
                     validation: (v: Option[]) => this.validateSeries([
                         () => Validation.required(v),
@@ -411,13 +411,17 @@ export default defineComponent({
                         }
                         return { arvDrugOrders, buildDispensationOrders }
                     },
-                    options: (_: any, c: any) => {
+                    options: (_: any, c: any, listData: Option) => {
                         return c.arvs_received
-                            .map((d: any) => ({
-                                label: d['alternative_drug_name'] || d['drug_name'] || d['name'],
-                                value: '',
-                                other: d
-                            }))
+                            .map((d: any) => {
+                                const drugName = d['alternative_drug_name'] || d['drug_name'] || d['name']
+                                const prevValue = find(listData, { label: drugName })
+                                return {
+                                    label: drugName,
+                                    value: prevValue ? prevValue.value : '',
+                                    other: d
+                                } 
+                            })
                     },
                     condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i),
                     config: {
