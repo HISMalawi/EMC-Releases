@@ -304,6 +304,9 @@ export default defineComponent({
                     }),
                     validation: (val: Option) => Validation.required(val)
                 },
+                /**
+                 * DRUG TRANSFER IN INITIATION 
+                 */
                 ...generateDateFields({
                     id: 'date_last_received_arvs',
                     helpText: 'Last ARVs Received',
@@ -323,7 +326,7 @@ export default defineComponent({
                 {
                     id: 'arv_regimen_selection',
                     proxyID: 'arvs_received',
-                    helpText: 'Last ARV Regimens received',
+                    helpText: 'Last ARV Regimen received',
                     type: FieldType.TT_ART_REGIMEN_SELECTION,
                     computedValue: (v: Option) => v.other,
                     options: async () => {
@@ -374,7 +377,13 @@ export default defineComponent({
                     id: 'arv_quantities',
                     helpText: 'Amount of drugs received',
                     type: FieldType.TT_ADHERENCE_INPUT,
-                    validation: (v: Option[]) => Validation.required(v),
+                    validation: (v: Option[]) => this.validateSeries([
+                        () => Validation.required(v),
+                        () => {
+                            return v.map((i: Option) => i.value === '')
+                                .some(Boolean) ? ['Some Drugs are missing values'] : null
+                        }
+                    ]),
                     computedValue: (v: Option[]) => {
                         // Prescription object for creating treatment encounter and orders
                         const arvDrugOrders = v.map(
@@ -464,6 +473,9 @@ export default defineComponent({
                         showRegimenCardTitle: false
                     }
                 },
+                /**
+                 * END OF DRUG TRANSFER IN
+                 */
                 {
                     id: 'has_transfer_letter',
                     helpText: 'Has staging information?',
