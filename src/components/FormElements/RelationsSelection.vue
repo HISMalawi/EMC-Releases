@@ -105,7 +105,7 @@ export default defineComponent({
     text-align: center;
 }
 .his-card {
-    /* height: 110px; */
+    height: 100%;
     margin: 0;
     padding: 0;
     overflow: hidden;
