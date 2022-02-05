@@ -18,7 +18,7 @@ import { defineComponent } from 'vue'
 import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
 import { DisaggregatedReportService } from "@/apps/ART/services/reports/disaggregated_service"
 import { toastWarning } from '@/utils/Alerts'
-import { isEmpty, uniq } from "lodash"
+import { isEmpty } from "lodash"
 import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { Option } from '@/components/Forms/FieldInterface'
@@ -43,18 +43,9 @@ export default defineComponent({
                 table.thNum('TX curr (screened for TB)')
             ]
         ],
+        aggregations: [] as Array<any>,
         mohCohort: {} as any,
         ageGroupCohort: {} as any,
-        totalNewF: [] as Array<any>,
-        totalCurF: [] as Array<any>,
-        totalIptF: [] as Array<any>,
-        totalTbF:  [] as Array<any>,
-        totalNewM: [] as Array<any>,
-        totalCurM: [] as Array<any>,
-        totalIptM: [] as Array<any>,
-        totalTbM:  [] as Array<any>,
-        pregnantF: [] as Array<any>,
-        txtNewFp: [] as Array<any>,
         canValidate: false as boolean,
         sortIndexes: {} as Record<string | number, Array<any>>
     }),
@@ -86,12 +77,17 @@ export default defineComponent({
             this.setHeaderInfoList()
             this.canValidate = true
         },
+        getTotals(compareFunction: Function){
+            return this.aggregations
+                .filter(i => compareFunction(i))
+                .reduce((counter, cur) => counter += cur.data.length, 0)
+        },
         setHeaderInfoList(validationStatus='<span style="color: orange;font-weight:bold">Validating report....please wait...</span>') {
-            const totalAlive = this.totalCurF.concat(this.totalCurM)
+            const totalAlive = this.getTotals((i: any) => i.col === 'txCurr' && !['Pregnant', 'Breastfeeding'].includes(i.group))
             this.headerList = [
                 { 
                     label: 'Total Alive and on ART', 
-                    value: totalAlive.length,
+                    value: totalAlive,
                     other: {
                         onclick: () => this.runTableDrill(totalAlive, 'Total Alive and on ART')
                     }
@@ -132,106 +128,78 @@ export default defineComponent({
             return res
         },
         setTotalMalesRow(sortIndex: number) {
+            const totals = this.aggregations
+                .filter((a: any) => a.category === 'M')
+                .reduce((accum, cur) => {
+                    if (!accum[cur.col]) accum[cur.col] = []
+                    accum[cur.col] = accum[cur.col].concat(cur.data)
+                    return accum
+                },{})
             const row = [
-                table.td('All'), 
-                table.td('Male'), 
-                this.drill(this.totalNewM, 'Tx New (new on ART) Males'),
-                this.drill(this.totalCurM, 'Total Curr (received ART) Males'),
-                this.drill(this.totalIptM, 'Total Curr (received IPT) Males'),
-                this.drill(this.totalTbM, 'Total Curr (screened for TB) Males')
+                table.td('All'),
+                table.td('Male'),
+                this.drill(totals.txNew, 'Tx New (new on ART) Males'),
+                this.drill(totals.txCurr, 'Total Curr (received ART) Males'),
+                this.drill(totals.txGivenIpt, 'Total Curr (received IPT) Males'),
+                this.drill(totals.txScreenTB, 'Total Curr (screened for TB) Males')
             ]
             this.rows.push(row)
             this.sortIndexes[sortIndex] = [row]
-
         },
         setFemaleNotPregnantRows(sortIndex: number) {
-            const row = [
-                [this.totalNewF, 'Tx New (new on ART) FNP'], 
-                [this.totalCurF, 'Tx Curr (receiving ART) FNP'], 
-                [this.totalIptF, 'Tx Curr (received IPT) FNP'],
-                [this.totalTbF, 'Tx Curr (screened for TB) FNP']
-            ].map(([row, context]: any) => {
-                const femaleNotPregnant = row.filter((i: any) => !this.pregnantF.includes(i))
-                return this.drill(femaleNotPregnant, context)
-            })
-            const r = [ table.td('All'), table.td('FNP'), ...row ]
-            this.rows.push(r)
-            this.sortIndexes[sortIndex] = [r]
+            const isPregnant = (patientID: number) => this.aggregations
+                .filter((a: any) => ['Pregnant', 'Breastfeeding'].includes(a.group))
+                .reduce((accum, cur) => accum.concat(cur.data), [])
+                .includes(patientID)
+            const totals = this.aggregations
+                .filter((a: any) => a.category === 'F' && !['Pregnant', 'Breastfeeding'].includes(a.group))
+                .reduce((accum, cur) => {
+                    if (!accum[cur.col]){
+                        accum[cur.col] = []
+                    } 
+                    accum[cur.col] = accum[cur.col].concat(
+                        cur.data.filter((i: any) => !isPregnant(i))
+                    )
+                    return accum
+                }, {})
+            const row = [ 
+                table.td('All'), 
+                table.td('FNP'),
+                this.drill(totals.txNew, 'Tx New (new on ART) FNP'),
+                this.drill(totals.txCurr, 'Tx Curr (received ART) FNP'),
+                this.drill(totals.txGivenIpt, 'Tx Curr (received IPT) FNP'),
+                this.drill(totals.txScreenTB, 'Tx Curr (screened for TB) FNP')
+            ]
+            this.rows.push(row)
+            this.sortIndexes[sortIndex] = [row]
         },
         setFemaleRows(sortIndex: number) {
             this.report.setGender('female')
-            return this.setRows('F', AGE_GROUPS, 
-            (group: string, txNew: any, txCur: any, txIpt: any, txTb: any) => {
-                this.totalNewF = uniq(this.totalNewF.concat(txNew))
-                this.totalCurF = uniq(this.totalCurF.concat(txCur))
-                this.totalIptF = uniq(this.totalIptF.concat(txIpt))
-                this.totalTbF  = uniq(this.totalTbF.concat(txTb))
-                return [ 
-                    table.td(group), 
-                    table.td('Female'),
-                    this.drill(txNew, `${group} Tx New (new on ART) Females`), 
-                    this.drill(txCur, `${group} Tx Curr (receiving ART) Females`), 
-                    this.drill(txIpt, `${group} Tx Curr (received IPT) Females`), 
-                    this.drill(txTb, `${group} Tx Curr (screened for TB) Females`)
-                ]
-            }, sortIndex)
+            return this.setRows('F', AGE_GROUPS, (group: string, otherColumns: any) =>
+                [ table.td(group), table.td('Female'), ...otherColumns ], 
+                sortIndex
+            )
         },
         setMaleRows(sortIndex: number) {
             this.report.setGender('male')
-            return this.setRows('M', AGE_GROUPS, 
-            (group: string, txNew: any, txCur: any, txIpt: any, txTb: any) => {
-                this.totalNewM = uniq(this.totalNewM.concat(txNew))
-                this.totalCurM = uniq(this.totalCurM.concat(txCur))
-                this.totalIptM = uniq(this.totalIptM.concat(txIpt))
-                this.totalTbM  = uniq(this.totalTbM.concat(txTb))
-                return [ 
-                    table.td(group), 
-                    table.td('Male'), 
-                    this.drill(txNew, `${group} Tx New (new on ART) Males`), 
-                    this.drill(txCur, `${group} Tx Curr (receiving ART) Males`), 
-                    this.drill(txIpt, `${group} Tx Curr (received IPT) Males`), 
-                    this.drill(txTb, `${group} Tx Curr (screened for TB) Males`)
-                ]   
-            }, sortIndex)
+            return this.setRows('M', AGE_GROUPS, (group: string, otherColumns: any) =>
+                [ table.td(group), table.td('Male'), ...otherColumns ], 
+                sortIndex
+            )
         },
         setFemalePregnantRows(sortIndex: number) {
             this.report.setGender('pregnant')
-            return this.setRows('F', ['Pregnant'], 
-                (_: string, txNew: any, txCur: any, txIpt: any, txTb: any) => {
-                this.pregnantF = uniq(this.pregnantF.concat(txNew))
-                this.pregnantF = uniq(this.pregnantF.concat(txCur))
-                this.pregnantF = uniq(this.pregnantF.concat(txIpt))
-                this.pregnantF = uniq(this.pregnantF.concat(txTb))
-                this.txtNewFp = txNew
-                return [ 
-                    table.td('All'), 
-                    table.td('FP'),
-                    this.drill(txNew, `Tx New (new on ART) Pregnant`),
-                    this.drill(txCur, `Tx Curr (receiving ART) Pregnant`),
-                    this.drill(txIpt, `Tx Curr (received IPT) Pregnant`),
-                    this.drill(txTb, `Tx Curr (screened for TB) Pregnant`)
-                ]
-            }, sortIndex)
+            return this.setRows('F', ['Pregnant'], (_: string, otherColumns: Array<any>) =>
+                [ table.td('All'), table.td('FP'), ...otherColumns ], sortIndex
+            )
         },
         setFemaleBreastFeedingRows(sortIndex: number) {
             this.report.setGender('breastfeeding')
-            return this.setRows('F', ['Breastfeeding'], 
-            (_: string, txNew: any, txCur: any, txIpt: any, txTb: any) => {
-                this.pregnantF = uniq(this.pregnantF.concat(txNew))
-                this.pregnantF = uniq(this.pregnantF.concat(txCur))
-                this.pregnantF = uniq(this.pregnantF.concat(txIpt))
-                this.pregnantF = uniq(this.pregnantF.concat(txTb))
-                return [ 
-                    table.td('All'), 
-                    table.td('FBf'), 
-                    this.drill(txNew, 'Tx New (new on ART) Breastfeeding'), 
-                    this.drill(txCur, 'Tx Curr (receiving ART) Breastfeeding'), 
-                    this.drill(txIpt, 'Tx Curr (received IPT) Breastfeeding'), 
-                    this.drill(txTb, 'Tx Curr (screened for TB) Breastfeeding')
-                ]
-            }, sortIndex)
+            return this.setRows('F', ['Breastfeeding'],(_: string, otherColumns: Array<any>) =>
+                [ table.td('All'), table.td('FBf'), ...otherColumns ], sortIndex
+            )
         },
-        async setRows(category: string, ageGroups: Array<string>, onFormat: Function, sortIndex: number) {
+        async setRows(category: string, ageGroups: Array<string>, onRow: Function, sortIndex: number) {
             for(const i in ageGroups) {
                 let txNew = []
                 let txCurr= []
@@ -249,30 +217,44 @@ export default defineComponent({
                     const value = (prop: string) => this.getValue(
                         prop, category, this.ageGroupCohort[group]
                     )
+                    // Adds aggregation entry of a column
+                    const addAggregation = (col: string, data: any) => 
+                        this.aggregations.push({ group, category, col, data }
+                    )
                     txNew = await value('tx_new')
                     txCurr= await value('tx_curr')
                     txGivenIpt = await value('tx_given_ipt')
                     txScreenTB = await value('tx_screened_for_tb')
+
+                    addAggregation('txNew', txNew)
+                    addAggregation('txCurr', txCurr)
+                    addAggregation('txGivenIpt', txGivenIpt)
+                    addAggregation('txScreenTB', txScreenTB)
                 }
-                const row = onFormat(group, txNew, txCurr, txGivenIpt, txScreenTB)
+                const row = onRow(group, [
+                    this.drill(txNew, `Tx new (new on ART) | ${group} | ${category}`),
+                    this.drill(txCurr, `Tx curr (receiving ART) | ${group} | ${category}`),
+                    this.drill(txGivenIpt, `TX curr (received IPT) | ${group} | ${category}`),
+                    this.drill(txScreenTB, `TX curr (screened for TB) | ${group} | ${category}`)
+                ])
                 this.rows.push(row)
                 if (!this.sortIndexes[sortIndex]) {
                     this.sortIndexes[sortIndex] = []
-                } 
+                }
                 this.sortIndexes[sortIndex].push(row)
             }
         },
         validateReport() {
             const validations: any = {
                 'initiated_on_art_first_time': {
-                    param: this.totalNewF.concat(this.totalNewM).length,
+                    param: this.getTotals((i: any) => i.col === 'txNew' && !['Pregnant', 'Breastfeeding'].includes(i.group)),
                     check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
                         MOH cohort initiated on ART first time (${i}) is not matching Tx New (${p})
                     `
                 },
                 'initial_pregnant_females_all_ages': {
-                    param: this.txtNewFp.length,
+                    param: this.getTotals((i: any) => i.col === 'txNew' && i.group === 'Pregnant'),
                     check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
                         MOH cohort initial pregnant females all ages 
@@ -280,7 +262,7 @@ export default defineComponent({
                     `
                 },
                 'males_initiated_on_art_first_time': {
-                    param: this.totalNewM.length,
+                    param: this.getTotals((i: any) => i.col === 'txNew' && i.category === 'M'),
                     check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
                         MoH Cohort males initiated on ART first time (${i})
