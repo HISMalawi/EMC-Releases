@@ -92,7 +92,8 @@ export default defineComponent({
         headerList: [] as Array<Option>,
         canValidate: false as boolean,
         onLoadDefault: null as any,
-        onFinishBtnAction: null as any
+        onFinishBtnAction: null as any,
+        sortIndexes: {} as Record<string | number, Array<any>>
     }),
     async created() {
         const { query }  = this.$route
@@ -148,12 +149,18 @@ export default defineComponent({
             this.canValidate = true
         },
         async setTableRows() {
-            await this.setFemaleRows()
-            await this.setMaleRows()
-            await this.setFemalePregnantRows()
-            await this.setFemaleBreastFeedingRows()
-            await this.setTotalMalesRow()
-            this.setFemaleNotPregnantRows()
+            await this.setFemaleRows(1)
+            await this.setMaleRows(2)
+            await this.setTotalMalesRow(3)
+            await this.setFemalePregnantRows(4)
+            await this.setFemaleBreastFeedingRows(6)
+            await this.setFemaleNotPregnantRows(5)
+            this.sortRowsByIndexes()
+        },
+        sortRowsByIndexes() {
+            this.rows = Object.keys(this.sortIndexes)
+                .sort((a, b) => parseInt(a) - parseInt(b))
+                .reduce((r: any, i: any) => r.concat(this.sortIndexes[i]), [])
         },
         async appendRegimensToRow(curRow: Array<any>, context: string) {
             switch(this.report.getGender()) {
@@ -195,7 +202,7 @@ export default defineComponent({
             }
             return res
         },
-        async setTotalMalesRow() {
+        async setTotalMalesRow(sortIndex: number) {
             this.report.setGender('Male')
             this.report.setAgeGroup('All')
             const row = await this.appendRegimensToRow([
@@ -207,8 +214,9 @@ export default defineComponent({
                 this.drill(this.totalTbM, 'Total Curr (screened for TB) Males')
             ], 'All Male')
             this.rows.push(row)
+            this.sortIndexes[sortIndex] = [row]
         },
-        async setFemaleNotPregnantRows() {
+        async setFemaleNotPregnantRows(sortIndex: number) {
             const row = [ 
                 [this.totalNewF, 'Tx New (new on ART) FNP'], 
                 [this.totalCurF, 'Tx Curr (receiving ART) FNP'], 
@@ -226,8 +234,9 @@ export default defineComponent({
                 ...row 
             ], 'FNP')
             this.rows.push(r)
+            this.sortIndexes[sortIndex] = [r]
         },
-        setFemaleRows() {
+        setFemaleRows(sortIndex: number) {
             this.report.setGender('female')
             return this.setRows('F', AGE_GROUPS, 
             (group: string, txNew: any, txCur: any, txIpt: any, txTb: any) => {
@@ -243,9 +252,9 @@ export default defineComponent({
                     this.drill(txIpt, `${group} Tx Curr (received IPT) Females`), 
                     this.drill(txTb, `${group} Tx Curr (screened for TB) Females`)
                 ]
-            }, 'Females')
+            }, 'Females', sortIndex)
         },
-        setMaleRows() {
+        setMaleRows(sortIndex: number) {
             this.report.setGender('male')
             return this.setRows('M', AGE_GROUPS, 
             (group: string, txNew: any, txCur: any, txIpt: any, txTb: any) => {
@@ -261,9 +270,9 @@ export default defineComponent({
                     this.drill(txIpt, `${group} Tx Curr (received IPT) Males`), 
                     this.drill(txTb, `${group} Tx Curr (screened for TB) Males`)
                 ]
-            }, 'Males')
+            }, 'Males', sortIndex)
         },
-        setFemalePregnantRows() {
+        setFemalePregnantRows(sortIndex: number) {
             this.report.setGender('pregnant')
             return this.setRows('F', ['Pregnant'], 
                 (_: string, txNew: any, txCur: any, txIpt: any, txTb: any) => {
@@ -280,9 +289,9 @@ export default defineComponent({
                     this.drill(txIpt, `Tx Curr (received IPT) Pregnant`),
                     this.drill(txTb, `Tx Curr (screened for TB) Pregnant`)
                 ]
-            }, '')
+            }, '', sortIndex)
         },
-        setFemaleBreastFeedingRows() {
+        setFemaleBreastFeedingRows(sortIndex: number) {
             this.report.setGender('breastfeeding')
             return this.setRows('F', ['Breastfeeding'], 
             (_: string, txNew: any, txCur: any, txIpt: any, txTb: any) => {
@@ -299,9 +308,9 @@ export default defineComponent({
                     this.drill(txIpt, 'Tx Curr (received IPT) Breastfeeding'), 
                     this.drill(txTb, 'Tx Curr (screened for TB) Breastfeeding')
                 ]
-            }, '')
+            }, '', sortIndex)
         },
-        async setRows(category: string, ageGroups: Array<string>, onFormat: Function, context: string) {
+        async setRows(category: string, ageGroups: Array<string>, onFormat: Function, context: string, sortIndex: number) {
             for(const i in ageGroups) {
                 let txNew = []
                 let txCurr= []
@@ -325,10 +334,13 @@ export default defineComponent({
                     txScreenTB = await value('tx_screened_for_tb')
                 }
                 const row = await this.appendRegimensToRow(
-                    onFormat(group, txNew, txCurr, txGivenIpt, txScreenTB), 
-                    `${group} ${context}`
+                    onFormat(group, txNew, txCurr, txGivenIpt, txScreenTB), `${group} ${context}`
                 ) 
                 this.rows.push(row)
+                if (!this.sortIndexes[sortIndex]) {
+                    this.sortIndexes[sortIndex] = []
+                }
+                this.sortIndexes[sortIndex].push(row)
             }
         },
         setHeaderInfoList(totalAlive: Array<any>, validationStatus='<span style="color: orange;font-weight:bold">Validating report....please wait...</span>') {
