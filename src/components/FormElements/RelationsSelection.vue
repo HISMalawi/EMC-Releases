@@ -12,7 +12,9 @@
                 </div>
             </ion-col>
             <ion-col size="2"> 
-                <center class="relation-category" :style="{marginTop: '20%'}"> TO </center>
+                <center class="relation-category fa-rotate-45">
+                    <ion-icon :icon="resize" :style="{fontSize: '3em'}"></ion-icon>
+                </center>
             </ion-col>
             <ion-col>
                 <div class="tool-bar-medium-card"> 
@@ -46,16 +48,19 @@ import { Option } from '../Forms/FieldInterface'
 import FieldMixinVue from './FieldMixin.vue'
 import Transformer from "@/utils/Transformers"
 import ViewPort from "@/components/DataViews/ViewPort.vue"
+import { resize } from "ionicons/icons";
 import {
     IonCol,
-    IonRow
+    IonRow,
+    IonIcon
 } from "@ionic/vue"
 export default defineComponent({
     mixins: [FieldMixinVue],
     components: {
         ViewPort,
         IonCol,
-        IonRow
+        IonRow,
+        IonIcon,
     },
     data: () => ({
        patient: {} as any,
@@ -63,6 +68,11 @@ export default defineComponent({
        selected: '' as string,
        listData: [] as Array<Option> 
     }),
+    setup(){
+         return {
+         resize
+        }
+    },
     computed: {
         relationList(): Array<any> {
             return Transformer.convertArrayToTurples(this.listData, 2)
@@ -83,7 +93,7 @@ export default defineComponent({
 <style scoped>
 .view-port-content {
     overflow-x: auto;
-    height: 80%;
+    height: 81%;
 }
 .tool-bar-medium-card {
     height: 105px;    
@@ -95,7 +105,7 @@ export default defineComponent({
     text-align: center;
 }
 .his-card {
-    height: 110px;
+    height: 100%;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -105,5 +115,12 @@ li {
 }
 ion-col {
     padding: 0.3%;
+}
+.fa-rotate-45 {
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    transform: rotate(45deg);
 }
 </style>
