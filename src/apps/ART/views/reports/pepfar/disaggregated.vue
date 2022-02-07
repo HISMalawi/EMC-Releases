@@ -31,7 +31,6 @@ export default defineComponent({
     components: { ReportTemplate, IonPage },
     data: () => ({
         title: 'PEPFAR Diseggregated Report',
-        rows: [] as Array<any>,
         headerList: [] as Option[],
         columns: [
             [
@@ -52,6 +51,13 @@ export default defineComponent({
     created() {
         this.fields = this.getDateDurationFields()
     },
+    computed: {
+        rows(): Array<any> {
+            return Object.keys(this.sortIndexes)
+                .sort((a, b) => parseInt(a) - parseInt(b))
+                .reduce((r: any, i: any) => r.concat(this.sortIndexes[i]), [])
+        }
+    },
     watch: {
         async canValidate(doIt: boolean) {
             if (doIt) await this.validateReport()
@@ -60,7 +66,7 @@ export default defineComponent({
     methods: {
         async onPeriod(_: any, config: any) {
             this.canValidate = false
-            this.rows = []
+            this.sortIndexes = {}
             this.report = new DisaggregatedReportService()
             this.mohCohort = new MohCohortReportService()
             this.report.setQuarter('pepfar')
@@ -105,12 +111,6 @@ export default defineComponent({
             await this.setFemalePregnantRows(4)
             await this.setFemaleBreastFeedingRows(6)
             await this.setFemaleNotPregnantRows(5)
-            this.sortRowsByIndexes()
-        },
-        sortRowsByIndexes() {
-            this.rows = Object.keys(this.sortIndexes)
-                .sort((a, b) => parseInt(a) - parseInt(b))
-                .reduce((r: any, i: any) => r.concat(this.sortIndexes[i]), [])
         },
         async getValue(prop: string, gender: string, data: any) {
             let res: any = []
@@ -143,7 +143,6 @@ export default defineComponent({
                 this.drill(totals.txGivenIpt, 'Total Curr (received IPT) Males'),
                 this.drill(totals.txScreenTB, 'Total Curr (screened for TB) Males')
             ]
-            this.rows.push(row)
             this.sortIndexes[sortIndex] = [row]
         },
         setFemaleNotPregnantRows(sortIndex: number) {
@@ -170,22 +169,21 @@ export default defineComponent({
                 this.drill(totals.txGivenIpt, 'Tx Curr (received IPT) FNP'),
                 this.drill(totals.txScreenTB, 'Tx Curr (screened for TB) FNP')
             ]
-            this.rows.push(row)
             this.sortIndexes[sortIndex] = [row]
         },
-        setFemaleRows(sortIndex: number) {
+        async setFemaleRows(sortIndex: number) {
             this.report.setGender('female')
-            return this.setRows('F', AGE_GROUPS, (group: string, otherColumns: any) =>
-                [ table.td(group), table.td('Female'), ...otherColumns ], 
-                sortIndex
+            const rows = await this.setRows('F', AGE_GROUPS, (group: string, otherColumns: any) =>
+                [ table.td(group), table.td('Female'), ...otherColumns ], sortIndex
             )
+            return rows
         },
-        setMaleRows(sortIndex: number) {
+        async setMaleRows(sortIndex: number) {
             this.report.setGender('male')
-            return this.setRows('M', AGE_GROUPS, (group: string, otherColumns: any) =>
-                [ table.td(group), table.td('Male'), ...otherColumns ], 
-                sortIndex
+            const rows = await this.setRows('M', AGE_GROUPS, (group: string, otherColumns: any) =>
+                [ table.td(group), table.td('Male'), ...otherColumns ], sortIndex
             )
+            return rows
         },
         setFemalePregnantRows(sortIndex: number) {
             this.report.setGender('pregnant')
@@ -237,10 +235,7 @@ export default defineComponent({
                     this.drill(txGivenIpt, `TX curr (received IPT) | ${group} | ${category}`),
                     this.drill(txScreenTB, `TX curr (screened for TB) | ${group} | ${category}`)
                 ])
-                this.rows.push(row)
-                if (!this.sortIndexes[sortIndex]) {
-                    this.sortIndexes[sortIndex] = []
-                }
+                if (!this.sortIndexes[sortIndex]) this.sortIndexes[sortIndex] = []
                 this.sortIndexes[sortIndex].push(row)
             }
         },
