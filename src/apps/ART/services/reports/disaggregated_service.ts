@@ -61,8 +61,8 @@ export class DisaggregatedReportService extends ArtReportService {
     getRequestParams(params={}) {
         return this.buildRequest({
             'age_group': this.ageGroup,
-            'rebuild_outcome': this.rebuildOutcome,
-            'initialize': this.initialize,
+            'rebuild_outcome': `${this.rebuildOutcome}`,
+            'initialize': `${this.initialize}`,
             ...params
         })
     }
