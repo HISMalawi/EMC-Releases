@@ -23,7 +23,7 @@ import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
 import { DisaggregatedReportService, TEMP_OUTCOME_TABLE } from "@/apps/ART/services/reports/disaggregated_service"
 import { REGIMENS } from "@/apps/ART/services/reports/regimen_report_service"
 import { toastWarning } from '@/utils/Alerts'
-import { isEmpty, uniq } from "lodash"
+import { isEmpty } from "lodash"
 import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { IonPage } from "@ionic/vue"
@@ -35,8 +35,6 @@ export default defineComponent({
     mixins: [ReportMixin],
     components: { ReportTemplate, IonPage },
     data: () => ({
-        reportReady: false as boolean,
-        rows: [] as Array<any>,
         title: 'Disaggregated report',
         columns: [
             [
@@ -77,18 +75,18 @@ export default defineComponent({
                 table.thNum('Total (regimen)')
             ]
         ],
+        rowDataRefs: [
+            'txNew', 
+            'txCurr', 
+            'txGivenIpt', 
+            'txScreenTB', 
+            ...REGIMENS,
+            'N/A', 
+            'regimenTotals'
+        ],
+        aggregations: [] as any,
         mohCohort: {} as any,
         ageGroupCohort: {} as any,
-        totalCurP: [] as Array<any>,
-        totalNewF: [] as Array<any>,
-        totalCurF: [] as Array<any>,
-        totalIptF: [] as Array<any>,
-        totalTbF:  [] as Array<any>,
-        totalNewM: [] as Array<any>,
-        totalCurM: [] as Array<any>,
-        totalIptM: [] as Array<any>,
-        totalTbM:  [] as Array<any>,
-        pregnantF: [] as Array<any>,
         headerList: [] as Array<Option>,
         canValidate: false as boolean,
         onLoadDefault: null as any,
@@ -118,10 +116,17 @@ export default defineComponent({
             if (doIt) await this.validateReport()
         }
     },
+    computed: {
+        rows(): any {
+            return Object.keys(this.sortIndexes)
+                .sort((a, b) => parseInt(a) - parseInt(b))
+                .reduce((r: any, i: any) => r.concat(this.sortIndexes[i]), [])
+        }
+    },
     methods: {
         async onPeriod(form: any, config: any) {
             this.canValidate = false
-            this.rows = []
+            this.sortIndexes = {}
             this.report = new DisaggregatedReportService()
             this.mohCohort = new MohCohortReportService()
             this.report.setOutcomeTable(TEMP_OUTCOME_TABLE.PATIENT_OUTCOME_TEMP)
@@ -140,6 +145,7 @@ export default defineComponent({
                 this.report.setEndDate(config.end_date)
                 this.period = this.report.getDateIntervalPeriod()
             }
+            this.report.setRebuildOutcome(false)
             const isInit = await this.report.init()
             if (!isInit) {
                 return toastWarning('Unable to initialise report')
@@ -155,175 +161,118 @@ export default defineComponent({
             await this.setFemalePregnantRows(4)
             await this.setFemaleBreastFeedingRows(6)
             await this.setFemaleNotPregnantRows(5)
-            this.sortRowsByIndexes()
         },
-        sortRowsByIndexes() {
-            this.rows = Object.keys(this.sortIndexes)
-                .sort((a, b) => parseInt(a) - parseInt(b))
-                .reduce((r: any, i: any) => r.concat(this.sortIndexes[i]), [])
+        getTotals(compareFunction: Function){
+            return this.aggregations
+                .filter((i: any) => compareFunction(i))
+                .reduce((accum: any, cur: any) => accum.concat(cur.data), [])
         },
-        async appendRegimensToRow(curRow: Array<any>, context: string) {
-            switch(this.report.getGender()) {
-                case 'breastfeeding':
-                    this.report.setAgeGroup('All')
-                    this.report.setGender('Fbf')
-                    break;
-                case 'pregnant':
-                    this.report.setAgeGroup('All')
-                    this.report.setGender('FP')
-                    break;
-            }
-            const data = await this.report.getRegimenDistribution()
-            const regimens = [...REGIMENS, 'N/A']
-            const row = curRow
+        addAggregation(col: string, group: string, category: string, data: any) {
+            this.aggregations.push({ col, group, category, data: data || [] })
+        },
+        async getRegimenRows(category: string, group: string) {
             let totals: any = []
-            regimens.forEach((i: any) => {
-                if (data[i]) {
-                    totals = totals.concat(data[i])
-                    row.push(this.drill(data[i], `${context} (Regimen ${i})`))
-                } else {
-                    row.push(table.td(0))
-                }
+            const row: any = []
+            const distribution = await this.report.getRegimenDistribution()
+            const refs = [...REGIMENS, 'N/A']
+            refs.forEach((i: any) => {
+                if (distribution[i]) { 
+                    totals = totals.concat(distribution[i]) 
+                } 
+                row.push(this.drill(distribution[i], `Regimen ${i} | ${category} | ${group}`))
+                this.addAggregation(i, group, category, distribution[i])
             })
-            return [...row, this.drill(totals, `Totals for ${context}`)]
+            row.push(this.drill(totals, `Regimen Totals | ${category} | ${group}`))
+            this.addAggregation('regimenTotals', group, category, totals)
+            return row
         },
         async getValue(prop: string, gender: string, data: any) {
             let res: any = []
             switch(prop) {
                 case 'tx_given_ipt':
                     res = await this.report.getTxIpt()
-                    break;
+                    break
                 case 'tx_screened_for_tb':
                     res = await this.report.getTxCurrTB()
-                    break;
+                    break
                 default:
                     res = gender in data ? data[gender][prop] : []
-                    break;
+                    break
             }
             return res
         },
         async setTotalMalesRow(sortIndex: number) {
-            this.report.setGender('Male')
-            this.report.setAgeGroup('All')
-            const row = await this.appendRegimensToRow([
-                table.td('All'), 
-                table.td('Male'), 
-                this.drill(this.totalNewM, 'Tx New (new on ART) Males'),
-                this.drill(this.totalCurM, 'Total Curr (received ART) Males'),
-                this.drill(this.totalIptM, 'Total Curr (received IPT) Males'),
-                this.drill(this.totalTbM, 'Total Curr (screened for TB) Males')
-            ], 'All Male')
-            this.rows.push(row)
-            this.sortIndexes[sortIndex] = [row]
+            const totals = this.aggregations
+                .filter((a: any) => a.category === 'M')
+                .reduce((accum: any, cur: any) => {
+                    if (!accum[cur.col]) {
+                        accum[cur.col] = []
+                    } 
+                    accum[cur.col] = accum[cur.col].concat(cur.data)
+                    return accum
+                },{})
+            const rows: any = this.rowDataRefs.map(r => this.drill(totals[r]))
+            this.sortIndexes[sortIndex] = [
+                [table.td('All'), table.td('Male'), ...rows]
+            ]
         },
         async setFemaleNotPregnantRows(sortIndex: number) {
-            const row = [ 
-                [this.totalNewF, 'Tx New (new on ART) FNP'], 
-                [this.totalCurF, 'Tx Curr (receiving ART) FNP'], 
-                [this.totalIptF, 'Tx Curr (received IPT) FNP'],
-                [this.totalTbF, 'Tx Curr (screened for TB) FNP']
-            ].map(([row, context]: any) => {
-                const femaleNotPregnant = row.filter((i: any) => !this.pregnantF.includes(i))
-                return this.drill(femaleNotPregnant, context)
-            })
-            this.report.setGender('FNP')
-            this.report.setAgeGroup('All')
-            const r = await this.appendRegimensToRow([ 
-                table.td('All'), 
-                table.td('FNP'), 
-                ...row 
-            ], 'FNP')
-            this.rows.push(r)
-            this.sortIndexes[sortIndex] = [r]
+            const isPregnant = (patientID: number) => this.aggregations
+                .filter((a: any) => ['Pregnant', 'Breastfeeding'].includes(a.group))
+                .reduce((accum: any, cur: any) => accum.concat(cur.data || []), [])
+                .includes(patientID)
+
+            const totals = this.aggregations
+                .filter((a: any) => a.category === 'F' && !['Pregnant', 'Breastfeeding'].includes(a.group))
+                .reduce((accum: any, cur: any) => {
+                    if (!accum[cur.col]) accum[cur.col] = []
+                    accum[cur.col] = accum[cur.col].concat( cur.data.filter((i: any) => !isPregnant(i)))
+                    return accum
+                }, {})
+            const rows: any = this.rowDataRefs.map(r => this.drill(totals[r]))
+            this.sortIndexes[sortIndex] = [
+                [ table.td('All'), table.td('FNP'), ...rows ]
+            ]
         },
         setFemaleRows(sortIndex: number) {
             this.report.setGender('female')
-            return this.setRows('F', AGE_GROUPS, 
-            (group: string, txNew: any, txCur: any, txIpt: any, txTb: any) => {
-                this.totalNewF = uniq(this.totalNewF.concat(txNew))
-                this.totalCurF = uniq(this.totalCurF.concat(txCur))
-                this.totalIptF = uniq(this.totalIptF.concat(txIpt))
-                this.totalTbF  = uniq(this.totalTbF.concat(txTb))
-                return [ 
-                    table.td(group), 
-                    table.td('Female'),
-                    this.drill(txNew, `${group} Tx New (new on ART) Females`), 
-                    this.drill(txCur, `${group} Tx Curr (receiving ART) Females`), 
-                    this.drill(txIpt, `${group} Tx Curr (received IPT) Females`), 
-                    this.drill(txTb, `${group} Tx Curr (screened for TB) Females`)
-                ]
-            }, 'Females', sortIndex)
+            return this.setRows('F', AGE_GROUPS, (group: string, otherColumns: any) =>
+                [ table.td(group), table.td('Female'), ...otherColumns ], sortIndex
+            )
         },
         setMaleRows(sortIndex: number) {
             this.report.setGender('male')
-            return this.setRows('M', AGE_GROUPS, 
-            (group: string, txNew: any, txCur: any, txIpt: any, txTb: any) => {
-                this.totalNewM = uniq(this.totalNewM.concat(txNew))
-                this.totalCurM = uniq(this.totalCurM.concat(txCur))
-                this.totalIptM = uniq(this.totalIptM.concat(txIpt))
-                this.totalTbM  = uniq(this.totalTbM.concat(txTb))
-                return [ 
-                    table.td(group), 
-                    table.td('Male'), 
-                    this.drill(txNew, `${group} Tx New (new on ART) Males`), 
-                    this.drill(txCur, `${group} Tx Curr (receiving ART) Males`), 
-                    this.drill(txIpt, `${group} Tx Curr (received IPT) Males`), 
-                    this.drill(txTb, `${group} Tx Curr (screened for TB) Males`)
-                ]
-            }, 'Males', sortIndex)
+            return this.setRows('M', AGE_GROUPS, (group: string, otherColumns: any) =>
+                [ table.td(group), table.td('Male'), ...otherColumns ], sortIndex
+            )
         },
         setFemalePregnantRows(sortIndex: number) {
             this.report.setGender('pregnant')
-            return this.setRows('F', ['Pregnant'], 
-                (_: string, txNew: any, txCur: any, txIpt: any, txTb: any) => {
-                this.pregnantF = uniq(this.pregnantF.concat(txNew))
-                this.pregnantF = uniq(this.pregnantF.concat(txCur))
-                this.pregnantF = uniq(this.pregnantF.concat(txIpt))
-                this.pregnantF = uniq(this.pregnantF.concat(txTb))
-                this.totalCurP = uniq(this.totalCurP.concat(txCur))
-                return [ 
-                    table.td('All'), 
-                    table.td('FP'),
-                    this.drill(txNew, `Tx New (new on ART) Pregnant`),
-                    this.drill(txCur, `Tx Curr (receiving ART) Pregnant`),
-                    this.drill(txIpt, `Tx Curr (received IPT) Pregnant`),
-                    this.drill(txTb, `Tx Curr (screened for TB) Pregnant`)
-                ]
-            }, '', sortIndex)
+            return this.setRows('F', ['Pregnant'], (_: string, otherColumns: any) =>
+                [ table.td('All'), table.td('FP'), ...otherColumns], sortIndex
+            )
         },
         setFemaleBreastFeedingRows(sortIndex: number) {
             this.report.setGender('breastfeeding')
-            return this.setRows('F', ['Breastfeeding'], 
-            (_: string, txNew: any, txCur: any, txIpt: any, txTb: any) => {
-                this.pregnantF = uniq(this.pregnantF.concat(txNew))
-                this.pregnantF = uniq(this.pregnantF.concat(txCur))
-                this.pregnantF = uniq(this.pregnantF.concat(txIpt))
-                this.pregnantF = uniq(this.pregnantF.concat(txTb))
-                this.totalCurP = uniq(this.totalCurP.concat(txCur))
-                return [ 
-                    table.td('All'), 
-                    table.td('FBf'), 
-                    this.drill(txNew, 'Tx New (new on ART) Breastfeeding'), 
-                    this.drill(txCur, 'Tx Curr (receiving ART) Breastfeeding'), 
-                    this.drill(txIpt, 'Tx Curr (received IPT) Breastfeeding'), 
-                    this.drill(txTb, 'Tx Curr (screened for TB) Breastfeeding')
-                ]
-            }, '', sortIndex)
+            return this.setRows('F', ['Breastfeeding'], (_: string, otherColumns: any) =>
+                [ table.td('All'), table.td('FBf'), ...otherColumns ], sortIndex
+            )
         },
-        async setRows(category: string, ageGroups: Array<string>, onFormat: Function, context: string, sortIndex: number) {
+        async setRows(category: string, ageGroups: Array<string>, onRow: Function, sortIndex: number) {
             for(const i in ageGroups) {
                 let txNew = []
                 let txCurr= []
                 let txGivenIpt = []
                 let txScreenTB = []
-
                 const group = ageGroups[i]
                 this.report.setAgeGroup(group)
 
                 if (!(group in this.ageGroupCohort)) {
                     const cohort = await this.report.getCohort()
+                    this.report.setRebuildOutcome(false)
                     this.ageGroupCohort[group] = !isEmpty(cohort) ? cohort[group] : {}
                 }
+
                 if (!isEmpty(this.ageGroupCohort[group])) {
                     const value = async (prop: string) => this.getValue(
                         prop, category, this.ageGroupCohort[group]
@@ -333,14 +282,34 @@ export default defineComponent({
                     txGivenIpt = await value('tx_given_ipt')
                     txScreenTB = await value('tx_screened_for_tb')
                 }
-                const row = await this.appendRegimensToRow(
-                    onFormat(group, txNew, txCurr, txGivenIpt, txScreenTB), `${group} ${context}`
-                ) 
-                this.rows.push(row)
-                if (!this.sortIndexes[sortIndex]) {
-                    this.sortIndexes[sortIndex] = []
+
+                this.addAggregation('txNew', group, category, txNew)
+                this.addAggregation('txCurr', group, category, txCurr)
+                this.addAggregation('txGivenIpt', group, category, txGivenIpt)    
+                this.addAggregation('txScreenTB', group, category, txScreenTB)
+
+                if (!this.sortIndexes[sortIndex]) this.sortIndexes[sortIndex] = []
+
+                switch(this.report.getGender()) {
+                    case 'breastfeeding':
+                        this.report.setAgeGroup('All')
+                        this.report.setGender('Fbf')
+                        break
+                    case 'pregnant':
+                        this.report.setAgeGroup('All')
+                        this.report.setGender('FP')
+                        break
                 }
-                this.sortIndexes[sortIndex].push(row)
+
+                const regimens: any = await this.getRegimenRows(category, group)
+
+                this.sortIndexes[sortIndex].push(onRow(group, [
+                    this.drill(txNew, `Tx new (new on ART) | ${group} | ${category}`),
+                    this.drill(txCurr, `Tx curr (receiving ART) | ${group} | ${category}`),
+                    this.drill(txGivenIpt, `TX curr (received IPT) | ${group} | ${category}`),
+                    this.drill(txScreenTB, `TX curr (screened for TB) | ${group} | ${category}`),
+                    ...regimens
+                ]))
             }
         },
         setHeaderInfoList(totalAlive: Array<any>, validationStatus='<span style="color: orange;font-weight:bold">Validating report....please wait...</span>') {
@@ -359,11 +328,7 @@ export default defineComponent({
             ]
         },
         async validateReport() {
-            const totalAlive = uniq([
-                ...this.totalCurF,
-                ...this.totalCurM,
-                ...this.totalCurP
-            ])
+            const totalAlive = this.getTotals((i: any) => i.col === 'txCurr' && !['Pregnant', 'Breastfeeding'].includes(i.group))
             const validations: any = {
                 'total_alive_and_on_art' : {
                     param: totalAlive.length,
