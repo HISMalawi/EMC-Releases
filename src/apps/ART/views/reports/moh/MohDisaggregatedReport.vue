@@ -8,6 +8,7 @@
             :columns="columns"
             :headerInfoList="headerList"
             reportPrefix="MoH"
+            :hasServerSideCaching="true"
             :enabledPDFHorizontalPageBreak="true"
             :onReportConfiguration="onPeriod"
             :onDefaultConfiguration="onLoadDefault"
@@ -124,7 +125,7 @@ export default defineComponent({
         }
     },
     methods: {
-        async onPeriod(form: any, config: any) {
+        async onPeriod(form: any, config: any, rebuildCache=false) {
             this.canValidate = false
             this.sortIndexes = {}
             this.report = new DisaggregatedReportService()
@@ -145,7 +146,7 @@ export default defineComponent({
                 this.report.setEndDate(config.end_date)
                 this.period = this.report.getDateIntervalPeriod()
             }
-            this.report.setRebuildOutcome(false)
+            this.report.setRebuildOutcome(rebuildCache)
             const isInit = await this.report.init()
             if (!isInit) {
                 return toastWarning('Unable to initialise report')

@@ -24,7 +24,6 @@ export class DisaggregatedReportService extends ArtReportService {
 
     async init() {
         this.initialize = true
-        this.rebuildOutcome = true
         const req = await this.getReport('cohort_disaggregated', this.getRequestParams())
         if (req && req.temp_disaggregated === 'created') {
             this.initialize = false

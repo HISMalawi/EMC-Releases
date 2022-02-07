@@ -6,8 +6,9 @@
             :rows="rows" 
             :fields="fields"
             :columns="columns"
-            :headerInfoList="headerList"
             reportPrefix="PEPFAR"
+            :hasServerSideCaching="true"
+            :headerInfoList="headerList"
             :onReportConfiguration="onPeriod">
         </report-template>
     </ion-page>
@@ -64,7 +65,7 @@ export default defineComponent({
         }
     },
     methods: {
-        async onPeriod(_: any, config: any) {
+        async onPeriod(_: any, config: any, rebuildCache=true) {
             this.canValidate = false
             this.sortIndexes = {}
             this.report = new DisaggregatedReportService()
@@ -75,6 +76,7 @@ export default defineComponent({
             this.mohCohort.setStartDate(config.start_date)
             this.mohCohort.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()
+            this.report.setRebuildOutcome(rebuildCache)
             const isInit = await this.report.init()
             if (!isInit) {
                 return toastWarning('Unable to initialise report')
