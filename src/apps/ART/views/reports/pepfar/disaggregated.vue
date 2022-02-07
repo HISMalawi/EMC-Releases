@@ -16,15 +16,15 @@
 <script lang='ts'>
 import { defineComponent } from 'vue'
 import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
-import { DisaggregatedReportService } from "@/apps/ART/services/reports/disaggregated_service"
-import { toastWarning } from '@/utils/Alerts'
-import { isEmpty } from "lodash"
 import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
+import { isEmpty } from "lodash"
 import { Option } from '@/components/Forms/FieldInterface'
 import { IonPage } from "@ionic/vue"
-import { MohCohortReportService } from "@/apps/ART/services/reports/moh_cohort_service"
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service"
+import { toastWarning } from '@/utils/Alerts'
+import { MohCohortReportService } from "@/apps/ART/services/reports/moh_cohort_service"
+import { DisaggregatedReportService } from "@/apps/ART/services/reports/disaggregated_service"
 
 export default defineComponent({
     mixins: [ReportMixin],
@@ -209,6 +209,7 @@ export default defineComponent({
 
                 if (!(group in this.ageGroupCohort)) {
                     const cohort = await this.report.getCohort()
+                    this.report.setRebuildOutcome(false)
                     this.ageGroupCohort[group] = !isEmpty(cohort) ? cohort[group] : {}
                 }
                 if (!isEmpty(this.ageGroupCohort[group])) {
@@ -235,7 +236,9 @@ export default defineComponent({
                     this.drill(txGivenIpt, `TX curr (received IPT) | ${group} | ${category}`),
                     this.drill(txScreenTB, `TX curr (screened for TB) | ${group} | ${category}`)
                 ])
-                if (!this.sortIndexes[sortIndex]) this.sortIndexes[sortIndex] = []
+                if (!this.sortIndexes[sortIndex]) {
+                    this.sortIndexes[sortIndex] = []
+                }
                 this.sortIndexes[sortIndex].push(row)
             }
         },
