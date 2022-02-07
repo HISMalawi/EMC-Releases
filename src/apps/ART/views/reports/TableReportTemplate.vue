@@ -231,8 +231,8 @@ export default defineComponent({
       try {
         this.date = dayjs().format('YYYY-MM-DD:h:m:s')
         await this.onReportConfiguration(
-          this.formData, 
-          this.computeFormData, 
+          this.formData,
+          this.computeFormData,
           shouldRebuildCache
         )
         loadingController.dismiss()
@@ -302,15 +302,7 @@ export default defineComponent({
       }
     })
     this.btns.push({
-      name: "Back",
-      size: "large",
-      slot: "end",
-      color: "warning",
-      visible: !isEmpty(this.fields),
-      onClick: () => this.canShowReport = false
-    })
-    this.btns.push({
-      name: "Refresh",
+      name: "Refresh/Rebuild",
       size: "large",
       slot: "end",
       color: "warning",
@@ -322,6 +314,14 @@ export default defineComponent({
         }
         this.reloadReport(shouldRebuildCache)
       } 
+    })
+    this.btns.push({
+      name: "Back",
+      size: "large",
+      slot: "end",
+      color: "primary",
+      visible: !isEmpty(this.fields),
+      onClick: () => this.canShowReport = false
     })
     this.btns.push({
       name: "Finish",
