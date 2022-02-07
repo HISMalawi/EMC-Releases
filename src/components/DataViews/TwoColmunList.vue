@@ -38,7 +38,7 @@ export default defineComponent({
         },
     },
      data: () => ({
-        splitFactor: 11
+        splitFactor: 10
     }),
     components: { 
         IonList,
@@ -56,8 +56,9 @@ export default defineComponent({
 
             let size: any = this.listData?.length
             size = this.listData?.length
-            if (size > this.splitFactor) 
+            if (size > this.splitFactor) {
                 return  false
+            }
                     
             return true
         }
