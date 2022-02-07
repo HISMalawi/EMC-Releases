@@ -135,6 +135,7 @@ export default defineComponent({
                     maxAge = parseInt(max)
                 }
                 const res = await this.report.getTxCurrMMDReport(minAge, maxAge)
+                this.report.initArvRefillPeriod(false)
                 if (res) {
                     females.push([
                         table.td(group),
@@ -172,7 +173,7 @@ export default defineComponent({
                     check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
                         <b>MoH cohort Alive and on ART clients (${i}) is not
-                        not matching with total TX MMD clients (${p}).</b>
+                        matching with total TX MMD clients (${p}).</b>
                     `
                 }
             }
