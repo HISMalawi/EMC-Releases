@@ -56,8 +56,9 @@ export default defineComponent({
         this.fields = this.getDateDurationFields()
     },
     methods: {
-        async onPeriod(_: any, config: any) {
+        async onPeriod(_: any, config: any, reInitialize=false) {
             this.canValidate = false
+            this.totals.clear()
             this.rows = []
             this.report = new TxReportService()
             this.mohCohort = new MohCohortReportService()
@@ -66,6 +67,7 @@ export default defineComponent({
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()
+            this.report.initArvRefillPeriod(true)
             await this.setRows()
             this.canValidate = true
             this.setHeaderInfoList()
@@ -111,13 +113,14 @@ export default defineComponent({
                     maxAge = 0
                 } else if (group === '90 plus years') {
                     minAge = 90
-                    maxAge = 120
+                    maxAge = 1000
                 } else {
                     const [min, max] = group.split('-')
                     minAge = parseInt(min)
                     maxAge = parseInt(max)
                 }
                 const res = await this.report.getTxCurrMMDReport(minAge, maxAge)
+                this.report.initArvRefillPeriod(false)
                 if (res) {
                     females.push([
                         table.td(group),
@@ -171,7 +174,7 @@ export default defineComponent({
                     error: (i: number, p: number) => `
                         <b>
                             MoH cohort Alive and on ART clients (${i}) is not
-                            not matching with total TX MMD clients (${p}).
+                            matching with total TX MMD clients (${p}).
                         </b>
                     `
                 }

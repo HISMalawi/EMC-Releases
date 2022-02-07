@@ -2,10 +2,16 @@ import { ArtReportService } from "./art_report_service";
 import Url from "@/utils/Url";
 
 export class TxReportService extends ArtReportService {
-    org: string
+    org: string;
+    initializeArvRefillReportTables: boolean;
     constructor() {
         super()
         this.org = 'pepfar'
+        this.initializeArvRefillReportTables = true
+    }
+
+    initArvRefillPeriod(isInit: boolean) {
+        this.initializeArvRefillReportTables = isInit
     }
 
     setOrg(org: string) {
@@ -55,8 +61,9 @@ export class TxReportService extends ArtReportService {
     getTxCurrMMDReport(minAge: number, maxAge: number) {
         return this.getReport('arv_refill_periods', {
             'org': this.org,
-            'min_age': minAge,
-            'max_age': maxAge
+            'min_age': `${minAge}`,
+            'max_age': `${maxAge}`,
+            'initialize_tables': `${this.initializeArvRefillReportTables}`
         })
     }
 
