@@ -10,6 +10,7 @@ import { generateDateFields } from "@/utils/HisFormHelpers/MultiFieldDateHelper"
 import HisDate from "@/utils/Date"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { infoActionSheet } from "@/utils/ActionSheets"
+import { delayPromise } from "@/utils/Timers"
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -49,6 +50,7 @@ export default defineComponent({
         }, '')
     },
     async mounted() {
+        await delayPromise(200)
         await this.showBdeNotice()
     },
     methods: {
