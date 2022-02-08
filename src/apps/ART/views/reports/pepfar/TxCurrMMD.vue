@@ -186,7 +186,7 @@ export default defineComponent({
                     this.setHeaderInfoList(`<span style='color:green'>Report is consistent</span>`)
                 }
             })
-            if (s === -1) toastWarning('Running cohort report to check consistency. This may take a while')
+            if (s === -1) this.setHeaderInfoList(`<span style='color:red'>Run Cohort report for same reporting period to validate</span>`)
         }
     }
 })

@@ -23,7 +23,6 @@ import table from "@/components/DataViews/tables/ReportDataTable"
 import { Option } from '@/components/Forms/FieldInterface'
 import { IonPage } from "@ionic/vue"
 import { MohCohortReportService } from "@/apps/ART/services/reports/moh_cohort_service"
-import { toastWarning } from '@/utils/Alerts'
 import { isEmpty } from "lodash"
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service"
 
@@ -184,7 +183,7 @@ export default defineComponent({
                     this.setHeaderInfoList(`<span style='color:green'>Report is consistent</span>`)
                 }
             })
-            if (s === -1) toastWarning('Running cohort report to check consistency. This may take a while')
+            if (s === -1) this.setHeaderInfoList(`<span style='color:red'>Run Cohort report for same reporting period to validate</span>`)
         }
     }
 })
