@@ -324,36 +324,9 @@ export default defineComponent({
                     },
                 }, this.registration.getDate()),
                 {
-                    id: 'arv_regimen_selection',
-                    proxyID: 'arvs_received',
-                    helpText: 'Last ARV Regimen dispensed',
-                    type: FieldType.TT_ART_REGIMEN_SELECTION,
-                    computedValue: (v: Option) => v.other,
-                    options: async () => {
-                        if (!isEmpty(this.regimens)) return this.regimens
-                        const regimens = await RegimenService.getAllArvRegimens()
-                        const options = Object.keys(regimens)
-                            .map((r: string) => {
-                                const drugs = regimens[r]
-                                const label = drugs.map((d: any) => 
-                                    d.alternative_drug_name || d.concept_name)
-                                    .join(' + ')
-                                return { 
-                                    label,
-                                    value: r,
-                                    other: drugs
-                                }
-                            })
-                        this.regimens = [ ...options, this.toOption('Other')]
-                        return this.regimens
-                    },
-                    validation: (v: Option) => Validation.required(v),
-                    condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i) ? true : false
-                },
-                {
                     id: 'other_arv_regimens_received',
                     proxyID: 'arvs_received',
-                    helpText: 'Other Last ARV drugs dispensed',
+                    helpText: 'Last drugs dispensed',
                     type: FieldType.TT_MULTIPLE_SELECT,
                     validation: (v: Option[]) => Validation.required(v),
                     computedValue: (v: Option[]) => v.map(d => d.other),
@@ -371,7 +344,7 @@ export default defineComponent({
                     config: {
                         showKeyboard: true
                     },
-                    condition: (f: any) => `${f.arv_regimen_selection.value}`.match(/other/i)
+                    condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i),
                 },
                 {
                     id: 'arv_quantities',
