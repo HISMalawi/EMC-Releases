@@ -89,7 +89,7 @@ export default defineComponent({
                 this.patientData.id, guardianID, form.relations.other.relationship_type_id
             )
             if(this.redirectURL) this.$router.push({name: this.redirectURL})
-            else await nextTask(this.patientData.id, this.$router)  
+            else await nextTask(this.patientData.id, this.$router, this.$route)  
         }   
     },
     isSearchMode() {

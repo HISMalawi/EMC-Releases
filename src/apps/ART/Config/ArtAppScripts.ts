@@ -18,6 +18,7 @@ import DrugModalVue from "@/apps/ART/Components/DrugModal.vue";
 import ART_GLOBAL_PROP from "../art_global_props";
 import { isEmpty } from "lodash";
 import { Order } from "@/interfaces/order";
+import { addWorkflowTask, nextTask } from "@/utils/WorkflowTaskHelper";
 
 async function enrollInArtProgram(patientID: number, patientType: string, clinic: string) {
     const program = new PatientProgramService(patientID)
@@ -92,17 +93,24 @@ export async function init(context='') {
     }
 }
 
-export async function onRegisterPatient(patientID: number, person: any, attr: any, router: any) {
+export async function onRegisterPatient(patientID: number, person: any, attr: any, router: any, route: any) {
     await enrollInArtProgram(patientID, person.patient_type, person.location)
-    // Assign filing number if property use_filing_numbers is enabled
-    if ((await ART_GLOBAL_PROP.filingNumbersEnabled())) {
-        let nextRoute = `/art/filing_numbers/${patientID}?assign=true`
-        if (person.relationship === 'Yes') {
-            nextRoute += '&next_workflow_task=Guardian Registration'
-        }
-        router.push(nextRoute)
-        return true
+    if (person.relationship === 'Yes') {
+        addWorkflowTask(patientID, {
+            from: 'Patient Registration',
+            to: `/guardian/registration/${patientID}`
+        })
     }
+    if ((await ART_GLOBAL_PROP.filingNumbersEnabled())) {
+        addWorkflowTask(patientID, {
+            from: person?.relationship === 'Yes' 
+                ? 'Guardian Registration'
+                : 'Patient Registration',
+            to: `/art/filing_numbers/${patientID}?assign=true`
+        })
+    }
+    nextTask(patientID, router, route)
+    return true
 }
 
 export async function getPatientDashboardAlerts(patient: any): Promise<GeneralDataInterface[]>{
