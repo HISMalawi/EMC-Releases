@@ -326,7 +326,7 @@ export default defineComponent({
                 {
                     id: 'other_arv_regimens_received',
                     proxyID: 'arvs_received',
-                    helpText: 'Last drugs dispensed',
+                    helpText: 'Last ARV drugs dispensed',
                     type: FieldType.TT_MULTIPLE_SELECT,
                     validation: (v: Option[]) => Validation.required(v),
                     computedValue: (v: Option[]) => v.map(d => d.other),
@@ -344,7 +344,53 @@ export default defineComponent({
                     config: {
                         showKeyboard: true
                     },
+                    condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i) ? true : false
+                },
+                {
+                    id: 'drug_interval',
+                    helpText: 'Interval for last received ARVs',
+                    type: FieldType.TT_NEXT_VISIT_INTERVAL_SELECTION,
                     condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i),
+                    validation: (val: Option) => Validation.required(val),
+                    unload: (v: Option) => {
+                        this.prescription.setNextVisitInterval(v.value)
+                    },
+                    options: () => {
+                        const intervals = [
+                            { label: '2 weeks', value: 14 },
+                            { label: '1 month', value: 28 },
+                            { label: '2 months', value: 56 },
+                            { label: '3 months', value: 84 },
+                            { label: '4 months', value: 112 },
+                            { label: '5 months', value: 140 },
+                            { label: '6 months', value: 168 },
+                            { label: '7 months', value: 196 },
+                            { label: '8 months', value: 224 },
+                            { label: '9 months', value: 252 },
+                            { label: '10 months', value: 280 },
+                            { label: '11 months', value: 308 },                        
+                            { label: '12 months', value: 336 },
+                        ]
+                        return intervals.map(({label, value}: Option) => {
+                            this.prescription.setNextVisitInterval(value)
+                            const nextAppointment = this.prescription.calculateDateFromInterval()
+                            return {
+                                label,
+                                value,
+                                other: {
+                                    label: 'Medication run-out date:',
+                                    value: HisDate.toStandardHisDisplayFormat(nextAppointment),
+                                    other: {
+                                        label: "",
+                                        value: []
+                                    }
+                                }
+                            }
+                        })
+                    },
+                    config: {
+                        showRegimenCardTitle: false
+                    }
                 },
                 {
                     id: 'arv_quantities',
@@ -402,52 +448,6 @@ export default defineComponent({
                             label: 'Drugs',
                             value: 'Amount Received'
                         }
-                    }
-                },
-                {
-                    id: 'drug_interval',
-                    helpText: 'Interval for last received ARVs',
-                    type: FieldType.TT_NEXT_VISIT_INTERVAL_SELECTION,
-                    condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i),
-                    validation: (val: Option) => Validation.required(val),
-                    unload: (v: Option) => {
-                        this.prescription.setNextVisitInterval(v.value)
-                    },
-                    options: () => {
-                        const intervals = [
-                            { label: '2 weeks', value: 14 },
-                            { label: '1 month', value: 28 },
-                            { label: '2 months', value: 56 },
-                            { label: '3 months', value: 84 },
-                            { label: '4 months', value: 112 },
-                            { label: '5 months', value: 140 },
-                            { label: '6 months', value: 168 },
-                            { label: '7 months', value: 196 },
-                            { label: '8 months', value: 224 },
-                            { label: '9 months', value: 252 },
-                            { label: '10 months', value: 280 },
-                            { label: '11 months', value: 308 },                        
-                            { label: '12 months', value: 336 },
-                        ]
-                        return intervals.map(({label, value}: Option) => {
-                            this.prescription.setNextVisitInterval(value)
-                            const nextAppointment = this.prescription.calculateDateFromInterval()
-                            return {
-                                label,
-                                value,
-                                other: {
-                                    label: 'Medication run-out date:',
-                                    value: HisDate.toStandardHisDisplayFormat(nextAppointment),
-                                    other: {
-                                        label: "",
-                                        value: []
-                                    }
-                                }
-                            }
-                        })
-                    },
-                    config: {
-                        showRegimenCardTitle: false
                     }
                 },
                 /**
