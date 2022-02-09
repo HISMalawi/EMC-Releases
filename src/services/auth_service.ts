@@ -65,6 +65,23 @@ export class AuthService{
         })
     }
 
+    initDateSync(interval = 1000) {
+        setInterval(async () => {
+            const date = await this.getSystemDate()
+            /**
+             * This condition exists to prevent overriding BDE Date
+             * by checking presence of apiDate. We update that instead
+             * else we update sessionDate because we assume they're not in BDE 
+             * mode
+             */
+            if (sessionStorage.getItem('apiDate')) {
+                sessionStorage.setItem('apiDate', date)
+            } else {
+                sessionStorage.setItem('sessionDate', date)
+            }
+        }, interval)
+    }
+
     async getApiVersion(): Promise<string> {
         const api: any = this.getJson('version')
         return api ? api['System version'] || 'none' : ''
