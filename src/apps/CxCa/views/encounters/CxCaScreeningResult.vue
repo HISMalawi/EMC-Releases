@@ -40,13 +40,17 @@ export default defineComponent({
     },
   },
   methods: {
-    async onFinish(formData: any) {
+    async onFinish(formData: any, computed: any) {
       const encounter = await this.screeningResult.createEncounter();
       if (!encounter) return toastWarning("Unable to create encounter");
       if(formData.treatment_option && formData.treatment_option.value === "Referral") {
         this.obs.push(this.screeningResult.buildValueText('Referral location', formData['location'].label))
       }
-      const data = await Promise.all([...this.obs]);
+      const vals: any = [];
+      Object.keys(computed).forEach(element => {
+        vals.push(computed[element].obs);
+      });
+      const data = await Promise.all([...this.obs, ...vals]);
       await this.screeningResult.saveObservationList(data);
       toastSuccess("Observations and encounter created!");
       this.nextTask();
