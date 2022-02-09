@@ -4,8 +4,8 @@
       <ion-toolbar class="mobile-component-view">
         <ion-title> {{ facilityName }} </ion-title>
         <ion-buttons slot="end">
-          <ion-thumbnail> 
-            <img :src="appLogo" class="logo" alt="App Logo"/>
+          <ion-thumbnail>
+            <img :src="appLogo" class="logo" alt="App Logo" />
           </ion-thumbnail>
         </ion-buttons>
       </ion-toolbar>
@@ -13,21 +13,22 @@
         <ion-row>
           <ion-col>
             <div class="tool-bar-medium-card">
-              <ion-row> 
-                <ion-col size-lg="5" size-sm="4"> 
-                  <img 
+              <ion-row>
+                <ion-col size-lg="5" size-sm="4">
+                  <img
                     :style="{
-                      width: '230px', 
+                      width: '230px',
                       height: '90px',
-                      margin: '0'
+                      margin: '0',
                     }"
-                    :src="barcodeLogo"/>
+                    :src="barcodeLogo"
+                  />
                 </ion-col>
-                <ion-col size-lg="7" size-sm="8"> 
-                  <input 
-                    :readonly="isReadOnly" 
-                    v-model="patientBarcode" 
-                    class="barcode-input" 
+                <ion-col size-lg="7" size-sm="8">
+                  <input
+                    :readonly="isReadOnly"
+                    v-model="patientBarcode"
+                    class="barcode-input"
                     ref="scanBarcode"
                   />
                 </ion-col>
@@ -36,13 +37,22 @@
           </ion-col>
           <ion-col size="5">
             <div class="tool-bar-medium-card">
-              <div class="tool-bar-medium-content"> 
-                <p>Facility name: <b>{{ facilityName }}</b></p>
-                <p>Location: <b> {{ userLocation }}</b></p>
-                <p>Date: <ion-label :color="isBDE ? 'danger' : 'success'">
-                  <b> {{ sessionDate }} </b> 
-                  </ion-label></p>
-                <p>User:<b> {{ userName }}</b></p>
+              <div class="tool-bar-medium-content">
+                <p>
+                  Facility name: <b>{{ facilityName }}</b>
+                </p>
+                <p>
+                  Location: <b> {{ userLocation }}</b>
+                </p>
+                <p>
+                  Date:
+                  <ion-label :color="isBDE ? 'danger' : 'success'">
+                    <b> {{ sessionDate }} </b>
+                  </ion-label>
+                </p>
+                <p>
+                  User:<b> {{ userName }}</b>
+                </p>
               </div>
             </div>
           </ion-col>
@@ -53,8 +63,12 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-toolbar> 
-      <ion-segment scrollable :value="activeTab" class="ion-justify-content-center">
+    <ion-toolbar>
+      <ion-segment
+        scrollable
+        :value="activeTab"
+        class="ion-justify-content-center"
+      >
         <ion-segment-button :value="1" @click="activeTab = 1">
           <ion-icon :icon="statsChart"> </ion-icon>
           <ion-label>Overview</ion-label>
@@ -69,24 +83,12 @@
         </ion-segment-button>
       </ion-segment>
     </ion-toolbar>
-    
+
     <ion-content :fullscreen="true">
       <div id="container" class="his-card overview" v-if="ready">
-        
-        <component 
-          v-if ="activeTab == 1" 
-          v-bind:is="appOverview"
-          > 
-        </component>
-        <home-folder
-          v-if="activeTab == 2"
-          :items="appReports"
-          >
-        </home-folder>
-        <home-folder 
-          v-if="activeTab == 3"
-          :items="app.globalPropertySettings" 
-          >
+        <component v-if="activeTab == 1" v-bind:is="appOverview"> </component>
+        <home-folder v-if="activeTab == 2" :items="appReports"> </home-folder>
+        <home-folder v-if="activeTab == 3" :items="app.globalPropertySettings">
         </home-folder>
       </div>
     </ion-content>
@@ -94,45 +96,83 @@
     <ion-footer>
       <ion-toolbar>
         <ion-row>
-        <ion-col>
-          <ion-button class="xl-button mobile-component-view" color="danger" @click="signOut">
-            <ion-icon :icon="logOut"></ion-icon>
-          </ion-button>
-          <ion-button class="xl-button full-component-view" color="danger" size="large" @click="signOut">
-            <ion-icon :icon="logOut"></ion-icon>
-            <ion-label> Logout </ion-label>
-          </ion-button>
-        </ion-col>
-        
-        <ion-col>
-          <ion-button v-if="canFindByIdentifier" class="xl-button mobile-component-view" color="primary" router-link="/patients/search/id">
-            <ion-icon :icon="search"> </ion-icon>
-          </ion-button>
-          <ion-button v-if="canFindByIdentifier" class="xl-button full-component-view" color="primary" size="large" router-link="/patients/search/id">
-            <ion-icon :icon="search"> </ion-icon>
-            <ion-label> Find By </ion-label>
-          </ion-button>
-        </ion-col>
+          <ion-col>
+            <ion-button
+              class="xl-button mobile-component-view"
+              color="danger"
+              @click="signOut"
+            >
+              <ion-icon :icon="logOut"></ion-icon>
+            </ion-button>
+            <ion-button
+              class="xl-button full-component-view"
+              color="danger"
+              size="large"
+              @click="signOut"
+            >
+              <ion-icon :icon="logOut"></ion-icon>
+              <ion-label> Logout </ion-label>
+            </ion-button>
+          </ion-col>
 
-        <ion-col>
-          <ion-button class="xl-button mobile-component-view" color="primary" router-link="/patient/registration">
-            <ion-icon :icon="person"></ion-icon>
-          </ion-button>
-          <ion-button class="xl-button full-component-view" color="primary" size="large" router-link="/patient/registration">
-            <ion-icon :icon="person"></ion-icon>
-            <ion-label> Find or Register </ion-label>
-          </ion-button>
-        </ion-col>
+          <ion-col>
+            <ion-button
+              v-if="canFindByIdentifier"
+              class="xl-button mobile-component-view"
+              color="primary"
+              router-link="/patients/search/id"
+            >
+              <ion-icon :icon="search"> </ion-icon>
+            </ion-button>
+            <ion-button
+              v-if="canFindByIdentifier"
+              class="xl-button full-component-view"
+              color="primary"
+              size="large"
+              router-link="/patients/search/id"
+            >
+              <ion-icon :icon="search"> </ion-icon>
+              <ion-label> Find By </ion-label>
+            </ion-button>
+          </ion-col>
 
-        <ion-col>
-          <ion-button class="xl-button mobile-component-view" color="primary" @click="openModal">
-            <ion-icon :icon="apps"></ion-icon>
-          </ion-button>
-          <ion-button class="xl-button full-component-view" color="primary" size="large" @click="openModal">
-            <ion-icon :icon="apps"></ion-icon>
-            <ion-label> Applications </ion-label>
-          </ion-button>
-        </ion-col>
+          <ion-col>
+            <ion-button
+              class="xl-button mobile-component-view"
+              color="primary"
+              router-link="/patient/registration"
+            >
+              <ion-icon :icon="person"></ion-icon>
+            </ion-button>
+            <ion-button
+              class="xl-button full-component-view"
+              color="primary"
+              size="large"
+              router-link="/patient/registration"
+            >
+              <ion-icon :icon="person"></ion-icon>
+              <ion-label> Find or Register </ion-label>
+            </ion-button>
+          </ion-col>
+
+          <ion-col>
+            <ion-button
+              class="xl-button mobile-component-view"
+              color="primary"
+              @click="openModal"
+            >
+              <ion-icon :icon="apps"></ion-icon>
+            </ion-button>
+            <ion-button
+              class="xl-button full-component-view"
+              color="primary"
+              size="large"
+              @click="openModal"
+            >
+              <ion-icon :icon="apps"></ion-icon>
+              <ion-label> Applications </ion-label>
+            </ion-button>
+          </ion-col>
         </ion-row>
       </ion-toolbar>
     </ion-footer>
@@ -140,28 +180,28 @@
 </template>
 
 <script lang="ts">
-import HisApp from "@/apps/app_lib"
+import HisApp from "@/apps/app_lib";
 import { defineComponent } from "vue";
 import { barcode } from "ionicons/icons";
 import ApiClient from "@/services/api_client";
-import HisDate from "@/utils/Date"
+import HisDate from "@/utils/Date";
 import { AppInterface, FolderInterface } from "@/apps/interfaces/AppInterface";
-import { Service } from "@/services/service"
-import ProgramIcon from "@/components/DataViews/DashboardAppIcon.vue"
-import HomeFolder from "@/components/HomeComponents/HomeFolders.vue"
-import { AuthService } from "@/services/auth_service"
-import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
+import { Service } from "@/services/service";
+import ProgramIcon from "@/components/DataViews/DashboardAppIcon.vue";
+import HomeFolder from "@/components/HomeComponents/HomeFolders.vue";
+import { AuthService } from "@/services/auth_service";
+import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 
-import Img from "@/utils/Img"
-import { 
-  apps, 
-  person, 
-  search, 
+import Img from "@/utils/Img";
+import {
+  apps,
+  person,
+  search,
   logOut,
   statsChart,
   pieChart,
-  settings
-} from 'ionicons/icons';
+  settings,
+} from "ionicons/icons";
 import {
   IonThumbnail,
   IonContent,
@@ -178,7 +218,7 @@ import {
   IonSegmentButton,
   IonLabel,
   IonTitle,
-  isPlatform
+  isPlatform,
 } from "@ionic/vue";
 export default defineComponent({
   name: "Home",
@@ -199,20 +239,20 @@ export default defineComponent({
     IonFooter,
     IonSegment,
     IonSegmentButton,
-    IonLabel
+    IonLabel,
   },
   setup() {
     return {
       barcode,
-      apps, 
-      person, 
-      search, 
+      apps,
+      person,
+      search,
       logOut,
       statsChart,
       pieChart,
       settings,
-      isReadOnly: !isPlatform('desktop')
-    }
+      isReadOnly: !isPlatform("desktop"),
+    };
   },
   data() {
     return {
@@ -226,42 +266,44 @@ export default defineComponent({
       ready: false,
       patientBarcode: "",
       overviewComponent: {} as any,
-      isBDE: false
+      isBDE: false,
     };
   },
   computed: {
     barcodeLogo(): string {
-      return Img('barcode.svg')
+      return Img("barcode.svg");
     },
     appOverview(): any {
-      return this.app.homeOverviewComponent
+      return this.app.homeOverviewComponent;
     },
     appLogo(): string {
-      return Img(this.app.applicationIcon)
+      return Img(this.app.applicationIcon);
     },
     appReports(): FolderInterface[] {
-      return this.app.programReports ? this.app.programReports: []
+      return this.app.programReports ? this.app.programReports : [];
     },
     appAdministration(): FolderInterface[] {
-      return this.app.globalPropertySettings ? this.app.globalPropertySettings: []
+      return this.app.globalPropertySettings
+        ? this.app.globalPropertySettings
+        : [];
     },
     canFindByIdentifier(): boolean {
-      return this.app.programPatientIdentifiers ? true : false
+      return this.app.programPatientIdentifiers ? true : false;
     },
     canReport(): boolean {
-      return this.app.programReports ? true : false
-    }
+      return this.app.programReports ? true : false;
+    },
   },
   methods: {
     fetchLocationID: async function () {
-      const centerID = await GLOBAL_PROP.healthCenterID()
+      const centerID = await GLOBAL_PROP.healthCenterID();
 
       if (centerID) this.fetchLocationName(centerID);
     },
     fetchLocationUUID: async function () {
-      const uuid = await GLOBAL_PROP.siteUUID()
+      const uuid = await GLOBAL_PROP.siteUUID();
 
-      if (uuid) sessionStorage.siteUUID = uuid
+      if (uuid) sessionStorage.siteUUID = uuid;
     },
     async fetchLocationName(locationID: string) {
       const response = await ApiClient.get("locations/" + locationID);
@@ -278,78 +320,81 @@ export default defineComponent({
     },
     loadApplicationData() {
       this.ready = true;
-      this.isBDE = Service.isBDE() === true
+      this.isBDE = Service.isBDE() === true;
       this.userLocation = sessionStorage.userLocation;
       this.userName = sessionStorage.username;
       this.fetchLocationID();
       this.sessionDate = HisDate.toStandardHisDisplayFormat(
         Service.getSessionDate()
-      )
+      );
     },
     async openModal() {
-      const data = await HisApp.selectApplication('HomePage') 
+      const data = await HisApp.selectApplication("HomePage");
       if (data) {
-        this.app = data
-        this.activeTab = 1
+        this.app = data;
+        this.activeTab = 1;
         this.loadApplicationData();
       }
     },
-    checkForbarcode(){
-      if(this.patientBarcode.match(/.+\$$/i) != null){
-        const patientBarcode = this.patientBarcode.replaceAll(/\$/gi, '');
-        this.patientBarcode = '';
-        this.$router.push('/patients/confirm?patient_barcode='+patientBarcode);
+    checkForbarcode() {
+      if (this.patientBarcode.match(/.+\$$/i) != null) {
+        const patientBarcode = this.patientBarcode.replaceAll(/\$/gi, "");
+        this.patientBarcode = "";
+        this.$router.push(
+          "/patients/confirm?patient_barcode=" + patientBarcode
+        );
       }
     },
     async signOut() {
-      const auth = new AuthService()
-      if((await GLOBAL_PROP.portalEnabled())) {
+      const auth = new AuthService();
+      if (await GLOBAL_PROP.portalEnabled()) {
         const portalLocation = await GLOBAL_PROP.portalProperties();
         window.location = portalLocation;
-      }else {
-        this.$router.push('/login')
+      } else {
+        this.$router.push("/login");
       }
-      auth.clearSession()
-    }
+      auth.clearSession();
+    },
   },
   created() {
     setInterval(() => {
-      const barcodeElement = this.$refs.scanBarcode as HTMLInputElement
+      const barcodeElement = this.$refs.scanBarcode as HTMLInputElement;
       if (barcodeElement) {
-        barcodeElement.focus()
+        barcodeElement.focus();
       }
-    }, 1500)
+    }, 1500);
   },
-  mounted(){
-    const app = HisApp.getActiveApp()
+  mounted() {
+    const app = HisApp.getActiveApp();
     if (!app) {
       this.openModal();
     } else {
-      this.app = app
+      this.app = app;
       this.loadApplicationData();
     }
+    if (this.app.applicationName === "EMC") this.$router.push("/emc/home");
   },
   watch: {
-    patientBarcode: function() {
+    patientBarcode: function () {
       this.checkForbarcode();
-    }
-  }
+    },
+  },
 });
 </script>
 
 <style scoped>
 .full-component-view {
-    display: block;
+  display: block;
 }
 .mobile-component-view {
-    display: none;
+  display: none;
 }
-@media (max-width:900px) {
+@media (max-width: 900px) {
   .full-component-view {
-      display: none;
+    display: none;
   }
   .mobile-component-view {
-      display: block;
+    display: block;
   }
 }
 ion-icon {
@@ -375,7 +420,7 @@ ion-col p {
   overflow: auto;
 }
 
-.barcode-input{
+.barcode-input {
   font-size: 3em;
   width: 100%;
   height: 90%;
