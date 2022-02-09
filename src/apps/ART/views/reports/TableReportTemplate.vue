@@ -190,6 +190,9 @@ export default defineComponent({
     artVersion: Service.getAppVersion(),
   }),
   methods: {
+    refreshTimeStamp() {
+      this.date = dayjs().format('DD/MMM/YYYY HH:MM:ss')
+    },
     onActiveColumns(columns: any) {
       this.activeColumns = columns
     },
@@ -208,7 +211,7 @@ export default defineComponent({
       this.canShowReport = true
       await this.presentLoading()
       try {
-        this.date = dayjs().format('YYYY-MM-DD:h:m:s')
+        this.refreshTimeStamp()
         if (this.onDefaultConfiguration) {
           await this.onDefaultConfiguration()
         }
@@ -228,7 +231,7 @@ export default defineComponent({
       this.canShowReport = true
       await this.presentLoading()
       try {
-        this.date = dayjs().format('YYYY-MM-DD:h:m:s')
+        this.refreshTimeStamp()
         await this.onReportConfiguration(
           this.formData,
           this.computeFormData,
