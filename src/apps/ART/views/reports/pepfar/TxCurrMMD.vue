@@ -22,8 +22,7 @@ import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { MohCohortReportService } from "@/apps/ART/services/reports/moh_cohort_service"
 import { Option } from '@/components/Forms/FieldInterface'
-import { isEmpty, uniq } from "lodash"
-import { toastWarning } from '@/utils/Alerts'
+import { isEmpty } from "lodash"
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service"
 
 export default defineComponent({
@@ -56,7 +55,7 @@ export default defineComponent({
         this.fields = this.getDateDurationFields()
     },
     methods: {
-        async onPeriod(_: any, config: any, reInitialize=false) {
+        async onPeriod(_: any, config: any) {
             this.canValidate = false
             this.totals.clear()
             this.rows = []
