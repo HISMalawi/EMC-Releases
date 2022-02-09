@@ -194,7 +194,6 @@ router.beforeEach((to, _from, next) => {
   if (!sessionStorage.getItem("apiKey") && !whitelistedUri.includes(to.path)) {
     const goTo = to.path.match(/emc/i) ? "/emc/login" : "/login";
     next(goTo);
-  }
-  next();
+  } else next();
 });
 export default router;
