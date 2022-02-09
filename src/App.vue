@@ -19,7 +19,6 @@ import 'nprogress/nprogress.css'
 import nprogress from 'nprogress'
 import router from '@/router/index';
 import { loadingController } from "@ionic/vue"
-import { AuthService } from './services/auth_service';
 
 export default defineComponent({
   name: 'App',
@@ -33,9 +32,6 @@ export default defineComponent({
     const route = useRoute()
     const notConfigPage = ref(true)
     const healthCheckInterval = ref(null) as any
-
-    // synchronize date every 1 hour
-    new AuthService().initDateSync(3600000)
 
     nprogress.configure({ 
       easing: 'ease', 
