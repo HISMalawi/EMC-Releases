@@ -62,7 +62,7 @@ export default defineComponent({
                     table.tdDate(d.appointment_date),
                     table.tdDate(d.start_date),
                     table.td(d.months_on_art),
-                    table.td(d.mile_stone),
+                    table.tdDate(d.mile_stone),
                     table.tdDate(d.last_result_order_date),
                     table.td(d.last_result),
                     table.tdDate(d.last_result_date)
