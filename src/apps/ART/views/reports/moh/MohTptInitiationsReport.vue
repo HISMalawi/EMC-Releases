@@ -59,6 +59,8 @@ export default defineComponent({
         async onPeriod(_: any, config: any) {
             this.canValidate = false
             this.rows = []
+            this.totalIpt = []
+            this.total3hp = []
             this.report = new RegimenReportService()
             this.mohCohort = new MohCohortReportService()
             this.mohCohort.setStartDate(config.start_date)
