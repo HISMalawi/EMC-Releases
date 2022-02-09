@@ -108,13 +108,13 @@ export default defineComponent({
             this.drilldownData(title, columns, data, rowParser)
         },
         drill(values: Array<number>, title='Drill table') {
-            if (values.length > 0) {
+            if (values && values.length > 0) {
                 return table.tdLink(
                     values.length, 
                     () => this.runTableDrill(values, title)
                 )
             }
-            return table.td(values.length)
+            return table.td(0)
         },
         getQuaterOptions() {
             const quarters = ArtReportService.getReportQuarters()

@@ -23,7 +23,6 @@ import table from "@/components/DataViews/tables/ReportDataTable"
 import { Option } from '@/components/Forms/FieldInterface'
 import { IonPage } from "@ionic/vue"
 import { MohCohortReportService } from "@/apps/ART/services/reports/moh_cohort_service"
-import { toastWarning } from '@/utils/Alerts'
 import { isEmpty } from "lodash"
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service"
 
@@ -135,6 +134,7 @@ export default defineComponent({
                     maxAge = parseInt(max)
                 }
                 const res = await this.report.getTxCurrMMDReport(minAge, maxAge)
+                this.report.initArvRefillPeriod(false)
                 if (res) {
                     females.push([
                         table.td(group),
@@ -172,7 +172,7 @@ export default defineComponent({
                     check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
                         <b>MoH cohort Alive and on ART clients (${i}) is not
-                        not matching with total TX MMD clients (${p}).</b>
+                        matching with total TX MMD clients (${p}).</b>
                     `
                 }
             }
@@ -183,7 +183,7 @@ export default defineComponent({
                     this.setHeaderInfoList(`<span style='color:green'>Report is consistent</span>`)
                 }
             })
-            if (s === -1) toastWarning('Running cohort report to check consistency. This may take a while')
+            if (s === -1) this.setHeaderInfoList(`<span style='color:red'>Run Cohort report for same reporting period to validate</span>`)
         }
     }
 })

@@ -13,7 +13,9 @@ import { EstimationFieldType } from "@/utils/HisFormHelpers/MultiFieldDateHelper
 import HisDate from "@/utils/Date"
 import { DateFieldInterface } from "@/utils/HisFormHelpers/MultiFieldDateHelper"
 import { Patientservice } from "@/services/patient_service"
-import { isPlainObject } from "lodash"
+import { isPlainObject, isEmpty } from "lodash"
+import { alertConfirmation, toastWarning } from '../Alerts'
+import { LocationService } from '@/services/location_service'
 
 function mapToOption(listOptions: Array<string>): Array<Option> {
     return listOptions.map((item: any) => ({ 
@@ -96,6 +98,7 @@ export default {
             maxDate: () => PersonService.getSessionDate(),
             estimation: {
                 allowUnknown: true,
+                allowUnknownMonthDay: true,
                 estimationFieldType: EstimationFieldType.AGE_ESTIMATE_FIELD
             },
             computeValue: (date: string, isEstimate: boolean) => {
@@ -138,6 +141,32 @@ export default {
             options: (form: any) => getDistricts(form.home_region.value)
         }
     },
+    addCustomLocationBtnForTAorVillage(BtnName: string, formParentAddressRef: string) {
+        return {
+            name: `Add ${BtnName}`,
+            slot: "end",
+            color: "success",
+            onClick: async (f: any, c: any, field: any) => {
+                 if (typeof field.filter != 'string' || field.filter.length < 3) {
+                    return toastWarning(`Please enter a valid ${BtnName}`)
+                 }
+                 if (!isEmpty(field.filtered)) {
+                    return toastWarning(`Can't add existing ${BtnName}`)
+                 } 
+                 const ok = await alertConfirmation(`Do you want to add ${BtnName} ${field.filter}?`)
+
+                 if (!ok) return
+
+                 const address = await LocationService.createAddress(BtnName, field.filter, f[formParentAddressRef].value)
+                 if (address) {
+                    // Hack to force the list to reload the list with new data
+                    field.filter = field.filter.toUpperCase() 
+                 } else {
+                    return toastWarning(`Unable to add ${BtnName}`)
+                 }
+            }
+         }
+    },
     getHomeTaField() {
         return  {
             id: 'home_traditional_authority',
@@ -145,7 +174,11 @@ export default {
             type: FieldType.TT_SELECT,
             requireNext: false,
             config: {
-                showKeyboard: true
+                showKeyboard: true,
+                isFilterDataViaApi: true,
+                footerBtns: [
+                    this.addCustomLocationBtnForTAorVillage('TA', 'home_district')
+                ]
             },
             defaultOutput: () => ({label: 'N/A', value: 'N/A'}),
             defaultComputedOutput: (f: any) => {
@@ -156,7 +189,7 @@ export default {
             },
             computedValue: (val: Option) => ({person: val.label}),
             validation: (val: any) => Validation.required(val),
-            options: (form: any) => getTraditionalAuthorities(form.home_district.value)
+            options: (form: any, filter: string) => getTraditionalAuthorities(form.home_district.value, filter)
         }
     },
     getHomeVillageField() {
@@ -165,7 +198,11 @@ export default {
             helpText: 'Home Village',
             type: FieldType.TT_SELECT,
             config: {
-                showKeyboard: true
+                showKeyboard: true,
+                isFilterDataViaApi: true,
+                footerBtns: [
+                    this.addCustomLocationBtnForTAorVillage('Village', 'home_traditional_authority')
+                ]
             },
             requireNext: false,
             defaultOutput: () => ({ label: 'N/A', value: 'N/A' }),
@@ -177,7 +214,7 @@ export default {
             },
             computedValue: (val: Option) => ({person: val.label}),
             validation: (val: any) => Validation.required(val),
-            options: (form: any) => getVillages(form.home_traditional_authority.value)
+            options: (form: any, filter: string) => getVillages(form.home_traditional_authority.value, filter)
         }
     },
     getCurrentRegionField() {
@@ -214,6 +251,13 @@ export default {
             helpText: 'Current TA',
             requireNext: false,
             type: FieldType.TT_SELECT,
+            config: {
+                showKeyboard: true,
+                isFilterDataViaApi: true,
+                footerBtns: [
+                    this.addCustomLocationBtnForTAorVillage('TA', 'current_district')
+                ]
+            },
             defaultOutput: () => ({label: 'N/A', value: 'N/A'}),
             defaultComputedOutput: (f: any) => {
                 if (f.current_region && f.current_region.label.match(/foreign/i)) {
@@ -223,7 +267,7 @@ export default {
             },
             computedValue: (val: Option) => ({person: val.label}),
             validation: (val: any) => Validation.required(val),
-            options: (form: any) => getTraditionalAuthorities(form.current_district.value)
+            options: (form: any, filter: string) => getTraditionalAuthorities(form.current_district.value, filter)
         }
     },
     getCurrentVillageField() {
@@ -232,6 +276,13 @@ export default {
             helpText: 'Current Village',
             requireNext: false,
             type: FieldType.TT_SELECT,
+            config: {
+                showKeyboard: true,
+                isFilterDataViaApi: true,
+                footerBtns: [
+                    this.addCustomLocationBtnForTAorVillage('Village', 'current_traditional_authority')
+                ]
+            },
             defaultOutput: () => ({label: 'N/A', value: 'N/A'}),
             defaultComputedOutput: (f: any) => {
                 if (f.current_region && f.current_region.label.match(/foreign/i)) {
@@ -241,7 +292,7 @@ export default {
             },
             computedValue: (val: Option) => ({person: val.label}),
             validation: (val: any) => Validation.required(val),
-            options: (form: any) => getVillages(form.current_traditional_authority.value)
+            options: (form: any, filter: string) => getVillages(form.current_traditional_authority.value, filter)
         }
     },
     getCellNumberField() {
@@ -256,31 +307,46 @@ export default {
                     || val.value.match(/n\/a/i))) return
 
                 return Validation.isMWPhoneNumber(val)
+            },
+            config: {
+                noChars: false
             }
         }
     },
-    getLandmarkField(): Field {
-        return {
-            id: 'landmark',
-            helpText: 'Closest Landmark or Plot Number',
-            group: 'person',
-            type: FieldType.TT_SELECT,
-            computedValue: (val: Option) => ({person: val.value}),
-            validation: (val: any) => Validation.required(val),
-            options: () => mapToOption([
-                'Catholic Church',
-                'CCAP',
-                'Seventh Day',
-                'Mosque',
-                'Primary School',
-                'Borehole',
-                'Secondary School',
-                'College',
-                'Market',
-                'Football Ground',
-                'Other'
-            ])
-        }
+    getLandmarkFields(): Field[] {
+        return [
+            {
+                id: 'default_landmarks',
+                proxyID: 'landmark',
+                helpText: 'Closest Landmark or Plot Number',
+                type: FieldType.TT_SELECT,
+                appearInSummary: (f: any) => f.default_landmarks.value != 'Other',
+                computedValue: (val: Option) => ({person: val.value}),
+                validation: (val: any) => Validation.required(val),
+                options: () => mapToOption([
+                    'Catholic Church',
+                    'CCAP',
+                    'Seventh Day',
+                    'Mosque',
+                    'Primary School',
+                    'Borehole',
+                    'Secondary School',
+                    'College',
+                    'Market',
+                    'Football Ground',
+                    'Other'
+                ])
+            },
+            {
+                id: 'other_landmark',
+                proxyID: 'landmark',
+                helpText: 'Closest Landmark or Plot Number',
+                type: FieldType.TT_NOTE,
+                condition: (f: any) => f.default_landmarks.value === 'Other',
+                computedValue: (val: Option) => ({person: val.value}),
+                validation: (v: Option) => Validation.required(v)
+            }
+        ]
     },
     getFacilityLocationField() {
         return  {

@@ -3,8 +3,8 @@
         <div class='view-port-content'>
             <ion-grid> 
                 <ion-row> 
-                    <ion-col size="8"><b> Medication </b> </ion-col>
-                    <ion-col size="4"><b> Amount Remaining </b> </ion-col>
+                    <ion-col size="8"><b> {{config?.titles?.label || "Medication" }} </b> </ion-col>
+                    <ion-col size="4"><b> {{config?.titles?.value || "Amount Remaining" }}</b> </ion-col>
                 </ion-row>
                 <ion-row v-for="(data, index) in listData" :key="index"> 
                     <ion-col size="8">  
@@ -63,7 +63,7 @@ export default defineComponent({
   },
   async activated() {
     this.$emit('onFieldActivated', this)
-    this.listData = await this.options(this.fdata)
+    this.listData = await this.options(this.fdata, this.cdata, this.listData)
   },
   methods: {
     async launchKeyPad(item: Option) {

@@ -3,6 +3,10 @@ import { Service } from "./service";
 export class RegimenService extends Service {
     constructor() {
         super()
+    } 
+
+    static getAllArvRegimens() {
+        return this.getJson(`programs/${this.getProgramID()}/all_arv_regimens`)
     }
 
     static getRegimens(patientId: number) {

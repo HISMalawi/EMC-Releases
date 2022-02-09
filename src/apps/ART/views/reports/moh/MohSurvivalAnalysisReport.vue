@@ -88,59 +88,59 @@ export default defineComponent({
             this.report.setRegenerate(shouldRebuildCache)
             this.report.setQuarter(quarter.label)
             this.report.setAgeGroup(group.value)
-            this.setRows((await this.report.getSurvivalAnalysis()))
+            const data = await this.report.getSurvivalAnalysis()
+            this.rows = this.getRows(data)
         },
-        sortReportData(data: any) {
-            return Transformer.orderObj(data, (a: string, b: string) => {
-                const [b_, yearA] = a.split(' ')
-                const [a_, yearB] = b.split(' ')
-                return parseInt(yearA) > parseInt(yearB) ? 1 : 0
-            })
-        },
-        setRows(quarterList: any) {
-            const ordered = this.sortReportData(quarterList)
-            for(const quarterIndex in ordered) {
-                const quarterOutcomes = ordered[quarterIndex]
-                let qInterval = 0
-                let totalRegInQuarter = 0
-                const outcomeRef: any = {
-                    'On antiretrovirals': 0,
-                    'Defaulted': 0,
-                    'Patient died': 0,
-                    'Treatment stopped': 0,
-                    'Patient transferred out': 0,
-                    'unknown': 0
-                }
-                if (isEmpty(quarterOutcomes)) {
-                    continue
-                }
-                for(const outcome in quarterOutcomes) {
-                    const outcomeIntervals =  quarterOutcomes[outcome]
-                    for (const interval in outcomeIntervals) {
-                        const count = outcomeIntervals[interval]
-                        qInterval = parseInt(interval)
-                        if (outcome in outcomeRef) {
-                            outcomeRef[outcome] = count
-                        } else {
-                            outcomeRef['unknown'] = count
-                        }
-                        totalRegInQuarter += count
+        getRows(data: any) {
+            return Object.keys(data)
+                .filter((d: string) => !isEmpty(data[d]))
+                .sort((a: any, b: any) => {
+                    const [b_, yearA] = a.split(' ')
+                    const [a_, yearB] = b.split(' ')
+                    return parseInt(yearA) - parseInt(yearB)
+                })
+                .map((quarter: string) => {
+                    const quarterOutcomes = data[quarter]
+                    let qInterval = 0
+                    let totalRegInQuarter = 0
+                    const outcomeRef: any = {
+                        'On antiretrovirals': 0,
+                        'Defaulted': 0,
+                        'Patient died': 0,
+                        'Treatment stopped': 0,
+                        'Patient transferred out': 0,
+                        'unknown': 0
                     }
-                }
-                this.rows.push([
-                    table.td(quarterIndex),
-                    table.td(qInterval),
-                    table.td(this.report.getAgeGroup()),
-                    table.td(totalRegInQuarter),
-                    table.td('', borderSplitStyle), // Must remain blank according to guidelines
-                    table.td(outcomeRef['On antiretrovirals']),
-                    table.td(outcomeRef['Patient died']),
-                    table.td(outcomeRef['Defaulted']),
-                    table.td(outcomeRef['Treatment stopped']),
-                    table.td(outcomeRef['Patient transferred out']),
-                    table.td(outcomeRef['unknown'])
-                ])
-            }
+                    if (isEmpty(quarterOutcomes)) {
+                        return
+                    }
+                    for(const outcome in quarterOutcomes) {
+                        const outcomeIntervals =  quarterOutcomes[outcome]
+                        for (const interval in outcomeIntervals) {
+                            const count = outcomeIntervals[interval]
+                            qInterval = parseInt(interval)
+                            if (outcome in outcomeRef) {
+                                outcomeRef[outcome] = count
+                            } else {
+                                outcomeRef['unknown'] = count
+                            }
+                            totalRegInQuarter += count
+                        }
+                    }
+                    return [
+                        table.td(quarter),
+                        table.td(qInterval),
+                        table.td(this.report.getAgeGroup()),
+                        table.td(totalRegInQuarter),
+                        table.td('', borderSplitStyle), // Must remain blank according to guidelines
+                        table.td(outcomeRef['On antiretrovirals']),
+                        table.td(outcomeRef['Patient died']),
+                        table.td(outcomeRef['Defaulted']),
+                        table.td(outcomeRef['Treatment stopped']),
+                        table.td(outcomeRef['Patient transferred out']),
+                        table.td(outcomeRef['unknown'])
+                    ]
+                })
         }
     }
 })

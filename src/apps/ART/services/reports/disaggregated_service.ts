@@ -24,11 +24,9 @@ export class DisaggregatedReportService extends ArtReportService {
 
     async init() {
         this.initialize = true
-        this.rebuildOutcome = true
         const req = await this.getReport('cohort_disaggregated', this.getRequestParams())
         if (req && req.temp_disaggregated === 'created') {
             this.initialize = false
-            this.rebuildOutcome = false
             return true
         }
         return false
@@ -60,9 +58,9 @@ export class DisaggregatedReportService extends ArtReportService {
 
     getRequestParams(params={}) {
         return this.buildRequest({
-            'age_group': this.ageGroup,
-            'rebuild_outcome': this.rebuildOutcome,
-            'initialize': this.initialize,
+            'age_group': `${this.ageGroup}`,
+            'rebuild_outcome': `${this.rebuildOutcome}`,
+            'initialize': `${this.initialize}`,
             ...params
         })
     }
@@ -72,24 +70,15 @@ export class DisaggregatedReportService extends ArtReportService {
     }
 
     getTxIpt() {
-        return this.getReport('clients_given_ipt', 
-        this.getRequestParams({
-            'gender': this.gender,
-            'outcome_table': this.outComeTable      
-        }))
+        return this.getReport('clients_given_ipt', this.getRequestParams({ 'gender': this.gender }))
     }
 
     getTxCurrTB() {
-        return this.getReport('screened_for_tb', 
-        this.getRequestParams({
-            'gender': this.gender,
-            'outcome_table': this.outComeTable
-        }))
+        return this.getReport('screened_for_tb', this.getRequestParams({ 'gender': this.gender }))
     }
 
     getRegimenDistribution() {
-        return this.getReport('disaggregated_regimen_distribution', 
-        this.getRequestParams({
+        return this.getReport('disaggregated_regimen_distribution', this.getRequestParams({
             'gender': this.gender,
             'outcome_table': this.outComeTable
         }))

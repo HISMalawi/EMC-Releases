@@ -155,7 +155,7 @@ export class PrescriptionService extends AppEncounterService {
         const res = await AppEncounterService.getJson(
             `tpt_prescription_count`, {
                 'patient_id': this.patientID,
-                'date': AppEncounterService.getSessionDate()
+                'date': this.date
             }
         )
 
@@ -172,7 +172,7 @@ export class PrescriptionService extends AppEncounterService {
         if (isFastTrack) this.fastTrack = isFastTrack === yes
     }
     
-    async loadRegimenExtras(date=RegimenService.getSessionDate()) {
+    async loadRegimenExtras(date=this.date) {
         const meds = await RegimenService.getJson(
             `programs/${RegimenService.getProgramID()}/patients/${this.patientID}/dosages`,
             {date}
@@ -184,7 +184,7 @@ export class PrescriptionService extends AppEncounterService {
         const medicationOrders = await AppEncounterService.getConceptID("Medication orders")
         const orders = await AppEncounterService.getObs({
             'concept_id': medicationOrders,
-            'date': AppEncounterService.getSessionDate(),
+            'date': this.date,
             'person_id': this.patientID,
             'page_size': 5
         })
@@ -218,7 +218,7 @@ export class PrescriptionService extends AppEncounterService {
     }
 
     async loadTreatmentState() {
-        const params = { date: AppEncounterService.getSessionDate()}
+        const params = { date: this.date }
 
         const req = await AppEncounterService.getJson(
             `programs/${AppEncounterService.getProgramID()}/patients/${this.patientID}/status`,
@@ -278,7 +278,7 @@ export class PrescriptionService extends AppEncounterService {
     }
 
     calculateDateFromInterval() {
-        const dateObj = new Date(RegimenService.getSessionDate())
+        const dateObj = new Date(this.date)
         dateObj.setDate(dateObj.getDate() + this.nextVisitInterval)
         return HisDate.toStandardHisFormat(dateObj)
     }
@@ -300,7 +300,7 @@ export class PrescriptionService extends AppEncounterService {
         return {
             'drug_inventory_id': id,
             'equivalent_daily_dose': this.calculateEquivalentDosage(am, pm),
-            'start_date': RegimenService.getSessionDate(),
+            'start_date': this.date,
             'auto_expire_date': this.calculateDateFromInterval(), 
             'units': units,
             'instructions': this.getInstructions(name, am, pm, units),
