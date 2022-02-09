@@ -76,8 +76,8 @@ export class AuthService{
     }
 
     async getApiVersion(): Promise<string> {
-        const api: any = this.getJson('version')
-        return api ? api['System version'] || 'none' : ''
+        const api: any = await this.getJson('version')
+        return api && api['System version'] ? api['System version'] : '-'
     }
 
     async getSystemDate(): Promise<string> {
