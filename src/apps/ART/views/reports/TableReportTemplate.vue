@@ -130,8 +130,7 @@ export default defineComponent({
       default: false
     },
     fields: {
-      type: Object as PropType<Field[]>,
-      required: true
+      type: Object as PropType<Field[]>
     },
     columns: {
       type: Object as PropType<Array<ColumnInterface[]>>,
@@ -190,6 +189,20 @@ export default defineComponent({
     coreVersion: Service.getCoreVersion(),
     artVersion: Service.getAppVersion(),
   }),
+  watch: {
+    fields: {
+      handler(fields: Array<any>) {
+        if (!isEmpty(fields)) {
+          this.btns.forEach(b => {
+            if (b.name === 'Back') {
+              b.visible = true
+            } 
+          })
+        }
+      },
+      immediate: true
+    }
+  },
   methods: {
     onActiveColumns(columns: any) {
       this.activeColumns = columns
