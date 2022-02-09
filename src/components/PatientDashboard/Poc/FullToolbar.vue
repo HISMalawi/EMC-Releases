@@ -9,7 +9,7 @@
                     <info-card :items="programCardInfo"/> 
                 </ion-col>
                 <ion-col size="2">
-                    <icon-card :icon="logo"> </icon-card>
+                    <icon-card :version="appVersion" :icon="logo"> </icon-card>
                 </ion-col>
             </ion-row>
         </ion-toolbar>
@@ -26,6 +26,9 @@ export default defineComponent({
     name: 'PatientToolbar',
     components: {IonHeader, IonToolbar, IonCol, IonRow, InfoCard, IconCard },
     props: {
+       appVersion: {
+          type: String
+       },
        patientCardInfo: {
           type: Array,
           required: true,
