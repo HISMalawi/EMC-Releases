@@ -5,7 +5,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { FieldType } from "@/components/Forms/BaseFormElements"
-import { Option } from "@/components/Forms/FieldInterface"
+import { Field, Option } from "@/components/Forms/FieldInterface"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import StagingMixin from "@/apps/ART/views/encounters/StagingMixin.vue"
 import {ClinicRegistrationService} from "@/apps/ART/services/registration_service"
@@ -17,11 +17,19 @@ import { generateDateFields, EstimationFieldType } from "@/utils/HisFormHelpers/
 import { infoActionSheet } from "@/utils/ActionSheets"
 import HisDate from "@/utils/Date"
 import dayjs from "dayjs";
+import { PrescriptionService } from '../../services/prescription_service'
+import { find, isEmpty } from 'lodash'
+import { RegimenService } from '@/services/regimen_service'
+import { DispensationService } from "@/apps/ART/services/dispensation_service"
 
 export default defineComponent({
     mixins: [StagingMixin],
     data: () => ({
         registration: {} as any,
+        prescription: {} as any,
+        dispensation: {} as any,
+        regimens: [] as Option[],
+        customRegimens: [] as Option[],
         vitals: {} as any,
     }),
     watch: {
@@ -30,6 +38,8 @@ export default defineComponent({
                 // Hide staging fields defined in StagingMixin by Default
                 this.canShowStagingFields = false
                 this.registration = new ClinicRegistrationService(patient.getID(), this.providerID)
+                this.prescription = new PrescriptionService(patient.getID(), this.providerID)
+                this.dispensation = new DispensationService(patient.getID(), this.providerID)
                 this.vitals = new VitalsService(patient.getID(), this.providerID)
                 await this.initStaging(this.patient)
 
@@ -40,31 +50,45 @@ export default defineComponent({
         }
     },
     methods: {
-        async onSubmit(f: any, computedData: any) {
+        async onSubmit(formData: any, computedData: any) {
             const fObs = {...computedData}
-            const encounter = await this.registration.createEncounter()
 
-            if (!encounter) return toastWarning('Unable to create registration encounter')
+            await this.registration.createEncounter()
 
-            try {
-                if (this.hasStaging(f)) {
-                    await this.submitStaging(computedData)
-                    await this.vitals.createEncounter()
-
-                    const vitalsObs = await this.resolveObs(fObs, 'vitals')
-                    await this.vitals.saveObservationList(vitalsObs)
-                }
-            } catch(e) {
-                return toastWarning(e)
+            if (this.hasStaging(formData)) {
+                await this.submitStaging(computedData)
+                await this.vitals.createEncounter()
+                await this.vitals.saveObservationList(
+                    (await this.resolveObs(fObs, 'vitals'))
+                )
             }
-            const registrationData = await this.resolveObs(fObs, 'reg')
-            const registrationObs = await this.registration.saveObservationList(registrationData)
 
-            if (!registrationObs) return toastWarning('Unable to save observations')
+            await this.registration.saveObservationList(
+                (await this.resolveObs(fObs, 'reg'))
+            )
+
+            if (formData['received_arvs'].value.match(/yes/i)) {
+                await this.createArvDispensationAndTreatment(computedData)
+            }
 
             toastSuccess('Clinic registration complete!')
 
             this.nextTask()
+        },
+        /**
+         * For tranfer in patients, this method creates both treatment and dispensation
+         * Encounters and drug orders. This will ensure continuation of treatment
+         */
+        async createArvDispensationAndTreatment(computedData: any) {
+            const { arvDrugOrders, buildDispensationOrders } = computedData.arv_quantities
+
+            await this.prescription.createEncounter()
+
+            const orders = await this.prescription.createDrugOrder(arvDrugOrders)
+
+            await this.dispensation.saveDispensations(
+                buildDispensationOrders(orders)
+            )
         },
         buildDateObs(conceptName: string, date: string, isEstimate: boolean) {
             let obs = {}
@@ -280,6 +304,155 @@ export default defineComponent({
                     }),
                     validation: (val: Option) => Validation.required(val)
                 },
+                /**
+                 * DRUG TRANSFER IN INITIATION 
+                 */
+                ...generateDateFields({
+                    id: 'date_last_received_arvs',
+                    helpText: 'Last ARV Dispensation',
+                    required: true,
+                    condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i) ? true : false,
+                    minDate: (f: any, c: any) => c['date_started_art'].date,
+                    maxDate: () => this.registration.getDate(),
+                    computeValue: (date: string) => {
+                        this.prescription.setDate(date)
+                        this.dispensation.setDate(date)
+                        return date
+                    },
+                    estimation: {
+                        allowUnknown: false,
+                    },
+                }, this.registration.getDate()),
+                {
+                    id: 'other_arv_regimens_received',
+                    proxyID: 'arvs_received',
+                    helpText: 'Last ARV drugs dispensed',
+                    type: FieldType.TT_MULTIPLE_SELECT,
+                    validation: (v: Option[]) => Validation.required(v),
+                    computedValue: (v: Option[]) => v.map(d => d.other),
+                    options: async () => {
+                        if (!isEmpty(this.customRegimens)) return this.customRegimens
+                        const p = new PrescriptionService(this.patientID, this.providerID)
+                        this.customRegimens = (await p.getCustomIngridients())
+                            .map((drug: any ) => ({
+                                label: drug.name,
+                                value: drug.drug_id,
+                                other: { ...drug }
+                            })) as Option[]
+                        return this.customRegimens
+                    },
+                    config: {
+                        showKeyboard: true
+                    },
+                    condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i) ? true : false
+                },
+                {
+                    id: 'drug_interval',
+                    helpText: 'Interval for last received ARVs',
+                    type: FieldType.TT_NEXT_VISIT_INTERVAL_SELECTION,
+                    condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i),
+                    validation: (val: Option) => Validation.required(val),
+                    unload: (v: Option) => {
+                        this.prescription.setNextVisitInterval(v.value)
+                    },
+                    options: () => {
+                        const intervals = [
+                            { label: '2 weeks', value: 14 },
+                            { label: '1 month', value: 28 },
+                            { label: '2 months', value: 56 },
+                            { label: '3 months', value: 84 },
+                            { label: '4 months', value: 112 },
+                            { label: '5 months', value: 140 },
+                            { label: '6 months', value: 168 },
+                            { label: '7 months', value: 196 },
+                            { label: '8 months', value: 224 },
+                            { label: '9 months', value: 252 },
+                            { label: '10 months', value: 280 },
+                            { label: '11 months', value: 308 },                        
+                            { label: '12 months', value: 336 },
+                        ]
+                        return intervals.map(({label, value}: Option) => {
+                            this.prescription.setNextVisitInterval(value)
+                            const nextAppointment = this.prescription.calculateDateFromInterval()
+                            return {
+                                label,
+                                value,
+                                other: {
+                                    label: 'Medication run-out date:',
+                                    value: HisDate.toStandardHisDisplayFormat(nextAppointment),
+                                    other: {
+                                        label: "",
+                                        value: []
+                                    }
+                                }
+                            }
+                        })
+                    },
+                    config: {
+                        showRegimenCardTitle: false
+                    }
+                },
+                {
+                    id: 'arv_quantities',
+                    helpText: 'Amount of drugs dispensed',
+                    type: FieldType.TT_ADHERENCE_INPUT,
+                    validation: (v: Option[]) => this.validateSeries([
+                        () => Validation.required(v),
+                        () => {
+                            return v.map((i: Option) => i.value === '')
+                                .some(Boolean) ? ['Some Drugs are missing values'] : null
+                        }
+                    ]),
+                    computedValue: (v: Option[]) => {
+                        // Prescription object for creating treatment encounter and orders
+                        const arvDrugOrders = v.map(
+                            d => this.prescription.toOrderObj(
+                                d.other['drug_id'],
+                                d.label,
+                                d.other['units'],
+                                1, // should probably get this from the drug source
+                                0, // Should probably get this from the drug source
+                                'Daily (QOD)' // Should probably get this from the drug source 
+                            )
+                        )
+                        // callback function that builds dispensation orders based on OrderID
+                        const buildDispensationOrders = (orders: Array<any>) => {
+                            return v.map( d => {
+                                const drugID: number = d.other['drug_id']
+                                const order: any = find(orders, { drug: { 'drug_id' : drugID } })
+                                const packs: any = this.dispensation.getDrugPackSizes(drugID)
+                                const tabs: number = parseInt(d.value as string)
+                                const totalPacks: number = tabs / (packs[0] || 30)
+                                return this.dispensation.buildDispensations(
+                                    order['order_id'], tabs, totalPacks
+                                )
+                            }).reduce((accum, cur) => accum.concat(cur), [])
+                        }
+                        return { arvDrugOrders, buildDispensationOrders }
+                    },
+                    options: (_: any, c: any, listData: Option) => {
+                        return c.arvs_received
+                            .map((d: any) => {
+                                const drugName = d['alternative_drug_name'] || d['drug_name'] || d['name']
+                                const prevValue = find(listData, { label: drugName })
+                                return {
+                                    label: drugName,
+                                    value: prevValue ? prevValue.value : '',
+                                    other: d
+                                } 
+                            })
+                    },
+                    condition: (f: any) => `${f.received_arvs.value}`.match(/yes/i),
+                    config: {
+                        titles: {
+                            label: 'Drugs',
+                            value: 'Amount Received'
+                        }
+                    }
+                },
+                /**
+                 * END OF DRUG TRANSFER IN
+                 */
                 {
                     id: 'has_transfer_letter',
                     helpText: 'Has staging information?',

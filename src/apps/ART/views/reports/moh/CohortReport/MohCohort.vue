@@ -79,11 +79,13 @@ export default defineComponent({
         data = this.report.datePeriodRequestParams()
       } else {
         this.report.setQuarter(form.quarter.label)
+        this.report.setStartDate(HisDate.toStandardHisFormat(form.quarter.other.start))
+        this.report.setEndDate(HisDate.toStandardHisFormat(form.quarter.other.end))
         data = this.report.qaurterRequestParams()
         this.period = form.quarter.label
         this.reportUrlParams = Url.parameterizeObjToString({ 
-          'start_date': form.quarter.other.start,
-          'end_date': form.quarter.other.end,
+          'start_date': HisDate.toStandardHisFormat(form.quarter.other.start),
+          'end_date': HisDate.toStandardHisFormat(form.quarter.other.end),
           'quarter': form.quarter.label
         })
       }
