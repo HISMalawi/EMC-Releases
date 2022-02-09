@@ -1,6 +1,7 @@
 <template>
   <tool-bar-medium-card>
     <ion-img v-if="icon" :src="icon" id="logo"></ion-img>
+    <div style='font-size:0.7em;font-weight:bold;' class="ion-text-center">{{version}}</div>
   </tool-bar-medium-card>
 </template>
 <script lang="ts">
@@ -16,6 +17,10 @@ export default defineComponent({
     icon: {
       type: String,
       required: true
+    },
+    version: {
+      type: String,
+      default: '-/-'
     }
   }
 });
@@ -23,8 +28,7 @@ export default defineComponent({
 <style scoped>
   #logo {
     margin: auto;
-    padding-top: 1em;
-    width: 130px;
-    height: 80px;
+    width: 120px;
+    height: 70px;
   }
 </style>

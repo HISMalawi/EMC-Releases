@@ -2,6 +2,9 @@
   <ion-header>
     <ion-toolbar>
       <ion-title>Select Module</ion-title>
+      <ion-label style="font-weight: bold; padding:0.5em" slot="end">
+        Version: {{ appVersion }} 
+      </ion-label>
     </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding">
@@ -55,6 +58,9 @@ export default defineComponent({
   name: 'Modal',
   props: {
     title: { type: String, default: '' },
+    appVersion: {
+      type: String
+    },
     canClose: {
       type: Boolean,
       default: () => false
