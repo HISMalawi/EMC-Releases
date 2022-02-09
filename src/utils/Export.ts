@@ -2,9 +2,9 @@ import jsPDF from "jspdf"
 import autoTable from 'jspdf-autotable'
 
 function convertToCsv(list: Array<any>) {
-  let str = ''
-  list.forEach((l: Array<string>) => str += l.join(',') + '\n')
-  return str.toString()
+  return list.reduce((accum: string, row: Array<any>) => {
+    return accum + row.map(d => `"${d}"`).join(',') + '\n'
+  }, '')
 }
 
 export function toCsv(header: Array<any>, rows: Array<any>, fileName='document') {
