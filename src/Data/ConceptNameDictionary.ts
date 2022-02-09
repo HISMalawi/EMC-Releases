@@ -1,5 +1,39 @@
 export default [
    {
+      "categories": ["anc_medical_history"],
+      "concept_id": 5,
+      "name": "Asthma"
+   }, {
+      "categories": ["anc_medical_history"],
+      "concept_id": 155,
+      "name": "Epilepsy"
+   }, 
+   {
+      "categories": ["anc_medical_history"],
+      "concept_id": 174,
+      "name": "Sexually transmitted infection"
+   }, 
+   {
+      "categories": ["anc_medical_history"],
+      "concept_id": 1063,
+      "name": "Blood transfusion"
+   }, 
+   {
+      "categories": ["anc_medical_history"],
+      "concept_id": 6033,
+      "name": "Renal disease"
+   }, 
+   {
+      "categories": ["anc_medical_history"],
+      "concept_id": 7978,
+      "name": "Spine/Leg Deformity"
+   }, 
+   {
+      "categories": ["anc_medical_history"],
+      "concept_id": 8809,
+      "name": "Hypertension"
+   },
+   {
       "categories": [],
       "concept_id": 7439,
       "name": "Procedure done"
@@ -65,7 +99,7 @@ export default [
       "concept_id": 7475,
      "name": "Dilation and curettage"
    }, {
-      "categories": ["anc_surgical_history"],
+      "categories": ["anc_medical_history", "anc_surgical_history"],
       "concept_id": 7477,
      "name": "Fistula repair"
    }, {
@@ -361,7 +395,7 @@ export default [
       "name": "Drug Refill"
    },
    {
-      "categories": ['risk factors'],
+      "categories": ['risk factors', 'anc_medical_history'],
       "concept_id": 3720,
       "name": "Diabetes"
    },{

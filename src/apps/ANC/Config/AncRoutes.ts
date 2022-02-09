@@ -13,5 +13,10 @@ export default [
         name: 'surgical history',
         path: '/anc/surgical_history/:patient_id',
         component: () => import("@/apps/ANC/Views/Encounters/SurgicalHistory.vue")
+    },
+    {
+        name: 'medical history',
+        path: '/anc/medical_history/:patient_id',
+        component: () => import("@/apps/ANC/Views/Encounters/MedicalHistory.vue")
     }
 ]

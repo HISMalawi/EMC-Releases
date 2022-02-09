@@ -15,5 +15,10 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
         id: 'surgical history',
         name: 'SURGICAL HISTORY',
         icon: 'surgical_history.png'
+    },
+    {
+        id: 'medical history',
+        name: 'Medical History',
+        icon: 'medical_history.png'
     }
 ]
