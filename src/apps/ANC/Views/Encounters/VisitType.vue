@@ -12,11 +12,10 @@
 import EncounterMixinVue from '@/views/EncounterMixin.vue'
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import { defineComponent } from 'vue'
-import { AncDispensationService} from "@/apps/ANC/Services/anc_dispensing_service"
-import { AncTreatmentService } from "@/apps/ANC/Services/anc_treatment_service"
 import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { IonPage } from "@ionic/vue"
+import { AncVisitTypeService } from "@/apps/ANC/Services/anc_visit_type_service"
 
 export default defineComponent({
   components: { IonPage },
@@ -35,16 +34,23 @@ export default defineComponent({
     }
   },
   methods: {
-    async onFinish(f: any) {
+    async onFinish(f: any, c: any) {
+      const visit = new AncVisitTypeService(this.patientID, this.providerID)
+      await visit.createEncounter()
+      await visit.saveVisitNumber(c['visit_number'])
       this.nextTask()
     },
     getFields() {
       return [
         {
-          id: 'prescription',
-          helpText: 'Prescription',
-          type: FieldType.TT_YES_NO,
-          validation: (v: Option) => Validation.required(v)
+          id: 'visit_number',
+          helpText: 'ANC Visit Number',
+          type: FieldType.TT_NUMBER,
+          computedValue: (v: Option) => v.value,
+          validation: (v: Option) => this.validateSeries([
+            () => Validation.required(v),
+            () => !(v.value > 0 && v.value <= 500) ? ['Value not within range of 1 and 500'] : null
+          ])
         }
       ]
     }
