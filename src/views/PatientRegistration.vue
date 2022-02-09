@@ -167,7 +167,7 @@ export default defineComponent({
 
         if (this.app.onRegisterPatient) {
             const exit = await this.app.onRegisterPatient(
-                patientID, person, attributes, this.$router
+                patientID, person, attributes, this.$router, this.$route
             )
             if (exit) return
         }

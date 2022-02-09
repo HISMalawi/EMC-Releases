@@ -40,6 +40,7 @@
           :rows="rows"
           :columns="columns"
           :showFilters="showFilters"
+          :config="config"
           @onActiveColumns="onActiveColumns"
           @onActiveRows="onActiveRows"
           >
@@ -50,7 +51,6 @@
       <ion-toolbar> 
         <ion-chip color="primary">Date Created: <b>{{ date }}</b></ion-chip>
         <ion-chip color="primary">His-Core Version: <b>{{ coreVersion }}</b></ion-chip>
-        <ion-chip color="primary">Art Version: <b>{{ artVersion }}</b></ion-chip>
         <ion-chip color="primary">API Version: <b>{{ apiVersion }}</b></ion-chip>
       </ion-toolbar>
     </ion-footer>
@@ -102,6 +102,9 @@ export default defineComponent({
     IonImg
   },
   props: {
+    config: {
+      type: Object
+    },
     headerInfoList: {
       type: Array,
       default: () => []
@@ -204,6 +207,9 @@ export default defineComponent({
     }
   },
   methods: {
+    refreshTimeStamp() {
+      this.date = dayjs().format('DD/MMM/YYYY HH:MM:ss')
+    },
     onActiveColumns(columns: any) {
       this.activeColumns = columns
     },
@@ -222,7 +228,7 @@ export default defineComponent({
       this.canShowReport = true
       await this.presentLoading()
       try {
-        this.date = dayjs().format('YYYY-MM-DD:h:m:s')
+        this.refreshTimeStamp()
         if (this.onDefaultConfiguration) {
           await this.onDefaultConfiguration()
         }
@@ -242,7 +248,7 @@ export default defineComponent({
       this.canShowReport = true
       await this.presentLoading()
       try {
-        this.date = dayjs().format('YYYY-MM-DD:h:m:s')
+        this.refreshTimeStamp()
         await this.onReportConfiguration(
           this.formData,
           this.computeFormData,
@@ -294,8 +300,6 @@ export default defineComponent({
             [`Date Created: ${this.date}`],
             // TODO: Get actual HIS-CORE version from a file
             [`HIS-Core Version: ${this.coreVersion}`],
-            // TODO: Get actial ART Version from a file
-            [`ART Version: ${this.artVersion}`],
             [`API Version: ${this.apiVersion}`],
             [`Site UUID: ${this.siteUUID}`]
           ],
