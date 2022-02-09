@@ -1212,6 +1212,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import moment from "dayjs";
 import { Service } from "@/services/service"
+import dayjs from 'dayjs';
 
 export default {
   data: function(){
@@ -1455,6 +1456,7 @@ export default {
       newly_initiated_on_3hp,${this.newly_initiated_on_3hp},
       `;
       y += `
+          Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}
           His-Core Version: ${Service.getCoreVersion()}
           API Version: ${Service.getApiVersion()}
           Report Period: ${this.quarter}
