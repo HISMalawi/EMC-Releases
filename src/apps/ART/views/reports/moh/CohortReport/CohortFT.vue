@@ -1456,7 +1456,6 @@ export default {
       `;
       y += `
           His-Core Version: ${Service.getCoreVersion()}
-          ART Version : ${Service.getAppVersion()}
           API Version: ${Service.getApiVersion()}
           Report Period: ${this.quarter}
           Site: ${Service.getLocationName()}
