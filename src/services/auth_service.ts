@@ -16,7 +16,7 @@ export class AuthService{
     token: string
     sessionDate: string
     systemVersion: string
-
+    coreVersion: string
     constructor() {
         this.token = ''
         this.username = ''
@@ -24,6 +24,7 @@ export class AuthService{
         this.userID = -1
         this.sessionDate = ''
         this.systemVersion = ''
+        this.coreVersion = ''
     }    
 
     setUsername(username: string) { this.username = username }
@@ -42,6 +43,7 @@ export class AuthService{
             this.userID = user.user_id
             this.sessionDate = await this.getSystemDate()
             this.systemVersion = await this.getApiVersion()
+            this.coreVersion = await this.getCoreVersion()
         } else {
             throw 'Unable to login'
         }
@@ -54,15 +56,23 @@ export class AuthService{
         sessionStorage.setItem("userRoles", JSON.stringify(this.roles));
         sessionStorage.setItem("sessionDate", this.sessionDate)
         sessionStorage.setItem("APIVersion", this.systemVersion)
+        sessionStorage.setItem("appVersion", this.coreVersion)
     }
 
-    clearSession() { sessionStorage.clear() }
+    clearSession() { 
+        sessionStorage.clear() 
+    }
 
     requestLogin(password: string) {
         return this.postLogin(`auth/login`, {
             username: this.username,
             password: password
         })
+    }
+
+    async getCoreVersion(): Promise<string> {
+        const res = await fetch('HEAD', { method: 'GET' })
+        return (await res?.text()) || ''
     }
 
     async getApiVersion(): Promise<string> {
