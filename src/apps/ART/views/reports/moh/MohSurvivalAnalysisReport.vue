@@ -6,6 +6,9 @@
             :rows="rows" 
             :fields="fields"
             :columns="columns"
+            :config="{
+                showIndex: false
+            }"
             reportPrefix="MoH"
             :hasServerSideCaching="true"
             :onReportConfiguration="onPeriod"
@@ -25,7 +28,6 @@ import { Option } from '@/components/Forms/FieldInterface'
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { IonPage } from "@ionic/vue"
-import Transformer from "@/utils/Transformers"
 
 const borderSplitStyle = {
     style: {

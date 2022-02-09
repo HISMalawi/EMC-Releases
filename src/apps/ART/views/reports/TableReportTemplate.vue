@@ -40,6 +40,7 @@
           :rows="rows"
           :columns="columns"
           :showFilters="showFilters"
+          :config="config"
           @onActiveColumns="onActiveColumns"
           @onActiveRows="onActiveRows"
           >
@@ -101,6 +102,9 @@ export default defineComponent({
     IonImg
   },
   props: {
+    config: {
+      type: Object
+    },
     headerInfoList: {
       type: Array,
       default: () => []
