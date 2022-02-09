@@ -1,3 +1,4 @@
+import { Option } from '@/components/Forms/FieldInterface';
 import { RouteRecordRaw } from 'vue-router';
 import { TaskInterface } from './TaskInterface';
 
@@ -10,12 +11,12 @@ export interface FolderInterface {
     name: string;
     icon?: string;
     defaultFilesIcon?: string;
-    condition?: () => boolean;
+    condition?: () => boolean | Promise<boolean>;
     files: Array<
         {
             name: string;
             icon?: string;
-            condition?: () => boolean;
+            condition?: () => boolean | Promise<boolean>;
             pathName?: string;
             pathUrl?: string;
         }
@@ -117,12 +118,16 @@ export interface AppInterface {
     /**
      * Onload event when the program is selected
     */
-    readonly init?: () => void;
+    readonly init?: (context: string) => void;
     /**
      * Parse summary data object based on program specific definition and
      * return generic object to be displayed on patient dashboard
      */
     readonly formatPatientProgramSummary?: (programInfo: any) => Promise<GeneralDataInterface[]> | GeneralDataInterface[];
+    /**
+     * Callback which retrieves and formats Lab order card on the patient dashboard
+     */
+    readonly getPatientDashboardLabOrderCardItems?: (patientId: number, date: string) => Promise<Option[]> | Option[];
     /**
      * Summary data that is rendered on patient confirmation page
     */

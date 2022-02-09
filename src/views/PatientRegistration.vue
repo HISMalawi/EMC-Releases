@@ -1,11 +1,13 @@
 <template>
-  <his-standard-form
-    @onIndex="fieldComponent=''"
-    :skipSummary="skipSummary"
-    :activeField="fieldComponent"
-    :fields="fields"
-    :onFinishAction="onFinish"
- />
+  <ion-page>
+    <his-standard-form
+        @onIndex="fieldComponent=''"
+        :skipSummary="skipSummary"
+        :activeField="fieldComponent"
+        :fields="fields"
+        :onFinishAction="onFinish"
+    />
+  </ion-page>
 </template>
 
 <script lang="ts">
@@ -17,7 +19,6 @@ import { generateDateFields } from "@/utils/HisFormHelpers/MultiFieldDateHelper"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Patientservice } from "@/services/patient_service"
 import HisDate from "@/utils/Date"
-import { GlobalPropertyService } from "@/services/global_property_service"
 import { WorkflowService } from "@/services/workflow_service"
 import { isPlainObject, isEmpty } from "lodash"
 import PersonField from "@/utils/HisFormHelpers/PersonFieldHelper"
@@ -25,13 +26,22 @@ import { PatientRegistrationService } from "@/services/patient_registration_serv
 import App from "@/apps/app_lib"
 import { AppInterface } from "@/apps/interfaces/AppInterface"
 import { nextTask } from "@/utils/WorkflowTaskHelper"
+import { isValueEmpty } from "@/utils/Strs"
+import { PatientDemographicsExchangeService } from "@/services/patient_demographics_exchange_service"
+import { toastWarning } from "@/utils/Alerts"
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
+import { IonPage } from "@ionic/vue"
+import { infoActionSheet } from "@/utils/ActionSheets"
+import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 
 export default defineComponent({
-  components: { HisStandardForm },
+  components: { HisStandardForm, IonPage },
   data: () => ({
     app: App.getActiveApp() as AppInterface,
-    skipSummary: false,
+    ddeInstance: {} as any,
+    ddeDocID: '' as string,
+    ddeIsReassign: false as boolean,
+    skipSummary: false as boolean,
     addressAttributes: [
         'home_region',
         'home_district',
@@ -42,8 +52,11 @@ export default defineComponent({
         'current_village',
         'current_traditional_authority'
     ] as Array<string>,
+    hasIncompleteData: false as boolean,
+    patient: {} as any,
     editPersonData: {} as any,
     editPerson: -1 as number,
+    personAttribute: '' as string,
     activeField: '' as string,
     fieldComponent: '' as string,
     fields: [] as Array<Field>,
@@ -54,13 +67,19 @@ export default defineComponent({
   watch: {
     '$route': {
         async handler({query}: any) {
+           this.ddeInstance = new PatientDemographicsExchangeService()
+           await this.ddeInstance.loadDDEStatus()
            if (query.edit_person) {
+                this.ddeIsReassign = query.dde_reassign
+                this.ddeDocID = query.doc_id
+                this.ddeInstance.setPatientID(query.edit_person)
+                if(query.person_attribute) this.personAttribute = query.person_attribute
                 await this.initEditMode(query.edit_person)
             } else {
                 this.presets = query
             }
             this.fields = this.getFields()
-            this.isMilitarySite = await GlobalPropertyService.isMilitarySite()
+            this.isMilitarySite = await GLOBAL_PROP.militarySiteEnabled()
         },
         immediate: true,
         deep: true
@@ -83,7 +102,7 @@ export default defineComponent({
         fields.push(this.currentDistrictField())
         fields.push(this.currentTAField())
         fields.push(this.currentVillage())
-        fields.push(this.landmarkField())
+        fields = fields.concat(this.landmarkFields())
         fields.push(this.cellPhoneField())
         fields.push(this.patientTypeField())
         fields.push(this.facilityLocationField())
@@ -92,6 +111,7 @@ export default defineComponent({
         fields = fields.concat(this.dateJoinedMilitaryFields())
         fields.push(this.rankField())
         fields.push(this.relationshipField())
+        fields.push(this.possibleDuplicatesField())
         return fields
     },
     isEditMode() {
@@ -103,28 +123,32 @@ export default defineComponent({
         if (!person) {
             return
         }
-        const patient = new Patientservice(person)
+        this.patient = new Patientservice(person)
         const {
             ancestryDistrict,
             ancestryTA,
             ancestryVillage,
             currentDistrict,
             currentTA
-        } = patient.getAddresses()
+        } = this.patient.getAddresses()
         this.editPersonData = {
-            'given_name': patient.getGivenName(),
-            'family_name': patient.getFamilyName(),
-            'gender': patient.getGender(),
-            'birthdate': patient.getBirthdate(),
+            'given_name': this.patient.getGivenName(),
+            'family_name': this.patient.getFamilyName(),
+            'gender': this.patient.getGender(),
+            'birthdate': this.patient.getBirthdate(),
             'home_district': ancestryDistrict,
             'home_traditional_authority': ancestryTA,
             'home_village': ancestryVillage,
             'current_district': currentDistrict,
             'current_traditional_authority': currentTA,
-            'cell_phone_number': patient.getPhoneNumber(),
+            'cell_phone_number': this.patient.getPhoneNumber(),
         }
         this.presets = this.editPersonData
         this.skipSummary = true
+        if(this.personAttribute) {
+            this.activeField = this.personAttribute
+            this.fieldComponent = this.activeField
+        }
     },
     async onFinish(form: Record<string, Option> | Record<string, null>, computedData: any) {
         if (!this.isEditMode()) {
@@ -148,12 +172,7 @@ export default defineComponent({
             if (exit) return
         }
         if (person.relationship === 'Yes') {
-            return this.$router.push({
-                path: '/guardian/registration',
-                query: {
-                    patient: patientID
-                }
-            })
+            return this.$router.push(`/guardian/registration/${patientID}`)
         }
         await nextTask(patientID, this.$router)
     },
@@ -169,13 +188,23 @@ export default defineComponent({
                 this.editPersonData[attr] = person[attr]
             }
         }
-        this.fieldComponent = 'edit_user'
+        if(!this.personAttribute) return this.fieldComponent = 'edit_user'
+        this.$router.back()
+    },
+    showEditDemographicsField(){
+        return this.editPerson != -1 && this.personAttribute.length
     },
     editConditionCheck(attributes=[] as Array<string>): boolean {
         if (this.isEditMode() && !attributes.includes(this.activeField)) {
             return false
         }
         return true
+    },
+    confirmPatient() {
+        if (!this.patient.getNationalID().match(/unknown/i)) {
+            return  this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
+        }
+        this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
     },
     resolvePersonAttributes(form: Record<string, Option> | Record<string, null>) {
         return Object.values(form)
@@ -198,17 +227,45 @@ export default defineComponent({
         return name
     },
     genderField(): Field {
+        const IS_CXCA = this.app.applicationName === 'CxCa'
         const gender: Field = PersonField.getGenderField()
         gender.requireNext = this.isEditMode()
-        gender.condition = () => this.editConditionCheck(['gender'])
-        gender.defaultValue = () => {
-            if (this.presets.gender) {
-                if (this.presets.gender === 'M') {
-                    return {label: 'Male', value: 'M'}
-                }
-                return {label: 'Female', value: 'F'}
+        gender.defaultValue = () => this.presets.gender
+        gender.condition = () => {
+            if (!this.isEditMode() && IS_CXCA) {
+                return false
             }
-            return ''
+            return this.editConditionCheck(['gender'])
+        }
+
+        if (IS_CXCA && !this.isEditMode()) {
+            gender.defaultOutput = () => ({ label: 'Female', value: 'F' })
+            gender.defaultComputedOutput = () => ({ person: 'F' })
+        } 
+
+        gender.beforeNext = async (data: Option) => {
+            /**
+             * Provide warning when changing gender in edit mode
+            */
+            const newGender = data.value
+            const oldGender = this.presets.gender
+            if (this.isEditMode() && newGender != oldGender) {
+                const action = await infoActionSheet(
+                    'Warning',
+                    `Changing gender from ${oldGender} to ${newGender}`,
+                    "This change will cause data inconsistency and will affect alot of Reports.",
+                    [
+                        {
+                            name: 'Cancel', slot: 'start'
+                        },
+                        {
+                            name: 'Change gender', slot: 'end', color: 'danger'
+                        }
+                    ]
+                )
+                return action === 'Change gender'
+            }
+            return true
         }
         return gender
     },
@@ -278,10 +335,10 @@ export default defineComponent({
        ].includes(form.patient_type.value)
        return facility
     },
-    landmarkField(): Field {
-        const landmark: Field = PersonField.getLandmarkField()
-        landmark.condition = () => this.editConditionCheck(['land_mark'])
-        return landmark
+    landmarkFields(): Field[] {
+        const landmarks: Field[] = PersonField.getLandmarkFields()
+        landmarks[0].condition = () => this.editConditionCheck(['landmark'])
+        return landmarks
     },
     patientTypeField(): Field {
         return {
@@ -375,19 +432,19 @@ export default defineComponent({
             computeValue: (date: string) => ({
                 date,
                 personAttributes : {
-                    'person_attribute_type_id': 37,
-                    'value': date
+                    'person_attribute_type_id': 37, 'value': date
                 }
             })
         })
     },
     relationshipField(): Field {
+        const IS_CXCA = this.app.applicationName === 'CxCa'
         return {
             id: 'relationship',
             helpText: 'Register guardian?',
             type: FieldType.TT_SELECT,
             computedValue: (val: Option) => ({person: val.value}),
-            condition: () => this.editConditionCheck(['relationship']),
+            condition: () => this.editConditionCheck(['relationship']) && !IS_CXCA,
             validation: (val: any) => Validation.required(val),
             options: () => this.mapToOption(['Yes', 'No'])
         }
@@ -406,11 +463,29 @@ export default defineComponent({
             condition: () => !this.isEditMode(),
             validation: (val: Option) => Validation.required(val),
             options: async (form: any) => {
-                const patients = await Patientservice.search({
+                const payload = {
                     'given_name': form.given_name.value,
                     'family_name': form.family_name.value,
-                    'gender': form.gender.value,
-                });
+                    'gender': form.gender.value
+                }
+                // DDE enabled search
+                if (this.ddeInstance.isEnabled()) {
+                    const patients = await this.ddeInstance.searchDemographics(payload)
+                    return patients.map((item: any) => {
+                        const itemData = PersonField.getPersonAttributeOptions(item)
+                        itemData.other.options.push({
+                            label: 'Patient Type',
+                            value: item.patient_type
+                        })
+                        itemData.other.options.push({
+                            label: 'Doc ID',
+                            value: item.doc_id
+                        })
+                        return itemData
+                    })
+                }
+                // Regular search
+                const patients = await Patientservice.search(payload);
                 return patients.map((item: any) => PersonField.getPersonAttributeOptions(item))
             },
             config: {
@@ -447,11 +522,114 @@ export default defineComponent({
                             }
                         },
                         onClick: (form: any) => {
-                            return this.$router.push(`/patients/confirm?person_id=${form.results.value}`)
+                            let searchParam = ''
+                            const npid = form?.results?.other?.npid 
+                            if (npid && !isValueEmpty(npid)) {
+                                searchParam = `patient_barcode=${npid}`
+                            } else {
+                                searchParam = `person_id=${form.results.value}`
+                            }
+                            return this.$router.push(`/patients/confirm?${searchParam}`)
                         }
                     }
                 ]
             }
+        }
+    },
+    possibleDuplicatesField(): Field {
+        let createdPerson: any = {}
+        let duplicatePatients: any = {}
+        return {
+            id: 'possible_duplicates',
+            helpText: 'Possible Duplicate(s)',
+            type: FieldType.TT_PERSON_MATCH_VIEW,
+            condition: async (_: any, c: any) => {
+                if (this.ddeInstance.isEnabled() && !this.editPerson) {
+                    createdPerson = PersonField.resolvePerson(c)
+                    duplicatePatients = await this.ddeInstance
+                        .checkPotentialDuplicates(createdPerson)
+                    return duplicatePatients.length >= 1
+                }
+                return false
+            },
+            options: async () => {
+                const toDate = (date: string) => HisDate.toStandardHisDisplayFormat(date)
+                return duplicatePatients.map(({ score, person }: any) => {
+                    const name = `${person.given_name} ${person.family_name}`
+                    return {
+                        label: name,
+                        value: person.patient_id,
+                        other: {
+                            score: `${score * 100}%`,
+                            newPerson: createdPerson,
+                            foundPerson: person,
+                            comparisons: [
+                                [
+                                    'Name',
+                                    `${createdPerson.given_name} ${createdPerson.family_name}`,
+                                    `${person.given_name} ${person.family_name}`
+                                ],
+                                [
+                                    'Gender',
+                                    createdPerson.gender,
+                                    person.gender
+                                ],
+                                [
+                                    'Birthdate',
+                                    toDate(createdPerson.birthdate),
+                                    toDate(person.birthdate)
+                                ],
+                                [
+                                    'Home District',
+                                    createdPerson.home_district,
+                                    person.home_district
+                                ],
+                                [
+                                    'Home TA',
+                                    createdPerson.home_traditional_authority,
+                                    person.home_traditional_authority
+                                ]
+                            ]
+                        }
+                    }
+                })
+            },
+            config: {
+                hiddenFooterBtns: [
+                    'Clear',
+                    'Next'
+                ],
+                footerBtns: [
+                    {
+                        name: 'Not Duplicate',
+                        slot: 'start',
+                        state: {
+                            visible: {
+                                default: () => false,
+                                onValue: (_: any, f: any) => !isEmpty(f.possible_duplicates)
+                            }
+                        },
+                        onClick: () => {
+                            this.fieldComponent = '_NEXT_FIELD_'
+                        }
+                    },
+                    {
+                        name: 'Confirm',
+                        slot: 'end',
+                        color: 'warning',
+                        state: {
+                            visible: {
+                                default: () => false,
+                                onValue: (_: any, f: any) => !isEmpty(f.possible_duplicates)
+                            }
+                        },
+                        onClick: (form: any) => {
+                            this.$router.push(`/patients/confirm?person_id=${form.possible_duplicates.value}`)
+                        }
+                    }
+                ]
+            }
+
         }
     },
     personIndexField(): Field {
@@ -459,10 +637,8 @@ export default defineComponent({
             id: 'edit_user',
             helpText: 'Edit Demographics',
             type: FieldType.TT_TABLE_VIEWER,
-            requireNext: false,
-            condition: () => this.editPerson != -1,
+            condition: () => this.showEditDemographicsField(),
             options: async () => {
-                const columns = ['Attributes', 'Values', 'Edit']
                 const editButton = (attribute: string) => ({
                     name: 'Edit',
                     type: 'button',
@@ -471,6 +647,7 @@ export default defineComponent({
                         this.fieldComponent = this.activeField
                     }
                 })
+                const columns = ['Attributes', 'Values', 'Edit']
                 const rows = [
                     ['Given Name', this.editPersonData.given_name, editButton('given_name')],
                     ['Family Name', this.editPersonData.family_name, editButton('family_name')],
@@ -479,22 +656,73 @@ export default defineComponent({
                     ['Cell Phone Number', this.editPersonData.cell_phone_number, editButton('cell_phone_number')],
                     ['Current district',this.editPersonData.current_district, editButton('home_region')],
                     ['Current T/A', this.editPersonData.current_traditional_authority, editButton('home_region')],
-                    ['Home district', this.editPersonData.home_district, editButton('home_region')],
+                    ['Home District', this.editPersonData.home_district, editButton('home_region')],
                     ['Home TA', this.editPersonData.home_traditional_authority,  editButton('home_region')],
                     ['Home Village', this.editPersonData.home_village,  editButton('home_region')],
                 ]
+                // Tag rows with empty values
+                const emptySets: any = {indexes: [], class: 'his-empty-set-color'}
+                rows.forEach((r: any, i: number) => {
+                    if (isValueEmpty(r[1])) 
+                        emptySets.indexes.push(i)
+                })
+                this.hasIncompleteData = emptySets.indexes.length >= 1
                 return [{
-                    label: '',
+                    label: '', 
                     value: '',
                     other: {
-                        columns, rows
+                        rows,
+                        columns,
+                        rowColors: [emptySets]
                     }
                 }]
             },
             config: {
-                hiddenFooterBtns: [
-                    'Clear'
-                ]
+                footerBtns: [
+                    /**
+                     * Custom button that Appears when DDE wants to
+                     * Reassign a patient with incomplete data
+                    */
+                    {
+                        name: 'Reassign',
+                        slot: 'end',
+                        color: 'success',
+                        state: {
+                            visible: {
+                                default: () => false,
+                                onload: () => (
+                                    this.ddeInstance.isEnabled()
+                                    && this.ddeIsReassign
+                                    && !this.hasIncompleteData
+                                )
+                            }
+                        },
+                        onClick: async () => {
+                            try {
+                                await this.ddeInstance.reassignNpid(this.ddeDocID, this.editPerson)
+                                await this.ddeInstance.printNpid()
+                                this.confirmPatient()
+                            } catch(e) {
+                                toastWarning(e)
+                            }
+                        }
+                    },
+                    /**
+                     * Custom button that redirects to patient confirmation page
+                     */
+                    {
+                        name: 'Confirm',
+                        slot: 'end',
+                        color: 'warning',
+                        state: {
+                            visible: {
+                                onload: () => !this.ddeIsReassign && !this.hasIncompleteData
+                            }
+                        },
+                        onClick: () => this.confirmPatient()
+                    }
+                ],
+                hiddenFooterBtns: ['Clear', 'Next']
             }
         }
     },

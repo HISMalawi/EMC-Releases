@@ -17,8 +17,9 @@ import Validation from "@/components/Forms/validations/StandardValidations";
 import { ReceptionService } from "@/apps/ART/services/reception_service"
 import { ProgramService } from "@/services/program_service";
 import { toastWarning, toastSuccess } from "@/utils/Alerts"
-import EncounterMixinVue from './EncounterMixin.vue'
+import EncounterMixinVue from '../../../../views/EncounterMixin.vue'
 import HisApp from "@/apps/app_lib"
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -27,11 +28,14 @@ export default defineComponent({
     reception: {} as any,
     activeField: "",
     hasARVNumber: true,
+    hasGuardian: false,
     suggestedNumber: "" as any,
   }),
   watch: {
     patient: {
       async handler(patient: any) {
+        const guardian = await patient.getGuardian()
+        this.hasGuardian = !isEmpty(guardian)
         this.reception = new ReceptionService(patient.getID(), this.providerID)
 
         await this.reception.loadSitePrefix()
@@ -42,7 +46,7 @@ export default defineComponent({
           this.hasARVNumber = false;
 
           const j = await ProgramService.getNextSuggestedARVNumber();
-          this.suggestedNumber = j.arv_number.replace(/^\D+/g, "");
+          this.suggestedNumber = j.arv_number.replace(/^\D+|\s/g, "");
         }
         this.fields = this.getFields();
       },
@@ -69,7 +73,15 @@ export default defineComponent({
 
       toastSuccess('Encounter created')
 
-      this.nextTask()
+      const guardianPresent = formData.who_is_present.filter(
+        (p: any) => p.value === 'Yes' && p.label === 'Guardian Present?'
+      )
+
+      if (!this.hasGuardian && !isEmpty(guardianPresent)) {
+        this.$router.push(`/guardian/registration/${this.patient.getID()}`)
+      } else {
+        this.nextTask()
+      }
     },
     getFields(): Array<Field> {
       return [
@@ -84,26 +96,37 @@ export default defineComponent({
               obs: d.map(({ other, value }: Option) => this.reception.buildValueCoded(other.concept, value))
             }
           },
-          options: () => [
-            {
-              label: "Patient Present?",
-              value: "",
-              other: {
-                concept: "Patient Present",
-                property: "patient_present",
-                values: this.yesNoOptions(),
+          onValueUpdate: async (options: Option[], active: Option) => {
+            return options.map(o => {
+              if (active.label != o.label && active.value === 'No') {
+                o.value = "Yes"
+              }
+              return o
+            })
+          },
+          options: (form: any) => {
+            if (form.who_is_present) return form.who_is_present as Option[]
+            return [
+              {
+                label: "Patient Present?",
+                value: "",
+                other: {
+                  concept: "Patient Present",
+                  property: "patient_present",
+                  values: this.yesNoOptions(),
+                },
               },
-            },
-            {
-              label: "Guardian Present?",
-              value: "",
-              other: {
-                concept: "Guardian Present",
-                property: "guardian_present",
-                values: this.yesNoOptions(),
-              },
-            }
-          ]
+              {
+                label: "Guardian Present?",
+                value: "",
+                other: {
+                  concept: "Guardian Present",
+                  property: "guardian_present",
+                  values: this.yesNoOptions(),
+                },
+              }
+            ]
+          }
         },
         {
           id: "capture_arv",
@@ -119,7 +142,7 @@ export default defineComponent({
           helpText: "ART number",
           type: FieldType.TT_TEXT,
           computedValue: ({ value }: Option) => {
-            return this.reception.buildArvNumber(value)
+            return value
           },
           validation: (val: any) => Validation.required(val),
           condition: (f: any) => !this.hasARVNumber && f.capture_arv.value === "Yes",

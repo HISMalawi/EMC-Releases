@@ -1,17 +1,19 @@
 <template>
   <view-port>
-    <div class="view-port-content">
+    <div class='view-port-content'>
       <ion-grid>
         <ion-row>
-          <ion-col size="9">
+          <ion-col size="8">
             <Calendar
               color="blue"
               ref="calendar"
               is-expanded
-              class="custom-calendar max-w-full"
+              class="custom-calendar"
               :min-date="sessionDate"
               :max-date="runOutDate"
               :attributes="attributes"
+              :masks="masks"
+              disable-page-swipe
             >
               <template v-slot:day-content="{ day }">
                 <div
@@ -31,54 +33,41 @@
               </template>
             </Calendar>
           </ion-col>
-          <ion-col size="3">
-            <table>
-              <tr>
-                <td>
-                  <tr>
-                    <td><b>Medication Run out Date</b></td>
-                  </tr>
-                  <tr>
-                    <td>{{ rDate }}</td>
-                  </tr>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <tr>
-                    <td>
-                      <b>
-
-                        User set appointment date
-                      </b>
-</td>
-                  </tr>
-                  <tr>
-                    <td>{{ aDate }}</td>
-                  </tr>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <tr>
-                    <td><b>Appointment(s)</b></td>
-                  </tr>
-                  <tr>
-                    <td>{{ appointments.length }}</td>
-                  </tr>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <tr>
-                    <td><b>Appointment limit (per/day)</b></td>
-                  </tr>
-                  <tr>
-                    <td>{{ appointmentLimit }}</td>
-                  </tr>
-                </td>
-              </tr>
-            </table>
+          <ion-col size="4" class="his-card">
+            <ion-list>
+              <ion-item>
+                <ion-label>
+                  <b>Medication Run out Date</b>
+                  <br>
+                  <br>
+                  <span>{{ rDate }}</span>
+                </ion-label>
+              </ion-item>
+              <ion-item>
+                <ion-label>
+                  <b>User set appointment date</b>
+                  <br>
+                  <br>
+                  <span>{{ rDate }}</span>
+                </ion-label>
+              </ion-item>
+              <ion-item>
+                <ion-label>
+                  <b>Appointment(s)</b>
+                  <br>
+                  <br>
+                  <span>{{ appointments.length }}</span>
+                </ion-label>
+              </ion-item>
+              <ion-item>
+                <ion-label>
+                  <b>Appointment limit (per/day)</b>
+                  <br>
+                  <br>
+                  <span>{{ appointmentLimit }}</span>
+                </ion-label>
+              </ion-item>
+            </ion-list>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -92,8 +81,9 @@ import { IonGrid, IonCol, IonRow } from "@ionic/vue";
 import { Calendar } from "v-calendar";
 import HisDate from "@/utils/Date";
 import { AppointmentService } from "@/apps/ART/services/appointment_service";
-import { GlobalPropertyService } from "@/services/global_property_service";
 import FieldMixinVue from "./FieldMixin.vue";
+import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
+import { alertConfirmation, toastWarning } from "@/utils/Alerts";
 
 export default defineComponent({
   components: { ViewPort, Calendar, IonGrid, IonCol, IonRow },
@@ -101,13 +91,8 @@ export default defineComponent({
   watch: {
     startDate: {
       async handler(params: any) {
-        
-        if (params) {
-          this.getAppointments();
-          this.emitVal(params);
-        }else {
-          this.emitVal(HisDate.toStandardHisDisplayFormat(this.sessionDate));
-        }
+        const date = params ? params : HisDate.toStandardHisDisplayFormat(this.sessionDate)
+        this.$emit("onValue", { label: "", value: date });
       },
       immediate: true,
     },
@@ -117,31 +102,59 @@ export default defineComponent({
     startDate: null as any,
     runOutDate: null as any,
     appointments: [],
+    clinicHolidays: [] as Array<string>,
     appointmentLimit: 0 as any,
-    sessionDate: null as any
+    sessionDate: null as any,
+    masks: {
+      weekdays: 'WWW',
+    }
   }),
   activated(){
     this.$emit('onFieldActivated', this)
   },
   async created() {
+    await this.getAppointmentLimit()
+    await this.getClinicHolidays()
     const items = await this.options(this.fdata);
     this.sessionDate = AppointmentService.getSessionDate();
     const date = items[0].other.appointmentDate;
-    this.setDate(date);
-    this.getAppointmentLimit();
-    this.runOutDate = new Date(items[0].other.runOutDate);
+    this.appointments = await this.getAppointments(date)
+    this.setDate(date)
+    this.runOutDate = items[0].other.runOutDate ? new Date(items[0].other.runOutDate) : null
   },
   methods: {
-    async getAppointments() {
-      this.appointments = await AppointmentService.getDailiyAppointments(
-        HisDate.toStandardHisFormat(this.aDate)
+    getAppointments(date: string) {
+      return AppointmentService.getDailiyAppointments(
+        HisDate.toStandardHisFormat(date)
       );
     },
     async getAppointmentLimit() {
-      const limit = await GlobalPropertyService.getAppointmentLimit();
+      const limit = await ART_GLOBAL_PROP.appointmentLimit();
       if (limit) {
         this.appointmentLimit = limit;
       }
+    },
+    async getClinicHolidays() {
+      const holidays: string = await ART_GLOBAL_PROP.clinicHolidays()
+      if(holidays) {
+        this.clinicHolidays = holidays.split(',')
+      }
+    },
+    async isDateAvalaible(date: string) {
+      const appointments = await this.getAppointments(date)
+      if(appointments.length !== 0 && appointments.length >= this.appointmentLimit) {
+        toastWarning("Appointment limit reached for the selected date. Please select another date", 3000)
+        return false
+      }
+
+      if(this.clinicHolidays.includes(HisDate.toStandardHisFormat(date))){
+        const proceed = await alertConfirmation(
+          "Do you really want to set appointment on a clinic holiday?"
+        )
+        if (!proceed) return false
+      }
+      this.appointments = appointments
+      return true
     },
     async setDate(date: any) {
       this.startDate = new Date(date);
@@ -149,12 +162,9 @@ export default defineComponent({
       await calendar.move(this.startDate);
       await calendar.focusDate(this.startDate);
     },
-    dayClicked(day: any) {
-      !day.isDisabled && this.setDate(day.id);
+    async dayClicked(day: any) {
+      !day.isDisabled && (await this.isDateAvalaible(day.id)) && this.setDate(day.id);
     },
-    emitVal(date: any) {
-      this.$emit("onValue", { label: "", value: date });
-    }
   },
   computed: {
     aDate(): string {
@@ -173,54 +183,75 @@ export default defineComponent({
           dates: this.aDate
         }
       ]
-    }
+    },
   },
 });
 </script>
 <style>
-.vc-day {
-  position: relative;
-  min-height: 32px;
-  z-index: 1;
-  text-align: center;
+::-webkit-scrollbar {
+  width: 0px;
+}
+::-webkit-scrollbar-track {
+  display: none;
+}
+
+.custom-calendar.vc-container {
+  --day-border: 1px solid #b8c2cc;
+  --day-border-highlight: 1px solid #b8c2cc;
+  --day-width: 80px;
+  --day-height: 82px;
+  --weekday-bg: #f8fafc;
+  --weekday-border: 1px solid #eaeaea;
+  border-radius: 0 !important;
+  width: 100%;
+}
+.custom-calendar.vc-container .vc-header {
+  background-color: #f1f5f8;
+  padding: 10px 0;
+}
+.custom-calendar.vc-container .vc-weeks {
+  padding: 0;
+}
+.custom-calendar.vc-container .vc-weekday {
+  background-color: var(--weekday-bg);
+  border-bottom: var(--weekday-border);
+  border-top: var(--weekday-border);
+  padding: 5px;
+}
+.custom-calendar.vc-container .vc-day {
+    padding: 30px 5px 3px 5px;
+    text-align: center;
+    height: var(--day-height);
+    min-width: var(--day-width);
+    background-color: white;
+  }
+.custom-calendar.vc-container .vc-day.weekday-1,
+    .custom-calendar.vc-container .vc-day.weekday-7 {
+      background-color: #eff8ff;
+    }
+.custom-calendar.vc-container .vc-day:not(.on-bottom) {
+      border-bottom: var(--day-border);
+    }
+.custom-calendar.vc-container .vc-day:not(.on-bottom).weekday-1 {
+        border-bottom: var(--day-border-highlight);
+      }
+.custom-calendar.vc-container .vc-day:not(.on-right) {
+      border-right: var(--day-border);
+    }
+.custom-calendar.vc-container .vc-day-dots {
+    margin-bottom: 5px;
+  }
+.custom-calendar.vc-container .vc-highlight {
+  border-radius: 0 !important;
+}
+.selected{
   font-size: 3vh;
-  height: 80px;
-}
-.vc-highlight {
-  width: 100%;
   height: 100%;
-  border-radius: 0%;
-}
-.selected {
-  font-size: 4vh;
-  height: 100%;
-  margin-top: 15%;
+  margin-top: 0 !important;
   color: white;
-}
-.isDisabled {
-  color: #00000040;
-}
-</style>
-<style scoped>
-.view-port-content {
-  background-color: white;
-}
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-td,
-th {
-  text-align: left;
-  padding: 8px;
+  text-align: center;
 }
 .appointments {
-  font-size: 3vh;
-  color: rgb(0, 255, 115);
-}
-.custom-calendar .vc-day {
-  height: 50px;
-  text-align: center;
+  color: greenyellow;
 }
 </style>

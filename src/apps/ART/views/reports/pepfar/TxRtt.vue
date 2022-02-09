@@ -1,38 +1,40 @@
 <template>
-    <report-template
-        :title="title"
-        :period="period"
-        :rows="rows" 
-        :fields="fields"
-        :columns="columns"
-        :reportReady="reportReady"
-        :isLoading="isLoading"
-        :onReportConfiguration="onPeriod"
-        > 
-    </report-template>
+    <ion-page>
+        <report-template
+            :title="title"
+            :period="period"
+            :rows="rows" 
+            :fields="fields"
+            :columns="columns"
+            reportPrefix="PEPFAR"
+            :onReportConfiguration="onPeriod"
+            > 
+        </report-template>
+    </ion-page>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue'
 import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
-import { TxReportService, AGE_GROUPS } from '@/apps/ART/services/reports/tx_report_service'
+import { TxReportService } from '@/apps/ART/services/reports/tx_report_service'
 import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
+import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service"
 
 export default defineComponent({
     mixins: [ReportMixin],
     components: { ReportTemplate },
     data: () => ({
-        title: 'PEPFAR TX RTT Report',
+        title: 'TX RTT Report',
         cohort: {} as any,
         rows: [] as Array<any>,
-        reportReady: false as boolean,
-        isLoading: false as boolean,
         columns: [
             [       
                 table.thTxt('Age group'),
                 table.thTxt('Gender'),
-                table.thTxt('Returned after 30+ days')
+                table.thTxt('Returned <3 mo'),
+                table.thTxt('Returned 3-5 mo'),
+                table.thTxt('Returned 6+ mo')
             ]
         ]
     }),
@@ -41,8 +43,6 @@ export default defineComponent({
     },
     methods: {
         async onPeriod(_: any, config: any) {
-            this.reportReady = true
-            this.isLoading = true
             this.rows = []
             this.report = new TxReportService()
             this.report.setStartDate(config.start_date)
@@ -51,20 +51,35 @@ export default defineComponent({
             this.cohort = await this.report.getTxRttReport()
             await this.setRows('F')
             await this.setRows('M')
-            this.isLoading = false
         },
         async setRows(gender: string) {
+            const sortData = (ls: Array<any>, comparator: Function) => {
+                return ls.filter(i => comparator(i.months))
+                    .map(i => i.patient_id)
+            }
             for(const i in AGE_GROUPS) {
                 const group = AGE_GROUPS[i]
                 if (group in this.cohort) {
                     const cohortData = this.cohort[group][gender]
+                    const s = (comparator: Function) => sortData(cohortData, comparator)
+                    const lessThanThreeMonths = s((months: number) => months < 3)
+                    const threeToFiveMonths = s((months: number) => months >= 3 && months <= 5)
+                    const sixPlusMonths = s((months: number) => months >= 6)
                     this.rows.push([
                         table.td(group),
                         table.td(gender),
-                        this.drill(cohortData)
+                        this.drill(lessThanThreeMonths, `${group} (${gender}) Returned <3 mo`),
+                        this.drill(threeToFiveMonths, `${group} (${gender}) Returned 3-5 mo`),
+                        this.drill(sixPlusMonths, `${group} (${gender}) Returned 6+ mo`),
                     ])
                 } else {
-                    this.rows.push([table.td(group), table.td(gender), table.td(0)])
+                    this.rows.push([
+                        table.td(group),
+                        table.td(gender),
+                        table.td(0),
+                        table.td(0),
+                        table.td(0)
+                    ])
                 }
             }
         }

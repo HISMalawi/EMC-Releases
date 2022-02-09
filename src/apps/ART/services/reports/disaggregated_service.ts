@@ -1,15 +1,5 @@
 import { ArtReportService } from "./art_report_service";
-
-export const AGE_GROUPS = [
-    '0-5 months', '6-11 months',
-    '12-23 months', '2-4 years', 
-    '5-9 years', '10-14 years', 
-    '15-17 years', '18-19 years', 
-    '20-24 years', '25-29 years', 
-    '30-34 years', '35-39 years', 
-    '40-44 years', '45-49 years', 
-    '50 plus years'
-]
+import { AGE_GROUPS } from "./patient_report_service";
 
 export enum TEMP_OUTCOME_TABLE {
     PEPFAR_OUTCOME_TEMP = 'temp_pepfar_patient_outcomes',
@@ -34,11 +24,9 @@ export class DisaggregatedReportService extends ArtReportService {
 
     async init() {
         this.initialize = true
-        this.rebuildOutcome = true
         const req = await this.getReport('cohort_disaggregated', this.getRequestParams())
         if (req && req.temp_disaggregated === 'created') {
             this.initialize = false
-            this.rebuildOutcome = false
             return true
         }
         return false
@@ -70,9 +58,9 @@ export class DisaggregatedReportService extends ArtReportService {
 
     getRequestParams(params={}) {
         return this.buildRequest({
-            'age_group': this.ageGroup,
-            'rebuild_outcome': this.rebuildOutcome,
-            'initialize': this.initialize,
+            'age_group': `${this.ageGroup}`,
+            'rebuild_outcome': `${this.rebuildOutcome}`,
+            'initialize': `${this.initialize}`,
             ...params
         })
     }
@@ -82,24 +70,15 @@ export class DisaggregatedReportService extends ArtReportService {
     }
 
     getTxIpt() {
-        return this.getReport('clients_given_ipt', 
-        this.getRequestParams({
-            'gender': this.gender,
-            'outcome_table': this.outComeTable      
-        }))
+        return this.getReport('clients_given_ipt', this.getRequestParams({ 'gender': this.gender }))
     }
 
     getTxCurrTB() {
-        return this.getReport('screened_for_tb', 
-        this.getRequestParams({
-            'gender': this.gender,
-            'outcome_table': this.outComeTable
-        }))
+        return this.getReport('screened_for_tb', this.getRequestParams({ 'gender': this.gender }))
     }
 
     getRegimenDistribution() {
-        return this.getReport('disaggregated_regimen_distribution', 
-        this.getRequestParams({
+        return this.getReport('disaggregated_regimen_distribution', this.getRequestParams({
             'gender': this.gender,
             'outcome_table': this.outComeTable
         }))

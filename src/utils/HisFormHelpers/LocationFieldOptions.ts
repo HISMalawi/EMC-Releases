@@ -14,6 +14,28 @@ export async function getFacilities(filter=''): Promise<Option[]> {
     }))
 }
 
+export async function getFacilityWards(filter=''): Promise<Option[]> {
+    const wards = await LocationService.getFacilities({
+        name: filter,
+        tag: 'Facility adult sections'
+    })
+
+    return wards.map((ward: any) => ({
+        label: ward.name,
+        value: ward.name,
+        other: ward
+    }))
+}
+
+export async function getSpecialistClinics(): Promise<Option[]> {
+    const clinics = await LocationService.getSpecialistClinics()
+    return clinics.map((clinic: any) => ({
+        label: clinic.name,
+        value: clinic.name,
+        other: clinic
+    }))
+}
+
 export async function getRegions(): Promise<Option[]> {
     const regions = await LocationService.getRegions()
     return regions.map((region: any) => ({
@@ -32,8 +54,8 @@ export async function getDistricts(regionID: number): Promise<Option[]> {
     }))
 }
 
-export async function getTraditionalAuthorities(districtID: number): Promise<Option[]> {
-    const TAs = await LocationService.getTraditionalAuthorities(districtID)
+export async function getTraditionalAuthorities(districtID: number, name=''): Promise<Option[]> {
+    const TAs = await LocationService.getTraditionalAuthorities(districtID, name)
     return TAs.map((TA: any) => ({
         label: TA.name,
         value: TA.traditional_authority_id,
@@ -41,8 +63,8 @@ export async function getTraditionalAuthorities(districtID: number): Promise<Opt
     }))
 }
 
-export async function getVillages(traditionalAuthorityID: number): Promise<Option[]> {
-    const villages = await LocationService.getVillages(traditionalAuthorityID)
+export async function getVillages(traditionalAuthorityID: number, name=''): Promise<Option[]> {
+    const villages = await LocationService.getVillages(traditionalAuthorityID, name)
     return villages.map((village: any) => ({
         label: village.name,
         value: village.village_id,

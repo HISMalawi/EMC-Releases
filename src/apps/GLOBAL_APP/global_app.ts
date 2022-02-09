@@ -1,5 +1,7 @@
 import { PatientPrintoutService } from "@/services/patient_printout_service"
 import { UserService } from "@/services/user_service"
+import App from "@/apps/app_lib"
+import { GLOBAL_PROP } from "./global_prop"
 
 export default {
   GlobalAppSettings: [
@@ -21,6 +23,17 @@ export default {
         {
           name: "Portal settings",
           pathUrl: "/portal/config",
+        }
+      ]
+    },
+    {
+      name: 'Network',
+      icon: 'portal.png',
+      condition: () => UserService.isAdmin(),
+      files: [
+        {
+          name: "IP Configuration",
+          pathUrl: "/settings/host",
         }
       ]
     },
@@ -75,12 +88,37 @@ export default {
       condition: () => UserService.isAdmin(),
       files: [
         {
+          name: "View Duplicates",
+          pathUrl: '/view_duplicates'
+        },
+        {
           name: "Data Cleaning",
           pathUrl: "/data_cleaning",
+          condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ART'
+            : false
         },
         {
           name: "Merge patients",
           pathUrl: "/patients/merge",
+          condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ART'
+            : false
+        },
+        {
+          name: "Patient visit stats",
+          pathUrl: "/art/patient_visits",
+          condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ART'
+            : false
+        }
+      ]
+    },
+    {
+      name: 'DDE Settings', 
+      icon: 'programs.png',
+      condition: () => UserService.isAdmin(),
+      files: [
+        {
+          name: "DDE Activation",
+          pathUrl: `/preferences?label=Activate DDE&property=${GLOBAL_PROP.DDE_ENABLED}`
         }
       ]
     }
@@ -110,7 +148,8 @@ export default {
         const lbl = new PatientPrintoutService(patient.patient_id)
         return lbl.printDemographicsLbl()
       },
-      icon: "print.png"
+      icon: "print.png",
+      condition: () => App.getActiveApp()?.applicationName !== "CxCa"
     },
     {
       id: "demographics_edit",
@@ -148,7 +187,8 @@ export default {
         const lbl = new PatientPrintoutService(patient.patient_id)
         return lbl.printVisitSummaryLbl(visitDate)
       },
-      icon: "folder.png"
+      icon: "folder.png",
+      condition: () => App.getActiveApp()?.applicationName !== "CxCa"
     },
     {
       id: "enter_lab_result",

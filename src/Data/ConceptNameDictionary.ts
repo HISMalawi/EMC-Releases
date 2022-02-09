@@ -1,8 +1,207 @@
 export default [
    {
       "categories": [],
+      "concept_id": 10031,
+      "name": "Further Investigation and Management"
+   },
+   {
+      "categories": [],
+      "concept_id": 9066,
+      "name": "Cancer of cervix"
+   },
+   {
+      "categories": [],
+      "concept_id": 10030,
+      "name": "Large Lesion (Greater than 75 percent)"
+   },
+   {
+      "categories": [],
+      "concept_id": 1739,
+      "name": "Referral reason"
+   },
+   {
+      "categories": [],
+      "concept_id": 9514,
+      "name": "VIA Results"
+   },
+   {
+      "categories": [],
+      "concept_id": 9522,
+      "name": "Patient went for VIA?"
+   },
+   {
+      "concept_id": 2690,
+      "name": "TB treatment"
+   },
+   {
+      "categories": [],
+      "concept_id": 7458,
+      "name": "Confirmed TB on treatment"
+   },
+   {
+      "categories": [],
+      "concept_id": 7456,
+      "name": "Confirmed TB NOT on treatment"
+   },
+   {
+      "categories": [],
+      "concept_id": 9195,
+      "name": "Discuss with spouse"
+   },
+   {
+      "categories": [],
+      "concept_id": 7951,
+      "name": "Other side effect"
+   },
+   {
+      "categories": [],
+      "concept_id": 7755,
+      "name": "Malawi ART side effects"
+   },
+   {
+      "categories": [],
+      "concept_id": 9994,
+      "name": "CxCa test date"
+   },
+   {
+      "categories": [],
+      "concept_id": 10008,
+      "name": "Reason for NOT offering CxCa"
+   },
+   {
+      "categories": [],
+      "concept_id": 9992,
+      "name": "Offer CxCa"
+   },
+   {
+      "categories": ["reason_for_no_cxca"],
+      "concept_id": 8387,
+      "name": "Not due for screening"
+   },
+   {
+      "categories": ["reason_for_no_cxca"],
+      "concept_id": 10007,
+      "name": "Client preferred counseling",
+   },
+   {
+      "categories": ["reason_for_no_cxca"],
+      "concept_id": 1175,
+      "name": "Not applicable"
+   },
+   {
+      "categories": ["reason_for_no_cxca"],
+      "concept_id": 3580,
+      "name": "Patient refused"
+   },
+   {
+      "categories": [],
+      "concept_id": 7215,
+      "name": "Other (Specify)"
+   },
+   {
+      "categories": [],
+      "concept_id": 1719,
+      "name": "Tubal ligation"
+   },
+   {
+      "categories": [],
+      "concept_id": 1618,
+      "name": "Family planning"
+   },
+   {
+      "categories": [],
+      "concept_id": 374,
+      "name": "Method of family planning"
+   },
+   {
+      "categories": [],
+      "concept_id": 2431,
+      "name": "Other reason for not seeking services"
+   },
+   {
+      "categories": [],
+      "concept_id": 2592,
+      "name": "Clinician notes"
+   },
+   {
+      "categories": [],
+      "concept_id": 6986,
+      "name": "Transferred"
+   },
+   {
+      "categories": [],
+      "concept_id": 1588,
+      "name": "Previous TB treatment history"
+   },
+   {
+      "categories": ['bp_measures'],
+      "concept_id": 5085,
+      "name": "Systolic blood pressure"
+   },
+   {
+      "categories": ['bp_measures'],
+      "concept_id": 5086,
+      "name": "Diastolic blood pressure"
+   },
+   {
+      "categories": [],
       "concept_id": 7054,
       "name": "Art clinic location"
+   },
+   {
+      "categories": [],
+      "concept_id": 8677,
+      "name": 'Specific presenting complaint'
+   },
+   {
+      "categories": [],
+      "concept_id": 8578,
+      "name": 'Presenting complaint'
+   },
+   {
+      "categories": [],
+      "concept_id": 10319,
+      "name": 'Presenting complaint group'
+   },
+   {
+      "categories": [],
+      "concept_id": 6266,
+      "name": 'Trauma'
+   },
+   {
+      "categories": [],
+      "concept_id": 7027,
+      "name": 'General'
+   },
+   {
+      "categories": [],
+      "concept_id": 7411,
+      "name": 'ILI'
+   },
+   {
+      "categories": [],
+      "concept_id": 7644,
+      "name": 'Respiratory'
+   },
+   {
+      "categories": [],
+      "concept_id": 7661,
+      "name": 'Gastrointestinal'
+   },
+   {
+      "categories": [],
+      "concept_id": 9546,
+      "name": 'Haema'
+   },
+   {
+      "categories": [],
+      "concept_id": 9551,
+      "name": 'Nephro'
+   },
+   {
+      "categories": [],
+      "concept_id": 9560,
+      "name": 'Cardiovascular'
    },
    {
       "categories": [
@@ -40,9 +239,114 @@ export default [
       "name": "patient smokes"
    },
    {
+      "categories": ['risk factors'],
+      "concept_id": 2318,
+      "name": "Patient drinks alcohol"
+   },
+   {
+      "categories": [],
+      "concept_id": 9675,
+      "name": "Referral"
+   },
+   {
+      "categories": [],
+      "concept_id": 1054,
+      "name": "Marital status"
+   },
+   {
+      "categories": [],
+      "concept_id": 8366,
+      "name": "Religion"
+   },
+   {
+      "categories": [],
+      "concept_id": 6541,
+      "name": "Referred"
+   },
+   {
+      "categories": [],
+      "concept_id": 8717,
+      "name": "Specialist clinic"
+   },
+   {
+      "categories": [],
+      "concept_id": 6734,
+      "name": "Admit to ward"
+   },
+   {
+      "categories": [],
+      "concept_id": 9674,
+      "name": "Re-visiting"
+   },
+   {
+      "categories": [],
+      "concept_id": 3753,
+      "name": "HIV status"
+   },
+   {
+      "categories": [],
+      "concept_id": 7878,
+      "name": "HIV test location"
+   },
+   {
+      "categories": [],
+      "concept_id": 7409,
+      "name": "Qech outpatient diagnosis list"
+   },
+   {
+      "categories": [],
+      "concept_id": 123,
+      "name": "Malaria"
+   },
+   {
+      "categories": [],
+      "concept_id": 9227,
+      "name": "Malaria Test Result"
+   },
+   {
+      "categories": [],
+      "concept_id": 703,
+      "name": "Positive"
+   },
+   {
+      "categories": [],
+      "concept_id": 64,
+      "name": "Negative"
+   },
+   {
+      "categories": [],
+      "concept_id": 6542,
+      "name": "Primary diagnosis"
+   },
+   {
+      "categories": [],
+      "concept_id": 6543,
+      "name": "Secondary diagnosis"
+   },
+   {
+      "categories": [],
+      "concept_id": 2688,
+      "name": "Clinical notes construct"
+   },
+   {
+      "categories": [],
+      "concept_id": 1837,
+      "name": "HIV test date"
+   },
+   {
+      "categories": [],
+      "concept_id": 6189,
+      "name": "Type of visit"
+   },
+   {
       "categories": [],
       "concept_id": 3003,
       "name": "Transfer to"
+   },
+   {
+      "categories": [],
+      "concept_id": 7414,
+      "name": "Transfer from"
    },
    {
       "categories": [],
@@ -162,6 +466,9 @@ export default [
    },
    {
       "categories": ["side_effect"],
+      "sortIndex": {
+         "side_effect": 10
+      },
       "concept_id": 1773,
       "name": "Heavy alcohol use"
    },
@@ -170,6 +477,10 @@ export default [
          "tb_symptom",
          "side_effect"
       ],
+      "sortIndex": {
+         "side_effect": 4,
+         "tb_symptom": 4
+      },
       "concept_id": 8260,
       "name": "Weight loss / Failure to thrive / malnutrition"
    },
@@ -189,6 +500,10 @@ export default [
          "side_effect",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "side_effect": 9,
+         "tb_symptom": 3
+      },
       "concept_id": 6029,
       name: "Night sweats"
    },
@@ -201,6 +516,10 @@ export default [
          "side_effect",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "side_effect": 1,
+         "tb_symptom": 2
+      },
       "concept_id":5945,
       "name":"Fever"
    },
@@ -221,6 +540,9 @@ export default [
          "side_effect",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "side_effect": 3
+      },
       "concept_id":5980,
       "name":"Vomiting"
    },
@@ -233,6 +555,9 @@ export default [
          "side_effect",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "side_effect": 5
+      },
       "concept_id":877,
       "name":"Dizziness"
    },
@@ -246,6 +571,9 @@ export default [
          "side_effect",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "side_effect": 7
+      },
       "concept_id":620,
       "name":"Headache"
    },
@@ -256,6 +584,9 @@ export default [
          "side_effect",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "side_effect": 2
+      },
       "concept_id":5978,
       "name":"Nausea"
    },
@@ -288,6 +619,9 @@ export default [
          "side_effect",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "side_effect": 6
+      },
       "concept_id":1458,
       "name":"Lactic acidosis"
    },
@@ -302,6 +636,10 @@ export default [
          "side_effect",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "side_effect": 8,
+         "tb_symptom": 1
+      },
       "concept_id":107,
       "name":"Cough"
    }
@@ -311,6 +649,9 @@ export default [
          "contraindication",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "contraindication": 1
+      },
       "concept_id":821,
       "name":"Peripheral neuropathy"
    },
@@ -324,6 +665,9 @@ export default [
          "contraindication",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "contraindication": 3
+      },
       "concept_id":215,
       "name":"Jaundice"
    },
@@ -336,6 +680,9 @@ export default [
          "contraindication",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "contraindication": 5
+      },
       "concept_id":2148,
       "name":"Lipodystrophy"
    },
@@ -348,6 +695,9 @@ export default [
          "contraindication",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "contraindication": 7
+      },
       "concept_id":9242,
       "name":"Kidney Failure"
    },
@@ -358,6 +708,9 @@ export default [
          "contraindication",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "contraindication": 2
+      },
       "concept_id":219,
       "name":"Psychosis"
    },
@@ -368,6 +721,9 @@ export default [
          "contraindication",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "contraindication": 4
+      },
       "concept_id":9440,
       "name":"Gynaecomastia"
    },
@@ -380,6 +736,9 @@ export default [
          "contraindication",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "contraindication": 6
+      },
       "concept_id":3,
       "name":"Anemia"
    },
@@ -389,6 +748,9 @@ export default [
          "contraindication",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "contraindication": 9
+      },
       "concept_id":512,
       "name":"Skin rash"
    },
@@ -397,6 +759,9 @@ export default [
          "contraindication",
          "adverse_effect"
       ],
+      "sortIndex": {
+         "contraindication": 8
+      },
       "concept_id":867,
       "name":"Insomnia"
    },

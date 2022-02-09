@@ -1,10 +1,16 @@
 <script lang="ts">
+import { isPlatform } from '@ionic/core'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
+    data: () => ({
+        isReadyOnly: false as boolean
+    }),
+    created() {
+        this.isReadyOnly = !isPlatform('desktop')
+    },
     emits: [
         'onValue',
-        'onClear',
         'onFieldActivated'
     ],
     props: {
@@ -31,7 +37,7 @@ export default defineComponent({
             required: true
         },
         clear: {
-            type: Boolean,
+            type: Number,
             required: true
         },
         options: {
@@ -47,7 +53,10 @@ export default defineComponent({
         },
         onValueUpdate: {
             type: Function
+        },
+        footerButtonEvent: {
+            type: Object
         }
-    }    
+    }
 })
 </script>

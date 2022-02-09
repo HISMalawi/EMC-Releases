@@ -13,8 +13,11 @@ import { ObservationService } from "@/services/observation_service";
 import { ConceptService } from "@/services/concept_service"
 import HisDate from "@/utils/Date"
 import { GeneralDataInterface } from "@/apps/interfaces/AppInterface";
-import { GlobalPropertyService } from "@/services/global_property_service"
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service"
+import DrugModalVue from "@/apps/ART/Components/DrugModal.vue";
+import ART_GLOBAL_PROP from "../art_global_props";
+import { isEmpty } from "lodash";
+import { Order } from "@/interfaces/order";
 
 async function enrollInArtProgram(patientID: number, patientType: string, clinic: string) {
     const program = new PatientProgramService(patientID)
@@ -34,8 +37,15 @@ async function enrollInArtProgram(patientID: number, patientType: string, clinic
     await patientTypeService.save()
 }
 
-export async function init() {
+/**
+ * Present a modal to select Art activities
+ */
+async function showArtActivities() {
     const activities = PRIMARY_ACTIVITIES
+        .filter(a => (typeof a.availableOnActivitySelection === 'boolean' 
+            && a.availableOnActivitySelection)
+            || typeof a.availableOnActivitySelection != 'boolean'
+        )
         .map((activity: TaskInterface)=> ({
             value: activity.workflowID 
                 || activity.name,
@@ -43,7 +53,7 @@ export async function init() {
         }))
     const modal = await modalController.create({
         component: ActivitiesModal,
-        cssClass: "my-custom-class",
+        cssClass: activities.length > 7 ? "large-modal" : "",
         backdropDismiss: false,
         componentProps: {
             activities
@@ -51,14 +61,41 @@ export async function init() {
     });
     modal.present();
     await modal.onDidDismiss()
-    return modal;
+}
+
+/**
+ * Present a modal to show drug chart
+ */
+async function showStockManagementChart() {
+    if((await ART_GLOBAL_PROP.drugManagementEnabled())){
+        const drugModal = await modalController.create({
+            component: DrugModalVue,
+            cssClass: "large-modal",
+            backdropDismiss: false
+        });
+        drugModal.present() 
+        await drugModal.onDidDismiss()
+    }
+}
+
+function orderToString(order: Order) {
+    const test = order.tests[0];
+    const result = test.result[0];
+    const status = OrderService.isHighViralLoadResult(result) ? '(<b style="color: #eb445a;">High</b>)' : ''
+    return `${test.name} ${result.value_modifier}${result.value} ${status}`;
+}
+
+export async function init(context='') {
+    await showArtActivities()
+    if (context === 'HomePage') {
+        await showStockManagementChart()
+    }
 }
 
 export async function onRegisterPatient(patientID: number, person: any, attr: any, router: any) {
     await enrollInArtProgram(patientID, person.patient_type, person.location)
     // Assign filing number if property use_filing_numbers is enabled
-    const canFilingNumber = await GlobalPropertyService.get('use_filing_numbers')
-    if (canFilingNumber==='true') {
+    if ((await ART_GLOBAL_PROP.filingNumbersEnabled())) {
         let nextRoute = `/art/filing_numbers/${patientID}?assign=true`
         if (person.relationship === 'Yes') {
             nextRoute += '&next_workflow_task=Guardian Registration'
@@ -69,14 +106,16 @@ export async function onRegisterPatient(patientID: number, person: any, attr: an
 }
 
 export async function getPatientDashboardAlerts(patient: any): Promise<GeneralDataInterface[]>{
-    const sideEffects: Observation[] 
-    = await PatientAlerts.alertSideEffects(
-        patient.getID()
-    )
+    const sideEffects: Observation[] = await PatientAlerts.alertSideEffects(patient.getID())
+    const bmi = await patient.getBMI()
     return [
         {
             label: "Side effects",
             value: `${sideEffects.length}`,
+        },
+        {
+            label: "Patient BMI is",
+            value: `${bmi.result}`
         }
     ]
 }
@@ -88,6 +127,55 @@ export function formatPatientProgramSummary(data: any) {
         { label: "File Number", value: data.filing_number.number},
         { label: "Current Outcome", value: data.current_outcome},
     ]
+}
+/**
+ * Loads lab order results and filters them by Viral Load results or Order
+ * @param patientId 
+ * @param date 
+ * @returns 
+ */
+export async function getPatientDashboardLabOrderCardItems(patientId: number, date: string) {
+    const orders = await OrderService.getOrders(patientId)
+    const d = (date: string) => HisDate.toStandardHisFormat(date)
+    const t = (date: string) => HisDate.toStandardHisTimeFormat(date)
+    // filter All viral load results on visit date
+    const vlOrders = orders.filter((o: any) => {
+        try {
+            return o.tests[0].name.match(/HIV/i) && d(o.tests[0].result[0].date) === d(date) 
+        } catch(e) {
+            return false
+        }
+    })
+    if (!isEmpty(vlOrders)) {
+        return vlOrders.map((order: any) => {
+            const test = order.tests[0]
+            const result = test.result[0]
+            return {
+                label: orderToString(order),
+                value: t(result.date),
+                other: {
+                    tableRow: [
+                        order.accession_number, 
+                        order.specimen.name,
+                        t(order.order_date)
+                    ]
+                }
+            }
+        })
+    }
+    // Show the order
+    return orders.filter((o: any) => d(o.order_date) === d(date))
+        .map((labOrder: any) => ({
+            label: `Order:  ${labOrder.specimen.name}`,
+            value: t(labOrder.order_date),
+            other: {
+                tableRow: [
+                    labOrder.accession_number, 
+                    labOrder.specimen.name,
+                    t(labOrder.order_date)
+                ]
+            }
+        }))
 }
 
 export function confirmationSummary(patient: any, program: any) {
@@ -148,9 +236,9 @@ export function confirmationSummary(patient: any, program: any) {
             await OrderService.getOrders(patient.getID())
                 .then((orders) => {
                     const VLOrders = OrderService.getViralLoadOrders(orders);
-                    VLOrders.forEach((element) => {
+                    VLOrders.forEach((order) => {
                         data.push({
-                            value: OrderService.formatOrders(element),
+                            value: orderToString(order),
                             label: ``,
                         });
                     });

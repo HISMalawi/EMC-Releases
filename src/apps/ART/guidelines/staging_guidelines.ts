@@ -1,5 +1,5 @@
 import { ConceptService } from "@/services/concept_service"
-import { alertAction } from "@/utils/Alerts"
+import { alertConfirmation } from "@/utils/Alerts"
 import { GuideLineInterface } from "@/utils/GuidelineEngine"
 
 export const ADULT_WHO_STAGE_CRITERIA: Record<string, GuideLineInterface> = {
@@ -82,16 +82,10 @@ export const CONTRADICTING_STAGE_DEFINITIONS_ALERTS: Record<string, GuideLineInt
     "Warn if Severe weight loss is selected when actual patient BMI is acceptable": {
         priority: 1,
         actions: {
-            alert: async (facts: any) => {
-                const action = await alertAction(
-                    `Patient's BMI of ${facts.bmi} greater than 18.5, do you wish to proceed?`,
-                    [
-                        { text: 'Yes, keep severe weightloss', role: 'keep' },
-                        { text: 'No, cancel', role: 'discard' }
-                    ]
-                )
-                return action === 'keep'
-            },
+            alert: async (facts: any) => await alertConfirmation(`Patient's BMI of ${facts.bmi} greater than 18.5, do you wish to proceed?`, {
+                confirmBtnLabel: 'Yes, keep severe weightloss',
+                cancelBtnLabel: 'No, cancel'
+            }),
         },
         conditions: {
             selectedCondition (condition: string) {
@@ -104,14 +98,11 @@ export const CONTRADICTING_STAGE_DEFINITIONS_ALERTS: Record<string, GuideLineInt
         priority: 1,
         actions: {
             alert: async (facts: any) => {
-                const action = await alertAction(
-                    'CONTRADICTING STAGE DEFINING CONDITIONS',
-                    [
-                        { text: 'Keep Asymptomatic', role: 'asymptomatic' },
-                        { text: 'Keep other(s)', role: 'keep' }
-                    ]
-                )
-                if (action === 'asymptomatic') {
+                const keepAsymptomatic = await alertConfirmation('CONTRADICTING STAGE DEFINING CONDITIONS', {
+                    confirmBtnLabel: "Keep Asymptomatic",
+                    cancelBtnLabel: 'Keep other(s)'
+                })
+                if(keepAsymptomatic) {
                     facts.stage = 1
                     facts.selectedConditions = []
                     facts.stageThreeConditions = []
@@ -120,7 +111,7 @@ export const CONTRADICTING_STAGE_DEFINITIONS_ALERTS: Record<string, GuideLineInt
                     return true
                 }
                 return false
-            }
+            },
         },
         conditions: {
             selectedCondition(condition: string){
@@ -307,7 +298,7 @@ export const CHILD_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
                 return cd4 <= 750
             },
             cd4Modifier(modifier: string) {
-                return modifier === '<'
+                return modifier === '<' || modifier === '='
             },
             stage(stage: number) {
                 return stage <= 2
@@ -319,10 +310,10 @@ export const CHILD_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
         priority: 7,
         conditions: {
             cd4(cd4: number){
-                return cd4 < 500
+                return cd4 <= 500
             },
             cd4Modifier(modifier: string){
-                return modifier === '<'
+                return modifier === '<' || modifier === '='
             },
             stage(stage: number) {
                 return stage <= 2
@@ -340,10 +331,10 @@ export const CHILD_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
                 return age > 5
             },
             cd4(cd4: number) {
-                return cd4 < 500
+                return cd4 <= 500
             },
             cd4Modifier(modifier: string) {
-                return modifier === '<'
+                return modifier === '<' || modifier === '='
             }
         }
     },
@@ -405,7 +396,7 @@ export const ADULT_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
                 return cd4 <= 350
             },
             cd4Modifier(modifier: string) {
-                return modifier === '<'
+                return modifier === '<' || modifier === '='
             }
         }
     },
@@ -420,7 +411,7 @@ export const ADULT_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
                 return cd4 <= 250
             },
             cd4Modifier(modifier: string) {
-                return modifier === '<'
+                return modifier === '<' || modifier === '='
             }
         }
     },
@@ -435,7 +426,7 @@ export const ADULT_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
                 return cd4 <= 350
             },
             cd4Modifier(modifier: string) {
-                return modifier === '<'
+                return modifier === '<' || modifier === '='
             }
         }
     },
@@ -450,7 +441,7 @@ export const ADULT_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
                 return cd4 <= 500
             },
             cd4Modifier(modifier: string) {
-                return modifier === '<'
+                return modifier === '<' || modifier === '='
             }
         }
     },

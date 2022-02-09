@@ -6,10 +6,36 @@ export class ConceptService extends Service {
         super()
     }
 
-    static getConceptsByCategory(categoryName: string) {
-        return ConceptNameDictionary.filter((i: any) => {
-            return i.categories.includes(categoryName)
+    static getConceptsByCategory(categoryName: string, useSortIndex=false) {
+        const data = ConceptNameDictionary.filter((i: any) => {
+            try {
+                return i.categories.includes(categoryName)
+            } catch (e) {
+                // nothing of concern
+                return false
+            }
         })
+        if (useSortIndex) return data.sort((a: any, b: any) =>{
+            try {
+                return a.sortIndex[categoryName] > b.sortIndex[categoryName] 
+                    ? 1
+                    : 0 
+            }catch(e) {
+                // Ooh well, that's life
+                return 0
+            }
+        })
+        return data
+    }
+
+    static async getConceptSet(conceptName: string, filter = '') {
+        const conceptId = await this.getConceptID(conceptName)
+        const concepts = super.getJson('concept_set', {
+            id: conceptId,
+            name: filter
+        })
+
+        if (concepts) return concepts
     }
 
     static async getConceptName(conceptId: number) {
@@ -38,12 +64,12 @@ export class ConceptService extends Service {
     }
 
     static async getConceptIDFromApi(name: string) {
-        const concepts = await super.getJson(`/concepts`, {name})
+        const concepts = await super.getJson(`concepts`, {name})
         return this.resolveConcept(concepts, name)
     }
     
     static async getConceptNameFromApi(conceptId: number) {
-        const concept = await super.getJson(`/concepts/${conceptId}`)
+        const concept = await super.getJson(`concepts/${conceptId}`)
 
        
         if (concept) return concept.concept_names[0].name

@@ -14,7 +14,10 @@ export class ProgramService extends Service {
     static getPatientPrograms(patientID: number) {
       return super.getJson(`patients/${patientID}/programs`)
     }
-
+    static getPatientVLInfo(patientID: number) {
+      const programID = super.getProgramID();
+      return super.getJson(`programs/${programID}/patients/${patientID}/vl_info`, {date: this.getSessionDate()})
+    }
     static getProgramWorkflows(program: number) {
       return super.getJson(`programs/${program}/workflows`)
     }
@@ -35,8 +38,13 @@ export class ProgramService extends Service {
       return super.void(`programs/${programId}/patients/${patientId}/states/${stateId}`, { reason })
     }
 
-    static getProgramInformation(patientID: number) {
-        return super.getJson(`/programs/${super.getProgramID()}/patients/${patientID}`);
+    static async getProgramInformation(patientID: number) {
+      try {
+        const info = await super.getJson(`/programs/${super.getProgramID()}/patients/${patientID}`);
+        return info
+      } catch (error) {
+        return {}
+      }
     }
     static getCurrentProgramInformation(patientID: number, visitDate: any) {
         return super.getJson(`/programs/${super.getProgramID()}/patients/${patientID}/visit?date=${visitDate}`);

@@ -27,15 +27,15 @@
           :config="currentField.config"
           :options="currentField.options"
           :preset="currentField.preset"
-          :clear="isClear"
+          :clear="valueClearIndex"
           :fdata="formData"
           :cdata="computedFormData"
           :activationState="state"
           :onValue="currentField.onValue"
           :defaultValue="currentField.defaultValue"
           :onValueUpdate="currentField.onValueUpdate"
+          :footerButtonEvent="ftBtnEvent"
           @onValue="onFieldValue"
-          @onClear="isClear = false"
           @onFieldActivated="onFieldActivated"
         />
       </keep-alive>
@@ -47,7 +47,7 @@
             :key="index"
             :slot="btn.slot || 'start'"
             :class="btn.styleClass"
-            @click="btn.onClick(formData, computedFormData)"
+            @click="onFtButtonClicked(btn)"
             :color="btn.color || 'primary'"
             :size="btn.size || 'large'"
             :disabled="onDisabledBtnState(btn, 'disabled', false)"
@@ -67,7 +67,8 @@ import { FieldType } from "@/components/Forms/BaseFormElements";
 import { 
   Field, 
   Option,
-  FormFooterBtns
+  FormFooterBtns,
+  FooterBtnEvent
 } from "./FieldInterface";
 import {
   IonPage,
@@ -79,7 +80,7 @@ import {
   IonToolbar,
   IonButton,
   IonHeader,
-  IonTitle,
+  IonTitle
 } from "@ionic/vue";
 import { alertConfirmation, toastWarning } from "@/utils/Alerts";
 import InfoCard from "@/components/DataViews/HisFormInfoCard.vue"
@@ -125,9 +126,15 @@ export default defineComponent({
     },
   },
   data: () => ({
-    isClear: false,
+    ftBtnEvent: {
+      eventIndex: 0,
+      btnName: '',
+      btnOutput: null as any,
+    } as FooterBtnEvent,
+    valueClearIndex: 0 as number,
     currentIndex: 0,
     currentField: {} as Field,
+    currentFieldContext: null as any,
     formData: {} as any,
     computedFormData: {} as any,
     footerBtns: [] as Array<FormFooterBtns>,
@@ -163,7 +170,12 @@ export default defineComponent({
             dataFields = [...dataFields, this.getDefaultSummaryField()];
           }
           this.currentFields = dataFields;
-          await this.onNext(); //look for a field to mount initially
+          // Use activeField as initial field if set
+          if (this.activeField) {
+            this.mountField(this.activeField)
+          } else {
+            await this.onNext(); //look for a field to mount initially
+          }
         }
       },
       immediate: true,
@@ -173,26 +185,52 @@ export default defineComponent({
      * Switch the view to a target field
     */
     activeField: {
-      handler(field: string) {
-        if (field) {
-          const i = findIndex(this.currentFields, { id: field });
-          if (i >= 0 && i <= this.currentFields.length) {
-            this.setActiveField(i)
-            this.$emit('onIndex', i)
-          }
-        }
+      async handler(field: string) {
+        if (field) this.mountField(field)
       }
     }
   },
+  mounted() {
+    this.footerBtns = [this.getCancelBtn()]
+  },
   methods: {
+    clearValue() {
+      this.valueClearIndex += 1
+      this.setActiveFieldValue(null)
+    },
+    async onFtButtonClicked(btn: FormFooterBtns) {
+      this.ftBtnEvent.eventIndex += 1
+      this.ftBtnEvent.btnName = btn.name
+      this.ftBtnEvent.btnOutput = await btn.onClick(this.formData, this.computedFormData, this.currentFieldContext)
+      if (btn.onClickComponentEvents) {
+        this.ftBtnEvent.onClickComponentEvents = btn.onClickComponentEvents
+      } else {
+        if (this.ftBtnEvent.onClickComponentEvents) delete this.ftBtnEvent.onClickComponentEvents
+      }
+    },
+    async mountField(name: string) {
+      if (name === '_NEXT_FIELD_') {
+        await this.goNext()
+        return this.$emit('onIndex', this.currentIndex)
+      }
+      const i = findIndex(this.currentFields, { id: name });
+      if (i >= 0 && i <= this.currentFields.length) {
+        this.setActiveField(i)
+        this.$emit('onIndex', i)
+      }
+    },
     /**
      * Redirects to a specified route or defaults to the previous view
      */
-    getCancelBtn(): FormFooterBtns {
+    getCancelBtn(conf={} as any): FormFooterBtns {
+      const override = conf || {}
       return {
-        name: "Cancel",
-        color: "danger",
+        name: override.name || "Cancel",
+        color: override.color || "danger",
         onClick: async () => {
+          if (override.onClick) {
+            return override.onClick()
+          }
           const confirmation = await alertConfirmation(
             "Are you sure you want to cancel?"
           );
@@ -208,23 +246,28 @@ export default defineComponent({
      * Clear the current's field value. However this depends if 
      * the field supports this feature
      */
-    getClearBtn(): FormFooterBtns {
+    getClearBtn(conf={} as any): FormFooterBtns {
+      const override = conf || {}
       return {
-        name: "Clear",
-        color: "warning",
+        name: override.name || "Clear",
+        color: override.color || "warning",
         slot: "end",
         onClick: async () => {
+          if (override.onClick) {
+            return override.onClick()
+          }
           const confirmation = await alertConfirmation(
             "Are you sure you want to clear field data?"
           );
-          if (confirmation) this.isClear = true;
+          if (confirmation) this.clearValue();
         },
       };
     },
     /**
      * Go to the previous page on the form
      */
-    getBackBtn(): FormFooterBtns {
+    getBackBtn(conf={} as any): FormFooterBtns {
+      const override = conf || {}
       const visibleCondition = () => {
         if (this.currentFields.length === 1 
           || this.currentIndex <= 0) {
@@ -233,7 +276,7 @@ export default defineComponent({
         return true;
       }
       return {
-        name: "Back",
+        name: override?.name || "Back",
         slot: "end",
         state: {
           disabled: {
@@ -245,13 +288,14 @@ export default defineComponent({
             default: () => visibleCondition()
           }
         },
-        onClick: () => this.goBack()
+        onClick: () => override.onClick ? override.onClick() : this.goBack()
       };
     },
     /**
      * Go to the next index in the array of fields
      */
-    getNextBtn(): FormFooterBtns {
+    getNextBtn(conf={} as any): FormFooterBtns {
+      const override = conf || {}
       const visibleCondition = () => {
         if (this.currentIndex + 1 >= this.currentFields.length 
           || this.currentFields.length <= 1) {
@@ -260,8 +304,8 @@ export default defineComponent({
         return true;
       }
       return {
-        name: "Next",
-        color: "success",
+        name: override?.name || "Next",
+        color: override?.color || "success",
         slot: "end",
         state: {
           disabled: {
@@ -280,19 +324,20 @@ export default defineComponent({
             onload: () => visibleCondition()
           }
         },
-        onClick: () => this.goNext(),
+        onClick: () => override.onClick ? override.onClick() : this.goNext(),
       };
     },
     /**
      * When clicked it notifies the parent that form has been submitted
      */
-    getFinishBtn(): FormFooterBtns {
+    getFinishBtn(conf={} as any): FormFooterBtns {
+      const override = conf || {}
       const visibilityCondition = () => {
         return this.currentIndex+1 >= this.currentFields.length
       }
       return {
-        name: "Finish",
-        color: "success",
+        name: override?.name || "Finish",
+        color: override?.color || "success",
         slot: "end",
         state: {
           disabled: {
@@ -304,10 +349,10 @@ export default defineComponent({
             onsubmit: () => true,
             default:() => visibilityCondition(),
             onload: () => visibilityCondition()
-          },
+          }
         },
-        onClick: () => this.goNext(),
-      };
+        onClick: () => override.onClick ? override.onClick() : this.goNext()
+      }
     },
     /**
      * Shows or hides a footer button based on it's defined states
@@ -448,15 +493,17 @@ export default defineComponent({
         const errors = this.currentField.validation(
           value, this.formData, this.computedFormData
         )
-        if (errors) {
-          return toastWarning(errors.join(", "), 3500);
-        }
+        if (errors) return toastWarning(errors.join(", "), 30000);
       }
       // Run callback before proceeding to next field
       if (this.currentField.beforeNext) {
-        const ok = await this.currentField.beforeNext();
-        if (!ok) {
-          return;
+        if (!(await this.currentField.beforeNext(
+            this.formData[this.currentField.id],
+            this.formData,
+            this.computedFormData,
+            this
+        ))) {
+          return
         }
       }
       await this.onNext();
@@ -467,30 +514,47 @@ export default defineComponent({
     async goBack() {
       for (let i = this.currentIndex; i >= 0; --i) {
         const field = this.currentFields[i];
-        if (!isEmpty(this.currentField) && this.currentField.id === field.id)
+        if (!isEmpty(this.currentField) 
+          && this.currentField.id === field.id) {
           continue;
-
+        }
         try {
-          if (field.condition && !field.condition(this.formData)) {
-            this.setDefaultOutputValue(field)
-            continue;
+          if (!(await this.checkFieldCondition(field))) {
+            continue
           }
         } catch (e) {
-          continue;
+          continue
         }
         await this.setActiveField(i, "prev");
         return
       }
     },
-    setDefaultOutputValue(field: Field) {
-      this.formData[field.id] = field.defaultOutput 
-        ? field.defaultOutput(this.formData, this.computedFormData) 
-        : null;
-      if (field.computedValue) {
-        this.computedFormData[field.id] = field.defaultComputedOutput
-          ? field.defaultComputedOutput(this.formData, this.computedFormData)
-          : null
+    /**
+     * Run a field's condition if configured. 
+     * Note: Fields whose evaluation === False will have their
+     *      values null by Default. If a defaultOuput/defaultComputedOutput 
+     *      was set, those values will be used instead of null
+     */
+    async checkFieldCondition(field: Field) {
+       if (field.condition && !(await field.condition(
+          this.formData, this.computedFormData
+        ))) {
+        if (typeof field.onConditionFalse === 'function') {
+          field.onConditionFalse()
+        }
+        // Normal form value to be used when condition is false
+        this.formData[field.id] = field.defaultOutput 
+          ? field.defaultOutput(this.formData, this.computedFormData) 
+          : null;
+        // Computed form value to be used when condition is false
+        if (field.computedValue) {
+          this.computedFormData[field.id] = field.defaultComputedOutput
+            ? field.defaultComputedOutput(this.formData, this.computedFormData)
+            : null
+        }
+        return false
       }
+      return true
     },
     /**
      * Callback when the field component has been activated.
@@ -499,16 +563,17 @@ export default defineComponent({
      */
     onFieldActivated(fieldContext: any) {
       this.state = "onload";
+      this.currentFieldContext = fieldContext // it might not be used anywhere on this component but it might be used in some callbacks as context
       if (this.currentField.onload) this.currentField.onload(fieldContext);
     },
     /**
      * Callback before the active field is replaced
      */
     async onUnload(state = "") {
-      this.state = "unload";
-      if (!isEmpty(this.currentField) && this.currentField.unload) {
-        const data = this.formData[this.currentField.id];
-        if (data) {
+      try {
+        this.state = "unload";
+        if (!isEmpty(this.currentField) && this.currentField.unload) {
+          const data = this.formData[this.currentField.id];
           await this.currentField.unload(
             data,
             state,
@@ -517,6 +582,8 @@ export default defineComponent({
             this
           );
         }
+      } catch (e) {
+        console.error(e)
       }
     },
     buildFormData(fields: Array<Field>): void {
@@ -564,18 +631,20 @@ export default defineComponent({
       const totalFields = this.currentFields.length;
       for (let i = this.currentIndex; i < totalFields; ++i) {
         const field = this.currentFields[i];
-
         if (!isEmpty(this.currentField) 
-          && this.currentField.id === field.id)
-          continue;
-
-        try {
-          if (field.condition && !field.condition(this.formData)) {
-            this.setDefaultOutputValue(field)
+          && this.currentField.id === field.id) {
             continue;
           }
-        } catch (e) { continue }
-
+        try {
+          if (!(await this.checkFieldCondition(field))) {
+            continue
+          }
+        } catch (e) { 
+          continue 
+        }
+        if (typeof this.currentField.exitsForm === 'function' 
+          && this.currentField.exitsForm(this.formData, this.computedFormData)) 
+          break
         await this.setActiveField(i, "next");
         return;
       }
@@ -598,10 +667,12 @@ export default defineComponent({
           this.currentField.config.footerBtns
         )
       }
-      this.footerBtns.push(this.getClearBtn());
-      this.footerBtns.push(this.getBackBtn());
-      this.footerBtns.push(this.getNextBtn());
-      this.footerBtns.push(this.getFinishBtn());
+      // Retrieve button override configuration.
+      const ftBtns = this.currentField.config?.overrideDefaultFooterBtns 
+      this.footerBtns.push(this.getClearBtn(ftBtns?.clearBtn));
+      this.footerBtns.push(this.getBackBtn(ftBtns?.backBtn));
+      this.footerBtns.push(this.getNextBtn(ftBtns?.nextBtn));
+      this.footerBtns.push(this.getFinishBtn(ftBtns?.finishBtn));
     },
     onFieldValue(value: Option | Array<Option>) {
       this.setActiveFieldValue(value);

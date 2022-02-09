@@ -3,7 +3,7 @@
         <ion-grid>
             <ion-row>
                 <ion-col v-if="prependValue" size-md="4">
-                    <ion-input :value="prependValue" class="input_display" :disabled="true"/>
+                    <ion-input :readonly="isReadOnly" :value="prependValue" class="input_display" :disabled="true"/>
                 </ion-col>
                 <ion-col size-md="">
                     <base-input :type="inputType" :value="value" @onValue="onKbValue"/>
@@ -35,7 +35,7 @@ import {
     IonGrid,
     IonList, 
     IonItem, 
-    IonLabel
+    IonLabel,
 } from "@ionic/vue"
 
 export default defineComponent({
@@ -98,12 +98,18 @@ export default defineComponent({
             }
         },
         async emitValue(v: Option) {
+            if (v.value === '') {
+                this.value = ''
+                return this.$emit('onValue', null)
+            }
+
             if (this.onValue) {
                 const ok = await this.onValue(v)
                 if (!ok) {
                     return
                 }
             }
+         
             //Automatically concat prepended value with input
             v.value = this.prependValue 
                 ? `${this.prependValue}${v.value}`
@@ -118,7 +124,7 @@ export default defineComponent({
             await this.emitValue({ label: text, value: text })
         },
         async keypress(text: any){
-            const input = handleVirtualInput(text, this.value)
+            const input = handleVirtualInput(text, this.value, this.config.showLowerCasesOnly)
             await this.emitValue({ label: input, value: input })
         }
     },
@@ -131,11 +137,8 @@ export default defineComponent({
             },
             deep: true
         },
-        clear(val: boolean){
-            if (val) {
-                this.value = ''
-                this.$emit('onClear')
-            } 
+        clear() {
+            this.value = ''
         }
     }
 })
@@ -144,5 +147,7 @@ export default defineComponent({
 #view-port {
     height: 53vh;
 }
-
+.view-port-content {
+    height: 80%;
+}
 </style>

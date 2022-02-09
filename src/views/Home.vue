@@ -1,7 +1,15 @@
 <template>
   <ion-page>
     <ion-header :translucent="true">
-      <ion-toolbar>
+      <ion-toolbar class="mobile-component-view">
+        <ion-title> {{ facilityName }} </ion-title>
+        <ion-buttons slot="end">
+          <ion-thumbnail> 
+            <img :src="appLogo" class="logo" alt="App Logo"/>
+          </ion-thumbnail>
+        </ion-buttons>
+      </ion-toolbar>
+      <ion-toolbar class="full-component-view">
         <ion-row>
           <ion-col>
             <div class="tool-bar-medium-card">
@@ -16,7 +24,12 @@
                     :src="barcodeLogo"/>
                 </ion-col>
                 <ion-col size-lg="7" size-sm="8"> 
-                  <input v-model="patientBarcode" class="barcode-input" ref="scanBarcode"/>
+                  <input 
+                    :readonly="isReadOnly" 
+                    v-model="patientBarcode" 
+                    class="barcode-input" 
+                    ref="scanBarcode"
+                  />
                 </ion-col>
               </ion-row>
             </div>
@@ -40,22 +53,26 @@
       </ion-toolbar>
     </ion-header>
 
+    <ion-toolbar> 
+      <ion-segment scrollable :value="activeTab" class="ion-justify-content-center">
+        <ion-segment-button :value="1" @click="activeTab = 1">
+          <ion-icon :icon="statsChart"> </ion-icon>
+          <ion-label>Overview</ion-label>
+        </ion-segment-button>
+        <ion-segment-button v-if="canReport" :value="2" @click="activeTab = 2">
+          <ion-icon :icon="pieChart"> </ion-icon>
+          <ion-label>Reports</ion-label>
+        </ion-segment-button>
+        <ion-segment-button :value="3" @click="activeTab = 3">
+          <ion-icon :icon="settings"> </ion-icon>
+          <ion-label>Administration</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-toolbar>
+    
     <ion-content :fullscreen="true">
       <div id="container" class="his-card overview" v-if="ready">
-        <ion-segment mode="ios" scrollable :value="activeTab" class="ion-justify-content-center">
-          <ion-segment-button :value="1" @click="activeTab = 1">
-            <ion-icon :icon="statsChart"> </ion-icon>
-            <ion-label>Overview</ion-label>
-          </ion-segment-button>
-          <ion-segment-button v-if="canReport" :value="2" @click="activeTab = 2">
-            <ion-icon :icon="pieChart"> </ion-icon>
-            <ion-label>Reports</ion-label>
-          </ion-segment-button>
-          <ion-segment-button :value="3" @click="activeTab = 3">
-            <ion-icon :icon="settings"> </ion-icon>
-            <ion-label>Administration</ion-label>
-          </ion-segment-button>
-        </ion-segment>
+        
         <component 
           v-if ="activeTab == 1" 
           v-bind:is="appOverview"
@@ -77,32 +94,45 @@
     <ion-footer>
       <ion-toolbar>
         <ion-row>
-          <ion-col>
-            <ion-button color="danger left" size="large" @click="signOut">
-              <ion-icon :icon="logOut"></ion-icon>
-                Logout
-              </ion-button>
-          </ion-col>
-          <ion-col v-if="canFindByIdentifier">
-            <ion-button color="primary" size="large" router-link="/patients/search/id">
-              <ion-icon :icon="search"> </ion-icon>
-              Find By
-            </ion-button>
-          </ion-col>
-          <ion-col>
-            <ion-button color="primary" size="large" router-link="/patient/registration">
-              <ion-icon :icon="person"></ion-icon>
-                Find or Register
-              </ion-button>
-          </ion-col>
-          <ion-col>
-            <ion-button color="primary" size="large" @click="openModal">
-              <ion-icon :icon="apps"></ion-icon>
-              <ion-label>
-                Applications
-              </ion-label>
-            </ion-button>
-          </ion-col>
+        <ion-col>
+          <ion-button class="xl-button mobile-component-view" color="danger" @click="signOut">
+            <ion-icon :icon="logOut"></ion-icon>
+          </ion-button>
+          <ion-button class="xl-button full-component-view" color="danger" size="large" @click="signOut">
+            <ion-icon :icon="logOut"></ion-icon>
+            <ion-label> Logout </ion-label>
+          </ion-button>
+        </ion-col>
+        
+        <ion-col>
+          <ion-button v-if="canFindByIdentifier" class="xl-button mobile-component-view" color="primary" router-link="/patients/search/id">
+            <ion-icon :icon="search"> </ion-icon>
+          </ion-button>
+          <ion-button v-if="canFindByIdentifier" class="xl-button full-component-view" color="primary" size="large" router-link="/patients/search/id">
+            <ion-icon :icon="search"> </ion-icon>
+            <ion-label> Find By </ion-label>
+          </ion-button>
+        </ion-col>
+
+        <ion-col>
+          <ion-button class="xl-button mobile-component-view" color="primary" router-link="/patient/registration">
+            <ion-icon :icon="person"></ion-icon>
+          </ion-button>
+          <ion-button class="xl-button full-component-view" color="primary" size="large" router-link="/patient/registration">
+            <ion-icon :icon="person"></ion-icon>
+            <ion-label> Find or Register </ion-label>
+          </ion-button>
+        </ion-col>
+
+        <ion-col>
+          <ion-button class="xl-button mobile-component-view" color="primary" @click="openModal">
+            <ion-icon :icon="apps"></ion-icon>
+          </ion-button>
+          <ion-button class="xl-button full-component-view" color="primary" size="large" @click="openModal">
+            <ion-icon :icon="apps"></ion-icon>
+            <ion-label> Applications </ion-label>
+          </ion-button>
+        </ion-col>
         </ion-row>
       </ion-toolbar>
     </ion-footer>
@@ -113,7 +143,6 @@
 import HisApp from "@/apps/app_lib"
 import { defineComponent } from "vue";
 import { barcode } from "ionicons/icons";
-import { GlobalPropertyService } from "@/services/global_property_service"
 import ApiClient from "@/services/api_client";
 import HisDate from "@/utils/Date"
 import { AppInterface, FolderInterface } from "@/apps/interfaces/AppInterface";
@@ -121,6 +150,7 @@ import { Service } from "@/services/service"
 import ProgramIcon from "@/components/DataViews/DashboardAppIcon.vue"
 import HomeFolder from "@/components/HomeComponents/HomeFolders.vue"
 import { AuthService } from "@/services/auth_service"
+import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
 
 import Img from "@/utils/Img"
 import { 
@@ -133,6 +163,7 @@ import {
   settings
 } from 'ionicons/icons';
 import {
+  IonThumbnail,
   IonContent,
   IonHeader,
   IonFooter,
@@ -143,18 +174,24 @@ import {
   IonIcon,
   IonButton,
   IonSegment,
+  IonButtons,
   IonSegmentButton,
-  IonLabel
+  IonLabel,
+  IonTitle,
+  isPlatform
 } from "@ionic/vue";
 export default defineComponent({
   name: "Home",
   components: {
+    IonTitle,
+    IonThumbnail,
     IonIcon,
     ProgramIcon,
     HomeFolder,
     IonContent,
     IonHeader,
     IonPage,
+    IonButtons,
     IonToolbar,
     IonRow,
     IonCol,
@@ -173,7 +210,8 @@ export default defineComponent({
       logOut,
       statsChart,
       pieChart,
-      settings
+      settings,
+      isReadOnly: !isPlatform('desktop')
     }
   },
   data() {
@@ -216,12 +254,12 @@ export default defineComponent({
   },
   methods: {
     fetchLocationID: async function () {
-      const centerID = await GlobalPropertyService.getCurrentHealthCenterId()
+      const centerID = await GLOBAL_PROP.healthCenterID()
 
       if (centerID) this.fetchLocationName(centerID);
     },
     fetchLocationUUID: async function () {
-      const uuid = await GlobalPropertyService.getSiteUUID()
+      const uuid = await GLOBAL_PROP.siteUUID()
 
       if (uuid) sessionStorage.siteUUID = uuid
     },
@@ -249,7 +287,7 @@ export default defineComponent({
       )
     },
     async openModal() {
-      const data = await HisApp.selectApplication() 
+      const data = await HisApp.selectApplication('HomePage') 
       if (data) {
         this.app = data
         this.activeTab = 1
@@ -265,9 +303,8 @@ export default defineComponent({
     },
     async signOut() {
       const auth = new AuthService()
-      const portalStatus = await GlobalPropertyService.get('portal.enabled');
-      if(portalStatus === "true") {
-        const portalLocation = await GlobalPropertyService.get('portal.properties');
+      if((await GLOBAL_PROP.portalEnabled())) {
+        const portalLocation = await GLOBAL_PROP.portalProperties();
         window.location = portalLocation;
       }else {
         this.$router.push('/login')
@@ -301,6 +338,20 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.full-component-view {
+    display: block;
+}
+.mobile-component-view {
+    display: none;
+}
+@media (max-width:900px) {
+  .full-component-view {
+      display: none;
+  }
+  .mobile-component-view {
+      display: block;
+  }
+}
 ion-icon {
   padding: 0.2em;
 }
@@ -314,12 +365,14 @@ ion-icon {
 ion-col p {
   margin: 0;
 }
-ion-button {
+.xl-button {
   width: 100%;
 }
 .overview {
-  min-height: 65vh;
+  max-height: 63vh;
+  min-height: 63vh;
   margin: 0.5em;
+  overflow: auto;
 }
 
 .barcode-input{

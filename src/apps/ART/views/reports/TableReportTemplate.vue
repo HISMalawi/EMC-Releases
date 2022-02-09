@@ -1,6 +1,6 @@
 <template>
   <his-standard-form
-    v-if="!canShowReport"
+    v-show="!canShowReport"
     @onFinish="onFinish"
     :skipSummary="true" 
     :fields="fields">
@@ -8,31 +8,52 @@
   <ion-page v-if="canShowReport">
     <ion-header>
       <ion-toolbar>
-        <ion-row> 
-          <ion-col size="2">
-            <img class="logo" :src="logo" />
-          </ion-col>
-          <ion-col>
-            <ion-row>
-              <ion-col size="2">Title</ion-col> 
-              <ion-col> <b>{{ title }}</b> </ion-col>
-            </ion-row>
-            <ion-row> 
-              <ion-col size="2">Period</ion-col> 
-              <ion-col> <b>{{ period }}</b> </ion-col>
-            </ion-row>
-          </ion-col>
-        </ion-row>
+        <ion-title v-if="showtitleOnly"> 
+          <span v-html="title"></span> 
+        </ion-title>
+        <ion-item  v-if="!showtitleOnly"> 
+          <ion-thumbnail slot="start"> 
+            <ion-img :src="reportLogo"/>
+          </ion-thumbnail>
+          <ion-label>
+            <ul class="header-text-list"> 
+              <li>Title <b>{{ title }}</b></li>
+              <li>Period <b>{{ period }}</b></li>
+              <li v-for="(info, index) in headerInfoList" :key="index"> 
+                {{ info.label }}
+                <a href="#" v-if="info && info?.other?.onclick"
+                  @click.prevent="info.other.onclick()">
+                  {{ info.value }}
+                </a>
+                <ion-label v-if="info && !info?.other?.onclick">
+                  <b><span v-html="info.value"></span></b> 
+                </ion-label>
+              </li>
+            </ul>
+          </ion-label>
+        </ion-item>
       </ion-toolbar>
     </ion-header>
     <ion-content>
       <div class="report-content">
         <report-table
           :rows="rows"
-          :columns="columns">
+          :columns="columns"
+          :showFilters="showFilters"
+          @onActiveColumns="onActiveColumns"
+          @onActiveRows="onActiveRows"
+          >
         </report-table>
       </div>
     </ion-content>
+    <ion-footer> 
+      <ion-toolbar> 
+        <ion-chip color="primary">Date Created: <b>{{ date }}</b></ion-chip>
+        <ion-chip color="primary">His-Core Version: <b>{{ coreVersion }}</b></ion-chip>
+        <ion-chip color="primary">Art Version: <b>{{ artVersion }}</b></ion-chip>
+        <ion-chip color="primary">API Version: <b>{{ apiVersion }}</b></ion-chip>
+      </ion-toolbar>
+    </ion-footer>
     <his-footer :btns="btns"></his-footer>
   </ion-page>
 </template>
@@ -49,12 +70,20 @@ import {
   IonPage,
   IonHeader,
   IonContent,
-  IonToolbar, 
-  IonRow,
-  IonCol,
+  IonFooter,
+  IonToolbar,
+  IonLabel,
+  IonThumbnail,
+  IonItem,
+  IonChip,
+  IonImg,
   loadingController
 } from "@ionic/vue"
-import { toastDanger } from "@/utils/Alerts";
+import { alertConfirmation, toastDanger } from "@/utils/Alerts";
+import Img from "@/utils/Img"
+import { Service } from "@/services/service"
+import dayjs from "dayjs";
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   components: { 
@@ -64,18 +93,41 @@ export default defineComponent({
     HisFooter, 
     IonPage, 
     IonContent, 
-    IonToolbar, 
-    IonRow, 
-    IonCol
+    IonToolbar,
+    IonChip,
+    IonFooter,
+    IonLabel,
+    IonThumbnail,
+    IonItem,
+    IonImg
   },
   props: {
+    headerInfoList: {
+      type: Array,
+      default: () => []
+    },
+    reportPrefix: {
+      type: String,
+      default: 'HIS-Core'
+    },
+    reportLogo: {
+      type: String,
+      default: Img('login-logos/Malawi-Coat_of_arms_of_arms.png')
+    },
+    showtitleOnly: {
+      type: Boolean,
+      default: false
+    },
     title: {
       type: String,
       required: true,
     },
     period: {
-      type: String,
-      required: true,
+      type: String
+    },
+    showFilters: {
+      type: Boolean,
+      default: false
     },
     fields: {
       type: Object as PropType<Field[]>,
@@ -93,6 +145,10 @@ export default defineComponent({
       type: Array,
       default: () => []
     },
+    hasServerSideCaching: {
+      type: Boolean,
+      default: false
+    },
     canExportPDf: {
       type: Boolean,
       default: true
@@ -101,39 +157,99 @@ export default defineComponent({
       type: Boolean,
       default: true
     },
+    enabledPDFHorizontalPageBreak: {
+      type: Boolean,
+      default: false
+    },
+    onFinishBtnAction: {
+      type: Function
+    },
     onReportConfiguration: {
       type: Function,
       required: true
+    },
+    onDefaultConfiguration: {
+      type: Function
+    },
+    customFileName: {
+      type: String,
+      default: ''
     }
   },
   data: () => ({
+    date: '',
     formData: {} as any,
-    computeFormData: {} as any,
     btns: [] as Array<any>,
+    computeFormData: {} as any,
+    activeColumns: [] as any,
+    activeRows: [] as any,
     isLoadingData: false as boolean,
     canShowReport: false as boolean,
-    logo: "/assets/images/login-logos/Malawi-Coat_of_arms_of_arms.png" as string
+    siteUUID: Service.getSiteUUID() as string,
+    apiVersion: Service.getApiVersion(),
+    coreVersion: Service.getCoreVersion(),
+    artVersion: Service.getAppVersion(),
   }),
   methods: {
-    getFileName() {
-      return `${this.title}-${this.period}`
+    onActiveColumns(columns: any) {
+      this.activeColumns = columns
     },
-    async onFinish(formData: any, computedData: any) {
+    onActiveRows(rows: any) {
+      this.activeRows = rows
+    },
+    getFileName() {
+      return this.customFileName 
+        ? this.customFileName
+        : `${this.reportPrefix} ${Service.getLocationName()} ${this.title} ${this.period}`
+    },
+    /**
+     * Loads report without depending on Field configurations
+     */
+    async onLoadDefault() {
+      this.canShowReport = true
+      await this.presentLoading()
+      try {
+        this.date = dayjs().format('YYYY-MM-DD:h:m:s')
+        if (this.onDefaultConfiguration) {
+          await this.onDefaultConfiguration()
+        }
+        loadingController.dismiss()
+      }catch(e) {
+        toastDanger(e)
+        console.error(e)
+        loadingController.dismiss()
+      }
+    },
+    /**
+     * Callback is used when a form has been submitted with report configurations
+     */
+    async onFinish(formData: any, computedData: any, shouldRebuildCache=false) {
       this.formData = formData
       this.computeFormData = computedData
       this.canShowReport = true
       await this.presentLoading()
       try {
-        await this.onReportConfiguration(this.formData, this.computeFormData)
-        loadingController.dismiss ()
+        this.date = dayjs().format('YYYY-MM-DD:h:m:s')
+        await this.onReportConfiguration(
+          this.formData,
+          this.computeFormData,
+          shouldRebuildCache
+        )
+        loadingController.dismiss()
       }catch(e) {
-        console.error(e)
         toastDanger(e)
+        console.error(e)
         loadingController.dismiss()
       }
     },
-    async reloadReport() {
-      await this.onFinish(this.formData, this.computeFormData)
+    /**Reinitiate the report with default configurations */
+    async reloadReport(shouldRebuildCache=false) {
+      if (!isEmpty(this.formData) || !isEmpty(this.computeFormData)) {
+        await this.onFinish(this.formData, this.computeFormData, shouldRebuildCache)
+      }
+      if (this.onDefaultConfiguration) {
+        await this.onLoadDefault()
+      }
     },
     async presentLoading() {
       const loading = await loadingController
@@ -145,48 +261,67 @@ export default defineComponent({
     }
   },
   created() {
+    if (this.onDefaultConfiguration) {
+      this.onLoadDefault()
+    } 
     this.btns = this.customBtns
-    if (this.canExportCsv) {
-      this.btns.push({
-        name: "CSV",
-        size: "large",
-        slot: "start",
-        color: "primary",
-        visible: true,
-        onClick: async () => {
-          const {columns, rows} = toExportableFormat(this.columns, this.rows)
-          toCsv(columns, rows, this.getFileName())
-        }
-      })
-    }
-    if (this.canExportPDf) {
-      this.btns.push({
-        name: "PDF",
-        size: "large",
-        slot: "start",
-        color: "primary",
-        visible: true,
-        onClick: async () => {
-          const {columns, rows} = toExportableFormat(this.columns, this.rows)
-          toTablePDF(columns, rows, this.getFileName())
-        }
-      })
-    }
     this.btns.push({
-      name: "Back",
+      name: "CSV",
+      size: "large",
+      slot: "start",
+      color: "primary",
+      visible: this.canExportCsv,
+      onClick: async () => {
+        const {columns, rows} = toExportableFormat(this.activeColumns, this.activeRows)
+        toCsv(
+          columns, 
+          [
+            ...rows,
+            [],
+            [`Date Created: ${this.date}`],
+            // TODO: Get actual HIS-CORE version from a file
+            [`HIS-Core Version: ${this.coreVersion}`],
+            // TODO: Get actial ART Version from a file
+            [`ART Version: ${this.artVersion}`],
+            [`API Version: ${this.apiVersion}`],
+            [`Site UUID: ${this.siteUUID}`]
+          ],
+          this.getFileName()
+        )
+      }
+    })
+    this.btns.push({
+      name: "PDF",
+      size: "large",
+      slot: "start",
+      color: "primary",
+      visible: this.canExportPDf,
+      onClick: async () => {
+        const {columns, rows} = toExportableFormat(this.activeColumns, this.activeRows)
+        toTablePDF(columns, rows, this.getFileName(), this.enabledPDFHorizontalPageBreak)
+      }
+    })
+    this.btns.push({
+      name: "Refresh/Rebuild",
       size: "large",
       slot: "end",
       color: "warning",
       visible: true,
-      onClick: () => this.canShowReport = false
+      onClick: async () => {
+        let shouldRebuildCache = false
+        if (this.hasServerSideCaching) {
+          shouldRebuildCache = await alertConfirmation('Do you want to rebuild report cache?', { header: "Rebuild Report"})
+        }
+        this.reloadReport(shouldRebuildCache)
+      } 
     })
     this.btns.push({
-      name: "Rebuild",
+      name: "Back",
       size: "large",
       slot: "end",
-      color: "danger",
-      visible: true,
-      onClick: async () => this.reloadReport()
+      color: "primary",
+      visible: !isEmpty(this.fields),
+      onClick: () => this.canShowReport = false
     })
     this.btns.push({
       name: "Finish",
@@ -194,19 +329,34 @@ export default defineComponent({
       slot: "end",
       color: "success",
       visible: true,
-      onClick: async () => this.$router.push({ path:'/' })
+      onClick: () => {
+        if (this.onFinishBtnAction) {
+          this.onFinishBtnAction()
+        } else {
+          this.$router.push({ path:'/' })   
+        }
+      }
     })
   }
 })
 </script>
 <style scoped>
 .logo {
-  width: 100px;
+  width: 60px;
+  margin: auto;
+}
+.header-text-list {
+  list-style: none;
 }
 .report-content {
   margin: auto;
   width: 99.9%;
   height: 99%;
   overflow: auto;
+}
+a {
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1em;
 }
 </style>

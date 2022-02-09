@@ -6,15 +6,13 @@ import { defineComponent } from "vue";
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import { GlobalPropertyService } from "@/services/global_property_service"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
-import { Patientservice } from "@/services/patient_service"
-import { toastWarning, toastSuccess } from "@/utils/Alerts"
-import { Field } from "@/components/Forms/FieldInterface";
+import { toastSuccess } from "@/utils/Alerts"
 import Validation from "@/components/Forms/validations/StandardValidations"
 export default defineComponent({
   components: { HisStandardForm },
   methods: {
     onFinish(formData: any) {
-      GlobalPropertyService.set(this.property , formData.preference.value)
+      GlobalPropertyService.set(this.property , formData.preference)
       .then(() => toastSuccess('Property set'))
       .then(() => this.$router.push('/'))
     },
@@ -24,16 +22,11 @@ export default defineComponent({
           id: "preference",
           helpText: this.label,
           type: FieldType.TT_YES_NO,
-          preset: this.val,
-          config: {
-            showKeyboard: false,
-            showSummary: false
-          },
+          defaultValue: () => this.val,
           validation: (val: any) => Validation.required(val),
           options: ()=>([
             {
               label: this.label,
-              property: this.property,
               values: [
                 {
                   label: "yes",
@@ -63,7 +56,11 @@ export default defineComponent({
     $route: {
       async handler({ query }: any) {
         if(query.label && query.property) {
-          this.val = await GlobalPropertyService.get(query.property);
+          try {
+            this.val = await GlobalPropertyService.get(query.property);
+          } catch (error) {
+            console.log('fixed global property not found error');
+          }
           this.property = query.property;
           this.label = query.label;
           this.getFields();

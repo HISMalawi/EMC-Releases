@@ -14,11 +14,11 @@ import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations";
 import { toastWarning, toastSuccess } from "@/utils/Alerts"
-import EncounterMixinVue from './EncounterMixin.vue';
+import EncounterMixinVue from '../../../../views/EncounterMixin.vue';
 import {AppointmentService} from '@/apps/ART/services/appointment_service'
 import { PatientPrintoutService } from "@/services/patient_printout_service";
-import { nextTask } from "@/utils/WorkflowTaskHelper"
-import { isEmpty } from "lodash"
+import App from "@/apps/app_lib"
+import { AppInterface } from "@/apps/interfaces/AppInterface";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -26,7 +26,8 @@ export default defineComponent({
   data: () => ({
     appointmentDate: "" as any,
     medicationRunOutDate: "" as any,
-    appointment: {} as any
+    appointment: {} as any,
+    app: App.getActiveApp() as AppInterface,
     
   }),
   watch: {
@@ -54,19 +55,21 @@ export default defineComponent({
 
       toastSuccess('Encounter created')
       const printer = new PatientPrintoutService(this.patientID);
-      await printer.printVisitSummaryLbl();
+      if(this.app.applicationName !== "CxCa") {
+        await printer.printVisitSummaryLbl();
+      }
       this.nextTask()
     },
     async init() {
-    const appointments = await this.appointment.getNextAppointment();
-    if (isEmpty(appointments)) {
-      toastWarning('Can not do appointment right now!')
-      return nextTask(this.patientID, this.$router)
-    }
-    this.appointmentDate = appointments.appointment_date;
-    this.medicationRunOutDate = appointments.drugs_run_out_date;
-
+      try {
+        const appointments = await this.appointment.getNextAppointment();
+        this.appointmentDate = appointments.appointment_date;
+        this.medicationRunOutDate = appointments.drugs_run_out_date; 
         this.fields = this.getFields();
+      } catch(e) {
+        toastWarning('Next appointment is not available')
+        this.gotoPatientDashboard()
+      }
     },
     getFields(): Array<Field> {
       return [

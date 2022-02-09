@@ -1,4 +1,9 @@
+import { DrugInterface } from "@/interfaces/Drug";
 import { AppEncounterService } from "@/services/app_encounter_service";
+import { ObservationService } from "@/services/observation_service";
+import dayjs from "dayjs";
+import { isEmpty } from "lodash";
+
 export class ConsultationService extends AppEncounterService {
   constructor(patientID: number, providerID: number) {
     super(patientID, 53, providerID);
@@ -15,7 +20,75 @@ export class ConsultationService extends AppEncounterService {
       "NONE",
     ];
   }
-  
+
+  async patientHitMenopause() {
+    const obs = await ObservationService.getFirstObs(
+      this.patientID, 'Why does the woman not use birth control', 
+    )
+    return obs && typeof obs?.value_text === 'string'
+      ? (obs.value_text.match(/menopause/i) ? true : false)
+      && AppEncounterService.obsInValidPeriod(obs)
+      : false
+  }
+
+  async hasTreatmentHistoryObs() {
+    const obs = await ObservationService.getFirstObs(this.patientID, 'Previous TB treatment history')
+    return obs && AppEncounterService.obsInValidPeriod(obs)
+  }
+
+  async patientCompleted3HP() {
+    const obs = await ObservationService.getFirstObs(this.patientID, 'Previous TB treatment history')
+    return obs && typeof obs.value_text === 'string' 
+      && AppEncounterService.obsInValidPeriod(obs)
+      && obs.value_text.match(/complete/i) ? true : false
+  }
+
+  getDrugSideEffects() {
+    return AppEncounterService.getJson(`programs/${AppEncounterService.getProgramID()}/patients/${this.patientID}/medication_side_effects`, { 
+      date: this.date 
+    })
+  }
+
+  getClient() {
+    return AppEncounterService.getFirstValueCoded(this.patientID, 'Patient Present');
+  }
+
+  async clientDueForCxCa() {
+    const req: any = await AppEncounterService.getJson(`last_cxca_screening_details`, {
+      id: this.patientID, date: this.date
+    })
+    if (!isEmpty(req)) {
+      const lastScreened = req['date_screened']
+      const duration = dayjs(this.date).diff(lastScreened, 'years')
+      return duration >= 1
+    }
+    return true
+  }
+
+  async getTLObs() {
+    const isTL = ((obs: any) => obs && obs.value_coded === 'Tubal ligation' && AppEncounterService.obsInValidPeriod(obs))
+    const tlObs = await AppEncounterService.getFirstObs(this.patientID, 'Family planning')
+    if (isTL(tlObs)) {
+      return isTL(tlObs)
+    } else  {
+      const fpObs = await AppEncounterService.getFirstObs(this.patientID, 'Method of family planning')
+      return isTL(fpObs)
+    }
+  }
+  async getPreviousDrugs() {
+
+    const drugs = await AppEncounterService.getJson(
+      `patients/${this.patientID}/drugs_received`
+    )
+
+    if (!drugs) return
+
+    const uniqueDrugs = {} as any
+    drugs.forEach((drug: DrugInterface) => {
+      uniqueDrugs[drug.drug_inventory_id] = drug;
+    })
+    return uniqueDrugs;
+  }
   familyPlanningMethods(label: string, values: any[]) {
     const familyPlanningLogic: any = {
       "ORAL CONTRACEPTIVE PILLS": {

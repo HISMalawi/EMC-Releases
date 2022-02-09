@@ -12,14 +12,15 @@
   </his-standard-form>
   <ion-page v-if="reportReady">
     <ion-content>
-      <div class="report-content" ref="cohort">
-        <cohort-v :key="componentKey" :dataparams="vCohort" ref="validation"> </cohort-v>
+      <cohort-v :key="componentKey" :dataparams="vCohort" ref="validation"> </cohort-v>
+      <div id="report-content">
         <cohort-h :key="componentKey" :reportparams="period" ref="header" :clinicName="clinicName"></cohort-h>
         <cohort-ft :key="componentKey" :onDrillDown="onDrillDown" :params="cohort" :reportid="reportID" :quarter="period" ref="rep"> </cohort-ft>
       </div>
     </ion-content>
     <his-footer :btns="btns"></his-footer>
   </ion-page>
+  <div id='print'> </div>
 </template>
 
 <script lang="ts">
@@ -33,9 +34,11 @@ import { MohCohortReportService } from "@/apps/ART/services/reports/moh_cohort_s
 import CohortH from "@/apps/ART/views/reports/moh/CohortReport/CohortHeader.vue"
 import CohortV from "@/apps/ART/views/reports/moh/CohortReport/CohortValidation.vue"
 import CohortFt from "@/apps/ART/views/reports/moh/CohortReport/CohortFT.vue"
-import { toastWarning } from '@/utils/Alerts'
 import HisDate from "@/utils/Date"
+import Url from "@/utils/Url"
 import { modalController } from "@ionic/vue";
+import { delayPromise } from "@/utils/Timers";
+import table from "@/components/DataViews/tables/ReportDataTable"
 
 export default defineComponent({
   mixins: [ReportMixinVue],
@@ -52,10 +55,11 @@ export default defineComponent({
     reportID: -1 as any,
     clinicName: MohCohortReportService.getUserLocation(),
     reportReady: false as boolean,
+    reportUrlParams: '' as string
   }),
   created() {
     this.btns = this.getBtns()
-    this.fields = this.getDateDurationFields(true, true)
+    this.fields = this.getDateDurationFields(true, true, 21)
   },
   methods: {
     async onPeriod(form: any, config: any, regenerate=false) {
@@ -75,8 +79,15 @@ export default defineComponent({
         data = this.report.datePeriodRequestParams()
       } else {
         this.report.setQuarter(form.quarter.label)
+        this.report.setStartDate(HisDate.toStandardHisFormat(form.quarter.other.start))
+        this.report.setEndDate(HisDate.toStandardHisFormat(form.quarter.other.end))
         data = this.report.qaurterRequestParams()
         this.period = form.quarter.label
+        this.reportUrlParams = Url.parameterizeObjToString({ 
+          'start_date': HisDate.toStandardHisFormat(form.quarter.other.start),
+          'end_date': HisDate.toStandardHisFormat(form.quarter.other.end),
+          'quarter': form.quarter.label
+        })
       }
       const request = await this.report.requestCohort(data)
       if (request.ok) {
@@ -90,9 +101,28 @@ export default defineComponent({
             this.vCohort = data.values
             this.cohort = data.values
             this.isLoading = false
+            this.report.cacheCohort(data.values)
             clearInterval(interval)
           }
         }, 3000)
+      }
+    },
+    async printSpec() {
+      const printW = open('', '', 'width:1024px, height:768px')
+      const content = document.getElementById('report-content')
+      if (content && printW) {
+        printW.document.write(`
+            <html>
+              <head>
+                <title>Print Cohort</title>
+                <link rel="stylesheet" media="print" href="/assets/css/cohort.css" />
+              </head>
+              <body>
+                ${content.innerHTML}
+              </body>
+            </html>
+          `)
+          setTimeout(() => { printW.print(); printW.close() }, 3500)
       }
     },
     async regenerate() {
@@ -100,27 +130,30 @@ export default defineComponent({
     },
     async onDrillDown(resourceId: string) {
       const columns = [
-        'ARV number', 'Name', 'Gender', 'Birth Date', 'Action'
+        [
+          table.thTxt('ARV number'),
+          table.thTxt('Name'),
+          table.thTxt('Gender'),
+          table.thTxt('Birth Date'),
+          table.thTxt('Outcome'),
+          table.thTxt('Action')
+        ]
       ]
-      const onRows = async () => {
+      const asyncRows = async () => {
         const persons = await this.report.getCohortDrillDown(resourceId)
         return persons.map((person: any) => ([
-          person['arv_number'],
-          `${person['given_name']} ${person['family_name']}`,
-          person['gender'],
-          HisDate.getAgeInYears(person['birthdate']),
-          person['outcome'] || 'N/A',
-          {
-            type: 'button',
-            name: 'Select',
-            action: async () => {
-              await modalController.dismiss({})
-              this.$router.push({ path: `/patient/dashboard/${person.person_id}`})
-            }
-          }
+          table.td(person['arv_number']),
+          table.td(`${person['given_name']} ${person['family_name']}`),
+          table.td(person['gender']),
+          table.td(HisDate.getAgeInYears(person['birthdate'])),
+          table.td(person['outcome'] || 'N/A'),
+          table.tdBtn('Select', async () => {
+            await modalController.dismiss({})
+            this.$router.push({ path: `/patient/dashboard/${person.person_id}`})
+          })
         ]))
       }
-      await this.tableDrill({ columns, onRows })
+      await this.drilldownAsyncRows(`Drill table ${resourceId}`, columns, asyncRows)
     },
     getBtns() {
       return  [
@@ -141,7 +174,7 @@ export default defineComponent({
           slot: "start",
           color: "primary",
           visible: true,
-          onClick: async () => print(),
+          onClick: () => this.printSpec()
         },
         {
           name: "Regenerate",
@@ -157,7 +190,7 @@ export default defineComponent({
           slot: "end",
           color: "primary",
           visible: true,
-          onClick: async () => this.$router.push({ name:'moh_disaggregated' })
+          onClick: () => document.location = `/art/report/moh/moh_disaggregated?${this.reportUrlParams}` as any
         },
         {
           name: "Finish",
@@ -165,24 +198,10 @@ export default defineComponent({
           slot: "end",
           color: "success",
           visible: true,
-          onClick: async () => this.$router.push({ path:'/' })
+          onClick: () => this.$router.push({ path:'/' })
         }
       ]   
     }
   }
 })
 </script>
-<style scoped>
-.report-content {
-  padding: 2em;
-  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-  font-size: 14px;
-  line-height: 1.42857143;
-  color: #333;
-}
-@media print {
-  ion-footer {
-    display: none;
-  }
-}
-</style>

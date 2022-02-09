@@ -27,7 +27,7 @@
           }}</ion-button>
         </div>
         <div v-else>
-          {{ item }}
+          <span v-html="item"></span>
         </div>
       </td>
     </tr>
@@ -91,7 +91,6 @@ export default defineComponent({
           styleClass += " " + row[0].class;
         }
       }
-
       if (!isEmpty(this.cellColors)) {
         const cell: any = this.cellColors.filter((i: any) => {
           return i.index === dIndex && i.row === rIndex;

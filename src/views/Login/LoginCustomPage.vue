@@ -12,6 +12,7 @@
           v-model="userInput.username"
           v-on:click="renderKeyBoard($event)"
           class="input-boxes"
+          :readonly="isReadOnly"
         />
       </div>
     </div>
@@ -26,41 +27,44 @@
           v-on:click="renderKeyBoard($event)"
           class="input-boxes"
           placeholder="Password"
+          :readonly="isReadOnly"
         />
       </div>
     </div>
-    <div id="keyboard" :style="btnStyles" class="keyboard">
-      <span v-bind:key="k" v-for="k in keys">
-        <div class="rows">
-          <div class="cells" v-bind:key="r" v-for="r in k">
-            <button
-              v-if="r === 'Next' || r === 'Login'"
-              :id="btnCaption"
-              class="keyboard-btn login-btn"
-              v-on:click="keyPress($event)"
-            >
-              {{ btnCaption }}
-            </button>
-
-            <button
-              v-if="r != 'Login' && r != 'Next'"
-              :id="Caps.on ? r.toUpperCase() : r.toLowerCase()"
-              class="keyboard-btn"
-              v-on:click="keyPress($event)"
-            >
-              {{
-                r === "Del." || r === "Caps"
-                  ? r
-                  : Caps.on
-                  ? r.toUpperCase()
-                  : r.toLowerCase()
-              }}
-            </button>
-          </div>
-        </div>
-      </span>
-    </div>
   </div>
+  <center>
+  <div id="keyboard" :style="btnStyles"  class="keyboard">
+    <span v-bind:key="k" v-for="k in LOGIN_KEYBOARD">
+      <div class="rows">
+        <div class="cells" v-bind:key="r" v-for="r in k">
+          <button
+            v-if="r === 'Next' || r === 'Login'"
+            :id="btnCaption"
+            class="keyboard-btn login-btn"
+            v-on:click="keyPress($event)"
+          >
+            {{ btnCaption }}
+          </button>
+
+          <button
+            v-if="r != 'Login' && r != 'Next'"
+            :id="Caps.on ? r.toUpperCase() : r.toLowerCase()"
+            class="keyboard-btn"
+            v-on:click="keyPress($event)"
+          >
+            {{
+              r === "Del." || r === "Caps"
+                ? r
+                : Caps.on
+                ? r.toUpperCase()
+                : r.toLowerCase()
+            }}
+          </button>
+        </div>
+      </div>
+    </span>
+  </div>
+  </center>
 </template>
 
 <script lang="ts">
@@ -68,12 +72,15 @@ import { toastWarning, toastDanger } from "@/utils/Alerts";
 import { defineComponent } from 'vue';
 import HisApp from "@/apps/app_lib"
 import { AuthService, InvalidCredentialsError } from "@/services/auth_service"
+import { isPlatform } from "@ionic/vue"
+import { LOGIN_KEYBOARD } from "@/components/Keyboard/KbLayouts"
 
 export default defineComponent({
-  props: ["keys"],
   data: function () {
     return {
+      LOGIN_KEYBOARD: LOGIN_KEYBOARD,
       auth: {} as any,
+      isReadOnly: false as boolean,
       userInput: {
         type: String,
         username: "",
@@ -96,6 +103,7 @@ export default defineComponent({
   }, 
   created() {
     this.auth = new AuthService()
+    this.isReadOnly = !isPlatform('desktop')
   },
   methods: {
     renderKeyBoard(e: any) {
@@ -110,8 +118,9 @@ export default defineComponent({
       inputPos = parseInt(inputPos);
 
       this.keyboardLeft = width / 2 - 447 + "px;";
-      this.keyboardTop = inputPos + 77 + "px;";
+      this.keyboardTop = inputPos + 20 + "px;";
       this.display = "table";
+      window.scrollTo(0,9999);
     },
     keyPress(e: any) {
       const key = e.currentTarget.id;
@@ -180,7 +189,7 @@ export default defineComponent({
   },
   computed: {
     btnStyles(): string {
-      return `display: ${this.display}; left: ${this.keyboardLeft} top: ${this.keyboardTop}`;
+      return `display: ${this.display}; top: ${this.keyboardTop}`;
     },
   },
 });
@@ -194,7 +203,7 @@ export default defineComponent({
 
   border: 1px solid #ccc;
   border-radius: 5px;
-  width: calc(100% - 500px);
+  width: 50%;
   font-family: Nimbus Sans L, Arial Narrow, sans-serif;
   font-size: 2.2em;
   background-color: #dcdcdc;
@@ -203,21 +212,26 @@ export default defineComponent({
 }
 
 .main {
-  width: 96.5%;
+  width: 100%;
   text-align: center;
   margin-top: 5%;
   display: table;
 }
 
 .keyboard {
-  z-index: 40;
-  /*width: auto;*/
+  text-align: center;
   position: absolute;
   background-color: white;
-  width: 50%;
+  width: 56%;
   margin: auto;
   background-color: rgba(255, 255, 255, 0.9);
   border: 1px solid rgb(204, 204, 204);
+  word-wrap: normal !important;
+  left: 0; 
+  right: 0; 
+  margin-left: auto; 
+  margin-right: auto; 
+  max-width: 300px;
 }
 
 .rows {
@@ -234,9 +248,9 @@ export default defineComponent({
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 5px !important;
-  font-size: 25px !important;
+  font-size: 1.6vw !important;
   font-family: arial, helvetica, sans-serif;
-  padding: 10px 10px 10px 10px;
+  /* padding: 10px 10px 10px 10px; */
   text-decoration: none;
   display: inline-block;
   text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.3);
@@ -256,13 +270,29 @@ export default defineComponent({
   background-image: -o-linear-gradient(top, #a7cfdf, #23538a);
   background-image: linear-gradient(to bottom, #a7cfdf, #23538a);
   filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#a7cfdf, endColorstr=#23538a);
-  min-width: 85px;
-  min-height: 85px;
+  max-width: 85px;
+  max-height: 85px;
   cursor: pointer;
   /*width: 84px;
   height: 35px; */
   text-align: center;
   margin: 3px;
+  width: 8vw;
+  height: 8vh;
+  /* text-overflow: ellipsis; */
+  overflow: hidden;
+  white-space: nowrap;
+
+}
+@media screen and (max-width: 600px){
+    .keyboard-btn {
+        font-size: 10px !important;
+    }
+}
+@media screen and (min-width: 1020px){
+    .keyboard-btn {
+        font-size: 25px !important;
+    }
 }
 .login-btn {
   background-image: -webkit-gradient(

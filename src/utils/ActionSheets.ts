@@ -1,6 +1,6 @@
 import TableSheet from "@/components/DataViews/actionsheet/TableActionSheet.vue"
 import InfoSheet from "@/components/DataViews/actionsheet/InfoActionSheet.vue"
-import ButtoneSheet from "@/components/DataViews/actionsheet/ButtonActionSheet.vue"
+import RadioSheet from "@/components/DataViews/actionsheet/RadioActionSheet.vue"
 import ListSheet from "@/components/DataViews/actionsheet/InfoListActionSheet.vue"
 import { modalController } from "@ionic/vue";
 
@@ -10,7 +10,8 @@ export async function tableActionSheet(
     columns: Array<string>,
     rows: Array<string>,
     actionButtons: Array<any>,
-    color = '')
+    color = '',
+    rowColors:  Array<any>=[])
     {
         const modal = await modalController.create({
         component: TableSheet,
@@ -21,6 +22,7 @@ export async function tableActionSheet(
             subtitle,
             columns,
             rows,
+            rowColors,
             actionButtons,
             color
         }
@@ -83,12 +85,13 @@ export async function optionsActionSheet(
     subtitle: string, 
     list: Array<string>, 
     actionButtons: Array<any>,
-    color = '')
+    color = 'darkred',
+    size = 'action-sheet-modal')
     {
         const modal = await modalController.create({
-        component: ButtoneSheet,
+        component: RadioSheet,
         backdropDismiss: false,
-        cssClass: "action-sheet-modal",
+        cssClass: size,
         componentProps: {
             title,
             subtitle,

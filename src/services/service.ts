@@ -2,6 +2,41 @@ import ApiClient from "./api_client"
 import Url from "@/utils/Url"
 import HisApp from "@/apps/app_lib"
 import { AppInterface } from "@/apps/interfaces/AppInterface"
+import useSWRV from "swrv"
+
+export class IncompleteEntityError extends Error {
+    entity: any
+    constructor(message: string, entity: any) {
+        super(`ENTITY Error: ${message}`)
+        this.entity = entity
+    }
+}
+
+export class NotFoundError extends Error {
+    constructor(message: string) {
+        super(`RECORD NOT FOUND: ${message}`)
+    }
+}
+
+export class BadRequestError extends Error {
+    errors: any
+    constructor(message: string, errors: any) {
+        super(message)
+        this.errors = errors
+    }
+}
+
+class ApiServiceError extends Error {
+    constructor(message: string) {
+        super(`API SERVICE_ERROR: ${message}`)
+    }
+}
+
+class ApiError extends Error {
+    constructor(message: string) {
+        super(`API ERROR: ${message}`)
+    }
+}
 
 export class Service {
     static ajxGet(url: string, params={}) {
@@ -10,43 +45,63 @@ export class Service {
 
     static async getText(url: string) {
         const req = await ApiClient.get(url)
-
         if (req && req.ok) return req?.text()
+    }
+
+    static getJsonSWR(url: string, params = {} as Record<string, any>){
+        const transformedUrl = `${url}?${Url.parameterizeObjToString(params)}`
+        const { data, error } = useSWRV(transformedUrl, key => {
+            return this.getJson(key)
+          })
+        return data
     }
 
     static async getJson(url: string, params = {} as Record<string, any>) {
         const transformedUrl = `${url}?${Url.parameterizeObjToString(params)}`
-        const req = await ApiClient.get(transformedUrl)
-        if (req && req.ok && [200, 201].includes(req.status)) {
-            return req?.json()
-        } 
+        return this.jsonResponseHandler(ApiClient.get(transformedUrl))
     }
 
-    static async postJson(url: string, data: any, genericError='Unable to save record') {
-        const req = await ApiClient.post(url, data)
-        if (req && req.ok) {
-            if ([200, 201].includes(req.status)) {
-                return req?.json()
-            }
-            return {}
-        }
-        throw genericError
+    static async postJson(url: string, data: any) {
+        return this.jsonResponseHandler(ApiClient.post(url, data))
     }
 
-    static async putJson(url: string, data: Record<string, any>, genericError='Unable to update record') {
-        const req = await ApiClient.put(url, data)
-
-        if (req && req.ok) return req?.json()
-
-        throw genericError
+    static putJson(url: string, data: Record<string, any>) {
+        return this.jsonResponseHandler(ApiClient.put(url, data))
     }
 
     static async void(url: string, reason: Record<string, string>) {
-        const req = await ApiClient.remove(url, reason)
-   
-        if (req && req.ok) return true
+        return this.jsonResponseHandler(ApiClient.remove(url, reason))
+    }
 
-        throw 'Unable to delete record'
+    private static async jsonResponseHandler(request: Promise<any>) {
+        const response = await request
+        if (response) {
+            if ([200, 201].includes(response.status)) {
+                return response?.json()
+            }
+
+            if (response.status === 400) {
+                const {errors} = await response?.json()
+                throw new BadRequestError(response.statusText, errors)
+            }
+
+            if (response.status === 404) {
+                const {errors} = await response?.json()
+                throw new NotFoundError(errors)
+            }
+
+            if (response.status === 422) {
+                const {errors, entity} = await response?.json()
+                throw new IncompleteEntityError(errors, entity)
+            }
+            if (response.status === 502) {
+                const {errors} = await response?.json()
+                throw new ApiServiceError(errors || 'Getway Error')
+            }
+            if (response.status === 500) {
+                throw new ApiError('An internal server errror has occured')
+            }
+        }
     }
 
     static async getApiDate() {
@@ -54,6 +109,10 @@ export class Service {
         if (req) {
             return req.date
         }
+    }
+
+    static getApiVersion() {
+        return sessionStorage.getItem('APIVersion') || 'N/A'
     }
 
     static getActiveApp(): AppInterface | {} { 
@@ -107,6 +166,10 @@ export class Service {
         return apiDate && apiDate != sessionDate
     }
 
+    static getSiteUUID() {
+        return sessionStorage.siteUUID || ''
+    }
+
     static getProgramID() {
         const app = this.getActiveApp()
         
@@ -120,7 +183,16 @@ export class Service {
        
        return roles ? JSON.parse(roles) : []
     }
+
     static getUserName() {
        return sessionStorage.username;
+    }
+
+    static getCoreVersion() {
+        return sessionStorage.coreVersion || 'N/A';
+    }
+
+    static getAppVersion() {
+        return sessionStorage.appVersion || 'N/A';
     }
 }

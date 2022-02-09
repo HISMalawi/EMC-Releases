@@ -1,3 +1,4 @@
+import { ART_GLOBAL_PROP } from "../art_global_props"
 import Prescription from "@/apps/ART/views/encounters/Prescription.vue"
 import Registration from "@/apps/ART/views/encounters/Registration.vue"
 import Appointments from "@/apps/ART/views/encounters/Appointment.vue"
@@ -16,6 +17,7 @@ import PepFarDiaggregatedReport from "@/apps/ART/views/reports/pepfar/disaggrega
 import PepFarDefaultersReport from "@/apps/ART/views/reports/pepfar/defaulters.vue"
 import PepFarRegimenReport from "@/apps/ART/views/reports/pepfar/regimen.vue"
 import PepFarRegimenSwitchReport from "@/apps/ART/views/reports/pepfar/RegimenSwitch.vue"
+import PepFarVlCoverage from "@/apps/ART/views/reports/pepfar/ViralLoadCoverage.vue"
 import TBPrevReport from "@/apps/ART/views/reports/pepfar/TBPrev.vue"
 import TXCurrMMD from "@/apps/ART/views/reports/pepfar/TxCurrMMD.vue"
 import TXCurrMl from "@/apps/ART/views/reports/pepfar/TxCurrMl.vue"
@@ -32,10 +34,12 @@ import ClinicViralLoadReport from "@/apps/ART/views/reports/clinic/ClinicViralLo
 import ClinicOtherOutcomeReport from "@/apps/ART/views/reports/clinic/ClinicOtherOutcomeReport.vue"
 import ClinicRegimenFormulationReport from "@/apps/ART/views/reports/clinic/ClinicRegimenFormulationReport.vue"
 import ClinicLabResultsReport from "@/apps/ART/views/reports/clinic/ClinicLabResultsReport.vue"
+import ClinicArchivingCandidates from "@/apps/ART/views/reports/clinic/ClinicArchivingCandidates.vue"
 import MohDisaggregatedReport from "@/apps/ART/views/reports/moh/MohDisaggregatedReport.vue"
 import MohSurvivalAnalysisReport from "@/apps/ART/views/reports/moh/MohSurvivalAnalysisReport.vue"
 import MohTptInitiationsReport from "@/apps/ART/views/reports/moh/MohTptInitiationsReport.vue"
 import MohTxCurrMMD from "@/apps/ART/views/reports/moh/MohTxCurrMMD.vue"
+import MohRegimenWeightDistribution from "@/apps/ART/views/reports/moh/MohRegimenWeightDistribution.vue"
 import MohCohort from "@/apps/ART/views/reports/moh/CohortReport/MohCohort.vue"
 import ReportTemplate from "@/apps/ART/views/reports/pepfar/PepfarIndex.vue"
 import StockCardReport from "@/apps/ART/views/reports/clinic/ClinicStockCardReport.vue"
@@ -48,29 +52,54 @@ import BPAdherence from "@/apps/ART/views/encounters/BPAdherence.vue"
 
 export default [
     {
+        name: 'preferences',
+        path: "/art/preferences",
+        component: () => import("@/apps/ART/views/preferences/AllPreferences.vue")
+    },
+    {
+        name: ART_GLOBAL_PROP.CLINIC_HOLIDAYS,
+        path: "/art/preferences/clinic_holidays",
+        component: () => import("@/apps/ART/views/preferences/DefaultPreferences.vue")
+    },
+    {
+        name: 'bp_thresholds',
+        path: "/art/preferences/bp_thresholds",
+        component: () => import("@/apps/ART/views/preferences/DefaultPreferences.vue")
+    },
+    {
+        name: 'clinic_days',
+        path: "/art/preferences/clinic_days",
+        component: () => import("@/apps/ART/views/preferences/DefaultPreferences.vue")
+    },
+    {
+        name: "cervical_cancer",
+        path: "/art/preferences/cervical_cancer_screening",
+        component: () => import("@/apps/ART/views/preferences/DefaultPreferences.vue")
+    },
+    {
+        name: ART_GLOBAL_PROP.HTN_SCREENING_AGE_THRESHOLD,
+        path: "/art/preferences/htn_age",
+        component: () => import("@/apps/ART/views/preferences/DefaultPreferences.vue")
+    },
+    {
+        name: ART_GLOBAL_PROP.FILING_NUMBER_LIMIT,
+        path: "/art/preferences/fn/limit",
+        component: () => import("@/apps/ART/views/preferences/DefaultPreferences.vue")
+    },
+    {
+        name: ART_GLOBAL_PROP.APPOINTMENT_LIMIT,
+        path: "/art/preferences/appointment/limit",
+        component: () => import("@/apps/ART/views/preferences/DefaultPreferences.vue")
+    },
+    {
+        name: 'art_patient_visit_stats',
+        path: '/art/patient_visits',
+        component: () => import("@/apps/ART/views/reports/inconsistencies/PatientVisitStats.vue")
+    },
+    {
         name: "filing management",
         path: '/art/filing_numbers/:patient_id',
         component: () => import("@/apps/ART/views/FilingNumberManagement.vue")
-    },
-    {
-        name: "Set Clinic Days",
-        path: "/art/preferences/clinic_days",
-        component: () => import("@/apps/ART/views/preferences/SetClinicDays.vue")
-    },
-    {
-        name: "Set HTN Age",
-        path: "/art/preferences/htn_age",
-        component: () => import("@/apps/ART/views/preferences/SetHTNAge.vue")
-    },
-    {
-        name: "Set filing number limit",
-        path: "/art/preferences/fn/limit",
-        component: () => import("@/apps/ART/views/preferences/SetFilingNumbersLimit.vue")
-    },
-    {
-        name: "Set Appointment limit",
-        path: "/art/preferences/appointment/limit",
-        component: () => import("@/apps/ART/views/preferences/SetAppointmentLimit.vue")
     },
     {
         name: "Enter stock",
@@ -101,6 +130,11 @@ export default [
         name: "treatment",
         path: "/art/encounters/prescriptions/:patient_id",
         component: Prescription
+    },
+    {
+        name: 'bp_alert',
+        path: '/art/encounters/bp/alert/:patient_id',
+        component: () => import ("@/apps/ART/views/encounters/BpAlert.vue")
     },
     {
         name: "art adherence",
@@ -158,7 +192,7 @@ export default [
         component: FastTrack
     },
     {
-        name: "BP management",
+        name: "bp_management",
         path: "/art/encounters/bp_management/:patient_id",
         component: BPManagment
     },
@@ -225,6 +259,11 @@ export default [
                 name: 'moh_tx_curr_mmd',
                 path: 'moh_tx_curr_mmd',
                 component: MohTxCurrMMD
+            },
+            {
+                name: 'moh_regimen_weight_distribution',
+                path: 'moh_regimen_weight_distribution',
+                component: MohRegimenWeightDistribution
             }
         ]
     },
@@ -232,6 +271,11 @@ export default [
         path: '/art/report/clinic',
         component: ReportTemplate,
         children: [
+            {
+                name: 'clinic_archiving_candidates',
+                path: 'clinic_archiving_candidates',
+                component: ClinicArchivingCandidates
+            },
             {
                 name: 'clinic_retention_report',
                 path: "clinic_retention_report",
@@ -347,6 +391,11 @@ export default [
                 name: "pepfar_tx_rtt",
                 path: "tx_rtt",
                 component: TXRtt
+            },
+            {
+                name: 'pepfar_vl_coverage',
+                path: 'pepfar_vl_coverage',
+                component: PepFarVlCoverage
             }
         ]
     }

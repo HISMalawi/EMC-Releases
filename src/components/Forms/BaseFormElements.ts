@@ -1,4 +1,5 @@
 import BarcodeInput from "@/components/FormElements/HisBarcodeInput.vue"
+import NoteInput from "@/components/FormElements/HisNote.vue"
 import SingleSelect from "@/components/FormElements/HisSelect.vue";
 import SingleSelectCards from "@/components/FormElements/HisCardSelector.vue";
 import MultipleSelect from "@/components/FormElements/HisMultipleSelect.vue";
@@ -14,7 +15,8 @@ import MultiYesNo from "@/components/FormElements/MultiYesNoSelect.vue"
 import WeightChart from "@/components/FormElements/HisWeightChart.vue"
 import VitalsEntry from "@/components/FormElements/HisVitalsEntry.vue"
 import AppointmentsEntry from "@/components/FormElements/HisAppointments.vue"
-
+import ComplaintsPicker from "@/components/FormElements/HisComplaintsPicker.vue";
+import ClinicHolidayPicker from "@/components/FormElements/HisClinicHolidayPicker.vue"
 import SummaryPage from "@/components/FormElements/HisSummary.vue"
 import ArtStagingSummary from "@/components/FormElements/ArtStagingSummary.vue"
 import AdherenceInput from "@/components/FormElements/HisAdherenceInput.vue"
@@ -25,14 +27,20 @@ import AppointmentPicker from "@/components/FormElements/HisAppointmentPicker.vu
 import PersonSearchView from "@/components/FormElements/PersonSearchView.vue"
 import RelationSelection from "@/components/FormElements/RelationsSelection.vue"
 import FilingNumberView from "@/components/FormElements/FilingNumberView.vue"
+import PersonMatchView from "@/components/FormElements/PersonMatchView.vue"
 import DateInput from "@/components/FormElements/HisDateInput.vue"
 import BatchEntry from "@/components/FormElements/HisBatchEntry.vue"
 import BatchVerification from "@/components/FormElements/HisBatchVerification.vue"
 import BatchMovement from "@/components/FormElements/HisBatchMovement.vue"
-
+import IPAddressInput from "@/components/FormElements/HisIPAddress.vue"
+import TextBanner from "@/components/FormElements/HisTextBanner.vue"
+import DrugDispenser from "@/components/FormElements/GeneralDrugDispenser.vue"
+import HisDataTable from "@/components/FormElements/HisDataTable.vue"
 
 // Reference names for BaseFormComponents
 export enum FieldType {
+    TT_DATA_TABLE = 'HisDataTable',
+    TT_NOTE = 'NoteInput',
     TT_BARCODE = 'BarcodeInput',
     TT_MONTHLY_DAYS="monthly-days",
     TT_TEXT="text-input",
@@ -60,14 +68,21 @@ export enum FieldType {
     TT_RELATION_SELECTION = 'RelationSelection',
     TT_FILING_NUMBER_VIEW = 'FilingNumberView',
     TT_CARD_SELECTOR = 'SingleSelectCards',
+    TT_PERSON_MATCH_VIEW = 'PersonMatchView',
     TT_FULL_DATE = 'date-input',
     TT_BATCH_ENTRY = 'batch-entry',
     TT_BATCH_VERIFICATION = 'batch-verification',
-    TT_BATCH_MOVEMENT = 'batch-movement'
-
+    TT_BATCH_MOVEMENT = 'batch-movement',
+    TT_COMPLAINTS_PICKER = 'complaints-picker',
+    TT_IP_ADDRESS = 'IPAddressInput',
+    TT_TEXT_BANNER = 'text-banner',
+    TT_DRUG_DISPENSER = 'drug-dispenser',
+    TT_CLINIC_HOLIDAY_PICKER = 'clinic-holiday-picker'
 }
+
 // Components to be rendered
 export const BaseFormComponents = {
+    HisDataTable,
     TextInput,
     SingleSelect,
     MultipleSelect,
@@ -94,8 +109,15 @@ export const BaseFormComponents = {
     RelationSelection,
     FilingNumberView,
     SingleSelectCards,
+    PersonMatchView,
     DateInput,
     BatchEntry,
     BatchVerification,
-    BatchMovement
+    BatchMovement,
+    ComplaintsPicker,
+    IPAddressInput,
+    TextBanner,
+    DrugDispenser,
+    ClinicHolidayPicker,
+    NoteInput
 }

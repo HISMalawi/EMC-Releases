@@ -11,8 +11,8 @@ import { PrescriptionService } from "@/apps/ART/services/prescription_service"
 import { toastWarning, toastSuccess } from "@/utils/Alerts"
 import HisDate from "@/utils/Date"
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
-import { isEmpty } from "lodash"
-import EncounterMixinVue from './EncounterMixin.vue'
+import { isEmpty, isPlainObject } from "lodash"
+import EncounterMixinVue from '../../../../views/EncounterMixin.vue'
 import { 
     PRESCRIPTION_GUIDELINES,
     DRUG_FREQUENCY_GUIDELINE,
@@ -20,6 +20,9 @@ import {
     Target, 
     FlowState 
 } from "@/apps/ART/guidelines/prescription_guidelines"
+import ART_PROPS from "@/apps/ART/art_global_props"
+import { HTN_SESSION_KEY } from '../../services/htn_service'
+import { ProgramService } from '@/services/program_service'
 
 export default defineComponent({
     mixins: [EncounterMixinVue],
@@ -28,6 +31,8 @@ export default defineComponent({
         prescription: {} as any,
         patientToolbar: [] as Array<Option>,
         fieldComponent: '' as string,
+        regimenExtras: [] as Array<any>,
+        programInfo: [] as any,
         facts: {
             age: -1 as number,
             gender: '' as string,
@@ -67,11 +72,12 @@ export default defineComponent({
 
                 if (!this.prescription.medicationOrdersAvailable() && !this.prescription.isFastTrack()) {
                     toastWarning('Patient is not eligible for treatment Today! Please check HIV Clinic Consultation')
-                    return this.nextTask()
+                    return this.gotoPatientDashboard()
                 }
-
+                if ((await ART_PROPS.askPillsRemaining())) {
+                    await this.prescription.loadHangingPills()
+                } 
                 await this.prescription.loadRegimenExtras()
-                await this.prescription.loadHangingPills()
                 await this.prescription.loadTreatmentState()
                 await this.prescription.loadDrugInduced()
                 await this.prescription.loadContraindications()
@@ -79,15 +85,22 @@ export default defineComponent({
 
                 await this.initFacts(patient)
 
+                if (this.prescription.shouldPrescribeExtras()) {
+                    this.regimenExtras = this.prescription.getRegimenExtras()
+                }
+
+                const htnDrugs = this.resolveHtnDrugs()
+
+                if (!isEmpty(htnDrugs)) this.regimenExtras = [...this.regimenExtras, ...htnDrugs]
+
                 if (this.prescription.isFastTrack()) {
                     await this.prescription.loadFastTrackMedications()
                     this.drugs = this.prescription.getFastTrackMedications()
                     this.fieldComponent = 'next_visit_interval'
 
-                } else if (!this.prescription.shouldPrescribeArvs() && this.prescription.shouldPrescribeExtras()) {
-                    this.drugs = this.prescription.getRegimenExtras()
+                } else if (!this.prescription.shouldPrescribeArvs() && !isEmpty(this.regimenExtras)) {
+                    this.drugs = this.regimenExtras
                 }
-
                 this.patientToolbar = await this.getPatientToolBar()
                 this.fields = this.getFields()
             },
@@ -103,6 +116,7 @@ export default defineComponent({
     },
     methods: {
         async initFacts(patient: any) {
+            this.programInfo = await ProgramService.getProgramInformation(patient.getID())
             this.facts.age = patient.getAge()
             this.facts.gender = patient.getGender()
             this.facts.weight = await patient.getRecentWeight()
@@ -191,15 +205,27 @@ export default defineComponent({
             } else {
                 drugs = this.facts.regimenDrugs
             }
-
-            this.drugs = [...this.prescription.getRegimenExtras(), ...drugs]
-
+            this.drugs = [...this.regimenExtras, ...drugs]
             return true
         },
         getLpvDrugs() {
             return this.prescription.getLvpDrugsByType(
                 this.facts.lpvType, this.facts.regimenCode
             ) 
+        },
+        resolveHtnDrugs() {
+            try {
+                const sessionData = sessionStorage.getItem(HTN_SESSION_KEY.Prescription)
+                if (typeof sessionData === 'string') {
+                    const data = JSON.parse(sessionData)
+                    if (isPlainObject(data) && data[this.patientID]) {
+                        return data[this.patientID]
+                    }
+                }
+            } catch (e) {
+                console.warn(e)
+            }
+            return []
         },
         getStarterPackDrugs() {
             return this.prescription.getRegimenStarterpack(
@@ -278,10 +304,14 @@ export default defineComponent({
             }
         },
         extractRegimenCode(regimen: string): number {
-           if (regimen.match(/n\/a/i))
-               return -1
+          try {
+               if (regimen.match(/n\/a/i)) return -1
 
-           return parseInt(regimen.substring(0, regimen.length))
+               return parseInt(regimen.substring(0, regimen.length))
+           } catch (e) {
+               console.warn(e)
+               return -1
+           }
         },
         getDosageTableOptions(regimen: any) {
             const rowColors: any = [ 

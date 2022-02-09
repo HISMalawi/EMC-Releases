@@ -1,7 +1,7 @@
 <template>
   <div>
     <view-port :showFull="true">
-      <ion-grid>
+      <ion-grid class="view-port-content">
         <ion-row >
           <ion-col :size="getSize" v-for="(item, index) in listData" :key="index">
             <ion-grid>
@@ -13,7 +13,7 @@
             <ion-segment
               mode="ios"
               v-model="item.value"
-              @ionChange="onChange"
+              @ionChange="() => onChange(item)"
             >
               <ion-segment-button
                 class="yes-no"
@@ -45,6 +45,7 @@ import {
   IonSegment,
   IonSegmentButton,
 } from "@ionic/vue";
+import { Option } from "../Forms/FieldInterface";
 export default defineComponent({
   components: {
     IonRow,
@@ -57,14 +58,11 @@ export default defineComponent({
   name: "HisMultiYesNo",
   mixins: [SelectMixin],
   watch: {
-    clear(val: boolean) {
-      if (val) {
-        this.listData = this.listData.map(i => {
-          i.value = ''
-          return i
-        })
-        this.$emit('onClear')
-      }
+    clear() {
+      this.listData = this.listData.map(i => {
+        i.value = ''
+        return i
+      })
     }
   },
   computed: {
@@ -78,10 +76,22 @@ export default defineComponent({
     this.listData = await this.options(this.fdata, values);
   },
   methods: {
-    onChange(): void {
-      this.$nextTick(() => {
+    onChange(val: Option): void {
+      this.$nextTick(async () => {
         const values = this.listData.map(i => i.value!='')
-        if (values.every(Boolean)) this.$emit("onValue", this.listData)
+        if (typeof this.onValue === 'function') {
+          const ok = await this.onValue(val, this.fdata, this.cdata)
+          if (!ok) {
+            val.value = ""
+            return
+          }
+        }
+        if(typeof this.onValueUpdate === 'function') {
+          this.listData = await this.onValueUpdate(this.listData, val)
+        }
+        if (values.every(Boolean)) {
+          this.$emit("onValue", this.listData)
+        }
       })
     }
   }

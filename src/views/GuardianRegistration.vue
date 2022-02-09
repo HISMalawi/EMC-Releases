@@ -22,6 +22,7 @@ import { isEmpty } from "lodash"
 import PersonField from "@/utils/HisFormHelpers/PersonFieldHelper"
 import { PatientRegistrationService } from "@/services/patient_registration_service"
 import { nextTask } from "@/utils/WorkflowTaskHelper"
+import { toastWarning } from "@/utils/Alerts";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -31,11 +32,12 @@ export default defineComponent({
     fieldAction: '' as 'Scan' | 'Search' | 'Registration',
     fieldComponent: '' as string,
     fields: [] as Array<Field>,
-    form: {} as Record<string, Option> | Record<string, null>
+    form: {} as Record<string, Option> | Record<string, null>,
+    redirectURL: '' as string 
   }),
   watch: {
     '$route': {
-        async handler({params}: any) {
+        async handler({params, query}: any) {
             if (params.patient_id) {
                 const patient = await Patientservice.findByID(params.patient_id)
                 if (patient) {
@@ -43,6 +45,7 @@ export default defineComponent({
                     this.fields = this.getFields()
                 }
             }
+            if(query.source) this.redirectURL = query.source
         },
         immediate: true,
         deep: true
@@ -65,24 +68,29 @@ export default defineComponent({
         fields.push(this.currentDistrictField())
         fields.push(this.currentTAField())
         fields.push(this.currentVillage())
-        fields.push(this.landmarkField())
+        fields = fields.concat(this.landmarkFields())
         fields.push(this.cellPhoneField())
         fields.push(this.relationsField())
         return fields
     },
     async onFinish(form: any, computedData: any) {
-        let guardianID = -1
-        if (this.isRegistrationMode()) {
-            const guardian: any = new PatientRegistrationService()
-            await guardian.registerGuardian(PersonField.resolvePerson(computedData))
-            guardianID = guardian.getPersonID()
+        if(this.isSameAsPatient(computedData)) {
+            toastWarning("Guardian cannot be the same patient")
         } else {
-            guardianID = this.guardianData.id
-        }
-        await RelationsService.createRelation(
-            this.patientData.id, guardianID, form.relations.other.relationship_type_id
-        )
-        await nextTask(this.patientData.id, this.$router)
+            let guardianID = -1
+            if (this.isRegistrationMode()) {
+                const guardian: any = new PatientRegistrationService()
+                await guardian.registerGuardian(PersonField.resolvePerson(computedData))
+                guardianID = guardian.getPersonID()
+            } else {
+                guardianID = this.guardianData.id
+            }
+            await RelationsService.createRelation(
+                this.patientData.id, guardianID, form.relations.other.relationship_type_id
+            )
+            if(this.redirectURL) this.$router.push({name: this.redirectURL})
+            else await nextTask(this.patientData.id, this.$router)  
+        }   
     },
     isSearchMode() {
         return ['Search', 'Registration'].includes(this.fieldAction)
@@ -96,8 +104,18 @@ export default defineComponent({
             id: data.person_id,
             name: `${data.names[0].given_name} ${data.names[0].family_name}`,
             birthdate: HisDate.toStandardHisDisplayFormat(data.birthdate),
-            homeAddress: `${address.county_district} ${address.neighborhood_cell}`
+            homeAddress: `${address.county_district} ${address.neighborhood_cell}`,
+            gender: data.gender
         }
+    },
+    isSameAsPatient(guardian: any) {
+        const birthdate = this.isRegistrationMode() && guardian.birth_date
+            ? HisDate.toStandardHisDisplayFormat(guardian.birth_date.date)
+            : this.guardianData.birthdate
+        const guardianName = guardian.given_name.person + ' ' + guardian.family_name.person
+        return (guardianName.toLowerCase() === this.patientData.name.toLowerCase()) 
+            && (birthdate === this.patientData.birthdate)
+            && (guardian.gender.person === this.patientData.gender)
     },
     mapToOption(listOptions: Array<string>): Array<Option> {
         return listOptions.map((item: any) => ({ label: item, value: item })) 
@@ -173,16 +191,17 @@ export default defineComponent({
         cellPhone.condition = () => this.isRegistrationMode()
         return cellPhone 
     },
-    landmarkField(): Field {
-        const landmark: Field = PersonField.getLandmarkField()
-        landmark.condition = () => this.isRegistrationMode()
-        return landmark
+    landmarkFields(): Field[] {
+        const landmarks: Field[] = PersonField.getLandmarkFields()
+        landmarks[0].condition = () => this.isRegistrationMode() 
+        return landmarks
     },
     relationsField(): Field {
         return {
             id: 'relations',
             helpText: 'Select relationship type',
             type: FieldType.TT_RELATION_SELECTION,
+            validation: (val: Option) => Validation.required(val),
             onload: (context: any) => {
                 context.patient = this.patientData
                 if (this.isRegistrationMode()) {

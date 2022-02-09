@@ -3,6 +3,8 @@ import MonthOptions from "@/utils/HisFormHelpers/MonthOptions"
 import { Field, Option } from "@/components/Forms/FieldInterface"
 import HisDate from "@/utils/Date"
 import StandardValidations from "@/components/Forms/validations/StandardValidations"
+import { NUMBER_PAD_LO } from "@/components/Keyboard/KbLayouts"
+import { NUMBERS_WITHOUT_NA_UNKNOWN } from '../../components/Keyboard/HisKbConfigurations';
 
 export enum EstimationFieldType {
     AGE_ESTIMATE_FIELD = "age-estimate-field",
@@ -12,6 +14,7 @@ export enum EstimationFieldType {
 export interface EstimationInterface {
     estimationFieldType?: EstimationFieldType;
     allowUnknown: boolean; 
+    allowUnknownMonthDay?: boolean;
 }
 
 export interface DateFieldInterface {
@@ -21,6 +24,7 @@ export interface DateFieldInterface {
     condition?: Function;
     required?: boolean;
     defaultValue?: Function;
+    beforeNext?: Function;
     minDate?(formData: any, computeForm: any): string;
     maxDate?(formData: any, computeForm: any): string;
     unload?(data: any, state: string, formData: any,  computeForm: any): void; 
@@ -30,12 +34,23 @@ export interface DateFieldInterface {
     config?: any;
 }
 
-export function getYearField(id: string, name: string): Field {
+export function getYearField(id: string, name: string, showUnknown=true): Field {
+    const primaryFunctions = []
+    if (showUnknown) primaryFunctions.push('UNKNOWN')
     return {
         id,
         helpText: `${name} Year`,
         appearInSummary: () => false,
-        type: FieldType.TT_NUMBER
+        type: FieldType.TT_TEXT,
+        config: {
+            customKeyboard: [
+                NUMBER_PAD_LO,
+                [
+                    primaryFunctions,
+                    ['DELETE']
+                ]
+            ]
+        }
     }
 }
 
@@ -79,7 +94,10 @@ export function getAgeEstimateField(id: string, name: string): Field {
         id,
         helpText: `${name} Age Estimate`,
         type: FieldType.TT_NUMBER,
-        appearInSummary: () => false
+        appearInSummary: () => false,
+        config: {
+            keypad: NUMBERS_WITHOUT_NA_UNKNOWN
+        }
     }
 }
 
@@ -123,7 +141,14 @@ function validateMinMax(date: string, field: DateFieldInterface, form: any, comp
         }
     }
 }
-
+/**
+ * This Jungle of code generates Fields of Year, Month and Day.
+ * 
+ * if you're brave please refactor this. Just dont break anything Ok!
+ * @param field 
+ * @param refDate 
+ * @returns 
+ */
 export function generateDateFields(field: DateFieldInterface, refDate=''): Array<Field> {
     let fullDate = ''
     let yearValue = ''
@@ -136,17 +161,21 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     const ageEstimateID = `age_estimate_${field.id}`
     const durationEstimateID = `duration_estimate_${field.id}`
 
-    const year = getYearField(yearID, field.helpText)
+    const year = getYearField(yearID, field.helpText, field.estimation.allowUnknown)
     const month = getMonthField(monthID, field.helpText)
     const day = getDayField(dayID, field.helpText)
 
     const ageEstimate = getAgeEstimateField(ageEstimateID, field.helpText)
     const durationEstimate = getMonthDurationEstimateField(durationEstimateID, field.helpText)
 
+    const estimateMonthOrDay = typeof field.estimation.allowUnknownMonthDay === 'boolean'
+        && field.estimation.allowUnknownMonthDay
+
     const datePartCondition = (f: any) => {
-        if (f[yearID] && f[yearID].value 
-            && f[yearID].value === 'Unknown') {
-            return false
+        if (f[yearID] && f[yearID].value) {
+            if (['Unknown'].includes(f[yearID].value)) {
+                return false
+            }
         }
         return field.condition ? field.condition(f) : true
     }
@@ -156,7 +185,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     year.unload = (v: Option) => yearValue = v.value.toString()
  
     // YEAR CONFIG
-    year.config = field.config
+    year.config = { ...year.config, ...field.config }
 
     year.defaultValue = () => getDefaultDate(field, 'Year')
 
@@ -164,7 +193,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
         ? field.condition(f) 
         : true
 
-    year.validation = (v: Option) => {
+    year.validation = (v: Option, f: any, c: any) => {
         if (field.required && StandardValidations.required(v)) {
             return ['Year cannot be empty']
         }
@@ -173,11 +202,27 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
             && year.toString().match(/unknown/i)) {
             return ['Value unknown is not permitted']
         }
-        if (year && year !='Unknown'
-            && isNaN(parseInt(year.toString()))
+    
+        if (year && !['Unknown'].includes(year as string)
+            && isNaN(year as number)
             || year < 1900) {
             return ['Invalid Year']
         }
+
+        if (year && typeof field.minDate === 'function') {
+            const minYear = HisDate.getYear(field.minDate(f, c)) 
+            if (parseInt(year as any) < minYear) {
+                return [`Year of ${year} is less than Minimum year of ${minYear}`]
+            }
+        }
+
+        if (year && typeof field.maxDate === 'function') {
+            const maxYear = HisDate.getYear(field.maxDate(f, c))
+            if (year > maxYear) {
+                return [`Year of ${year} exceeds Maximum year of ${maxYear}`]
+            }
+        }
+
         return null
     }
     /**
@@ -187,7 +232,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
      */
     year.summaryMapValue = () => ({
         label: field.summaryLabel || field.helpText, 
-        value: d(fullDate)
+        value: fullDate ? d(fullDate) : 'Unknown'
     })
 
     // To avoid the year from appearing on the summary, 
@@ -206,6 +251,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
             return field.computeValue(fullDate, false)
         }
         if (val && val.value === 'Unknown') {
+            fullDate = ''
             return field.computeValue('Unknown', false)
         }
     }
@@ -221,15 +267,28 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
 
     month.defaultValue = () => getDefaultDate(field, 'Month')
 
+    // Add Unknown value to trigger default estimated Month
+    if (estimateMonthOrDay) {
+        month.options = () => [...MonthOptions, { label: 'Unknown', value: 'Unknown'}]
+    }
+
     /**
+     *
      * This helps to keep compute value up to date when month changes
      * @param val
      * @returns
      */
-    month.computedValue = (val: Option) => {
+    month.computedValue = (val: Option, f: any) => {
+        // Estimate Month and Day when Month Value is Unknown
+        if (`${val.value}`.match(/unknown/i)) {
+            fullDate = `${f[yearID].value}-07-15`
+            return field.computeValue(fullDate, true)
+        }
+        // Default date behaviour
         if (fullDate) {
             const [year, _, day] = fullDate.split('-')
-            fullDate = `${year}-${appendLeadingZero(val.value.toString())}-${day}`
+            const month = appendLeadingZero(`${val.value}`)
+            fullDate = `${year}-${month}-${day}`
             return field.computeValue(fullDate, false)
         }
     }
@@ -237,7 +296,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     day.proxyID = field.id
 
     // DAY CONFIG
-    day.condition = (f: any) => datePartCondition(f) 
+    day.condition = (f: any) => !`${f[monthID].value}`.match(/unknown/i) && datePartCondition(f) 
 
     day.validation =  (v: Option, f: any, c: any) => {
         if (StandardValidations.required(v)) {
@@ -249,20 +308,32 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     day.defaultValue = () => getDefaultDate(field, 'Day')
 
     day.computedValue = (v: Option) => {
-        dayValue = appendLeadingZero(v.value.toString())
+        const isEstimate = `${v.value}`.match(/unknown/i) ? true : false
+        // Use 15 as default value if day is estimated
+        dayValue = isEstimate ? '15' :  appendLeadingZero(`${v.value}`)
         fullDate = `${yearValue}-${monthValue}-${dayValue}`
-        return field.computeValue(fullDate, false)
+        return field.computeValue(fullDate, isEstimate)
     }
 
     day.unload = (d: any, s: any, f: any, c: any) => {
         if (field.unload) field.unload(d, s, f, c)
     }
 
-    day.config = { 
-        keyboardActions: [],
-        year: (f: any) => f[yearID].value,
-        month: (f: any) => f[monthID].value 
+    day.beforeNext = (v: any, f: any) => {
+        return !field.beforeNext 
+            ? true 
+            : field.beforeNext(fullDate, f)
     }
+
+    day.config = { 
+        // Monthly days shown on the Day component depends on this configuration
+        // to show approprite days based on specific year and month calendar
+        year: (f: any) => f[yearID].value,
+        month: (f: any) => f[monthID].value
+    }
+    // If not configured to do estimates, dont show Unknown Button which appears by default
+    // on MonthlyDay component.
+    if (!estimateMonthOrDay) day.config.keyboardActions = []
 
     const validateValueEstimate = (v: Option, f: any, c: any) => {
         if (StandardValidations.required(v)) {
@@ -286,7 +357,12 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     // AGE ESTIMATE CONFIG
     ageEstimate.proxyID = field.id
 
-    ageEstimate.validation = validateValueEstimate
+    ageEstimate.validation = (v: Option, f: any, c: any) => {
+        if (v && v.value > 300) {
+            return ['Age estimate is too high and exceeding hard limit of 300']
+        }
+        return validateValueEstimate(v, f, c)
+    }
 
     ageEstimate.condition = (form: any) => valueEstimateCondition(
         form, EstimationFieldType.AGE_ESTIMATE_FIELD
@@ -299,6 +375,12 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
             .split('-')
         fullDate = `${year}-07-15`
         return field.computeValue(fullDate, true)
+    }
+
+    ageEstimate.beforeNext = (v: any, f: any) => {
+        return !field.beforeNext 
+            ? true 
+            : field.beforeNext(fullDate, f)
     }
 
     // DURATION ESTIMATE
@@ -316,6 +398,12 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
             )).split('-')
         fullDate = `${year}-07-15`
         return field.computeValue(fullDate, true)
+    }
+
+    durationEstimate.beforeNext = (_: any, f: any) => {
+        return !field.beforeNext 
+            ? true 
+            : field.beforeNext(fullDate, f)
     }
 
     return [

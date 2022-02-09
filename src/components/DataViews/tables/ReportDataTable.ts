@@ -28,6 +28,10 @@ export interface RowInterface {
     cssClass?: string;
     event?: EventInterface;
 }
+export function prepareCSVValue(value: string | number | Date) {
+    if(typeof value !== 'string') return value
+    return value.replace(/,/gi, ' ').trim()
+}
 export function toExportableFormat(columns: Array<ColumnInterface[]>, rows: Array<RowInterface[]>) {
     const strRows: Array<any> = []
     const strCols: Array<any> = []
@@ -40,7 +44,7 @@ export function toExportableFormat(columns: Array<ColumnInterface[]>, rows: Arra
             */
             const column = columns[columns.length-1][i]
             if ('exportable' in column && column.exportable) {
-                exportableRow.push(r.value ? r.value : r.td)
+                exportableRow.push(r.value ? prepareCSVValue(r.value) : prepareCSVValue(r.td))
             }
         })
         strRows.push(exportableRow)
@@ -49,7 +53,7 @@ export function toExportableFormat(columns: Array<ColumnInterface[]>, rows: Arra
         const exportableColumns: any = []
         columns[index].forEach((c) => {
             if (c.exportable) {
-                exportableColumns.push(c.value ? c.value : c.th)
+                exportableColumns.push(c.value ? prepareCSVValue(c.value) : prepareCSVValue(c.th))
             } 
         })
         strCols.push(exportableColumns)
@@ -130,7 +134,7 @@ function thNum(th: string | number | Date, params={} as any): ColumnInterface {
     return configCell(data)
 }
 
-function tdDate(td: string, params={} as RowInterface): RowInterface {
+function tdDate(td: string, params={} as any): RowInterface {
     const data = params
     data.td = HisDate.toStandardHisDisplayFormat(td)
     return configCell(data)
@@ -151,16 +155,20 @@ function tdLink(td: string | number | Date, click: Function, params={}): RowInte
     }
 }
 
-function tdBtn(td: string | number | Date, click: Function, params={}, color=''): RowInterface {
-    return {
+function tdBtn(td: string | number | Date, click: Function, params={} as any, color=''): RowInterface {
+    const data = {
         td,
         event: {
             click,
             color: color,
             obj: 'button'
-        },
-        ...params
+        }
     }
+    if (params.event) {
+        data.event = { ...data.event, ...params.event}
+        delete params.event
+    }
+    return Object.assign(data, params)
 }
 export default {
     thTxt,

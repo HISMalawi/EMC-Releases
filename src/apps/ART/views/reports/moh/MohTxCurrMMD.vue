@@ -1,33 +1,41 @@
 <template>
-    <report-template
-        :title="title"
-        :period="period"
-        :rows="rows" 
-        :fields="fields"
-        :columns="columns"
-        :isLoading="isLoading"
-        :reportReady="reportReady"
-        :onReportConfiguration="onPeriod"
-        > 
-    </report-template>
+    <ion-page>
+        <report-template
+            :title="title"
+            :period="period"
+            :rows="rows" 
+            :fields="fields"
+            :columns="columns"
+            reportPrefix="MoH"
+            :headerInfoList="headerInfoList"
+            :onReportConfiguration="onPeriod"
+            > 
+        </report-template>
+    </ion-page>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue'
 import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
-import { TxReportService, OTHER_AGE_GROUPS } from '@/apps/ART/services/reports/tx_report_service'
+import { TxReportService } from '@/apps/ART/services/reports/tx_report_service'
 import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
+import { Option } from '@/components/Forms/FieldInterface'
+import { IonPage } from "@ionic/vue"
+import { MohCohortReportService } from "@/apps/ART/services/reports/moh_cohort_service"
+import { isEmpty } from "lodash"
+import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service"
 
 export default defineComponent({
     mixins: [ReportMixin],
-    components: { ReportTemplate },
+    components: { ReportTemplate, IonPage },
     data: () => ({
         title: 'Moh TX CURR MMD Report',
         cohort: {} as any,
         rows: [] as Array<any>,
-        reportReady: false as boolean,
-        isLoading: false as boolean,
+        headerInfoList: [] as Option[],
+        totals: new Set(),
+        mohCohort: {} as any,
         columns:  [
             [
                 table.thTxt('Age group'),
@@ -36,25 +44,49 @@ export default defineComponent({
                 table.thNum('# of clients on 3 - 5 months of ARVs'),
                 table.thNum('# of clients on  >= 6 months of ARVs')
             ]
-        ]
+        ],
+        canValidate: false as boolean
     }),
     created() {
         this.fields = this.getDateDurationFields()
     },
+    watch: {
+        async canValidate(doIt: boolean) {
+            if (doIt) await this.validateReport()
+        }
+    },
     methods: {
         async onPeriod(_: any, config: any) {
-            this.reportReady = true
-            this.isLoading = true
+            this.canValidate = false
             this.rows = []
             this.report = new TxReportService()
+            this.mohCohort = new MohCohortReportService()
+            this.mohCohort.setStartDate(config.start_date)
+            this.mohCohort.setEndDate(config.end_date)
             this.report.setOrg('moh')
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()
             await this.setRows()
-            this.isLoading = false
+            this.setHeaderInfoList()
+            this.canValidate = true
         },
-        getValues(patients: Record<string, Array<any>>) {
+        setHeaderInfoList(validationStatus='<span style="color: orange;font-weight:bold">Validating report....please wait...</span>') {
+            this.headerInfoList = [
+                { 
+                    label: 'Total clients', 
+                    value: this.totals.size,
+                    other: {
+                        onclick: () => this.runTableDrill(Array.from(this.totals), 'Total Clients')
+                    }
+                },
+                {
+                    label: 'Validation status',
+                    value: validationStatus
+                }
+            ]
+        },
+        getValues(patients: Record<string, Array<any>>, context: string) {
             const underThreeMonths: Array<any> = []
             const betweenThreeAndFiveMonths: Array<any> = []
             const overSixMonths: Array<any> = []
@@ -62,6 +94,7 @@ export default defineComponent({
             for (const patientId in patients) {
                 const data: any = patients[patientId]
                 const pDays = data.prescribed_days
+                this.totals.add(patientId)
 
                 if(pDays < 90) {
                     underThreeMonths.push(patientId)
@@ -76,9 +109,9 @@ export default defineComponent({
                 }
             }
             return [
-                this.drill(underThreeMonths),
-                this.drill(betweenThreeAndFiveMonths),
-                this.drill(overSixMonths)
+                this.drill(underThreeMonths, `${context} < 3 months of Arvs`),
+                this.drill(betweenThreeAndFiveMonths, `${context} 3-5 months of Arvs`),
+                this.drill(overSixMonths, `${context} > 6 months months of Arvs`)
             ]
         },
         async setRows() {
@@ -87,13 +120,13 @@ export default defineComponent({
             const males = []
             const females = []
 
-            for(const i in OTHER_AGE_GROUPS) {
-                const group = OTHER_AGE_GROUPS[i]
+            for(const i in AGE_GROUPS) {
+                const group = AGE_GROUPS[i]
                 if (group === '<1 year') {
                     minAge = 0
                     maxAge = 0
-                } else if (group === '50 plus years') {
-                    minAge = 50
+                } else if (group === '90 plus years') {
+                    minAge = 90
                     maxAge = 120
                 } else {
                     const [min, max] = group.split('-')
@@ -101,16 +134,17 @@ export default defineComponent({
                     maxAge = parseInt(max)
                 }
                 const res = await this.report.getTxCurrMMDReport(minAge, maxAge)
+                this.report.initArvRefillPeriod(false)
                 if (res) {
                     females.push([
                         table.td(group),
                         table.td('Female'),
-                        ...this.getValues(res['Female'])
+                        ...this.getValues(res['Female'], `${group} (F)`)
                     ])
                     males.push([
                         table.td(group),
                         table.td('Male'),
-                        ...this.getValues(res['Male'])
+                        ...this.getValues(res['Male'], `${group} (M)`)
                     ])
                 } else {
                     females.push([
@@ -130,6 +164,26 @@ export default defineComponent({
                 }
                 this.rows = [...females, ...males]
             }
+        },
+        validateReport() {
+            const validations: any = {
+                'total_alive_and_on_art': {
+                    param: this.totals.size,
+                    check: (i: number, p: number) => i != p,
+                    error: (i: number, p: number) => `
+                        <b>MoH cohort Alive and on ART clients (${i}) is not
+                        matching with total TX MMD clients (${p}).</b>
+                    `
+                }
+            }
+            const s = this.mohCohort.validateIndicators(validations, (errors: string[]) => {
+                if (!isEmpty(errors)) {
+                    this.setHeaderInfoList(`<span style='color:red'>${errors.join(',')}</span>`)
+                } else {
+                    this.setHeaderInfoList(`<span style='color:green'>Report is consistent</span>`)
+                }
+            })
+            if (s === -1) this.setHeaderInfoList(`<span style='color:red'>Run Cohort report for same reporting period to validate</span>`)
         }
     }
 })

@@ -24,6 +24,7 @@ import ProgramManagement from "@/views/ProgramManagement.vue"
 import LabResults from "@/views/LabResults.vue"
 import User from "@/views/NewUser.vue"
 import PatientMerging from "@/views/PatientMerging.vue"
+import NpidDuplicates from "@/views/NpidDuplicates.vue"
 
 const HIS_APP_ROUTES = (() => {
   let routes: Array<RouteRecordRaw> = []
@@ -42,15 +43,19 @@ const routes: Array<RouteRecordRaw> = [
     redirect: '/home'
   },
   {
+    path: '/npid/duplicates/:npid',
+    name: 'NPID Duplicates',
+    component: NpidDuplicates
+  },
+  {
     path: '/home',
     name: 'Home',
-    component: Home,
-    beforeEnter: (to, from, next) => {
-      if (!sessionStorage.getItem('apiKey')) {
-          next('/login');
-      }
-      next();
-    }, 
+    component: Home
+  },
+  {
+    name: 'View Duplicates',
+    path: '/view_duplicates',
+    component : () => import('@/views/DuplicateIdentifiers.vue')
   },
   {
     path: '/example/desktop',
@@ -179,4 +184,11 @@ const router = createRouter({
   routes
 })
 
+router.beforeEach((to, from, next) => {
+  const whitelistedUri = ['/login', '/settings/host']
+  if (!sessionStorage.getItem('apiKey') && !whitelistedUri.includes(to.path)) {
+    next('/login')
+  }
+  next()
+})
 export default router

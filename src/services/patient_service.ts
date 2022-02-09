@@ -9,6 +9,7 @@ import HisDate from "@/utils/Date"
 import {Observation} from "@/interfaces/observation"
 import  { BMIService } from "@/services/bmi_service"
 import { find, isEmpty } from 'lodash';
+import { isValueEmpty } from '@/utils/Strs';
 
 export class Patientservice extends Service {
     patient: Patient;
@@ -54,10 +55,27 @@ export class Patientservice extends Service {
         return JSON.stringify(value);
     }
 
-    public static getPatientVisits(patientId: number) {
-        return super.getJson(`patients/${patientId}/visits`, {
-            'program_id': super.getProgramID()
+    public static async getPatientVisits(patientId: number, includeDefaulterDates: boolean) {
+        const dates: string[] = await super.getJson(`patients/${patientId}/visits`, {
+            'program_id': super.getProgramID(),
+            'include_defaulter_dates': (includeDefaulterDates == true)
         })
+        if (dates) {
+            return dates.sort((a, b) => new Date(a) < new Date(b) ? 1 : 0)
+        }
+        return []
+    }
+
+    getWeightLossPercentageFromTrail(trail: any) {
+      const [curWeight, prevWeight] = trail.map((w: any) => w.weight)
+      if (!(curWeight && prevWeight)) return false
+      const decrease = parseFloat(prevWeight) - parseFloat(curWeight)
+      const weightLossPercent = (decrease / prevWeight) * 100
+      return Math.round(weightLossPercent)
+    }
+
+    getGuardian() {
+        return Patientservice.getJson(`people/${this.getID()}/relationships`)
     }
 
     assignNpid() {
@@ -72,9 +90,37 @@ export class Patientservice extends Service {
         return ['Female', 'F'].includes(this.getGender())
     }
 
+    async isPregnant() {
+        const obs = await ObservationService.getFirstObs(this.getID(), 'Is patient pregnant')
+        return obs && (obs.value_coded.match(/Yes/i) ? true : false) 
+            && ObservationService.obsInValidPeriod(obs)
+    }
+
+    async hasPregnancyObsToday() {
+        const date = await ObservationService.getFirstObsDatetime(this.getID(), 'Is patient pregnant')
+        return date && HisDate.toStandardHisFormat(date) === Service.getSessionDate() && this.isFemale()
+    }
+
     isChildBearing() {
         const age = this.getAge()
         return this.isFemale() && age >= 12 && age <= 50
+    }
+
+    async getInitialObs(concept: string) {
+        try {
+            const initialObs = await ObservationService.getAll(
+              this.getID(),
+              concept
+            );
+            const lastIndex = initialObs.length - 1;
+            return initialObs[lastIndex].value_numeric;
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
+    async getInitialWeight() {
+        return this.getInitialObs('weight')
     }
 
     async getRecentWeight() {
@@ -86,6 +132,11 @@ export class Patientservice extends Service {
         })
         return obs.length >= 1 ? obs[0].value_numeric: -1
     }
+    
+    async getInitialHeight() {
+        return this.getInitialObs("Height")
+    }
+
     async getRecentHeight() {
         const concept = await ConceptService.getConceptID('Height', true)
         const obs = await ObservationService.getObs({
@@ -107,6 +158,11 @@ export class Patientservice extends Service {
          return data.value_text.match(/Complete/i);
         });
     }
+
+    async getInitialBMI() {
+        return this.getInitialObs('BMI')
+    }
+
     async getBMI() {
         //TODO: weight and height should have optional parameters to get weight and height
         const weight = await this.getRecentWeight()
@@ -184,6 +240,11 @@ export class Patientservice extends Service {
         return getFullName(this.patient.person.names[0]);
     }
 
+    getDocID() {
+        const id = this.findIdentifierByType('DDE person document ID')
+        return id.match(/unknown/i) ? null : id
+    }
+
     getNationalID() {
         return this.findIdentifierByType('National id')
     }
@@ -243,7 +304,7 @@ export class Patientservice extends Service {
     }
 
     getCurrentTA() {
-        return this.getAddresses().ancestryTA
+        return this.getAddresses().currentTA
     }
     getPhoneNumber() {
         return this.getAttribute(12) //get phone number
@@ -251,9 +312,25 @@ export class Patientservice extends Service {
     getAttribute(personAttributeTypeID: number) {
         return getPersonAttribute(this.patient.person.person_attributes, personAttributeTypeID);
     }
+
     getPatientIdentifier(patientIdentifierTypeID: number) {
         return getPatientIdentifier(this.patient.patient_identifiers, patientIdentifierTypeID);
     }
+
+    patientIsComplete() {
+        const attributes = [
+            this.getNationalID(),
+            this.getGender(),
+            this.getBirthdate(),
+            this.getGivenName(),
+            this.getFamilyName(),
+            ...Object.values(this.getAddresses())
+        ]
+        return attributes.map(
+            (a: any) => !isValueEmpty(a)
+        ).every(Boolean)
+    }
+
     getAddresses() {
         const addressOBJ = {
             ancestryDistrict: '',

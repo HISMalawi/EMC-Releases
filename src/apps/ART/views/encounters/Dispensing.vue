@@ -7,8 +7,8 @@ import { FieldType } from "@/components/Forms/BaseFormElements"
 import { Field, Option } from "@/components/Forms/FieldInterface"
 import { toastWarning, alertConfirmation } from "@/utils/Alerts"
 import { DispensationService } from "@/apps/ART/services/dispensation_service"
-import { isEmpty } from 'lodash'
-import EncounterMixinVue from './EncounterMixin.vue'
+import {isEmpty } from 'lodash'
+import EncounterMixinVue from '../../../../views/EncounterMixin.vue'
 import HisDate from "@/utils/Date"
 
 export default defineComponent({
@@ -20,7 +20,7 @@ export default defineComponent({
         patient: {
             async handler(patient: any){
                 this.dispensation = new DispensationService(patient.getID(), this.providerID)
-                
+                await this.dispensation.loadDrugManagementEnabled()
                 await this.dispensation.loadCurrentDrugOrder()
                 await this.dispensation.loadDrugHistory()
 
@@ -67,9 +67,10 @@ export default defineComponent({
                 label: d.drug.name,
                 value: d.quantity || 0,
                 other: {
+                    'order': d,
                     'drug_id': d.drug.drug_id,
                     'order_id': d.order.order_id,
-                    'available_stock': d.available_stock,
+                    'available_stock': d.available_stock || '-',
                     'amount_needed': this.calculateCompletePack(d),
                     'pack_sizes': this.getPackSizesRows(d.drug.drug_id, d.available_stock || 0),
                 }
@@ -78,14 +79,14 @@ export default defineComponent({
         getPackSizesRows(drugId: number, availableStock: number) {
             const packs = this.dispensation.getDrugPackSizes(drugId)
             return packs.map((packSize: number) => {
-                const packs = availableStock > 0 ? (availableStock / packSize) : '-'
+                const packs = availableStock > 0 ? (Math.floor(availableStock / packSize)) : '-'
                 return [packSize, packs, 0, 0]
             })
         },
         calculateCompletePack(order: any) {
             const units = parseFloat(order.amount_needed) - (order.quantity || 0)
-            const completePack = this.dispensation.calcCompletePack(order, units)
-            return completePack < 0 ? 0 : completePack
+            if(units <= 0) return 0
+            return this.dispensation.calcCompletePack(order, units)
         },
         isDoneDispensing(orders: Array<Option>) {
             return orders.map(o => o.value != 0).every(Boolean)
@@ -115,7 +116,7 @@ export default defineComponent({
                         if (i.value != -1 && this.isDoneDispensing(l)) {
                             return this.$router.push({name: 'appointment'})
                         }
-                        i.other['amount_needed'] = 0
+                        i.other['amount_needed'] = i.other['amount_needed'] - (parseInt(i.value.toString()) || 0)
                         
                         await this.dispensation.loadCurrentDrugOrder()
 
@@ -124,7 +125,7 @@ export default defineComponent({
                     onValue: async (i: Option, isBarcodeScanned: boolean) => {
                         if (i.value  === -1) {
                             const voided = await this.dispensation.voidOrder(i.other.order_id)
-                            return voided ? true : false
+                            return !voided
                         }
 
                         if (!isBarcodeScanned) {
