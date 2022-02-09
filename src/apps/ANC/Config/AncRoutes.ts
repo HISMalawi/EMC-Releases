@@ -2,6 +2,6 @@ export default [
     {
         name: 'anc dispensing',
         path: '/anc/ttv/:patient_id',
-        component: () => import("@/apps/ANC/Views/TTV.vue")
+        component: () => import("@/apps/ANC/Views/Encounters/TTV.vue")
     }
 ]

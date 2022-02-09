@@ -36,23 +36,9 @@ export default defineComponent({
     }
   },
   methods: {
-    async onFinish(f: any) {
-      if (f.prescription.value.match(/true/i)) {
-        await this.updateTreatment()
-      } else {
-        await this.updateDispensation()
-      }
+    async onFinish(f: any, computedData: any) {
+      await computedData['prescription'].action()
       this.nextTask()
-    },
-    async updateDispensation() {
-      const service = new AncDispensationService(this.patientID, this.providerID)
-      await service.createEncounter()
-      await service.saveNoDispensationObs() 
-    },
-    async updateTreatment() {
-      const service = new AncTreatmentService(this.patientID, this.providerID)
-      await service.createEncounter()
-      await service.updateTTvOrder()
     },
     getFields() {
       return [
@@ -60,7 +46,25 @@ export default defineComponent({
           id: 'prescription',
           helpText: 'Prescription',
           type: FieldType.TT_YES_NO,
-          validation: (v: Option) => Validation.required(v),
+          validation: (v: string) => !v ?  ['Value is required'] : null,
+          computedValue: (v: string) => {
+            if (v.match(/true/i)) {
+              return {
+                action: async () => {
+                  const service = new AncTreatmentService(this.patientID, this.providerID)
+                  await service.createEncounter()
+                  await service.updateTTvOrder()
+                }
+              }
+            }
+            return {
+              action: async () => {
+                const service = new AncDispensationService(this.patientID, this.providerID)
+                await service.createEncounter()
+                await service.saveNoDispensationObs()
+              }
+            }
+          },
           options: () => ([
             {
               label: 'TTV has been given today',

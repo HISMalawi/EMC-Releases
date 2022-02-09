@@ -1,4 +1,4 @@
-templ<template>
+<template>
   <ion-page> 
     <his-standard-form 
       :fields="fields"
