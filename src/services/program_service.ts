@@ -89,6 +89,7 @@ export class ProgramService extends Service {
         cssClass: "my-custom-class",
         backdropDismiss: false,
         componentProps: {
+          appVersion: Service.getFullVersion()
         },
       });
       modal.present()

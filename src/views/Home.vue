@@ -47,7 +47,7 @@
             </div>
           </ion-col>
           <ion-col size="3">
-            <program-icon :icon="appLogo"> </program-icon>
+            <program-icon :icon="appLogo" :version="appVersion"> </program-icon>
           </ion-col>
         </ion-row>
       </ion-toolbar>
@@ -221,7 +221,7 @@ export default defineComponent({
       userLocation: "",
       sessionDate: "",
       userName: "",
-      APIVersion: "",
+      appVersion: "",
       activeTab: 1,
       ready: false,
       patientBarcode: "",
@@ -285,6 +285,7 @@ export default defineComponent({
       this.sessionDate = HisDate.toStandardHisDisplayFormat(
         Service.getSessionDate()
       )
+      this.appVersion = Service.getFullVersion()
     },
     async openModal() {
       const data = await HisApp.selectApplication('HomePage') 

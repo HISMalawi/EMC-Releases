@@ -112,7 +112,7 @@ export class Service {
     }
 
     static getApiVersion() {
-        return sessionStorage.getItem('APIVersion') || 'N/A'
+        return sessionStorage.getItem('APIVersion') || '-'
     }
 
     static getActiveApp(): AppInterface | {} { 
@@ -189,10 +189,14 @@ export class Service {
     }
 
     static getCoreVersion() {
-        return sessionStorage.coreVersion || 'N/A';
+        return sessionStorage.appVersion || '-';
     }
 
     static getAppVersion() {
-        return sessionStorage.appVersion || 'N/A';
+        return sessionStorage.appVersion || '-';
+    }
+
+    static getFullVersion() {
+        return `${this.getCoreVersion()} / ${this.getApiVersion()}`
     }
 }
