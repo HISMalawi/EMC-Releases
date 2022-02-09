@@ -1,6 +1,149 @@
 export default [
    {
       "categories": [],
+      "concept_id": 7439,
+      "name": "Procedure done"
+   },
+   {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 1171,
+     "name": "Caesarean section"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 1719,
+     "name": "Tubal ligation"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 3593,
+     "name": "Biopsy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 5276,
+     "name": "Hysterectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7440,
+     "name": "Uterine evacuation"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7441,
+     "name": "Exam under anaesthesia"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7443,
+     "name": "Total abdominal hysterectomy +/- adnexectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7444,
+     "name": "Subtotal abdominal hysterectomy +/- adnexectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7462,
+     "name": "Suturing of cervical or vaginal injury under anaesthesia"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7469,
+     "name": "Vaginal Reconstruction"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7470,
+     "name": "Exploratory laparatomy +/- adnexectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7471,
+     "name": "Cauterization of vulva or perineal warts"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7472,
+     "name": "Marsupilisation"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7474,
+     "name": "Salpingectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7475,
+     "name": "Dilation and curettage"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7477,
+     "name": "Fistula repair"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7478,
+     "name": "Myomectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7480,
+     "name": "Hysterescopy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7481,
+     "name": "Cystoscopy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7482,
+     "name": "Vulvectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 8380,
+     "name": "Suturing of perineum"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 8381,
+     "name": "Repair of uterus"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 8765,
+     "name": "Cystectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 8766,
+     "name": "Ceclage"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 8767,
+     "name": "Bilateral tubal ligation"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 8773,
+     "name": "Excision"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9058,
+     "name": "Evacuation/Manual Vacuum Aspiration"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9304,
+     "name": "Polypectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9305,
+     "name": "Decapitation"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9306,
+     "name": "Abdominal Washout"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9307,
+     "name": "Vaginal hysterectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9308,
+     "name": "Gaped episiotomy repair"
+   }, 
+   {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9309,
+      "name": "Macdonald suture"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9314,
+     "name": "Oophorectomy"
+   },
+   {
+      "categories": [],
       "concept_id": 7124,
       "name": "Tetanus toxoid vaccine"
    },
@@ -102,11 +245,6 @@ export default [
       "categories": [],
       "concept_id": 7215,
       "name": "Other (Specify)"
-   },
-   {
-      "categories": [],
-      "concept_id": 1719,
-      "name": "Tubal ligation"
    },
    {
       "categories": [],

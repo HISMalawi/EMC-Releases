@@ -43,7 +43,6 @@ export default defineComponent({
       this.$nextTick(async ()=> {
         const option = {...entry}
         option.isChecked = event.target.checked
-
         if (typeof option?.other?.onEvent === 'function') {
           await option.other.onEvent(option.isChecked)
         } 
