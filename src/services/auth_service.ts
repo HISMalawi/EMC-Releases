@@ -72,7 +72,8 @@ export class AuthService{
 
     async getCoreVersion(): Promise<string> {
         const res = await fetch('HEAD', { method: 'GET' })
-        return (await res?.text()) || ''
+        const version = await res?.text()
+        return version && version.length <= 25 ? version : '-'
     }
 
     async getApiVersion(): Promise<string> {
