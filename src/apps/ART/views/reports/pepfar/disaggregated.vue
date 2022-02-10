@@ -231,7 +231,7 @@ export default defineComponent({
                 if (!this.sortIndexes[sortIndex]) this.sortIndexes[sortIndex] = []
 
                 this.sortIndexes[sortIndex].push([
-                    table.td(group),
+                    table.td(ageGroups[i]),
                     table.td(gender),
                     this.drill(txNew, `Tx new (new on ART) | ${group} | ${gender}`),
                     this.drill(txCurr, `Tx curr (receiving ART) | ${group} | ${gender}`),
