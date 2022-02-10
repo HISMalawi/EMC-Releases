@@ -178,10 +178,7 @@ export default defineComponent({
             await this.setFemaleNotPregnantRows(5)
         },
         getColumnLabel(col: string) {
-            if (col in this.dataRefLabels) {
-                return this.dataRefLabels[col]
-            }
-            return col
+            return col in this.dataRefLabels ? this.dataRefLabels[col] : col
         },
         getTotals(compareFunction: Function){
             return this.aggregations
