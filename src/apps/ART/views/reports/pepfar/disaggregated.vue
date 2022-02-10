@@ -31,7 +31,7 @@ export default defineComponent({
     mixins: [ReportMixin],
     components: { ReportTemplate, IonPage },
     data: () => ({
-        title: 'PEPFAR Diseggregated Report',
+        title: 'PEPFAR Disaggregated Report',
         headerList: [] as Option[],
         columns: [
             [
