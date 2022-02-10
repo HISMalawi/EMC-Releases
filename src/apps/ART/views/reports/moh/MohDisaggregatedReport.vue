@@ -89,6 +89,14 @@ export default defineComponent({
             'N/A', 
             'regimenTotals'
         ],
+        dataRefLabels: {
+           'txNew': 'Tx new (new on ART)',
+           'txCurr': 'Tx curr (receiving ART)',
+           'txGivenIpt': 'TX curr (received IPT)',
+           'txScreenTB': 'TX curr (screened for TB)',
+           'N/A': 'Unknown',
+           'regimenTotals': 'Regimen Totals'
+        } as any,
         aggregations: [] as any,
         mohCohort: {} as any,
         ageGroupCohort: {} as any,
@@ -169,6 +177,12 @@ export default defineComponent({
             await this.setFemaleBreastFeedingRows(6)
             await this.setFemaleNotPregnantRows(5)
         },
+        getColumnLabel(col: string) {
+            if (col in this.dataRefLabels) {
+                return this.dataRefLabels[col]
+            }
+            return col
+        },
         getTotals(compareFunction: Function){
             return this.aggregations
                 .filter((i: any) => compareFunction(i))
@@ -218,7 +232,7 @@ export default defineComponent({
                     accum[cur.col] = accum[cur.col].concat(cur.data)
                     return accum
                 },{})
-            const rows: any = this.rowDataRefs.map(r => this.drill(totals[r]))
+            const rows: any = this.rowDataRefs.map(r => this.drill(totals[r], `${this.getColumnLabel(r)} | All Male`))
             this.sortIndexes[sortIndex] = [
                 [table.td('All'), table.td('Male'), ...rows]
             ]
@@ -236,7 +250,7 @@ export default defineComponent({
                     accum[cur.col] = accum[cur.col].concat( cur.data.filter((i: any) => !isPregnant(i)))
                     return accum
                 }, {})
-            const rows: any = this.rowDataRefs.map(r => this.drill(totals[r]))
+            const rows: any = this.rowDataRefs.map(r => this.drill(totals[r], `${this.getColumnLabel(r)} | FNP`))
             this.sortIndexes[sortIndex] = [
                 [ table.td('All'), table.td('FNP'), ...rows ]
             ]
