@@ -9,7 +9,7 @@
             :headerInfoList="headerList"
             reportPrefix="MoH"
             :validationErrors="errors"
-            :showValidationStatus="showStatus"
+            :showValidationStatus="canValidate"
             :hasServerSideCaching="true"
             :enabledPDFHorizontalPageBreak="true"
             :onReportConfiguration="onPeriod"
@@ -139,9 +139,9 @@ export default defineComponent({
     methods: {
         async onPeriod(form: any, config: any, rebuildCache=false) {
             this.canValidate = false
+            this.aggregations = []
             this.sortIndexes = {}
             this.errors = []
-            this.showStatus = false
             this.report = new DisaggregatedReportService()
             this.mohCohort = new MohCohortReportService()
             this.report.setOutcomeTable(TEMP_OUTCOME_TABLE.PATIENT_OUTCOME_TEMP)
@@ -167,7 +167,6 @@ export default defineComponent({
             }
             await this.setTableRows()
             this.canValidate = true
-            this.showStatus = true
         },
         async setTableRows() {
             await this.setFemaleRows(1)
