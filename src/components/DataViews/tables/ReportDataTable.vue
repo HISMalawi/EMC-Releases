@@ -154,7 +154,6 @@ export default defineComponent({
     },
     newPage: {
         handler(newPage: number) {
-            console.log(newPage)
             if (typeof newPage === 'number') this.onChangePage(newPage)
         },
         immediate: true

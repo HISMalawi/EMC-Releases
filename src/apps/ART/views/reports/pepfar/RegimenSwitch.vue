@@ -30,7 +30,6 @@ export default defineComponent({
         columns:  [
             [
                 table.thTxt('ARV#'),
-                table.thTxt('Patient type'),
                 table.thTxt('Gender'),
                 table.thTxt('DOB'),
                 table.thTxt('Prev.Reg'),
@@ -61,7 +60,6 @@ export default defineComponent({
                 })
                 this.rows.push([
                     table.td(d.arv_number),
-                    table.td(d.patient_type),
                     table.td(d.gender),
                     table.tdDate(d.birthdate),
                     table.td(d.previous_regimen),

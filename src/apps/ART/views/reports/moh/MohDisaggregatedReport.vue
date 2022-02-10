@@ -8,6 +8,8 @@
             :columns="columns"
             :headerInfoList="headerList"
             reportPrefix="MoH"
+            :validationErrors="errors"
+            :showValidationStatus="showStatus"
             :hasServerSideCaching="true"
             :enabledPDFHorizontalPageBreak="true"
             :onReportConfiguration="onPeriod"
@@ -76,6 +78,8 @@ export default defineComponent({
                 table.thNum('Total (regimen)')
             ]
         ],
+        errors: [] as string[],
+        showStatus: false as boolean,
         rowDataRefs: [
             'txNew', 
             'txCurr', 
@@ -128,6 +132,8 @@ export default defineComponent({
         async onPeriod(form: any, config: any, rebuildCache=false) {
             this.canValidate = false
             this.sortIndexes = {}
+            this.errors = []
+            this.showStatus = false
             this.report = new DisaggregatedReportService()
             this.mohCohort = new MohCohortReportService()
             this.report.setOutcomeTable(TEMP_OUTCOME_TABLE.PATIENT_OUTCOME_TEMP)
@@ -152,8 +158,8 @@ export default defineComponent({
                 return toastWarning('Unable to initialise report')
             }
             await this.setTableRows()
-            this.setHeaderInfoList([])
             this.canValidate = true
+            this.showStatus = true
         },
         async setTableRows() {
             await this.setFemaleRows(1)
@@ -313,7 +319,7 @@ export default defineComponent({
                 ]))
             }
         },
-        setHeaderInfoList(totalAlive: Array<any>, validationStatus='<span style="color: orange;font-weight:bold">Validating report....please wait...</span>') {
+        setHeaderInfoList(totalAlive: Array<any>) {
             this.headerList = [
                 { 
                     label: 'Total Alive and on ART', 
@@ -321,15 +327,12 @@ export default defineComponent({
                     other: {
                         onclick: () => this.runTableDrill(totalAlive, 'Total Alive on ART')
                     }
-                },
-                {
-                    label: 'Validation status',
-                    value: validationStatus
                 }
             ]
         },
         async validateReport() {
             const totalAlive = this.getTotals((i: any) => i.col === 'txCurr' && !['Pregnant', 'Breastfeeding'].includes(i.group))
+            this.setHeaderInfoList(totalAlive)
             const validations: any = {
                 'total_alive_and_on_art' : {
                     param: totalAlive.length,
@@ -340,14 +343,8 @@ export default defineComponent({
                     `
                 }
             }
-            const s = this.mohCohort.validateIndicators(validations, (errors: string[]) => {
-                if (!isEmpty(errors)) {
-                    this.setHeaderInfoList(totalAlive,`<span style='color:red'>${errors.join(',')}</span>`)
-                } else {
-                    this.setHeaderInfoList(totalAlive,`<span style='color:green'>Report is consistent</span>`)
-                }
-            })
-            if (s === -1) this.setHeaderInfoList(totalAlive, `<span style='color:red'>Run Cohort report for same reporting period to validate</span>`)
+            const s = this.mohCohort.validateIndicators(validations, (errors: string[]) => this.errors = errors)
+            if (s === -1) this.errors = ['Run Cohort report for same reporting period to validate']
         }
     }
 })
