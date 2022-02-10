@@ -84,7 +84,8 @@ export class AuthService{
                 sessionStorage.setItem('sessionDate', date)
             }
         }, interval)
-
+    }
+    
     async getCoreVersion(): Promise<string> {
         const res = await fetch('HEAD', { method: 'GET' })
         const version = await res?.text()
