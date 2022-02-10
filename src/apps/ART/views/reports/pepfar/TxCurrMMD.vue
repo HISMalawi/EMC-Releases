@@ -7,6 +7,8 @@
             :fields="fields"
             :columns="columns"
             reportPrefix="PEPFAR"
+            :validationErrors="errors"
+            :showValidationStatus="showStatus"
             :headerInfoList="headerInfoList"
             :onReportConfiguration="onPeriod"
             > 
@@ -22,8 +24,6 @@ import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { MohCohortReportService } from "@/apps/ART/services/reports/moh_cohort_service"
 import { Option } from '@/components/Forms/FieldInterface'
-import { isEmpty, uniq } from "lodash"
-import { toastWarning } from '@/utils/Alerts'
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service"
 
 export default defineComponent({
@@ -34,6 +34,8 @@ export default defineComponent({
         cohort: {} as any,
         rows: [] as Array<any>,
         totals: new Set(),
+        errors: [] as string[],
+        showStatus: false as boolean,
         columns:  [
             [
                 table.thTxt('Age group'),
@@ -56,9 +58,11 @@ export default defineComponent({
         this.fields = this.getDateDurationFields()
     },
     methods: {
-        async onPeriod(_: any, config: any, reInitialize=false) {
+        async onPeriod(_: any, config: any) {
             this.canValidate = false
             this.totals.clear()
+            this.errors = []
+            this.showStatus = false
             this.rows = []
             this.report = new TxReportService()
             this.mohCohort = new MohCohortReportService()
@@ -70,6 +74,7 @@ export default defineComponent({
             this.report.initArvRefillPeriod(true)
             await this.setRows()
             this.canValidate = true
+            this.showStatus = true
             this.setHeaderInfoList()
         },
         getValues(patients: Record<string, Array<any>>, context: string) {
@@ -151,7 +156,7 @@ export default defineComponent({
                 this.rows = [...females, ...males]
             }
         },
-        setHeaderInfoList(validationStatus='<span style="color: orange;font-weight:bold">Validating report....please wait...</span>') {
+        setHeaderInfoList() {
             this.headerInfoList = [
                 { 
                     label: 'Total clients', 
@@ -159,10 +164,6 @@ export default defineComponent({
                     other: {
                         onclick: () => this.runTableDrill(Array.from(this.totals), 'Total Clients')
                     }
-                },
-                {
-                    label: 'Validation status',
-                    value: validationStatus
                 }
             ]
         },
@@ -170,23 +171,15 @@ export default defineComponent({
             const validations: any = {
                 'total_alive_and_on_art': {
                     param: this.totals.size,
-                    check: (i: number, p: number) => i != p,
+                    check: (i: number, p: number) => p > i,
                     error: (i: number, p: number) => `
-                        <b>
-                            MoH cohort Alive and on ART clients (${i}) is not
-                            matching with total TX MMD clients (${p}).
-                        </b>
+                        MoH cohort Alive and on ART clients <b>(${i})</b> is not
+                        matching with total TX MMD clients <b>(${p})</b>.
                     `
                 }
             }
-            const s = this.mohCohort.validateIndicators(validations, (errors: string[]) => {
-                if (!isEmpty(errors)) {
-                    this.setHeaderInfoList(`<span style='color:red'>${errors.join(',')}</span>`)
-                } else {
-                    this.setHeaderInfoList(`<span style='color:green'>Report is consistent</span>`)
-                }
-            })
-            if (s === -1) this.setHeaderInfoList(`<span style='color:red'>Run Cohort report for same reporting period to validate</span>`)
+            const s = this.mohCohort.validateIndicators(validations, (errors: string[]) => this.errors = errors)
+            if (s === -1) this.errors = ['Run Cohort report for same reporting period to validate']
         }
     }
 })

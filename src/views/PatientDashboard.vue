@@ -2,6 +2,7 @@
     <ion-page>
         <full-toolbar
             class="full-component-view"
+            :appVersion="appVersion"
             :appIcon="app.applicationIcon"
             :patientCardInfo="patientCardInfo"
             :programCardInfo="programCardInfo"
@@ -334,7 +335,8 @@ export default defineComponent({
         medicationCardItems: [] as Array<Option>,
         labOrderCardItems: [] as Array<Option>,
         alertCardItems: [] as Array<Option>,
-        patientCards: [] as Array<any>
+        patientCards: [] as Array<any>,
+        appVersion: ProgramService.getFullVersion()
     }),
     computed: {
         patientName(): string {
