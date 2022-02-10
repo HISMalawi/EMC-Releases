@@ -27,7 +27,7 @@ export default defineComponent({
         },
     },
      data: () => ({
-        splitFactor: 12
+        splitFactor: 10
     }),
     components: { 
         IonList,
@@ -65,5 +65,6 @@ export default defineComponent({
     }
     .list-md {
         height: 100%;
+        overflow: auto;
     }
 </style>
