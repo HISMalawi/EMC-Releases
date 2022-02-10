@@ -8,7 +8,7 @@
             :columns="columns"
             reportPrefix="PEPFAR"
             :validationErrors="errors"
-            :showValidationStatus="showStatus"
+            :showValidationStatus="canValidate"
             :hasServerSideCaching="true"
             :headerInfoList="headerList"
             :onReportConfiguration="onPeriod">
@@ -35,7 +35,6 @@ export default defineComponent({
     data: () => ({
         title: 'PEPFAR Disaggregated Report',
         headerList: [] as Option[],
-        showStatus: false as boolean,
         errors: [] as string[],
         columns: [
             [
@@ -51,7 +50,8 @@ export default defineComponent({
         mohCohort: {} as any,
         ageGroupCohort: {} as any,
         canValidate: false as boolean,
-        sortIndexes: {} as Record<string | number, Array<any>>
+        sortIndexes: {} as Record<string | number, Array<any>>,
+        initiated: false as boolean
     }),
     created() {
         this.fields = this.getDateDurationFields()
@@ -70,10 +70,10 @@ export default defineComponent({
     },
     methods: {
         async onPeriod(_: any, config: any, rebuildCache=true) {
-            this.canValidate = false
-            this.showStatus = false
             this.errors = []
             this.sortIndexes = {}
+            this.aggregations = []
+            this.canValidate = false
             this.report = new DisaggregatedReportService()
             this.mohCohort = new MohCohortReportService()
             this.report.setQuarter('pepfar')
@@ -82,7 +82,7 @@ export default defineComponent({
             this.mohCohort.setStartDate(config.start_date)
             this.mohCohort.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()
-            this.report.setRebuildOutcome(rebuildCache)
+            this.report.setRebuildOutcome(!this.initiated ? true : rebuildCache)
             const isInit = await this.report.init()
             if (!isInit) {
                 return toastWarning('Unable to initialise report')
@@ -90,7 +90,7 @@ export default defineComponent({
             await this.setTableRows()
             this.setHeaderInfoList()
             this.canValidate = true
-            this.showStatus = true
+            this.initiated = true
         },
         getTotals(compareFunction: Function){
             return this.aggregations
