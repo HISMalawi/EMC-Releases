@@ -99,7 +99,7 @@ export default defineComponent({
         } as any,
         aggregations: [] as any,
         mohCohort: {} as any,
-        ageGroupCohort: {} as any,
+        maleFemaleAgeGroupData: {} as any,
         headerList: [] as Array<Option>,
         canValidate: false as boolean,
         onLoadDefault: null as any,
@@ -139,6 +139,7 @@ export default defineComponent({
     methods: {
         async onPeriod(form: any, config: any, rebuildCache=false) {
             this.canValidate = false
+            this.maleFemaleAgeGroupData = {}
             this.aggregations = []
             this.sortIndexes = {}
             this.errors = []
@@ -284,15 +285,15 @@ export default defineComponent({
                 const group = ageGroups[i]
                 this.report.setAgeGroup(group)
 
-                if (!(group in this.ageGroupCohort)) {
+                if (!(group in this.maleFemaleAgeGroupData)) {
                     const cohort = await this.report.getCohort()
                     this.report.setRebuildOutcome(false)
-                    this.ageGroupCohort[group] = !isEmpty(cohort) ? cohort[group] : {}
+                    this.maleFemaleAgeGroupData[group] = !isEmpty(cohort) ? cohort[group] : {}
                 }
 
-                if (!isEmpty(this.ageGroupCohort[group])) {
+                if (!isEmpty(this.maleFemaleAgeGroupData[group])) {
                     const value = async (prop: string) => this.getValue(
-                        prop, category, this.ageGroupCohort[group]
+                        prop, category, this.maleFemaleAgeGroupData[group]
                     )
                     txNew = await value('tx_new')
                     txCurr= await value('tx_curr')
