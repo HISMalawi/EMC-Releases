@@ -95,14 +95,14 @@ export default defineComponent({
         getTotals(compareFunction: Function){
             return this.aggregations
                 .filter(i => compareFunction(i))
-                .reduce((counter, cur) => counter += cur.data.length, 0)
+                .reduce((items, item) => items.concat(item.data), [])
         },
         setHeaderInfoList() {
             const totalAlive = this.getTotals((i: any) => i.col === 'txCurr' && !['Pregnant', 'Breastfeeding'].includes(i.group))
             this.headerList = [
                 { 
                     label: 'Total Alive and on ART', 
-                    value: totalAlive,
+                    value: totalAlive.length,
                     other: {
                         onclick: () => this.runTableDrill(totalAlive, 'Total Alive and on ART')
                     }
@@ -250,14 +250,14 @@ export default defineComponent({
         validateReport() {
             const validations: any = {
                 'initiated_on_art_first_time': {
-                    param: this.getTotals((i: any) => i.col === 'txNew' && !['Pregnant', 'Breastfeeding'].includes(i.group)),
+                    param: this.getTotals((i: any) => i.col === 'txNew' && !['Pregnant', 'Breastfeeding'].includes(i.group)).length,
                     check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
                         MOH cohort initiated on ART first time <b>(${i})</b> is not matching Tx New <b>(${p})</b>
                     `
                 },
                 'initial_pregnant_females_all_ages': {
-                    param: this.getTotals((i: any) => i.col === 'txNew' && i.group === 'Pregnant'),
+                    param: this.getTotals((i: any) => i.col === 'txNew' && i.group === 'Pregnant').length,
                     check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
                         MOH cohort initial pregnant females all ages 
@@ -265,7 +265,7 @@ export default defineComponent({
                     `
                 },
                 'males_initiated_on_art_first_time': {
-                    param: this.getTotals((i: any) => i.col === 'txNew' && i.category === 'M'),
+                    param: this.getTotals((i: any) => i.col === 'txNew' && i.category === 'M').length,
                     check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
                         MoH Cohort males initiated on ART first time <b>(${i})</b>
