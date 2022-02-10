@@ -172,10 +172,10 @@ export default defineComponent({
             const validations: any = {
                 'total_alive_and_on_art': {
                     param: this.totals.size,
-                    check: (i: number, p: number) => p <= i,
+                    check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
                         MoH cohort Alive and on ART clients <b>(${i})</b> is not
-                        matching with total TX MMD clients <b>(${p})</b>
+                        matching with total TX MMD clients <b(${p}).</b>
                     `
                 }
             }
