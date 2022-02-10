@@ -29,6 +29,14 @@
                   <b><span v-html="info.value"></span></b> 
                 </ion-label>
               </li>
+              <li v-if="showValidationStatus">
+                <ion-chip @click="showErrors" color="danger" v-if="hasErrors"> 
+                  <b>{{errorCount}} </b> Error(s) found. Click for more
+                </ion-chip>
+                <ion-chip color="success" v-if="!hasErrors"> 
+                  Report is Consistent
+                </ion-chip>
+              </li>
             </ul>
           </ion-label>
         </ion-item>
@@ -77,13 +85,15 @@ import {
   IonItem,
   IonChip,
   IonImg,
-  loadingController
+  loadingController,
+  modalController
 } from "@ionic/vue"
 import { alertConfirmation, toastDanger } from "@/utils/Alerts";
 import Img from "@/utils/Img"
 import { Service } from "@/services/service"
 import dayjs from "dayjs";
 import { isEmpty } from "lodash";
+import ReportErrors from "@/apps/ART/Components/ReportErrors.vue"
 
 export default defineComponent({
   components: { 
@@ -102,6 +112,14 @@ export default defineComponent({
     IonImg
   },
   props: {
+    showValidationStatus: {
+      type: Boolean,
+      default: false
+    },
+    validationErrors: {
+      type: Array,
+      default: () => []
+    },
     config: {
       type: Object
     },
@@ -206,7 +224,26 @@ export default defineComponent({
       immediate: true
     }
   },
+  computed: {
+    hasErrors(): boolean {
+      return !isEmpty(this.validationErrors)
+    },
+    errorCount(): number {
+      return this.validationErrors ? this.validationErrors.length : 0
+    }
+  },
   methods: {
+    async showErrors() {
+      const modal = await modalController.create({
+        component: ReportErrors,
+        backdropDismiss: false,
+        cssClass: "large-modal",
+        componentProps: {
+          errors: this.validationErrors
+        }
+      })
+      modal.present();
+    },
     refreshTimeStamp() {
       this.date = dayjs().format('DD/MMM/YYYY HH:MM:ss')
     },

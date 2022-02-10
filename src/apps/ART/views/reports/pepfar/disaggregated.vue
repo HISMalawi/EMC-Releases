@@ -7,6 +7,8 @@
             :fields="fields"
             :columns="columns"
             reportPrefix="PEPFAR"
+            :validationErrors="errors"
+            :showValidationStatus="showStatus"
             :hasServerSideCaching="true"
             :headerInfoList="headerList"
             :onReportConfiguration="onPeriod">
@@ -33,6 +35,8 @@ export default defineComponent({
     data: () => ({
         title: 'PEPFAR Disaggregated Report',
         headerList: [] as Option[],
+        showStatus: false as boolean,
+        errors: [] as string[],
         columns: [
             [
                 table.thTxt('Age group'),
@@ -67,6 +71,8 @@ export default defineComponent({
     methods: {
         async onPeriod(_: any, config: any, rebuildCache=true) {
             this.canValidate = false
+            this.showStatus = false
+            this.errors = []
             this.sortIndexes = {}
             this.report = new DisaggregatedReportService()
             this.mohCohort = new MohCohortReportService()
@@ -84,13 +90,14 @@ export default defineComponent({
             await this.setTableRows()
             this.setHeaderInfoList()
             this.canValidate = true
+            this.showStatus = true
         },
         getTotals(compareFunction: Function){
             return this.aggregations
                 .filter(i => compareFunction(i))
                 .reduce((counter, cur) => counter += cur.data.length, 0)
         },
-        setHeaderInfoList(validationStatus='<span style="color: orange;font-weight:bold">Validating report....please wait...</span>') {
+        setHeaderInfoList() {
             const totalAlive = this.getTotals((i: any) => i.col === 'txCurr' && !['Pregnant', 'Breastfeeding'].includes(i.group))
             this.headerList = [
                 { 
@@ -99,10 +106,6 @@ export default defineComponent({
                     other: {
                         onclick: () => this.runTableDrill(totalAlive, 'Total Alive and on ART')
                     }
-                },
-                {
-                    label: 'Validation status',
-                    value: validationStatus
                 }
             ]
         },
@@ -250,7 +253,7 @@ export default defineComponent({
                     param: this.getTotals((i: any) => i.col === 'txNew' && !['Pregnant', 'Breastfeeding'].includes(i.group)),
                     check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
-                        MOH cohort initiated on ART first time (${i}) is not matching Tx New (${p})
+                        MOH cohort initiated on ART first time <b>(${i})</b> is not matching Tx New <b>(${p})</b>
                     `
                 },
                 'initial_pregnant_females_all_ages': {
@@ -258,26 +261,20 @@ export default defineComponent({
                     check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
                         MOH cohort initial pregnant females all ages 
-                        (${i}) is not matching with TX new Pregnant women ${p}
+                        <b>(${i})</b> is not matching with TX new Pregnant women <b>${p}</b>
                     `
                 },
                 'males_initiated_on_art_first_time': {
                     param: this.getTotals((i: any) => i.col === 'txNew' && i.category === 'M'),
                     check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
-                        MoH Cohort males initiated on ART first time (${i})
-                        is not matching with TX new All male (${p})
+                        MoH Cohort males initiated on ART first time <b>(${i})</b>
+                        is not matching with TX new All male <b>(${p})</b>
                     `
                 }
             }
-            const s = this.mohCohort.validateIndicators(validations, (errors: string[]) => {
-                if (!isEmpty(errors)) {
-                    this.setHeaderInfoList(`<span style='color:red'>${errors.join(',')}</span>`)
-                } else {
-                    this.setHeaderInfoList(`<span style='color:green'>Report is consistent</span>`)
-                }
-            })
-            if (s === -1) this.setHeaderInfoList(`<span style='color:red'>Run Cohort report for same reporting period to validate</span>`)
+            const s = this.mohCohort.validateIndicators(validations, (errors: string[]) => this.errors = errors)
+            if (s === -1) this.errors = ['Run Cohort report for same reporting period to validate']
         }
     }
 })

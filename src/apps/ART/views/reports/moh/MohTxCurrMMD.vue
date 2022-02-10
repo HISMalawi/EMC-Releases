@@ -7,6 +7,8 @@
             :fields="fields"
             :columns="columns"
             reportPrefix="MoH"
+            :validationErrors="errors"
+            :showValidationStatus="showStatus"
             :headerInfoList="headerInfoList"
             :onReportConfiguration="onPeriod"
             > 
@@ -36,6 +38,8 @@ export default defineComponent({
         headerInfoList: [] as Option[],
         totals: new Set(),
         mohCohort: {} as any,
+        errors: [] as string[],
+        showStatus: false as boolean,
         columns:  [
             [
                 table.thTxt('Age group'),
@@ -59,6 +63,8 @@ export default defineComponent({
         async onPeriod(_: any, config: any) {
             this.canValidate = false
             this.rows = []
+            this.errors = []
+            this.showStatus = false
             this.report = new TxReportService()
             this.mohCohort = new MohCohortReportService()
             this.mohCohort.setStartDate(config.start_date)
@@ -70,8 +76,9 @@ export default defineComponent({
             await this.setRows()
             this.setHeaderInfoList()
             this.canValidate = true
+            this.showStatus = true
         },
-        setHeaderInfoList(validationStatus='<span style="color: orange;font-weight:bold">Validating report....please wait...</span>') {
+        setHeaderInfoList() {
             this.headerInfoList = [
                 { 
                     label: 'Total clients', 
@@ -79,10 +86,6 @@ export default defineComponent({
                     other: {
                         onclick: () => this.runTableDrill(Array.from(this.totals), 'Total Clients')
                     }
-                },
-                {
-                    label: 'Validation status',
-                    value: validationStatus
                 }
             ]
         },
@@ -171,19 +174,13 @@ export default defineComponent({
                     param: this.totals.size,
                     check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
-                        <b>MoH cohort Alive and on ART clients (${i}) is not
-                        matching with total TX MMD clients (${p}).</b>
+                        MoH cohort Alive and on ART clients <b>(${i})</b> is not
+                        matching with total TX MMD clients <b>(${p})</b>
                     `
                 }
             }
-            const s = this.mohCohort.validateIndicators(validations, (errors: string[]) => {
-                if (!isEmpty(errors)) {
-                    this.setHeaderInfoList(`<span style='color:red'>${errors.join(',')}</span>`)
-                } else {
-                    this.setHeaderInfoList(`<span style='color:green'>Report is consistent</span>`)
-                }
-            })
-            if (s === -1) this.setHeaderInfoList(`<span style='color:red'>Run Cohort report for same reporting period to validate</span>`)
+            const s = this.mohCohort.validateIndicators(validations, (errors: string[]) => this.errors = errors)
+            if (s === -1) this.errors= ['Run Cohort report for same reporting period to validate']
         }
     }
 })
