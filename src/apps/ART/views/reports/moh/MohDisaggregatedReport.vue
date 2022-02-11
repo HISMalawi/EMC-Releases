@@ -23,7 +23,7 @@
 <script lang='ts'>
 import { defineComponent } from 'vue'
 import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
-import { DisaggregatedReportService, TEMP_OUTCOME_TABLE } from "@/apps/ART/services/reports/disaggregated_service"
+import { DisaggregatedReportService } from "@/apps/ART/services/reports/disaggregated_service"
 import { REGIMENS } from "@/apps/ART/services/reports/regimen_report_service"
 import { toastWarning } from '@/utils/Alerts'
 import { isEmpty } from "lodash"
@@ -120,7 +120,6 @@ export default defineComponent({
             this.errors = []
             this.report = new DisaggregatedReportService()
             this.mohCohort = new MohCohortReportService()
-            this.report.setOutcomeTable(TEMP_OUTCOME_TABLE.PATIENT_OUTCOME_TEMP)
             if (form.quarter) {
                 this.mohCohort.setQuarter(form.quarter.label)
                 this.mohCohort.setStartDate(form.quarter.other.start)
