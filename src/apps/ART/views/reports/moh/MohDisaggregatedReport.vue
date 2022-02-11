@@ -14,7 +14,6 @@
             :enabledPDFHorizontalPageBreak="true"
             :onReportConfiguration="onPeriod"
             :onDefaultConfiguration="onLoadDefault"
-            :onFinishBtnAction="onFinishBtnAction"
             >
         </report-template>
     </ion-page>
@@ -77,15 +76,12 @@ export default defineComponent({
         headerList: [] as Array<Option>,
         canValidate: false as boolean,
         onLoadDefault: null as any,
-        onFinishBtnAction: null as any,
-        sortIndexes: {} as Record<string | number, Array<any>>,
-        initiated: false as boolean
+        sortIndexes: {} as Record<string | number, Array<any>>
     }),
     async created() {
         const { query }  = this.$route
         /** Check for default url params for this report */
         if (query.start_date && query.end_date && query.quarter) {
-            this.onFinishBtnAction = () => this.$router.back()
             this.onLoadDefault = () =>
                 this.onPeriod({
                     quarter: {
@@ -112,7 +108,7 @@ export default defineComponent({
         }
     },
     methods: {
-        async onPeriod(form: any, config: any, rebuildCache=true) {
+        async onPeriod(form: any, config: any, rebuildCache=false) {
             this.canValidate = false
             this.maleFemaleAgeGroupData = {}
             this.aggregations = []
@@ -135,14 +131,13 @@ export default defineComponent({
                 this.report.setEndDate(config.end_date)
                 this.period = this.report.getDateIntervalPeriod()
             }
-            this.report.setRebuildOutcome(this.initiated || rebuildCache)
+            this.report.setRebuildOutcome(rebuildCache)
             const isInit = await this.report.init()
             if (!isInit) {
                 return toastWarning('Unable to initialise report')
             }
             await this.setTableRows()
             this.canValidate = true
-            this.initiated = true
         },
         async setTableRows() {
             await this.setFemaleRows(1)
