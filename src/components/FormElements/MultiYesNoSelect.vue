@@ -110,6 +110,7 @@ ion-segment-button {
   color: white;
 }
 h1 {
-  font-size: 22px;
+  font-size: 1.3rem;
+  margin-top: 0px;
 }
 </style>
