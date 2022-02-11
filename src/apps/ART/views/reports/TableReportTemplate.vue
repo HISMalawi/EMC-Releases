@@ -211,6 +211,13 @@ export default defineComponent({
     artVersion: Service.getAppVersion(),
   }),
   watch: {
+    validationErrors: {
+      handler(errors: string[]) {
+        if (!isEmpty(errors)) this.showErrors()
+      },
+      deep: true,
+      immediate: true
+    },
     fields: {
       handler(fields: Array<any>) {
         if (!isEmpty(fields)) {
