@@ -302,6 +302,7 @@ export default defineComponent({
     async reloadReport(shouldRebuildCache=false) {
       if (!isEmpty(this.formData) || !isEmpty(this.computeFormData)) {
         await this.onFinish(this.formData, this.computeFormData, shouldRebuildCache)
+        return
       }
       if (this.onDefaultConfiguration) {
         await this.onLoadDefault()
