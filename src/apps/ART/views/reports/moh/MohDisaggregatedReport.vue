@@ -4,7 +4,6 @@
             :title="title"
             :period="period"
             :rows="rows" 
-            :fields="fields"
             :columns="columns"
             :headerInfoList="headerList"
             reportPrefix="MoH"
@@ -93,7 +92,6 @@ export default defineComponent({
                     }
                 },{})
         }
-        this.fields = this.getDateDurationFields(true, false, 21)
     },
     watch: {
         async canValidate(doIt: boolean) {
