@@ -294,6 +294,7 @@ export default defineComponent({
           )
         this.setPatientFacts()
         await this.setProgramFacts()
+        if (this.useDDE) await this.setDDEFacts()
         await this.drawPatientCards()
         await this.setViralLoadStatus()
         this.facts.currentNpid = this.patient.getNationalID()
