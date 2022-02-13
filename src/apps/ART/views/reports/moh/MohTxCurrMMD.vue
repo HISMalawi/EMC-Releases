@@ -180,7 +180,7 @@ export default defineComponent({
                 }
             }
             const s = this.mohCohort.validateIndicators(validations, (errors: string[]) => this.errors = errors)
-            if (s === -1) this.errors= ['Run Cohort report for same reporting period to validate']
+            if (s === -1) this.errors= ['Report not validated. Run the MoH cohort report for similar reporting period and then run this report']
         }
     }
 })
