@@ -109,4 +109,8 @@ ion-segment-button {
 .segment-button-checked {
   color: white;
 }
+h1 {
+  font-size: 1.3rem;
+  margin-top: 0px;
+}
 </style>
