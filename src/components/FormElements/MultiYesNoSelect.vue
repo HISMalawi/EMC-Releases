@@ -7,7 +7,7 @@
             <ion-grid>
             <ion-row>
             <ion-col size="6">
-            <h1>{{ item.label }}</h1>
+            <h2>{{ item.label }}</h2>
           </ion-col>
           <ion-col size="6">
             <ion-segment
@@ -108,9 +108,5 @@ ion-segment-button {
 
 .segment-button-checked {
   color: white;
-}
-h1 {
-  font-size: 1.3rem;
-  margin-top: 0px;
 }
 </style>
