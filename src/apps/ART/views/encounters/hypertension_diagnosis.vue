@@ -73,18 +73,6 @@ export default defineComponent({
       );
       this.fields = this.getFields();
     },
-    getYesNo() {
-      return [
-        {
-          label: "yes",
-          value: "Yes",
-        },
-        {
-          label: "no",
-          value: "No",
-        },
-      ];
-    },
     getFields(): any {
       const f = [
         {
@@ -92,7 +80,7 @@ export default defineComponent({
           helpText: "Does the patient have hypertension",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          options: () => this.getYesNo(),
+          options: () => this.yesNoOptions(),
         },
         ...generateDateFields(
           {
