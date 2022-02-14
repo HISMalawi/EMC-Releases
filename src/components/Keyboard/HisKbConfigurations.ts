@@ -70,8 +70,8 @@ export const QWERTY = [
     QWERTY_LO,
     [
         ['', 'Delete'],
-        ['', '0-9'],
-        ['?123', 'Unknown']
+        ['?123', '0-9'],
+        ['Space', 'Unknown']
     ]
 ]
 

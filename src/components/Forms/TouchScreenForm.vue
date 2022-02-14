@@ -509,7 +509,7 @@ export default defineComponent({
         const errors = this.currentField.validation(
           value, this.formData, this.computedFormData
         )
-        if (errors) return toastWarning(errors.join(", "), 30000);
+        if (errors) return toastWarning(errors.join(", "), 2000);
       }
       // Run callback before proceeding to next field
       if (this.currentField.beforeNext) {
