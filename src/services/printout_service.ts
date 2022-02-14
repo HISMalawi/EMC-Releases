@@ -25,7 +25,7 @@ export class PrintoutService extends Service {
             if(!isNative) {
                 document.location = (await ApiClient.expandPath(url)) as any
             } 
-        await delayPromise(3500)
+        await delayPromise(2000)
         await modalController.dismiss({})
     }
 
