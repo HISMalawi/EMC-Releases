@@ -100,6 +100,7 @@ export class PatientProgramService extends ProgramService {
     }
     async transferOutEncounter(facility: any) {
         const transferOut = new AppEncounterService(this.patientId, 119)
+        transferOut.setDate(this.stateDate)
         const encounter = await transferOut.createEncounter()
         if (!encounter) {
             throw 'Unable to transfer out encounter'

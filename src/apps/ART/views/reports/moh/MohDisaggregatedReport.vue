@@ -4,15 +4,15 @@
             :title="title"
             :period="period"
             :rows="rows" 
-            :fields="fields"
             :columns="columns"
             :headerInfoList="headerList"
             reportPrefix="MoH"
+            :validationErrors="errors"
+            :showValidationStatus="canValidate"
             :hasServerSideCaching="true"
             :enabledPDFHorizontalPageBreak="true"
             :onReportConfiguration="onPeriod"
             :onDefaultConfiguration="onLoadDefault"
-            :onFinishBtnAction="onFinishBtnAction"
             >
         </report-template>
     </ion-page>
@@ -21,7 +21,7 @@
 <script lang='ts'>
 import { defineComponent } from 'vue'
 import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
-import { DisaggregatedReportService, TEMP_OUTCOME_TABLE } from "@/apps/ART/services/reports/disaggregated_service"
+import { DisaggregatedReportService } from "@/apps/ART/services/reports/disaggregated_service"
 import { REGIMENS } from "@/apps/ART/services/reports/regimen_report_service"
 import { toastWarning } from '@/utils/Alerts'
 import { isEmpty } from "lodash"
@@ -45,37 +45,13 @@ export default defineComponent({
                 table.thNum('Tx curr (receiving ART)'),
                 table.thNum('TX curr (received IPT)'),
                 table.thNum('TX curr (screened for TB)'),
-                table.thNum('0A'),
-                table.thNum('2A'),
-                table.thNum('4A'),
-                table.thNum('5A'),
-                table.thNum('6A'),
-                table.thNum('7A'),
-                table.thNum('8A'),
-                table.thNum('9A'),
-                table.thNum('10A'),
-                table.thNum('11A'),
-                table.thNum('12A'),
-                table.thNum('13A'),
-                table.thNum('14A'),
-                table.thNum('15A'),
-                table.thNum('16A'),
-                table.thNum('17A'),
-                table.thNum('0P'),
-                table.thNum('2P'),
-                table.thNum('4P'),
-                table.thNum('9P'),
-                table.thNum('11P'),
-                table.thNum('14P'),
-                table.thNum('14PP'),
-                table.thNum('15P'),
-                table.thNum('15PP'),
-                table.thNum('16P'),
-                table.thNum('17P'),
+                ...(REGIMENS.map(r => table.thNum(r))),
                 table.thNum('Unknown'),
                 table.thNum('Total (regimen)')
             ]
         ],
+        errors: [] as string[],
+        showStatus: false as boolean,
         rowDataRefs: [
             'txNew', 
             'txCurr', 
@@ -85,20 +61,26 @@ export default defineComponent({
             'N/A', 
             'regimenTotals'
         ],
+        dataRefLabels: {
+           'txNew': 'Tx new (new on ART)',
+           'txCurr': 'Tx curr (receiving ART)',
+           'txGivenIpt': 'TX curr (received IPT)',
+           'txScreenTB': 'TX curr (screened for TB)',
+           'N/A': 'Unknown',
+           'regimenTotals': 'Regimen Totals'
+        } as any,
         aggregations: [] as any,
         mohCohort: {} as any,
-        ageGroupCohort: {} as any,
+        maleFemaleAgeGroupData: {} as any,
         headerList: [] as Array<Option>,
         canValidate: false as boolean,
         onLoadDefault: null as any,
-        onFinishBtnAction: null as any,
         sortIndexes: {} as Record<string | number, Array<any>>
     }),
     async created() {
         const { query }  = this.$route
         /** Check for default url params for this report */
         if (query.start_date && query.end_date && query.quarter) {
-            this.onFinishBtnAction = () => this.$router.back()
             this.onLoadDefault = () =>
                 this.onPeriod({
                     quarter: {
@@ -110,7 +92,6 @@ export default defineComponent({
                     }
                 },{})
         }
-        this.fields = this.getDateDurationFields(true, false, 21)
     },
     watch: {
         async canValidate(doIt: boolean) {
@@ -127,10 +108,12 @@ export default defineComponent({
     methods: {
         async onPeriod(form: any, config: any, rebuildCache=false) {
             this.canValidate = false
+            this.maleFemaleAgeGroupData = {}
+            this.aggregations = []
             this.sortIndexes = {}
+            this.errors = []
             this.report = new DisaggregatedReportService()
             this.mohCohort = new MohCohortReportService()
-            this.report.setOutcomeTable(TEMP_OUTCOME_TABLE.PATIENT_OUTCOME_TEMP)
             if (form.quarter) {
                 this.mohCohort.setQuarter(form.quarter.label)
                 this.mohCohort.setStartDate(form.quarter.other.start)
@@ -152,7 +135,6 @@ export default defineComponent({
                 return toastWarning('Unable to initialise report')
             }
             await this.setTableRows()
-            this.setHeaderInfoList([])
             this.canValidate = true
         },
         async setTableRows() {
@@ -163,133 +145,112 @@ export default defineComponent({
             await this.setFemaleBreastFeedingRows(6)
             await this.setFemaleNotPregnantRows(5)
         },
+        getColumnLabel(col: string) {
+            return col in this.dataRefLabels ? this.dataRefLabels[col] : col
+        },
         getTotals(compareFunction: Function){
             return this.aggregations
                 .filter((i: any) => compareFunction(i))
                 .reduce((accum: any, cur: any) => accum.concat(cur.data), [])
         },
-        addAggregation(col: string, group: string, category: string, data: any) {
-            this.aggregations.push({ col, group, category, data: data || [] })
+        addAggregation(col: string, gender: string, data = []) {
+            this.aggregations.push({ col, gender, data })
         },
-        async getRegimenRows(category: string, group: string) {
+        async getRegimenRows(group: string, gender: string) {
             let totals: any = []
             const row: any = []
             const distribution = await this.report.getRegimenDistribution()
             const refs = [...REGIMENS, 'N/A']
             refs.forEach((i: any) => {
-                if (distribution[i]) { 
-                    totals = totals.concat(distribution[i]) 
-                } 
-                row.push(this.drill(distribution[i], `Regimen ${i} | ${category} | ${group}`))
-                this.addAggregation(i, group, category, distribution[i])
+                if (distribution[i]) totals = totals.concat(distribution[i])
+                row.push(this.drill(distribution[i], `Regimen ${i} | ${group} | ${gender}`))
+                this.addAggregation(i, gender, distribution[i])
             })
-            row.push(this.drill(totals, `Regimen Totals | ${category} | ${group}`))
-            this.addAggregation('regimenTotals', group, category, totals)
+            row.push(this.drill(totals, `Regimen Totals | ${group} | ${gender}`))
+            this.addAggregation('regimenTotals', gender, totals)
             return row
         },
-        async getValue(prop: string, gender: string, data: any) {
-            let res: any = []
+        getValue(prop: string, gender: string, data: any) {
             switch(prop) {
                 case 'tx_given_ipt':
-                    res = await this.report.getTxIpt()
-                    break
+                    return this.report.getTxIpt()
                 case 'tx_screened_for_tb':
-                    res = await this.report.getTxCurrTB()
-                    break
+                    return this.report.getTxCurrTB()
                 default:
-                    res = gender in data ? data[gender][prop] : []
-                    break
+                    return gender in data ? data[gender][prop] : []
             }
-            return res
         },
-        async setTotalMalesRow(sortIndex: number) {
+        setTotalMalesRow(sortIndex: number) {
             const totals = this.aggregations
-                .filter((a: any) => a.category === 'M')
+                .filter((a: any) => a.gender === 'Male')
                 .reduce((accum: any, cur: any) => {
-                    if (!accum[cur.col]) {
-                        accum[cur.col] = []
-                    } 
+                    if (!accum[cur.col]) accum[cur.col] = []
                     accum[cur.col] = accum[cur.col].concat(cur.data)
                     return accum
                 },{})
-            const rows: any = this.rowDataRefs.map(r => this.drill(totals[r]))
-            this.sortIndexes[sortIndex] = [
-                [table.td('All'), table.td('Male'), ...rows]
-            ]
+            const rows: any = this.rowDataRefs.map(r => this.drill(totals[r], `${this.getColumnLabel(r)} | All Male`))
+            this.sortIndexes[sortIndex] = [ [table.td('All'), table.td('Male'), ...rows] ]
         },
-        async setFemaleNotPregnantRows(sortIndex: number) {
+        setFemaleNotPregnantRows(sortIndex: number) {
             const isPregnant = (patientID: number) => this.aggregations
-                .filter((a: any) => ['Pregnant', 'Breastfeeding'].includes(a.group))
+                .filter((a: any) => a.gender.match(/fp|fbf/i))
                 .reduce((accum: any, cur: any) => accum.concat(cur.data || []), [])
                 .includes(patientID)
 
             const totals = this.aggregations
-                .filter((a: any) => a.category === 'F' && !['Pregnant', 'Breastfeeding'].includes(a.group))
+                .filter((a: any) => a.gender === 'Female')
                 .reduce((accum: any, cur: any) => {
                     if (!accum[cur.col]) accum[cur.col] = []
                     accum[cur.col] = accum[cur.col].concat( cur.data.filter((i: any) => !isPregnant(i)))
                     return accum
                 }, {})
-            const rows: any = this.rowDataRefs.map(r => this.drill(totals[r]))
-            this.sortIndexes[sortIndex] = [
-                [ table.td('All'), table.td('FNP'), ...rows ]
-            ]
+            const rows: any = this.rowDataRefs.map(r => this.drill(totals[r], `${this.getColumnLabel(r)} | FNP`))
+            this.sortIndexes[sortIndex] = [ [ table.td('All'), table.td('FNP'), ...rows ] ]
         },
         setFemaleRows(sortIndex: number) {
             this.report.setGender('female')
-            return this.setRows('F', AGE_GROUPS, (group: string, otherColumns: any) =>
-                [ table.td(group), table.td('Female'), ...otherColumns ], sortIndex
-            )
+            return this.setRows(sortIndex, 'F', AGE_GROUPS, 'Female')
         },
         setMaleRows(sortIndex: number) {
             this.report.setGender('male')
-            return this.setRows('M', AGE_GROUPS, (group: string, otherColumns: any) =>
-                [ table.td(group), table.td('Male'), ...otherColumns ], sortIndex
-            )
+            return this.setRows(sortIndex, 'M', AGE_GROUPS, 'Male')
         },
         setFemalePregnantRows(sortIndex: number) {
             this.report.setGender('pregnant')
-            return this.setRows('F', ['Pregnant'], (_: string, otherColumns: any) =>
-                [ table.td('All'), table.td('FP'), ...otherColumns], sortIndex
-            )
+            return this.setRows(sortIndex, 'F', ['All'], 'FP', 'Pregnant')
         },
         setFemaleBreastFeedingRows(sortIndex: number) {
             this.report.setGender('breastfeeding')
-            return this.setRows('F', ['Breastfeeding'], (_: string, otherColumns: any) =>
-                [ table.td('All'), table.td('FBf'), ...otherColumns ], sortIndex
-            )
+            return this.setRows(sortIndex, 'F', ['All'], 'FBf', 'Breastfeeding')
         },
-        async setRows(category: string, ageGroups: Array<string>, onRow: Function, sortIndex: number) {
+        async setRows(sortIndex: number, category: string, ageGroups: string[], gender: string, otherAgeGroup='') {
             for(const i in ageGroups) {
                 let txNew = []
                 let txCurr= []
                 let txGivenIpt = []
                 let txScreenTB = []
-                const group = ageGroups[i]
+                const group = otherAgeGroup || ageGroups[i]
                 this.report.setAgeGroup(group)
 
-                if (!(group in this.ageGroupCohort)) {
+                if (!(group in this.maleFemaleAgeGroupData)) {
                     const cohort = await this.report.getCohort()
                     this.report.setRebuildOutcome(false)
-                    this.ageGroupCohort[group] = !isEmpty(cohort) ? cohort[group] : {}
+                    this.maleFemaleAgeGroupData[group] = !isEmpty(cohort) ? cohort[group] : {}
                 }
 
-                if (!isEmpty(this.ageGroupCohort[group])) {
+                if (!isEmpty(this.maleFemaleAgeGroupData[group])) {
                     const value = async (prop: string) => this.getValue(
-                        prop, category, this.ageGroupCohort[group]
+                        prop, category, this.maleFemaleAgeGroupData[group]
                     )
                     txNew = await value('tx_new')
                     txCurr= await value('tx_curr')
                     txGivenIpt = await value('tx_given_ipt')
                     txScreenTB = await value('tx_screened_for_tb')
+                    this.addAggregation('txNew', gender, txNew)
+                    this.addAggregation('txCurr', gender, txCurr)
+                    this.addAggregation('txGivenIpt', gender, txGivenIpt)    
+                    this.addAggregation('txScreenTB', gender, txScreenTB)
                 }
-
-                this.addAggregation('txNew', group, category, txNew)
-                this.addAggregation('txCurr', group, category, txCurr)
-                this.addAggregation('txGivenIpt', group, category, txGivenIpt)    
-                this.addAggregation('txScreenTB', group, category, txScreenTB)
-
-                if (!this.sortIndexes[sortIndex]) this.sortIndexes[sortIndex] = []
 
                 switch(this.report.getGender()) {
                     case 'breastfeeding':
@@ -302,18 +263,20 @@ export default defineComponent({
                         break
                 }
 
-                const regimens: any = await this.getRegimenRows(category, group)
+                if (!this.sortIndexes[sortIndex]) this.sortIndexes[sortIndex] = []
 
-                this.sortIndexes[sortIndex].push(onRow(group, [
-                    this.drill(txNew, `Tx new (new on ART) | ${group} | ${category}`),
-                    this.drill(txCurr, `Tx curr (receiving ART) | ${group} | ${category}`),
-                    this.drill(txGivenIpt, `TX curr (received IPT) | ${group} | ${category}`),
-                    this.drill(txScreenTB, `TX curr (screened for TB) | ${group} | ${category}`),
-                    ...regimens
-                ]))
+                this.sortIndexes[sortIndex].push([
+                    table.td(ageGroups[i]),
+                    table.td(gender),
+                    this.drill(txNew, `Tx new (new on ART) | ${group} | ${gender}`),
+                    this.drill(txCurr, `Tx curr (receiving ART) | ${group} | ${gender}`),
+                    this.drill(txGivenIpt, `TX curr (received IPT) | ${group} | ${gender}`),
+                    this.drill(txScreenTB, `TX curr (screened for TB) | ${group} | ${gender}`),
+                    ...(await this.getRegimenRows(group, gender))
+                ])
             }
         },
-        setHeaderInfoList(totalAlive: Array<any>, validationStatus='<span style="color: orange;font-weight:bold">Validating report....please wait...</span>') {
+        setHeaderInfoList(totalAlive: Array<any>) {
             this.headerList = [
                 { 
                     label: 'Total Alive and on ART', 
@@ -321,15 +284,12 @@ export default defineComponent({
                     other: {
                         onclick: () => this.runTableDrill(totalAlive, 'Total Alive on ART')
                     }
-                },
-                {
-                    label: 'Validation status',
-                    value: validationStatus
                 }
             ]
         },
         async validateReport() {
-            const totalAlive = this.getTotals((i: any) => i.col === 'txCurr' && !['Pregnant', 'Breastfeeding'].includes(i.group))
+            const totalAlive = this.getTotals((i: any) => i.col === 'txCurr' && i.gender.match(/male|female/i))
+            this.setHeaderInfoList(totalAlive)
             const validations: any = {
                 'total_alive_and_on_art' : {
                     param: totalAlive.length,
@@ -340,14 +300,8 @@ export default defineComponent({
                     `
                 }
             }
-            const s = this.mohCohort.validateIndicators(validations, (errors: string[]) => {
-                if (!isEmpty(errors)) {
-                    this.setHeaderInfoList(totalAlive,`<span style='color:red'>${errors.join(',')}</span>`)
-                } else {
-                    this.setHeaderInfoList(totalAlive,`<span style='color:green'>Report is consistent</span>`)
-                }
-            })
-            if (s === -1) this.setHeaderInfoList(totalAlive, `<span style='color:red'>Run Cohort report for same reporting period to validate</span>`)
+            const s = this.mohCohort.validateIndicators(validations, (errors: string[]) => this.errors = errors)
+            if (s === -1) this.errors = ['Report not validated. Run the MoH cohort report for similar reporting period and then run this report']
         }
     }
 })

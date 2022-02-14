@@ -279,8 +279,10 @@ export class Patientservice extends Service {
     }
 
     private findIdentifierByType(type: string) {
-        const ids = this.patient.patient_identifiers.filter((i: any) => i.type.name === type )
-        return ids.length >= 1 ? ids[0].identifier : 'Unknown'
+        return this.patient.patient_identifiers
+            .filter((i: any) => i.type.name === type)
+            .sort((a: any, b: any) => a['date_created'] < b['date_created'] ? 1 : 0)
+            .reduce((defaultID, curID) => defaultID === 'Unknown' ? curID.identifier : defaultID, 'Unknown')
     }
 
     getIdentifiers() {

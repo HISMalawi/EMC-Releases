@@ -1,12 +1,14 @@
 <template>
     <ion-page> 
         <report-template
+            reportPrefix="MoH"
             :title="title"
             :period="period"
             :rows="rows" 
             :fields="fields"
             :columns="columns"
-            reportPrefix="MoH"
+            :validationErrors="errors"
+            :showValidationStatus="showStatus"
             :headerInfoList="headerList"
             :onReportConfiguration="onPeriod"
             > 
@@ -36,6 +38,8 @@ export default defineComponent({
         canValidate: false as boolean,
         mohCohort: {} as any,
         headerList: [] as Array<Option>,
+        errors: [] as string[],
+        showStatus: false as boolean,
         columns: [
             [
                 table.thTxt('Age group'),
@@ -59,6 +63,8 @@ export default defineComponent({
         async onPeriod(_: any, config: any) {
             this.canValidate = false
             this.rows = []
+            this.errors = []
+            this.showStatus = false
             this.totalIpt = []
             this.total3hp = []
             this.report = new RegimenReportService()
@@ -71,8 +77,8 @@ export default defineComponent({
             this.cohort = await this.report.getTptNewInitiations()
             this.setRows('F')
             this.setRows('M')
-            this.setHeaderInfoList()
             this.canValidate = true
+            this.showStatus = true
         },
         drilldown(patients: Array<any>, context: string) {
             const columns = [
@@ -117,45 +123,27 @@ export default defineComponent({
                 }
             }
         },
-        setHeaderInfoList(validationStatus='<span style="color: orange;font-weight:bold">Validating report....please wait...</span>') {
-            this.headerList = [
-                {
-                    label: 'Validation status',
-                    value: validationStatus
-                }
-            ]
-        },
         validateReport() {
             const validations = {
                 'newly_initiated_on_3hp' : {
                     param: this.total3hp.length,
                     check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
-                        <b style="color:red;">
-                            Total newly initiated on 3HP(${p}) is not matching newly 
-                            initiated on 3HP in Cohort report (${i}).
-                        </b>
+                        Total newly initiated on <b>3HP(${p})</b> is not matching newly 
+                        initiated on 3HP in Cohort report <b>(${i})</b>.
                     `
                 },
                 'newly_initiated_on_ipt': {
                     param: this.totalIpt.length,
                     check: (i: number, p: number) => i != p,
                     error: (i: number, p: number) => `
-                        <b style="color:red;">
-                            Total newly initiated on IPT (${p}) is not matching 
-                            newly initiated on IPT in Cohort report(${i}).
-                        </b>
+                        Total newly initiated on IPT <b>(${p})</b> is not matching 
+                        newly initiated on IPT in Cohort report <b>(${i})</b>.
                     `
                 }
             }
-            const s = this.mohCohort.validateIndicators(validations, (errors: string[]) => {
-                if (!isEmpty(errors)) {
-                    this.setHeaderInfoList(`<span style='color:red'>${errors.join(',')}</span>`)
-                } else {
-                    this.setHeaderInfoList(`<span style='color:green'>Report is consistent</span>`)
-                }
-            })
-            if (s === -1) this.setHeaderInfoList(`<span style='color:red'>Run Cohort report for same reporting period to validate</span>`)
+            const s = this.mohCohort.validateIndicators(validations, (errors: string[]) => this.errors = errors)
+            if (s === -1) this.errors = ['Report not validated. Run the MoH cohort report for similar reporting period and then run this report']
         }
     }
 })

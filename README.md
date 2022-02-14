@@ -29,3 +29,9 @@ Run `ionic serve`
 
 # Building
 Run `ionic build`
+
+# Adding System Version String
+System version is read from `/public/HEAD` (development folder) or `/HEAD`(dist folder).
+Version names exceeding 25 characters won't be read. 
+
+Note: Version name will be blank if file is missing or is empty. 

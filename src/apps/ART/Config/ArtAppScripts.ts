@@ -22,13 +22,7 @@ import { addWorkflowTask, nextTask } from "@/utils/WorkflowTaskHelper";
 
 async function enrollInArtProgram(patientID: number, patientType: string, clinic: string) {
     const program = new PatientProgramService(patientID)
-    const enroll = await program.enrollProgram()
-    if (enroll) {
-        //Create pre-art state
-        program.setStateId(1) 
-        await program.updateState()
-    }
-
+    await program.enrollProgram()
     const patientTypeService = new PatientTypeService(patientID, -1)
 
     patientTypeService.setPatientType(patientType)

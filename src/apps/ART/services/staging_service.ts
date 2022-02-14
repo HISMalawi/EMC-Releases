@@ -103,7 +103,7 @@ export class StagingService extends AppEncounterService {
 
     async loadHivConfirmatoryTestType() {
         const test = await AppEncounterService.getFirstValueCoded(
-            super.patientID, 'Confirmatory hiv test type'
+            this.patientID, 'Confirmatory hiv test type'
         )
         if (test) this.confirmatoryTest = test
     }
