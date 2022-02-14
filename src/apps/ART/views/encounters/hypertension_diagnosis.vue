@@ -10,7 +10,7 @@
 </template> 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Option } from "@/components/Forms/FieldInterface"
+import { Field, Option } from "@/components/Forms/FieldInterface"
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations";
@@ -23,38 +23,28 @@ export default defineComponent({
   mixins: [EncounterMixinVue],
   components: { HisStandardForm },
   data: () => ({
-    fields: [] as any,
-    consultation: {} as any,
-    options: [] as any,
-    values: [] as any,
-    gender: null as any,
-    activeField: '' as string,
+    consultation: {} as any
   }),
   watch: {
     ready: {
       handler(ready: boolean) {
-        if (ready) this.init();
+        if (ready)  {
+          this.consultation = new ConsultationService(this.patientID, this.providerID)
+          this.fields = this.getFields()
+        }
       },
-      immediate: true,
-    },
+      immediate: true
+    }
   },
   methods: {
-    async onFinish(f: any, computedData: any) {
+    async onFinish(_: any, computedData: any) {
       await this.consultation.createEncounter();
       const obs = await this.resolveObs(computedData)
       await this.consultation.saveObservationList(obs)
-      if (f.has_hypertension.value === 'No') {
-        this.nextTask()
-      } else {
-        this.$router.back()
-      }
+      this.$router.back()
     },
-    async init() {
-      this.consultation = new ConsultationService(this.patientID, this.providerID)
-      this.fields = this.getFields();
-    },
-    getFields(): any {
-      const f = [
+    getFields(): Field[] {
+      return [
         {
           id: "has_hypertension",
           helpText: "Does the patient have hypertension",
@@ -77,8 +67,7 @@ export default defineComponent({
           ConsultationService.getSessionDate()
         )
       ]
-      return f;
-    },
-  },
-});
+    }
+  }
+})
 </script>
