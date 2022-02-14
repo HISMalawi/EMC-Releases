@@ -109,13 +109,23 @@ export default defineComponent({
         }
     },
     isSameAsPatient(guardian: any) {
-        const birthdate = this.isRegistrationMode() && guardian.birth_date
-            ? HisDate.toStandardHisDisplayFormat(guardian.birth_date.date)
-            : this.guardianData.birthdate
-        const guardianName = guardian.given_name.person + ' ' + guardian.family_name.person
-        return (guardianName.toLowerCase() === this.patientData.name.toLowerCase()) 
+        let birthdate = ''
+        let name = ''
+        let gender = ''
+
+        if(isEmpty(guardian) && !this.isRegistrationMode()) {
+            birthdate = this.guardianData.birthdate
+            name = this.guardianData.name
+            gender = this.guardianData.gender
+        } else {
+            birthdate = HisDate.toStandardHisDisplayFormat(guardian.birth_date.date)
+            name = guardian.given_name.person && guardian.family_name.person
+            gender = guardian.gender.person
+        }
+
+        return (name.toLowerCase() === this.patientData.name.toLowerCase()) 
             && (birthdate === this.patientData.birthdate)
-            && (guardian.gender.person === this.patientData.gender)
+            && (gender === this.patientData.gender)
     },
     mapToOption(listOptions: Array<string>): Array<Option> {
         return listOptions.map((item: any) => ({ label: item, value: item })) 
