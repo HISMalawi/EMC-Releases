@@ -193,9 +193,6 @@ export default defineComponent({
         if(!this.personAttribute) return this.fieldComponent = 'edit_user'
         this.$router.back()
     },
-    showEditDemographicsField(){
-        return this.editPerson != -1 && this.personAttribute.length
-    },
     editConditionCheck(attributes=[] as Array<string>): boolean {
         if (this.isEditMode() && !attributes.includes(this.activeField)) {
             return false
@@ -639,7 +636,7 @@ export default defineComponent({
             id: 'edit_user',
             helpText: 'Edit Demographics',
             type: FieldType.TT_TABLE_VIEWER,
-            condition: () => this.showEditDemographicsField(),
+            condition: () => this.isEditMode(),
             options: async () => {
                 const editButton = (attribute: string) => ({
                     name: 'Edit',
