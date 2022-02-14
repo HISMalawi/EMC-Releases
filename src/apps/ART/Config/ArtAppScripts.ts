@@ -19,6 +19,8 @@ import ART_GLOBAL_PROP from "../art_global_props";
 import { isEmpty } from "lodash";
 import { Order } from "@/interfaces/order";
 import { addWorkflowTask, nextTask } from "@/utils/WorkflowTaskHelper";
+import dayjs from "dayjs";
+import { Service } from "@/services/service";
 
 async function enrollInArtProgram(patientID: number, patientType: string, clinic: string) {
     const program = new PatientProgramService(patientID)
@@ -123,8 +125,11 @@ export async function getPatientDashboardAlerts(patient: any): Promise<GeneralDa
 }
 
 export function formatPatientProgramSummary(data: any) {
+    const durationOnArt = !data.art_start_date.match(/n\/a/i)
+        ? `(${dayjs(Service.getSessionDate()).diff(data.art_start_date, 'months')} Month(s))`
+        : ''
     return  [
-        { label: "ART- Start Date", value: data.art_start_date},
+        { label: "ART- Start Date", value: `${data.art_start_date} ${durationOnArt}`},
         { label: "ARV Number", value: `${data.arv_number} | Regimen: ${data.current_regimen}` },
         { label: "File Number", value: data.filing_number.number},
         { label: "Current Outcome", value: data.current_outcome},
