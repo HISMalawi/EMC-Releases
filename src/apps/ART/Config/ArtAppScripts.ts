@@ -125,8 +125,9 @@ export async function getPatientDashboardAlerts(patient: any): Promise<GeneralDa
 }
 
 export function formatPatientProgramSummary(data: any) {
+    const [day, month, year] = data.art_start_date.split('/')
     const durationOnArt = !data.art_start_date.match(/n\/a/i)
-        ? `(${dayjs(Service.getSessionDate()).diff(data.art_start_date, 'months')} Month(s))`
+        ? `(${dayjs(Service.getSessionDate()).diff(`${year}-${month}-${day}`, 'months')} Month(s))`
         : ''
     return  [
         { label: "ART- Start Date", value: `${data.art_start_date} ${durationOnArt}`},
