@@ -39,17 +39,18 @@ export default defineComponent({
     },
   },
   methods: {
-    async onFinish(_: any, computedData: any) {
+    async onFinish(f: any, computedData: any) {
       await this.consultation.createEncounter();
       const obs = await this.resolveObs(computedData)
       await this.consultation.saveObservationList(obs)
-      this.$router.back()
+      if (f.has_hypertension.value === 'No') {
+        this.nextTask()
+      } else {
+        this.$router.back()
+      }
     },
     async init() {
-      this.consultation = new ConsultationService(
-        this.patientID,
-        this.providerID
-      );
+      this.consultation = new ConsultationService(this.patientID, this.providerID)
       this.fields = this.getFields();
     },
     getFields(): any {
