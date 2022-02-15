@@ -93,9 +93,9 @@ export default defineComponent({
     }
   },
   async activated() {
-    this.onSelect({})
     this.$emit('onFieldActivated', this)
     this.listData = await this.options(this.fdata, this)
+    this.onSelect((this.listData.length > 0) ? this.listData[0] : {})
   }
 });
 </script>
