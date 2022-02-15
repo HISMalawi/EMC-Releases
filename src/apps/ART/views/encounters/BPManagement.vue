@@ -121,7 +121,6 @@ import { BPManagementService } from "../../services/htn_service";
 import { UserService } from "@/services/user_service";
 import { ProgramService } from "@/services/program_service";
 import { VitalsService } from "@/apps/ART/services/vitals_service"
-import { toastDanger } from "@/utils/Alerts";
 import { PatientProgramService } from "@/services/patient_program_service";
 import DataTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
@@ -410,11 +409,11 @@ export default defineComponent({
       const vitals = new VitalsService(this.patientID, this.providerID)
       const encounter = await vitals.createEncounter()
       if (!encounter) {
-        toastDanger('Unable to create patient transfer encounter')
+        toastWarning('Unable to create patient transfer encounter')
       } else {
         const obs = await vitals.saveValueCodedObs('Transferred', transferred)
         if (!obs) {
-          toastDanger('Unable to create observation Transferred for patient')
+          toastWarning('Unable to create observation Transferred for patient')
         }
       }
     },
