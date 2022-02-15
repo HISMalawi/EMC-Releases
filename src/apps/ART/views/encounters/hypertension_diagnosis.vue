@@ -1,10 +1,8 @@
 <template>
   <his-standard-form
     :fields="fields"
-    @onFinish="onFinish"
     :skipSummary="true"
-    :cancelDestinationPath="cancelDestination"
-    :activeField="fieldComponent" 
+    :onFinishAction="onFinish"
   >
   </his-standard-form>
 </template> 
