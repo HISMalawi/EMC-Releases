@@ -24,7 +24,7 @@
       <data-table :config="{showIndex: false}" :columns="columns" :rows="rows"></data-table>
     </ion-content>
     <ion-footer>
-      <ion-toolbar v-if="patientHasHyperTensionObs && isEnrolledInHTN || patientOnBPDrugs"> 
+      <ion-toolbar> 
         <h1 style="text-align: center">Actions</h1>
         <ion-radio-group v-model="action">
           <ion-grid>
@@ -218,7 +218,7 @@ export default defineComponent({
       return this.riskFactors.filter((d: any) => d.value === "Yes").length;
     },
     showClinicianButton() {
-      return !UserService.isClinician() && !UserService.isDoctor();
+      return !(UserService.isClinician() && UserService.isDoctor());
     },
   },
   methods: {
@@ -230,7 +230,7 @@ export default defineComponent({
           const obs = await this.htn.saveValueCodedObs(
             "Refer patient to clinician",
             "Yes"
-          );
+          )
           if (!obs) return toastWarning("Unable to create Obs");
           this.gotoPatientDashboard();
         } else {
@@ -300,8 +300,7 @@ export default defineComponent({
     },
     async programState() {
       const programs: any[] = await ProgramService.getPatientStates(
-        this.patientID,
-        this.HTNProgramID
+        this.patientID, this.HTNProgramID
       );
       this.isAliveOnHTN =
         programs.filter((program) => program.name === "Alive").length > 0;
@@ -323,7 +322,7 @@ export default defineComponent({
     formatBpTrailRows(trail: any) {
       return Object.keys(trail).map(m => {
         const date = HisDate.toStandardHisDisplayFormat(m);
-        this.currentDrugs = trail[m]["drugs"];
+        this.currentDrugs = this.currentDrugs.concat(trail[m]["drugs"]);
         const colorGrade = () => {
           const grade: string = BPManagementService.getBpGrade(
             parseInt(trail[m].sbp),
