@@ -49,7 +49,6 @@
                     <span v-if="highBP"> Manage BP </span>
                 </ion-button>
                 <ion-button
-                    v-if="!highBP"
                     @click="nextTask"
                     size="large"
                     color="success"
