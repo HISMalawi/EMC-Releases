@@ -15,22 +15,20 @@ export class AdherenceService extends AppEncounterService {
     async loadPreviousDrugs() {
         const date = new Date(this.date)
         date.setDate(date.getDate() - 1) // we don't want current date to count
-
+        const d = (date: string | Date) => HisDate.toStandardHisFormat(date)
         const drugs = await AppEncounterService.getJson(
-            `patients/${this.patientID}/drugs_received`, {
-                date: HisDate.toStandardHisFormat(date)
-            }
+            `patients/${this.patientID}/drugs_received`, { date: d(date) }
         )
-
-        if (!drugs) return
-
-        this.lastDrugs = drugs.filter((drug: DrugInterface) => {
-            if (!this.lastReceiptDate) {
-                this.lastReceiptDate = drug.order.start_date
-                return true
-            }
-            return new Date(drug.order.start_date) >= new Date(this.lastReceiptDate)
-        })
+        if (drugs) {
+            this.lastReceiptDate = drugs.reduce((receiptDate: string | null,  drug: any) => {
+                return !receiptDate || (new Date(d(drug.order.start_date)) > new Date(receiptDate))
+                    ?  d(drug.order.start_date)
+                    : receiptDate
+            }, null)
+            this.lastDrugs = drugs.filter((drug: DrugInterface) => 
+                d(drug.order.start_date) === this.lastReceiptDate
+            )
+        }
     }
 
     getReceiptDate() { return this.lastReceiptDate }
