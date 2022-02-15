@@ -4,14 +4,12 @@ import { isEmpty } from "lodash"
 
 export async function getFacilities(filter=''): Promise<Option[]> {
     const facilities = await LocationService.getFacilities({name: filter})
-    // For some reason, facilities array has an initial blank string. from the api
-    if (!isEmpty(facilities)) facilities.splice(0, 1)
-
-    return facilities.map((facility: any) => ({
-        label: facility.name,
-        value: facility.location_id,
-        other: facility
-    }))
+    return facilities.filter((f: any) => !isEmpty(f))
+        .map((facility: any) => ({
+            label: facility.name,
+            value: facility.location_id,
+            other: facility
+        }))
 }
 
 export async function getFacilityWards(filter=''): Promise<Option[]> {
