@@ -67,9 +67,11 @@ export default defineComponent({
       return this.$route.name != 'bp_management'
     }
   },
+  created() {
+    this.patientID = parseInt(`${this.$route.params.patient_id}`)
+  },
   methods: {
     async postActivities() {
-      this.patientID = parseInt(`${this.$route.params.patient_id}`)
       const history = new MedicalHistoryService(this.patientID, -1)
       const encounter = await history.createEncounter();
 
