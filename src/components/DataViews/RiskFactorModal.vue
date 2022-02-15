@@ -22,8 +22,9 @@
   </ion-content>
   <ion-footer>
     <ion-toolbar> 
-      <ion-button @click="postActivities" slot="end" > Save </ion-button>
-      <ion-button @click="closeModal()" slot="start" color="danger"> Close </ion-button>
+      <ion-button size="large" @click="exit" slot="start" color="danger"> Close </ion-button>
+      <ion-button size="large" v-if="showManageBPButton" @click="manageBP" slot="start"> Manage BP </ion-button>
+      <ion-button size="large" color="success" @click="postActivities" slot="end" > Save </ion-button>
     </ion-toolbar>
   </ion-footer>
 </template>
@@ -61,10 +62,15 @@ export default defineComponent({
       default: ""
     },
   },
+  computed: {
+    showManageBPButton(): boolean {
+      return this.$route.name != 'bp_management'
+    }
+  },
   methods: {
     async postActivities() {
-      const patientID= `${this.$route.params.patient_id}`;
-      const history = new MedicalHistoryService(parseInt(patientID), -1)
+      this.patientID = parseInt(`${this.$route.params.patient_id}`)
+      const history = new MedicalHistoryService(this.patientID, -1)
       const encounter = await history.createEncounter();
 
       if(encounter) {
@@ -72,6 +78,12 @@ export default defineComponent({
         await history.saveObservationList(obs);
         await this.closeModal();
       }
+    },
+    manageBP() {
+      this.$router.push(`/art/encounters/bp_management/${this.patientID}`)
+    },
+    exit() {
+      modalController.dismiss([])
     },
     async closeModal() {
       await modalController.dismiss(this.riskFactors)
@@ -90,6 +102,7 @@ export default defineComponent({
   },
   data() {
     return {
+      patientID: -1 as number,
       riskFactors: [
         {name: 'Diabetes', isChecked: false, concept: 'Diabetes'},
         {name: 'Cronic kidney disease', isChecked: false, concept: 'CKD'},

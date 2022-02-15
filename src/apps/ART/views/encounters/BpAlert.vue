@@ -2,10 +2,7 @@
     <ion-page> 
         <ion-content>
             <h1 class="ion-text-center"> 
-                <span v-show="highBP">High</span> BP Alert 
-            </h1>
-            <h1 v-if="!hasPressureReading" class="vertically-align ion-text-center"> 
-                No Blood pressure reading found for <span class="name">{{ patientName }}</span>...
+                High BP Alert 
             </h1>
             <div v-if="hasPressureReading" class="vertically-align ion-text-center">
                 <h2 v-show="patientOnBpDrugs" style="font-weight:bold;">
@@ -17,43 +14,34 @@
                         {{sysBp}} / {{dsBP}}
                     </span>
                     <br/>
-                    <span v-show="highBP">
+                    <span>
                         Retesting BP is <span style="font-weight: bold; color: #000000;text-decoration: underline;">optional</span>. <br>
                         Do you want to test BP?
                     </span>
 
                 </h2>
             </div>
+            <div v-if="!hasPressureReading" class="vertically-align ion-text-center">
+                No BP Reading found
+                <br/>
+                <h1>
+                    Do you want to test BP?
+                </h1>
+            </div>
         </ion-content>
         <ion-footer> 
             <ion-toolbar color="dark">
-                <ion-button @click="gotoPatientDashboard"
+                <ion-button @click="() => hasPressureReading ? showRiskFactors() : nextTask()"
                     size="large"
                     color="danger"
                     slot="start">
-                    Cancel
+                    No
                 </ion-button>
-                <ion-button v-if="highBP || !hasPressureReading" 
-                    @click="recaptureBp"
-                    size="large" 
-                    color="success" 
-                    slot="end">
-                    <span v-if="highBP"> Re-test </span>
-                    <span v-if="!hasPressureReading">Capture BP</span>
-                </ion-button>
-                <ion-button v-if="highBP" 
-                    :router-link="`/art/encounters/bp_management/${patientID}`"
-                    size="large"
-                    color="warning"
-                    slot="end">
-                    <span v-if="highBP"> Manage BP </span>
-                </ion-button>
-                <ion-button
-                    @click="nextTask"
+                <ion-button @click="recaptureBp"
                     size="large"
                     color="success"
                     slot="end">
-                    Continue
+                    Yes
                 </ion-button>
             </ion-toolbar>
         </ion-footer>
@@ -69,10 +57,16 @@ import {
     IonPage,
     IonButton,
     IonToolbar,
-    loadingController
+    loadingController,
+    modalController
 } from "@ionic/vue"
 import ART_PROP from "@/apps/ART/art_global_props"
 import { BPManagementService } from '../../services/htn_service'
+import { ConceptService } from "@/services/concept_service";
+import RiskFactorModal from "@/components/DataViews/RiskFactorModal.vue";
+import { ObservationService } from "@/services/observation_service";
+import { isEmpty } from "lodash";
+
 export default defineComponent({
     mixins: [EncounterMixinVue],
     components: { 
@@ -85,12 +79,36 @@ export default defineComponent({
     data: () => ({
         sysBp: 0 as number,
         dsBP: 0 as number,
+        riskFactors: [] as any,
         patientOnBpDrugs: false as boolean,
         isPregnant: false as boolean,
         systolicThreshold: 145,
         diastolicTheshold: 94
     }),
     methods: {
+        async showRiskFactors() {
+            const modal = await modalController.create({
+                component: RiskFactorModal,
+                backdropDismiss: false,
+                cssClass: "large-modal",
+                componentProps: {
+                    factors: this.riskFactors
+                }
+            })
+            modal.present()
+            const { data } = await modal.onDidDismiss();
+            if (!isEmpty(data)) this.nextTask()
+        },
+        async getRiskFactors() {
+            const concepts = ConceptService.getConceptsByCategory("risk factors");
+            const j = concepts.map(async (concept) => {
+            const val = await ObservationService.getFirstValueCoded(this.patientID, concept.name)
+                return {
+                    concept: concept.name, value: val
+                }
+            })
+            return Promise.all(j);
+        },
         recaptureBp() {
             this.$router.push(`/art/encounters/vitals/${this.patientID}?vital_options=BP`)
         }
@@ -105,6 +123,7 @@ export default defineComponent({
                 })
                 await loading.present()
                 const htn = new BPManagementService(this.patientID, this.providerID)
+                this.riskFactors = await this.getRiskFactors();
                 this.systolicThreshold = (await ART_PROP.systolicThreshold()) || 145
                 this.diastolicTheshold = (await ART_PROP.diastolicThreshold()) || 94
                 this.dsBP = (await htn.getDiastolicBp()) || 0
@@ -126,8 +145,8 @@ export default defineComponent({
             return this.sysBp > 0 && this.dsBP > 0
         },
         highBP(): boolean {
-            return this.sysBp >= this.systolicThreshold 
-                && this.dsBP >= this.diastolicTheshold
+            return (this.sysBp >= this.systolicThreshold
+                && this.dsBP >= this.diastolicTheshold || this.dsBP >= this.diastolicTheshold)
                 && !this.isPregnant
         }
     }
