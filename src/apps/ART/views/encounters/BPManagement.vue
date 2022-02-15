@@ -24,7 +24,7 @@
       <data-table :config="{showIndex: false}" :columns="columns" :rows="rows"></data-table>
     </ion-content>
     <ion-footer>
-      <ion-toolbar v-if="patientHasHyperTensionObs && isEnrolledInHTN || isEnrolledInHTN && patientOnBPDrugs"> 
+      <ion-toolbar v-if="patientHasHyperTensionObs && isEnrolledInHTN || patientOnBPDrugs"> 
         <h1 style="text-align: center">Actions</h1>
         <ion-radio-group v-model="action">
           <ion-grid>
@@ -202,15 +202,12 @@ export default defineComponent({
         this.normatensive = BPManagementService.isBpNormotensive(this.trail)
         this.riskFactors = await this.getRiskFactors();
         this.date = HisDate.toStandardHisDisplayFormat(Service.getSessionDate());
-        await this.isTransfered();
-        await this.hasHyperTenstion();
-        await this.getTreatmentStatus();
-        await this.getProgramStatus();
+        await this.isTransfered()
+        await this.hasHyperTenstion()
+        await this.getTreatmentStatus()
+        await this.getProgramStatus()
         loadingController.dismiss()
-        if ((this.patientHasHyperTensionObs && !this.isEnrolledInHTN)
-          || (!this.isEnrolledInHTN && this.patientOnBPDrugs)) {
-          await this.alertHtnEnrollment()
-        }
+        if (this.patientFirstVisit && this.patientOnBPDrugs) await this.alertTransferIn()
         this.getItems();
       },
       immediate: true,
@@ -273,21 +270,21 @@ export default defineComponent({
         this.patientID,
         "Patient has hypertension"
       );
-      this.patientHasHyperTensionObs = ob === "Yes";
+      this.patientHasHyperTensionObs = `${ob}`.match(/yes|no/i) ? true : false
     },
     async isTransfered() {
       const ob = await ObservationService.getFirstValueCoded(
         this.patientID,
         "Transferred"
       );
-      this.patientFirstVisit = ob !== "Yes";
+      this.patientFirstVisit = !ob
     },
     async getTreatmentStatus() {
       const ob = await ObservationService.getFirstValueText(
         this.patientID,
         "Treatment status"
       );
-      this.patientOnBPDrugs = ob && ob.match(/BP Drugs started/i);
+      this.patientOnBPDrugs = ob && ob.match(/BP Drugs started/i) ? true : false;
     },
     async getProgramStatus() {
       const programs: any[] = await ProgramService.getPatientPrograms(
@@ -367,10 +364,10 @@ export default defineComponent({
         });
       }
     },
-    async alertHtnEnrollment() {
+    async alertTransferIn() {
       const action = await infoActionSheet(
-        'Programme Enrollment',
-        "Do you want to enroll this client in the HTN program?",
+        'Transfer in',
+        "Does the patient want to transfer in for HTN management?",
         '',
         [
           { 
@@ -414,7 +411,7 @@ export default defineComponent({
       const vitals = new VitalsService(this.patientID, this.providerID)
       const encounter = await vitals.createEncounter()
       if (!encounter) {
-        toastDanger('Unable to create patient transferr encounter')
+        toastDanger('Unable to create patient transfer encounter')
       } else {
         const obs = await vitals.saveValueCodedObs('Transferred', transferred)
         if (!obs) {
