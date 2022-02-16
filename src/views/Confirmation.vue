@@ -283,6 +283,9 @@ export default defineComponent({
           if (typeof msg === 'string' && msg === "Invalid parameter(s)") {
             this.setInvalidParametersFacts(entities)
           }
+        } else {
+          toastDanger(e)
+          return
         }
       }
       this.facts.patientFound = !isEmpty(results)
