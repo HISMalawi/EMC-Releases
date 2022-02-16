@@ -17,6 +17,7 @@ import { generateDateFields, EstimationFieldType } from "@/utils/HisFormHelpers/
 import { infoActionSheet } from "@/utils/ActionSheets"
 import HisDate from "@/utils/Date"
 import dayjs from "dayjs";
+import { isEmpty } from 'lodash'
 
 export default defineComponent({
     mixins: [StagingMixin],
@@ -98,22 +99,28 @@ export default defineComponent({
                         })
                         return { tag:'reg', obs }
                     },
-                    options: () => ([
-                        {
-                            label: 'Phone',
-                            value: '',
-                            other: {
-                                values: this.yesNoOptions(),
-                            }
-                        },
-                        {
-                            label: 'Home visit',
-                            value: '',
-                            other: {
-                                values: this.yesNoOptions()
-                            }
+                    options: (f: any) => {
+                        if (!isEmpty(f.followup_agreement)) {
+                            return f.followup_agreement
+                        } else {
+                            return [
+                                {
+                                    label: 'Phone',
+                                    value: '',
+                                    other: {
+                                        values: this.yesNoOptions(),
+                                    }
+                                },
+                                {
+                                    label: 'Home visit',
+                                    value: '',
+                                    other: {
+                                        values: this.yesNoOptions()
+                                    }
+                                }
+                            ] 
                         }
-                    ])
+                    }
                 },
                 {
                     id: 'received_arvs',
