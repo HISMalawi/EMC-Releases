@@ -230,12 +230,12 @@ export default defineComponent({
                 table.tdBtn('Void', async () => {
                     voidWithReason(
                         async (reason: string) => {
-                            const res = await this.service.voidOrder(
-                                d.order_id, reason
-                            )
-                            res 
-                                ? this.labOrderRows.splice(index, 1)
-                                : toastWarning('Unable to void order. Try again later')
+                            try {
+                                await this.service.voidOrder(d.order_id, reason)
+                                this.labOrderRows.splice(index, 1)
+                            } catch (e) {
+                                toastDanger(e)
+                            }
                         },
                         [
                             'Duplicate order',
