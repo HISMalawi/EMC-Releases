@@ -147,10 +147,15 @@ export class Patientservice extends Service {
         return obs.length >= 1 ? obs[0].value_numeric: -1
     }
     async getWeightHistory() {
-        const weights = await ObservationService.getAll(this.getID(), 'weight')
-        return weights.map((obs: Observation) => ({
-            weight: obs.value_numeric, date: obs.obs_datetime
-        }))
+        try {
+            const weights = await ObservationService.getAll(this.getID(), 'weight')
+            return weights.map((obs: Observation) => ({
+                weight: obs.value_numeric, date: obs.obs_datetime
+            }))
+        } catch (e) {
+            console.warn(e)
+            return []
+        }
     }
     async getCompleteTBTherapyHistory() {
         const data = await ObservationService.getAll(this.getID(), 'TB treatment history')
