@@ -25,7 +25,7 @@ import LabResults from "@/views/LabResults.vue"
 import User from "@/views/NewUser.vue"
 import PatientMerging from "@/views/PatientMerging.vue"
 import NpidDuplicates from "@/views/NpidDuplicates.vue"
-import { alertController, loadingController, modalController } from '@ionic/vue';
+import { alertController, loadingController, modalController, toastController } from '@ionic/vue';
 
 const HIS_APP_ROUTES = (() => {
   let routes: Array<RouteRecordRaw> = []
@@ -184,7 +184,7 @@ router.beforeEach((to, from, next) => {
   loadingController.getTop().then(v => v ? loadingController.dismiss() : null)
   modalController.getTop().then(v => v ? modalController.dismiss() : null)
   alertController.getTop().then(v => v ? alertController.dismiss() : null)
-
+  toastController.getTop().then(v => v ? toastController.dismiss() : null)
   const whitelistedUri = ['/login', '/settings/host']
   if (!sessionStorage.getItem('apiKey') && !whitelistedUri.includes(to.path)) {
     next('/login')
