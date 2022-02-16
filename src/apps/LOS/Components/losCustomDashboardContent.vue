@@ -167,9 +167,11 @@ export default defineComponent({
     }),
     watch: {
         patient: {
-            handler(patient) {
+            async handler(patient) {
                 if (!isEmpty(patient)) {
                     this.service = new PatientLabService(this.patient.getID())
+                    this.service.setDate(PatientLabService.getSessionDate())
+                    await this.init()
                 }
             },
             immediate: true,
