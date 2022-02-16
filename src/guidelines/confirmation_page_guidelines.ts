@@ -38,19 +38,14 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                     'Choose how to proceed',
                     [
                         { 
-                            name: 'Go Home', 
-                            slot: 'start', 
-                            color: 'primary',
-                        },
-                        { 
-                            name: 'Go Back', 
+                            name: 'Close', 
                             slot: 'start', 
                             color: 'primary',
                         }
                     ],
                     'his-danger-color'
                 )
-                return action === 'Go Home' ? FlowState.GO_HOME : FlowState.GO_BACK
+                return FlowState.GO_HOME
             }
         },
         conditions: {
@@ -74,7 +69,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                     facts.demographics.invalidDemographics,
                     [
                         { 
-                            name: 'Exit', 
+                            name: 'Close', 
                             slot: 'start', 
                             color: 'danger',
                         }
@@ -102,23 +97,14 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                     facts.dde.voidedNpids.rows,
                     [
                         { 
-                            name: 'Go Home', 
-                            slot: 'start', 
-                            color: 'primary',
-                        },
-                        { 
-                            name: 'Go Back', 
+                            name: 'Close', 
                             slot: 'start', 
                             color: 'primary',
                         }
                     ],
                     'his-danger-color'
                 )
-                return action === 'Go Home' 
-                    ? FlowState.GO_HOME 
-                    : action ===  FlowState.GO_BACK
-                    ? FlowState.GO_BACK
-                    : FlowState.FORCE_EXIT
+                return FlowState.GO_HOME
             }
         },
         conditions: {
