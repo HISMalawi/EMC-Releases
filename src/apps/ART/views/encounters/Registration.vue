@@ -269,7 +269,7 @@ export default defineComponent({
                             date,
                             tag:'reg',
                             isEstimate,
-                            obs: this.buildDateObs('Drug start date', date, isEstimate) 
+                            obs: this.buildDateObs('Date ART started', date, isEstimate) 
                         }
                     },
                 }, this.registration.getDate()),
