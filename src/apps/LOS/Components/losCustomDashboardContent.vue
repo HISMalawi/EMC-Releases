@@ -36,19 +36,14 @@
                 <ion-row>
                     <ion-col> 
                         <ion-list>
-                            <ion-radio-group>
-                                <ion-item
-                                    v-for="(specimen, index) in specimens"
-                                    :key="index"
-                                    >
-                                    <ion-label>{{specimen.name}}</ion-label>
-                                    <ion-radio
-                                        slot="start"
-                                        @click="selectedSpecimen=specimen"
-                                        >
-                                    </ion-radio>                            
-                                </ion-item>
-                            </ion-radio-group>
+                            <ion-item
+                                v-for="(specimen, index) in specimens"
+                                :key="index"
+                                :color="selectedSpecimen.name === specimen.name ? 'primary': ''"
+                                @click="selectedSpecimen = specimen"
+                                >
+                                <ion-label>{{specimen.name}}</ion-label>
+                            </ion-item>
                         </ion-list>
                     </ion-col>
                     <ion-col> 
@@ -58,7 +53,7 @@
                                 :key="index"
                                 v-for="(test, index) in order.tests"
                                 >
-                                <ion-chip color="primary">{{test.name}}</ion-chip>
+                                <ion-chip color="success">Test: <b>{{test.name}}</b></ion-chip>
                             </ion-item>
                         </ion-list>
                     </ion-col>
@@ -69,7 +64,7 @@
                     <ion-button 
                         color="danger" 
                         slot="start"
-                        @click="showSpecimenModal = false; selectedSpecimen = {};"
+                        @click="showSpecimenModal=false;selectedSpecimen={}"
                         > 
                         Close 
                     </ion-button>
@@ -77,8 +72,7 @@
                         :disabled="!selectedSpecimen.name"
                         color="success" 
                         slot="end"
-                        @click="drawOrder"
-                        > 
+                        @click="() => { showSpecimenModal=true;drawOrder() }">
                         Submit 
                     </ion-button>
                 </ion-toolbar>
@@ -99,7 +93,6 @@ import {
     IonTitle,
     IonCol,
     IonRow,
-    IonRadio,
     IonButton,
     IonFooter,
     IonToolbar,
@@ -112,20 +105,17 @@ import {
     IonContent,
     IonSegment,
     IonLabel,
-    IonRadioGroup,
     IonSegmentButton,
 } from "@ionic/vue";
-import { toastDanger, toastWarning } from '@/utils/Alerts';
+import { toastDanger } from '@/utils/Alerts';
 
 export default defineComponent({
     components: {
         IonTitle,
         IonCol,
         IonRow,
-        IonRadio,
         IonButton,
         IonList,
-        IonRadioGroup,
         IonFooter,
         IonToolbar,
         IonHeader,
