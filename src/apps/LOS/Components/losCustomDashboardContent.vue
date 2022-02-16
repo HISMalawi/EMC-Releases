@@ -1,6 +1,6 @@
 <template>
     <p/>
-    <ion-segment mode="ios" scrollable :value="activeTab" class="ion-justify-content-center">
+    <ion-segment scrollable :value="activeTab" class="ion-justify-content-center">
         <ion-segment-button value="openOrders" @click="activeTab='openOrders'">
             <ion-label>Open</ion-label>
         </ion-segment-button>
@@ -12,11 +12,17 @@
     <!-- Action Table -->
     <div :style="{overflowX: 'auto', height:'84%'}"> 
     <report-table
+        :config="{
+            showIndex: false
+        }"
         v-if="activeTab === 'openOrders'" 
         :rows="labOrderRows" :columns="openColumns"
         >
     </report-table>
     <report-table
+        :config="{
+            showIndex: false
+        }"
         v-if="activeTab === 'drawnOrders'" 
         :rows="drawnOrders" :columns="drawnColumns"
         >
@@ -109,6 +115,13 @@ import {
 } from "@ionic/vue";
 import { toastDanger } from '@/utils/Alerts';
 
+const HEADER_STYLE = {
+    style: {
+        background: '#f1f1f1',
+        color: "#333",
+        fontSize: '1.1rem !important'
+    }
+}
 export default defineComponent({
     components: {
         IonTitle,
@@ -138,18 +151,18 @@ export default defineComponent({
         activeTab: 'openOrders' as 'openOrders' | 'drawnOrders',
         drawnColumns: [
             [
-                table.thTxt('Accession #'),
-                table.thTxt('Test'),
-                table.thTxt('Actions')
+                table.thTxt('Accession #', HEADER_STYLE),
+                table.thTxt('Test', HEADER_STYLE),
+                table.thTxt('Actions', HEADER_STYLE)
             ]
         ] as Array<ColumnInterface[]>,
         openColumns: [
             [
-                table.thTxt('Accession #'),
-                table.thTxt('Test'),
-                table.thTxt('Reason for test'),
-                table.thTxt('Drawn'),
-                table.thTxt('Void')
+                table.thTxt('Accession #', HEADER_STYLE),
+                table.thTxt('Test', HEADER_STYLE),
+                table.thTxt('Reason for test', HEADER_STYLE),
+                table.thTxt('Drawn', HEADER_STYLE),
+                table.thTxt('Void', HEADER_STYLE)
             ]
         ] as Array<ColumnInterface[]>,
         drawnOrders: [] as Array<RowInterface[]>,
