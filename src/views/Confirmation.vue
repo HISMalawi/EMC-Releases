@@ -283,13 +283,12 @@ export default defineComponent({
           }
         } else {
           toastDanger(e, 300000)
-          return 
         }
       }
       this.facts.patientFound = !isEmpty(results)
       if (this.facts.patientFound) {
         this.patient = new Patientservice(
-          Array.isArray(results) 
+          Array.isArray(results)
             ? results[0]
             : results
           )
