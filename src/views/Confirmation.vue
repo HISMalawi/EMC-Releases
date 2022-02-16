@@ -282,7 +282,7 @@ export default defineComponent({
             this.setInvalidParametersFacts(entities)
           }
         } else {
-          toastDanger(e, 30000)
+          toastDanger(e, 300000)
           return 
         }
       }
