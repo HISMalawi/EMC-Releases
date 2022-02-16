@@ -173,8 +173,7 @@ export default defineComponent({
             async handler(patient) {
                 if (!isEmpty(patient)) {
                     this.service = new PatientLabService(this.patient.getID())
-                    this.service.setDate(PatientLabService.getSessionDate())
-                    await this.init()
+                    await this.initiateOpen()
                 }
             },
             immediate: true,
@@ -184,7 +183,7 @@ export default defineComponent({
             async handler(date: string) {
                 if (date && this.activeTab) {
                     this.service.setDate(date)
-                    await this.init()
+                    await this.initiateDrawn()
                 }
             },
             immediate: true,
@@ -192,11 +191,11 @@ export default defineComponent({
         }
     },
     methods : {
-        async init() {
-            const drawn = await this.service.getOrders('drawn')
-            const open = await this.service.getOrders('ordered')
-            this.labOrderRows = this.getLabOrderRows(open)
-            this.drawnOrders = this.getdrawnOrders(drawn)
+        async initiateDrawn() {
+            this.drawnOrders = this.getdrawnOrders((await this.service.getOrders('drawn')))
+        },
+        async initiateOpen() {
+            this.labOrderRows = this.getLabOrderRows((await this.service.getOrders('ordered')))
         },
         async drawOrder() {
             try {
