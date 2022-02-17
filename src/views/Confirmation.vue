@@ -36,7 +36,7 @@
             </ion-card-header>
             <ion-card-content>
               <ul class="card-content"> 
-                <li class='li-item' v-for="(info, id) in card.data" :key="id"> 
+                <li class='li-item' v-for="(info, id) in card.data" :key="id" style="display: flex; justify-content: space-between;"> 
                   <span v-if="info.label"> {{ info.label }} &nbsp;</span>
                   <strong v-html="info.value"></strong>
                 </li>
