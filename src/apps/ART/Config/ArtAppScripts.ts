@@ -21,6 +21,7 @@ import { Order } from "@/interfaces/order";
 import { addWorkflowTask, nextTask } from "@/utils/WorkflowTaskHelper";
 import dayjs from "dayjs";
 import { Service } from "@/services/service";
+import { Patientservice } from '@/services/patient_service';
 
 async function enrollInArtProgram(patientID: number, patientType: string, clinic: string) {
     const program = new PatientProgramService(patientID)
@@ -187,7 +188,7 @@ export async function getPatientDashboardLabOrderCardItems(patientId: number, da
         }))
 }
 
-export function confirmationSummary(patient: any, program: any) {
+export function confirmationSummary(patient: Patientservice, program: any) {
     const patientID = patient.getID()
     return {
         'PROGRAM INFORMATION': async () => {
@@ -236,6 +237,10 @@ export function confirmationSummary(patient: any, program: any) {
                 {
                   label: "NPID",
                   value: patient.getNationalID(),
+                },
+                {
+                    label: "Filing Number",
+                    value: patient.getFilingNumber()
                 }
             ]
         },

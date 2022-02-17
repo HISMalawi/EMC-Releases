@@ -290,7 +290,7 @@ export class Patientservice extends Service {
             .patient_identifiers
             .filter((i: any) => i.type.name === 'Filing number' 
                 || i.type.name === 'Archived filing number')
-        return !isEmpty(finder) ? finder[0].identifier : ''
+        return !isEmpty(finder) ? finder[0].identifier : 'N/A'
     }
 
     private findIdentifierByType(type: string) {
