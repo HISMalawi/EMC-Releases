@@ -75,11 +75,12 @@ async function showStockManagementChart() {
     }
 }
 
-function orderToString(order: Order) {
+function orderToString(order: Order, showDate = true) {
     const test = order.tests[0];
     const result = test.result[0];
+    const date = showDate ? `<br> Result date: &nbsp; ${HisDate.toStandardHisDisplayFormat(result.date)}` : ''
     const status = OrderService.isHighViralLoadResult(result) ? '(<b style="color: #eb445a;">High</b>)' : ''
-    return `${test.name} ${result.value_modifier}${result.value} ${status}`;
+    return `${test.name} &nbsp; ${result.value_modifier}${result.value} ${status} ${date}`;
 }
 
 export async function init(context='') {
@@ -159,7 +160,7 @@ export async function getPatientDashboardLabOrderCardItems(patientId: number, da
             const test = order.tests[0]
             const result = test.result[0]
             return {
-                label: orderToString(order),
+                label: orderToString(order, false),
                 value: t(result.date),
                 other: {
                     tableRow: [
