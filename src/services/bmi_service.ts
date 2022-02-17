@@ -14,6 +14,10 @@ export class BMIService {
       color: '',
       index: bmindex
     }
+    if (bmindex <= 0) {
+      BMIResult.index = 0
+      return BMIResult
+    }
     if (age < 5 && age > 0) {
       BMIResult.result = 'Use MUAC to calculate nutrition status';
       BMIResult.color = 'red';

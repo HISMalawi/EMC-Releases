@@ -74,12 +74,14 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     name: "bp_management",
     icon: "dispensing.png",
     globalProperty: `${ART_GLOBAL_PROP.HTN_ENHANCEMENT}=true`,
+    availableOnActivitySelection: false
   },
   {
     id: "bp_alert",
     name: "bp_alert",
     icon: "dispensing.png",
     globalProperty: `${ART_GLOBAL_PROP.HTN_ENHANCEMENT}=true`,
+    availableOnActivitySelection: false
   }
 ]
 
@@ -98,6 +100,7 @@ export const SECONDARY_ACTIVITIES: TaskInterface[] = [
     name: "Filing Number (Print)",
     description: "Print Patient Filing Number",
     globalProperty: `${ART_GLOBAL_PROP.FILING_NUMBERS}=true`,
+    condition: ({patient}: any) => new Patientservice(patient).hasActiveFilingNumber(),
     action({ patient }: any) {
       const lbl = new PatientPrintoutService(patient.patient_id)
       return lbl.printFilingNumberLbl()

@@ -9,7 +9,7 @@
                         v-for="(result, index) in listData"
                         :key="index"
                         :detail="true"
-                        :color="result.value === selectedResult.value ? 'light' : ''"
+                        :color="result.value === selectedResult.value ? 'primary' : ''"
                         @click="onSelect(result)" >
                         <ion-avatar>
                           <ion-img src="/assets/images/avatar.svg"/>
@@ -93,9 +93,9 @@ export default defineComponent({
     }
   },
   async activated() {
-    this.onSelect({})
     this.$emit('onFieldActivated', this)
     this.listData = await this.options(this.fdata, this)
+    this.onSelect((this.listData.length > 0) ? this.listData[0] : {})
   }
 });
 </script>

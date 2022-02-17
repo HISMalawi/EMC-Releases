@@ -276,19 +276,19 @@ export default defineComponent({
         // or home_ta.
         if (e instanceof IncompleteEntityError && !isEmpty(e.entity)) {
           results = e.entity
-        }
-        // DDE might send attribute validation errors for a person
-        if (e instanceof BadRequestError && Array.isArray(e.errors)) {
+        } else if (e instanceof BadRequestError && Array.isArray(e.errors)) {
           const [msg, ...entities] = e.errors
           if (typeof msg === 'string' && msg === "Invalid parameter(s)") {
             this.setInvalidParametersFacts(entities)
           }
+        } else {
+          toastDanger(e, 300000)
         }
       }
       this.facts.patientFound = !isEmpty(results)
       if (this.facts.patientFound) {
         this.patient = new Patientservice(
-          Array.isArray(results) 
+          Array.isArray(results)
             ? results[0]
             : results
           )
@@ -463,7 +463,7 @@ export default defineComponent({
               type: 'button',
               name: 'Select',
               action: async () => {
-                await modalController.dismiss({ action: FlowState.FORCE_EXIT})
+                await modalController.dismiss()
                 await this.findAndSetPatient(undefined, p.getNationalID())
               }
             }

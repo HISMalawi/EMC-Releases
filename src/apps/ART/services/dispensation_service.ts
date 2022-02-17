@@ -87,9 +87,11 @@ export class DispensationService extends AppEncounterService {
     }
 
     async loadDrugHistory() {
-        const res = await DrugOrderService.getDrugOrderHistory(this.patientID)
-        if (res) {
-            this.drugHistory = res
+        try {
+            const res = await DrugOrderService.getDrugOrderHistory(this.patientID)
+            if (res) this.drugHistory = res
+        } catch (e) {
+            console.warn(e)
         }
     }
 

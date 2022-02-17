@@ -1,6 +1,6 @@
 <template>
     <p/>
-    <ion-segment mode="ios" scrollable :value="activeTab" class="ion-justify-content-center">
+    <ion-segment scrollable :value="activeTab" class="ion-justify-content-center">
         <ion-segment-button value="openOrders" @click="activeTab='openOrders'">
             <ion-label>Open</ion-label>
         </ion-segment-button>
@@ -12,11 +12,17 @@
     <!-- Action Table -->
     <div :style="{overflowX: 'auto', height:'84%'}"> 
     <report-table
+        :config="{
+            showIndex: false
+        }"
         v-if="activeTab === 'openOrders'" 
         :rows="labOrderRows" :columns="openColumns"
         >
     </report-table>
     <report-table
+        :config="{
+            showIndex: false
+        }"
         v-if="activeTab === 'drawnOrders'" 
         :rows="drawnOrders" :columns="drawnColumns"
         >
@@ -36,19 +42,14 @@
                 <ion-row>
                     <ion-col> 
                         <ion-list>
-                            <ion-radio-group>
-                                <ion-item
-                                    v-for="(specimen, index) in specimens"
-                                    :key="index"
-                                    >
-                                    <ion-label>{{specimen.name}}</ion-label>
-                                    <ion-radio
-                                        slot="start"
-                                        @click="selectedSpecimen=specimen"
-                                        >
-                                    </ion-radio>                            
-                                </ion-item>
-                            </ion-radio-group>
+                            <ion-item
+                                v-for="(specimen, index) in specimens"
+                                :key="index"
+                                :color="selectedSpecimen.name === specimen.name ? 'primary': ''"
+                                @click="selectedSpecimen = specimen"
+                                >
+                                <ion-label>{{specimen.name}}</ion-label>
+                            </ion-item>
                         </ion-list>
                     </ion-col>
                     <ion-col> 
@@ -58,7 +59,7 @@
                                 :key="index"
                                 v-for="(test, index) in order.tests"
                                 >
-                                <ion-chip color="primary">{{test.name}}</ion-chip>
+                                <ion-chip color="success">Test: <b>{{test.name}}</b></ion-chip>
                             </ion-item>
                         </ion-list>
                     </ion-col>
@@ -69,7 +70,7 @@
                     <ion-button 
                         color="danger" 
                         slot="start"
-                        @click="showSpecimenModal = false; selectedSpecimen = {};"
+                        @click="showSpecimenModal=false;selectedSpecimen={}"
                         > 
                         Close 
                     </ion-button>
@@ -77,8 +78,7 @@
                         :disabled="!selectedSpecimen.name"
                         color="success" 
                         slot="end"
-                        @click="drawOrder"
-                        > 
+                        @click="() => { showSpecimenModal=true;drawOrder() }">
                         Submit 
                     </ion-button>
                 </ion-toolbar>
@@ -99,7 +99,6 @@ import {
     IonTitle,
     IonCol,
     IonRow,
-    IonRadio,
     IonButton,
     IonFooter,
     IonToolbar,
@@ -112,20 +111,24 @@ import {
     IonContent,
     IonSegment,
     IonLabel,
-    IonRadioGroup,
     IonSegmentButton,
 } from "@ionic/vue";
-import { toastDanger, toastWarning } from '@/utils/Alerts';
+import { toastDanger } from '@/utils/Alerts';
 
+const HEADER_STYLE = {
+    style: {
+        background: '#f1f1f1',
+        color: "#333",
+        fontSize: '1.1rem !important'
+    }
+}
 export default defineComponent({
     components: {
         IonTitle,
         IonCol,
         IonRow,
-        IonRadio,
         IonButton,
         IonList,
-        IonRadioGroup,
         IonFooter,
         IonToolbar,
         IonHeader,
@@ -148,18 +151,18 @@ export default defineComponent({
         activeTab: 'openOrders' as 'openOrders' | 'drawnOrders',
         drawnColumns: [
             [
-                table.thTxt('Accession #'),
-                table.thTxt('Test'),
-                table.thTxt('Actions')
+                table.thTxt('Accession #', HEADER_STYLE),
+                table.thTxt('Test', HEADER_STYLE),
+                table.thTxt('Actions', HEADER_STYLE)
             ]
         ] as Array<ColumnInterface[]>,
         openColumns: [
             [
-                table.thTxt('Accession #'),
-                table.thTxt('Test'),
-                table.thTxt('Reason for test'),
-                table.thTxt('Drawn'),
-                table.thTxt('Void')
+                table.thTxt('Accession #', HEADER_STYLE),
+                table.thTxt('Test', HEADER_STYLE),
+                table.thTxt('Reason for test', HEADER_STYLE),
+                table.thTxt('Drawn', HEADER_STYLE),
+                table.thTxt('Void', HEADER_STYLE)
             ]
         ] as Array<ColumnInterface[]>,
         drawnOrders: [] as Array<RowInterface[]>,
@@ -167,9 +170,10 @@ export default defineComponent({
     }),
     watch: {
         patient: {
-            handler(patient) {
+            async handler(patient) {
                 if (!isEmpty(patient)) {
                     this.service = new PatientLabService(this.patient.getID())
+                    await this.initiateOpen()
                 }
             },
             immediate: true,
@@ -179,7 +183,7 @@ export default defineComponent({
             async handler(date: string) {
                 if (date && this.activeTab) {
                     this.service.setDate(date)
-                    await this.init()
+                    await this.initiateDrawn()
                 }
             },
             immediate: true,
@@ -187,11 +191,11 @@ export default defineComponent({
         }
     },
     methods : {
-        async init() {
-            const drawn = await this.service.getOrders('drawn')
-            const open = await this.service.getOrders('ordered')
-            this.labOrderRows = this.getLabOrderRows(open)
-            this.drawnOrders = this.getdrawnOrders(drawn)
+        async initiateDrawn() {
+            this.drawnOrders = this.getdrawnOrders((await this.service.getOrders('drawn')))
+        },
+        async initiateOpen() {
+            this.labOrderRows = this.getLabOrderRows((await this.service.getOrders('ordered')))
         },
         async drawOrder() {
             try {
@@ -228,12 +232,12 @@ export default defineComponent({
                 table.tdBtn('Void', async () => {
                     voidWithReason(
                         async (reason: string) => {
-                            const res = await this.service.voidOrder(
-                                d.order_id, reason
-                            )
-                            res 
-                                ? this.labOrderRows.splice(index, 1)
-                                : toastWarning('Unable to void order. Try again later')
+                            try {
+                                await this.service.voidOrder(d.order_id, reason)
+                                this.labOrderRows.splice(index, 1)
+                            } catch (e) {
+                                toastDanger(e)
+                            }
                         },
                         [
                             'Duplicate order',

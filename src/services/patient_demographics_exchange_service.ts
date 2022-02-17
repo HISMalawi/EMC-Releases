@@ -93,6 +93,9 @@ export class PatientDemographicsExchangeService extends Service {
         const ddeSearch = await this.findNpid(npid)
         if (ddeSearch) {
             const results = ddeSearch.locals.concat(ddeSearch.remotes)
+            if (isEmpty(results)) {
+                return []
+            }
             const hasLocalDoubles = this.hasPatientDoubles(
                 ddeSearch.locals
             )
