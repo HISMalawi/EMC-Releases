@@ -20,7 +20,7 @@
               version 5.0.0
             </ion-card-subtitle>
             <img
-              :src="logo"
+              src="/assets/images/report.png"
               style="display: block; width: 55%; margin: 5px auto"
             />
           </ion-col>
@@ -34,36 +34,33 @@
               padding: 38px 18px;
             "
           >
-            <ion-icon
-              :icon="avatar"
-              style="font-size: 8vw; margin: 10vh 1px 0"
-            />
-            <h2>Welcome back!</h2>
+            <ion-icon :icon="avatar" style="font-size: 8vw; margin: 10vh 1px 0" />
+            <h2>Welcome</h2>
             <h4>Please, log in to your account</h4>
-            <ion-item style="margin: 2rem 3.5rem">
+            <ion-item style="margin: 2rem 3.5rem">              
               <ion-input
                 type="text"
-                inputmode="text"
-                v-model="username"
                 placeholder="Username"
-                :max="100"
+                v-model="auth.username"
                 :min="5"
+                required
               />
             </ion-item>
             <ion-item style="margin: 2rem 3.5rem">
               <ion-input
                 type="password"
-                inputmode="text"
                 v-model="password"
                 placeholder="Password"
                 :max="100"
                 :min="5"
+                required
               />
             </ion-item>
             <ion-button
               expand="full"
               size="large"
               style="margin: 2rem 3.5rem; text-transform: none"
+              @click.prevent="submit"
             >
               Login
             </ion-button>
@@ -75,45 +72,53 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-// import Form from "@/components/Forms/DesktopForms/DesktopForm.vue";
-import { DtFieldInterface } from "@/components/Forms/DesktopForms/DTFieldInterface";
-import { DTFieldType } from "@/components/Forms/DesktopForms/DTFormElements";
-import Validation from "@/components/Forms/validations/StandardValidations";
-import { Option } from "@/components/Forms/FieldInterface";
+import { defineComponent, ref, watch } from "vue";
 import { person } from "ionicons/icons";
+import { AuthService, InvalidCredentialsError } from "@/services/auth_service";
+import HisApp from "@/apps/app_lib"
+import { useRouter } from "vue-router";
+import { toastWarning, toastDanger } from "@/utils/Alerts";
+import { IonApp, IonPage, IonGrid, IonRow, IonCol, IonButton, IonItem, IonInput } from "@ionic/vue";
 
 export default defineComponent({
   name: "Login",
-  data: () => ({
-    fields: [] as DtFieldInterface[],
-    logo: "/assets/images/report.png",
-    avatar: person,
-    username: "",
-    password: "",
-  }),
-  methods: {
-    onfinish(f: any, c: any) {
-      console.log(f, c);
-    },
-  },
-  created() {
-    this.fields = [
-      {
-        id: "username",
-        helpText: "Username",
-        type: DTFieldType.DT_TEXT,
-        validation: (val: Option | Option[] | null) => Validation.isName(val),
-        required: true,
-      },
-      {
-        id: "password",
-        type: DTFieldType.DT_TEXT,
-        helpText: "Password",
-        required: true,
-        validation: (val: Option | Option[] | null) => Validation.isName(val),
-      },
-    ];
+  components: { IonApp, IonPage, IonGrid, IonRow, IonCol, IonButton, IonItem, IonInput },
+  setup () {
+    const auth = ref(new AuthService())
+    const router = useRouter()
+    const password = ref('')
+    const submit = async () => {
+      if (auth.value.username && password.value) {
+        try {
+          await auth.value.login(password.value)
+          auth.value.startSession()
+          router.push('/emc/home')
+          // const app = await HisApp.selectApplication()
+          // if (app) {
+          //   app.isPocApp 
+          //     ? router.push("/select_")
+          //     : app.appLandingPage 
+          //     ? router.push(app.appLandingPage)
+          //     : null
+          // }
+        } catch (e) {
+          if (e instanceof InvalidCredentialsError ) {
+            toastWarning("Invalid username or password");
+          } else {
+            toastDanger(e)
+          }
+        }
+      } else {
+        toastWarning("Complete form to log in");
+      }
+    }
+
+    return {
+      password,
+      auth,
+      submit,
+      avatar: person
+    }
   },
 });
 </script>
