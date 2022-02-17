@@ -74,7 +74,7 @@ export class UserService extends Service {
   }
 
   static getUsers() {
-    return super.getJson('users')
+    return super.getJson('users', { role: 'Provider' })
   }
 
   static getSystemUsageByUsers(startDate: string, endDate: string) {

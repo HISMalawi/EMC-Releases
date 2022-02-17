@@ -10,7 +10,6 @@ import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { ENCOUNTER_GUIDELINES, FlowState } from "@/guidelines/encounter_guidelines"
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
-import {loadingController } from "@ionic/vue"
 import { sort } from 'fast-sort'
 
 export default defineComponent({
@@ -105,16 +104,9 @@ export default defineComponent({
                 ? this.$route.name.toString().toUpperCase()
                 : 'N/A'
             if (ProgramService.isBDE()) {
-                (await loadingController.create({
-                    message: 'Please wait..',
-                    backdropDismiss: false
-                })).present()    
                 this.providers = await UserService.getUsers() 
-                this.facts.providers = sort(this.providers).desc((p: any) => p.username)
-                    .map((p: any) => `${p.username} \
-                        (${p.person?.names[0]?.given_name} ${p?.person?.names[0].family_name})`
-                    )
-                loadingController.dismiss()
+                this.facts.providers = sort(this.providers).asc((p: any) => p.username)
+                    .map((p: any) => `${p.username} (${p.person?.names[0]?.given_name} ${p?.person?.names[0].family_name})`)
             }
         },
         toOption(label: string, other={}) {
