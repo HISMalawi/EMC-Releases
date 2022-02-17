@@ -23,6 +23,7 @@ import {
 import ART_PROPS from "@/apps/ART/art_global_props"
 import { HTN_SESSION_KEY } from '../../services/htn_service'
 import { ProgramService } from '@/services/program_service'
+import table from "@/components/DataViews/tables/ReportDataTable"
 
 export default defineComponent({
     mixins: [EncounterMixinVue],
@@ -313,38 +314,6 @@ export default defineComponent({
                return -1
            }
         },
-        getDosageTableOptions(regimen: any) {
-            const rowColors: any = [ 
-                { indexes: [], class: 'adult-regimen-formulation' },
-                { indexes: [], class: 'peads-regimen-formulation' }
-            ]
-            const columns = ['Drug name', 'Units', 'AM', 'Noon', 'PM', 'Frequency']
-            const rows = regimen.map((regimen: any, index: number) => {
-                switch(regimen.regimen_category) {
-                    case 'A':
-                        rowColors[0].indexes.push(index)
-                        break
-                    case 'P':
-                        rowColors[1].indexes.push(index)
-                        break
-                }
-                return [
-                    regimen.drug_name,
-                    regimen.units,
-                    regimen.am,
-                    regimen.noon,
-                    regimen.pm,
-                    regimen.frequency || this.getDrugFrequency(regimen.drug_name)
-                ]              
-            })
-            return [
-                { 
-                    label: 'Selected Medication', 
-                    value:'Table', 
-                    other: { columns, rows, rowColors }
-                }      
-            ]
-        },
         getDrugEstimates(regimens: any, interval: number) {
             this.prescription.setNextVisitInterval(interval)
             const nextAppointment = this.prescription.calculateDateFromInterval()
@@ -489,12 +458,49 @@ export default defineComponent({
                 {
                     id: 'selected_meds',
                     helpText: 'Selected medication',
-                    type: FieldType.TT_TABLE_VIEWER,
-                    options: () => this.getDosageTableOptions(this.drugs),
+                    type: FieldType.TT_DATA_TABLE,
                     config: {
                         toolbarInfo: this.patientToolbar,
                         hiddenFooterBtns: [ 'Clear' ],
-                        styles : ['his-table','table-borders']
+                        dataTableConfig: {
+                            showIndex: false
+                        },
+                        columns: () => [
+                            [
+                                table.thTxt('Drug name'),
+                                table.thTxt('Units'),
+                                table.thTxt('AM'),
+                                table.thTxt('Noon'),
+                                table.thTxt('PM'),
+                                table.thTxt('Frequency')
+                            ]
+                        ],
+                        rows: () => this.drugs.map((d: any) => {
+                            const conf = {
+                                style: {
+                                    'height': '6vh'
+                                },
+                                cssClass:  (() => {
+                                    if (d.drug_name.match(/cotrimoxazole/i)) {
+                                        return 'adult-regimen-formulation'
+                                    }
+                                    switch(d.regimen_category) {
+                                        case 'A':
+                                            return 'adult-regimen-formulation'
+                                        case 'P':
+                                            return 'peads-regimen-formulation'
+                                    }
+                                })()
+                            }
+                            return [
+                                table.td(d.drug_name, conf),
+                                table.td(d.units, conf),
+                                table.td(d.am, conf),
+                                table.td(d.noon, conf),
+                                table.td(d.pm, conf),
+                                table.td(d.frequency || this.getDrugFrequency(d.drug_name), conf)
+                            ]         
+                        })
                     }
                 },
                 {
