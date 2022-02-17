@@ -117,6 +117,7 @@ export default defineComponent({
                             return this.$router.push({name: 'appointment'})
                         }
                         i.other['amount_needed'] = i.other['amount_needed'] - (parseInt(i.value.toString()) || 0)
+                        if(i.other['amount_needed'] < 0 ) i.other['amount_needed'] = 0
                         
                         await this.dispensation.loadCurrentDrugOrder()
 
