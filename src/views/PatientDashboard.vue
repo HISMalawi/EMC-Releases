@@ -624,8 +624,7 @@ export default defineComponent({
             modal.present()
         },
         async onCancel() {
-            const confirmation = await alertConfirmation('Are you sure you want to cancel?')
-            
+            const confirmation = await alertConfirmation('Are you sure you want to Finish?')         
             if (confirmation) return this.$router.push({path: '/'})
         }
     }
