@@ -4,6 +4,7 @@
             <his-table 
                 :columns="columns" 
                 :rows="rows"
+                :config="config.dataTableConfig"
             />
         </div>
     </view-port>
