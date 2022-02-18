@@ -204,7 +204,7 @@
                 <ion-button class="mobile-component-view" color="primary" size="medium" slot="end" @click="changeApp"> 
                     <ion-icon :icon="apps"> </ion-icon>
                 </ion-button>
-                <ion-button class="full-component-view" color="success" size="large" slot="end" @click="onCancel">
+                <ion-button class="full-component-view" color="success" size="large" slot="end" router-link="/">
                     <ion-icon :icon="logOutOutline"> </ion-icon>
                     Finish
                 </ion-button>
