@@ -13,8 +13,8 @@ import { isArray } from "lodash";
 import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 
-const smallText = {style: {fontSize: '10px'}}
-const largeText = {style: {fontSize: '16px'}, color: 'yellow'}
+const smallText = {style: {fontSize: '11px !important'}}
+const largeText = {style: {fontSize: '15px !important', fontWeight: 'bold'}, color: 'yellow'}
 
 export default defineComponent({
   name: "HisResultCard",
@@ -67,12 +67,12 @@ export default defineComponent({
     rows(): RowInterface[][] {  
       return this.items.map((item) => {
         return [
-          table.tdBtn(item.label, () => this.printLabel(item.value), smallText),
+          table.tdBtn(item.label, () => this.printLabel(item.value), smallText, 'secondary'),
           table.td(item.data.weight, smallText),
           table.td(item.data.regimen, smallText),
           table.td(this.formatAdherence(item.data.adherence), smallText),
           table.td(item.data.outcome, smallText),
-          table.tdBtn('show more', () => this.showMore(item.value), smallText)
+          table.tdBtn('show more', () => this.showMore(item.value), smallText, 'secondary'),
         ]
       })
     }
