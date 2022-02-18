@@ -455,8 +455,8 @@ export default [
       "name": "Home visit"
    },
    {
-      "categories": [],
-     "concept_id": 9974,
+      "categories": ["art_extra_medication_order"],
+      "concept_id": 9974,
       "name": "3HP (RFP + INH)"
    },
    {
@@ -1151,7 +1151,7 @@ export default [
          "art_medication_order",
          "art_extra_medication_order"
       ],
-      "concept_id": 916,
+      "concept_id": 656,
       "name": "INH"
    },
    {

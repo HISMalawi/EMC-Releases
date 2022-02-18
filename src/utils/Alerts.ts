@@ -55,7 +55,7 @@ export function createAlert(message: string, header= '' as string, btns = [] as 
 export async function alertConfirmation(message: string, options = {} as AlertConfirmationOtions) {
   const alert = await createAlert(message, options.header || 'Confirmation', [
     {
-      name: options.cancelBtnLabel || 'Cancel',
+      name: options.cancelBtnLabel || 'No',
       size: 'large',
       slot: 'start',
       color: 'danger',
@@ -64,7 +64,7 @@ export async function alertConfirmation(message: string, options = {} as AlertCo
       onClick: ({role}: any) => modalController.dismiss(role)
     },
     {
-        name: options.confirmBtnLabel || 'Confirm',
+        name: options.confirmBtnLabel || 'Yes',
         size: 'large',
         slot: 'end',
         color: 'success',

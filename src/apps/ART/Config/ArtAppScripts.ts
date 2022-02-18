@@ -21,6 +21,8 @@ import { Order } from "@/interfaces/order";
 import { addWorkflowTask, nextTask } from "@/utils/WorkflowTaskHelper";
 import dayjs from "dayjs";
 import { Service } from "@/services/service";
+import { Patientservice } from '@/services/patient_service';
+import ART_PROP from '@/apps/ART/art_global_props';
 
 async function enrollInArtProgram(patientID: number, patientType: string, clinic: string) {
     const program = new PatientProgramService(patientID)
@@ -75,11 +77,12 @@ async function showStockManagementChart() {
     }
 }
 
-function orderToString(order: Order) {
+function orderToString(order: Order, showDate = true) {
     const test = order.tests[0];
     const result = test.result[0];
+    const date = showDate ? `<br> Result date: &nbsp; ${HisDate.toStandardHisDisplayFormat(result.date)}` : ''
     const status = OrderService.isHighViralLoadResult(result) ? '(<b style="color: #eb445a;">High</b>)' : ''
-    return `${test.name} ${result.value_modifier}${result.value} ${status}`;
+    return `${test.name} &nbsp; ${result.value_modifier}${result.value} ${status} ${date}`;
 }
 
 export async function init(context='') {
@@ -159,7 +162,7 @@ export async function getPatientDashboardLabOrderCardItems(patientId: number, da
             const test = order.tests[0]
             const result = test.result[0]
             return {
-                label: orderToString(order),
+                label: orderToString(order, false),
                 value: t(result.date),
                 other: {
                     tableRow: [
@@ -186,7 +189,7 @@ export async function getPatientDashboardLabOrderCardItems(patientId: number, da
         }))
 }
 
-export function confirmationSummary(patient: any, program: any) {
+export function confirmationSummary(patient: Patientservice, program: any) {
     const patientID = patient.getID()
     return {
         'PROGRAM INFORMATION': async () => {
@@ -226,17 +229,23 @@ export function confirmationSummary(patient: any, program: any) {
             }
             return data
         },
-        'PATIENT IDENTIFIERS': () => {
-            return [
-                {
-                  label: "ARV Number",
-                  value: patient.getArvNumber(),
-                },
-                {
-                  label: "NPID",
-                  value: patient.getNationalID(),
-                }
-            ]
+        'PATIENT IDENTIFIERS': async () => {
+            const identifiers = [{
+                label: "ARV Number",
+                value: patient.getArvNumber(),
+            },
+            {
+                label: "NPID",
+                value: patient.getNationalID(),
+            }]
+
+            if((await ART_PROP.filingNumbersEnabled())){
+                identifiers.push({
+                    label: "Filing Number",
+                    value: patient.getFilingNumber()
+                })
+            }
+            return identifiers;
         },
         'ALERTS': () => getPatientDashboardAlerts(patient),
         'LAB ORDERS': async () => {
