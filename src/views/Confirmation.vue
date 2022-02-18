@@ -31,7 +31,7 @@
       <ion-row>
         <ion-col size="4" v-for="(card, index) in cards" :key="index">
           <ion-card class="his-card">
-            <ion-card-header>
+            <ion-card-header style="background: #708090 !important;">
               <ion-card-title>{{ card.title.toUpperCase() }}</ion-card-title>
             </ion-card-header>
             <ion-card-content>
