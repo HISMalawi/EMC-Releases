@@ -356,7 +356,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         }
     },
-    "Prompt the user to update patient demographics when data is incomplete": {
+    "[DDE OFF] Prompt the user to update patient demographics when data is incomplete": {
         priority: 1,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
@@ -455,7 +455,45 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         }
     },
-    "[DDE] Force Users to update Incomplete Patient demographics": {
+    "[DDE ON] Warn program managers when Patient has incomplete demographics. Dont force them to update though": {
+        priority: 1,
+        targetEvent: TargetEvent.ONLOAD,
+        actions: {
+            alert: async () => {
+                const action = await infoActionSheet(
+                    'Demographics',
+                    'Patient data is incomplete data',
+                    'Do you want to review and update now?',
+                    [
+                        { 
+                            name: 'Yes', 
+                            slot: 'start', 
+                            color: 'success'
+                        },
+                        { 
+                            name: 'No',  
+                            slot: 'end', 
+                            color: 'danger'
+                        }
+                    ],
+                    'his-danger-color'
+                )
+                return action === 'Yes' ? FlowState.UPDATE_DMG : FlowState.CONTINUE
+            }
+        },
+        conditions: {
+            globalProperties({ddeEnabled}: any) {
+                return ddeEnabled === true
+            },
+            demographics: ({patientIsComplete}: any) => {
+                return patientIsComplete === false
+            },
+            userRoles(roles: string[]) {
+                return roles.includes("Program Manager") === true
+            }
+        }
+    },
+    "[DDE ON] Force Users to update Incomplete Patient demographics": {
         priority: 1,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
@@ -487,6 +525,9 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             },
             demographics: ({patientIsComplete}: any) => {
                 return patientIsComplete === false
+            },
+            userRoles: (roles: string[]) => {
+                return roles.includes('Program Manager') === false
             }
         }
     },
