@@ -22,6 +22,7 @@ import { addWorkflowTask, nextTask } from "@/utils/WorkflowTaskHelper";
 import dayjs from "dayjs";
 import { Service } from "@/services/service";
 import { Patientservice } from '@/services/patient_service';
+import ART_PROP from '@/apps/ART/art_global_props';
 
 async function enrollInArtProgram(patientID: number, patientType: string, clinic: string) {
     const program = new PatientProgramService(patientID)
@@ -228,21 +229,23 @@ export function confirmationSummary(patient: Patientservice, program: any) {
             }
             return data
         },
-        'PATIENT IDENTIFIERS': () => {
-            return [
-                {
-                  label: "ARV Number",
-                  value: patient.getArvNumber(),
-                },
-                {
-                  label: "NPID",
-                  value: patient.getNationalID(),
-                },
-                {
+        'PATIENT IDENTIFIERS': async () => {
+            const identifiers = [{
+                label: "ARV Number",
+                value: patient.getArvNumber(),
+            },
+            {
+                label: "NPID",
+                value: patient.getNationalID(),
+            }]
+
+            if((await ART_PROP.filingNumbersEnabled())){
+                identifiers.push({
                     label: "Filing Number",
                     value: patient.getFilingNumber()
-                }
-            ]
+                })
+            }
+            return identifiers;
         },
         'ALERTS': () => getPatientDashboardAlerts(patient),
         'LAB ORDERS': async () => {
