@@ -6,7 +6,7 @@
           <ion-chip color="danger" @click="uncheck(item.label)">{{item.label}}</ion-chip>
         </span>
         <ion-list class='view-port-content'>
-          <ion-item v-for="(entry, index) in filtered" :key="index" :color="entry.isChecked ? 'light':''">
+          <ion-item v-for="(entry, index) in filtered" :key="index" :color="entry.isChecked ? 'lightblue':''">
             <ion-label> 
               <ion-text>
                 {{ entry.label }} 
@@ -18,7 +18,7 @@
               </ion-text>
             </ion-label>
             <ion-checkbox
-              slot="end"
+              slot="start"
               v-model="entry.isChecked"
               @ionChange="(e) => onselect(entry, e)"
               :disabled="entry?.disabled"/>

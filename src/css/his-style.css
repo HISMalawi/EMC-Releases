@@ -7,6 +7,16 @@
     --his-card-primary-shadow-webkit: 0px -2px 19px -2px rgba(196, 190, 196, 1);
     --his-card-primary-shadow-moz: 0px -2px 19px -2px rgba(196, 190, 196, 1);
 }
+
+.ion-color-lightblue {
+    background-color: lightblue;
+    border-bottom: 0 !important;
+}
+
+.view-port-content .ion-color-lightblue .sc-ion-label-md-h {
+    border: 0 !important;
+}
+
 .input_display {
     border-top: none;
     border-left: none;
