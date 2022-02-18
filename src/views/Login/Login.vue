@@ -41,7 +41,6 @@
     </ion-footer>
   </ion-page>
 </template>
-
 <script lang="ts">
 import Inputs from "./LoginCustomPage.vue";
 import { 
@@ -55,6 +54,8 @@ import {
   IonLabel
 } from "@ionic/vue";
 import img from '@/utils/Img';
+import { onMounted, ref } from '@vue/runtime-core';
+import { AuthService } from '@/services/auth_service';
 export default {
   name: "login",
   components: {
@@ -69,8 +70,15 @@ export default {
     IonFooter,
   },
   setup() {
+    const version = ref('')
+    onMounted(async () => {
+      const auth = new AuthService()
+      const appV = await auth.getCoreVersion()
+      const apiV = await auth.getApiVersion()
+      version.value = `${appV} / ${apiV}`
+    })
     return {
-      version: "1.0.0",
+      version,
       coatImg: img('login-logos/Malawi-Coat_of_arms_of_arms.png'),
       pepfarImg: img('login-logos/PEPFAR.png'),
       showConfig: localStorage.getItem("useLocalStorage") === "true"
