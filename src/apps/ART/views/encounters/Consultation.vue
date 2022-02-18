@@ -580,6 +580,26 @@ export default defineComponent({
     },
     getFields(): any {
       return [
+        {
+          id: "other_patient_prescription",
+          proxyID: "prescription",
+          helpText: "Medication to prescribe during this visit",
+          type: FieldType.TT_MULTIPLE_SELECT,
+          validation: (data: any) => Validation.required(data),
+          computedValue: (v: Option[]) => ({ 
+            tag: 'consultation',
+            obs: this.buildMedicationOrders(v)
+          }),
+          onValueUpdate: (listData: Array<Option>, value: Option, f: any) => {          
+            const list = this.disablePrescriptions(listData, value);
+            return this.on3HPValueUpdate(list, value, f)
+          },
+          options: (formData: any, c: Array<Option>, cd: any, l: any) => {
+            return !isEmpty(l) ? l : this.medicationOrderOptions(formData)
+          },
+          condition: () => this.isNonePatientClient(),
+          exitsForm: () => true
+        },
         /**
         * DRUG TRANSFER IN INITIATION 
         */
@@ -587,7 +607,7 @@ export default defineComponent({
           id: 'date_last_received_arvs',
           helpText: 'Last ARV Dispensation',
           required: true,
-          condition: () => this.wasTransferredIn,
+          condition: () => this.wasTransferredIn && !UserService.isClinician(),
           minDate: () => this.dateStartedArt,
           maxDate: () => this.consultation.getDate(),
           computeValue: (date: string) => {
@@ -620,13 +640,13 @@ export default defineComponent({
           config: {
             showKeyboard: true
           },
-          condition: () => this.wasTransferredIn
+          condition: () => this.wasTransferredIn && !UserService.isClinician()
         },
         {
           id: 'drug_interval',
           helpText: 'Interval for last received ARVs',
           type: FieldType.TT_NEXT_VISIT_INTERVAL_SELECTION,
-          condition: () => this.wasTransferredIn,
+          condition: () => this.wasTransferredIn && !UserService.isClinician(),
           validation: (val: Option) => Validation.required(val),
           unload: (v: Option) => this.prescription.setNextVisitInterval(v.value),
           options: () => {
@@ -715,7 +735,7 @@ export default defineComponent({
                 }
             })
           },
-          condition: () => this.wasTransferredIn,
+          condition: () => this.wasTransferredIn && !UserService.isClinician(),
           config: {
             titles: {
               label: 'Drugs',
@@ -726,26 +746,6 @@ export default defineComponent({
         /**
         * END OF DRUG TRANSFER IN
         */
-        {
-          id: "other_patient_prescription",
-          proxyID: "prescription",
-          helpText: "Medication to prescribe during this visit",
-          type: FieldType.TT_MULTIPLE_SELECT,
-          validation: (data: any) => Validation.required(data),
-          computedValue: (v: Option[]) => ({ 
-            tag: 'consultation', 
-            obs: this.buildMedicationOrders(v) 
-          }),
-          onValueUpdate: (listData: Array<Option>, value: Option, f: any) => {          
-            const list = this.disablePrescriptions(listData, value);
-            return this.on3HPValueUpdate(list, value, f)
-          },
-          options: (formData: any, c: Array<Option>, cd: any, l: any) => {
-            return !isEmpty(l) ? l : this.medicationOrderOptions(formData)
-          },
-          condition: () => this.isNonePatientClient(),
-          exitsForm: () => true
-        },
         {
           id: "patient_lab_orders",
           helpText: "Lab orders",
@@ -1220,6 +1220,7 @@ export default defineComponent({
           proxyID: "prescription",
           helpText: "Medication to prescribe during this visit",
           type: FieldType.TT_MULTIPLE_SELECT,
+          condition: (f: any) => !f.refer_to_clinician || `${f.refer_to_clinician.value}`.match(/no/i),
           validation: (data: Option) => Validation.required(data),
           computedValue: (v: Option[]) => ({
             tag: 'consultation', 
