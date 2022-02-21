@@ -6,8 +6,8 @@
           <ion-col :size="getSize" v-for="(item, index) in listData" :key="index">
             <ion-grid>
             <ion-row>
-            <ion-col size="6">
-            <h2>{{ item.label }}</h2>
+            <ion-col size="6" class="ion-col">
+            <h1>{{ item.label }}</h1>
           </ion-col>
           <ion-col size="6">
             <ion-segment
@@ -108,5 +108,12 @@ ion-segment-button {
 
 .segment-button-checked {
   color: white;
+}
+h1 {
+  font-size: 1.3rem;
+  margin: unset;
+}
+.ion-col{
+  margin: auto;
 }
 </style>
