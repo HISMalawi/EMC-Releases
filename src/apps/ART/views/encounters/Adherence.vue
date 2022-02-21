@@ -12,12 +12,14 @@ import AdherenceMixinVue from './AdherenceMixin.vue'
 export default defineComponent({
     mixins: [AdherenceMixinVue],
     watch: {
-        patient: {
-            async handler(patient: any) {
-                await this.initAdherence(patient, this.providerID)
-                this.fields = this.getAdherenceFields()
+        ready: {
+            async handler(ready: any) {
+                if (ready) {
+                    await this.initAdherence(this.patient, this.providerID)
+                    this.fields = this.getAdherenceFields()
+                }
             },
-            deep: true
+            immediate: true
         }
     },
     methods: {

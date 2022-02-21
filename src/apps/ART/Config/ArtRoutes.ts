@@ -142,6 +142,11 @@ export default [
         component: Adherence
     },
     {
+        name: "hiv clinic consultation (clinician)",
+        path: "/art/encounters/consultation/:patient_id",
+        component: Consultation
+    },
+    {
         name: "hiv clinic consultation",
         path: "/art/encounters/consultation/:patient_id",
         component: Consultation

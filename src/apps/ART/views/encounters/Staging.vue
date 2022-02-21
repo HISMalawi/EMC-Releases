@@ -9,14 +9,14 @@ import { toastWarning, toastSuccess } from "@/utils/Alerts"
 export default defineComponent({
     mixins: [StagingMixin],
     watch: {
-        patient: {
-            async handler(patient: any){
-                if (patient) {
-                    await this.initStaging(patient)
+        ready: {
+            async handler(ready: boolean){
+                if (ready) {
+                    await this.initStaging(this.patient)
                     this.fields = [...this.getStagingFields(), this.getStagingSummaryField()]
                 }
             },
-            deep: true
+            immediate: true
         }
     },
     methods: {

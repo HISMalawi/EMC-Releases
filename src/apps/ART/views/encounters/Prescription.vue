@@ -65,9 +65,10 @@ export default defineComponent({
         }
     }),
     watch: {
-        patient: {
-            async handler(patient: any){
-                this.prescription = new PrescriptionService(patient.getID(), this.providerID)
+        ready: {
+            async handler(ready: boolean) {
+                if (!ready) return
+                this.prescription = new PrescriptionService(this.patientID, this.providerID)
                 await this.prescription.loadMedicationOrders()
                 await this.prescription.loadFastTrackStatus()
 
@@ -84,7 +85,7 @@ export default defineComponent({
                 await this.prescription.loadContraindications()
                 await this.prescription.loadTptPrescriptionCount()
 
-                await this.initFacts(patient)
+                await this.initFacts(this.patient)
 
                 if (this.prescription.shouldPrescribeExtras()) {
                     this.regimenExtras = this.prescription.getRegimenExtras()
@@ -105,7 +106,7 @@ export default defineComponent({
                 this.patientToolbar = await this.getPatientToolBar()
                 this.fields = this.getFields()
             },
-            deep: true
+            immediate: true
         },
         drugs: {
             handler(drugs: Array<any>) {

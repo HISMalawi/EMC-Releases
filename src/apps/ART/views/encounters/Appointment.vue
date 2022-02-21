@@ -31,12 +31,14 @@ export default defineComponent({
     
   }),
   watch: {
-    patient: {
-      async handler(patient: any) {
-        this.appointment = new AppointmentService(patient.getID(), this.providerID);
-        this.init();
+    ready: {
+      async handler(ready: boolean) {
+        if (ready) {
+          this.appointment = new AppointmentService(this.patientID, this.providerID)
+          this.init()
+        }
       },
-      deep: true
+      immediate: true
     },
   },
   methods: {
@@ -86,7 +88,7 @@ export default defineComponent({
           },
           config: {
             hiddenFooterBtns: [
-                'Clear'
+              'Clear'
             ]
           },
           options: () =>  {return [{
