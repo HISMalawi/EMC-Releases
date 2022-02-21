@@ -133,7 +133,7 @@ export default defineComponent({
     },
   },
   methods: {
-    async onFinish(_: any, computedData: any) {
+    async onFinish(f: any, computedData: any) {
       const encounter = await this.consultation.createEncounter();  
 
       if (!encounter) return toastWarning("Unable to create encounter");
@@ -158,6 +158,10 @@ export default defineComponent({
 
       toastSuccess("Observations and encounter created!");
 
+      if (f.refer_to_clinician && f.refer_to_clinician.value ==='Yes') {
+        this.gotoPatientDashboard()
+        return
+      }
       this.nextTask();
     },
     /**
