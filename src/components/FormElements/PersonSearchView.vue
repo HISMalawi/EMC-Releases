@@ -9,7 +9,7 @@
                         v-for="(result, index) in listData"
                         :key="index"
                         :detail="true"
-                        :color="result.value === selectedResult.value ? 'primary' : ''"
+                        :color="result.value === selectedResult.value ? 'lightblue' : ''"
                         @click="onSelect(result)" >
                         <ion-avatar>
                           <ion-img src="/assets/images/avatar.svg"/>

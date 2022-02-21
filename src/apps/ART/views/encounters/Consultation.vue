@@ -268,14 +268,12 @@ export default defineComponent({
       )
     },
     isPregnant(formData: any) {
-      try {
-        return this.currentlyPregnant
-          || this.inArray(formData.pregnant_breastfeeding, 
-            p => p.label === 'Pregnant' && p.value === 'Yes'
-          )
-      } catch (e) {
-        return false
+      if (formData.pregnant_breastfeeding) {
+        return this.inArray(formData.pregnant_breastfeeding, 
+          p => p.label === 'Pregnant' && p.value === 'Yes'
+        )
       }
+      return this.currentlyPregnant
     },
     isOnTubalLigation(formData: any) {
       return this.inArray(formData.current_fp_methods, d => d.value === "TUBAL LIGATION")
@@ -331,6 +329,7 @@ export default defineComponent({
     },
     declinedFPM(formData: any) {
       return this.inArray(formData.fp_methods, d => d.value === "NONE")
+        && this.inArray(formData.current_fp_methods, d => d.value === "NONE")
     },
     riskOfUnplannedPregnancy(formData: any) {
       return formData.reason_for_no_fpm.value === "At risk of unplanned pregnancy"

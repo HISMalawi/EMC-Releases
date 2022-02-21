@@ -100,7 +100,10 @@ export const SECONDARY_ACTIVITIES: TaskInterface[] = [
     name: "Filing Number (Print)",
     description: "Print Patient Filing Number",
     globalProperty: `${ART_GLOBAL_PROP.FILING_NUMBERS}=true`,
-    condition: ({patient}: any) => new Patientservice(patient).hasActiveFilingNumber(),
+    condition: ({patient}: any) => {
+      const p = new Patientservice(patient)
+      return p.hasActiveFilingNumber() || p.hasDormantFilingNumber()
+    },
     action({ patient }: any) {
       const lbl = new PatientPrintoutService(patient.patient_id)
       return lbl.printFilingNumberLbl()

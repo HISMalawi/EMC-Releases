@@ -1,7 +1,11 @@
 <template>
   <ion-grid>
     <ion-row>
-      <ion-col v-for="(entries, index) in computedItems" :key="index" :size="grid[numberOfColumns]">
+      <ion-col 
+        v-for="(entries, index) in computedItems" 
+        :key="index" 
+        :size="grid[numberOfColumns]" 
+      >
         <slot :entries="entries"></slot>
       </ion-col>
     </ion-row>
