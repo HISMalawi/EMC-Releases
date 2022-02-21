@@ -253,12 +253,12 @@ export function confirmationSummary(patient: Patientservice, program: any) {
             await OrderService.getOrders(patient.getID())
                 .then((orders) => {
                     const VLOrders = OrderService.getViralLoadOrders(orders);
-                    VLOrders.forEach((order) => {
+                    for(let i = 0; i < 2; i++) {
                         data.push({
-                            value: orderToString(order),
+                            value: orderToString(VLOrders[i]),
                             label: ``,
                         });
-                    });
+                    }
                 });
             return data
         },
