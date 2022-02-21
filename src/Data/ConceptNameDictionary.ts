@@ -1,6 +1,11 @@
 export default [
    {
       "categories": [],
+      "concept_id": 6969,
+      "name": "Refer to clinician"
+   },
+   {
+      "categories": [],
       "concept_id": 10031,
       "name": "Further Investigation and Management"
    },
