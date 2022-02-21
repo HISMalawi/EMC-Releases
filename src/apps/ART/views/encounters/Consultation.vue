@@ -648,7 +648,7 @@ export default defineComponent({
         },
         {
           id: 'drug_interval',
-          helpText: 'Interval for last received ARVs',
+          helpText: 'Duration period for last received ARVs',
           type: FieldType.TT_NEXT_VISIT_INTERVAL_SELECTION,
           condition: () => this.wasTransferredIn,
           validation: (val: Option) => Validation.required(val),
@@ -692,7 +692,7 @@ export default defineComponent({
         },
         {
           id: 'arv_quantities',
-          helpText: 'Amount of drugs dispensed',
+          helpText: 'Amount of drugs dispensed (From last ART Facility)',
           type: FieldType.TT_ADHERENCE_INPUT,
           validation: (v: Option[]) => this.validateSeries([
             () => Validation.required(v),
@@ -742,8 +742,8 @@ export default defineComponent({
           condition: () => this.wasTransferredIn,
           config: {
             titles: {
-              label: 'Drugs',
-              value: 'Amount Received'
+              label: 'Medication',
+              value: 'Amount Dispensed'
             }
           }
         },
