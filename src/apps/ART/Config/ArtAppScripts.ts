@@ -253,7 +253,7 @@ export function confirmationSummary(patient: Patientservice, program: any) {
             await OrderService.getOrders(patient.getID())
                 .then((orders) => {
                     const VLOrders = OrderService.getViralLoadOrders(orders);
-                    for(let i = 0; i < 2; i++) {
+                    for(let i = 0; i < 2 && i < VLOrders.length; i++) {
                         data.push({
                             value: orderToString(VLOrders[i]),
                             label: ``,
