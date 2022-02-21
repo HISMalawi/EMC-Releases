@@ -1,20 +1,8 @@
 <template>
-     <ion-list>
-        <div v-if="singleView">
-            <ion-item v-for="(item, index) in listData" :key="index">
-                <ion-label> {{item.label}} </ion-label>
-                <ion-label class="lb-value" slot="end"> {{item.value}} </ion-label>
-            </ion-item>
-        </div>
-        <ion-row v-if="!singleView">
-            <ion-col width-50>
-                <ion-item v-for="(item, index) in leftLs" :key="index">
-                    <ion-label> {{item.label}} </ion-label>
-                    <ion-label class="lb-value" slot="end"> {{item.value}} </ion-label>
-                    </ion-item>
-                </ion-col>
-            <ion-col width-50>
-                <ion-item v-for="(item, index) in rightLs" :key="index">
+    <ion-list>
+        <ion-row>
+            <ion-col v-for="(items, index) in multiViewSummaryItems" :key="index" :size="singleView ? 12: 6" >
+                <ion-item v-for="(item, index) in items" :key="index">
                     <ion-label> {{item.label}} </ion-label>
                     <ion-label class="lb-value" slot="end"> {{item.value}} </ion-label>
                 </ion-item>
@@ -30,6 +18,7 @@ import {
     IonLabel,
     IonItem,
 } from "@ionic/vue"
+import { chunk } from "lodash";
 
 export default defineComponent({
     props: {
@@ -38,7 +27,7 @@ export default defineComponent({
         },
     },
      data: () => ({
-        splitFactor: 11
+        splitFactor: 10
     }),
     components: { 
         IonList,
@@ -46,21 +35,21 @@ export default defineComponent({
         IonItem,
     },
     computed: {
-        leftLs(): any {
-        return this.listData?.filter( (element, index) => index < this.splitFactor)
-        },
-        rightLs(): any {
-        return this.listData?.filter( (element, index) => index > this.splitFactor)
-        },
         singleView(): boolean {
-
             let size: any = this.listData?.length
             size = this.listData?.length
-            if (size > this.splitFactor) 
+            if (size > this.splitFactor) {
                 return  false
-                    
+            }   
             return true
-        }
+        },
+        multiViewSummaryItems(): Array<Option[]>{
+            const length: any = this.listData?.length
+            const size = this.singleView
+              ? this.listData?.length
+              : Math.ceil(length/2)
+            return chunk(this.listData, size)
+        },
     },
 })
 </script>
@@ -73,5 +62,9 @@ export default defineComponent({
     }
     .item .sc-ion-label-md-h {
         white-space: normal;
+    }
+    .list-md {
+        height: 100%;
+        overflow: auto;
     }
 </style>
