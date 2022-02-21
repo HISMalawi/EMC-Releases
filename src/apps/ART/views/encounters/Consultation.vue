@@ -611,7 +611,7 @@ export default defineComponent({
           id: 'date_last_received_arvs',
           helpText: 'Last ARV Dispensation',
           required: true,
-          condition: () => this.wasTransferredIn && !UserService.isClinician(),
+          condition: () => this.wasTransferredIn,
           minDate: () => this.dateStartedArt,
           maxDate: () => this.consultation.getDate(),
           computeValue: (date: string) => {
@@ -644,13 +644,13 @@ export default defineComponent({
           config: {
             showKeyboard: true
           },
-          condition: () => this.wasTransferredIn && !UserService.isClinician()
+          condition: () => this.wasTransferredIn
         },
         {
           id: 'drug_interval',
           helpText: 'Interval for last received ARVs',
           type: FieldType.TT_NEXT_VISIT_INTERVAL_SELECTION,
-          condition: () => this.wasTransferredIn && !UserService.isClinician(),
+          condition: () => this.wasTransferredIn,
           validation: (val: Option) => Validation.required(val),
           unload: (v: Option) => this.prescription.setNextVisitInterval(v.value),
           options: () => {
@@ -739,7 +739,7 @@ export default defineComponent({
                 }
             })
           },
-          condition: () => this.wasTransferredIn && !UserService.isClinician(),
+          condition: () => this.wasTransferredIn,
           config: {
             titles: {
               label: 'Drugs',
