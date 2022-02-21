@@ -42,11 +42,11 @@ export default defineComponent({
     medianWeightandHeight: {} as any
   }),
   watch: {
-    patient: {
-      async handler(patient) {
-        await this.init(patient)
+    ready: {
+      async handler(ready) {
+        if (ready) await this.init(this.patient)
       },
-      deep: true
+      immediate: true
     }
   },
   methods: {

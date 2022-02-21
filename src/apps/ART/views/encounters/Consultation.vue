@@ -128,8 +128,7 @@ export default defineComponent({
           this.lastDrugsReceived = await this.consultation.getPreviousDrugs();
         }
       },
-      deep: true,
-      immediate: true,
+      immediate: true
     },
   },
   methods: {
