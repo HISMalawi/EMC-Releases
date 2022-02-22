@@ -30,11 +30,8 @@
             alt="PEPFAR logo"
           />
         </span>
-        <select
-          slot="end"
-          class="devices"
-        >
-          <option>Change Platform</option>
+        <select slot="end" class="devices">
+          <option>Platform</option>
           <option 
             v-for="(device, index) in devices" 
             @click="setPlatformType(device.value)"
@@ -127,7 +124,7 @@ export default {
   background-color: var(--ion-color-primary);
   color: #fff;
   border: 1px solid lightblue;
-  font-size: 18px;
+  font-size: 1.3em;
   padding: 1rem;
   margin-right: .5rem;
 }
