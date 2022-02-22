@@ -118,6 +118,7 @@ export default defineComponent({
             const beforeNext = (v: Option) => this.validateVLresults(name, specimen, v.value.toString())
 
             const computedValue = (v: any, f: any) => {
+                if(v.value === 'Other' && name.match(/HIV viral load/i)) return {}
                 const type = f[`type_${id}`].value
                 const value = v.value.toString()
                 const modifier = value.charAt(0)
@@ -153,7 +154,7 @@ export default defineComponent({
                             value: 'numeric'
                         },
                         {
-                            label: 'Alphanumeric(text/text and numbers)',
+                            label: 'Alphanumeric(text and numbers)',
                             value: 'text'
                         }
                     ]
@@ -201,10 +202,57 @@ export default defineComponent({
                         return true
                     },
                     computedValue,
-                    beforeNext,
                     validation: (v: Option) => Validation.required(v),
-                    condition: (f: any) => condition(f) && f[`type_${id}`].value === 'text'
-                }
+                    condition: (f: any) => condition(f) && f[`type_${id}`].value === 'text' && !name.match(/HIV viral load/i)
+                },
+                {
+                    id: `VL_alpha_${id}`,
+                    helpText: `Select Test Result (${name})`,
+                    type: FieldType.TT_SELECT,
+                    group: 'test_indicator',
+                    computedValue,
+                    validation: (v: Option) => Validation.required(v),
+                    condition: (f: any) => condition(f) && f[`type_${id}`].value === 'text' && name.match(/HIV viral load/i),
+                    options: () => [
+                      {
+                        label: 'Collect Another Sample',
+                        value: '=Collect Another Sample'
+                      },
+                      {
+                        label: '<LDL',
+                        value: '<LDL'
+                      },
+                      {
+                        label: '=LDL',
+                        value: '=LDL'
+                      },
+                      {
+                        value: 'Other',
+                        label: 'Other'
+                      }
+                    ]
+                },
+                {
+                    id: `other_VL_alpha_${id}`,
+                    helpText: `Test Result (${name})`,
+                    type: FieldType.TT_TEXT,
+                    group: 'test_indicator',
+                    onValue: (v: Option) => {
+                        if (v && v.value && !this.alphaValueIsValid(v.value.toString())) {
+                            toastWarning('You must enter a modifier plus result (for example =LDL)')
+                            return false
+                        }
+                        return true
+                    },
+                    computedValue,
+                    validation: (v: Option) => Validation.required(v),
+                    condition: (f: any) => {
+                      return condition(f) && 
+                        f[`type_${id}`].value === 'text' && 
+                        name.match(/HIV viral load/i)
+                        && f[`VL_alpha_${id}`].value === 'Other'
+                    }
+                },
             ]
         },
         async initData() {
