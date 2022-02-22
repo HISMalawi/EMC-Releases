@@ -48,7 +48,7 @@
                   <b>User set appointment date</b>
                   <br>
                   <br>
-                  <span>{{ rDate }}</span>
+                  <span>{{ aDate }}</span>
                 </ion-label>
               </ion-item>
               <ion-item>

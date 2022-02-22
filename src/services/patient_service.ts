@@ -1,5 +1,4 @@
 import { Patient } from '@/interfaces/patient';
-import { getFullName } from '@/interfaces/name'
 import { getPersonAttribute } from '@/interfaces/personAttribute'
 import { getPatientIdentifier } from '@/interfaces/patientIdentifier'
 import { ObservationService } from './observation_service';
@@ -251,8 +250,21 @@ export class Patientservice extends Service {
         return this.patient.person.names[0].family_name
     }
 
+    private normaliseName(name: string) {
+        return name.replace(/n\/a|unknown|null|undefined/gi, '').trim()
+    }
+
     getFullName() {
-        return getFullName(this.patient.person.names[0]);
+        try {
+            const name = this.patient.person.names[0]
+            const firstName = name.given_name;
+            const lastName = name.family_name;
+            const middleName = name.middle_name;
+            return this.normaliseName(`${firstName} ${middleName} ${lastName}`)
+        } catch (e) {
+            console.error(e)
+            return 'Unknown'
+        }
     }
 
     getDocID() {

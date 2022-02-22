@@ -653,11 +653,11 @@ export default defineComponent({
                     ['Gender', this.editPersonData.gender,  editButton('gender')],
                     ['Birthdate', HisDate.toStandardHisDisplayFormat(this.editPersonData.birthdate),  editButton('year_birth_date')],
                     ['Cell Phone Number', this.editPersonData.cell_phone_number, editButton('cell_phone_number')],
-                    ['Current district',this.editPersonData.current_district, editButton('current_region')],
-                    ['Current T/A', this.editPersonData.current_traditional_authority, editButton('current_region')],
                     ['Home District', this.editPersonData.home_district, editButton('home_region')],
                     ['Home TA', this.editPersonData.home_traditional_authority,  editButton('home_region')],
                     ['Home Village', this.editPersonData.home_village,  editButton('home_region')],
+                    ['Current district',this.editPersonData.current_district, editButton('current_region')],
+                    ['Current T/A', this.editPersonData.current_traditional_authority, editButton('current_region')],
                 ]
                 // Tag rows with empty values
                 const emptySets: any = {indexes: [], class: 'his-empty-set-color'}

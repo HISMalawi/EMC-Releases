@@ -71,10 +71,10 @@ export class OrderService extends Service {
                 let resultDate = '';
 
                 for (let r = 0; r < results.length; r++) {
-                    resultDate = (results[r].date == null ? "" : `${results[r].date}`);
+                    resultDate = (results[r].date === null ? "" : `${results[r].date}`);
                     const name = results[r].indicator.name;
                     const value = results[r].value;
-                    const valueModifier = results[r].value_modifier === '<' ? '&lt;' : results[r].value_modifier;
+                    const valueModifier = results[r].value_modifier === '&lt;' ? '<' : results[r].value_modifier;
                     resultsArr.push(name + "   " + valueModifier + value);
                 }
                 formatted.push({

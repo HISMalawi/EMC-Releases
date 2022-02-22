@@ -178,9 +178,9 @@ import {
   IonSegmentButton,
   IonLabel,
   IonTitle,
-  isPlatform
 } from "@ionic/vue";
 import usePlatform from "@/composables/usePlatform";
+import { alertConfirmation } from "@/utils/Alerts";
 export default defineComponent({
   name: "Home",
   components: {
@@ -305,6 +305,8 @@ export default defineComponent({
       }
     },
     async signOut() {
+      const ok = await alertConfirmation('Are you sure you want to logout ?')
+      if (!ok) return
       const auth = new AuthService()
       if((await GLOBAL_PROP.portalEnabled())) {
         const portalLocation = await GLOBAL_PROP.portalProperties();

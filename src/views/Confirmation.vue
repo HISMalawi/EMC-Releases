@@ -137,6 +137,7 @@ export default defineComponent({
     cards: [] as any[],
     ddeInstance: {} as any,
     useDDE: false as boolean,
+    programInfo: {} as any,
     facts: {
       hasHighViralLoad: false as boolean,
       patientFound: false as boolean,
@@ -399,7 +400,8 @@ export default defineComponent({
     },
     async setProgramFacts() {
       this.program = new PatientProgramService(this.patient.getID())
-      const { program, outcome }: any =  await this.program.getProgram()
+      this.programInfo = await this.program.getProgram()
+      const { program, outcome }: any =  this.programInfo
       this.facts.currentOutcome = outcome
       this.facts.programName = program
       this.facts.userRoles = UserService.getUserRoles().map((r: any) => r.role)
@@ -436,8 +438,8 @@ export default defineComponent({
     async drawPatientCards() {
       if (!this.app.confirmationSummary) return
       this.cards = []
-      const summaryEntries: Record<string, Function> 
-        = await this.app.confirmationSummary(this.patient, this.program)
+      const summaryEntries: Record<string, Function>
+        = await this.app.confirmationSummary(this.patient, this.programInfo)
 
       for (const title in summaryEntries) {
         const data = await summaryEntries[title]()

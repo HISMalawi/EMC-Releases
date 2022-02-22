@@ -20,7 +20,6 @@ import {
     Target, 
     FlowState 
 } from "@/apps/ART/guidelines/prescription_guidelines"
-import ART_PROPS from "@/apps/ART/art_global_props"
 import { HTN_SESSION_KEY } from '../../services/htn_service'
 import { ProgramService } from '@/services/program_service'
 import table from "@/components/DataViews/tables/ReportDataTable"
@@ -71,14 +70,11 @@ export default defineComponent({
                 this.prescription = new PrescriptionService(this.patientID, this.providerID)
                 await this.prescription.loadMedicationOrders()
                 await this.prescription.loadFastTrackStatus()
-
                 if (!this.prescription.medicationOrdersAvailable() && !this.prescription.isFastTrack()) {
                     toastWarning('Patient is not eligible for treatment Today! Please check HIV Clinic Consultation')
                     return this.gotoPatientDashboard()
                 }
-                if ((await ART_PROPS.askPillsRemaining())) {
-                    await this.prescription.loadHangingPills()
-                } 
+                await this.prescription.loadHangingPills()
                 await this.prescription.loadRegimenExtras()
                 await this.prescription.loadTreatmentState()
                 await this.prescription.loadDrugInduced()
