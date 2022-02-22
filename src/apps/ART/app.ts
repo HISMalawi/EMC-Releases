@@ -41,6 +41,22 @@ const ART: AppInterface = {
             useForSearch: true,
             prefix: async () => `${(await GLOBAL_PROP.sitePrefix())}-ARV-`
         },
+        'Filing number': {
+            id: 17,
+            name: 'Active Filing number',
+            isPrimary: false,
+            useForSearch: true,
+            prefix: async () => {
+                try {
+                    const [active] = (await ART_PROP.filingNumberPrefix()).split(',')
+                    return active
+                } catch (e) {
+                    console.warn(e)
+                    return ''
+                }
+            },
+            globalPropertySetting: `${ART_GLOBAL_PROP.FILING_NUMBERS}=true`,
+        },
         'Archived filing number': {
             id: 18,
             name: 'Archived filing number',
@@ -50,22 +66,6 @@ const ART: AppInterface = {
                 try {
                     const [_, domarnt] = (await ART_PROP.filingNumberPrefix()).split(',')
                     return domarnt
-                } catch (e) {
-                    console.warn(e)
-                    return ''
-                }
-            },
-            globalPropertySetting: `${ART_GLOBAL_PROP.FILING_NUMBERS}=true`,
-        },
-        'Filing number': {
-            id: 17,
-            name: 'Filing number',
-            isPrimary: false,
-            useForSearch: true,
-            prefix: async () => {
-                try {
-                    const [active] = (await ART_PROP.filingNumberPrefix()).split(',')
-                    return active
                 } catch (e) {
                     console.warn(e)
                     return ''
