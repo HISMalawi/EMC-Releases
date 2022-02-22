@@ -20,7 +20,6 @@ import {
     Target, 
     FlowState 
 } from "@/apps/ART/guidelines/prescription_guidelines"
-import ART_PROPS from "@/apps/ART/art_global_props"
 import { HTN_SESSION_KEY } from '../../services/htn_service'
 import { ProgramService } from '@/services/program_service'
 import table from "@/components/DataViews/tables/ReportDataTable"
