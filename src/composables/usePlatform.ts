@@ -26,10 +26,9 @@ export default function usePlatform () {
 
   const isDesktop = () => isPlatform(DESKTOP_PLATFORMS) || !isMobile()
 
-  
   const configuredPlatform = localStorage.getItem(PLATFORM_SESSION_KEY.ACTIVE_PLATFORM)
 
-  const platformType = ref(configuredPlatform!=null ? configuredPlatform : '')
+  const platformType = ref(configuredPlatform!=null ? configuredPlatform : isDesktop() ? 'desktop' : 'mobile')
 
   const useVirtualInput = computed(() => platformType.value === 'mobile')
 
