@@ -15,7 +15,7 @@
       </barcode-input>
     </ion-content>
     <his-keyboard
-      v-if="isTouchPlatform"
+      v-if="useVirtualInput"
       :kbConfig="NUMBERS" 
       :onKeyPress="onKbClick"> 
     </his-keyboard>
@@ -60,6 +60,7 @@ import {
 } from '@ionic/vue';
 import HisKeyboard from '@/components/Keyboard/HisKeyboard.vue';
 import {NUMBERS} from "@/components/Keyboard/HisKbConfigurations"
+import usePlatform from '@/composables/usePlatform';
 
 export default defineComponent({
   name: 'HC location',
@@ -75,16 +76,10 @@ export default defineComponent({
     HisKeyboard
   },
   setup() {
+    const { useVirtualInput } = usePlatform()
     const barcodeText = ref('')
     const clearValue = ref('')
     const kbText = ref('')
-    const isTouchPlatform = getPlatforms().filter(p => [
-      'ios', 
-      'iphone', 
-      'android', 
-      'mobileweb', 
-      'tablet'
-    ].includes(p)).length >= 1
 
     async function searchLocation() {
       if (!barcodeText.value.includes('$')) {
@@ -122,7 +117,7 @@ export default defineComponent({
       onScan,
       onKbClick,
       searchLocation,
-      isTouchPlatform,
+      useVirtualInput,
       kbText,
       clearValue,
       barcodeText,

@@ -25,7 +25,7 @@
                 </ion-col>
                 <ion-col size-lg="7" size-sm="8"> 
                   <input 
-                    :readonly="isReadOnly" 
+                    :readonly="useVirtualInput" 
                     v-model="patientBarcode" 
                     class="barcode-input" 
                     ref="scanBarcode"
@@ -180,6 +180,7 @@ import {
   IonTitle,
   isPlatform
 } from "@ionic/vue";
+import usePlatform from "@/composables/usePlatform";
 export default defineComponent({
   name: "Home",
   components: {
@@ -202,6 +203,7 @@ export default defineComponent({
     IonLabel
   },
   setup() {
+    const { useVirtualInput } = usePlatform()
     return {
       barcode,
       apps, 
@@ -211,7 +213,7 @@ export default defineComponent({
       statsChart,
       pieChart,
       settings,
-      isReadOnly: !isPlatform('desktop')
+      useVirtualInput
     }
   },
   data() {

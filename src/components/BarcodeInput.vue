@@ -5,7 +5,7 @@
     </ion-col>
     <ion-col size="10">
       <input 
-        :readonly="isReadOnly" 
+        :readonly="useVirtualInput" 
         ref="barcode" 
         id="barcode-inputbox" 
         v-model="barcodeText"
@@ -15,9 +15,10 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import {IonCol,IonRow, isPlatform} from "@ionic/vue";
+import { defineComponent, onMounted, ref } from 'vue';
+import {IonCol,IonRow} from "@ionic/vue";
 import handleVirtualInput from "@/components/Keyboard/KbHandler"
+import usePlatform from '@/composables/usePlatform';
 
 export default defineComponent({
   name: 'BarcodeInput',
@@ -26,30 +27,33 @@ export default defineComponent({
     IonCol,
   },
   props: ['clearValue', 'virtualText'],
-  data: () => ({
-    barcodeText: '',
-    isReadOnly: false
-  }),
-  mounted() {
-    if(isPlatform('desktop')) {
+  setup() {
+    const barcode = ref(null)
+    const { useVirtualInput, platformType } = usePlatform()
+    if (platformType.value === 'desktop') {
       setInterval(() => {
         try {
-          this.$refs.barcode.focus()
+          barcode.value.focus()
         } catch(e) {
           //No focus
         }
       }, 1500)
-    } else {
-      this.isReadOnly = true
+    }
+    return  {
+      barcode,
+      useVirtualInput
     }
   },
+  data: () => ({
+    barcodeText: '',
+  }),
   methods: {
     checkForbarcode(){
-        if(this.barcodeText.match(/.+\$$/i) != null){
-          const text = this.barcodeText.replace(/\$/ig, '');
-          this.$emit('onScan', text)
-          this.barcodeText = ''
-        }
+      if(this.barcodeText.match(/.+\$$/i) != null){
+        const text = this.barcodeText.replace(/\$/ig, '');
+        this.$emit('onScan', text)
+        this.barcodeText = ''
+      }
     }
   },
   watch: {
