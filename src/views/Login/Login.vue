@@ -14,7 +14,7 @@
       </ion-toolbar>
     </ion-header>
     <ion-content fullscreen="false">
-      <inputs></inputs>
+      <inputs :useVirtualInput="useVirtualInput"/>
     </ion-content>
     <ion-footer>
       <ion-toolbar>
@@ -30,6 +30,17 @@
             alt="PEPFAR logo"
           />
         </span>
+        <select v-model="platform" slot="end" class="devices">
+          <option>Platform</option>
+          <option
+            v-for="(device, index) in devices" 
+            :key="index"
+            :value="device.value"
+            :selected="device.value === platform"
+          >
+            {{ device.label }}
+          </option>
+        </select>
         <ion-button
           slot="end"
           class="config"
@@ -56,6 +67,9 @@ import {
 import img from '@/utils/Img';
 import { onMounted, ref } from '@vue/runtime-core';
 import { AuthService } from '@/services/auth_service';
+import usePlatform from '@/composables/usePlatform';
+import { computed, watch } from 'vue';
+
 export default {
   name: "login",
   components: {
@@ -70,7 +84,19 @@ export default {
     IonFooter,
   },
   setup() {
+    const { platformType, setPlatformType } = usePlatform()
+    const useVirtualInput = computed(() => platformType.value === 'mobile')
+    const platform = ref(platformType.value || 'Platform')
     const version = ref('')
+    const devices = ref([
+      {label: 'Mobile', value: 'mobile'},
+      {label: "Desktop", value: "desktop"}
+    ])
+
+    watch(platform, p => {
+      if (['mobile', 'desktop'].includes(p)) setPlatformType(p as 'mobile' | 'desktop')  
+    })
+
     onMounted(async () => {
       const auth = new AuthService()
       const appV = await auth.getCoreVersion()
@@ -78,7 +104,10 @@ export default {
       version.value = `${appV} / ${apiV}`
     })
     return {
+      devices,
       version,
+      platform,
+      useVirtualInput,
       coatImg: img('login-logos/Malawi-Coat_of_arms_of_arms.png'),
       pepfarImg: img('login-logos/PEPFAR.png'),
       showConfig: localStorage.getItem("useLocalStorage") === "true"
@@ -94,5 +123,17 @@ export default {
 #pepfar {
   width: 6vw;
   height: 6vw;
+}
+.devices {
+  background-color: var(--ion-color-primary);
+  color: #fff;
+  border: 1px solid lightblue;
+  font-size: 1.3em;
+  padding: 1rem;
+  margin-right: .5rem;
+}
+.devices>option {
+  background: #fff;
+  color: black;
 }
 </style>
