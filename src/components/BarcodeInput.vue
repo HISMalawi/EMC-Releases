@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, ref } from 'vue';
 import {IonCol,IonRow} from "@ionic/vue";
 import handleVirtualInput from "@/components/Keyboard/KbHandler"
 import usePlatform from '@/composables/usePlatform';
