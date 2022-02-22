@@ -30,6 +30,20 @@
             alt="PEPFAR logo"
           />
         </span>
+        <select
+          slot="end"
+          class="devices"
+          @select="(value) => setPlatform(value)"
+        >
+          <option 
+            v-for="(device, index) in devices" 
+            :key="index" 
+            :value="device.value"
+            :selected="device === platform"
+          >
+            {{ device.label }}
+          </option>
+        </select>
         <ion-button
           slot="end"
           class="config"
@@ -56,6 +70,7 @@ import {
 import img from '@/utils/Img';
 import { onMounted, ref } from '@vue/runtime-core';
 import { AuthService } from '@/services/auth_service';
+import usePlatform from '@/composables/usePlatform';
 export default {
   name: "login",
   components: {
@@ -70,7 +85,14 @@ export default {
     IonFooter,
   },
   setup() {
+    const { name:platform, setPlatform } = usePlatform()
     const version = ref('')
+    const devices = ref([
+      {label: 'Mobile', value: 'Mobile'},
+      {label: 'Tablet', value: 'Tablet'},
+      {label: "Laptop", value: "Laptop"},
+      {label: "Desktop", value: "Desktop"}
+    ])
     onMounted(async () => {
       const auth = new AuthService()
       const appV = await auth.getCoreVersion()
@@ -78,6 +100,9 @@ export default {
       version.value = `${appV} / ${apiV}`
     })
     return {
+      platform,
+      setPlatform,
+      devices,
       version,
       coatImg: img('login-logos/Malawi-Coat_of_arms_of_arms.png'),
       pepfarImg: img('login-logos/PEPFAR.png'),
@@ -94,5 +119,17 @@ export default {
 #pepfar {
   width: 6vw;
   height: 6vw;
+}
+.devices {
+  background-color: var(--ion-color-primary);
+  color: #fff;
+  border: 1px solid lightblue;
+  font-size: 18px;
+  padding: 1rem;
+  margin-right: .5rem;
+}
+.devices>option {
+  background: #fff;
+  color: black;
 }
 </style>
