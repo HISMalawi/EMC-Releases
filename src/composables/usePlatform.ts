@@ -1,5 +1,5 @@
 import { getPlatforms } from "@ionic/vue";
-import { onMounted, ref, unref } from "vue";
+import { computed, ref, watch } from "vue";
 
 export enum PLATFORM_SESSION_KEY {
   ACTIVE_PLATFORM = 'cur_platform'
@@ -26,23 +26,21 @@ export default function usePlatform () {
 
   const isDesktop = () => isPlatform(DESKTOP_PLATFORMS) || !isMobile()
 
+  
   const configuredPlatform = localStorage.getItem(PLATFORM_SESSION_KEY.ACTIVE_PLATFORM)
 
-  const platformType = ref(
-    configuredPlatform!=null 
-      ? configuredPlatform
-      : isDesktop() 
-      ? 'desktop' 
-      : 'mobile'
-    )
+  const platformType = ref(configuredPlatform!=null ? configuredPlatform : '')
+
+  const useVirtualInput = computed(() => platformType.value === 'mobile')
 
   const setPlatformType = (platform: 'mobile' | 'desktop') => {
     platformType.value = platform
     localStorage.setItem(PLATFORM_SESSION_KEY.ACTIVE_PLATFORM, platform)
-  }
+  }  
 
   return {
     platformType,
+    useVirtualInput,
     isMobile,
     isDesktop,
     setPlatformType
