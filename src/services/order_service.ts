@@ -43,6 +43,20 @@ export class OrderService extends Service {
         });
     }
 
+    static isDBSResult(specimen: string) {
+        return specimen.match(/DBS/i)
+    }
+
+    static isValidVLResult(specimen: string, modifier: string, value: string){
+        if (this.isDBSResult(specimen)){
+            return (modifier.match(/</) && value.match(/ldl|400|550|839/i)) ||
+            (modifier.match(/=/) && (parseFloat(value) >= 400)) ||
+            (modifier !== '>')
+        }
+        return (modifier.match(/</) && value.match(/ldl|20|40|150/i)) || 
+            (modifier.match(/=/) && (parseFloat(value) >= 20))
+    }
+
     static isHighViralLoadResult(result: any) {
         if(result.value_modifier === '=' && parseFloat(result.value) >= 1000) return true
 
@@ -74,7 +88,7 @@ export class OrderService extends Service {
                     resultDate = (results[r].date === null ? "" : `${results[r].date}`);
                     const name = results[r].indicator.name;
                     const value = results[r].value;
-                    const valueModifier = results[r].value_modifier === '&lt;' ? '<' : results[r].value_modifier;
+                    const valueModifier = results[r].value_modifier.replace('&lt;', '<').replace('&gt;', '>');
                     resultsArr.push(name + "   " + valueModifier + value);
                 }
                 formatted.push({
