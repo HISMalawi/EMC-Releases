@@ -74,7 +74,7 @@ export class OrderService extends Service {
                     resultDate = (results[r].date === null ? "" : `${results[r].date}`);
                     const name = results[r].indicator.name;
                     const value = results[r].value;
-                    const valueModifier = results[r].value_modifier === '&lt;' ? '<' : results[r].value_modifier;
+                    const valueModifier = results[r].value_modifier.replace('&lt;', '<').replace('&gt;', '>');
                     resultsArr.push(name + "   " + valueModifier + value);
                 }
                 formatted.push({
