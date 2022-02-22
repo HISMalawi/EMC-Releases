@@ -71,14 +71,11 @@ export default defineComponent({
                 this.prescription = new PrescriptionService(this.patientID, this.providerID)
                 await this.prescription.loadMedicationOrders()
                 await this.prescription.loadFastTrackStatus()
-
                 if (!this.prescription.medicationOrdersAvailable() && !this.prescription.isFastTrack()) {
                     toastWarning('Patient is not eligible for treatment Today! Please check HIV Clinic Consultation')
                     return this.gotoPatientDashboard()
                 }
-                if ((await ART_PROPS.askPillsRemaining())) {
-                    await this.prescription.loadHangingPills()
-                } 
+                await this.prescription.loadHangingPills()
                 await this.prescription.loadRegimenExtras()
                 await this.prescription.loadTreatmentState()
                 await this.prescription.loadDrugInduced()
