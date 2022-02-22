@@ -14,7 +14,7 @@
       </ion-toolbar>
     </ion-header>
     <ion-content fullscreen="false">
-      <inputs></inputs>
+      <inputs :useVirtualInput="useVirtualInput"/>
     </ion-content>
     <ion-footer>
       <ion-toolbar>
@@ -33,13 +33,14 @@
         <select
           slot="end"
           class="devices"
-          @select="(value) => setPlatform(value)"
         >
+          <option>Change Platform</option>
           <option 
             v-for="(device, index) in devices" 
+            @click="setPlatformType(device.value)"
             :key="index" 
             :value="device.value"
-            :selected="device === platform"
+            :selected="device.value === platformType"
           >
             {{ device.label }}
           </option>
@@ -71,6 +72,8 @@ import img from '@/utils/Img';
 import { onMounted, ref } from '@vue/runtime-core';
 import { AuthService } from '@/services/auth_service';
 import usePlatform from '@/composables/usePlatform';
+import { computed } from 'vue';
+
 export default {
   name: "login",
   components: {
@@ -85,13 +88,12 @@ export default {
     IonFooter,
   },
   setup() {
-    const { name:platform, setPlatform } = usePlatform()
+    const { platformType, setPlatformType } = usePlatform()
+    const useVirtualInput = computed(() => platformType.value === 'mobile')
     const version = ref('')
     const devices = ref([
-      {label: 'Mobile', value: 'Mobile'},
-      {label: 'Tablet', value: 'Tablet'},
-      {label: "Laptop", value: "Laptop"},
-      {label: "Desktop", value: "Desktop"}
+      {label: 'Mobile', value: 'mobile'},
+      {label: "Desktop", value: "desktop"}
     ])
     onMounted(async () => {
       const auth = new AuthService()
@@ -100,10 +102,11 @@ export default {
       version.value = `${appV} / ${apiV}`
     })
     return {
-      platform,
-      setPlatform,
       devices,
       version,
+      platformType,
+      setPlatformType,
+      useVirtualInput,
       coatImg: img('login-logos/Malawi-Coat_of_arms_of_arms.png'),
       pepfarImg: img('login-logos/PEPFAR.png'),
       showConfig: localStorage.getItem("useLocalStorage") === "true"
