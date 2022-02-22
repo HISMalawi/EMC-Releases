@@ -30,14 +30,13 @@
             alt="PEPFAR logo"
           />
         </span>
-        <select slot="end" class="devices">
+        <select v-model="platform" slot="end" class="devices">
           <option>Platform</option>
-          <option 
+          <option
             v-for="(device, index) in devices" 
-            @click="setPlatformType(device.value)"
-            :key="index" 
+            :key="index"
             :value="device.value"
-            :selected="device.value === platformType"
+            :selected="device.value === platform"
           >
             {{ device.label }}
           </option>
@@ -69,7 +68,7 @@ import img from '@/utils/Img';
 import { onMounted, ref } from '@vue/runtime-core';
 import { AuthService } from '@/services/auth_service';
 import usePlatform from '@/composables/usePlatform';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 
 export default {
   name: "login",
@@ -87,11 +86,17 @@ export default {
   setup() {
     const { platformType, setPlatformType } = usePlatform()
     const useVirtualInput = computed(() => platformType.value === 'mobile')
+    const platform = ref(platformType.value || 'Platform')
     const version = ref('')
     const devices = ref([
       {label: 'Mobile', value: 'mobile'},
       {label: "Desktop", value: "desktop"}
     ])
+
+    watch(platform, p => {
+      if (['mobile', 'desktop'].includes(p)) setPlatformType(p as 'mobile' | 'desktop')  
+    })
+
     onMounted(async () => {
       const auth = new AuthService()
       const appV = await auth.getCoreVersion()
@@ -101,8 +106,7 @@ export default {
     return {
       devices,
       version,
-      platformType,
-      setPlatformType,
+      platform,
       useVirtualInput,
       coatImg: img('login-logos/Malawi-Coat_of_arms_of_arms.png'),
       pepfarImg: img('login-logos/PEPFAR.png'),
