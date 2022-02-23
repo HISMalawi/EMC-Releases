@@ -273,6 +273,7 @@ import {
 } from "@ionic/vue";
 import { EncounterService } from '@/services/encounter_service'
 import { ConceptService } from "@/services/concept_service"
+import { PersonService } from "@/services/person_service"
 export default defineComponent({
     components: {
         IonSegment,
@@ -372,7 +373,7 @@ export default defineComponent({
             if (!(this.appHasCustomContent)) {
                 this.encounters = await EncounterService.getEncounters(this.patientId, {date})
                 this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
-                this.encountersCardItems = this.getActivitiesCardInfo(this.encounters)
+                this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
                 this.medicationCardItems = this.getMedicationCardInfo(this.medications)
                 this.labOrderCardItems = await this.getLabOrderCardInfo(date)
                 this.updateCards()
@@ -498,10 +499,12 @@ export default defineComponent({
            }
         },
         getActivitiesCardInfo(encounters: Array<Encounter>) {
-            return encounters.map((encounter: Encounter) => ({
+            const items = encounters.map(async (encounter: Encounter) => {
+                return {
                 label: encounter.type.name,
                 value: this.toTime(encounter.encounter_datetime),
                 other: {
+                    provider: await PersonService.getPersonFullName(encounter.provider_id),
                     id: encounter.encounter_id,
                     columns: ['Observation', 'Value', 'Time'],
                     onVoid: async (reason: any) => {
@@ -537,7 +540,9 @@ export default defineComponent({
                         return data
                     }
                 }
-            }))
+                }
+            })
+            return Promise.all(items)
         },
         getMedicationCardInfo(medications: any) {
             return medications.map((medication: any) => ({

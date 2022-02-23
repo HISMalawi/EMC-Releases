@@ -42,4 +42,9 @@ export class PersonService extends Service{
     static searchGivenName(name: string) {
         return super.getJson('/search/given_name', {'search_string': name})
     }
+
+    static async getPersonFullName(personId: string | number) {
+        const names = await super.getJson(`/people/${personId}/names`)
+        return names && names.length ? names[0].given_name + ' ' + names[0].family_name : ''
+    }
 }
