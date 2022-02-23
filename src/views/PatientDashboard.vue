@@ -531,7 +531,7 @@ export default defineComponent({
                                 console.error(obs, e)
                             }
                             const value = await ObservationService.resolvePrimaryValue(obs)
-                            const time = HisDate.toStandardHisTimeFormat(obs.obs_datetime)
+                            const time = HisDate.toStandardHisTimeFormat(obs.date_created)
                             data.push([concept, value, time])
                         }
                         return data
