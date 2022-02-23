@@ -31,7 +31,6 @@
           />
         </span>
         <select v-model="platform" slot="end" class="devices">
-          <option>Platform</option>
           <option
             v-for="(device, index) in devices" 
             :key="index"
