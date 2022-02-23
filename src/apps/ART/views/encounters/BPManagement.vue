@@ -164,9 +164,9 @@ export default defineComponent({
     bpGradeColorMap: {
       'N/A': '#ffffff',
       'normal': '#ffffff',
-      'grade 1': '#feede2',
-      'grade 2': '#fef9df',
-      'grade 3': '#fcd4d4'
+      'grade 1': '#FFC3CE',
+      'grade 2': '#F20056',
+      'grade 3': '#FF3333'
     } as any,
     rows: [] as any,
     riskFactors: [] as any,
