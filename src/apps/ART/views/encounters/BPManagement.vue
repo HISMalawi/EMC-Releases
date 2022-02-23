@@ -35,7 +35,7 @@
                 :key="index"
               >
                 <ion-item>
-                  <ion-label>{{ item.label }}</ion-label>
+                  <ion-label style="font-size:1.0rem;font-weight:bold">{{ item.label }}</ion-label>
                   <ion-radio :value="item"></ion-radio>
                 </ion-item>
               </ion-col>
@@ -164,9 +164,9 @@ export default defineComponent({
     bpGradeColorMap: {
       'N/A': '#ffffff',
       'normal': '#ffffff',
-      'grade 1': '#feede2',
-      'grade 2': '#fef9df',
-      'grade 3': '#fcd4d4'
+      'grade 1': '#FFC3CE',
+      'grade 2': '#F20056',
+      'grade 3': '#FF3333'
     } as any,
     rows: [] as any,
     riskFactors: [] as any,
@@ -337,7 +337,7 @@ export default defineComponent({
           table.td(trail[m].sbp, { style }),
           table.td(trail[m].dbp, { style }),
           table.td(trail[m]["drugs"].join(", "), { style }),
-          table.td(trail[m].notes, { style })
+          table.td(trail[m].note, { style })
         ]
       })
     },
