@@ -35,7 +35,7 @@
                 :key="index"
               >
                 <ion-item>
-                  <ion-label>{{ item.label }}</ion-label>
+                  <ion-label style="font-size:1.0rem;font-weight:bold">{{ item.label }}</ion-label>
                   <ion-radio :value="item"></ion-radio>
                 </ion-item>
               </ion-col>
