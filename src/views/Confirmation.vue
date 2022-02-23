@@ -56,7 +56,7 @@
           color="danger left"
           size="large"
           @click="onVoid"
-          >Void</ion-button
+          >Void Client</ion-button
         >
         <ion-button 
           v-if="facts.patientFound"
