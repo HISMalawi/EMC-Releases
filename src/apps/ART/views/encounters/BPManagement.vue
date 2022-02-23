@@ -337,7 +337,7 @@ export default defineComponent({
           table.td(trail[m].sbp, { style }),
           table.td(trail[m].dbp, { style }),
           table.td(trail[m]["drugs"].join(", "), { style }),
-          table.td(trail[m].notes, { style })
+          table.td(trail[m].note, { style })
         ]
       })
     },
