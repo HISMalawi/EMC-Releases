@@ -295,18 +295,14 @@ export default defineComponent({
     },
     setup() {
         return {
-            man,
             time,
             person,
             calendar,
             medical,
-            woman,
             clipboard, 
             apps, 
             folder,
             logOut, 
-            timeOutline, 
-            warningOutline,
             clipboardOutline, 
             appsOutline, 
             folderOutline,
