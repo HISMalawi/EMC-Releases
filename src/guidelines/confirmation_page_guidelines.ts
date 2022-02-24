@@ -388,6 +388,9 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             },
             demographics: ({patientIsComplete}: any) => {
                 return patientIsComplete === false
+            },
+            patientFound: (isFound: boolean) => {
+                return isFound === true
             }
         }
     },
@@ -487,6 +490,9 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             },
             demographics: ({patientIsComplete}: any) => {
                 return patientIsComplete === false
+            },
+            patientFound: (isFound: boolean) => {
+                return isFound === true
             },
             userRoles(roles: string[]) {
                 return roles.includes("Program Manager") === true
