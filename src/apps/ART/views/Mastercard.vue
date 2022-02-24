@@ -37,7 +37,6 @@ import { alertConfirmation } from "@/utils/Alerts";
 import { ProgramService } from "@/services/program_service";
 import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { NavBtnInterface } from "@/components/HisDynamicNavFooterInterface";
-import moment from "dayjs";
 
 export default defineComponent({
   components: {
@@ -114,8 +113,8 @@ export default defineComponent({
       this.$router.push({
         path: "/patient/registration",
         query: {
-          edit_person: this.patientId,
-          person_attribute: attribute,
+          'edit_person': this.patientId,
+          'person_attribute': attribute,
         },
       });
     },
@@ -375,7 +374,7 @@ export default defineComponent({
       const modal = await modalController.create({
         component: MastercardDetails,
         backdropDismiss: false,
-        cssClass: "custom-modal",
+        cssClass: "large-modal",
         componentProps: {
           title: `${title}: ${HisDate.toStandardHisDisplayFormat(date)}`,
           visitData: this.FormData(data),
