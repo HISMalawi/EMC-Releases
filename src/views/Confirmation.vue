@@ -528,7 +528,7 @@ export default defineComponent({
           return FlowState.FORCE_EXIT
         },
         'printNPID': () => {
-          this.ddeInstance.printNpid()
+          this.ddeInstance.printNpid(this.patient.getID())
           return FlowState.CONTINUE
         },
         'createNpiDWithRemote': async () => {
