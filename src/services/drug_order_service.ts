@@ -22,6 +22,14 @@ export class DrugOrderService extends Service {
         })
     }
 
+    static getAllDrugOrders(patientID: number, pageSize=1000) {
+        return this.getJson('drug_orders', {
+            'patient_id': patientID,
+            'program_id': Service.getProgramID(),
+            'page_size': pageSize
+        })
+    }
+
     static getLastDrugsReceived(patientID: number) {
         return this.getJson(`patients/${patientID}/last_drugs_received`, {
             'date': this.getSessionDate(),

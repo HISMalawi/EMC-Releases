@@ -3,6 +3,7 @@ import { AppEncounterService } from "@/services/app_encounter_service";
 import { ObservationService } from "@/services/observation_service";
 import dayjs from "dayjs";
 import { isEmpty } from "lodash";
+import { DrugOrderService } from "@/services/drug_order_service"
 
 export class ConsultationService extends AppEncounterService {
   constructor(patientID: number, providerID: number) {
@@ -19,6 +20,24 @@ export class ConsultationService extends AppEncounterService {
       "TUBAL LIGATION",
       "NONE",
     ];
+  }
+
+  async hasCompleteTptDispensations() {
+    const orders = await DrugOrderService.getAllDrugOrders(this.patientID)
+    const { rifapentine, isoniazid } = orders.reduce((quantities: any, order: any) => {
+      const name = order.drug.name
+      if (name.match(/Isoniazid/i))
+        quantities['isoniazid'] += order.quantity
+      if (name.match(/Rifapentine/i))
+        quantities['rifapentine'] += order.quantity
+      return quantities
+    }, {'rifapentine': 0, 'isoniazid': 0})
+    try {
+      return isoniazid >= 168 || isoniazid >= 36 && rifapentine >= 72
+    } catch (e) {
+      console.warn(e)
+      return false
+    }
   }
 
   async patientHitMenopause() {
