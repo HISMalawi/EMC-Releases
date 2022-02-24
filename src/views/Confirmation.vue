@@ -527,9 +527,9 @@ export default defineComponent({
           this.$router.push(`/patient/registration?edit_person=${this.patient.getID()}`)
           return FlowState.FORCE_EXIT
         },
-        'printNPID': async () => {
-          loadingController.dismiss()
-          await this.ddeInstance.printNpid()
+        'printNPID': () => {
+          this.ddeInstance.printNpid()
+          return FlowState.CONTINUE
         },
         'createNpiDWithRemote': async () => {
           const npid = this.facts.dde.remoteNpidDiff
