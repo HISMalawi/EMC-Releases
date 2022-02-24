@@ -131,6 +131,15 @@ export default defineComponent({
             colors: ['#656565']
           }
         },
+        stroke: {
+          show: true,
+          width: 1,
+          colors: ['#fff']
+        },
+        tooltip: {
+          shared: true,
+          intersect: false,
+        },
         grid: {
           column: {
             colors: ["#FFFFFF", "#FFFFFF", "green"],
