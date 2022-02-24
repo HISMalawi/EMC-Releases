@@ -53,7 +53,8 @@ export default defineComponent({
         if (isArray(f)) {
           let j = "";
           f.forEach((element) => {
-            j += `${element.join(":")} (%), `;
+            console.log(element)
+            j += `${element[0]}: (${element[1]}%), `;
           });
           return j;
         }
