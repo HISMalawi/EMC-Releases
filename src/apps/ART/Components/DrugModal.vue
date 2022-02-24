@@ -1,11 +1,11 @@
 <template>
   <ion-header>
     <ion-toolbar>
-      <ion-title
-        >Stock levels (Consumption rate calculated over a 3 month
-        period)</ion-title
-      >
-      <ion-button color="danger" slot="end" @click="closeModal()">X</ion-button>
+      <ion-title>
+        Stock levels (Consumption rate calculated over a 3 month
+        period)
+      </ion-title>
+      <ion-button color="danger" slot="end" @click="closeModal()" class="ion-margin-end">X</ion-button>
     </ion-toolbar>
   </ion-header>
   <ion-toolbar>
