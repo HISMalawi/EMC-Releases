@@ -8,7 +8,7 @@
     ></information-header>
     <ion-content>
       <visit-information
-        :items="visitDates"
+        :getVisitDates="getPatientVisitDates"
         @onPrint="printLabel"
         @onDetails="showMore"
         style="font-size: 11px;"
@@ -102,7 +102,6 @@ export default defineComponent({
       this.patient = await this.fetchPatient(this.patientId);
       this.guardians = await this.getGuardian();
       this.patientCardInfo = await this.getPatientCardInfo(this.patient);
-      this.visitDates = await this.getPatientVisitDates(this.patientId);
       this.btns.push(this.getFinishBtn())
     },
     async getGuardian(){
@@ -148,8 +147,8 @@ export default defineComponent({
     getProp(data: any, prop: string): string {
       return prop in data ? data[prop]() : "-";
     },
-    async getPatientVisitDates(patientId: number) {
-      const dates = await Patientservice.getPatientVisits(patientId, true);
+    async getPatientVisitDates() {
+      const dates = await Patientservice.getPatientVisits(this.patientId, true);
       const f = dates.map((date: string) => {
         return this.getExtras(date).then((d) => {
           return {

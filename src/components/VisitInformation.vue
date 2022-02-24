@@ -1,7 +1,7 @@
 <template>
   <div class="report-content">
     <report-table
-      :rows="rows"
+      :asyncRows="getRows"
       :columns="columns"
       :config="{ showIndex: false }"
     ></report-table>
@@ -35,8 +35,8 @@ export default defineComponent({
     icon: {
       required: false,
     },
-    items: {
-      type: Object as PropType<any[]>,
+    getVisitDates: {
+      type: Function,
       required: true,
     },
   },
@@ -62,10 +62,9 @@ export default defineComponent({
         return vals;
       }
     },
-  },
-  computed: {
-    rows(): RowInterface[][] {  
-      return this.items.map((item) => {
+    async getRows () {
+      const visitDates = await this.getVisitDates()
+      return visitDates.map((item: any) => {
         return [
           table.tdBtn(item.label, () => this.printLabel(item.value), smallText, 'secondary'),
           table.td(item.data.weight, smallText),
@@ -76,6 +75,6 @@ export default defineComponent({
         ]
       })
     }
-  }
+  },
 });
 </script>
