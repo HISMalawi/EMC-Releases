@@ -23,12 +23,12 @@ export default defineComponent({
   },
   data: () => ({
     columns: [[
-      table.thTxt('Visit Date', largeText),
-      table.thTxt('Weight (Kg)', largeText),
-      table.thTxt('Reg', largeText),
-      table.thTxt('ADH', largeText),
-      table.thTxt('Outcome', largeText),
-      table.thTxt('Actions', largeText)
+      table.thTxt('VISIT DATE', largeText),
+      table.thTxt('WEIGHT (Kg)', largeText),
+      table.thTxt('REGIMEN', largeText),
+      table.thTxt('ADHERENCE', largeText),
+      table.thTxt('OUTCOME', largeText),
+      table.thTxt('ACTIONS', largeText)
     ]] as ColumnInterface[][],
   }),
   props: {
