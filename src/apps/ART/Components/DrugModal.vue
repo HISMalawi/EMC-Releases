@@ -99,6 +99,9 @@ export default defineComponent({
           bar: {
             borderRadius: 4,
             horizontal: true,
+            dataLabels: {
+              position: 'top',
+            },
             colors: {
               ranges: [
                 {
@@ -119,6 +122,14 @@ export default defineComponent({
               ],
             },
           },
+        },
+        dataLabels: {
+          enabled: true,
+          offsetX: 0,
+          style: {
+            fontSize: '12px',
+            colors: ['#656565']
+          }
         },
         grid: {
           column: {
