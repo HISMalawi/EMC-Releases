@@ -25,8 +25,7 @@
                 type="text"
                 class='keypad-input'
                 v-if="keys.length > 0"
-                :value="keys[activeField].value"
-                :readonly="!(isPlatform('desktop'))"
+                v-model="keys[activeField].value"
               />
               <table class="keypad">
                 <tr v-for="(row, rowIndex) in keyboard" :key="rowIndex">
@@ -83,7 +82,8 @@ import {
   IonGrid,
   IonCol,
   IonRow,
-  isPlatform
+  isPlatform,
+  IonInput
 } from "@ionic/vue";
 import { VITALS_KEYPAD } from "../Keyboard/KbLayouts";
 import OptionButton from "@/components/Buttons/ActionSideButton.vue"
@@ -95,6 +95,7 @@ import { isPlainObject } from "lodash";
 export default defineComponent({
   components: {
     ViewPort,
+    IonInput,
     IonGrid,
     IonCol,
     IonRow,
