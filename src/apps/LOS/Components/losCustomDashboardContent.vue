@@ -11,22 +11,18 @@
     <p/>
     <!-- Action Table -->
     <div :style="{overflowX: 'auto', height:'84%'}"> 
-    <report-table
-        :config="{
-            showIndex: false
-        }"
-        v-if="activeTab === 'openOrders'" 
-        :rows="labOrderRows" :columns="openColumns"
-        >
-    </report-table>
-    <report-table
-        :config="{
-            showIndex: false
-        }"
-        v-if="activeTab === 'drawnOrders'" 
-        :rows="drawnOrders" :columns="drawnColumns"
-        >
-    </report-table>
+        <report-table
+            v-if="activeTab === 'openOrders'" 
+            :config="{ showIndex: false }"
+            :rows="labOrderRows"
+            :columns="openColumns">
+        </report-table>
+        <report-table
+            v-if="activeTab === 'drawnOrders'" 
+            :config="{ showIndex: false }"
+            :rows="drawnOrders"
+            :columns="drawnColumns">
+        </report-table>
     </div>
     <!---Specimen selection modal--->
     <ion-modal :is-open="showSpecimenModal" class="custom-modal"> 
@@ -186,8 +182,7 @@ export default defineComponent({
                     await this.initiateDrawn()
                 }
             },
-            immediate: true,
-            deep: true
+            immediate: true
         }
     },
     methods : {
@@ -196,6 +191,9 @@ export default defineComponent({
         },
         async initiateOpen() {
             this.labOrderRows = this.getLabOrderRows((await this.service.getOrders('ordered')))
+        },
+        removeLabOrderRow(orderID: number) {
+            this.labOrderRows = this.labOrderRows.filter((r: any) => r[0]?.value?.orderID != orderID)
         },
         async drawOrder() {
             try {
@@ -206,7 +204,7 @@ export default defineComponent({
                     // Update drawn order rows
                     this.drawnOrders = this.drawnOrders.concat(this.getdrawnOrders([req]))
                     // Remove drawn order from orders list
-                    this.labOrderRows.splice(this.order.orderIndex, 1)
+                    this.removeLabOrderRow(this.order.order_id)
                     this.showSpecimenModal = false
                     return this.service.printSpecimenLabel(this.order.order_id)
                 }
@@ -217,14 +215,13 @@ export default defineComponent({
         },
         getLabOrderRows(data: any): Array<RowInterface[]> {
             return data.map((d: any, index: number) => ([
-                table.td(d.accession_number),
+                table.td(d.accession_number, { value: { orderID: d.order_id }}),
                 table.td(d.tests.map((t: any) => t.name).join(',')),
                 table.td(d.reason_for_test.name || 'N/A'),
                 table.tdBtn('Drawn', async () => {
                     this.order = {...d, orderIndex: index }
                     this.showSpecimenModal = true
-                    this.specimens = await PatientLabService
-                        .getSpecimensForTests(d.tests)
+                    this.specimens = await PatientLabService.getSpecimensForTests(d.tests)
                 }, {}, 'success'),
                 /**
                  * Order delete button
@@ -234,7 +231,7 @@ export default defineComponent({
                         async (reason: string) => {
                             try {
                                 await this.service.voidOrder(d.order_id, reason)
-                                this.labOrderRows.splice(index, 1)
+                                this.removeLabOrderRow(d.order_id)
                             } catch (e) {
                                 toastDanger(e)
                             }
@@ -251,12 +248,9 @@ export default defineComponent({
             return data.map((d: any) => ([
                 table.td(d.accession_number),
                 table.td(d.tests.map((t: any) => t.name).join(',')),
-                table.tdBtn('Print', () => {
-                    this.service.printSpecimenLabel(d.order_id)
-                })
+                table.tdBtn('Print', () => this.service.printSpecimenLabel(d.order_id))
             ]))
-        },
-
+        }
     },
     props: {
         patient: {
