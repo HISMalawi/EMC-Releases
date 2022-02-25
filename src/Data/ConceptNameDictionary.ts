@@ -372,7 +372,7 @@ export default [
       "name": "Confirmatory"
    }, {
       "categories": [],
-      "concept_id": 6383,
+      "concept_id": 6368,
       "name": "Stat"
    }, {
       "categories": [],
