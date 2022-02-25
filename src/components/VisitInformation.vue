@@ -28,8 +28,8 @@ export default defineComponent({
     },
     columns: [[
       table.thTxt('VISIT DATE', thStyles),
-      table.thTxt('WT (Kg)', thStyles),
-      table.thTxt('HT (cm)', thStyles),
+      table.thTxt('WEIGHT (Kg)', thStyles),
+      table.thTxt('HEIGHT (cm)', thStyles),
       table.thTxt('BMI', thStyles),
       table.thTxt('REG', thStyles),
       table.thTxt('ADHERENCE', thStyles),
