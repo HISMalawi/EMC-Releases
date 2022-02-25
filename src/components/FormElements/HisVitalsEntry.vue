@@ -26,6 +26,7 @@
                 class='keypad-input'
                 v-if="keys.length > 0"
                 v-model="keys[activeField].value"
+                :readonly="useVirtualInput"
               />
               <table class="keypad">
                 <tr v-for="(row, rowIndex) in keyboard" :key="rowIndex">
@@ -82,7 +83,6 @@ import {
   IonGrid,
   IonCol,
   IonRow,
-  isPlatform,
   IonInput
 } from "@ionic/vue";
 import { VITALS_KEYPAD } from "../Keyboard/KbLayouts";
@@ -92,6 +92,7 @@ import { toastWarning } from "@/utils/Alerts";
 import { Option } from "../Forms/FieldInterface";
 import Img from "@/utils/Img"
 import { isPlainObject } from "lodash";
+import usePlatform from "@/composables/usePlatform";
 export default defineComponent({
   components: {
     ViewPort,
@@ -107,8 +108,13 @@ export default defineComponent({
     vitalsStatus: {} as Record<string, any>,
     activeField: 0,
     keyboard: VITALS_KEYPAD,
-    isPlatform,
   }),
+  setup() {
+    const  { useVirtualInput } = usePlatform()
+    return {
+      useVirtualInput
+    }
+  },
   activated(){
     this.$emit('onFieldActivated', this)
   },
