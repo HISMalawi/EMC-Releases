@@ -53,7 +53,6 @@ export default defineComponent({
         if (isArray(f)) {
           let j = "";
           f.forEach((element) => {
-            console.log(element)
             j += `${element[0]}: (${element[1]}%), `;
           });
           return j;
@@ -79,3 +78,21 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
