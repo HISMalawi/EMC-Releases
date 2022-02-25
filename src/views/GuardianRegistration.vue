@@ -113,14 +113,14 @@ export default defineComponent({
         let name = ''
         let gender = ''
 
-        if(isEmpty(guardian) && !this.isRegistrationMode()) {
-            birthdate = this.guardianData.birthdate
-            name = this.guardianData.name
-            gender = this.guardianData.gender
-        } else {
+        if(this.isRegistrationMode()) {
             birthdate = HisDate.toStandardHisDisplayFormat(guardian.birth_date.date)
             name = guardian.given_name.person && guardian.family_name.person
             gender = guardian.gender.person
+        } else {
+            birthdate = this.guardianData.birthdate
+            name = this.guardianData.name
+            gender = this.guardianData.gender  
         }
 
         return (name.toLowerCase() === this.patientData.name.toLowerCase()) 
@@ -334,6 +334,7 @@ export default defineComponent({
                             this.guardianData = this.toPersonData(
                                 form.results.other.person.person
                             )
+                            console.log(this.guardianData)
                             this.fieldComponent = 'relations'
                             this.fieldAction = 'Search'
                         }
