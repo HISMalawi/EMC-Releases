@@ -203,23 +203,24 @@ export default defineComponent({
                 if (req) {
                     // Update drawn order rows
                     this.drawnOrders = this.drawnOrders.concat(this.getdrawnOrders([req]))
-                    // Remove drawn order from orders list
                     this.removeLabOrderRow(this.order.order_id)
                     this.showSpecimenModal = false
-                    return this.service.printSpecimenLabel(this.order.order_id)
+                    this.service.printSpecimenLabel(this.order.order_id)
+                } else {
+                    throw 'Unable to draw sample'
                 }
             }catch(e) {
                 console.error(e)
+                toastDanger(e)
             }
-            toastDanger('Unable to draw sample')
         },
         getLabOrderRows(data: any): Array<RowInterface[]> {
-            return data.map((d: any, index: number) => ([
+            return data.map((d: any) => ([
                 table.td(d.accession_number, { value: { orderID: d.order_id }}),
                 table.td(d.tests.map((t: any) => t.name).join(',')),
                 table.td(d.reason_for_test.name || 'N/A'),
-                table.tdBtn('Drawn', async () => {
-                    this.order = {...d, orderIndex: index }
+                table.tdBtn('Draw', async () => {
+                    this.order = d
                     this.showSpecimenModal = true
                     this.specimens = await PatientLabService.getSpecimensForTests(d.tests)
                 }, {}, 'success'),
@@ -258,7 +259,7 @@ export default defineComponent({
             required: true
         },
         visitDate: {
-            type: String, 
+            type: String
         }
     }
 })
