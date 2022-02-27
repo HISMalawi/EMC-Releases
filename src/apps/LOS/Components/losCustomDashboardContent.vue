@@ -110,6 +110,7 @@ import {
     IonSegmentButton,
 } from "@ionic/vue";
 import { toastDanger } from '@/utils/Alerts';
+import HisDate from "@/utils/Date"
 
 const HEADER_STYLE = {
     style: {
@@ -138,6 +139,7 @@ export default defineComponent({
         IonLabel,
         IonSegmentButton
     },
+    emits: ['onProgramVisitDates'],
     data: () => ({
         showSpecimenModal: false as boolean,
         specimens: [] as any,
@@ -166,30 +168,34 @@ export default defineComponent({
     }),
     watch: {
         patient: {
-            async handler(patient) {
+            handler(patient) {
                 if (!isEmpty(patient)) {
                     this.service = new PatientLabService(this.patient.getID())
-                    await this.initiateOpen()
+                    /** Initialise Visit Dates with current session dates. 
+                     * This is crucial for loading most recent Open Orders 
+                     */
+                    this.$emit('onProgramVisitDates', [{
+                        label: HisDate.toStandardHisDisplayFormat(PatientLabService.getSessionDate()),
+                        value: PatientLabService.getSessionDate()
+                    }])
                 }
             },
             immediate: true,
             deep: true
         },
         visitDate: {
-            async handler(date: string) {
+            handler(date: string) {
                 if (date && this.activeTab) {
                     this.service.setDate(date)
-                    await this.initiateDrawn()
+                    this.init()
                 }
             },
             immediate: true
         }
     },
     methods : {
-        async initiateDrawn() {
+        async init() {
             this.drawnOrders = this.getdrawnOrders((await this.service.getOrders('drawn')))
-        },
-        async initiateOpen() {
             this.labOrderRows = this.getLabOrderRows((await this.service.getOrders('ordered')))
         },
         removeLabOrderRow(orderID: number) {
@@ -224,9 +230,6 @@ export default defineComponent({
                     this.showSpecimenModal = true
                     this.specimens = await PatientLabService.getSpecimensForTests(d.tests)
                 }, {}, 'success'),
-                /**
-                 * Order delete button
-                 */
                 table.tdBtn('Void', async () => {
                     voidWithReason(
                         async (reason: string) => {

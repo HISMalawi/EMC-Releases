@@ -55,6 +55,7 @@
                     v-bind:is="customDashboardContent"
                     :patient="patient"
                     :visitDate="activeVisitDate"
+                    @onProgramVisitDates="onProgramVisitDates"
                     >  
                 </component>
                 <ion-grid v-if="!appHasCustomContent && activeTab === 1">
@@ -155,6 +156,7 @@
                             v-bind:is="customDashboardContent"
                             :patient="patient"
                             :visitDate="activeVisitDate"
+                            @onProgramVisitDates="onProgramVisitDates"
                             >  
                         </component>
                         <!--Default patient dashboard content-->
@@ -234,7 +236,7 @@ import EncounterView from "@/components/DataViews/DashboardEncounterModal.vue"
 import CardDrilldown from "@/components/DataViews/DashboardTableModal.vue"
 import { WorkflowService } from "@/services/workflow_service"
 import { toastSuccess, toastDanger, alertConfirmation } from "@/utils/Alerts";
-import _, { isEmpty } from "lodash"
+import _, { isEmpty, uniq } from "lodash"
 import MinimalToolbar from "@/components/PatientDashboard/Poc/MinimalToolbar.vue"
 import FullToolbar from "@/components/PatientDashboard/Poc/FullToolbar.vue"
 import {
@@ -390,7 +392,7 @@ export default defineComponent({
             this.sessionDate = this.toDate(ProgramService.getSessionDate())
             this.isBDE = ProgramService.isBDE() || false
             this.nextTask = await this.getNextTask(this.patientId)
-            this.visitDates = await this.getPatientVisitDates(this.patientId)
+            this.onProgramVisitDates((await this.getPatientVisitDates(this.patientId)))
             this.alertCardItems = await this.getPatientAlertCardInfo() || []
             this.programID = ProgramService.getProgramID()
             this.updateCards()
@@ -469,14 +471,20 @@ export default defineComponent({
                 label: this.toDate(date), value: date
             }))
         },
-        async getNextTask(patientId: number) {
-            return await WorkflowService.getNextTaskParams(patientId)
+        onProgramVisitDates(dates: Option[]) {
+            const d = this.visitDates.concat(dates)
+                .map(d => d.value as string)
+                .sort((a, b) => new Date(a) > new Date(b) ? 0 : 1)
+            this.visitDates = uniq(d).map(d => ({ label: this.toDate(d), value: d }))
+        },
+        getNextTask(patientId: number) {
+            return WorkflowService.getNextTaskParams(patientId)
         },
         onActiveVisitDate(data: Option) {
             this.activeVisitDate = data.value
         },
         getPatientCardInfo(patient: any) {
-            const birthDate = patient.getBirthdate() //this.getProp(patient, 'getBirthdate')
+            const birthDate = patient.getBirthdate()
             const genderIcon = patient.getGender() === 'M' ? man : woman
             return [
                 { label: "Name", value: patient.getFullName(), other: { icon: genderIcon}},
