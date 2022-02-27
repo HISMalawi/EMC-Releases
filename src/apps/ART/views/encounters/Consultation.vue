@@ -119,8 +119,12 @@ export default defineComponent({
           
           if (this.hasTbHistoryObs) {
             this.completed3HP = await this.consultation.patientCompleted3HP()
-          } 
-          
+          }
+
+          if (!this.completed3HP) {
+            this.completed3HP = await this.consultation.hasCompleteTptDispensations()
+          }
+
           this.autoSelect3HP = await ART_PROP.threeHPAutoSelectEnabled()
           this.askAdherence = this.adherence.receivedDrugsBefore();
           this.fields = this.getFields();

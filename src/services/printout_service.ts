@@ -3,6 +3,8 @@ import { getPlatforms, modalController } from "@ionic/vue";
 import ZebraPrinterComponent from "@/components/ZebraPrinterImage.vue"
 import { delayPromise } from "@/utils/Timers";
 import ApiClient from "./api_client";
+import usePlatform from "@/composables/usePlatform";
+import { toastWarning } from "@/utils/Alerts";
 
 export class PrintoutService extends Service {
     constructor() {
@@ -18,15 +20,23 @@ export class PrintoutService extends Service {
     }
 
     async printLbl(url: any) {
-        await PrintoutService.showPrinterImage()
-        const isNative = getPlatforms().filter(p => [
-            'android', 
-            ].includes(p)).length >= 1
-            if(!isNative) {
+        const { platformType } = usePlatform()
+        if (platformType.value === 'desktop') {
+            await PrintoutService.showPrinterImage()
+            try {
+                // Do a preflight to make sure that we can print that label
+                // before changing document location
+                const preFetch = await Service.getText(url)
+                if (!preFetch) throw 'Unable to print Label. Try again later'
                 document.location = (await ApiClient.expandPath(url)) as any
-            } 
-        await delayPromise(2000)
-        await modalController.dismiss({})
+                await delayPromise(1500)
+            } catch (e) {
+                toastWarning(e, 3000)
+            }
+        } else {
+            toastWarning('Sorry, your Platform does not support Label printing. Bye!')
+        }
+        return modalController.dismiss({})
     }
 
     async printLocation(locationId: number) {
