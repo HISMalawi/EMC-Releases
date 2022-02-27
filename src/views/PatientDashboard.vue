@@ -367,15 +367,8 @@ export default defineComponent({
             deep: true,
             immediate: true
         },
-        async activeVisitDate(date: string) {
-            if (!(this.appHasCustomContent)) {
-                this.encounters = await EncounterService.getEncounters(this.patientId, {date})
-                this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
-                this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
-                this.medicationCardItems = this.getMedicationCardInfo(this.medications)
-                this.labOrderCardItems = await this.getLabOrderCardInfo(date)
-                this.updateCards()
-            }
+        activeVisitDate(date: string) {
+            if (!(this.appHasCustomContent)) this.loadCardData(date)
         }
     },
     methods: {
@@ -402,6 +395,14 @@ export default defineComponent({
         },
         toTime(date: string | Date) {
             return HisDate.toStandardHisTimeFormat(date)
+        },
+        async loadCardData(date: string) {
+            this.encounters = await EncounterService.getEncounters(this.patientId, {date})
+            this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
+            this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
+            this.medicationCardItems = this.getMedicationCardInfo(this.medications)
+            this.labOrderCardItems = await this.getLabOrderCardInfo(date)
+            this.updateCards()
         },
         updateCards() {
             this.patientCards = [
@@ -515,7 +516,7 @@ export default defineComponent({
                         try {
                             await EncounterService.voidEncounter(encounter.encounter_id, reason)
                             _.remove(this.encountersCardItems, { label: encounter.type.name })
-                            this.updateCards()
+                            await this.loadCardData(this.activeVisitDate as string)
                             this.nextTask = await this.getNextTask(this.patientId)
                             toastSuccess('Encounter has been voided!', 3000)
                         }catch(e) {
