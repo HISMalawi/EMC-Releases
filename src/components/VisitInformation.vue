@@ -1,20 +1,20 @@
 <template>
   <div class="report-content">
     <report-table
-      :rows="rows"
+      :asyncRows="getRows"
       :columns="columns"
-      :config="{ showIndex: false }"
+      :config="tableConfig"
     ></report-table>
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
+import { defineComponent } from "vue";
 import { isArray } from "lodash";
 import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 
-const smallText = {style: {fontSize: '11px !important'}}
-const largeText = {style: {fontSize: '15px !important', fontWeight: 'bold'}, color: 'yellow'}
+const tdStyles = {style: {fontSize: '11px !important', border: '1px solid #dddddd !important', textAlign: 'left'}}
+const thStyles = {style: {fontSize: '12px !important', fontWeight: 'bold', textAlign: 'left', border: '1px solid #dddddd !important'}}
 
 export default defineComponent({
   name: "HisResultCard",
@@ -22,21 +22,30 @@ export default defineComponent({
     ReportTable
   },
   data: () => ({
+    tableConfig: { 
+      showIndex: false,
+      cssClasses: "table-bordered table-striped"
+    },
     columns: [[
-      table.thTxt('Visit Date', largeText),
-      table.thTxt('Weight (Kg)', largeText),
-      table.thTxt('Reg', largeText),
-      table.thTxt('ADH', largeText),
-      table.thTxt('Outcome', largeText),
-      table.thTxt('Actions', largeText)
+      table.thTxt('VISIT DATE', thStyles),
+      table.thTxt('WEIGHT (Kg)', thStyles),
+      table.thTxt('HEIGHT (cm)', thStyles),
+      table.thTxt('BMI', thStyles),
+      table.thTxt('REG', thStyles),
+      table.thTxt('ADHERENCE', thStyles),
+      table.thTxt('VIRAL LOAD', thStyles),
+      table.thTxt('TB STATUS', thStyles),
+      table.thTxt('OUTCOME', thStyles),
+      table.thTxt('PILLS DISPENSED', thStyles),
+      table.thTxt('ACTIONS', thStyles)
     ]] as ColumnInterface[][],
   }),
   props: {
     icon: {
       required: false,
     },
-    items: {
-      type: Object as PropType<any[]>,
+    getVisitDates: {
+      type: Function,
       required: true,
     },
   },
@@ -53,7 +62,7 @@ export default defineComponent({
         if (isArray(f)) {
           let j = "";
           f.forEach((element) => {
-            j += `${element.join(":")} (%), `;
+            j += `${element[0]}: (${element[1]}%), `;
           });
           return j;
         }
@@ -62,20 +71,53 @@ export default defineComponent({
         return vals;
       }
     },
-  },
-  computed: {
-    rows(): RowInterface[][] {  
-      return this.items.map((item) => {
+    formatPillsDispensed(vals: any) {
+      if (isArray(vals)) {
+        let j = "";
+        vals.forEach((element: Array<any>) => {
+          j += `${element.join(':')}, `;
+        });
+        return j;
+      } else {
+        return vals;
+      }
+    },
+    async getRows (): Promise<RowInterface[][]> {
+      const visitDates = await this.getVisitDates()
+      return visitDates.map((item: any) => {
         return [
-          table.tdBtn(item.label, () => this.printLabel(item.value), smallText, 'secondary'),
-          table.td(item.data.weight, smallText),
-          table.td(item.data.regimen, smallText),
-          table.td(this.formatAdherence(item.data.adherence), smallText),
-          table.td(item.data.outcome, smallText),
-          table.tdBtn('show more', () => this.showMore(item.value), smallText, 'secondary'),
+          table.tdBtn(item.label, () => this.printLabel(item.value), tdStyles, 'secondary'),
+          table.td(item.data.weight, tdStyles),
+          table.td(item.data.height, tdStyles),
+          table.td(item.data.bmi || '', tdStyles),
+          table.td(item.data.regimen, tdStyles),
+          table.td(this.formatAdherence(item.data.adherence), tdStyles),
+          table.td(item.data['viral_load'], tdStyles),
+          table.td(item.data['tb_status'], tdStyles),
+          table.td(item.data.outcome, tdStyles),
+          table.td(this.formatPillsDispensed(item.data['pills_dispensed']), tdStyles),
+          table.tdBtn('show more', () => this.showMore(item.value), tdStyles, 'secondary'),
         ]
       })
     }
-  }
+  },
 });
 </script>
+
+<style scoped>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>

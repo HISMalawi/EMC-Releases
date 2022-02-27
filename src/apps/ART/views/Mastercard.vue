@@ -1,6 +1,6 @@
 <template>
   <ion-page style="background: #fff">
-    <information-header 
+    <information-header
       :items="patientCardInfo"
       :numberOfColumns="4"
       @addGuardian="addGuardian"
@@ -8,10 +8,10 @@
     ></information-header>
     <ion-content>
       <visit-information
-        :items="visitDates"
+        :getVisitDates="getPatientVisitDates"
         @onPrint="printLabel"
         @onDetails="showMore"
-        style="font-size: 11px;"
+        style="font-size: 11px"
       ></visit-information>
     </ion-content>
     <his-footer :btns="btns" />
@@ -30,18 +30,13 @@ import VisitInformation from "@/components/VisitInformation.vue";
 import MastercardDetails from "@/components/MastercardDetails.vue";
 import HisFooter from "@/components/HisDynamicNavFooter.vue";
 import { isArray, isEmpty } from "lodash";
-import {
-  IonPage,
-  IonContent,
-  modalController,
-} from "@ionic/vue";
+import { IonPage, IonContent, modalController } from "@ionic/vue";
 import { EncounterService } from "@/services/encounter_service";
 import { RelationshipService } from "@/services/relationship_service";
 import { alertConfirmation } from "@/utils/Alerts";
 import { ProgramService } from "@/services/program_service";
 import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { NavBtnInterface } from "@/components/HisDynamicNavFooterInterface";
-import moment from "dayjs";
 
 export default defineComponent({
   components: {
@@ -49,8 +44,8 @@ export default defineComponent({
     IonContent,
     VisitInformation,
     InformationHeader,
-    HisFooter
-},
+    HisFooter,
+  },
   data: () => ({
     isBDE: false as boolean,
     currentDate: "",
@@ -72,7 +67,7 @@ export default defineComponent({
     labOrderCardItems: [] as Array<Option>,
     alertCardItems: [] as Array<Option>,
     btns: [] as Array<NavBtnInterface>,
-    guardians: ''
+    guardians: "",
   }),
   computed: {
     visitDatesTitle(): string {
@@ -102,31 +97,34 @@ export default defineComponent({
       this.patient = await this.fetchPatient(this.patientId);
       this.guardians = await this.getGuardian();
       this.patientCardInfo = await this.getPatientCardInfo(this.patient);
-      this.visitDates = await this.getPatientVisitDates(this.patientId);
-      this.btns.push(this.getFinishBtn())
+      this.btns.push(this.getFinishBtn());
     },
-    async getGuardian(){
-      const relationship = await RelationshipService.getGuardianDetails(this.patientId);
-      return relationship.map((r: any) => {
-        return ` ${r.name} (${r.relationshipType})`;
-      }).join(" ");
+    async getGuardian() {
+      const relationship = await RelationshipService.getGuardianDetails(
+        this.patientId
+      );
+      return relationship
+        .map((r: any) => {
+          return ` ${r.name} (${r.relationshipType})`;
+        })
+        .join(" ");
     },
     updateDemographics(attribute: string) {
       this.$router.push({
-        path: '/patient/registration', 
-        query: { 
+        path: "/patient/registration",
+        query: {
           'edit_person': this.patientId,
-          'person_attribute': attribute
-        }
-      })
+          'person_attribute': attribute,
+        },
+      });
     },
     addGuardian() {
       this.$router.push({
         path: `/guardian/registration/${this.patientId}`,
         query: {
-          source: this.$route.name?.toString()
-        }
-      })
+          source: this.$route.name?.toString(),
+        },
+      });
     },
     getFinishBtn(): NavBtnInterface {
       return {
@@ -136,10 +134,13 @@ export default defineComponent({
         slot: "end",
         visible: true,
         onClick: async () => {
-          const confirmation = await alertConfirmation("Are you sure you want to exit?");
-          if (confirmation) return this.$router.push(`/patient/dashboard/${this.patientId}`);
-        }
-      }
+          const confirmation = await alertConfirmation(
+            "Are you sure you want to exit?"
+          );
+          if (confirmation)
+            return this.$router.push(`/patient/dashboard/${this.patientId}`);
+        },
+      };
     },
     async fetchPatient(patientId: number | string) {
       const patient: Patient = await Patientservice.findByID(patientId);
@@ -148,16 +149,15 @@ export default defineComponent({
     getProp(data: any, prop: string): string {
       return prop in data ? data[prop]() : "-";
     },
-    async getPatientVisitDates(patientId: number) {
-      const dates = await Patientservice.getPatientVisits(patientId, true);
-      const f = dates.map((date: string) => {
-        return this.getExtras(date).then((d) => {
-          return {
-            label: HisDate.toStandardHisDisplayFormat(date),
-            value: date,
-            data: d,
-          };
-        });
+    async getPatientVisitDates() {
+      const dates = await Patientservice.getPatientVisits(this.patientId, true);
+      const f = dates.map(async (date: string) => {
+        const d = await this.getExtras(date);
+        return {
+          label: HisDate.toStandardHisDisplayFormat(date),
+          value: date,
+          data: d,
+        };
       });
       const y = await Promise.all(f);
       return y;
@@ -178,23 +178,23 @@ export default defineComponent({
         this.patientId,
         "Confirmatory HIV test date"
       );
-      if(dateOfTest) {
+      if (dateOfTest) {
         dateOfTest = toStandardHisDisplayFormat(dateOfTest[0].value_datetime);
       }
       const placeOfTest = await ObservationService.getFirstValueText(
         this.patientId,
         "Confirmatory HIV test location"
-      );      
+      );
 
       let startDate = await ObservationService.getAll(
         this.patientId,
         "Date ART started"
       );
-      
-      startDate = !isEmpty(startDate) 
+
+      startDate = !isEmpty(startDate)
         ? toStandardHisDisplayFormat(startDate[0].value_datetime)
-        : 'N/A'
-      
+        : "N/A";
+
       const TI = await ObservationService.getFirstValueCoded(
         this.patientId,
         "Ever received ART"
@@ -207,64 +207,64 @@ export default defineComponent({
         this.patientId,
         "Reason for ART eligibility"
       );
-      
+
       return [
         { label: "ARV Number", value: this.patient.getArvNumber() },
         { label: "National Patient ID", value: patient.getNationalID() },
-        { 
-          label: "Given Name", 
+        {
+          label: "Given Name",
           value: patient.getGivenName(),
           other: {
             editable: true,
-            attribute: 'given_name',
-            category: 'demographics'
-          }
+            attribute: "given_name",
+            category: "demographics",
+          },
         },
-        { 
-          label: "Family Name", 
+        {
+          label: "Family Name",
           value: patient.getFamilyName(),
           other: {
             editable: true,
-            attribute: 'family_name',
-            category: 'demographics'
-          }
+            attribute: "family_name",
+            category: "demographics",
+          },
         },
-        { 
-          label: "Age", 
+        {
+          label: "Age",
           value: patient.getAge(),
           other: {
             editable: true,
-            attribute: 'year_birth_date',
-            category: 'demographics'
-          }
+            attribute: "year_birth_date",
+            category: "demographics",
+          },
         },
-        { 
-          label: "Sex", 
+        {
+          label: "Sex",
           value: patient.getGender(),
           other: {
             editable: true,
-            attribute: 'gender',
-            category: 'demographics'
-          }
+            attribute: "gender",
+            category: "demographics",
+          },
         },
-        { 
+        {
           label: "Location",
-          value:  patient.getCurrentVillage(),
+          value: patient.getCurrentVillage(),
           other: {
             editable: true,
-            attribute: 'home_region',
-            category: 'demographics'
-          }
+            attribute: "home_region",
+            category: "demographics",
+          },
         },
         { label: "Landmark", value: patient.getAttribute(19) },
-        { 
-          label: "Guardian", 
-          value: this.guardians ? this.guardians : 'add',
+        {
+          label: "Guardian",
+          value: this.guardians ? this.guardians : "add",
           other: {
             editable: !this.guardians,
-            attribute: '',
-            category: 'guardian'
-          }
+            attribute: "",
+            category: "guardian",
+          },
         },
         { label: "Init W(KG)", value: await patient.getInitialWeight() },
         { label: "Init H(CM)", value: await patient.getInitialHeight() },
@@ -272,33 +272,36 @@ export default defineComponent({
         { label: "TI", value: TI },
         { label: "Agrees to follow up", value: agreesToFollowUp },
         { label: "Reason for starting ART", value: reasonForStarting },
-        { label: "HIV test date", value: `${dateOfTest ? dateOfTest  : ''}`},
-        { label: "HIV test place", value: `${placeOfTest? placeOfTest : ''}`},
+        { label: "HIV test date", value: `${dateOfTest ? dateOfTest : ""}` },
+        { label: "HIV test place", value: `${placeOfTest ? placeOfTest : ""}` },
         { label: "Date of starting first line ART", value: startDate },
-        ...await this.getTBStats()
-      ] as Option[]
+        ...(await this.getTBStats()),
+      ] as Option[];
     },
-    
+
     async getTBStats(): Promise<Option[]> {
-      const stats = await ObservationService.getFirstValueCoded(this.patientId, 'Who stages criteria present')
+      const stats = await ObservationService.getFirstValueCoded(
+        this.patientId,
+        "Who stages criteria present"
+      );
       return [
-        { 
-          label: "Pulmonary TB within the last 2 years", 
+        {
+          label: "Pulmonary TB within the last 2 years",
           value: stats && stats.match(/last/i) ? "Yes" : "N/A",
         },
-        { 
-          label: "Extra pulmonary TB (EPTB)", 
+        {
+          label: "Extra pulmonary TB (EPTB)",
           value: stats && stats.match(/eptb/i) ? "Yes" : "N/A",
         },
-        { 
-          label: "Pulmonary TB (current)", 
+        {
+          label: "Pulmonary TB (current)",
           value: stats && stats.match(/current/i) ? "Yes" : "N/A",
         },
-        { 
-          label: "Kaposi's sarcoma:", 
+        {
+          label: "Kaposi's sarcoma:",
           value: stats && stats.match(/kepos/i) ? "Yes" : "N/A",
-        }
-      ]
+        },
+      ];
     },
 
     async openModal(items: any, title: string, component: any) {
@@ -327,9 +330,12 @@ export default defineComponent({
     },
     FormData(data: any) {
       return Object.keys(data).map((d) => {
-        const display: any = (d === 'outcome_date') ? HisDate.toStandardHisDisplayFormat(data[d]) : data[d];
-        if(d.match(/height/i)) d += ' (cm)'
-        if(d.match(/weight/i)) d += ' (Kg)'
+        const display: any =
+          d === "outcome_date"
+            ? HisDate.toStandardHisDisplayFormat(data[d])
+            : data[d];
+        if (d.match(/height/i)) d += " (cm)";
+        if (d.match(/weight/i)) d += " (Kg)";
         return {
           label: this.camelCase(d),
           value: this.joinData(display),
@@ -337,19 +343,19 @@ export default defineComponent({
       });
     },
     joinData(vals: any) {
-          if (isArray(vals)) {
-            const f = [...vals];
-            if (isArray(f)) {
-              let j = "";
-              f.forEach((element) => {
-                j += `${element.join(":")}, `;
-              });
-              return j;
-            }
-            return f;
-          } else {
-            return vals;
-          }
+      if (isArray(vals)) {
+        const f = [...vals];
+        if (isArray(f)) {
+          let j = "";
+          f.forEach((element) => {
+            j += `${element.join(":")}, `;
+          });
+          return j;
+        }
+        return f;
+      } else {
+        return vals;
+      }
     },
     camelCase(val: string) {
       const label = val.split("_");
@@ -361,14 +367,14 @@ export default defineComponent({
       } catch (error) {
         return "";
       }
-    },  
+    },
     async showMore(date: any) {
       const title = "Visit details for";
       const data = await this.getExtras(date);
       const modal = await modalController.create({
         component: MastercardDetails,
         backdropDismiss: false,
-        cssClass: "custom-modal",
+        cssClass: "large-modal",
         componentProps: {
           title: `${title}: ${HisDate.toStandardHisDisplayFormat(date)}`,
           visitData: this.FormData(data),

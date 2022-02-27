@@ -1,11 +1,11 @@
 <template>
   <ion-header>
     <ion-toolbar>
-      <ion-title
-        >Stock levels (Consumption rate calculated over a 3 month
-        period)</ion-title
-      >
-      <ion-button color="danger" slot="end" @click="closeModal()">X</ion-button>
+      <ion-title>
+        Stock levels (Consumption rate calculated over a 3 month
+        period)
+      </ion-title>
+      <ion-button color="danger" slot="end" @click="closeModal()" class="ion-margin-end">X</ion-button>
     </ion-toolbar>
   </ion-header>
   <ion-toolbar>
@@ -99,6 +99,9 @@ export default defineComponent({
           bar: {
             borderRadius: 4,
             horizontal: true,
+            dataLabels: {
+              position: 'top',
+            },
             colors: {
               ranges: [
                 {
@@ -119,6 +122,23 @@ export default defineComponent({
               ],
             },
           },
+        },
+        dataLabels: {
+          enabled: true,
+          offsetX: 0,
+          style: {
+            fontSize: '12px',
+            colors: ['#656565']
+          }
+        },
+        stroke: {
+          show: true,
+          width: 1,
+          colors: ['#fff']
+        },
+        tooltip: {
+          shared: true,
+          intersect: false,
         },
         grid: {
           column: {
