@@ -110,10 +110,6 @@ export default defineComponent({
                     computedValue: ({value}: Option) => ({obs: this.registrationService.buildValueCoded('PATIENT PREGNANT', value)}),
                     condition: () => this.patient.isChildBearing(),
                     options: () => this.yesNoUnknownOptions(),
-                    config: {
-                        showKeyboard: true,
-                        isFilterDataViaApi: true
-                    }
                 }
             ]
         }

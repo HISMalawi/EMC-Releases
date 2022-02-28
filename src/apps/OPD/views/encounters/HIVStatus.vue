@@ -76,6 +76,7 @@ export default defineComponent({
                     helpText: 'HIV Test',
                     required: true,
                     minDate: () => this.patient.getBirthdate(),
+                    maxDate: () => HIVStatusService.getSessionDate(),
                     condition: (fields: any) => fields.hiv_status.value !== 'Never tested',
                     summaryLabel: 'HIV test date',
                     estimation: {

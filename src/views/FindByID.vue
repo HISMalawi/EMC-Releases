@@ -16,11 +16,12 @@ import { AppInterface } from "@/apps/interfaces/AppInterface";
 import { Field, Option } from "@/components/Forms/FieldInterface"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import HisApp from "@/apps/app_lib"
-import { get, isEmpty } from "lodash"
+import { filter, get, isEmpty } from "lodash"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { PatientIdentifier } from "@/interfaces/patientIdentifier";
 import { ProgramService } from "@/services/program_service";
 import { loadingController, modalController } from "@ionic/core";
+import { GlobalPropertyService } from "@/services/global_property_service";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -50,12 +51,20 @@ export default defineComponent({
         type: FieldType.TT_SELECT,
         requireNext: false,
         validation: (val: Option) => Validation.required(val),
-        options: () => {
+        options: async () => {
           const ids = this.app.programPatientIdentifiers
             ? Object.values(this.app.programPatientIdentifiers) 
             : []
+
+          const resolvedProps = await Promise.all(ids.map(async (id) => {
+            if(id.globalPropertySetting){
+              return await GlobalPropertyService.isProp(id.globalPropertySetting)
+            }
+            return true
+          })) 
+
           return ids
-            .filter(i => i.useForSearch) 
+            .filter((id, index) => id.useForSearch && resolvedProps[index]) 
             .map(identifier => ({
               label: identifier.name,
               value: identifier.id,

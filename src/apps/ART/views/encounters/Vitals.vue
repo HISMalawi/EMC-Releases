@@ -157,7 +157,7 @@ export default defineComponent({
           (element) => element.label !== "BP"
         )
       );
-      if (this.HTNEnabled && !this.hasHTNObs) {
+      if (this.HTNEnabled && !this.hasHTNObs && formData.on_htn_medication) {
         const obs = await this.vitals.buildValueText(
           "Treatment status",
           formData.on_htn_medication.value
