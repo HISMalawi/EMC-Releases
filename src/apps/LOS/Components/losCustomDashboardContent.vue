@@ -11,22 +11,18 @@
     <p/>
     <!-- Action Table -->
     <div :style="{overflowX: 'auto', height:'84%'}"> 
-    <report-table
-        :config="{
-            showIndex: false
-        }"
-        v-if="activeTab === 'openOrders'" 
-        :rows="labOrderRows" :columns="openColumns"
-        >
-    </report-table>
-    <report-table
-        :config="{
-            showIndex: false
-        }"
-        v-if="activeTab === 'drawnOrders'" 
-        :rows="drawnOrders" :columns="drawnColumns"
-        >
-    </report-table>
+        <report-table
+            v-if="activeTab === 'openOrders'" 
+            :config="{ showIndex: false }"
+            :rows="labOrderRows"
+            :columns="openColumns">
+        </report-table>
+        <report-table
+            v-if="activeTab === 'drawnOrders'" 
+            :config="{ showIndex: false }"
+            :rows="drawnOrders"
+            :columns="drawnColumns">
+        </report-table>
     </div>
     <!---Specimen selection modal--->
     <ion-modal :is-open="showSpecimenModal" class="custom-modal"> 
@@ -114,6 +110,7 @@ import {
     IonSegmentButton,
 } from "@ionic/vue";
 import { toastDanger } from '@/utils/Alerts';
+import HisDate from "@/utils/Date"
 
 const HEADER_STYLE = {
     style: {
@@ -142,6 +139,7 @@ export default defineComponent({
         IonLabel,
         IonSegmentButton
     },
+    emits: ['onProgramVisitDates'],
     data: () => ({
         showSpecimenModal: false as boolean,
         specimens: [] as any,
@@ -170,32 +168,38 @@ export default defineComponent({
     }),
     watch: {
         patient: {
-            async handler(patient) {
+            handler(patient) {
                 if (!isEmpty(patient)) {
                     this.service = new PatientLabService(this.patient.getID())
-                    await this.initiateOpen()
+                    /** Initialise Visit Dates with current session dates. 
+                     * This is crucial for loading most recent Open Orders 
+                     */
+                    this.$emit('onProgramVisitDates', [{
+                        label: HisDate.toStandardHisDisplayFormat(PatientLabService.getSessionDate()),
+                        value: PatientLabService.getSessionDate()
+                    }])
                 }
             },
             immediate: true,
             deep: true
         },
         visitDate: {
-            async handler(date: string) {
+            handler(date: string) {
                 if (date && this.activeTab) {
                     this.service.setDate(date)
-                    await this.initiateDrawn()
+                    this.init()
                 }
             },
-            immediate: true,
-            deep: true
+            immediate: true
         }
     },
     methods : {
-        async initiateDrawn() {
+        async init() {
             this.drawnOrders = this.getdrawnOrders((await this.service.getOrders('drawn')))
-        },
-        async initiateOpen() {
             this.labOrderRows = this.getLabOrderRows((await this.service.getOrders('ordered')))
+        },
+        removeLabOrderRow(orderID: number) {
+            this.labOrderRows = this.labOrderRows.filter((r: any) => r[0]?.value?.orderID != orderID)
         },
         async drawOrder() {
             try {
@@ -205,36 +209,33 @@ export default defineComponent({
                 if (req) {
                     // Update drawn order rows
                     this.drawnOrders = this.drawnOrders.concat(this.getdrawnOrders([req]))
-                    // Remove drawn order from orders list
-                    this.labOrderRows.splice(this.order.orderIndex, 1)
+                    this.removeLabOrderRow(this.order.order_id)
                     this.showSpecimenModal = false
-                    return this.service.printSpecimenLabel(this.order.order_id)
+                    this.service.printSpecimenLabel(this.order.order_id)
+                } else {
+                    throw 'Unable to draw sample'
                 }
             }catch(e) {
                 console.error(e)
+                toastDanger(e)
             }
-            toastDanger('Unable to draw sample')
         },
         getLabOrderRows(data: any): Array<RowInterface[]> {
-            return data.map((d: any, index: number) => ([
-                table.td(d.accession_number),
+            return data.map((d: any) => ([
+                table.td(d.accession_number, { value: { orderID: d.order_id }}),
                 table.td(d.tests.map((t: any) => t.name).join(',')),
                 table.td(d.reason_for_test.name || 'N/A'),
-                table.tdBtn('Drawn', async () => {
-                    this.order = {...d, orderIndex: index }
+                table.tdBtn('Draw', async () => {
+                    this.order = d
                     this.showSpecimenModal = true
-                    this.specimens = await PatientLabService
-                        .getSpecimensForTests(d.tests)
+                    this.specimens = await PatientLabService.getSpecimensForTests(d.tests)
                 }, {}, 'success'),
-                /**
-                 * Order delete button
-                 */
                 table.tdBtn('Void', async () => {
                     voidWithReason(
                         async (reason: string) => {
                             try {
                                 await this.service.voidOrder(d.order_id, reason)
-                                this.labOrderRows.splice(index, 1)
+                                this.removeLabOrderRow(d.order_id)
                             } catch (e) {
                                 toastDanger(e)
                             }
@@ -251,12 +252,9 @@ export default defineComponent({
             return data.map((d: any) => ([
                 table.td(d.accession_number),
                 table.td(d.tests.map((t: any) => t.name).join(',')),
-                table.tdBtn('Print', () => {
-                    this.service.printSpecimenLabel(d.order_id)
-                })
+                table.tdBtn('Print', () => this.service.printSpecimenLabel(d.order_id))
             ]))
-        },
-
+        }
     },
     props: {
         patient: {
@@ -264,7 +262,7 @@ export default defineComponent({
             required: true
         },
         visitDate: {
-            type: String, 
+            type: String
         }
     }
 })
