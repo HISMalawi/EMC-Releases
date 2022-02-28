@@ -221,7 +221,7 @@ export default defineComponent({
                 this.inputFocus = ''
             } else if(input.match(/inputA/i)) {
                 this.inputFocus = 'inputA'
-            } else if (input.match(/inputB/)) {
+            } else if (input.match(/inputB/i)) {
                 this.inputFocus = 'inputB'
             } else if (input.match(/clear/i)) {
                 this[this.inputFocus] = ''
