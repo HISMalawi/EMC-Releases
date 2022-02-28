@@ -1,6 +1,11 @@
 export default [
    {
       "categories": [],
+      "concept_id": 6397,
+      "name": "Height for age percent of median"
+   },
+   {
+      "categories": [],
       "concept_id": 6969,
       "name": "Refer to clinician"
    },
