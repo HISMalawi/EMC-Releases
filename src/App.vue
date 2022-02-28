@@ -1,5 +1,6 @@
 <template>
   <ion-app>
+    <update-notification/>
     <ion-router-outlet :key="$route.fullPath"/>
     <connection-error v-if="!apiOk && notConfigPage"/>
   </ion-app>
@@ -13,7 +14,7 @@ import EventBus from "@/utils/EventBus"
 import { toastWarning, alertConfirmation } from './utils/Alerts';
 import { useRoute } from 'vue-router';
 import ConnectionError from "@/components/ConnectionError.vue"
-
+import UpdateNotification from "@/components/UpdateNotification.vue"
 /** Nprogress */
 import 'nprogress/nprogress.css'
 import nprogress from 'nprogress'
@@ -26,7 +27,8 @@ export default defineComponent({
   components: {
     IonApp,
     IonRouterOutlet,
-    ConnectionError
+    ConnectionError,
+    UpdateNotification
   },
   setup() {
     const apiOk = ref(true)

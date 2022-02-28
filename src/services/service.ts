@@ -3,6 +3,7 @@ import Url from "@/utils/Url"
 import HisApp from "@/apps/app_lib"
 import { AppInterface } from "@/apps/interfaces/AppInterface"
 import useSWRV from "swrv"
+import { AuthVariable } from "./auth_service"
 
 export class IncompleteEntityError extends Error {
     entity: any
@@ -189,11 +190,11 @@ export class Service {
     }
 
     static getCoreVersion() {
-        return sessionStorage.appVersion || '-';
+        return localStorage.getItem(AuthVariable.CORE_VERSION) || '-';
     }
 
     static getAppVersion() {
-        return sessionStorage.appVersion || '-';
+        return localStorage.getItem(AuthVariable.CORE_VERSION) || '-';
     }
 
     static getFullVersion() {
