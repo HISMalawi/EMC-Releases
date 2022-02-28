@@ -104,8 +104,13 @@ export default defineComponent({
                 ? this.$route.name.toString().toUpperCase()
                 : 'N/A'
             if (ProgramService.isBDE()) {
-                this.providers = await UserService.getUsers() 
-                this.facts.providers = sort(this.providers).asc((p: any) => p.username)
+                this.providers = await UserService.getUsers()
+                this.facts.providers = this.providers
+                    .sort((a: any, b: any) => {
+                        const usernameA = a.username.toUpperCase()
+                        const usernameB = b.username.toUpperCase()
+                        return usernameA < usernameB ? -1 : usernameA > usernameB  ? 1 : 0
+                    })
                     .map((p: any) => `${p.username} (${p.person?.names[0]?.given_name} ${p?.person?.names[0].family_name})`)
             }
         },
