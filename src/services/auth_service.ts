@@ -9,6 +9,10 @@ export class InvalidCredentialsError extends Error {
     }
 }
 
+export enum AuthVariable {
+    CORE_VERSION = 'core_version'
+}
+
 export class AuthService{
     username: string
     userID: number
@@ -43,7 +47,7 @@ export class AuthService{
             this.userID = user.user_id
             this.sessionDate = await this.getSystemDate()
             this.systemVersion = await this.getApiVersion()
-            this.coreVersion = await this.getCoreVersion()
+            this.coreVersion = await this.getHeadVersion()
         } else {
             throw 'Unable to login'
         }
@@ -56,7 +60,7 @@ export class AuthService{
         sessionStorage.setItem("userRoles", JSON.stringify(this.roles));
         sessionStorage.setItem("sessionDate", this.sessionDate)
         sessionStorage.setItem("APIVersion", this.systemVersion)
-        sessionStorage.setItem("appVersion", this.coreVersion)
+        localStorage.setItem(AuthVariable.CORE_VERSION, this.coreVersion)
     }
 
     clearSession() { 
@@ -86,7 +90,15 @@ export class AuthService{
         }, interval)
     }
     
-    async getCoreVersion(): Promise<string> {
+    setActiveVersion (version: string) {
+        return localStorage.setItem(AuthVariable.CORE_VERSION, version)
+    }
+
+    getActiveCoreVersion() {
+        return localStorage.getItem(AuthVariable.CORE_VERSION)
+    }
+
+    async getHeadVersion(): Promise<string> {
         const res = await fetch('HEAD', { method: 'GET' })
         const version = await res?.text()
         return version && version.length <= 25 ? version : '-'

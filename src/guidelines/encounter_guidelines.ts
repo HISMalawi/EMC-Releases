@@ -75,14 +75,13 @@ export const ENCOUNTER_GUIDELINES: Record<string, GuideLineInterface> = {
                     `BDE: ${dformat(sessionDate)} | Current: ${dformat(apiDate)}`,
                     providers,
                     [
-                        { name: 'Confirm', slot: 'end', role: 'action' },
-                        { name: 'Cancel', slot: 'start', color: 'danger' }
+                        { name: 'Cancel', color: 'danger', slot: 'start', role: 'default'},
+                        { name: 'Confirm', slot: 'end', role: 'action' }
                     ]
                 )
-                
-                return modal.selection 
-                    ? { value: modal.selection, flowState: FlowState.SET_PROVIDER }
-                    : { flowState: FlowState.GO_TO_PATIENT_DASHBOARD }
+                return modal.action === 'Cancel' 
+                    ? { value: -1, flowState: FlowState.GO_TO_PATIENT_DASHBOARD }
+                    : { value: modal.selection, flowState: FlowState.SET_PROVIDER }
             }
         },
         conditions: {
