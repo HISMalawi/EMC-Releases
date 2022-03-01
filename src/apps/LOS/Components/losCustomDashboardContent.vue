@@ -141,6 +141,7 @@ export default defineComponent({
     },
     emits: ['onProgramVisitDates'],
     data: () => ({
+        initiated: false as boolean,
         showSpecimenModal: false as boolean,
         specimens: [] as any,
         order: {} as Record<string, any>,
@@ -163,31 +164,25 @@ export default defineComponent({
                 table.thTxt('Void', HEADER_STYLE)
             ]
         ] as Array<ColumnInterface[]>,
+        drawnOrdersData: [] as any,
+        openOrdersData: [] as any,
         drawnOrders: [] as Array<RowInterface[]>,
         labOrderRows: [] as Array<RowInterface[]>
     }),
     watch: {
-        patient: {
-            handler(patient) {
-                if (!isEmpty(patient)) {
-                    this.service = new PatientLabService(this.patient.getID())
-                    /** Initialise Visit Dates with current session dates. 
-                     * This is crucial for loading most recent Open Orders 
-                     */
-                    this.$emit('onProgramVisitDates', [{
-                        label: HisDate.toStandardHisDisplayFormat(PatientLabService.getSessionDate()),
-                        value: PatientLabService.getSessionDate()
-                    }])
-                }
-            },
-            immediate: true,
-            deep: true
-        },
         visitDate: {
-            handler(date: string) {
+            async handler(date: string) {
+                if (!this.initiated) {
+                    await this.init()
+                    this.initiated = true
+                }
                 if (date && this.activeTab) {
-                    this.service.setDate(date)
-                    this.init()
+                    this.drawnOrders = this.getdrawnOrders(
+                        this.drawnOrdersData.filter((d: any) => this.toDate(d.order_date) === date)
+                    )
+                    this.labOrderRows = this.getLabOrderRows(
+                        this.openOrdersData.filter((d: any) => this.toDate(d.order_date) === date)
+                    )
                 }
             },
             immediate: true
@@ -195,8 +190,18 @@ export default defineComponent({
     },
     methods : {
         async init() {
-            this.drawnOrders = this.getdrawnOrders((await this.service.getOrders('drawn')))
-            this.labOrderRows = this.getLabOrderRows((await this.service.getOrders('ordered')))
+            this.service = new PatientLabService(this.patient.getID())
+            this.openOrdersData = await this.service.getOrders('ordered')
+            this.drawnOrdersData = await this.service.getOrders('drawn')
+            const visitDates = this.drawnOrdersData.concat(this.openOrdersData)
+                .map((d: any) => ({
+                    label: HisDate.toStandardHisDisplayFormat(d.order_date),
+                    value: this.toDate(d.order_date)
+                }))
+            this.$emit('onProgramVisitDates', visitDates)
+        },
+        toDate(date: string) {
+            return HisDate.toStandardHisFormat(date)
         },
         removeLabOrderRow(orderID: number) {
             this.labOrderRows = this.labOrderRows.filter((r: any) => r[0]?.value?.orderID != orderID)
