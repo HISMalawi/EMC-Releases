@@ -40,20 +40,21 @@ export class PrintoutService extends Service {
         const { platformType } = usePlatform()
         if (platformType.value === 'desktop') {
             await PrintoutService.showPrinterImage()
+            setTimeout(async () => {        
+                if ((await PrintoutService.zebraModalActive())) {
+                    modalController.dismiss({}, undefined, PrintOutVariable.ZEBRA_MODAL)
+                }
+            }, 2500)
             try {
                 // Do a preflight to make sure that we can print that label
                 // before changing document location
                 const preFetch = await Service.getText(url)
                 if (!preFetch) {
                     throw 'Unable to print Label. Try again later'
-                } 
+                }
                 document.location = (await ApiClient.expandPath(url)) as any
-                await delayPromise(2500)
             } catch (e) {
                 toastWarning(e, 3000)
-            }
-            if ((await PrintoutService.zebraModalActive())) {
-                modalController.dismiss({}, undefined, PrintOutVariable.ZEBRA_MODAL)
             }
         } else {
             toastWarning('Sorry, your Platform does not support Label printing. Bye!')
