@@ -98,7 +98,8 @@ export default {
 
     onMounted(async () => {
       const auth = new AuthService()
-      const appV = await auth.getCoreVersion()
+      const appV = await auth.getHeadVersion()
+      auth.setActiveVersion(appV)
       const apiV = await auth.getApiVersion()
       version.value = `${appV} / ${apiV}`
     })
