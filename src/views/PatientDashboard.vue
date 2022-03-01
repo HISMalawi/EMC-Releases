@@ -51,7 +51,7 @@
             <!-- Mobile dashboard view -->
             <div class="mobile-component-view">
                 <component
-                    v-if="appHasCustomContent && activeTab === 1" 
+                    v-if="appHasCustomContent && activeTab === 1 && patientIsset" 
                     v-bind:is="customDashboardContent"
                     :patient="patient"
                     :visitDate="activeVisitDate"
@@ -152,7 +152,7 @@
                         </ion-row>
                         <!--Custom Dashboard content-->
                         <component
-                            v-if="appHasCustomContent" 
+                            v-if="appHasCustomContent && patientIsset" 
                             v-bind:is="customDashboardContent"
                             :patient="patient"
                             :visitDate="activeVisitDate"
@@ -338,6 +338,9 @@ export default defineComponent({
         appVersion: ProgramService.getFullVersion()
     }),
     computed: {
+        patientIsset(): boolean {
+            return !isEmpty(this.patient)
+        },
         patientName(): string {
             return !isEmpty(this.patient) 
                 ? this.patient.getFullName()

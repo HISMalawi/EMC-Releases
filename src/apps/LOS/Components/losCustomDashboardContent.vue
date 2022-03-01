@@ -89,7 +89,6 @@ import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { ColumnInterface, RowInterface } from '@/components/DataViews/tables/ReportDataTable';
 import { PatientLabService} from "@/apps/LOS/services/patient_lab_service"
-import { isEmpty } from "lodash"
 import { voidWithReason } from "@/utils/VoidHelper"
 import {
     IonTitle,
