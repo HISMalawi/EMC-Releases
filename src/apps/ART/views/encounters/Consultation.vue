@@ -83,7 +83,7 @@ export default defineComponent({
           await this.initAdherence(this.patient, this.providerID);
           await this.guardianOnlyVisit();
 
-          this.wasTransferredIn = await this.getTransferInStatus()
+          // this.wasTransferredIn = await this.getTransferInStatus()
 
           this.dateStartedArt = await this.getDateStartedArt()
 
