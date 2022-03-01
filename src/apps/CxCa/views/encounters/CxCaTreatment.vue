@@ -15,25 +15,24 @@ import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations";
 import EncounterMixinVue from "../../../../views/EncounterMixin.vue";
-import {TreatmentService} from "@/apps/CxCa/services/CxCaTreatmentService"
+import { TreatmentService } from "@/apps/CxCa/services/CxCaTreatmentService";
 import { toastSuccess, toastWarning } from "@/utils/Alerts";
 import { ProgramService } from "@/services/program_service";
-import {ProgramWorkflow} from "@/interfaces/program_workflow"
-
+import { ProgramWorkflow } from "@/interfaces/program_workflow";
+import table from "@/components/DataViews/tables/ReportDataTable";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
   components: { HisStandardForm },
   data: () => ({
     reception: {} as any,
+    summaryData: {} as any,
   }),
   watch: {
     patient: {
       async handler() {
-        this.reception = new TreatmentService(
-          this.patientID,
-          this.providerID
-        );
+        this.reception = new TreatmentService(this.patientID, this.providerID);
+        this.summaryData = await this.reception.getSummary();
         this.fields = this.getFields();
       },
       deep: true,
@@ -45,40 +44,127 @@ export default defineComponent({
 
       if (!encounter) return toastWarning("Unable to create encounter");
       const programID = ProgramService.getProgramID();
-      const workflows: ProgramWorkflow[] = await ProgramService.getProgramWorkflows(ProgramService.getProgramID());
+      const workflows: ProgramWorkflow[] =
+        await ProgramService.getProgramWorkflows(ProgramService.getProgramID());
       const flows = {} as any;
-      workflows.forEach(w => {
-        w.states.forEach(f => {
+      workflows.forEach((w) => {
+        w.states.forEach((f) => {
           const conceptID = f.program_workflow_state_id;
           const conceptName = f.concept.concept_names[0].name;
           flows[conceptName] = conceptID;
-        })
-      })
+        });
+      });
       const state = {
         'location_id': ProgramService.getLocationName(),
-        state: flows['Continue follow-up'],
-        date: ProgramService.getSessionDate()
-      }
-      const saveState = await ProgramService.createState(this.patientID, programID, state);
-      if(!saveState) return toastWarning('Unable to update state')
-      const data = formData['referral_outcome'];
-      const receptionObs = await this.reception.buildValueCoded('Cancer treatment procedure', data.value);
+        state: flows["Continue follow-up"],
+        date: ProgramService.getSessionDate(),
+      };
+      const saveState = await ProgramService.createState(
+        this.patientID,
+        programID,
+        state
+      );
+      if (!saveState) return toastWarning("Unable to update state");
+      const data = formData["referral_outcome"];
+      const receptionObs = await this.reception.buildValueCoded(
+        "Cancer treatment procedure",
+        data.value
+      );
 
-      const obs = await this.reception.saveObs(receptionObs)
+      const obs = await this.reception.saveObs(receptionObs);
       toastSuccess("Observations and encounter created!");
       this.nextTask();
     },
-    
+
     getFields(): any {
       return [
+        {
+          id: "screening_summary",
+          helpText: "Screening Summary",
+          type: FieldType.TT_DATA_TABLE,
+          config: {
+            rows: () => {
+              return Object.keys(this.summaryData).map((k: string) => {
+                return [table.td(k), table.td(this.summaryData[k])];
+              });
+            },
+          dataTableConfig: {
+            showIndex: false
+          },
+          },
+        },
+        {
+          id: "figo_staging_results",
+          helpText: "FIGO staging results",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          options: () =>
+            this.mapOptions([
+              'Cervical stage 1',
+              'Cervical stage 2',
+              'Cervical stage 3',
+              'Cervical stage 4',
+              'Not available',
+            ]),
+        },
+        {
+          id: "type_of_sample_collected",
+          helpText: "Type of sample collected",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          options: () =>
+            this.mapOptions([
+              'Punch Biopsy',
+              'LLETZ sample',
+              'Not available',
+            ]),
+        },
+        {
+          id: "histology_results",
+          helpText: "Histology results",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          options: () =>
+            this.mapOptions([
+              'Normal',
+              'CIN 1',
+              'CIN 2',
+              'CIN 3',
+              'Carcinoma in Situ',
+              'Invasive cancer of cervix',
+              'Benign cervical warts',
+              'Not available',
+            ]),
+        },
+        {
+          id: "complications",
+          helpText: "Complications",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          options: () =>
+            this.mapOptions([
+              'Bleeding',
+              'Pain',
+              'None',
+            ]),
+        },
         {
           id: "referral_outcome",
           helpText: "Treatment performed",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          options: () => this.mapOptions([
-            "Cryotherapy","Leep","Thermocoagulation","Other"
-          ])
+          options: () =>
+            this.mapOptions([
+              'Hysterectomy',
+              'Cryotherapy',
+              'Leep',
+              'Palliative Care',
+              'LLETZ',
+              'Conisation',
+              'Thermocoagulation',
+              'Chronic cervicitis',
+              'Patient refused',
+            ]),
         },
       ];
     },
