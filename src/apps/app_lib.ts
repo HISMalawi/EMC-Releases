@@ -4,6 +4,7 @@ import { modalController } from "@ionic/vue";
 import { find, isEmpty } from 'lodash';
 import GlobalApp from "@/apps/GLOBAL_APP/global_app"
 import { AppInterface } from "./interfaces/AppInterface";
+import { Service } from "@/services/service";
 /**
 * Merge global configurations with app configurations
 */
@@ -39,6 +40,7 @@ async function selectApplication(context='', canClose=false) {
         cssClass: "large-modal",
         backdropDismiss: false,
         componentProps: {
+            appVersion: Service.getFullVersion(),
             canClose
         }
     });

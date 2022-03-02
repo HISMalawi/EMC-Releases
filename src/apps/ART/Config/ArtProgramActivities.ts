@@ -5,17 +5,6 @@ import { ART_GLOBAL_PROP } from "../art_global_props"
 
 export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
-    id: "art adherence",
-    name: "ART adherence",
-    workflowID: "ART adherence",
-    icon: "adherence.png"
-  },
-  {
-    id: "hiv clinic consultation",
-    name: "HIV clinic consultations",
-    icon: "consultation.png"
-  },
-  {
     id: "hiv clinic registration",
     name: "Hiv clinic registration",
     workflowID: "HIV first visits",
@@ -28,39 +17,32 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     icon: "reception.png"
   },
   {
+    id: "vitals",
+    name: "Vitals",
+    icon: "vitals.png"
+  },
+  {
     id: "hiv staging",
     name: "HIV staging",
     workflowID: "HIV staging visits",
     icon: "hiv-staging.png"
   },
   {
-    id: "appointment",
-    name: "Manage Appointments",
-    workflowID: "Manage Appointments",
-    icon: "appointment.png"
+    id: "hiv clinic consultation",
+    name: "HIV clinic consultations",
+    icon: "consultation.png"
   },
   {
-    id: "dispensing",
-    name: "Drug Dispensations",
-    workflowID: "Drug Dispensations",
-    icon: "dispensing.png"
+    id: "art adherence",
+    name: "ART adherence",
+    workflowID: "ART adherence",
+    icon: "adherence.png"
   },
   {
     id: "treatment",
     name: "Treatment",
     workflowID: "Prescriptions",
     icon: "prescription.png"
-  },
-  {
-    id: "vitals",
-    name: "Vitals",
-    icon: "vitals.png"
-  },
-  {
-    id: "patient type",
-    name: "Patient Type",
-    icon: "patient-type.png",
-    availableOnActivitySelection: false
   },
   {
     id: "fast track assesment",
@@ -70,16 +52,36 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     availableOnActivitySelection: false
   },
   {
+    id: "dispensing",
+    name: "Drug Dispensations",
+    workflowID: "Drug Dispensations",
+    icon: "dispensing.png"
+  },
+  {
+    id: "appointment",
+    name: "Manage Appointments",
+    workflowID: "Manage Appointments",
+    icon: "appointment.png"
+  },
+  {
+    id: "patient type",
+    name: "Patient Type",
+    icon: "patient-type.png",
+    availableOnActivitySelection: false
+  },
+  {
     id: "bp_management",
     name: "bp_management",
     icon: "dispensing.png",
     globalProperty: `${ART_GLOBAL_PROP.HTN_ENHANCEMENT}=true`,
+    availableOnActivitySelection: false
   },
   {
     id: "bp_alert",
     name: "bp_alert",
     icon: "dispensing.png",
     globalProperty: `${ART_GLOBAL_PROP.HTN_ENHANCEMENT}=true`,
+    availableOnActivitySelection: false
   }
 ]
 
@@ -98,6 +100,10 @@ export const SECONDARY_ACTIVITIES: TaskInterface[] = [
     name: "Filing Number (Print)",
     description: "Print Patient Filing Number",
     globalProperty: `${ART_GLOBAL_PROP.FILING_NUMBERS}=true`,
+    condition: ({patient}: any) => {
+      const p = new Patientservice(patient)
+      return p.hasActiveFilingNumber() || p.hasDormantFilingNumber()
+    },
     action({ patient }: any) {
       const lbl = new PatientPrintoutService(patient.patient_id)
       return lbl.printFilingNumberLbl()

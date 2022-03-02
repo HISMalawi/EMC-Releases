@@ -119,7 +119,7 @@ export default defineComponent({
 .pagination .btn-group {
   margin: .5rem;
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
 }
 
 .pagination ion-button {

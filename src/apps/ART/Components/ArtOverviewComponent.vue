@@ -2,7 +2,7 @@
   <ion-grid>
     <ion-row>
       <ion-col size-lg="6" size-sm="12">
-        <p>Complete / incomplete visits: last 5 days</p>
+        <p>Total visits / incomplete visits: last 5 days</p>
         <apexchart
           width="100%"
           type="bar"
@@ -55,12 +55,14 @@ export default defineComponent({
       },
       series: [
         {
-          name: "complete",
+          name: "Total visits",
           data: [0, 0, 0, 0, 0],
+          color: "#7cb5ec"
         },
         {
-          name: "incomplete",
+          name: "Total incomplete visits",
           data: [0, 0, 0, 0, 0],
+          color: "#434348"
         },
       ],
       rows: [{}],
@@ -100,7 +102,7 @@ export default defineComponent({
         const complete: number[] = [];
         days.forEach((el, index) => {
           incomplete[index] = data[el].incomplete;
-          complete[index] = data[el].complete;
+          complete[index] = data[el].complete + data[el].incomplete;
         });
         this.series[0].data = [...complete];
         this.series[1].data = [...incomplete];
@@ -142,7 +144,7 @@ export default defineComponent({
         response2.status == 200
       ) {
         const data = await response.json();
-        const allData = await response2.json();
+        const allData = await response2.json(); 
         const rows: any = [];
         Object.keys(data).forEach((element) => {
           rows.push({

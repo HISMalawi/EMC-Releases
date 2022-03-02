@@ -80,7 +80,11 @@ import {
   IonToolbar,
   IonButton,
   IonHeader,
-  IonTitle
+  IonTitle,
+  loadingController,
+  modalController,
+  alertController,
+  toastController
 } from "@ionic/vue";
 import { alertConfirmation, toastWarning } from "@/utils/Alerts";
 import InfoCard from "@/components/DataViews/HisFormInfoCard.vue"
@@ -176,6 +180,18 @@ export default defineComponent({
           } else {
             await this.onNext(); //look for a field to mount initially
           }
+        }
+      },
+      immediate: true,
+      deep: true
+    },
+    state: {
+      handler (newState: string) {
+        if(["onValue", "onClear", "next", "prev", "onfinish", "onload", "unload"].includes(newState)){
+          loadingController.getTop().then(v => v ? loadingController.dismiss() : null)
+          modalController.getTop().then(v => v ? modalController.dismiss() : null)
+          alertController.getTop().then(v => v ? alertController.dismiss() : null)
+          toastController.getTop().then(v => v ? toastController.dismiss() : null)
         }
       },
       immediate: true,
@@ -493,7 +509,7 @@ export default defineComponent({
         const errors = this.currentField.validation(
           value, this.formData, this.computedFormData
         )
-        if (errors) return toastWarning(errors.join(", "), 30000);
+        if (errors) return toastWarning(errors.join(", "), 2000);
       }
       // Run callback before proceeding to next field
       if (this.currentField.beforeNext) {

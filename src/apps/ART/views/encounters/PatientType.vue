@@ -25,13 +25,15 @@ export default defineComponent({
     patientType: {} as any,
   }),
   watch: {
-    patient: {
-      async handler() {
-        this.patientType = new PatientTypeService(this.patientID, this.providerID);
-        await this.patientType.loadPatientType()
-        this.fields = this.getFields();
+    ready: {
+      async handler(ready: boolean) {
+        if (ready) {
+          this.patientType = new PatientTypeService(this.patientID, this.providerID);
+          await this.patientType.loadPatientType()
+          this.fields = this.getFields();
+        }
       },
-      deep: true
+      immediate: true
     },
   },
   methods: {

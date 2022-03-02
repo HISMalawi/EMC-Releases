@@ -48,7 +48,7 @@
                   <b>User set appointment date</b>
                   <br>
                   <br>
-                  <span>{{ rDate }}</span>
+                  <span>{{ aDate }}</span>
                 </ion-label>
               </ion-item>
               <ion-item>
@@ -241,8 +241,12 @@ export default defineComponent({
 .custom-calendar.vc-container .vc-day-dots {
     margin-bottom: 5px;
   }
-.custom-calendar.vc-container .vc-highlight {
+.custom-calendar.vc-container .vc-highlight,
+.custom-calendar.vc-container .vc-highlights .vc-day-layer {
   border-radius: 0 !important;
+  padding: 0 !important;
+  background: #3182ce !important;
+  color: #ffffff;
 }
 .selected{
   font-size: 3vh;

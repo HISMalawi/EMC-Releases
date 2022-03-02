@@ -9,6 +9,10 @@ export class InvalidCredentialsError extends Error {
     }
 }
 
+export enum AuthVariable {
+    CORE_VERSION = 'core_version'
+}
+
 export class AuthService{
     username: string
     userID: number
@@ -16,7 +20,7 @@ export class AuthService{
     token: string
     sessionDate: string
     systemVersion: string
-
+    coreVersion: string
     constructor() {
         this.token = ''
         this.username = ''
@@ -24,6 +28,7 @@ export class AuthService{
         this.userID = -1
         this.sessionDate = ''
         this.systemVersion = ''
+        this.coreVersion = ''
     }    
 
     setUsername(username: string) { this.username = username }
@@ -42,6 +47,7 @@ export class AuthService{
             this.userID = user.user_id
             this.sessionDate = await this.getSystemDate()
             this.systemVersion = await this.getApiVersion()
+            this.coreVersion = await this.getHeadVersion()
         } else {
             throw 'Unable to login'
         }
@@ -54,9 +60,12 @@ export class AuthService{
         sessionStorage.setItem("userRoles", JSON.stringify(this.roles));
         sessionStorage.setItem("sessionDate", this.sessionDate)
         sessionStorage.setItem("APIVersion", this.systemVersion)
+        localStorage.setItem(AuthVariable.CORE_VERSION, this.coreVersion)
     }
 
-    clearSession() { sessionStorage.clear() }
+    clearSession() { 
+        sessionStorage.clear() 
+    }
 
     requestLogin(password: string) {
         return this.postLogin(`auth/login`, {
@@ -65,9 +74,39 @@ export class AuthService{
         })
     }
 
+    initDateSync(interval = 1000) {
+        setInterval(async () => {
+            const date = await this.getSystemDate()
+            /**
+             * This condition exists to prevent overriding BDE Date
+             * by checking presence of apiDate. We update ApiDate
+             * if found else we update SessionDate.
+             */
+            if (sessionStorage.getItem('apiDate')) {
+                sessionStorage.setItem('apiDate', date)
+            } else {
+                sessionStorage.setItem('sessionDate', date)
+            }
+        }, interval)
+    }
+    
+    setActiveVersion (version: string) {
+        return localStorage.setItem(AuthVariable.CORE_VERSION, version)
+    }
+
+    getActiveCoreVersion() {
+        return localStorage.getItem(AuthVariable.CORE_VERSION)
+    }
+
+    async getHeadVersion(): Promise<string> {
+        const res = await fetch('HEAD', { method: 'GET' })
+        const version = await res?.text()
+        return version && version.length <= 25 ? version : '-'
+    }
+
     async getApiVersion(): Promise<string> {
-        const api: any = this.getJson('version')
-        return api ? api['System version'] || 'none' : ''
+        const api: any = await this.getJson('version')
+        return api && api['System version'] ? api['System version'] : '-'
     }
 
     async getSystemDate(): Promise<string> {

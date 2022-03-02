@@ -24,11 +24,11 @@
                     :src="barcodeLogo"
                   />
                 </ion-col>
-                <ion-col size-lg="7" size-sm="8">
-                  <input
-                    :readonly="isReadOnly"
-                    v-model="patientBarcode"
-                    class="barcode-input"
+                <ion-col size-lg="7" size-sm="8"> 
+                  <input 
+                    :readonly="useVirtualInput" 
+                    v-model="patientBarcode" 
+                    class="barcode-input" 
                     ref="scanBarcode"
                   />
                 </ion-col>
@@ -57,7 +57,7 @@
             </div>
           </ion-col>
           <ion-col size="3">
-            <program-icon :icon="appLogo"> </program-icon>
+            <program-icon :icon="appLogo" :version="appVersion"> </program-icon>
           </ion-col>
         </ion-row>
       </ion-toolbar>
@@ -218,8 +218,9 @@ import {
   IonSegmentButton,
   IonLabel,
   IonTitle,
-  isPlatform,
 } from "@ionic/vue";
+import usePlatform from "@/composables/usePlatform";
+import { alertConfirmation } from "@/utils/Alerts";
 export default defineComponent({
   name: "Home",
   components: {
@@ -242,6 +243,7 @@ export default defineComponent({
     IonLabel,
   },
   setup() {
+    const { useVirtualInput } = usePlatform()
     return {
       barcode,
       apps,
@@ -251,8 +253,8 @@ export default defineComponent({
       statsChart,
       pieChart,
       settings,
-      isReadOnly: !isPlatform("desktop"),
-    };
+      useVirtualInput
+    }
   },
   data() {
     return {
@@ -261,7 +263,7 @@ export default defineComponent({
       userLocation: "",
       sessionDate: "",
       userName: "",
-      APIVersion: "",
+      appVersion: "",
       activeTab: 1,
       ready: false,
       patientBarcode: "",
@@ -326,7 +328,8 @@ export default defineComponent({
       this.fetchLocationID();
       this.sessionDate = HisDate.toStandardHisDisplayFormat(
         Service.getSessionDate()
-      );
+      )
+      this.appVersion = Service.getFullVersion()
     },
     async openModal() {
       const data = await HisApp.selectApplication("HomePage");
@@ -346,8 +349,10 @@ export default defineComponent({
       }
     },
     async signOut() {
-      const auth = new AuthService();
-      if (await GLOBAL_PROP.portalEnabled()) {
+      const ok = await alertConfirmation('Are you sure you want to logout ?')
+      if (!ok) return
+      const auth = new AuthService()
+      if((await GLOBAL_PROP.portalEnabled())) {
         const portalLocation = await GLOBAL_PROP.portalProperties();
         window.location = portalLocation;
       } else {

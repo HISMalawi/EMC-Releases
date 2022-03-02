@@ -33,7 +33,6 @@ export default defineComponent({
         date: '' as string,
         rows: [] as Array<any>,
         appointments: [] as any,
-        reportReady: false as boolean,
         columns: [
             [
                 table.thTxt('ARV#'),
@@ -53,6 +52,7 @@ export default defineComponent({
                 id: 'date',
                 helpText: 'Select date',
                 type: FieldType.TT_APPOINTMENT_PICKER,
+                defaultValue: () => PatientReportService.getSessionDate(),
                 validation: (val: any) => Validation.required(val),
                 onValue: async (date: string, context: any) => {
                     const data = await this.report.getBookedAppointments(date)
@@ -68,7 +68,6 @@ export default defineComponent({
     },
     methods: {
         async onPeriod(form: any) {
-            this.reportReady = true
             this.rows = []
             this.period = HisDate.toStandardHisDisplayFormat(form.date)
             this.setRows(this.appointments)

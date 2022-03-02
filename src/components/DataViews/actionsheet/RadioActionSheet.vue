@@ -51,6 +51,9 @@ export default defineComponent({
             return this.actionButtons.map((b: NavBtnInterface) => ({
                 ...b,
                 onClick: async () => {
+                    if (b.role && b.role.match(/default/i)) {
+                        return modalController.dismiss({ action: b.name })
+                    }
                     if (b.role && b.role.match(/action/i) && !this.activeLabel) {
                         return toastWarning('Please select one of the options')
                     }

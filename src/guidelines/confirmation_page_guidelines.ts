@@ -38,19 +38,14 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                     'Choose how to proceed',
                     [
                         { 
-                            name: 'Go Home', 
-                            slot: 'start', 
-                            color: 'primary',
-                        },
-                        { 
-                            name: 'Go Back', 
+                            name: 'Close', 
                             slot: 'start', 
                             color: 'primary',
                         }
                     ],
                     'his-danger-color'
                 )
-                return action === 'Go Home' ? FlowState.GO_HOME : FlowState.GO_BACK
+                return FlowState.GO_HOME
             }
         },
         conditions: {
@@ -74,7 +69,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                     facts.demographics.invalidDemographics,
                     [
                         { 
-                            name: 'Exit', 
+                            name: 'Close', 
                             slot: 'start', 
                             color: 'danger',
                         }
@@ -102,23 +97,14 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                     facts.dde.voidedNpids.rows,
                     [
                         { 
-                            name: 'Go Home', 
-                            slot: 'start', 
-                            color: 'primary',
-                        },
-                        { 
-                            name: 'Go Back', 
+                            name: 'Close', 
                             slot: 'start', 
                             color: 'primary',
                         }
                     ],
                     'his-danger-color'
                 )
-                return action === 'Go Home' 
-                    ? FlowState.GO_HOME 
-                    : action ===  FlowState.GO_BACK
-                    ? FlowState.GO_BACK
-                    : FlowState.FORCE_EXIT
+                return FlowState.GO_HOME
             }
         },
         conditions: {
@@ -370,7 +356,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         }
     },
-    "Prompt the user to update patient demographics when data is incomplete": {
+    "[DDE OFF] Prompt the user to update patient demographics when data is incomplete": {
         priority: 1,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
@@ -402,6 +388,9 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             },
             demographics: ({patientIsComplete}: any) => {
                 return patientIsComplete === false
+            },
+            patientFound: (isFound: boolean) => {
+                return isFound === true
             }
         }
     },
@@ -469,7 +458,48 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         }
     },
-    "[DDE] Force Users to update Incomplete Patient demographics": {
+    "[DDE ON] Warn program managers when Patient has incomplete demographics. Dont force them to update though": {
+        priority: 1,
+        targetEvent: TargetEvent.ONLOAD,
+        actions: {
+            alert: async () => {
+                const action = await infoActionSheet(
+                    'Demographics',
+                    'Patient data is incomplete data',
+                    'Do you want to review and update now?',
+                    [
+                        { 
+                            name: 'Yes', 
+                            slot: 'start', 
+                            color: 'success'
+                        },
+                        { 
+                            name: 'No',  
+                            slot: 'end', 
+                            color: 'danger'
+                        }
+                    ],
+                    'his-danger-color'
+                )
+                return action === 'Yes' ? FlowState.UPDATE_DMG : FlowState.CONTINUE
+            }
+        },
+        conditions: {
+            globalProperties({ddeEnabled}: any) {
+                return ddeEnabled === true
+            },
+            demographics: ({patientIsComplete}: any) => {
+                return patientIsComplete === false
+            },
+            patientFound: (isFound: boolean) => {
+                return isFound === true
+            },
+            userRoles(roles: string[]) {
+                return roles.includes("Program Manager") === true
+            }
+        }
+    },
+    "[DDE ON] Force Users to update Incomplete Patient demographics": {
         priority: 1,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
@@ -501,6 +531,9 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             },
             demographics: ({patientIsComplete}: any) => {
                 return patientIsComplete === false
+            },
+            userRoles: (roles: string[]) => {
+                return roles.includes('Program Manager') === false
             }
         }
     },

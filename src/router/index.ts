@@ -6,25 +6,26 @@ import Home from "../views/Home.vue";
 import Confirmation from "../views/Confirmation.vue";
 import HClocation from "../views/HClocation.vue";
 import SearchPatient from "@/views/SearchPatient.vue";
-import SearchClient from "../views/SearchClient.vue";
-import PatientRegistration from "../views/PatientRegistration.vue";
-import GuardianRegistration from "../views/GuardianRegistration.vue";
-import SearchResults from "../views/SearchResults.vue";
-import Example from "../views/Example.vue";
-import FindByID from "../views/FindByID.vue";
-import PatientDashboard from "../views/PatientDashboard.vue";
-import Configuration from "@/views/Configuration.vue";
-import HisApps from "@/apps/his_apps";
-import SessionDate from "@/views/SessionDate.vue";
-import SystemUsage from "@/views/SystemUsage.vue";
-import PrintLocation from "@/views/PrintLocation.vue";
-import PortalSettings from "@/views/PortalSettings.vue";
-import HostConfig from "@/views/HostConfig.vue";
-import ProgramManagement from "@/views/ProgramManagement.vue";
-import LabResults from "@/views/LabResults.vue";
-import User from "@/views/NewUser.vue";
-import PatientMerging from "@/views/PatientMerging.vue";
-import NpidDuplicates from "@/views/NpidDuplicates.vue";
+import SearchClient from '../views/SearchClient.vue'
+import PatientRegistration from '../views/PatientRegistration.vue'
+import GuardianRegistration from '../views/GuardianRegistration.vue'
+import SearchResults from '../views/SearchResults.vue'
+import Example from '../views/Example.vue'
+import FindByID from '../views/FindByID.vue'
+import PatientDashboard from '../views/PatientDashboard.vue'
+import Configuration from '@/views/Configuration.vue'
+import HisApps from '@/apps/his_apps';
+import SessionDate from "@/views/SessionDate.vue"
+import SystemUsage from "@/views/SystemUsage.vue"
+import PrintLocation from "@/views/PrintLocation.vue"
+import PortalSettings from "@/views/PortalSettings.vue"
+import HostConfig from '@/views/HostConfig.vue'
+import ProgramManagement from "@/views/ProgramManagement.vue"
+import LabResults from "@/views/LabResults.vue"
+import User from "@/views/NewUser.vue"
+import PatientMerging from "@/views/PatientMerging.vue"
+import NpidDuplicates from "@/views/NpidDuplicates.vue"
+import { alertController, loadingController, modalController, toastController } from '@ionic/vue';
 
 const HIS_APP_ROUTES = (() => {
   let routes: Array<RouteRecordRaw> = [];
@@ -189,11 +190,15 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, _from, next) => {
-  const whitelistedUri = ["/login", "/settings/host", "/emc/login"];
-  if (!sessionStorage.getItem("apiKey") && !whitelistedUri.includes(to.path)) {
-    const goTo = to.path.match(/emc/i) ? "/emc/login" : "/login";
-    next(goTo);
-  } else next();
-});
-export default router;
+router.beforeEach((to, from, next) => {
+  loadingController.getTop().then(v => v ? loadingController.dismiss() : null)
+  modalController.getTop().then(v => v ? modalController.dismiss() : null)
+  alertController.getTop().then(v => v ? alertController.dismiss() : null)
+  toastController.getTop().then(v => v ? toastController.dismiss() : null)
+  const whitelistedUri = ['/login', '/settings/host']
+  if (!sessionStorage.getItem('apiKey') && !whitelistedUri.includes(to.path)) {
+    next('/login')
+  }
+  next()
+})
+export default router

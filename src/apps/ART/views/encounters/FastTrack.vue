@@ -27,11 +27,11 @@ export default defineComponent({
     gender: null as any,
   }),
   watch: {
-    patient: {
-      async handler(patient: any) {
-        this.init(patient);
+    ready: {
+      async handler(ready: any) {
+        if (ready) this.init(this.patient);
       },
-      immediate: true,
+      immediate: true
     },
   },
   methods: {

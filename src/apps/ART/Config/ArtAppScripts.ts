@@ -18,16 +18,15 @@ import DrugModalVue from "@/apps/ART/Components/DrugModal.vue";
 import ART_GLOBAL_PROP from "../art_global_props";
 import { isEmpty } from "lodash";
 import { Order } from "@/interfaces/order";
+import { addWorkflowTask, nextTask } from "@/utils/WorkflowTaskHelper";
+import dayjs from "dayjs";
+import { Service } from "@/services/service";
+import { Patientservice } from '@/services/patient_service';
+import ART_PROP from '@/apps/ART/art_global_props';
 
 async function enrollInArtProgram(patientID: number, patientType: string, clinic: string) {
     const program = new PatientProgramService(patientID)
-    const enroll = await program.enrollProgram()
-    if (enroll) {
-        //Create pre-art state
-        program.setStateId(1) 
-        await program.updateState()
-    }
-
+    await program.enrollProgram()
     const patientTypeService = new PatientTypeService(patientID, -1)
 
     patientTypeService.setPatientType(patientType)
@@ -78,11 +77,12 @@ async function showStockManagementChart() {
     }
 }
 
-function orderToString(order: Order) {
+function orderToString(order: Order, showDate = true) {
     const test = order.tests[0];
     const result = test.result[0];
+    const date = showDate ? `<br> Result date: &nbsp; ${HisDate.toStandardHisDisplayFormat(result.date)}` : ''
     const status = OrderService.isHighViralLoadResult(result) ? '(<b style="color: #eb445a;">High</b>)' : ''
-    return `${test.name} ${result.value_modifier}${result.value} ${status}`;
+    return `${test.name} &nbsp; ${result.value_modifier}${result.value} ${status} ${date}`;
 }
 
 export async function init(context='') {
@@ -92,17 +92,24 @@ export async function init(context='') {
     }
 }
 
-export async function onRegisterPatient(patientID: number, person: any, attr: any, router: any) {
+export async function onRegisterPatient(patientID: number, person: any, attr: any, router: any, route: any) {
     await enrollInArtProgram(patientID, person.patient_type, person.location)
-    // Assign filing number if property use_filing_numbers is enabled
-    if ((await ART_GLOBAL_PROP.filingNumbersEnabled())) {
-        let nextRoute = `/art/filing_numbers/${patientID}?assign=true`
-        if (person.relationship === 'Yes') {
-            nextRoute += '&next_workflow_task=Guardian Registration'
-        }
-        router.push(nextRoute)
-        return true
+    if (person.relationship === 'Yes') {
+        addWorkflowTask(patientID, {
+            from: 'Patient Registration',
+            to: `/guardian/registration/${patientID}`
+        })
     }
+    if ((await ART_GLOBAL_PROP.filingNumbersEnabled())) {
+        addWorkflowTask(patientID, {
+            from: person?.relationship === 'Yes' 
+                ? 'Guardian Registration'
+                : 'Patient Registration',
+            to: `/art/filing_numbers/${patientID}?assign=true`
+        })
+    }
+    nextTask(patientID, router, route)
+    return true
 }
 
 export async function getPatientDashboardAlerts(patient: any): Promise<GeneralDataInterface[]>{
@@ -121,8 +128,12 @@ export async function getPatientDashboardAlerts(patient: any): Promise<GeneralDa
 }
 
 export function formatPatientProgramSummary(data: any) {
+    const [day, month, year] = data.art_start_date.split('/')
+    const durationOnArt = !data.art_start_date.match(/n\/a/i)
+        ? `(${dayjs(Service.getSessionDate()).diff(`${year}-${month}-${day}`, 'months')} Month(s))`
+        : ''
     return  [
-        { label: "ART- Start Date", value: data.art_start_date},
+        { label: "ART- Start Date", value: `${data.art_start_date} ${durationOnArt}`},
         { label: "ARV Number", value: `${data.arv_number} | Regimen: ${data.current_regimen}` },
         { label: "File Number", value: data.filing_number.number},
         { label: "Current Outcome", value: data.current_outcome},
@@ -151,7 +162,7 @@ export async function getPatientDashboardLabOrderCardItems(patientId: number, da
             const test = order.tests[0]
             const result = test.result[0]
             return {
-                label: orderToString(order),
+                label: orderToString(order, false),
                 value: t(result.date),
                 other: {
                     tableRow: [
@@ -178,7 +189,7 @@ export async function getPatientDashboardLabOrderCardItems(patientId: number, da
         }))
 }
 
-export function confirmationSummary(patient: any, program: any) {
+export function confirmationSummary(patient: Patientservice, program: any) {
     const patientID = patient.getID()
     return {
         'PROGRAM INFORMATION': async () => {
@@ -218,17 +229,23 @@ export function confirmationSummary(patient: any, program: any) {
             }
             return data
         },
-        'PATIENT IDENTIFIERS': () => {
-            return [
-                {
-                  label: "ARV Number",
-                  value: patient.getArvNumber(),
-                },
-                {
-                  label: "NPID",
-                  value: patient.getNationalID(),
-                }
-            ]
+        'PATIENT IDENTIFIERS': async () => {
+            const identifiers = [{
+                label: "ARV Number",
+                value: patient.getArvNumber(),
+            },
+            {
+                label: "NPID",
+                value: patient.getNationalID(),
+            }]
+
+            if((await ART_PROP.filingNumbersEnabled())){
+                identifiers.push({
+                    label: "Filing Number",
+                    value: patient.getFilingNumber()
+                })
+            }
+            return identifiers;
         },
         'ALERTS': () => getPatientDashboardAlerts(patient),
         'LAB ORDERS': async () => {
@@ -236,12 +253,12 @@ export function confirmationSummary(patient: any, program: any) {
             await OrderService.getOrders(patient.getID())
                 .then((orders) => {
                     const VLOrders = OrderService.getViralLoadOrders(orders);
-                    VLOrders.forEach((order) => {
+                    for(let i = 0; i < 2 && i < VLOrders.length; i++) {
                         data.push({
-                            value: orderToString(order),
+                            value: orderToString(VLOrders[i]),
                             label: ``,
                         });
-                    });
+                    }
                 });
             return data
         },

@@ -166,6 +166,9 @@ export class ObservationService extends ConceptService {
         return this.getFirstObsValue(patientID, conceptName, 'value_numeric', date, strictMode)
     }
 
+    static getFirstValueDatetime(patientID: number, conceptName: string, date=this.getSessionDate(), strictMode=true) {
+        return this.getFirstObsValue(patientID, conceptName, 'value_datetime', date, strictMode)
+    }
     static getFirstObsDatetime(patientID: number, conceptName: string, date=this.getSessionDate(), strictMode=true) {
         return this.getFirstObsValue(patientID, conceptName, 'obs_datetime', date, strictMode)
     }

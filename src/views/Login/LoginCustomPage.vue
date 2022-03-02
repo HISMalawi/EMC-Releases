@@ -12,7 +12,7 @@
           v-model="userInput.username"
           v-on:click="renderKeyBoard($event)"
           class="input-boxes"
-          :readonly="isReadOnly"
+          :readonly="useVirtualInput"
         />
       </div>
     </div>
@@ -27,7 +27,7 @@
           v-on:click="renderKeyBoard($event)"
           class="input-boxes"
           placeholder="Password"
-          :readonly="isReadOnly"
+          :readonly="useVirtualInput"
         />
       </div>
     </div>
@@ -76,11 +76,15 @@ import { isPlatform } from "@ionic/vue"
 import { LOGIN_KEYBOARD } from "@/components/Keyboard/KbLayouts"
 
 export default defineComponent({
+  props: {
+    useVirtualInput: {
+      type: Boolean
+    }
+  },
   data: function () {
     return {
       LOGIN_KEYBOARD: LOGIN_KEYBOARD,
       auth: {} as any,
-      isReadOnly: false as boolean,
       userInput: {
         type: String,
         username: "",
@@ -103,7 +107,6 @@ export default defineComponent({
   }, 
   created() {
     this.auth = new AuthService()
-    this.isReadOnly = !isPlatform('desktop')
   },
   methods: {
     renderKeyBoard(e: any) {

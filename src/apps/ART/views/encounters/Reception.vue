@@ -32,15 +32,16 @@ export default defineComponent({
     suggestedNumber: "" as any,
   }),
   watch: {
-    patient: {
-      async handler(patient: any) {
-        const guardian = await patient.getGuardian()
+    ready: {
+      async handler(ready: any) {
+        if (!ready) return
+        const guardian = await this.patient.getGuardian()
         this.hasGuardian = !isEmpty(guardian)
-        this.reception = new ReceptionService(patient.getID(), this.providerID)
+        this.reception = new ReceptionService(this.patientID, this.providerID)
 
         await this.reception.loadSitePrefix()
 
-        const ARVNumber = patient.getPatientIdentifier(4);
+        const ARVNumber = this.patient.getPatientIdentifier(4);
   
         if (ARVNumber === "") {
           this.hasARVNumber = false;
@@ -50,7 +51,7 @@ export default defineComponent({
         }
         this.fields = this.getFields();
       },
-      deep: true
+      immediate: true
     },
   },
   methods: {

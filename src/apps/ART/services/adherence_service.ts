@@ -2,6 +2,7 @@ import { AppEncounterService } from "@/services/app_encounter_service"
 import { DrugInterface } from "@/interfaces/Drug"
 import HisDate from "@/utils/Date"
 import { isEmpty } from "lodash"
+import { BPManagementService } from "./htn_service"
 
 export class AdherenceService extends AppEncounterService {
     lastDrugs: Array<DrugInterface>
@@ -15,22 +16,21 @@ export class AdherenceService extends AppEncounterService {
     async loadPreviousDrugs() {
         const date = new Date(this.date)
         date.setDate(date.getDate() - 1) // we don't want current date to count
-
+        const d = (date: string | Date) => HisDate.toStandardHisFormat(date)
         const drugs = await AppEncounterService.getJson(
-            `patients/${this.patientID}/drugs_received`, {
-                date: HisDate.toStandardHisFormat(date)
-            }
-        )
-
-        if (!drugs) return
-
-        this.lastDrugs = drugs.filter((drug: DrugInterface) => {
-            if (!this.lastReceiptDate) {
-                this.lastReceiptDate = drug.order.start_date
-                return true
-            }
-            return new Date(drug.order.start_date) >= new Date(this.lastReceiptDate)
-        })
+            `patients/${this.patientID}/drugs_received`, { date: d(date) }
+        )      
+        if (drugs) {
+            this.lastReceiptDate = drugs.reduce((receiptDate: string | null,  drug: any) => {
+                return !receiptDate || (new Date(d(drug.order.start_date)) > new Date(receiptDate))
+                    ?  d(drug.order.start_date)
+                    : receiptDate
+            }, null)
+            const htnDrugs = BPManagementService.htnDrugReferences().map((d: any) => d.drug_id)
+            this.lastDrugs = drugs.filter((drug: DrugInterface) => 
+               !htnDrugs.includes(drug.drug['drug_id']) && d(drug.order.start_date) === this.lastReceiptDate
+            )
+        }
     }
 
     getReceiptDate() { return this.lastReceiptDate }

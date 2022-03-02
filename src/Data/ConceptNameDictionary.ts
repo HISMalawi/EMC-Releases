@@ -1,6 +1,16 @@
 export default [
    {
       "categories": [],
+      "concept_id": 6397,
+      "name": "Height for age percent of median"
+   },
+   {
+      "categories": [],
+      "concept_id": 6969,
+      "name": "Refer to clinician"
+   },
+   {
+      "categories": [],
       "concept_id": 10031,
       "name": "Further Investigation and Management"
    },
@@ -367,7 +377,7 @@ export default [
       "name": "Confirmatory"
    }, {
       "categories": [],
-      "concept_id": 6383,
+      "concept_id": 6368,
       "name": "Stat"
    }, {
       "categories": [],
@@ -455,8 +465,8 @@ export default [
       "name": "Home visit"
    },
    {
-      "categories": [],
-     "concept_id": 9974,
+      "categories": ["art_extra_medication_order"],
+      "concept_id": 9974,
       "name": "3HP (RFP + INH)"
    },
    {
@@ -1151,7 +1161,7 @@ export default [
          "art_medication_order",
          "art_extra_medication_order"
       ],
-      "concept_id": 916,
+      "concept_id": 656,
       "name": "INH"
    },
    {

@@ -89,7 +89,7 @@ export default defineComponent({
                 this.patientData.id, guardianID, form.relations.other.relationship_type_id
             )
             if(this.redirectURL) this.$router.push({name: this.redirectURL})
-            else await nextTask(this.patientData.id, this.$router)  
+            else await nextTask(this.patientData.id, this.$router, this.$route)  
         }   
     },
     isSearchMode() {
@@ -109,13 +109,23 @@ export default defineComponent({
         }
     },
     isSameAsPatient(guardian: any) {
-        const birthdate = this.isRegistrationMode() && guardian.birth_date
-            ? HisDate.toStandardHisDisplayFormat(guardian.birth_date.date)
-            : this.guardianData.birthdate
-        const guardianName = guardian.given_name.person + ' ' + guardian.family_name.person
-        return (guardianName.toLowerCase() === this.patientData.name.toLowerCase()) 
+        let birthdate = ''
+        let name = ''
+        let gender = ''
+
+        if(this.isRegistrationMode()) {
+            birthdate = HisDate.toStandardHisDisplayFormat(guardian.birth_date.date)
+            name = guardian.given_name.person && guardian.family_name.person
+            gender = guardian.gender.person
+        } else {
+            birthdate = this.guardianData.birthdate
+            name = this.guardianData.name
+            gender = this.guardianData.gender  
+        }
+
+        return (name.toLowerCase() === this.patientData.name.toLowerCase()) 
             && (birthdate === this.patientData.birthdate)
-            && (guardian.gender.person === this.patientData.gender)
+            && (gender === this.patientData.gender)
     },
     mapToOption(listOptions: Array<string>): Array<Option> {
         return listOptions.map((item: any) => ({ label: item, value: item })) 
@@ -324,6 +334,7 @@ export default defineComponent({
                             this.guardianData = this.toPersonData(
                                 form.results.other.person.person
                             )
+                            console.log(this.guardianData)
                             this.fieldComponent = 'relations'
                             this.fieldAction = 'Search'
                         }

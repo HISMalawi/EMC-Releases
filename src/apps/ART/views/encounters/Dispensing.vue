@@ -17,16 +17,17 @@ export default defineComponent({
         dispensation: {} as any
     }),
     watch: {
-        patient: {
-            async handler(patient: any){
-                this.dispensation = new DispensationService(patient.getID(), this.providerID)
-                await this.dispensation.loadDrugManagementEnabled()
-                await this.dispensation.loadCurrentDrugOrder()
-                await this.dispensation.loadDrugHistory()
-
-                this.fields = this.getFields()
+        ready: {
+            async handler(ready: any){
+                if (ready) {
+                    this.dispensation = new DispensationService(this.patientID, this.providerID)
+                    await this.dispensation.loadDrugManagementEnabled()
+                    await this.dispensation.loadCurrentDrugOrder()
+                    await this.dispensation.loadDrugHistory()
+                    this.fields = this.getFields()
+                }
             },
-            deep: true
+            immediate: true
         }
     },
     methods: {
@@ -117,6 +118,7 @@ export default defineComponent({
                             return this.$router.push({name: 'appointment'})
                         }
                         i.other['amount_needed'] = i.other['amount_needed'] - (parseInt(i.value.toString()) || 0)
+                        if(i.other['amount_needed'] < 0 ) i.other['amount_needed'] = 0
                         
                         await this.dispensation.loadCurrentDrugOrder()
 

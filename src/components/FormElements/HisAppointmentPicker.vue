@@ -36,7 +36,6 @@ import { defineComponent } from "vue";
 import ViewPort from "@/components/DataViews/ViewPort.vue";
 import { IonGrid, IonCol, IonRow } from "@ionic/vue";
 import { DatePicker } from "v-calendar";
-import { Service } from "@/services/service";
 import HisDate from "@/utils/Date"
 import FieldMixinVue from "./FieldMixin.vue";
 
@@ -63,13 +62,15 @@ export default defineComponent({
     minDate: '',
     appointmentCounter: 0
   }),
-  created() {
-    this.minDate = Service.getSessionDate()
+  async created() {
+    if (!this.date && typeof this.defaultValue === 'function') {
+      this.date = await this.defaultValue()
+    }
   },
   activated(){
     this.$emit('onFieldActivated', this)
   }
-});
+})
 </script>
 <style>
 .vc-day {

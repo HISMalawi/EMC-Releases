@@ -42,16 +42,18 @@ export default defineComponent({
     ddeDocID: '' as string,
     ddeIsReassign: false as boolean,
     skipSummary: false as boolean,
-    addressAttributes: [
-        'home_region',
-        'home_district',
-        'home_traditional_authority',
-        'home_village',
+    currentAddressAttributes: [
         'current_region',
         'current_district',
         'current_village',
         'current_traditional_authority'
-    ] as Array<string>,
+    ] as string[],
+    homeAddressAttributes: [
+        'home_region',
+        'home_district',
+        'home_traditional_authority',
+        'home_village'
+    ] as string[],
     hasIncompleteData: false as boolean,
     patient: {} as any,
     editPersonData: {} as any,
@@ -167,7 +169,7 @@ export default defineComponent({
 
         if (this.app.onRegisterPatient) {
             const exit = await this.app.onRegisterPatient(
-                patientID, person, attributes, this.$router
+                patientID, person, attributes, this.$router, this.$route
             )
             if (exit) return
         }
@@ -190,9 +192,6 @@ export default defineComponent({
         }
         if(!this.personAttribute) return this.fieldComponent = 'edit_user'
         this.$router.back()
-    },
-    showEditDemographicsField(){
-        return this.editPerson != -1 && this.personAttribute.length
     },
     editConditionCheck(attributes=[] as Array<string>): boolean {
         if (this.isEditMode() && !attributes.includes(this.activeField)) {
@@ -279,45 +278,45 @@ export default defineComponent({
     },
     homeRegionField(): Field {
         const region: Field = PersonField.getHomeRegionField()
-        region.condition = () => this.editConditionCheck(this.addressAttributes)
+        region.condition = () => this.editConditionCheck(this.homeAddressAttributes)
         return region
     },
     homeDistrictField(): Field {
         const district: Field = PersonField.getHomeDistrictField()
-        district.condition = () => this.editConditionCheck(this.addressAttributes)
+        district.condition = () => this.editConditionCheck(this.homeAddressAttributes)
         return district
     },
     homeTAField(): Field {
         const homeTA: Field = PersonField.getHomeTaField()
-        homeTA.condition = (form: any) => this.editConditionCheck(this.addressAttributes)
+        homeTA.condition = (form: any) => this.editConditionCheck(this.homeAddressAttributes)
             && !form.home_region.label.match(/foreign/i)
         return homeTA
     },
     homeVillageField(): Field {
         const homeVillage: Field = PersonField.getHomeVillageField()
-        homeVillage.condition = (form: any) => this.editConditionCheck(this.addressAttributes)
+        homeVillage.condition = (form: any) => this.editConditionCheck(this.homeAddressAttributes)
             && !form.home_region.label.match(/foreign/i)
         return homeVillage
     },
     currentRegionField(): Field {
         const currentRegion: Field = PersonField.getCurrentRegionField()
-        currentRegion.condition = () => this.editConditionCheck(this.addressAttributes)
+        currentRegion.condition = () => this.editConditionCheck(this.currentAddressAttributes)
         return currentRegion
     },
     currentDistrictField(): Field {
         const currentDistrict: Field = PersonField.getCurrentDistrictField()
-        currentDistrict.condition = () => this.editConditionCheck(this.addressAttributes)
+        currentDistrict.condition = () => this.editConditionCheck(this.currentAddressAttributes)
         return currentDistrict
     },
     currentTAField(): Field {
         const currentTA: Field = PersonField.getCurrentTAfield()
-        currentTA.condition = (form: any) => this.editConditionCheck(this.addressAttributes)
+        currentTA.condition = (form: any) => this.editConditionCheck(this.currentAddressAttributes)
             && !form.current_region.label.match(/foreign/i)
         return currentTA
     },
     currentVillage(): Field {
         const currentVillage: Field = PersonField.getCurrentVillageField()
-        currentVillage.condition = (form: any) => this.editConditionCheck(this.addressAttributes)
+        currentVillage.condition = (form: any) => this.editConditionCheck(this.currentAddressAttributes)
             && !form.current_region.label.match(/foreign/i)
         return currentVillage
     },
@@ -637,7 +636,7 @@ export default defineComponent({
             id: 'edit_user',
             helpText: 'Edit Demographics',
             type: FieldType.TT_TABLE_VIEWER,
-            condition: () => this.showEditDemographicsField(),
+            condition: () => this.isEditMode(),
             options: async () => {
                 const editButton = (attribute: string) => ({
                     name: 'Edit',
@@ -654,11 +653,11 @@ export default defineComponent({
                     ['Gender', this.editPersonData.gender,  editButton('gender')],
                     ['Birthdate', HisDate.toStandardHisDisplayFormat(this.editPersonData.birthdate),  editButton('year_birth_date')],
                     ['Cell Phone Number', this.editPersonData.cell_phone_number, editButton('cell_phone_number')],
-                    ['Current district',this.editPersonData.current_district, editButton('home_region')],
-                    ['Current T/A', this.editPersonData.current_traditional_authority, editButton('home_region')],
                     ['Home District', this.editPersonData.home_district, editButton('home_region')],
                     ['Home TA', this.editPersonData.home_traditional_authority,  editButton('home_region')],
                     ['Home Village', this.editPersonData.home_village,  editButton('home_region')],
+                    ['Current district',this.editPersonData.current_district, editButton('current_region')],
+                    ['Current T/A', this.editPersonData.current_traditional_authority, editButton('current_region')],
                 ]
                 // Tag rows with empty values
                 const emptySets: any = {indexes: [], class: 'his-empty-set-color'}

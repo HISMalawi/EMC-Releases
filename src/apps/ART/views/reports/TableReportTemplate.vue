@@ -29,6 +29,14 @@
                   <b><span v-html="info.value"></span></b> 
                 </ion-label>
               </li>
+              <li v-if="showValidationStatus">
+                <ion-chip @click="showErrors" color="danger" v-if="hasErrors"> 
+                  <b>{{errorCount}} </b> Error(s) found. Click for more
+                </ion-chip>
+                <ion-chip color="success" v-if="!hasErrors"> 
+                  Report is Consistent
+                </ion-chip>
+              </li>
             </ul>
           </ion-label>
         </ion-item>
@@ -40,6 +48,7 @@
           :rows="rows"
           :columns="columns"
           :showFilters="showFilters"
+          :config="config"
           @onActiveColumns="onActiveColumns"
           @onActiveRows="onActiveRows"
           >
@@ -50,7 +59,6 @@
       <ion-toolbar> 
         <ion-chip color="primary">Date Created: <b>{{ date }}</b></ion-chip>
         <ion-chip color="primary">His-Core Version: <b>{{ coreVersion }}</b></ion-chip>
-        <ion-chip color="primary">Art Version: <b>{{ artVersion }}</b></ion-chip>
         <ion-chip color="primary">API Version: <b>{{ apiVersion }}</b></ion-chip>
       </ion-toolbar>
     </ion-footer>
@@ -77,13 +85,15 @@ import {
   IonItem,
   IonChip,
   IonImg,
-  loadingController
+  loadingController,
+  modalController
 } from "@ionic/vue"
 import { alertConfirmation, toastDanger } from "@/utils/Alerts";
 import Img from "@/utils/Img"
 import { Service } from "@/services/service"
 import dayjs from "dayjs";
 import { isEmpty } from "lodash";
+import ReportErrors from "@/apps/ART/Components/ReportErrors.vue"
 
 export default defineComponent({
   components: { 
@@ -102,6 +112,17 @@ export default defineComponent({
     IonImg
   },
   props: {
+    showValidationStatus: {
+      type: Boolean,
+      default: false
+    },
+    validationErrors: {
+      type: Array,
+      default: () => []
+    },
+    config: {
+      type: Object
+    },
     headerInfoList: {
       type: Array,
       default: () => []
@@ -130,8 +151,7 @@ export default defineComponent({
       default: false
     },
     fields: {
-      type: Object as PropType<Field[]>,
-      required: true
+      type: Object as PropType<Field[]>
     },
     columns: {
       type: Object as PropType<Array<ColumnInterface[]>>,
@@ -190,7 +210,50 @@ export default defineComponent({
     coreVersion: Service.getCoreVersion(),
     artVersion: Service.getAppVersion(),
   }),
+  watch: {
+    validationErrors: {
+      handler(errors: string[]) {
+        if (!isEmpty(errors)) this.showErrors()
+      },
+      deep: true,
+      immediate: true
+    },
+    fields: {
+      handler(fields: Array<any>) {
+        if (!isEmpty(fields)) {
+          this.btns.forEach(b => {
+            if (b.name === 'Back') {
+              b.visible = true
+            } 
+          })
+        }
+      },
+      immediate: true
+    }
+  },
+  computed: {
+    hasErrors(): boolean {
+      return !isEmpty(this.validationErrors)
+    },
+    errorCount(): number {
+      return this.validationErrors ? this.validationErrors.length : 0
+    }
+  },
   methods: {
+    async showErrors() {
+      const modal = await modalController.create({
+        component: ReportErrors,
+        backdropDismiss: false,
+        cssClass: "large-modal",
+        componentProps: {
+          errors: this.validationErrors
+        }
+      })
+      modal.present();
+    },
+    refreshTimeStamp() {
+      this.date = dayjs().format('DD/MMM/YYYY HH:MM:ss')
+    },
     onActiveColumns(columns: any) {
       this.activeColumns = columns
     },
@@ -209,7 +272,7 @@ export default defineComponent({
       this.canShowReport = true
       await this.presentLoading()
       try {
-        this.date = dayjs().format('YYYY-MM-DD:h:m:s')
+        this.refreshTimeStamp()
         if (this.onDefaultConfiguration) {
           await this.onDefaultConfiguration()
         }
@@ -229,7 +292,7 @@ export default defineComponent({
       this.canShowReport = true
       await this.presentLoading()
       try {
-        this.date = dayjs().format('YYYY-MM-DD:h:m:s')
+        this.refreshTimeStamp()
         await this.onReportConfiguration(
           this.formData,
           this.computeFormData,
@@ -246,6 +309,7 @@ export default defineComponent({
     async reloadReport(shouldRebuildCache=false) {
       if (!isEmpty(this.formData) || !isEmpty(this.computeFormData)) {
         await this.onFinish(this.formData, this.computeFormData, shouldRebuildCache)
+        return
       }
       if (this.onDefaultConfiguration) {
         await this.onLoadDefault()
@@ -281,8 +345,6 @@ export default defineComponent({
             [`Date Created: ${this.date}`],
             // TODO: Get actual HIS-CORE version from a file
             [`HIS-Core Version: ${this.coreVersion}`],
-            // TODO: Get actial ART Version from a file
-            [`ART Version: ${this.artVersion}`],
             [`API Version: ${this.apiVersion}`],
             [`Site UUID: ${this.siteUUID}`]
           ],
