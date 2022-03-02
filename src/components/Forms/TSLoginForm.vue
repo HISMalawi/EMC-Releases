@@ -1,70 +1,86 @@
 <template>
-  <div class="main" ref="main">
-    <div class="rows">
-      <div class="cells">
-        <input
-          type="text"
-          name="usename"
-          autocomplete="off"
-          placeholder="Username"
-          id="username"
-          ref="username"
-          v-model="userInput.username"
-          v-on:click="renderKeyBoard($event)"
-          class="input-boxes"
-          :readonly="useVirtualInput"
-        />
-      </div>
-    </div>
-    <div class="rows input-rows">
-      <div class="cells">
-        <input
-          v-model="userInput.password"
-          type="password"
-          name="password"
-          ref="password"
-          id="password"
-          v-on:click="renderKeyBoard($event)"
-          class="input-boxes"
-          placeholder="Password"
-          :readonly="useVirtualInput"
-        />
-      </div>
-    </div>
-  </div>
-  <center>
-  <div id="keyboard" :style="btnStyles"  class="keyboard">
-    <span v-bind:key="k" v-for="k in LOGIN_KEYBOARD">
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>
+        <ion-label :style="{ fontWeight: 'bolder', fontSize: '1.9em' }">
+          <b style="color: #8b4513">National </b>
+          <b style="color: #cd853f">EMR</b>
+        </ion-label>
+      </ion-title>
+      <ion-label class="ion-padding" slot="end">
+        Version: <b>{{ version }}</b>
+      </ion-label>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content fullscreen="false">
+    <div class="main" ref="main">
       <div class="rows">
-        <div class="cells" v-bind:key="r" v-for="r in k">
-          <button
-            v-if="r === 'Next' || r === 'Login'"
-            :id="btnCaption"
-            class="keyboard-btn login-btn"
-            v-on:click="keyPress($event)"
-          >
-            {{ btnCaption }}
-          </button>
-
-          <button
-            v-if="r != 'Login' && r != 'Next'"
-            :id="Caps.on ? r.toUpperCase() : r.toLowerCase()"
-            class="keyboard-btn"
-            v-on:click="keyPress($event)"
-          >
-            {{
-              r === "Del." || r === "Caps"
-                ? r
-                : Caps.on
-                ? r.toUpperCase()
-                : r.toLowerCase()
-            }}
-          </button>
+        <div class="cells">
+          <input
+            type="text"
+            name="usename"
+            autocomplete="off"
+            placeholder="Username"
+            id="username"
+            ref="username"
+            v-model="userInput.username"
+            v-on:click="renderKeyBoard($event)"
+            class="input-boxes"
+            :readonly="useVirtualInput"
+          />
         </div>
       </div>
-    </span>
-  </div>
-  </center>
+      <div class="rows input-rows">
+        <div class="cells">
+          <input
+            v-model="userInput.password"
+            type="password"
+            name="password"
+            ref="password"
+            id="password"
+            v-on:click="renderKeyBoard($event)"
+            class="input-boxes"
+            placeholder="Password"
+            :readonly="useVirtualInput"
+          />
+        </div>
+      </div>
+    </div>
+    <center>
+      <div id="keyboard" :style="btnStyles"  class="keyboard">
+        <span v-bind:key="k" v-for="k in LOGIN_KEYBOARD">
+          <div class="rows">
+            <div class="cells" v-bind:key="r" v-for="r in k">
+              <button
+                v-if="r === 'Next' || r === 'Login'"
+                :id="btnCaption"
+                class="keyboard-btn login-btn"
+                v-on:click="keyPress($event)"
+              >
+                {{ btnCaption }}
+              </button>
+
+              <button
+                v-if="r != 'Login' && r != 'Next'"
+                :id="Caps.on ? r.toUpperCase() : r.toLowerCase()"
+                class="keyboard-btn"
+                v-on:click="keyPress($event)"
+              >
+                {{
+                  r === "Del." || r === "Caps"
+                    ? r
+                    : Caps.on
+                    ? r.toUpperCase()
+                    : r.toLowerCase()
+                }}
+              </button>
+            </div>
+          </div>
+        </span>
+      </div>
+    </center>
+  </ion-content>
+  <login-footer :showConfigBtn="showConfigBtn"></login-footer>
 </template>
 
 <script lang="ts">
@@ -72,14 +88,36 @@ import { toastWarning, toastDanger } from "@/utils/Alerts";
 import { defineComponent } from 'vue';
 import HisApp from "@/apps/app_lib"
 import { AuthService, InvalidCredentialsError } from "@/services/auth_service"
-import { isPlatform } from "@ionic/vue"
 import { LOGIN_KEYBOARD } from "@/components/Keyboard/KbLayouts"
+import LoginFooter from "@/components/LoginFooter.vue";
+import usePlatform from "@/composables/usePlatform";
+import { 
+  IonContent,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonLabel,
+} from "@ionic/vue";
 
 export default defineComponent({
+  name: "TSLoginForm",
   props: {
-    useVirtualInput: {
-      type: Boolean
+    showConfigBtn: {
+      type: Boolean,
+      default: false
+    },
+    version: {
+      type: String,
+      required: true
     }
+  },
+  components: {
+    LoginFooter,
+    IonContent,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonLabel,
   },
   data: function () {
     return {
@@ -103,10 +141,13 @@ export default defineComponent({
         type: Boolean,
         on: false,
       },
+      useVirtualInput: false
     };
   }, 
   created() {
     this.auth = new AuthService()
+    const { useVirtualInput } = usePlatform()
+    this.useVirtualInput = useVirtualInput.value
   },
   methods: {
     renderKeyBoard(e: any) {
@@ -141,7 +182,10 @@ export default defineComponent({
           elem.click();
         } else if (key.match(/Login/i)) {
           this.display = "none";
-          this.doLogin();
+          this.$emit("login", {
+            username: this.userInput.username,
+            password: this.userInput.password
+          });
         } else if (key.match(/Caps/i)) {
           this.Caps.on = this.Caps.on ? false : true;
           this.display = "none";
@@ -164,31 +208,6 @@ export default defineComponent({
         console.warn('input error')
       }
     },
-    doLogin: async function () {
-      if (this.userInput.username && this.userInput.password) {
-        this.auth.setUsername(this.userInput.username)
-        try {
-          await this.auth.login(this.userInput.password)
-          this.auth.startSession()
-          const app = await HisApp.selectApplication()
-          if (app) {
-            app.isPocApp 
-              ? this.$router.push("/select_hc_location")
-              : app.appLandingPage 
-              ? this.$router.push(app.appLandingPage)
-              : null
-          }
-        } catch (e) {
-          if (e instanceof InvalidCredentialsError ) {
-            toastWarning("Invalid username or password");
-          } else {
-            toastDanger(e)
-          }
-        }
-      } else {
-        toastWarning("Complete form to log in");
-      }
-    }
   },
   computed: {
     btnStyles(): string {

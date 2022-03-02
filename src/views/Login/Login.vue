@@ -1,44 +1,12 @@
 <template>
   <ion-page>
-    <template v-if="useVirtualInput">
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>
-            <ion-label :style="{ fontWeight: 'bolder', fontSize: '1.9em' }">
-              <b style="color: #8b4513">National </b>
-              <b style="color: #cd853f">EMR</b>
-            </ion-label>
-          </ion-title>
-          <ion-label class="ion-padding" slot="end">
-            Version: <b>{{ version }}</b>
-          </ion-label>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content fullscreen="false">
-        <inputs :useVirtualInput="useVirtualInput" />
-      </ion-content>
-      <LoginFooter
-        :showConfigBtn="showConfig"
-      ></LoginFooter>
-    </template>
-    <template v-else>
-      <DTLoginForm
-        @login="doLogin"
-        :showConfigBtn="showConfig"
-      ></DTLoginForm>
-    </template>
+    <TSLoginForm v-if="useVirtualInput" :version="version" @login="doLogin" />
+    <DTLoginForm v-else @login="doLogin" :showConfigBtn="showConfig" />
   </ion-page>
 </template>
 <script lang="ts">
-import Inputs from "./TSLoginForm.vue";
-import {
-  IonPage,
-  IonContent,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonLabel,
-} from "@ionic/vue";
+import TSLoginForm from "@/components/Forms/TSLoginForm.vue";
+import { IonPage } from "@ionic/vue";
 import { onMounted, ref } from "@vue/runtime-core";
 import { AuthService, InvalidCredentialsError } from "@/services/auth_service";
 import usePlatform from "@/composables/usePlatform";
@@ -47,20 +15,13 @@ import DTLoginForm from "@/components/Forms/DesktopForms/DTLoginForm.vue";
 import HisApp from "@/apps/app_lib";
 import { useRouter } from "vue-router";
 import { toastDanger, toastWarning } from "@/utils/Alerts";
-import LoginFooter from "@/components/LoginFooter.vue";
 
 export default defineComponent({
   name: "login",
   components: {
-    Inputs,
-    IonTitle,
-    IonLabel,
+    TSLoginForm,
     IonPage,
-    IonHeader,
-    IonToolbar,
-    IonContent,
     DTLoginForm,
-    LoginFooter,
   },
   setup() {
     const router = useRouter();
