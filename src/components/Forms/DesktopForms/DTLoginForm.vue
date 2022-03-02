@@ -16,7 +16,7 @@
         <ion-card-subtitle
           style="text-align: center; font-size: 24px; margin-bottom: 20px"
         >
-          version 1.2.1
+          {{ version }}
         </ion-card-subtitle>
         <img
           src="/assets/images/report.png"
@@ -93,6 +93,10 @@ export default defineComponent({
     showConfigBtn: {
       type: Boolean,
       default: false
+    },
+    version: {
+      type: String,
+      required: true,
     }
   },
   emits: ["login"],

@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <TSLoginForm v-if="useVirtualInput" :version="version" @login="doLogin" />
-    <DTLoginForm v-else @login="doLogin" :showConfigBtn="showConfig" />
+    <DTLoginForm v-else @login="doLogin" :version="version" :showConfigBtn="showConfig" />
   </ion-page>
 </template>
 <script lang="ts">
