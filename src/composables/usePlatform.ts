@@ -41,7 +41,7 @@ const setPlatformType = (platform: 'mobile' | 'desktop') => {
 export default function usePlatform () {
   return {
     platformType: readonly(platformType),
-    useVirtualInput: readonly(useVirtualInput),
+    useVirtualInput,
     isMobile,
     isDesktop,
     setPlatformType
