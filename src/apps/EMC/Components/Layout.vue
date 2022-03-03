@@ -31,6 +31,9 @@
           <ion-button @click="selectApp">
             <ion-icon :icon="apps"></ion-icon>
           </ion-button>
+          <ion-button @click="showAuthUserMenu">
+            <ion-icon :icon="person"></ion-icon>
+          </ion-button>
         </ion-buttons>
         <ion-title>{{ title }}</ion-title>
       </ion-toolbar>
@@ -57,11 +60,13 @@ import {
   IonToolbar,
   IonHeader,
   IonTitle,
-  IonLabel
+  IonLabel,
+  popoverController
 } from "@ionic/vue";
 import { appPages } from "../Config/appPages";
-import { apps } from "ionicons/icons";
+import { apps, person } from "ionicons/icons";
 import { useRouter } from "vue-router";
+import AuthUserMenuVue from "./AuthUserMenu.vue";
 
 export default defineComponent({
   name: "App",
@@ -83,7 +88,7 @@ export default defineComponent({
     IonToolbar,
     IonHeader,
     IonMenuButton,
-    IonLabel
+    IonLabel,
   },
   setup() {
     const router = useRouter()
@@ -98,6 +103,19 @@ export default defineComponent({
       }
     }
 
+    const showAuthUserMenu = async (e: Event) => {
+      const authMenu = await popoverController.create({
+        component: AuthUserMenuVue,
+        cssClass: 'my-class',
+        event: e,
+        translucent: true,
+      })
+
+      authMenu.present();
+      const { data } = await authMenu.onDidDismiss();
+      console.log(data)
+    }
+
     onMounted(() => {
       menuController.open('start')
     })
@@ -105,7 +123,9 @@ export default defineComponent({
       appPages,
       logo,
       apps,
+      person,
       selectApp,
+      showAuthUserMenu,
     }
   },
 });
