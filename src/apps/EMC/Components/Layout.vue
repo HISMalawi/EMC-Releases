@@ -40,7 +40,7 @@
 <script lang="ts">
 import HisApp from "@/apps/EMC/app"
 import Img from "@/utils/Img"
-import { defineComponent } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import {
   IonPage,
   IonContent,
@@ -56,12 +56,14 @@ import {
   IonTitle,
   IonLabel
 } from "@ionic/vue";
+import { appPages } from "../Config/appPages";
+
 export default defineComponent({
   name: "App",
   props: {
     title: {
       type: String,
-      default: 'Master card' 
+      default: 'Dashboard' 
     }
   },
   components: {
@@ -78,36 +80,15 @@ export default defineComponent({
     IonMenuButton,
     IonLabel
   },
-  mounted() {
-    menuController.open('start')
-  },
   setup() {
     const logo = Img(HisApp.applicationIcon)
-    const appPages = [
-      {
-        title: "Dashboard",
-        url: "/emc/home",
-      },
-      {
-        title: "Search/ Create client",
-        url: "/emc/newpatient",
-      },
-      {
-        title: "Reports",
-        url: "/emc/reports",
-      },
-      {
-        title: "Data cleaning tools",
-        url: "/emc/cleaningtools",
-      },
-      {
-        title: "Users",
-        url: "/emc/users",
-      },
-    ];
+
+    onMounted(() => {
+      menuController.open('start')
+    })
     return {
       appPages,
-      logo
+      logo,
     }
   },
 });
