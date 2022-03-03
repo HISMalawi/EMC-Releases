@@ -28,10 +28,10 @@
       <ion-toolbar>
         <ion-buttons slot="start">
           <ion-menu-button auto-hide="false"> </ion-menu-button>
-          <ion-button @click="selectApp">
+          <ion-button @click="selectApp" v-tooltip title="select application">
             <ion-icon :icon="apps"></ion-icon>
           </ion-button>
-          <ion-button @click="showAuthUserMenu">
+          <ion-button @click="showAuthUserMenu" v-tooltip title="show user menu">
             <ion-icon :icon="person"></ion-icon>
           </ion-button>
         </ion-buttons>
@@ -67,6 +67,7 @@ import { appPages } from "../Config/appPages";
 import { apps, person } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import AuthUserMenuVue from "./AuthUserMenu.vue";
+import { tooltip } from '@ionited/tooltip-vue';
 
 export default defineComponent({
   name: "App",
@@ -76,6 +77,7 @@ export default defineComponent({
       default: 'Dashboard' 
     }
   },
+  directives: { tooltip },
   components: {
     IonPage,
     IonContent,
