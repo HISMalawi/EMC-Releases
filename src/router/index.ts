@@ -79,11 +79,6 @@ const routes: Array<RouteRecordRaw> = [
     component: Login,
   },
   {
-    name: "EMC Login",
-    path: "/emc/login",
-    component: () => import("@/apps/EMC/views/Login.vue"),
-  },
-  {
     path: "/search_patient",
     name: "Search Patient",
     component: SearchPatient,
