@@ -334,6 +334,9 @@ export default defineComponent({
     async openModal() {
       const data = await HisApp.selectApplication("HomePage");
       if (data) {
+        if(!data.isPocApp && data.appLandingPage){
+          return this.$router.push(data.appLandingPage)
+        }
         this.app = data;
         this.activeTab = 1;
         this.loadApplicationData();

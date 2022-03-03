@@ -28,6 +28,9 @@
       <ion-toolbar>
         <ion-buttons slot="start">
           <ion-menu-button auto-hide="false"> </ion-menu-button>
+          <ion-button @click="selectApp">
+            <ion-icon :icon="apps"></ion-icon>
+          </ion-button>
         </ion-buttons>
         <ion-title>{{ title }}</ion-title>
       </ion-toolbar>
@@ -38,9 +41,9 @@
   </ion-page>
 </template>
 <script lang="ts">
-import HisApp from "@/apps/EMC/app"
+import HisApp from "@/apps/app_lib"
 import Img from "@/utils/Img"
-import { defineComponent, onMounted, ref } from "vue";
+import { computed, defineComponent, onMounted, ref } from "vue";
 import {
   IonPage,
   IonContent,
@@ -57,6 +60,8 @@ import {
   IonLabel
 } from "@ionic/vue";
 import { appPages } from "../Config/appPages";
+import { apps } from "ionicons/icons";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "App",
@@ -81,7 +86,17 @@ export default defineComponent({
     IonLabel
   },
   setup() {
-    const logo = Img(HisApp.applicationIcon)
+    const router = useRouter()
+    const app = ref(HisApp.getActiveApp())
+    const logo = computed(() => Img(app.value?.applicationIcon || '' ))
+    const selectApp = async () => {
+      const data = await HisApp.selectApplication("HomePage");
+      if (data && data.applicationName !== app.value?.applicationName) {
+        return data.appLandingPage 
+          ? router.push(data.appLandingPage)
+          : router.push('/')
+      }
+    }
 
     onMounted(() => {
       menuController.open('start')
@@ -89,6 +104,8 @@ export default defineComponent({
     return {
       appPages,
       logo,
+      apps,
+      selectApp,
     }
   },
 });
