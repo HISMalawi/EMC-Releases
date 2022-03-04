@@ -97,7 +97,10 @@ export default defineComponent({
     const selectApp = async () => {
       const data = await HisApp.selectApplication("HomePage");
       if (data && data.applicationName !== app.value?.applicationName) {
-        return data.appLandingPage 
+        const userLocation = sessionStorage.userLocation;
+        return !userLocation
+          ? router.push("/select_hc_location")
+          : data.appLandingPage 
           ? router.push(data.appLandingPage)
           : router.push('/')
       }
