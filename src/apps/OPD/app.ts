@@ -1,6 +1,6 @@
 import { AppInterface, GeneralDataInterface } from '@/apps/interfaces/AppInterface';
 import HomeOverview from "@/apps/OPD/components/HomeOverview.vue";
-import { PRIMARY_ACTIVITIES } from '@/apps/OPD/config/programActivities';
+import { PRIMARY_ACTIVITIES, SECONDARY_ACTIVITIES } from '@/apps/OPD/config/programActivities';
 import { REPORTS } from '@/apps/OPD/config/programReports';
 import opdRoutes  from '@/apps/OPD/config/routes';
 import { PatientProgramService } from '@/services/patient_program_service';
@@ -111,7 +111,7 @@ const OPD: AppInterface = {
   appRoutes: opdRoutes,
   programReports: REPORTS,
   primaryPatientActivites: PRIMARY_ACTIVITIES,
-  secondaryPatientActivites: [],
+  secondaryPatientActivites: SECONDARY_ACTIVITIES,
   homeOverviewComponent: HomeOverview,
   onRegisterPatient,
   formatPatientProgramSummary,

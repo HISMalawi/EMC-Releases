@@ -63,3 +63,11 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     icon: 'dispensing.png'
   },
 ]
+
+export const SECONDARY_ACTIVITIES: TaskInterface[] = [
+  {
+    id: 'radiology examination',
+    name: 'radiology examination',
+    icon: 'radiology_types.png'
+  },
+]

@@ -47,6 +47,11 @@ export default [
     component: () => import('@/apps/OPD/views/encounters/Dispensing.vue')
   },
   {
+    name: "radiology examination",
+    path: "/opd/encounters/radiology/:patient_id",
+    component: () => import('@/apps/OPD/views/encounters/radiology.vue')
+  },
+  {
     path: '/opd/reports/clinic',
     component: BaseReport,
     children: [

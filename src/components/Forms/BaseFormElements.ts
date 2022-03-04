@@ -36,6 +36,7 @@ import IPAddressInput from "@/components/FormElements/HisIPAddress.vue"
 import TextBanner from "@/components/FormElements/HisTextBanner.vue"
 import DrugDispenser from "@/components/FormElements/GeneralDrugDispenser.vue"
 import HisDataTable from "@/components/FormElements/HisDataTable.vue"
+import RadiologyPicker from "@/components/FormElements/HisRadiologyPicker.vue";
 
 // Reference names for BaseFormComponents
 export enum FieldType {
@@ -74,6 +75,7 @@ export enum FieldType {
     TT_BATCH_VERIFICATION = 'batch-verification',
     TT_BATCH_MOVEMENT = 'batch-movement',
     TT_COMPLAINTS_PICKER = 'complaints-picker',
+    TT_RADIOLOGY_PICKER = 'radiology-picker',
     TT_IP_ADDRESS = 'IPAddressInput',
     TT_TEXT_BANNER = 'text-banner',
     TT_DRUG_DISPENSER = 'drug-dispenser',
@@ -119,5 +121,6 @@ export const BaseFormComponents = {
     TextBanner,
     DrugDispenser,
     ClinicHolidayPicker,
-    NoteInput
+    NoteInput,
+    RadiologyPicker
 }
