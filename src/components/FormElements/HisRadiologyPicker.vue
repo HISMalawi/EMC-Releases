@@ -14,7 +14,7 @@
               <ion-list :style="{overflowY: 'auto', height:'80vh', margin: 0}"> 
                 <ion-item
                   v-for="(data, index) in listData" :key="index"
-                  @click="getSpecificComplaints(data.value)"
+                  @click="getSpecificRadiologyOrders(data.value)"
                   :detail="true"
                   :color="ActiveCategory === data.label ? 'light':''"
                 > 
@@ -50,7 +50,6 @@ import { Option } from "../Forms/FieldInterface";
 import { defineComponent } from "vue";
 import { IonCheckbox, IonText, IonChip } from "@ionic/vue";
 import SelectMixin from "@/components/FormElements/SelectMixin.vue"
-import { PatientComplaintsService } from "@/apps/OPD/services/patient_complaints_service";
 import { PatientRadiologyService } from "@/apps/OPD/services/patient_radiology_service"
 import { isEmpty } from "lodash";
 import { ConceptName } from "@/interfaces/conceptName";
@@ -60,7 +59,7 @@ export default defineComponent({
   name: "HisRadiologyPicker",
   mixins: [SelectMixin],
   data: () => ({
-    complaintsList: {} as Record<string, Option[]>,
+    radiologyOrdersList: {} as Record<string, Option[]>,
     ActiveCategory: '',
   }),
   methods: {
@@ -76,15 +75,15 @@ export default defineComponent({
           }
         }
         if (this.onValueUpdate) {
-          this.complaintsList = await this.onValueUpdate({...this.complaintsList}, opt)
+          this.radiologyOrdersList = await this.onValueUpdate({...this.radiologyOrdersList}, opt)
         }
-        this.$emit('onValue', this.getChecked(this.complaintsList))
+        this.$emit('onValue', this.getChecked(this.radiologyOrdersList))
       })
     },
-    async getSpecificComplaints(category: string) {
-      if (!(category in this.complaintsList)) {
-        const complaints = await PatientRadiologyService.getRadiolyList('Radioloy Oders')
-        this.complaintsList[category] = this.mapListToOptions(complaints, category)
+    async getSpecificRadiologyOrders(category: string) {
+      if (!(category in this.radiologyOrdersList)) {
+        const radiologyOrders = await PatientRadiologyService.getRadiolyList(category)
+        this.radiologyOrdersList[category] = this.mapListToOptions(radiologyOrders, category)
       }
       this.ActiveCategory = category
     },
@@ -102,7 +101,7 @@ export default defineComponent({
       })
     },
     uncheck(option: Option){
-      this.complaintsList[option.other.parent].forEach(opt => {
+      this.radiologyOrdersList[option.other.parent].forEach(opt => {
         if(opt.label === option.label) opt.isChecked = false
       })
     },
@@ -119,16 +118,16 @@ export default defineComponent({
   },
   computed: {
     checkedItems(): Option[] {
-      return this.getChecked(this.complaintsList)
+      return this.getChecked(this.radiologyOrdersList)
     },
     activeCategoryItems(): Option[] {
-      return this.complaintsList[this.ActiveCategory]
+      return this.radiologyOrdersList[this.ActiveCategory]
     }
   },
   watch: {
     clear(){
-      for (const group in this.complaintsList) {
-        this.complaintsList[group] = this.complaintsList[group].map(option => {
+      for (const group in this.radiologyOrdersList) {
+        this.radiologyOrdersList[group] = this.radiologyOrdersList[group].map(option => {
           option.isChecked = false
           return option
         })
@@ -139,7 +138,7 @@ export default defineComponent({
     this.$emit('onFieldActivated', this)
     const data = await PatientRadiologyService.getRadiolyList('Radiology Orders')
     this.listData = this.mapListToOptions(data)
-    this.$emit('onValue', this.getChecked(this.complaintsList))
+    this.$emit('onValue', this.getChecked(this.radiologyOrdersList))
   }
 });
 </script>
