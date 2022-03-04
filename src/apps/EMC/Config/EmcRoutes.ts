@@ -1,7 +1,11 @@
 export default [
   {
-    name: "EMC Home",
     path: "/emc/home",
-    component: () => import("@/apps/EMC/views/Home.vue"),
+    redirect: "/emc/dashboard"
+  },
+  {
+    name: "EMC Dashboard",
+    path: "/emc/dashboard",
+    component: () => import("@/apps/EMC/views/Dashboard.vue"),
   },
 ];
