@@ -18,7 +18,7 @@
           detail="true" 
           class="hydrated"
           >
-          <ion-label>{{ p.title }}</ion-label>
+          <ion-label v-show="facility">{{ p.title }}</ion-label>
         </ion-item>
       </ion-list>
     </ion-content>
@@ -35,11 +35,11 @@
             <ion-icon :icon="person"></ion-icon>
           </ion-button>
         </ion-buttons>
-        <ion-title>{{ title }}</ion-title>
+        <ion-title>{{ facility }}</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-      <slot> </slot>
+      <slot name="main-content"> </slot>
     </ion-content>
   </ion-page>
 </template>
@@ -67,15 +67,11 @@ import { appPages } from "../Config/appPages";
 import { apps, person } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import AuthUserMenuVue from "./AuthUserMenu.vue";
+import { Service } from "@/services/service";
+import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 
 export default defineComponent({
-  name: "App",
-  props: {
-    title: {
-      type: String,
-      default: 'Dashboard' 
-    }
-  },
+  name: "Layout",
   components: {
     IonPage,
     IonContent,
@@ -91,6 +87,7 @@ export default defineComponent({
     IonLabel,
   },
   setup() {
+    const facility = ref('')
     const router = useRouter()
     const app = ref(HisApp.getActiveApp())
     const logo = computed(() => Img(app.value?.applicationIcon || '' ))
@@ -119,8 +116,18 @@ export default defineComponent({
       console.log(data)
     }
 
-    onMounted(() => {
+    const getFacility = async () => {
+      const locationID = await GLOBAL_PROP.healthCenterID();
+      if(!locationID) return ''
+      const data = await Service.getJson("locations/" + locationID);
+      sessionStorage.location = data.name;
+      sessionStorage.locationName = data.name;
+      return data.name
+    }
+
+    onMounted(async () => {
       menuController.open('start')
+      facility.value = await getFacility()
     })
     return {
       appPages,
@@ -129,6 +136,7 @@ export default defineComponent({
       person,
       selectApp,
       showAuthUserMenu,
+      facility,
     }
   },
 });
