@@ -13,7 +13,7 @@
         </ion-col>
         <ion-col size="3">
           <dashboard-card
-            :value="appointmentsDueTomorrow"
+            :value="totalAppointmentsDue"
             label="Appointments Due"
             color="success"
             :icon="alarm"
@@ -51,17 +51,14 @@ export default defineComponent({
     const range = HisDate.getDateQuarter(new Date());
     const today = HisDate.toStandardHisFormat(new Date());
     const tomorrow = HisDate.add(today, "day", 1).format(STANDARD_DATE_FORMAT);
-    const missedAppointments = DashboardService.getMissedAppointments(
-      today,
-      range
-    );
-    const totalMissedAppointments = computed(() =>
-      missedAppointments.value ? missedAppointments.value.length : -1
-    );
-    // const dueAppointments = ;
-    const appointmentsDueTomorrow = computed(
-      () => DashboardService.getAppointmentsDue(tomorrow).value?.legnth || -1
-    );
+
+    const totalMissedAppointments = computed(() => {
+      return DashboardService.getMissedAppointments(today, range).value?.length || -1
+    });
+    
+    const totalAppointmentsDue = computed(() => {
+      return DashboardService.getAppointmentsDue(tomorrow).value?.legnth || -1
+    });
 
     return {
       people,
@@ -69,7 +66,7 @@ export default defineComponent({
       alarm,
       range,
       totalMissedAppointments,
-      appointmentsDueTomorrow,
+      totalAppointmentsDue,
     };
   },
 });
