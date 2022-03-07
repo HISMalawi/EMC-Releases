@@ -4,6 +4,7 @@ import HisApp from "@/apps/app_lib"
 import { AppInterface } from "@/apps/interfaces/AppInterface"
 import useSWRV from "swrv"
 import { AuthVariable } from "./auth_service"
+import { isEmpty } from 'lodash';
 
 export class IncompleteEntityError extends Error {
     entity: any
@@ -58,7 +59,7 @@ export class Service {
     }
 
     static async getJson(url: string, params = {} as Record<string, any>) {
-        const transformedUrl = `${url}?${Url.parameterizeObjToString(params)}`
+        const transformedUrl = isEmpty(params) ? url : `${url}?${Url.parameterizeObjToString(params)}`
         return this.jsonResponseHandler(ApiClient.get(transformedUrl))
     }
 
