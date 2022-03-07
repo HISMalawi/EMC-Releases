@@ -61,11 +61,9 @@ export default defineComponent({
       {
         name: "Complete Visits",
         data: formatedVisits.value.completeVisits,
-        color: "#7cb5ec",
       },
       {
         name: "Incomplete Visits",
-        color: "#434348",
         data: formatedVisits.value.incompleteVisits,
       },
     ]);
