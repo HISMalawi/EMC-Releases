@@ -58,7 +58,7 @@ export default defineComponent({
           validation: (data: any) => Validation.required(data),
           computedValue: (options: Option[]) => {
             return options.map(async (option)=> ({
-              ...(await this.radiologyService.buildValueCoded('Presenting complaint', option.other.parent)),
+              ...(await this.radiologyService.buildValueCoded('Radiology Orders', option.other.parent)),
               child: (await this.radiologyService.buildValueCodedFromConceptId(option.other.parent, option.other.concept_id))
             }))
           },

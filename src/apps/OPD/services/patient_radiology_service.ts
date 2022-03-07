@@ -3,7 +3,7 @@ import { ConceptService } from '@/services/concept_service';
 
 export class PatientRadiologyService extends AppEncounterService {
   constructor(patientID: number, providerID: number) {
-    super(patientID, 122, providerID) 
+    super(patientID, 121, providerID) 
   }
 
   static async getRadiolyList(radiologyType: string, filter = '') {
