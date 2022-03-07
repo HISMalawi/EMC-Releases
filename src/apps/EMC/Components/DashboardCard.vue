@@ -3,13 +3,14 @@
     <ion-card-body class="ion-padding">
       <ion-card-title class="ion-padding">{{ label }}</ion-card-title>
       <ion-card-subtitle class="ion-padding">{{ value }}</ion-card-subtitle>
-      <ion-icon v-if="icon" :icon="icon"></ion-icon>
+      <ion-icon :icon="icon"></ion-icon>
     </ion-card-body>
   </ion-card>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from "vue";
+import { defineComponent } from "vue";
+import { alertCircle  } from "ionicons/icons"
 
 export default defineComponent({
   name: "DashboardCard",
@@ -24,15 +25,9 @@ export default defineComponent({
     },
     icon: {
       type: String,
-      default: ''
+      default: alertCircle
     }
   },
-  setup(props) {
-    const loading = computed(() => props.value === -1)
-    return {
-      loading
-    }
-  }
 })
 </script>
 
