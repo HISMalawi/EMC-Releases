@@ -9,61 +9,62 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted } from "vue";
+import { computed, defineComponent } from "vue";
 import DashboardService from "@/apps/EMC/services/dashboard.service";
 import HisDate from "@/utils/Date";
 
 export default defineComponent({
   name: "VisitStatsChart",
   setup() {
-    const Visits = DashboardService.getVisits("2021-01-01", "2022-03-31");
-
-    const VisitsArray = computed(() =>
-      Visits.value
-        ? Object.values(Visits.value).map((visit: any) => [
-            visit.complete,
-            visit.incomplete,
-          ])
-        : []
+    const Visits = DashboardService.getVisits("2021-01-01", "2021-03-31");
+    const days = computed(() =>
+      Visits.value ? Object.keys(Visits.value) : []
     );
-
+    const formatedVisits = computed(() => {
+      const complete: Array<number> = [];
+      const incomplete: Array<number> = [];
+      days.value.forEach(day => {
+        complete.push(Visits.value[day].complete);
+        incomplete.push(Visits.value[day].incomplete);
+      });
+      return {
+        completeVisits: complete, 
+        incompleteVisits: incomplete
+      };
+    });
     const options = computed(() => ({
       chart: {
         id: "vuechart-example",
       },
       xaxis: {
-        categories: Visits.value
-          ? Object.keys(Visits.value).map((date) =>
-              HisDate.toStandardHisDisplayFormat(date)
-            )
-          : [[], []],
+        categories: days.value.map((date: string) =>
+          HisDate.toStandardHisDisplayFormat(date)
+        ),
       },
-      noData: {  
-        text: "Loading data. Please wait...",  
-        align: 'center',  
-        verticalAlign: 'middle',  
-        offsetX: 0,  
-        offsetY: 0,  
-        style: {  
-          color: "#000000",  
-          fontSize: '30px',  
-          fontFamily: "Helvetica"
-        }  
-      }
+      noData: {
+        text: "Loading data...",
+        align: "center",
+        verticalAlign: "middle",
+        offsetX: 0,
+        offsetY: 0,
+        style: {
+          color: "#000000",
+          fontSize: "30px",
+          fontFamily: "Helvetica",
+        },
+      },
     }));
 
     const series = computed(() => [
       {
-        label: "Complete Visits",
-        borderColor: "rgba(222, 187, 240, 0.9)",
-        backgroundColor: "rgba(187, 130, 245, 0.1)",
-        data: VisitsArray.value[0],
+        name: "Complete Visits",
+        data: formatedVisits.value.completeVisits,
+        color: "#7cb5ec",
       },
       {
-        label: "Incomplete Visits",
-        borderColor: "rgba(174, 225, 242, 0.9)",
-        backgroundColor: "rgba(150, 229, 255, 0.1)",
-        data: VisitsArray.value[1],
+        name: "Incomplete Visits",
+        color: "#434348",
+        data: formatedVisits.value.incompleteVisits,
       },
     ]);
 
