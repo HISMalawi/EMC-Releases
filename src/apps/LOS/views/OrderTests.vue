@@ -142,22 +142,20 @@ export default defineComponent({
                     return val.map(v => ({'concept_id': v.value}))
                 },
                 options: async (f: any, c: any, listData: Option[]) => {
-                    let req: any = []
-
                     if (f.specimen && f.specimen.label != activeSpecimen) {
                         activeSpecimen = f.specimen.label
-                        req = await OrderService.getTestTypesBySpecimen(
+                        const req = await OrderService.getTestTypesBySpecimen(
                             f.specimen.label
                         )
+                        return req.map((t: any) => ({
+                            label: t.name,
+                            value: t.concept_id,
+                            isChecked: false,
+                            other: t
+                        }))
                     } else {
                         return listData
                     }
-                    return req.map((t: any) => ({
-                        label: t.name,
-                        value: t.concept_id,
-                        isChecked: false,
-                        other: t
-                    }))
                 }
             }
         },
