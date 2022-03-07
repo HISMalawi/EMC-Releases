@@ -97,6 +97,27 @@ function stitchDate(year: number | string, month=-1 as number | string, day=-1 a
     return toStandardHisFormat(`${fyear}-${fmonth}-${fday}`)
 }
 
+/**
+   * Returns quarter in which date belongs.
+   * 
+   * @param {Date | string} date 
+   */
+function getDateQuarter(date: string | Date) {
+    const d = new Date(date)
+    const month = d.getMonth();
+    const year = d.getFullYear();
+
+    if (month < 3) {
+      return {start: `${year}-01-01`, end: `${year}-03-31`};
+    } else if (month < 6) {
+      return {start: `${year}-04-01`,  end: `${year}-06-30`};
+    } else if (month < 9) {
+       return {start: `${year}-07-01`,  end: `${year}-09-30`};
+    } else {
+      return {start: `${year}-10-01`,  end: `${year}-12-31`};
+    }
+  }
+
 export default {
     getYearOfAge,
     getYear,
@@ -115,5 +136,6 @@ export default {
     getMonth,
     getDay,
     add,
-    subtract
+    subtract,
+    getDateQuarter,
 }
