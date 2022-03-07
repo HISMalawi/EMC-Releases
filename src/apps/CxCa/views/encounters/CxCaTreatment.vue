@@ -4,7 +4,7 @@
   <his-standard-form
     :fields="fields"
     :onFinishAction="onFinish"
-    :skipSummary="true"
+    :skipSummary="false"
     :cancelDestinationPath="cancelDestination"
   >
   </his-standard-form>
@@ -27,18 +27,29 @@ export default defineComponent({
   data: () => ({
     reception: {} as any,
     summaryData: {} as any,
+    referralReason: ""
   }),
   watch: {
     patient: {
       async handler() {
         this.reception = new TreatmentService(this.patientID, this.providerID);
         this.summaryData = await this.reception.getSummary();
+        await this.setReason();
         this.fields = this.getFields();
       },
       deep: true,
     },
   },
   methods: {
+    async setReason() {
+      const reason = await this.reception.getFirstValueCoded('Referral reason');
+      this.referralReason = reason ? reason : "N/A"
+
+    },
+    showSampleCollected() {
+      const reasons = ['Large Lesion (>75%)','Suspect cancer', 'Further Investigation and Management'];
+      return reasons.includes(this.referralReason);
+    },
     async onFinish(formData: any) {
       const encounter = await this.reception.createEncounter();
 
@@ -98,6 +109,7 @@ export default defineComponent({
           helpText: "FIGO staging results",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
+          condition: () => this.referralReason.match(/suspect/gi),
           options: () =>
             this.mapOptions([
               'Cervical stage 1',
@@ -112,6 +124,7 @@ export default defineComponent({
           helpText: "Type of sample collected",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
+          condition:()=> this.showSampleCollected(),
           options: () =>
             this.mapOptions([
               'Punch Biopsy',
@@ -124,6 +137,7 @@ export default defineComponent({
           helpText: "Histology results",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
+          condition: (formdata: any) => formdata.type_of_sample_collected.value !== "Not available" && this.showSampleCollected(), 
           options: () =>
             this.mapOptions([
               'Normal',
@@ -141,6 +155,7 @@ export default defineComponent({
           helpText: "Complications",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
+          condition: (formdata: any) => formdata.type_of_sample_collected.value !== "Not available" && this.showSampleCollected(), 
           options: () =>
             this.mapOptions([
               'Bleeding',
@@ -164,6 +179,31 @@ export default defineComponent({
               'Thermocoagulation',
               'Chronic cervicitis',
               'Patient refused',
+            ]),
+        },
+        {
+          id: "recommended_plan_of_care",
+          helpText: "Recommended plan of care",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          options: () =>
+            this.mapOptions([
+              'Hysterectomy',
+              'Trachelectomy',
+              'Discharged',
+              'Continue follow-up',
+            ]),
+        },{
+          id: "patient_outcome",
+          helpText: "Patient outcome",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          options: () =>
+            this.mapOptions([
+              'Continue follow-up',
+              'Pallialative care',
+              'No Dysplasia/Cancer',
+              'Patient died',
             ]),
         },
       ];
