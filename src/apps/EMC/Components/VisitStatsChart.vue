@@ -15,9 +15,18 @@ import HisDate from "@/utils/Date";
 
 export default defineComponent({
   name: "VisitStatsChart",
-  setup() {
-    const { start, end } = HisDate.getDateQuarter(new Date())
-    const Visits = DashboardService.getVisits(start, end);
+  props: {
+    startDate: {
+      type: String,
+      required: true
+    },
+    endDate: {
+      type: String,
+      required: true
+    }
+  },
+  setup(props) {
+    const Visits = DashboardService.getVisits(props.startDate, props.endDate);
     const days = computed(() =>
       Visits.value ? Object.keys(Visits.value) : []
     );
