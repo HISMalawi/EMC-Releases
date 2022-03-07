@@ -39,7 +39,7 @@
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-      <slot name="main-content"> </slot>
+      <slot> </slot>
     </ion-content>
   </ion-page>
 </template>
