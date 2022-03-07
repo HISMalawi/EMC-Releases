@@ -149,13 +149,14 @@ export default defineComponent({
             {
                 id: 'user_info',
                 helpText: 'User information',
+                dynamicHelpText: () => `User: ${this.userData.username} | Added On: ${this.userData.created}`,
                 type: FieldType.TT_TABLE_VIEWER,
                 condition: () => this.activity === 'edit' && UserService.isAdmin(),
                 options: async (f: any, c: any, table: any) => {
                     const statusRowIndex = 5
                     const columns = ['Attributes', 'Values', 'Actions']
                     const deactivateButton = (status: string) => ({
-                        style: { width: '65%'},
+                        style: { width: '65%', fontWeight: 'bold' },
                         name: status === 'Active' ? 'Deactivate' : 'Activate' ,
                         type: 'button',
                         color: status === 'Active' ? 'danger' : 'success',
@@ -181,8 +182,9 @@ export default defineComponent({
                     const navButton = (name: string, targetField: string) => ({ 
                         name, 
                         type: 'button',
-                        color: 'primary',
+                        color: 'light',
                         style: {
+                            fontWeight: 'bold',
                             width: '65%'
                         },
                         action: () => {
@@ -191,9 +193,7 @@ export default defineComponent({
                         }
                     })
                     const rows = [
-                        ['<b>Date created</b>', this.userData.created, '', ''],
-                        ['<b>Username</b>', this.userData.username, '', ''],
-                        ['<b>Name</b>', `${this.userData.given_name} ${this.userData.family_name}`, navButton('Edit usernames', 'given_name'), ''],
+                        ['<b>Name</b>', `${this.userData.given_name} ${this.userData.family_name}`, navButton('Edit Name', 'given_name'), ''],
                         ['<b>Password</b>', '*******', navButton('Change password', 'new_password'), ''],
                         ['<b>Role</b>', this.userData.role.split(',').join('<br/>'), navButton('Add/Append Role', 'add_roles'), navButton('Remove Role', 'remove_roles')],
                         ['<b>Status</b>', this.userData.status,  deactivateButton(this.userData.status), ''],
