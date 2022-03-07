@@ -19,6 +19,14 @@
             :icon="alarm"
           />
         </ion-col>
+        <ion-col size="3">
+          <dashboard-card
+            :value="totalDueForVL"
+            label="Due for Viral Load"
+            color="secondary"
+            :icon="people"
+          />
+        </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="8">
@@ -55,10 +63,14 @@ export default defineComponent({
     const totalMissedAppointments = computed(() => {
       return DashboardService.getMissedAppointments(today, range).value?.length || -1
     });
-    
+
     const totalAppointmentsDue = computed(() => {
       return DashboardService.getAppointmentsDue(tomorrow).value?.legnth || -1
     });
+
+    const totalDueForVL = computed(() => {
+      return DashboardService.getPatientsDueForVL(range).value?.length || -1
+    })
 
     return {
       people,
@@ -67,6 +79,7 @@ export default defineComponent({
       range,
       totalMissedAppointments,
       totalAppointmentsDue,
+      totalDueForVL,
     };
   },
 });

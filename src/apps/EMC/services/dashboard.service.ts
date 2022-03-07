@@ -24,4 +24,11 @@ export default class DashboardService {
       date: dueDate
     })
   }
+
+  static getPatientsDueForVL(dateRange: Record<string, string>){
+    return Service.getJsonSWR('programs/1/reports/vl_due', {
+      'start_date': dateRange.start,
+      'endDate': dateRange.end
+    })
+  }
 }
