@@ -35,6 +35,7 @@ export default defineComponent({
     const options = computed(() => ({
       chart: {
         id: "vuechart-example",
+        height: 450,
       },
       xaxis: {
         categories: days.value.map((date: string) =>
