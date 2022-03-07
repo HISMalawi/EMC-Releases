@@ -110,7 +110,7 @@ export default defineComponent({
             'given_name': names.given_name,
             'family_name': names.family_name,
             'username': userObj.username,
-            'role': userObj.roles.map((r: any) => r.role).join(', '),
+            'role': userObj.roles.map((r: any) => r.role).join(','),
             'created': HisDate.toStandardHisDisplayFormat(userObj.date_created),
             'status': userObj.deactivated_on ? 'Inactive' : 'Active'
         }
@@ -257,8 +257,7 @@ export default defineComponent({
                 computedValue: (v: Option) => {
                     return this.userData.role
                         .split(',')
-                        .map((i: string) => i.trim())
-                        .filter((i: string) => i != `${v.label}`.trim())
+                        .filter((i: string) => i != v.label)
                 },
                 options: () => this.mapToOption(this.userData.role.split(',')),
                 config: {
@@ -271,10 +270,12 @@ export default defineComponent({
                 proxyID: 'roles',
                 type: FieldType.TT_SELECT,
                 computedValue: (val: Option) => [val.value],
-                condition: () => this.editConditionCheck(['roles']) 
-                    && UserService.isAdmin(),
+                condition: () => this.editConditionCheck(['roles']) && UserService.isAdmin(),
                 validation: (val: any) => Validation.required(val),
-                options: () => this.getRoles(),
+                options: async () => {
+                    const allRoles = await this.getRoles()
+                    return allRoles.filter((r: Option) => !this.userData.role.split(',').includes(r.value))  
+                },
                 config: {
                     showKeyboard: true
                 }
