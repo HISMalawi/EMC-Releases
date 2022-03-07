@@ -2,7 +2,7 @@
   <p>Complete / incomplete visits</p>
   <apexchart
     width="100%"
-    type="bar"
+    type="line"
     :options="options"
     :series="series"
   ></apexchart>
