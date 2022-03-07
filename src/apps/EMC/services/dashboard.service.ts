@@ -18,4 +18,10 @@ export default class DashboardService {
       'program_id': 1
     })
   }
+
+  static getAppointmentsDue(dueDate: string) {
+    return Service.getJsonSWR('programs/1/booked_appointments', {
+      date: dueDate
+    })
+  }
 }
