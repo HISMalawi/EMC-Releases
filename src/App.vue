@@ -1,5 +1,6 @@
 <template>
   <ion-app>
+    <full-screen-notice />
     <update-notification/>
     <ion-router-outlet :key="$route.fullPath"/>
     <connection-error v-if="!apiOk && notConfigPage"/>
@@ -21,10 +22,12 @@ import nprogress from 'nprogress'
 import router from '@/router/index';
 import { loadingController } from "@ionic/vue"
 import { AuthService } from './services/auth_service';
+import FullScreenNotice from "@/components/FullScreenModifier.vue"
 
 export default defineComponent({
   name: 'App',
   components: {
+    FullScreenNotice,
     IonApp,
     IonRouterOutlet,
     ConnectionError,

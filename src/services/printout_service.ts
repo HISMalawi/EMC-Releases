@@ -20,38 +20,36 @@ export class PrintoutService extends Service {
         return modal && modal.id === PrintOutVariable.ZEBRA_MODAL
     }
 
-    static async showPrinterImage() {
+    static async showPrinterImage(timeout=1200) {
         /** 
          * Prevent showing multiple modals when printing.
          * From experience when multiple modals appear, the modal becomes
          * undismissable
         */
         if (!(await this.zebraModalActive())) {
-            const modal = await modalController.create({
-                id: PrintOutVariable.ZEBRA_MODAL,
-                component: ZebraPrinterComponent,
-                backdropDismiss: false
+            const modalID = PrintOutVariable.ZEBRA_MODAL
+            const modal = await modalController.create({ 
+                id: modalID,
+                backdropDismiss: false,
+                component: ZebraPrinterComponent
             })
             modal.present()
+            await delayPromise(timeout)
+            modalController.dismiss({}, undefined, modalID)
         }
     }
 
     async printLbl(url: any) {
         const { platformType } = usePlatform()
         if (platformType.value === 'desktop') {
-            await PrintoutService.showPrinterImage()
-            setTimeout(async () => {        
-                if ((await PrintoutService.zebraModalActive())) {
-                    modalController.dismiss({}, undefined, PrintOutVariable.ZEBRA_MODAL)
-                }
-            }, 2500)
             try {
+                await PrintoutService.showPrinterImage()
                 // Do a preflight to make sure that we can print that label
                 // before changing document location
                 const preFetch = await Service.getText(url)
-                if (!preFetch) {
-                    throw 'Unable to print Label. Try again later'
-                }
+
+                if (!preFetch) throw 'Unable to print Label. Try again later'
+
                 document.location = (await ApiClient.expandPath(url)) as any
             } catch (e) {
                 toastWarning(e, 3000)
