@@ -31,4 +31,14 @@ export default class DashboardService {
       'endDate': dateRange.end
     })
   }
+
+  static getDefaulters(today: string, dateRange: Record<string, string>) {
+    return Service.getJsonSWR('defaulter_list', {
+      'date': today,
+      'start_date': dateRange.start,
+      'end_date': dateRange.end,
+      'pepfar': 'true',
+      'program_id': 1
+    })
+  }
 }

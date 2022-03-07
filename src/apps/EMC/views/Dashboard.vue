@@ -24,6 +24,14 @@
             :value="totalDueForVL"
             label="Due for Viral Load"
             color="secondary"
+            :icon="hourglass"
+          />
+        </ion-col>
+        <ion-col size="3">
+          <dashboard-card
+            :value="totalDefaulters"
+            label="Defaulters (this Quarter)"
+            color="danger"
             :icon="people"
           />
         </ion-col>
@@ -42,7 +50,7 @@ import Layout from "@/apps/EMC/Components/Layout.vue";
 import VisitStatsChart from "../Components/VisitStatsChart.vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import DashboardCard from "../Components/DashboardCard.vue";
-import { people, calendar, alarm } from "ionicons/icons";
+import { people, calendar, alarm, hourglass } from "ionicons/icons";
 import HisDate, { STANDARD_DATE_FORMAT } from "@/utils/Date";
 import DashboardService from "../services/dashboard.service";
 
@@ -72,14 +80,20 @@ export default defineComponent({
       return DashboardService.getPatientsDueForVL(range).value?.length || -1
     })
 
+    const totalDefaulters = computed(() => {
+      return DashboardService.getDefaulters(today, range).value?.length || -1
+    })
+
     return {
       people,
       calendar,
       alarm,
       range,
+      hourglass,
       totalMissedAppointments,
       totalAppointmentsDue,
       totalDueForVL,
+      totalDefaulters
     };
   },
 });
