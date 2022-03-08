@@ -1,5 +1,5 @@
 <template>
-  <ion-menu menu-id="app-menu" content-id="main-content" type="push">
+  <ion-menu menu-id="app-menu" content-id="main-content" type="overlay">
     <ion-header class="toolbar-size">
       <ion-toolbar>
         <ion-item lines="none"> 
@@ -143,6 +143,6 @@ export default defineComponent({
 </script>
 <style scoped>
   .toolbar-size {
-    height: 9vh;
+    height: 5vh;
   }
 </style>
