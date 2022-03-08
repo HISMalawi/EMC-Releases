@@ -24,7 +24,7 @@
             :value="totalDueForVL"
             label="Due for Viral Load"
             color="secondary"
-            :icon="hourglass"
+            :icon="time"
           />
         </ion-col>
         <ion-col size="3">
@@ -50,7 +50,7 @@ import Layout from "@/apps/EMC/Components/Layout.vue";
 import VisitStatsChart from "../Components/VisitStatsChart.vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import DashboardCard from "../Components/DashboardCard.vue";
-import { people, calendar, alarm, hourglass } from "ionicons/icons";
+import { people, calendar, alarm, hourglass, time } from "ionicons/icons";
 import HisDate, { STANDARD_DATE_FORMAT } from "@/utils/Date";
 import DashboardService from "../services/dashboard.service";
 
@@ -89,7 +89,7 @@ export default defineComponent({
       calendar,
       alarm,
       range,
-      hourglass,
+      time,
       totalMissedAppointments,
       totalAppointmentsDue,
       totalDueForVL,
