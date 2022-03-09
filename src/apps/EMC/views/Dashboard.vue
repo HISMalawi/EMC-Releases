@@ -37,7 +37,13 @@
         </ion-col>
       </ion-row>
       <ion-row>
-        <ion-col size="8">
+        <ion-col size="3">
+          <dashboard-card
+            label="Patients on DTG"
+            :value="totalPatientsOnDTG"
+          />
+        </ion-col>
+        <ion-col size="9">
           <visit-stats-chart
             :days="days"
             :visits="accumulativeVisits"
@@ -97,12 +103,16 @@ export default defineComponent({
     const defaulters = ref<any[]>()
     const totalDefaulters = computed(() => defaulters.value?.length || -1);
 
+    const patientsOnDTG = ref<any[]>()
+    const totalPatientsOnDTG = computed(() => patientsOnDTG.value?.length || -1)
+
     onMounted(async () => {
       visits.value = await DashboardService.getVisits(range)
       appointments.value = await DashboardService.getAppointmentsDue(tomorrow)
       appointmentsDue.value = await DashboardService.getMissedAppointments(today, range)
       dueForViralLoad.value = await DashboardService.getPatientsDueForVL(range)
       defaulters.value = await DashboardService.getDefaulters(today, range)
+      patientsOnDTG.value = await DashboardService.getPatientsOnDTG(range)
     })
 
     return {
@@ -115,7 +125,8 @@ export default defineComponent({
       totalDueForVL,
       totalDefaulters,
       days,
-      accumulativeVisits
+      accumulativeVisits,
+      totalPatientsOnDTG,
     };
   },
 });

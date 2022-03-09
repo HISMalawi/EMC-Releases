@@ -41,4 +41,11 @@ export default class DashboardService {
       'program_id': 1
     })
   }
+
+  static getPatientsOnDTG(dateRange: Record<string, string>){
+    return Service.getJson('programs/1/reports/patients_on_dtg', {
+      'start_date': dateRange.start,
+      'end_date': dateRange.end
+    })
+  }
 }

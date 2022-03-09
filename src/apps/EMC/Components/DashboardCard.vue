@@ -1,9 +1,9 @@
 <template>
-  <ion-card>
+  <ion-card :color="color">
     <ion-card-body class="ion-padding">
       <ion-card-title class="ion-padding">{{ label }}</ion-card-title>
       <ion-card-subtitle v-if="isLoading" class="ion-padding">
-        <ion-spinner name="bubbles" color="light"></ion-spinner>
+        <ion-spinner name="bubbles" :color="loaderColor"></ion-spinner>
       </ion-card-subtitle>
       <ion-card-subtitle class="ion-padding" v-else>{{
         value
@@ -30,13 +30,19 @@ export default defineComponent({
     icon: {
       type: String,
     },
+    color: {
+      type: String,
+      default: 'light'
+    }
   },
   setup(props) {
     const isLoading = computed(() => props.value === -1);
     const canShowIcon = computed(() => !!props.icon?.length)
+    const loaderColor = computed(() => props.color === 'light' ? 'primary' : 'light')
     return {
       isLoading,
-      canShowIcon
+      canShowIcon,
+      loaderColor
     };
   },
 });
