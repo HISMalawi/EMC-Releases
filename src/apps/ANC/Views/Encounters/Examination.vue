@@ -38,6 +38,8 @@ export default defineComponent({
   },
   methods: {
     async onFinish(_: any, computedData: any) {
+      await this.service.createEncounter()
+      await this.service.saveObservationList((await this.resolveObs(computedData)))
       this.nextTask()
     },
     getFields() {
@@ -47,7 +49,9 @@ export default defineComponent({
           helpText: 'Ultrasound scan results available',
           type: FieldType.TT_SELECT,
           validation: (v: Option) => Validation.required(v),
-          // computedValue: (v: Option) => AncExaminationService.buildValueCoded('ultrasound', `${v.value}`),
+          computedValue: (v: Option) => this.service.buildValueCoded(
+            'Ultrasound', v.value
+          ),
           options: () => this.yesNoOptions()
         },
         {
@@ -55,14 +59,15 @@ export default defineComponent({
             helpText: 'Number of fetuses',
             type: FieldType.TT_SELECT,
             validation: (v: Option) => Validation.required(v),
-            // computedValue: (v: Option) => AncExaminationService.buildValueCoded('ultrasound', `${v.value}`),
+            computedValue: (v: Option) => this.service.buildValueText(
+                'Multiple gestation', v.value),
             condition: (f: any) => f.ultrasound.value === 'Yes',
             options: () => [
                 { label: 'One', value: 1 },
                 { label: 'Two', value: 2 },
                 { label: 'Three', value: 3 },
                 { label: 'Four', value: 4 },
-                { label: 'Unknown', value: 'unknown' }
+                { label: 'Unknown', value: 'Unknown' }
             ]
         },
         {
@@ -70,7 +75,8 @@ export default defineComponent({
             helpText: 'Liquor',
             type: FieldType.TT_SELECT,
             validation: (v: Option) => Validation.required(v),
-            // computedValue: (v: Option) => AncExaminationService.buildValueCoded('ultrasound', `${v.value}`),
+            computedValue: (v: Option) => this.service.buildValueText(
+                'LIQUOR', v.value),
             condition: (f: any) => f.ultrasound.value === 'Yes',
             options: () => this.mapStrToOptions([
                 'Adequate',
@@ -83,7 +89,8 @@ export default defineComponent({
             helpText: 'Lie',
             type: FieldType.TT_SELECT,
             validation: (v: Option) => Validation.required(v),
-            // computedValue: (v: Option) => AncExaminationService.buildValueCoded('ultrasound', `${v.value}`),
+            computedValue: (v: Option) => this.service.buildValueText(
+                'Lie', v.value),
             condition: (f: any) => f.ultrasound.value === 'Yes',
             options: () => this.mapStrToOptions([
                 'Longitudinal',
@@ -96,7 +103,8 @@ export default defineComponent({
             helpText: 'Fetal heart movement seen',
             type: FieldType.TT_SELECT,
             validation: (v: Option) => Validation.required(v),
-            // computedValue: (v: Option) => AncExaminationService.buildValueCoded('ultrasound', `${v.value}`),
+            computedValue: (v: Option) => this.service.buildValueCoded(
+                'Fetal heart movement seen', v.value),
             condition: (f: any) => f.ultrasound.value === 'Yes',
             options: () => this.yesNoOptions()
         },
@@ -108,14 +116,25 @@ export default defineComponent({
             helpText: 'Fundal height (cm)',
             type: FieldType.TT_NUMBER,
             validation: (v: Option) => Validation.required(v),
-            // computedValue: (v: Option) => AncExaminationService.buildValueCoded('ultrasound', `${v.value}`),
+            computedValue: (v: Option) => {
+                return v.value != 'Unknown' 
+                    ? this.service.buildValueNumber('Fundus', v.value as number)
+                    : this.service.buildObs('Fundus', {
+                        'value_coded': v.value,
+                        'value_numeric': 0
+                    })
+            },
+            config: {
+                noChars: false
+            }
         },
         {
             id: 'fetal_heart_beat',
             helpText: 'Fetal heart beat',
             type: FieldType.TT_SELECT,
             validation: (v: Option) => Validation.required(v),
-            // computedValue: (v: Option) => AncExaminationService.buildValueCoded('ultrasound', `${v.value}`),
+            computedValue: (v: Option) => this.service.buildValueText(
+                'Fetal Heart Beat', v.value),
             options: () => this.mapStrToOptions([
                 'Heard',
                 'Not heard'
@@ -126,15 +145,25 @@ export default defineComponent({
             helpText: 'Fetal heart rate',
             type: FieldType.TT_NUMBER,
             validation: (v: Option) => Validation.required(v),
-            condition: (f: any) => f.fetal_heart_beat.value === 'Heard'
-            // computedValue: (v: Option) => AncExaminationService.buildValueCoded('ultrasound', `${v.value}`),
+            condition: (f: any) => f.fetal_heart_beat.value === 'Heard',
+            computedValue: (v: Option) => {
+                return v.value != 'Unknown'
+                    ? this.service.buildValueNumber('Fetal heart movement seen', `${v.value}`)
+                    : this.service.buildObs('Fetal heart movement seen', {
+                        'value_numeric': 0, 'value_coded': v.value
+                    })
+            },
+            config: {
+                noChars: false
+            }
         },
         {
             id: 'enter_fetal_movement',
             helpText: 'Fetal movement heard',
             type: FieldType.TT_SELECT,
             validation: (v: Option) => Validation.required(v),
-            // computedValue: (v: Option) => AncExaminationService.buildValueCoded('ultrasound', `${v.value}`),
+            computedValue: (v: Option) => this.service.buildValueCoded(
+                'Fetal movement heard', `${v.value}`),
             options: () => this.yesNoOptions()
         },
         {
@@ -142,28 +171,34 @@ export default defineComponent({
             helpText: 'Fetal movement felt',
             type: FieldType.TT_SELECT,
             validation: (v: Option) => Validation.required(v),
-            // condition: (f: any) => f.presentation.value != 'Ball' || f.presentation.value != 'Nil palpable'
-            // computedValue: (v: Option) => AncExaminationService.buildValueCoded('ultrasound', `${v.value}`),
-            options: () => this.yesNoOptions()
+            condition: (f: any) => f.presentation.value != 'Ball' || f.presentation.value != 'Nil palpable',
+            computedValue: (v: Option) => this.service.buildValueCoded('Fetal movement felt', `${v.value}`),
+            options: () => this.yesNoUnknownOptions()
         },
         {
             id: 'last_fmf',
             helpText: 'Last fetal movement felt (in Weeks)',
             type: FieldType.TT_NUMBER,
             validation: (v: Option) => Validation.required(v),
-            condition: (f: any) => f.fetal_movement_felt.value === 'No',
-            // computedValue: (v: Option) => AncExaminationService.buildValueCoded('ultrasound', `${v.value}`),
-            options: () => this.yesNoOptions()
+            condition: (f: any) => f.fetal_movement_felt.value != 'Unknown',
+            computedValue: (v: Option) => {
+                return v.value != 'Unknown'
+                    ? this.service.buildValueNumber('Last Fetal movement felt', v.value as number)
+                    : this.service.buildObs('Last Fetal movement felt', {
+                        'value_numeric': 0, 'value_coded': v.value
+                    })
+            },
+            options: () => this.yesNoUnknownOptions()
         },
         {
             id: 'diagnosis',
             helpText: 'Diagnosis',
             type: FieldType.TT_MULTIPLE_SELECT,
             validation: (v: Option) => Validation.required(v),
-            // computedValue: (v: Option) => AncExaminationService.buildValueCoded('ultrasound', `${v.value}`),
-            options: async () => {
+            computedValue: (v: Option[]) => v.map(d => this.service.buildValueCoded(d.label, 'Yes')),
+            options: () => {
                 return ConceptService.getConceptsByCategory('anc_diagnosis')
-                    .map((c: any) => this.toOption(c.name))
+                    .map((c: any) => this.toOption(c.name)) as Option[]
             }
         }
       ]
