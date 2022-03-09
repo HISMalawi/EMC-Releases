@@ -115,7 +115,10 @@ export default defineComponent({
             id: 'enter_fundal_height',
             helpText: 'Fundal height (cm)',
             type: FieldType.TT_NUMBER,
-            validation: (v: Option) => Validation.required(v),
+            validation: (v: Option) => this.validateSeries([
+                () => Validation.required(v),
+                () => Validation.rangeOf(v, 10, 45)
+            ]),
             computedValue: (v: Option) => {
                 return v.value != 'Unknown' 
                     ? this.service.buildValueNumber('Fundus', v.value as number)
@@ -144,7 +147,10 @@ export default defineComponent({
             id: 'fetal_heart_rate',
             helpText: 'Fetal heart rate',
             type: FieldType.TT_NUMBER,
-            validation: (v: Option) => Validation.required(v),
+            validation: (v: Option) => this.validateSeries([
+                () => Validation.required(v),
+                () => Validation.rangeOf(v, 120, 140)
+            ]),
             condition: (f: any) => f.fetal_heart_beat.value === 'Heard',
             computedValue: (v: Option) => {
                 return v.value != 'Unknown'
