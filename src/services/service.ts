@@ -2,7 +2,7 @@ import ApiClient from "./api_client"
 import Url from "@/utils/Url"
 import HisApp from "@/apps/app_lib"
 import { AppInterface } from "@/apps/interfaces/AppInterface"
-import useSWRV from "swrv"
+import useSWRV, { IConfig } from "swrv"
 import { AuthVariable } from "./auth_service"
 import { isEmpty } from 'lodash';
 
@@ -50,11 +50,9 @@ export class Service {
         if (req && req.ok) return req?.text()
     }
 
-    static getJsonSWR(url: string, params = {} as Record<string, any>){
+    static getJsonSWR(url: string, params = {} as Record<string, any>, swrOptions = {} as IConfig){
         const transformedUrl = `${url}?${Url.parameterizeObjToString(params)}`
-        const { data, error } = useSWRV(transformedUrl, key => {
-            return this.getJson(key)
-          })
+        const { data } = useSWRV(transformedUrl, this.getJson, swrOptions)
         return data
     }
 
