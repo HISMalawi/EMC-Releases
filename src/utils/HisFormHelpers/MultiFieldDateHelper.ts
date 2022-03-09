@@ -187,9 +187,9 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
      */
     const buildHelpTextDate = (value: any, part: 'month' | 'year' | 'day') => {
         const parts = [
-            { type: 'year', value: yearValue, default: '????' },
-            { type: 'month', value: monthValue, default: '??' },
-            { type: 'day', value: dayValue, default: '??' },
+            { type: 'year', value: yearValue, default: 'YYYY' },
+            { type: 'month', value: monthValue, default: 'MM' },
+            { type: 'day', value: dayValue, default: 'DD' },
         ]
         return parts.reduce((partValues: any, dpart: any) => {
             if (part === dpart.type && value) {
