@@ -17,7 +17,7 @@ function getAgeInYears(date: string | Date): number {
 }
 
 function toStandardHisTimeFormat(date: string | Date) {
-    return dayjs(date).format('HH:MM')
+    return dayjs(date).format('HH:mm')
 }
 
 function toStandardHisDisplayFormat(date: string | Date): string {

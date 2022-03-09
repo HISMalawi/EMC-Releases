@@ -1,6 +1,6 @@
 <template>
     <p/>
-    <ion-segment mode="ios" scrollable :value="activeTab" class="ion-justify-content-center">
+    <ion-segment scrollable :value="activeTab" class="ion-justify-content-center">
         <ion-segment-button value="openOrders" @click="activeTab='openOrders'">
             <ion-label>Open</ion-label>
         </ion-segment-button>
@@ -11,16 +11,18 @@
     <p/>
     <!-- Action Table -->
     <div :style="{overflowX: 'auto', height:'84%'}"> 
-    <report-table
-        v-if="activeTab === 'openOrders'" 
-        :rows="labOrderRows" :columns="openColumns"
-        >
-    </report-table>
-    <report-table
-        v-if="activeTab === 'drawnOrders'" 
-        :rows="drawnOrders" :columns="drawnColumns"
-        >
-    </report-table>
+        <report-table
+            v-if="activeTab === 'openOrders'" 
+            :config="{ showIndex: false }"
+            :rows="labOrderRows"
+            :columns="openColumns">
+        </report-table>
+        <report-table
+            v-if="activeTab === 'drawnOrders'" 
+            :config="{ showIndex: false }"
+            :rows="drawnOrders"
+            :columns="drawnColumns">
+        </report-table>
     </div>
     <!---Specimen selection modal--->
     <ion-modal :is-open="showSpecimenModal" class="custom-modal"> 
@@ -36,19 +38,14 @@
                 <ion-row>
                     <ion-col> 
                         <ion-list>
-                            <ion-radio-group>
-                                <ion-item
-                                    v-for="(specimen, index) in specimens"
-                                    :key="index"
-                                    >
-                                    <ion-label>{{specimen.name}}</ion-label>
-                                    <ion-radio
-                                        slot="start"
-                                        @click="selectedSpecimen=specimen"
-                                        >
-                                    </ion-radio>                            
-                                </ion-item>
-                            </ion-radio-group>
+                            <ion-item
+                                v-for="(specimen, index) in specimens"
+                                :key="index"
+                                :color="selectedSpecimen.name === specimen.name ? 'primary': ''"
+                                @click="selectedSpecimen = specimen"
+                                >
+                                <ion-label>{{specimen.name}}</ion-label>
+                            </ion-item>
                         </ion-list>
                     </ion-col>
                     <ion-col> 
@@ -58,7 +55,7 @@
                                 :key="index"
                                 v-for="(test, index) in order.tests"
                                 >
-                                <ion-chip color="primary">{{test.name}}</ion-chip>
+                                <ion-chip color="success">Test: <b>{{test.name}}</b></ion-chip>
                             </ion-item>
                         </ion-list>
                     </ion-col>
@@ -69,7 +66,7 @@
                     <ion-button 
                         color="danger" 
                         slot="start"
-                        @click="showSpecimenModal = false; selectedSpecimen = {};"
+                        @click="showSpecimenModal=false;selectedSpecimen={}"
                         > 
                         Close 
                     </ion-button>
@@ -77,8 +74,7 @@
                         :disabled="!selectedSpecimen.name"
                         color="success" 
                         slot="end"
-                        @click="drawOrder"
-                        > 
+                        @click="() => { showSpecimenModal=true;drawOrder() }">
                         Submit 
                     </ion-button>
                 </ion-toolbar>
@@ -93,13 +89,11 @@ import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { ColumnInterface, RowInterface } from '@/components/DataViews/tables/ReportDataTable';
 import { PatientLabService} from "@/apps/LOS/services/patient_lab_service"
-import { isEmpty } from "lodash"
 import { voidWithReason } from "@/utils/VoidHelper"
 import {
     IonTitle,
     IonCol,
     IonRow,
-    IonRadio,
     IonButton,
     IonFooter,
     IonToolbar,
@@ -112,20 +106,25 @@ import {
     IonContent,
     IonSegment,
     IonLabel,
-    IonRadioGroup,
     IonSegmentButton,
 } from "@ionic/vue";
-import { toastDanger, toastWarning } from '@/utils/Alerts';
+import { toastDanger } from '@/utils/Alerts';
+import HisDate from "@/utils/Date"
 
+const HEADER_STYLE = {
+    style: {
+        background: '#f1f1f1',
+        color: "#333",
+        fontSize: '1.1rem !important'
+    }
+}
 export default defineComponent({
     components: {
         IonTitle,
         IonCol,
         IonRow,
-        IonRadio,
         IonButton,
         IonList,
-        IonRadioGroup,
         IonFooter,
         IonToolbar,
         IonHeader,
@@ -139,7 +138,9 @@ export default defineComponent({
         IonLabel,
         IonSegmentButton
     },
+    emits: ['onProgramVisitDates'],
     data: () => ({
+        initiated: false as boolean,
         showSpecimenModal: false as boolean,
         specimens: [] as any,
         order: {} as Record<string, any>,
@@ -148,50 +149,61 @@ export default defineComponent({
         activeTab: 'openOrders' as 'openOrders' | 'drawnOrders',
         drawnColumns: [
             [
-                table.thTxt('Accession #'),
-                table.thTxt('Test'),
-                table.thTxt('Actions')
+                table.thTxt('Accession #', HEADER_STYLE),
+                table.thTxt('Test', HEADER_STYLE),
+                table.thTxt('Actions', HEADER_STYLE)
             ]
         ] as Array<ColumnInterface[]>,
         openColumns: [
             [
-                table.thTxt('Accession #'),
-                table.thTxt('Test'),
-                table.thTxt('Reason for test'),
-                table.thTxt('Drawn'),
-                table.thTxt('Void')
+                table.thTxt('Accession #', HEADER_STYLE),
+                table.thTxt('Test', HEADER_STYLE),
+                table.thTxt('Reason for test', HEADER_STYLE),
+                table.thTxt('Drawn', HEADER_STYLE),
+                table.thTxt('Void', HEADER_STYLE)
             ]
         ] as Array<ColumnInterface[]>,
+        drawnOrdersData: [] as any,
+        openOrdersData: [] as any,
         drawnOrders: [] as Array<RowInterface[]>,
         labOrderRows: [] as Array<RowInterface[]>
     }),
     watch: {
-        patient: {
-            handler(patient) {
-                if (!isEmpty(patient)) {
-                    this.service = new PatientLabService(this.patient.getID())
-                }
-            },
-            immediate: true,
-            deep: true
-        },
         visitDate: {
             async handler(date: string) {
-                if (date && this.activeTab) {
-                    this.service.setDate(date)
+                if (!this.initiated) {
                     await this.init()
+                    this.initiated = true
+                }
+                if (date && this.activeTab) {
+                    this.drawnOrders = this.getdrawnOrders(
+                        this.drawnOrdersData.filter((d: any) => this.toDate(d.order_date) === date)
+                    )
+                    this.labOrderRows = this.getLabOrderRows(
+                        this.openOrdersData.filter((d: any) => this.toDate(d.order_date) === date)
+                    )
                 }
             },
-            immediate: true,
-            deep: true
+            immediate: true
         }
     },
     methods : {
         async init() {
-            const drawn = await this.service.getOrders('drawn')
-            const open = await this.service.getOrders('ordered')
-            this.labOrderRows = this.getLabOrderRows(open)
-            this.drawnOrders = this.getdrawnOrders(drawn)
+            this.service = new PatientLabService(this.patient.getID())
+            this.openOrdersData = await this.service.getOrders('ordered')
+            this.drawnOrdersData = await this.service.getOrders('drawn')
+            const visitDates = this.drawnOrdersData.concat(this.openOrdersData)
+                .map((d: any) => ({
+                    label: HisDate.toStandardHisDisplayFormat(d.order_date),
+                    value: this.toDate(d.order_date)
+                }))
+            this.$emit('onProgramVisitDates', visitDates)
+        },
+        toDate(date: string) {
+            return HisDate.toStandardHisFormat(date)
+        },
+        removeLabOrderRow(orderID: number) {
+            this.labOrderRows = this.labOrderRows.filter((r: any) => r[0]?.value?.orderID != orderID)
         },
         async drawOrder() {
             try {
@@ -201,39 +213,36 @@ export default defineComponent({
                 if (req) {
                     // Update drawn order rows
                     this.drawnOrders = this.drawnOrders.concat(this.getdrawnOrders([req]))
-                    // Remove drawn order from orders list
-                    this.labOrderRows.splice(this.order.orderIndex, 1)
+                    this.removeLabOrderRow(this.order.order_id)
                     this.showSpecimenModal = false
-                    return this.service.printSpecimenLabel(this.order.order_id)
+                    this.service.printSpecimenLabel(this.order.order_id)
+                } else {
+                    throw 'Unable to draw sample'
                 }
             }catch(e) {
                 console.error(e)
+                toastDanger(e)
             }
-            toastDanger('Unable to draw sample')
         },
         getLabOrderRows(data: any): Array<RowInterface[]> {
-            return data.map((d: any, index: number) => ([
-                table.td(d.accession_number),
+            return data.map((d: any) => ([
+                table.td(d.accession_number, { value: { orderID: d.order_id }}),
                 table.td(d.tests.map((t: any) => t.name).join(',')),
                 table.td(d.reason_for_test.name || 'N/A'),
-                table.tdBtn('Drawn', async () => {
-                    this.order = {...d, orderIndex: index }
+                table.tdBtn('Draw', async () => {
+                    this.order = d
                     this.showSpecimenModal = true
-                    this.specimens = await PatientLabService
-                        .getSpecimensForTests(d.tests)
+                    this.specimens = await PatientLabService.getSpecimensForTests(d.tests)
                 }, {}, 'success'),
-                /**
-                 * Order delete button
-                 */
                 table.tdBtn('Void', async () => {
                     voidWithReason(
                         async (reason: string) => {
-                            const res = await this.service.voidOrder(
-                                d.order_id, reason
-                            )
-                            res 
-                                ? this.labOrderRows.splice(index, 1)
-                                : toastWarning('Unable to void order. Try again later')
+                            try {
+                                await this.service.voidOrder(d.order_id, reason)
+                                this.removeLabOrderRow(d.order_id)
+                            } catch (e) {
+                                toastDanger(e)
+                            }
                         },
                         [
                             'Duplicate order',
@@ -247,12 +256,9 @@ export default defineComponent({
             return data.map((d: any) => ([
                 table.td(d.accession_number),
                 table.td(d.tests.map((t: any) => t.name).join(',')),
-                table.tdBtn('Print', () => {
-                    this.service.printSpecimenLabel(d.order_id)
-                })
+                table.tdBtn('Print', () => this.service.printSpecimenLabel(d.order_id))
             ]))
-        },
-
+        }
     },
     props: {
         patient: {
@@ -260,7 +266,7 @@ export default defineComponent({
             required: true
         },
         visitDate: {
-            type: String, 
+            type: String
         }
     }
 })

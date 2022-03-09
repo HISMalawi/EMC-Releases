@@ -7,6 +7,9 @@
             :fields="fields"
             :columns="columns"
             reportPrefix="MoH"
+            :config="{
+                showIndex: false
+            }"
             :enabledPDFHorizontalPageBreak="true"
             :onReportConfiguration="onPeriod"
             > 

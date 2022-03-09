@@ -1,7 +1,10 @@
 <template>
   <ion-header>
     <ion-toolbar>
-      <ion-title>{{ title }}</ion-title>
+      <ion-title>
+        <span>{{ title }}</span>
+        <span style="float: right;">Provider: {{ active.provider }}</span>
+      </ion-title>
     </ion-toolbar>
   </ion-header>
   <ion-content>
@@ -73,6 +76,7 @@ export default defineComponent({
     active: {
       id: -1,
       name: '',
+      provider: '',
       rows: [],
       columns: []
     } as any,
@@ -120,12 +124,13 @@ export default defineComponent({
         }
       }, 'void-modal custom-modal-backdrop') 
     },
-    async showDetails(name: string, {id, columns, getRows, onVoid}: any) {
+    async showDetails(name: string, {id, provider, columns, getRows, onVoid}: any) {
       this.active.id = id
       this.active.name = name
       this.active.columns = columns;
       this.active.onVoid = onVoid
       this.active.rows = await getRows()
+      this.active.provider = provider
     },
   },
 });

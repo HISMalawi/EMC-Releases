@@ -1,5 +1,7 @@
 <template>
   <ion-app>
+    <full-screen-notice />
+    <update-notification/>
     <ion-router-outlet :key="$route.fullPath"/>
     <connection-error v-if="!apiOk && notConfigPage"/>
   </ion-app>
@@ -13,25 +15,32 @@ import EventBus from "@/utils/EventBus"
 import { toastWarning, alertConfirmation } from './utils/Alerts';
 import { useRoute } from 'vue-router';
 import ConnectionError from "@/components/ConnectionError.vue"
-
+import UpdateNotification from "@/components/UpdateNotification.vue"
 /** Nprogress */
 import 'nprogress/nprogress.css'
 import nprogress from 'nprogress'
 import router from '@/router/index';
 import { loadingController } from "@ionic/vue"
+import { AuthService } from './services/auth_service';
+import FullScreenNotice from "@/components/FullScreenModifier.vue"
 
 export default defineComponent({
   name: 'App',
   components: {
+    FullScreenNotice,
     IonApp,
     IonRouterOutlet,
-    ConnectionError
+    ConnectionError,
+    UpdateNotification
   },
   setup() {
     const apiOk = ref(true)
     const route = useRoute()
     const notConfigPage = ref(true)
     const healthCheckInterval = ref(null) as any
+
+    // synchronize date every 1 hour
+    new AuthService().initDateSync(3600000)
 
     nprogress.configure({ 
       easing: 'ease', 

@@ -10,6 +10,7 @@ import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { ENCOUNTER_GUIDELINES, FlowState } from "@/guidelines/encounter_guidelines"
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
+import { sort } from 'fast-sort'
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -104,9 +105,13 @@ export default defineComponent({
                 : 'N/A'
             if (ProgramService.isBDE()) {
                 this.providers = await UserService.getUsers()
-                this.facts.providers = this.providers.map((p: any) => `${p.username} \
-                    (${p.person.names[0].given_name} ${p.person.names[0].family_name})`
-                )
+                this.facts.providers = this.providers
+                    .sort((a: any, b: any) => {
+                        const usernameA = a.username.toUpperCase()
+                        const usernameB = b.username.toUpperCase()
+                        return usernameA < usernameB ? -1 : usernameA > usernameB  ? 1 : 0
+                    })
+                    .map((p: any) => `${p.username} (${p.person?.names[0]?.given_name} ${p?.person?.names[0].family_name})`)
             }
         },
         toOption(label: string, other={}) {

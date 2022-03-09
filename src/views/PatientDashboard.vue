@@ -2,6 +2,7 @@
     <ion-page>
         <full-toolbar
             class="full-component-view"
+            :appVersion="appVersion"
             :appIcon="app.applicationIcon"
             :patientCardInfo="patientCardInfo"
             :programCardInfo="programCardInfo"
@@ -50,10 +51,11 @@
             <!-- Mobile dashboard view -->
             <div class="mobile-component-view">
                 <component
-                    v-if="appHasCustomContent && activeTab === 1" 
+                    v-if="appHasCustomContent && activeTab === 1 && patientIsset" 
                     v-bind:is="customDashboardContent"
                     :patient="patient"
                     :visitDate="activeVisitDate"
+                    @onProgramVisitDates="onProgramVisitDates"
                     >  
                 </component>
                 <ion-grid v-if="!appHasCustomContent && activeTab === 1">
@@ -150,10 +152,11 @@
                         </ion-row>
                         <!--Custom Dashboard content-->
                         <component
-                            v-if="appHasCustomContent" 
+                            v-if="appHasCustomContent && patientIsset" 
                             v-bind:is="customDashboardContent"
                             :patient="patient"
                             :visitDate="activeVisitDate"
+                            @onProgramVisitDates="onProgramVisitDates"
                             >  
                         </component>
                         <!--Default patient dashboard content-->
@@ -203,7 +206,7 @@
                 <ion-button class="mobile-component-view" color="primary" size="medium" slot="end" @click="changeApp"> 
                     <ion-icon :icon="apps"> </ion-icon>
                 </ion-button>
-                <ion-button class="full-component-view" color="success" size="large" slot="end" @click="onCancel">
+                <ion-button class="full-component-view" color="success" size="large" slot="end" router-link="/">
                     <ion-icon :icon="logOutOutline"> </ion-icon>
                     Finish
                 </ion-button>
@@ -233,7 +236,7 @@ import EncounterView from "@/components/DataViews/DashboardEncounterModal.vue"
 import CardDrilldown from "@/components/DataViews/DashboardTableModal.vue"
 import { WorkflowService } from "@/services/workflow_service"
 import { toastSuccess, toastDanger, alertConfirmation } from "@/utils/Alerts";
-import _, { isEmpty } from "lodash"
+import _, { isEmpty, uniq } from "lodash"
 import MinimalToolbar from "@/components/PatientDashboard/Poc/MinimalToolbar.vue"
 import FullToolbar from "@/components/PatientDashboard/Poc/FullToolbar.vue"
 import {
@@ -272,6 +275,7 @@ import {
 } from "@ionic/vue";
 import { EncounterService } from '@/services/encounter_service'
 import { ConceptService } from "@/services/concept_service"
+import { PersonService } from "@/services/person_service"
 export default defineComponent({
     components: {
         IonSegment,
@@ -293,18 +297,14 @@ export default defineComponent({
     },
     setup() {
         return {
-            man,
             time,
             person,
             calendar,
             medical,
-            woman,
             clipboard, 
             apps, 
             folder,
             logOut, 
-            timeOutline, 
-            warningOutline,
             clipboardOutline, 
             appsOutline, 
             folderOutline,
@@ -334,9 +334,13 @@ export default defineComponent({
         medicationCardItems: [] as Array<Option>,
         labOrderCardItems: [] as Array<Option>,
         alertCardItems: [] as Array<Option>,
-        patientCards: [] as Array<any>
+        patientCards: [] as Array<any>,
+        appVersion: ProgramService.getFullVersion()
     }),
     computed: {
+        patientIsset(): boolean {
+            return !isEmpty(this.patient)
+        },
         patientName(): string {
             return !isEmpty(this.patient) 
                 ? this.patient.getFullName()
@@ -366,15 +370,8 @@ export default defineComponent({
             deep: true,
             immediate: true
         },
-        async activeVisitDate(date: string) {
-            if (!(this.appHasCustomContent)) {
-                this.encounters = await EncounterService.getEncounters(this.patientId, {date})
-                this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
-                this.encountersCardItems = this.getActivitiesCardInfo(this.encounters)
-                this.medicationCardItems = this.getMedicationCardInfo(this.medications)
-                this.labOrderCardItems = await this.getLabOrderCardInfo(date)
-                this.updateCards()
-            }
+        activeVisitDate(date: string) {
+            if (!(this.appHasCustomContent)) this.loadCardData(date)
         }
     },
     methods: {
@@ -391,7 +388,7 @@ export default defineComponent({
             this.sessionDate = this.toDate(ProgramService.getSessionDate())
             this.isBDE = ProgramService.isBDE() || false
             this.nextTask = await this.getNextTask(this.patientId)
-            this.visitDates = await this.getPatientVisitDates(this.patientId)
+            this.onProgramVisitDates((await this.getPatientVisitDates(this.patientId)))
             this.alertCardItems = await this.getPatientAlertCardInfo() || []
             this.programID = ProgramService.getProgramID()
             this.updateCards()
@@ -401,6 +398,14 @@ export default defineComponent({
         },
         toTime(date: string | Date) {
             return HisDate.toStandardHisTimeFormat(date)
+        },
+        async loadCardData(date: string) {
+            this.encounters = await EncounterService.getEncounters(this.patientId, {date})
+            this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
+            this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
+            this.medicationCardItems = this.getMedicationCardInfo(this.medications)
+            this.labOrderCardItems = await this.getLabOrderCardInfo(date)
+            this.updateCards()
         },
         updateCards() {
             this.patientCards = [
@@ -470,14 +475,20 @@ export default defineComponent({
                 label: this.toDate(date), value: date
             }))
         },
-        async getNextTask(patientId: number) {
-            return await WorkflowService.getNextTaskParams(patientId)
+        onProgramVisitDates(dates: Option[]) {
+            const d = this.visitDates.concat(dates)
+                .map(d => d.value as string)
+                .sort((a, b) => new Date(a) > new Date(b) ? 0 : 1)
+            this.visitDates = uniq(d).map(d => ({ label: this.toDate(d), value: d }))
+        },
+        getNextTask(patientId: number) {
+            return WorkflowService.getNextTaskParams(patientId)
         },
         onActiveVisitDate(data: Option) {
             this.activeVisitDate = data.value
         },
         getPatientCardInfo(patient: any) {
-            const birthDate = patient.getBirthdate() //this.getProp(patient, 'getBirthdate')
+            const birthDate = patient.getBirthdate()
             const genderIcon = patient.getGender() === 'M' ? man : woman
             return [
                 { label: "Name", value: patient.getFullName(), other: { icon: genderIcon}},
@@ -496,17 +507,19 @@ export default defineComponent({
            }
         },
         getActivitiesCardInfo(encounters: Array<Encounter>) {
-            return encounters.map((encounter: Encounter) => ({
+            const items = encounters.map(async (encounter: Encounter) => {
+                return {
                 label: encounter.type.name,
                 value: this.toTime(encounter.encounter_datetime),
                 other: {
+                    provider: await PersonService.getPersonFullName(encounter.provider_id),
                     id: encounter.encounter_id,
                     columns: ['Observation', 'Value', 'Time'],
                     onVoid: async (reason: any) => {
                         try {
                             await EncounterService.voidEncounter(encounter.encounter_id, reason)
                             _.remove(this.encountersCardItems, { label: encounter.type.name })
-                            this.updateCards()
+                            await this.loadCardData(this.activeVisitDate as string)
                             this.nextTask = await this.getNextTask(this.patientId)
                             toastSuccess('Encounter has been voided!', 3000)
                         }catch(e) {
@@ -529,13 +542,15 @@ export default defineComponent({
                                 console.error(obs, e)
                             }
                             const value = await ObservationService.resolvePrimaryValue(obs)
-                            const time = HisDate.toStandardHisTimeFormat(obs.obs_datetime)
+                            const time = HisDate.toStandardHisTimeFormat(obs.date_created)
                             data.push([concept, value, time])
                         }
                         return data
                     }
                 }
-            }))
+                }
+            })
+            return Promise.all(items)
         },
         getMedicationCardInfo(medications: any) {
             return medications.map((medication: any) => ({
@@ -622,8 +637,7 @@ export default defineComponent({
             modal.present()
         },
         async onCancel() {
-            const confirmation = await alertConfirmation('Are you sure you want to cancel?')
-            
+            const confirmation = await alertConfirmation('Are you sure you want to Finish?')         
             if (confirmation) return this.$router.push({path: '/'})
         }
     }

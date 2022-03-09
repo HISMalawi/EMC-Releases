@@ -7,11 +7,13 @@
         </ion-header>
         <ion-content> 
             <ion-list> 
-                <ion-item v-for="(item, index) in items" :key="index">
-                    <ion-checkbox 
+                <ion-item
+                    @click="item.isChecked = item.isChecked ? false : true"
+                    button v-for="(item, index) in items" :key="index"
+                    >
+                    <ion-checkbox
                         slot="start"
-                        :checked="item.isChecked"
-                        @ionChange="(e) => check(e, item)"
+                        v-model="item.isChecked"
                         >
                     </ion-checkbox>
                     <ion-label :color="!item.isComplete ? 'danger' : ''">
@@ -20,10 +22,12 @@
                         Home Village: <b>{{item.homeVillage || 'Unknown'}}</b> 
                     </ion-label>
                     <ion-button
-                       @click="reassignIdentifier(item)"> 
+                        size="medium"
+                       @click="() => reassignIdentifier(item)"> 
                         Re-Assign 
                     </ion-button>
                     <ion-button
+                        size="medium"
                         color="warning"
                         v-if="!item.isComplete"
                        :router-link="`/patient/registration?edit_person=${item.patientID}`"> 
@@ -82,6 +86,7 @@ import {
     IonTitle,
     IonContent,
     IonFooter,
+    IonCheckbox,
 } from "@ionic/vue"
 import { PatientDemographicsExchangeService } from "@/services/patient_demographics_exchange_service"
 import { Patientservice } from '@/services/patient_service'
@@ -92,6 +97,7 @@ import HisDate from "@/utils/Date"
 export default defineComponent({
     components: {
         IonPage,
+        IonCheckbox,
         IonButton,
         IonList,
         IonItem,

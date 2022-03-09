@@ -57,10 +57,6 @@ export const PROPERTIES: FolderInterface[] = [
                 ART_GLOBAL_PROP.VL_ROUTINE_CHECK
             ),
             globalPropConfig(
-                "Ask pills remaining at home", 
-                ART_GLOBAL_PROP.PILLS_REMAINING
-            ),
-            globalPropConfig(
                 "Activate Filing Numbers", 
                 ART_GLOBAL_PROP.FILING_NUMBERS
             ),

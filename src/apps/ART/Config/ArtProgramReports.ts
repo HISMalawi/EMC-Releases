@@ -13,7 +13,8 @@ export const REPORTS: FolderInterface[] = [
             },
             {
                 name: 'Disaggregated',
-                pathName: 'moh_disaggregated'
+                pathName: 'moh_disaggregated',
+                condition: () => false
             },
             {
                 name: 'Regimen Distribution (Weight)',

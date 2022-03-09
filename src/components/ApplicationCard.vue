@@ -31,7 +31,6 @@ export default defineComponent({
 </script>
 <style scoped>
 .his-card {
-  width: 20vw;
   height: 33vh;
   overflow: 'hidden';
 }

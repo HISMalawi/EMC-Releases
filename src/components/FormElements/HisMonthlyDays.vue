@@ -78,7 +78,7 @@ export default defineComponent({
                 return
             }
 
-            if (num.match(/unknown/i)) {
+            if (num.toString().match(/unknown/i)) {
                 this.$emit('onValue', {label: 'Unknown', value: 'Unknown'})
                 return
             }

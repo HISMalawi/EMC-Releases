@@ -24,7 +24,7 @@
       <data-table :config="{showIndex: false}" :columns="columns" :rows="rows"></data-table>
     </ion-content>
     <ion-footer>
-      <ion-toolbar v-if="patientHasHyperTensionObs && isEnrolledInHTN || isEnrolledInHTN && patientOnBPDrugs"> 
+      <ion-toolbar> 
         <h1 style="text-align: center">Actions</h1>
         <ion-radio-group v-model="action">
           <ion-grid>
@@ -35,7 +35,7 @@
                 :key="index"
               >
                 <ion-item>
-                  <ion-label>{{ item.label }}</ion-label>
+                  <ion-label style="font-size:1.0rem;font-weight:bold">{{ item.label }}</ion-label>
                   <ion-radio :value="item"></ion-radio>
                 </ion-item>
               </ion-col>
@@ -121,7 +121,6 @@ import { BPManagementService } from "../../services/htn_service";
 import { UserService } from "@/services/user_service";
 import { ProgramService } from "@/services/program_service";
 import { VitalsService } from "@/apps/ART/services/vitals_service"
-import { toastDanger } from "@/utils/Alerts";
 import { PatientProgramService } from "@/services/patient_program_service";
 import DataTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
@@ -165,9 +164,9 @@ export default defineComponent({
     bpGradeColorMap: {
       'N/A': '#ffffff',
       'normal': '#ffffff',
-      'grade 1': '#feede2',
-      'grade 2': '#fef9df',
-      'grade 3': '#fcd4d4'
+      'grade 1': '#FFC3CE',
+      'grade 2': '#F20056',
+      'grade 3': '#FF3333'
     } as any,
     rows: [] as any,
     riskFactors: [] as any,
@@ -202,15 +201,12 @@ export default defineComponent({
         this.normatensive = BPManagementService.isBpNormotensive(this.trail)
         this.riskFactors = await this.getRiskFactors();
         this.date = HisDate.toStandardHisDisplayFormat(Service.getSessionDate());
-        await this.isTransfered();
-        await this.hasHyperTenstion();
-        await this.getTreatmentStatus();
-        await this.getProgramStatus();
+        await this.isTransfered()
+        await this.hasHyperTenstion()
+        await this.getTreatmentStatus()
+        await this.getProgramStatus()
         loadingController.dismiss()
-        if ((this.patientHasHyperTensionObs && !this.isEnrolledInHTN)
-          || (!this.isEnrolledInHTN && this.patientOnBPDrugs)) {
-          await this.alertHtnEnrollment()
-        }
+        if (this.patientFirstVisit && this.patientOnBPDrugs) await this.alertTransferIn()
         this.getItems();
       },
       immediate: true,
@@ -221,7 +217,7 @@ export default defineComponent({
       return this.riskFactors.filter((d: any) => d.value === "Yes").length;
     },
     showClinicianButton() {
-      return !UserService.isClinician() && !UserService.isDoctor();
+      return !(UserService.isClinician() && UserService.isDoctor());
     },
   },
   methods: {
@@ -233,7 +229,7 @@ export default defineComponent({
           const obs = await this.htn.saveValueCodedObs(
             "Refer patient to clinician",
             "Yes"
-          );
+          )
           if (!obs) return toastWarning("Unable to create Obs");
           this.gotoPatientDashboard();
         } else {
@@ -273,21 +269,21 @@ export default defineComponent({
         this.patientID,
         "Patient has hypertension"
       );
-      this.patientHasHyperTensionObs = ob === "Yes";
+      this.patientHasHyperTensionObs = `${ob}`.match(/yes|no/i) ? true : false
     },
     async isTransfered() {
       const ob = await ObservationService.getFirstValueCoded(
         this.patientID,
         "Transferred"
       );
-      this.patientFirstVisit = ob !== "Yes";
+      this.patientFirstVisit = !ob
     },
     async getTreatmentStatus() {
       const ob = await ObservationService.getFirstValueText(
         this.patientID,
         "Treatment status"
       );
-      this.patientOnBPDrugs = ob && ob.match(/BP Drugs started/i);
+      this.patientOnBPDrugs = ob && ob.match(/BP Drugs started/i) ? true : false;
     },
     async getProgramStatus() {
       const programs: any[] = await ProgramService.getPatientPrograms(
@@ -303,8 +299,7 @@ export default defineComponent({
     },
     async programState() {
       const programs: any[] = await ProgramService.getPatientStates(
-        this.patientID,
-        this.HTNProgramID
+        this.patientID, this.HTNProgramID
       );
       this.isAliveOnHTN =
         programs.filter((program) => program.name === "Alive").length > 0;
@@ -326,7 +321,7 @@ export default defineComponent({
     formatBpTrailRows(trail: any) {
       return Object.keys(trail).map(m => {
         const date = HisDate.toStandardHisDisplayFormat(m);
-        this.currentDrugs = trail[m]["drugs"];
+        this.currentDrugs = this.currentDrugs.concat(trail[m]["drugs"]);
         const colorGrade = () => {
           const grade: string = BPManagementService.getBpGrade(
             parseInt(trail[m].sbp),
@@ -342,7 +337,7 @@ export default defineComponent({
           table.td(trail[m].sbp, { style }),
           table.td(trail[m].dbp, { style }),
           table.td(trail[m]["drugs"].join(", "), { style }),
-          table.td(trail[m].notes, { style })
+          table.td(trail[m].note, { style })
         ]
       })
     },
@@ -367,10 +362,10 @@ export default defineComponent({
         });
       }
     },
-    async alertHtnEnrollment() {
+    async alertTransferIn() {
       const action = await infoActionSheet(
-        'Programme Enrollment',
-        "Do you want to enroll this client in the HTN program?",
+        'Transfer in',
+        "Does the patient want to transfer in for HTN management?",
         '',
         [
           { 
@@ -414,11 +409,11 @@ export default defineComponent({
       const vitals = new VitalsService(this.patientID, this.providerID)
       const encounter = await vitals.createEncounter()
       if (!encounter) {
-        toastDanger('Unable to create patient transferr encounter')
+        toastWarning('Unable to create patient transfer encounter')
       } else {
         const obs = await vitals.saveValueCodedObs('Transferred', transferred)
         if (!obs) {
-          toastDanger('Unable to create observation Transferred for patient')
+          toastWarning('Unable to create observation Transferred for patient')
         }
       }
     },

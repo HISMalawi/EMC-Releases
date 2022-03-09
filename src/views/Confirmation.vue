@@ -31,12 +31,12 @@
       <ion-row>
         <ion-col size="4" v-for="(card, index) in cards" :key="index">
           <ion-card class="his-card">
-            <ion-card-header>
+            <ion-card-header style="background: #708090 !important;">
               <ion-card-title>{{ card.title.toUpperCase() }}</ion-card-title>
             </ion-card-header>
             <ion-card-content>
               <ul class="card-content"> 
-                <li class='li-item' v-for="(info, id) in card.data" :key="id"> 
+                <li class='li-item' v-for="(info, id) in card.data" :key="id" style="display: flex; justify-content: space-between;"> 
                   <span v-if="info.label"> {{ info.label }} &nbsp;</span>
                   <strong v-html="info.value"></strong>
                 </li>
@@ -56,7 +56,7 @@
           color="danger left"
           size="large"
           @click="onVoid"
-          >Void</ion-button
+          >Void Client</ion-button
         >
         <ion-button 
           v-if="facts.patientFound"
@@ -137,6 +137,7 @@ export default defineComponent({
     cards: [] as any[],
     ddeInstance: {} as any,
     useDDE: false as boolean,
+    programInfo: {} as any,
     facts: {
       hasHighViralLoad: false as boolean,
       patientFound: false as boolean,
@@ -276,24 +277,25 @@ export default defineComponent({
         // or home_ta.
         if (e instanceof IncompleteEntityError && !isEmpty(e.entity)) {
           results = e.entity
-        }
-        // DDE might send attribute validation errors for a person
-        if (e instanceof BadRequestError && Array.isArray(e.errors)) {
+        } else if (e instanceof BadRequestError && Array.isArray(e.errors)) {
           const [msg, ...entities] = e.errors
           if (typeof msg === 'string' && msg === "Invalid parameter(s)") {
             this.setInvalidParametersFacts(entities)
           }
+        } else {
+          toastDanger(e, 300000)
         }
       }
       this.facts.patientFound = !isEmpty(results)
       if (this.facts.patientFound) {
         this.patient = new Patientservice(
-          Array.isArray(results) 
+          Array.isArray(results)
             ? results[0]
             : results
           )
         this.setPatientFacts()
         await this.setProgramFacts()
+        if (this.useDDE) await this.setDDEFacts()
         await this.drawPatientCards()
         await this.setViralLoadStatus()
         this.facts.currentNpid = this.patient.getNationalID()
@@ -398,7 +400,8 @@ export default defineComponent({
     },
     async setProgramFacts() {
       this.program = new PatientProgramService(this.patient.getID())
-      const { program, outcome }: any =  await this.program.getProgram()
+      this.programInfo = await this.program.getProgram()
+      const { program, outcome }: any =  this.programInfo
       this.facts.currentOutcome = outcome
       this.facts.programName = program
       this.facts.userRoles = UserService.getUserRoles().map((r: any) => r.role)
@@ -435,8 +438,8 @@ export default defineComponent({
     async drawPatientCards() {
       if (!this.app.confirmationSummary) return
       this.cards = []
-      const summaryEntries: Record<string, Function> 
-        = await this.app.confirmationSummary(this.patient, this.program)
+      const summaryEntries: Record<string, Function>
+        = await this.app.confirmationSummary(this.patient, this.programInfo)
 
       for (const title in summaryEntries) {
         const data = await summaryEntries[title]()
@@ -462,7 +465,7 @@ export default defineComponent({
               type: 'button',
               name: 'Select',
               action: async () => {
-                await modalController.dismiss({ action: FlowState.FORCE_EXIT})
+                await modalController.dismiss()
                 await this.findAndSetPatient(undefined, p.getNationalID())
               }
             }
@@ -524,9 +527,9 @@ export default defineComponent({
           this.$router.push(`/patient/registration?edit_person=${this.patient.getID()}`)
           return FlowState.FORCE_EXIT
         },
-        'printNPID': async () => {
-          loadingController.dismiss()
-          await this.ddeInstance.printNpid()
+        'printNPID': () => {
+          this.ddeInstance.printNpid(this.patient.getID())
+          return FlowState.CONTINUE
         },
         'createNpiDWithRemote': async () => {
           const npid = this.facts.dde.remoteNpidDiff

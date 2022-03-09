@@ -24,12 +24,14 @@ export default defineComponent({
     obs: [] as any
   }),
   watch: {
-    patient: {
-      async handler() {
-        this.socialHistory = new SocialHistoryService(this.patientID, this.providerID);
-        this.fields = await this.getFields();
+    ready: {
+      async handler(ready: boolean) {
+        if (ready) {
+          this.socialHistory = new SocialHistoryService(this.patientID, this.providerID)
+          this.fields = await this.getFields()
+        }
       },
-      deep: true
+      immediate: true
     },
   },
   methods: {

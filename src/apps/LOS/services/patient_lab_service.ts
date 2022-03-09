@@ -7,31 +7,22 @@ export class PatientLabService extends AppEncounterService  {
         super(patientID, 57)
     }
 
-    setDate(date: string) {
-        this.date = date
-    }
-
     getOrders(status: 'drawn' | 'ordered') {
-        return OrderService.getOrders(
-            this.patientID, {
-                status,
-                date: this.date
-            })
+        return OrderService.getOrders(this.patientID, { status })
     }
 
-    async voidOrder(orderID: number, reason: string) {
+    voidOrder(orderID: number, reason: string) {
         return OrderService.void(`lab/orders/${orderID}`,{reason})
     }
 
-    async updateOrderSpecimen(orderID: number, specimenID: number) {
+    updateOrderSpecimen(orderID: number, specimenID: number) {
         return OrderService.putJson(`lab/orders/${orderID}`,
             {specimen: { 'concept_id': specimenID } }
         )
     }
 
     printSpecimenLabel(orderID: number) {
-        return new PrintoutService()
-            .printLbl(`lab/labels/order?order_id=${orderID}`)
+        return new PrintoutService().printLbl(`lab/labels/order?order_id=${orderID}`)
     }
     
     async placeOrder(params: any) {

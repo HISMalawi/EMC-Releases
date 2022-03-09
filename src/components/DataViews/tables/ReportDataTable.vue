@@ -154,7 +154,6 @@ export default defineComponent({
     },
     newPage: {
         handler(newPage: number) {
-            console.log(newPage)
             if (typeof newPage === 'number') this.onChangePage(newPage)
         },
         immediate: true
@@ -347,7 +346,7 @@ export default defineComponent({
     },
     columnLength(): number {
         try {
-            return this.tableColumns[this.tableColumns.length].length
+            return this.tableColumns[0].length
         } catch (e) {
             console.warn(e)
             return 5

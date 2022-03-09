@@ -20,7 +20,7 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { alertConfirmation, toastDanger, toastWarning  } from "@/utils/Alerts"
 import HisDate from "@/utils/Date"
 import Keypad from "@/components/Keyboard/HisKeypad.vue"
-import { WorkflowService } from "@/services/workflow_service"
+import { nextTask } from '@/utils/WorkflowTaskHelper';
 
 /**
  * Manages filing number assignment
@@ -69,7 +69,7 @@ export default defineComponent({
                     if (query.next_workflow_task) {
                         this.nextWorkflowRouteName = query.next_workflow_task
                     }
-                }
+                }             
             },
             immediate: true,
             deep: true
@@ -552,30 +552,7 @@ export default defineComponent({
                             name: 'Continue',
                             color: 'success',
                             slot: 'end',
-                            onClick: async () => {
-                                // Go to a specic route
-                                if (this.nextWorkflowRouteName) {
-                                    /**
-                                     * By default, we append patient_id to nextWorkflowRouteName.
-                                     */
-                                    return this.$router.push({
-                                        name: this.nextWorkflowRouteName,
-                                        params: {
-                                            'patient_id': this.service.getPatientID()
-                                        }
-                                    })
-                                }
-                                const nextTask: any = await WorkflowService.getNextTaskParams(
-                                    this.service.getPatientID()
-                                )
-                                if (!nextTask.name) {
-                                    nextTask.name = 'Patient Dashboard'
-                                    nextTask.params = {
-                                        'id': this.service.getPatientID()
-                                    }
-                                }
-                                this.$router.push(nextTask)
-                            }
+                            onClick: () => nextTask(this.patient.id, this.$router, this.$route)
                         }
                     ]
                 }

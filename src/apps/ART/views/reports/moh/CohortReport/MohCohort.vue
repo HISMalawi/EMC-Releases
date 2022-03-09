@@ -53,7 +53,7 @@ export default defineComponent({
     isLoading: false as boolean,
     fields: [] as Array<Field>,
     reportID: -1 as any,
-    clinicName: MohCohortReportService.getUserLocation(),
+    clinicName: MohCohortReportService.getLocationName(),
     reportReady: false as boolean,
     reportUrlParams: '' as string
   }),

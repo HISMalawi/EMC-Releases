@@ -231,26 +231,32 @@ export default defineComponent({
                             return this.staging.buildValueCoded(other.concept, value)
                         })
                     }),
-                    options: () => ([
-                        {
-                            label: 'Pregnant?',
-                            value: '',
-                            other: {
-                                values: this.yesNoOptions(),
-                                concept: 'Is patient pregnant',
-                                factID: 'pregnant'
-                            }
-                        },
-                        {
-                            label: 'Breastfeeding?',
-                            value: '',
-                            other: {
-                                values: this.yesNoOptions(),
-                                concept: 'Is patient breast feeding',
-                                factID: 'breastFeeding'
-                            }
+                    options: (f: any) => {
+                        if (!isEmpty(f.pregnancy_status)) {
+                            return f.pregnancy_status
+                        } else {
+                            return [
+                                {
+                                    label: 'Pregnant?',
+                                    value: '',
+                                    other: {
+                                        values: this.yesNoOptions(),
+                                        concept: 'Is patient pregnant',
+                                        factID: 'pregnant'
+                                    }
+                                },
+                                {
+                                    label: 'Breastfeeding?',
+                                    value: '',
+                                    other: {
+                                        values: this.yesNoOptions(),
+                                        concept: 'Is patient breast feeding',
+                                        factID: 'breastFeeding'
+                                    }
+                                }
+                            ]
                         }
-                    ]),
+                    },
                     condition: (f: any) => this.hasStaging(f) && this.stagingFacts.isChildBearing,
                 },
                 {

@@ -24,11 +24,11 @@ export default defineComponent({
   }),
   watch: {
     ready: {
-        handler(ready: boolean) {
-            if (ready) {
-                this.fields = this.getFields() 
-            }
+      handler(ready: boolean) {
+        if (ready) {
+          this.fields = this.getFields() 
         }
+      }
     }
   },
   methods: {

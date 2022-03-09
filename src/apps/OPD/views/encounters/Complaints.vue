@@ -57,12 +57,10 @@ export default defineComponent({
           type: FieldType.TT_COMPLAINTS_PICKER,
           validation: (data: any) => Validation.required(data),
           computedValue: (options: Option[]) => {
-            const obs = options.map(option => {
-              const parentObs = this.complaintsService.buildValueCoded('Presenting complaint', option.other.parent)
-              const childObs = this.complaintsService.buildValueCodedFromConceptId(option.other.parent, option.other.concept_id)
-             return [parentObs, childObs]
-            })
-            return obs.flat(1)
+            return options.map(async (option)=> ({
+              ...(await this.complaintsService.buildValueCoded('Presenting complaint', option.other.parent)),
+              child: (await this.complaintsService.buildValueCodedFromConceptId(option.other.parent, option.other.concept_id))
+            }))
           },
           config: {
             footerBtns: [
