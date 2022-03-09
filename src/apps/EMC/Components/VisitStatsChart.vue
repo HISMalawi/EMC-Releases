@@ -36,7 +36,7 @@ export default defineComponent({
     const options = computed(() => ({
       chart: {
         id: "vuechart-example",
-        height: 450,
+        height: 510,
         type: 'line',
         zoom: {
           enabled: false
