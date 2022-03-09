@@ -1,5 +1,70 @@
 export default [
    {
+      "categories": [],
+      "concept_id": 6686,
+      "name": 'Ultrasound'
+   },
+   {
+      "categories": [],
+      "concept_id": 7433,
+      "name": "Presentation"
+   },
+   {
+      "categories": [],
+      "concept_id": 7979,
+      "name": "Fetal Heart Beat"
+   },
+   {
+      "categories": [],
+      "concept_id": 9637,
+      "name": "Fetal movement heard"
+   },
+   {
+      "categories": [],
+      "concept_id": 9562,
+      "name": "Fetal movement felt"
+   },
+   {
+      "categories": [],
+      "concept_id": 7835,
+      "name": "Fundus" 
+   },
+   {
+      "categories": [],
+      "concept_id": 7837,
+      "name": "Position"
+   },
+   {
+      "categories": [],
+      "concept_id": 7142,
+      "name": "Multiple gestation"
+   },
+   {
+      "categories": [],
+      "concept_id": 7919,
+      "name": "LIQUOR"
+   },
+   {
+      "categories": [],
+      "concept_id": 9563,
+      "name": "Last Fetal movement felt"
+   },
+   {
+      "categories": [],
+      "concept_id": 7836,
+      "name": "Lie"
+   },
+   {
+      "categories": [],
+      "concept_id": 9654,
+      "name": "Fetal heart movement seen"
+   },
+   {
+      "categories": [],
+      "concept_id": 7839,
+      "name": "Fetal heart rate"
+   },
+   {
       "categories": ["anc_medical_history"],
       "concept_id": 5,
       "name": "Asthma"
@@ -481,9 +546,53 @@ export default [
       "name": "Qech outpatient diagnosis list"
    },
    {
-      "categories": [],
+      "categories": [
+         "anc_diagnosis"
+      ],
       "concept_id": 123,
       "name": "Malaria"
+   },
+   {
+      "categories": [
+         "anc_diagnosis"
+      ],
+      "concept_id": 3,
+      "name": "Anaemia"
+   },
+   {
+      "categories": [
+         "anc_diagnosis"
+      ],
+      "concept_id": 7941,
+      "name": "Pre-eclampsia"
+   },
+   {
+      "categories": [
+         "anc_diagnosis"
+      ],
+      "concept_id": 9665,
+      "name": "Vaginal bleeding"
+   },
+   {
+      "categories": [
+         "anc_diagnosis"
+      ],
+      "concept_id": 9664,
+      "name": "Early rupture of membranes"
+   },
+   {
+      "categories": [
+         "anc_diagnosis"
+      ],
+      "concept_id": 7883,
+      "name": "Premature labour"
+   },
+   {
+      "categories": [
+         "anc_diagnosis"
+      ],
+      "concept_id": 43,
+      "name": "Pneumonia"
    },
    {
       "categories": [],
@@ -2090,6 +2199,7 @@ export default [
    },
    {
       "categories": [
+         "anc_diagnosis",
          "stage_2_conditions_pedaids",
          "who_staging_conditions"
       ],
