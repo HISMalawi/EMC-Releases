@@ -127,6 +127,7 @@ export default defineComponent({
       patientsOnDTG.value = await DashboardService.getPatientsOnDTG(range)
       visits.value = await DashboardService.getVisits(range)
       appointments.value = await DashboardService.getAppointmentsDue(tomorrow)
+      appointmentsDue.value = await DashboardService.getMissedAppointments(today, range)
       txCurrent30.value = await DashboardService.getTXCurrent({
         start: today, 
         end: HisDate.subtract(today, 'days', 30).format(STANDARD_DATE_FORMAT)
@@ -135,7 +136,6 @@ export default defineComponent({
         start: today, 
         end: HisDate.subtract(today, 'days', 60).format(STANDARD_DATE_FORMAT)
       })
-      appointmentsDue.value = await DashboardService.getMissedAppointments(today, range)
       dueForViralLoad.value = await DashboardService.getPatientsDueForVL(range)
       defaulters.value = await DashboardService.getDefaulters(today, range)
     })
