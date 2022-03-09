@@ -1,16 +1,23 @@
 <template>
-  <p>Complete / incomplete visits</p>
-  <apexchart
-    width="100%"
-    type="line"
-    :options="options"
-    :series="series"
-  ></apexchart>
+  <ion-card>
+    <ion-card-header>
+      <ion-title>Complete / incomplete visits</ion-title>
+    </ion-card-header>
+    <ion-card-content>
+      <apexchart
+        width="100%"
+        type="line"
+        :options="options"
+        :series="series"
+      ></apexchart>
+    </ion-card-content>
+  </ion-card>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, PropType } from "vue";
 import HisDate from "@/utils/Date";
+import { IonCard, IonCardHeader, IonCardContent, IonTitle } from "@ionic/vue";
 
 export default defineComponent({
   name: "VisitStatsChart",
@@ -24,6 +31,7 @@ export default defineComponent({
       default: () => []
     }
   },
+  components: {IonCard, IonCardHeader, IonCardContent, IonTitle},
   setup(props) {
     const options = computed(() => ({
       chart: {
