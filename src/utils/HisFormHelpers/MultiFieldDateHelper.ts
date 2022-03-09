@@ -179,12 +179,39 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
         }
         return field.condition ? field.condition(f) : true
     }
+    /**
+     * Generates fulldate based on current date part, it's value and previously recorded date parts.
+     * @param value
+     * @param part
+     * @returns
+     */
+    const buildHelpTextDate = (value: any, part: 'month' | 'year' | 'day') => {
+        const parts = [
+            { type: 'year', value: yearValue, default: '????' },
+            { type: 'month', value: monthValue, default: '??' },
+            { type: 'day', value: dayValue, default: '??' },
+        ]
+        return parts.reduce((partValues: any, dpart: any) => {
+            if (part === dpart.type && value) {
+                partValues.push(value)
+            } else {
+                if (!dpart.value) {
+                    partValues.push(dpart.default)
+                } else {
+                    partValues.push(dpart.value)
+                }
+            }
+            return partValues
+        }, []).join('-')
+    }
+
+    // YEAR CONFIG
+    year.updateHelpTextOnValue = (data: any) => `${year.helpText} (${buildHelpTextDate(data?.label, 'year')})`
 
     year.proxyID = field.id
 
     year.unload = (v: Option) => yearValue = v.value.toString()
  
-    // YEAR CONFIG
     year.config = { ...year.config, ...field.config }
 
     year.defaultValue = () => getDefaultDate(field, 'Year')
@@ -257,6 +284,8 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     }
 
     // MONTH CONFIG
+    month.updateHelpTextOnValue = (data: any) => `${month.helpText} (${buildHelpTextDate(data?.label, 'month')})`
+
     month.proxyID = field.id
 
     month.unload = (v: Option) => monthValue = appendLeadingZero(v.value.toString())
@@ -292,10 +321,11 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
             return field.computeValue(fullDate, false)
         }
     }
-
+    // DAY CONFIG
     day.proxyID = field.id
 
-    // DAY CONFIG
+    day.updateHelpTextOnValue = (data: any) => `${year.helpText} (${buildHelpTextDate(data?.label, 'day')})`
+
     day.condition = (f: any) => !`${f[monthID].value}`.match(/unknown/i) && datePartCondition(f) 
 
     day.validation =  (v: Option, f: any, c: any) => {
