@@ -8,14 +8,13 @@
       <ion-card-subtitle class="ion-padding" v-else>{{
         value
       }}</ion-card-subtitle>
-      <ion-icon :icon="icon"></ion-icon>
+      <ion-icon :icon="icon" v-if="canShowIcon"></ion-icon>
     </ion-card-body>
   </ion-card>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent } from "vue";
-import { alertCircle } from "ionicons/icons";
 
 export default defineComponent({
   name: "DashboardCard",
@@ -30,13 +29,14 @@ export default defineComponent({
     },
     icon: {
       type: String,
-      default: alertCircle,
     },
   },
   setup(props) {
     const isLoading = computed(() => props.value === -1);
+    const canShowIcon = computed(() => !!props.icon?.length)
     return {
       isLoading,
+      canShowIcon
     };
   },
 });
