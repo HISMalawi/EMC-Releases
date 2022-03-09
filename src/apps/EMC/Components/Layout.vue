@@ -15,7 +15,8 @@
         <ion-item
           v-for="(p, i) in appPages" :key="i"
           :router-link="p.url" 
-          detail="true" 
+          detail="true"
+          button
           class="hydrated"
           >
           <ion-label v-show="facility">{{ p.title }}</ion-label>
