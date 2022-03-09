@@ -2,16 +2,16 @@ import { Service } from "@/services/service";
 
 export default class DashboardService {
 
-  static getVisits (startDate: string, endDate: string) {
-    return Service.getJsonSWR('programs/1/reports/visits', {
+  static getVisits (dateRange: Record<string, string>) {
+    return Service.getJson('programs/1/reports/visits', {
       'name': 'visits',
-      'start_date': startDate,
-      'end_date': endDate
+      'start_date': dateRange.start,
+      'end_date': dateRange.end
     })
   }
 
   static getMissedAppointments (today: string, range: Record<string, string>) {
-    return Service.getJsonSWR('missed_appointments', {
+    return Service.getJson('missed_appointments', {
       'date': today,
       'start_date': range.start,
       'end_date': range.end,
@@ -20,20 +20,20 @@ export default class DashboardService {
   }
 
   static getAppointmentsDue(dueDate: string) {
-    return Service.getJsonSWR('programs/1/booked_appointments', {
+    return Service.getJson('programs/1/booked_appointments', {
       date: dueDate
     })
   }
 
   static getPatientsDueForVL(dateRange: Record<string, string>){
-    return Service.getJsonSWR('programs/1/reports/vl_due', {
+    return Service.getJson('programs/1/reports/vl_due', {
       'start_date': dateRange.start,
       'endDate': dateRange.end
     })
   }
 
   static getDefaulters(today: string, dateRange: Record<string, string>) {
-    return Service.getJsonSWR('defaulter_list', {
+    return Service.getJson('defaulter_list', {
       'date': today,
       'start_date': dateRange.start,
       'end_date': dateRange.end,

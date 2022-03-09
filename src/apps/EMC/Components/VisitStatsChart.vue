@@ -9,48 +9,29 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from "vue";
-import DashboardService from "@/apps/EMC/services/dashboard.service";
+import { computed, defineComponent, PropType } from "vue";
 import HisDate from "@/utils/Date";
 
 export default defineComponent({
   name: "VisitStatsChart",
   props: {
-    startDate: {
-      type: String,
-      required: true
+    visits: {
+      type: Object as PropType<Record<string, number[]>>,
+      default: () => ({})
     },
-    endDate: {
-      type: String,
-      required: true
+    days: {
+      type: Object as PropType<string[]>,
+      default: () => []
     }
   },
   setup(props) {
-    const Visits = DashboardService.getVisits(props.startDate, props.endDate);
-    const days = computed(() =>
-      Visits.value ? Object.keys(Visits.value) : []
-    );
-    const formatedVisits = computed(() => {
-      const complete: Array<number> = [];
-      const incomplete: Array<number> = [];
-      days.value.forEach(day => {
-        complete.push(Visits.value[day].complete);
-        incomplete.push(Visits.value[day].incomplete);
-      });
-      return {
-        completeVisits: complete, 
-        incompleteVisits: incomplete
-      };
-    });
     const options = computed(() => ({
       chart: {
         id: "vuechart-example",
         height: 450,
       },
       xaxis: {
-        categories: days.value.map((date: string) =>
-          HisDate.toStandardHisDisplayFormat(date)
-        ),
+        categories: props.days.map(d => HisDate.toStandardHisDisplayFormat(d)),
       },
       noData: {
         text: "Loading data...",
@@ -69,11 +50,11 @@ export default defineComponent({
     const series = computed(() => [
       {
         name: "Complete Visits",
-        data: formatedVisits.value.completeVisits,
+        data: props.visits.complete,
       },
       {
         name: "Incomplete Visits",
-        data: formatedVisits.value.incompleteVisits,
+        data: props.visits.incomplete,
       },
     ]);
 

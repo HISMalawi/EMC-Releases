@@ -38,14 +38,17 @@
       </ion-row>
       <ion-row>
         <ion-col size="8">
-          <visit-stats-chart :startDate="range.start" :endDate="range.end" />
+          <visit-stats-chart
+            :days="days"
+            :visits="accumulativeVisits"
+          />
         </ion-col>
       </ion-row>
     </ion-grid>
   </layout>
 </template>
 <script lang="ts">
-import { computed, defineComponent, ref } from "vue";
+import { computed, defineComponent, onMounted, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
 import VisitStatsChart from "../Components/VisitStatsChart.vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
@@ -67,33 +70,52 @@ export default defineComponent({
     const range = HisDate.getDateQuarter(new Date());
     const today = HisDate.toStandardHisFormat(new Date());
     const tomorrow = HisDate.add(today, "day", 1).format(STANDARD_DATE_FORMAT);
-
-    const totalMissedAppointments = computed(() => {
-      return DashboardService.getMissedAppointments(today, range).value?.length || -1
-    });
-
-    const totalAppointmentsDue = computed(() => {
-      return DashboardService.getAppointmentsDue(tomorrow).value?.legnth || -1
-    });
-
-    const totalDueForVL = computed(() => {
-      return DashboardService.getPatientsDueForVL(range).value?.length || -1
+    const visits = ref<any>();
+    const days = computed<string[]>(() => visits.value && Object.keys(visits.value) || []);
+    const accumulativeVisits = computed(() => {
+      const complete: Array<number> = []
+      const incomplete: Array<number> = []
+      days.value.forEach(day => {
+        complete.push(visits.value[day].complete)
+        incomplete.push(visits.value[day].incomplete)
+      })
+      return {
+        complete,
+        incomplete
+      }
     })
 
-    const totalDefaulters = computed(() => {
-      return DashboardService.getDefaulters(today, range).value?.length || -1
+    const appointments = ref<any[]>()
+    const totalMissedAppointments = computed(() => appointments.value?.length || -1);
+
+    const appointmentsDue = ref<any[]>()
+    const totalAppointmentsDue = computed(() => appointmentsDue.value?.length || -1);
+
+    const dueForViralLoad = ref<any[]>()
+    const totalDueForVL = computed(() => dueForViralLoad.value?.length || -1);
+
+    const defaulters = ref<any[]>()
+    const totalDefaulters = computed(() => defaulters.value?.length || -1);
+
+    onMounted(async () => {
+      visits.value = await DashboardService.getVisits(range)
+      appointments.value = await DashboardService.getAppointmentsDue(tomorrow)
+      appointmentsDue.value = await DashboardService.getMissedAppointments(today, range)
+      dueForViralLoad.value = await DashboardService.getPatientsDueForVL(range)
+      defaulters.value = await DashboardService.getDefaulters(today, range)
     })
 
     return {
       people,
       calendar,
       alarm,
-      range,
       time,
       totalMissedAppointments,
       totalAppointmentsDue,
       totalDueForVL,
-      totalDefaulters
+      totalDefaulters,
+      days,
+      accumulativeVisits
     };
   },
 });
