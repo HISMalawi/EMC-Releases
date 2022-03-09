@@ -29,9 +29,18 @@ export default defineComponent({
       chart: {
         id: "vuechart-example",
         height: 450,
+        type: 'line',
+        zoom: {
+          enabled: false
+        }
       },
       xaxis: {
         categories: props.days.map(d => HisDate.toStandardHisDisplayFormat(d)),
+        tickAmount: 30,
+        labels: {
+          show: true,
+          rotate: -75,
+        }
       },
       noData: {
         text: "Loading data...",
