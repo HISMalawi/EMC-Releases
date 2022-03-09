@@ -102,8 +102,8 @@ export default defineComponent({
       }
     })
 
-    const appointments = ref<any[]>()
-    const totalMissedAppointments = computed(() => appointments.value?.length || -1);
+    const missedAppointments = ref<any[]>()
+    const totalMissedAppointments = computed(() => missedAppointments.value?.length || -1);
 
     const appointmentsDue = ref<any[]>()
     const totalAppointmentsDue = computed(() => appointmentsDue.value?.length || -1);
@@ -126,8 +126,8 @@ export default defineComponent({
     onMounted(async () => {
       patientsOnDTG.value = await DashboardService.getPatientsOnDTG(range)
       visits.value = await DashboardService.getVisits(range)
-      appointments.value = await DashboardService.getAppointmentsDue(tomorrow)
-      appointmentsDue.value = await DashboardService.getMissedAppointments(today, range)
+      appointmentsDue.value = await DashboardService.getAppointmentsDue(tomorrow)
+      missedAppointments.value = await DashboardService.getMissedAppointments(today, range)
       txCurrent30.value = await DashboardService.getTXCurrent({
         start: today, 
         end: HisDate.subtract(today, 'days', 30).format(STANDARD_DATE_FORMAT)
