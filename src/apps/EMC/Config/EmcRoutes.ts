@@ -8,4 +8,9 @@ export default [
     path: "/emc/dashboard",
     component: () => import("@/apps/EMC/views/Dashboard.vue"),
   },
+  {
+    name: "Search/ Create client",
+    path: "/emc/search",
+    component: () => import("@/apps/EMC/views/SearchPatient.vue"),
+  },
 ];

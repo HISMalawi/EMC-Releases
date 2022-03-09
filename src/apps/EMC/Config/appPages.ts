@@ -5,7 +5,7 @@ export const appPages = [
   },
   {
     title: "Search/ Create client",
-    url: "/emc/newpatient",
+    url: "/emc/search",
   },
   {
     title: "Reports",
