@@ -48,4 +48,11 @@ export default class DashboardService {
       'end_date': dateRange.end
     })
   }
+
+  static getTXCurrent(dateRange: Record<string, string>){
+    return Service.getJson('programs/1/reports/tx_curr', {
+      'start_date': dateRange.start,
+      'end_date': dateRange.end
+    })
+  }
 }

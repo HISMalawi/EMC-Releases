@@ -1,5 +1,5 @@
 <template>
-  <ion-card>
+  <ion-card class="his-card">
     <ion-card-header>
       <ion-title>Complete / incomplete visits</ion-title>
     </ion-card-header>

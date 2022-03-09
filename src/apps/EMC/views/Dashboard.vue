@@ -37,13 +37,21 @@
         </ion-col>
       </ion-row>
       <ion-row>
-        <ion-col size="3">
+        <ion-col size="2">
           <dashboard-card
             label="Patients on DTG"
             :value="totalPatientsOnDTG"
           />
+          <dashboard-card
+            label="TX Current (30 Days)"
+            :value="totalTXCurrent30"
+          />
+          <dashboard-card
+            label="TX Current (60 Days)"
+            :value="totalTXCurrent60"
+          />
         </ion-col>
-        <ion-col size="9">
+        <ion-col size="10">
           <visit-stats-chart
             :days="days"
             :visits="accumulativeVisits"
@@ -106,13 +114,27 @@ export default defineComponent({
     const patientsOnDTG = ref<any[]>()
     const totalPatientsOnDTG = computed(() => patientsOnDTG.value?.length || -1)
 
+    const txCurrent30 = ref<any[]>()
+    const totalTXCurrent30 = computed(() => txCurrent30.value?.length)
+
+    const txCurrent60 = ref<any[]>()
+    const totalTXCurrent60 = computed(() => txCurrent60.value?.length)
+
     onMounted(async () => {
+      patientsOnDTG.value = await DashboardService.getPatientsOnDTG(range)
       visits.value = await DashboardService.getVisits(range)
       appointments.value = await DashboardService.getAppointmentsDue(tomorrow)
+      txCurrent30.value = await DashboardService.getTXCurrent({
+        start: today, 
+        end: HisDate.subtract(today, 'days', 30).format(STANDARD_DATE_FORMAT)
+      })
+      txCurrent60.value = await DashboardService.getTXCurrent({
+        start: today, 
+        end: HisDate.subtract(today, 'days', 60).format(STANDARD_DATE_FORMAT)
+      })
       appointmentsDue.value = await DashboardService.getMissedAppointments(today, range)
       dueForViralLoad.value = await DashboardService.getPatientsDueForVL(range)
       defaulters.value = await DashboardService.getDefaulters(today, range)
-      patientsOnDTG.value = await DashboardService.getPatientsOnDTG(range)
     })
 
     return {
@@ -127,6 +149,8 @@ export default defineComponent({
       days,
       accumulativeVisits,
       totalPatientsOnDTG,
+      totalTXCurrent30,
+      totalTXCurrent60,
     };
   },
 });
