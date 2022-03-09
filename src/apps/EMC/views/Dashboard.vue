@@ -41,14 +41,17 @@
           <dashboard-card
             label="Patients on DTG"
             :value="totalPatientsOnDTG"
+            class="his-card"
           />
           <dashboard-card
             label="TX Current (30 Days)"
             :value="totalTXCurrent30"
+            class="his-card"
           />
           <dashboard-card
             label="TX Current (60 Days)"
             :value="totalTXCurrent60"
+            class="his-card"
           />
         </ion-col>
         <ion-col size="10">
