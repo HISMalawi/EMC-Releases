@@ -19,6 +19,7 @@ import { IonPage } from "@ionic/vue"
 import { ConceptService } from '@/services/concept_service'
 import { isEmpty } from 'lodash'
 import { alertConfirmation } from '@/utils/Alerts'
+import { NUMBERS_WITH_UNKNOWN } from "@/components/Keyboard/HisKbConfigurations"
 
 export default defineComponent({
   components: { IonPage },
@@ -261,7 +262,7 @@ export default defineComponent({
                     })
             },
             config: {
-                noChars: false
+                keypad: NUMBERS_WITH_UNKNOWN
             }
         },
         {
@@ -305,7 +306,7 @@ export default defineComponent({
                     })
             },
             config: {
-                noChars: false
+                keypad: NUMBERS_WITH_UNKNOWN
             }
         },
         {
