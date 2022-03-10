@@ -13,4 +13,9 @@ export default [
     path: "/emc/search",
     component: () => import("@/apps/EMC/views/SearchPatient.vue"),
   },
+  {
+    name: "Patient Regstration",
+    path: "/emc/patient/registration",
+    component: () => import("@/apps/EMC/views/PatientRegistration.vue"),
+  },
 ];
