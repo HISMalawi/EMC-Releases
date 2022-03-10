@@ -1,7 +1,7 @@
 <template>
   <ion-page> 
     <his-standard-form 
-      :fields="formFields"
+      :fields="fields"
       :skipSummary="true"
       :onFinishAction="onFinish"
     />
@@ -13,16 +13,16 @@ import EncounterMixinVue from '@/views/EncounterMixin.vue'
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import { defineComponent } from 'vue'
 import { AncExaminationService } from "@/apps/ANC/Services/anc_examination_service"
-import { Option } from '@/components/Forms/FieldInterface'
+import { Field, Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { IonPage } from "@ionic/vue"
 import { ConceptService } from '@/services/concept_service'
+import { isEmpty } from 'lodash'
 
 export default defineComponent({
   components: { IonPage },
   mixins: [EncounterMixinVue],
   data: () => ({
-    formFields: [] as any,
     service: {} as any
   }),
   watch: {
@@ -30,7 +30,7 @@ export default defineComponent({
       handler(ready: boolean) {
         if (ready) {
             this.service = new AncExaminationService(this.patientID, this.providerID)
-            this.formFields = this.getFields()
+            this.fields = this.getFields() as Field[]
         } 
       },
       immediate: true
@@ -108,9 +108,128 @@ export default defineComponent({
             condition: (f: any) => f.ultrasound.value === 'Yes',
             options: () => this.yesNoOptions()
         },
-        /**
-         * Add Presentation Field here
-         */
+        {
+            id: 'presentation',
+            helpText: 'Presentation',
+            type: FieldType.TT_GROUP_SELECTOR,
+            validation: (v: Option) => this.validateSeries([
+                () => Validation.required(v),
+                () => {
+                    /**
+                     * Validate if Presentation's value is selected
+                     */
+                    if (v && !v.value) {
+                        return [`Presentation cannot be Empty!`]
+                    } 
+                    return null
+                },
+                () => {
+                    /**
+                     * Validate if option has subgroup options but value is not selected
+                     */
+                    if (v && v?.other?.subGroupOptions && isEmpty(v?.other?.subGroupOptionValue)) {
+                        return [`${v?.other?.subgroupTitle || 'Subgroup'} has no value selected`]
+                    }
+                    return null
+                },
+                () => {
+                    /**
+                     * Validate if the subgroup with Options has selected items
+                     */
+                    if (v && !isEmpty(v?.other?.subGroupOptionValue) 
+                        && !isEmpty(v?.other?.subGroupOptionValue?.other?.options)
+                        && !v?.other?.subGroupOptionValue?.value) {
+                            return [`${v?.other?.subGroupOptionValue?.label}'s value isnt selected`]
+                        }
+                    return null
+                }
+            ]),
+            computedValue: (v: Option) => {
+                const obs = [this.service.buildValueText('Presentation', v.label)]
+                if (v?.other?.subGroupOptionValue?.value) {
+                    obs.push(this.service.buildValueText(
+                        'Position', v?.other?.subGroupOptionValue?.value
+                    ))
+                }
+                return obs
+            },
+            options: () => {
+                const toOption = (label: string, value='',other={}) => ({
+                    label, value, other
+                })
+                const subGroupOptions = [
+                    toOption('Vertex', '', {
+                        options: this.mapStrToOptions([
+                            'Left Occipito Anterior',
+                            'Left Occipito Transverse',
+                            'Left Occipito Posterior',
+                            'Right Occipito Anterior',
+                            'Right Occipito Transverse',
+                            'Right Occipito Posterior',
+                            'Unknown'
+                        ])
+                    }),
+                    this.toOption('Oblique'),
+                    this.toOption('Transverse'),
+                    this.toOption('Breech',{
+                        options: this.mapStrToOptions([
+                            'Left Sacro Anterior',
+                            'Left Sacro Transverse',
+                            'Left Sacro Posterior',
+                            'Right Sacro Anterior',
+                            'Right Sacro Transverse',
+                            'Right Sacro Posterior',
+                            'Unknown'
+                        ])
+                    }),
+                    toOption('Face', '', {
+                        concept: 'Position',
+                        options: this.mapStrToOptions([
+                            'Left Mento Anterior',
+                            'Left Mento Transverse',
+                            'Left Mento Posterior',
+                            'Right Mento Anterior',
+                            'Right Mento Transverse',
+                            'Right Mento Posterior',
+                            'Unknown'
+                        ])
+                    }),
+                    toOption('Shoulder', '', {
+                        options: this.mapStrToOptions([
+                            'Left Acromion Dorsal Anterior',
+                            'Left Acromion Dorsal Transverse',
+                            'Left Acromion Dorsal Posterior',
+                            'Right Acromion Dorsal Anterior',
+                            'Right Acromion Dorsal Transverse',
+                            'Right Acromion Dorsal Posterior',
+                            'Unknown'
+                        ])
+                    })
+                ]
+                return [
+                    toOption('Cephalic', '', {
+                        subGroupOptions,
+                        subgroupTitle: 'Cephalic Position',
+                        options: this.mapStrToOptions([
+                            'Right Occipito Anterior',
+                            'Left Occipito Anterior',
+                            'Unknown'
+                        ])
+                    }),
+                    toOption('Breech', '', {
+                        subGroupOptions,
+                        subgroupTitle: 'Breech Position',
+                        options: this.mapStrToOptions([
+                            'Right Sacro Anterior',
+                            'Left Sacro Anterior',
+                            'Unknown'
+                        ]),
+                    }),
+                    this.toOption('Ball'),
+                    this.toOption('Nill palpable')
+                ] as Option[]
+            }
+        },
         {
             id: 'enter_fundal_height',
             helpText: 'Fundal height (cm)',

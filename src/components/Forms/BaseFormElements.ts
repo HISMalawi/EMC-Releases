@@ -36,9 +36,11 @@ import IPAddressInput from "@/components/FormElements/HisIPAddress.vue"
 import TextBanner from "@/components/FormElements/HisTextBanner.vue"
 import DrugDispenser from "@/components/FormElements/GeneralDrugDispenser.vue"
 import HisDataTable from "@/components/FormElements/HisDataTable.vue"
+import HisGroupSelector from "@/components/FormElements/HisGroupSelector.vue"
 
 // Reference names for BaseFormComponents
 export enum FieldType {
+    TT_GROUP_SELECTOR = 'HisGroupSelector',
     TT_DATA_TABLE = 'HisDataTable',
     TT_NOTE = 'NoteInput',
     TT_BARCODE = 'BarcodeInput',
@@ -119,5 +121,6 @@ export const BaseFormComponents = {
     TextBanner,
     DrugDispenser,
     ClinicHolidayPicker,
-    NoteInput
+    NoteInput,
+    HisGroupSelector
 }

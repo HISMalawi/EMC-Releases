@@ -10,7 +10,6 @@ import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { ENCOUNTER_GUIDELINES, FlowState } from "@/guidelines/encounter_guidelines"
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
-import { sort } from 'fast-sort'
 
 export default defineComponent({
     components: { HisStandardForm },
