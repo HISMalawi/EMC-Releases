@@ -3,10 +3,10 @@
     <ion-grid>
       <ion-row>
         <ion-col>
-          <h1>Patients Search Results Table</h1>
+          
         </ion-col>
       </ion-row>
-      <ion-row>
+      <ion-row class="his-card">
         <ion-col size="10" style="display: flex; justify-content: flex-start">
           <ion-item class="ion-margin-end box" lines="none">
             <ion-input
@@ -27,13 +27,14 @@
           <ion-button class="searchBtn" @click="resetQuery" color="secondary">Reset</ion-button>
         </ion-col>
         <ion-col>
-          <ion-button class="searchBtn" @click="''" color="success" style="float: right;">
+          <ion-button class="searchBtn" href="/emc/patient/registration" color="success" style="float: right;">
             Add New Patient
           </ion-button>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="12" style="min-height: 320px; margin-top: .5rem">
+          <h1>Patients Search Results Table</h1>
           <report-data-table
             :rows="tableRows"
             :columns="tableColumns"
