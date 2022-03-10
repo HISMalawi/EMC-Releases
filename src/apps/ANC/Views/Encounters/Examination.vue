@@ -18,6 +18,7 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { IonPage } from "@ionic/vue"
 import { ConceptService } from '@/services/concept_service'
 import { isEmpty } from 'lodash'
+import { alertConfirmation } from '@/utils/Alerts'
 
 export default defineComponent({
   components: { IonPage },
@@ -27,9 +28,10 @@ export default defineComponent({
   }),
   watch: {
     ready: {
-      handler(ready: boolean) {
+      async handler(ready: boolean) {
         if (ready) {
             this.service = new AncExaminationService(this.patientID, this.providerID)
+            await this.service.loadFundusByLMP()
             this.fields = this.getFields() as Field[]
         } 
       },
@@ -234,6 +236,17 @@ export default defineComponent({
             id: 'enter_fundal_height',
             helpText: 'Fundal height (cm)',
             type: FieldType.TT_NUMBER,
+            beforeNext: async (v: Option) => {
+                const max = this.service.getMaxFundalHeight() || 45
+                if (v && v.value > max) {
+                    const ok = await alertConfirmation(`
+                        The value is bigger than maximum ${max}.
+                        Are you sure about this value?`
+                    )
+                    return ok ? true : false
+                }
+                return true
+            },
             validation: (v: Option) => this.validateSeries([
                 () => Validation.required(v),
                 () => Validation.rangeOf(v, 10, 45)

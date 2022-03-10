@@ -5,6 +5,7 @@ import { ConceptService } from "@/services/concept_service"
 
 export class AppEncounterService extends ObservationService {
     encounterTypeID: number;
+    programID: number;
     encounterID: number;
     providerID: number;
     patientID: number;
@@ -16,6 +17,7 @@ export class AppEncounterService extends ObservationService {
         this.encounterID = 0
         this.date = ObservationService.getSessionDate()
         this.providerID = providerID
+        this.programID = ObservationService.getProgramID()
     }
 
     getDate() {
