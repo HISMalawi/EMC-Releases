@@ -156,7 +156,7 @@ export default defineComponent({
                 }
                 return obs
             },
-            options: () => {
+            options: (f: any) => {
                 const toOption = (label: string, value='',other={}) => ({
                     label, value, other
                 })
@@ -209,7 +209,7 @@ export default defineComponent({
                         ])
                     })
                 ]
-                return [
+                return f.presentation  ? f.presentation : [
                     toOption('Cephalic', '', {
                         subGroupOptions,
                         subgroupTitle: 'Cephalic Position',
