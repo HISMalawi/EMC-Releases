@@ -22,10 +22,7 @@
           </div>
         </div>
         <div v-else-if="isActionButton(item)">
-          <ion-button 
-            :color="item?.color || 'primary'"
-            :style="item.style" 
-            @click="item.action(dataItems)">{{
+          <ion-button @click="item.action(dataItems)">{{
             item.name
           }}</ion-button>
         </div>
