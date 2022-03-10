@@ -346,10 +346,27 @@ export default defineComponent({
             helpText: 'Diagnosis',
             type: FieldType.TT_MULTIPLE_SELECT,
             validation: (v: Option) => Validation.required(v),
-            computedValue: (v: Option[]) => v.map(d => this.service.buildValueCoded(d.label, 'Yes')),
+            computedValue: (v: Option[]) => {
+                if (v && v.map(d => d.value).includes('None')) {
+                    return []
+                }
+                return v.map(d => this.service.buildValueCoded(d.label, 'Yes'))
+            },
+            onValueUpdate(listData: Option[], value: Option) {
+                return listData.map(l => {
+                    if (value.value === 'None' && l.value !='None') {
+                        l.isChecked = false
+                    }
+                    if (value.value != 'None' && value.isChecked && l.value === 'None') {
+                        l.isChecked = false
+                    }
+                    return l
+                })
+            },
             options: () => {
-                return ConceptService.getConceptsByCategory('anc_diagnosis')
-                    .map((c: any) => this.toOption(c.name)) as Option[]
+                const options = ConceptService.getConceptsByCategory('anc_diagnosis')
+                    .map((c: any) => ({...this.toOption(c.name), isChecked: false }))
+                return [...options, this.toOption('None')]  as Option[]
             }
         }
       ]
