@@ -516,15 +516,11 @@ export default defineComponent({
                     id: encounter.encounter_id,
                     columns: ['Observation', 'Value', 'Time'],
                     onVoid: async (reason: any) => {
-                        try {
-                            await EncounterService.voidEncounter(encounter.encounter_id, reason)
-                            _.remove(this.encountersCardItems, { label: encounter.type.name })
-                            await this.loadCardData(this.activeVisitDate as string)
-                            this.nextTask = await this.getNextTask(this.patientId)
-                            toastSuccess('Encounter has been voided!', 3000)
-                        }catch(e) {
-                            toastDanger('Unable to void encounter!')
-                        }
+                        await EncounterService.voidEncounter(encounter.encounter_id, reason)
+                        /**Refresh card data*/
+                        await this.loadCardData(this.activeVisitDate as string)
+                        this.nextTask = await this.getNextTask(this.patientId)
+                        toastSuccess('Encounter has been voided!', 2000)
                     },
                     getRows: async () => {
                         const data = []
