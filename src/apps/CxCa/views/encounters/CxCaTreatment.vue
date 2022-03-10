@@ -50,7 +50,7 @@ export default defineComponent({
       const reasons = ['Large Lesion (>75%)','Suspect cancer', 'Further Investigation and Management'];
       return reasons.includes(this.referralReason);
     },
-    async onFinish(formData: any) {
+    async onFinish(formData: any, computed: any) {
       const encounter = await this.reception.createEncounter();
 
       if (!encounter) return toastWarning("Unable to create encounter");
@@ -76,13 +76,22 @@ export default defineComponent({
         state
       );
       if (!saveState) return toastWarning("Unable to update state");
-      const data = formData["referral_outcome"];
-      const receptionObs = await this.reception.buildValueCoded(
-        "Cancer treatment procedure",
-        data.value
-      );
+      // const data = formData["referral_outcome"];
+      // const receptionObs = await this.reception.buildValueCoded(
+      //   "Cancer treatment procedure",
+      //   data.value
+      // );
 
-      const obs = await this.reception.saveObs(receptionObs);
+      // const obs = await this.reception.saveObs(receptionObs);
+      const vals: any = [];
+      Object.keys(computed).forEach(element => {
+        vals.push(computed[element].obs);
+      });
+      const data = await Promise.all([...vals]);
+
+      const obs = await this.reception.saveObservationList(data);
+
+      if (!obs) return toastWarning("Unable to save patient observations");
       toastSuccess("Observations and encounter created!");
       this.nextTask();
     },
@@ -118,6 +127,9 @@ export default defineComponent({
               'Cervical stage 4',
               'Not available',
             ]),
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueText('FIGO staging of cervical cancer', value.label)
+          })
         },
         {
           id: "type_of_sample_collected",
@@ -131,6 +143,9 @@ export default defineComponent({
               'LLETZ sample',
               'Not available',
             ]),
+          computedValue: (value: any) => ({
+            obs: this.reception.buildValueText('Sample', value.label)
+          })
         },
         {
           id: "histology_results",
@@ -149,6 +164,9 @@ export default defineComponent({
               'Benign cervical warts',
               'Not available',
             ]),
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueText('Sample', value.label)
+          })
         },
         {
           id: "complications",
@@ -162,6 +180,10 @@ export default defineComponent({
               'Pain',
               'None',
             ]),
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueText('Complications', value.label)
+          })
+
         },
         {
           id: "referral_outcome",
@@ -180,6 +202,9 @@ export default defineComponent({
               'Chronic cervicitis',
               'Patient refused',
             ]),
+          computedValue: (value: any) => ({
+            obs: this.reception.buildValueText('Treatment', value.label)
+          })
         },
         {
           id: "recommended_plan_of_care",
@@ -193,6 +218,9 @@ export default defineComponent({
               'Discharged',
               'Continue follow-up',
             ]),
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueText('Recommended Plan of care', value.label)
+          })
         },{
           id: "patient_outcome",
           helpText: "Patient outcome",
