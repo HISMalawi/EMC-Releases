@@ -238,7 +238,8 @@ export default defineComponent({
             type: FieldType.TT_NUMBER,
             beforeNext: async (v: Option) => {
                 const max = this.service.getMaxFundalHeight() || 45
-                if (v && v.value > max) {
+                const val: string | number = v ? parseInt(v.value as string) : -1
+                if (v && typeof val === 'number' && val > max) {
                     const ok = await alertConfirmation(`
                         The value is bigger than maximum ${max}.
                         Are you sure about this value?`
@@ -279,10 +280,22 @@ export default defineComponent({
             id: 'fetal_heart_rate',
             helpText: 'Fetal heart rate',
             type: FieldType.TT_NUMBER,
-            validation: (v: Option) => this.validateSeries([
-                () => Validation.required(v),
-                () => Validation.rangeOf(v, 120, 140)
-            ]),
+            validation: (v: Option) => Validation.required(v),
+            beforeNext: async (v: Option) => {
+                const min = 120
+                const max = 140
+                const val: string | number = v ? parseInt(v.value as string) : -1
+                if (v && typeof val === 'number') {
+                    if (val < min || val > max) {
+                        const ok = await alertConfirmation(`
+                            The value is out of Range of ${min} - ${max}.
+                            Are you sure about this value?`
+                        )
+                        return ok ? true : false
+                    }
+                }
+                return true
+            },
             condition: (f: any) => f.fetal_heart_beat.value === 'Heard',
             computedValue: (v: Option) => {
                 return v.value != 'Unknown'
