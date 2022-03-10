@@ -23,7 +23,8 @@
               <ion-select-option value="F">Female</ion-select-option>
             </ion-select>
           </ion-item>
-          <ion-button class="searchBtn ion-margin-end" @click="searchPatient">Search</ion-button>
+          <ion-button class="searchBtn" @click="searchPatient">Search</ion-button>
+          <ion-button class="searchBtn" @click="resetQuery" color="secondary">Reset</ion-button>
         </ion-col>
         <ion-col>
           <ion-button class="searchBtn" @click="''" color="success" style="float: right;">
@@ -147,6 +148,12 @@ export default defineComponent({
       }
     };
 
+    const resetQuery = () => {
+      searchText.value = ''
+      gender.value = ''
+      tableRows.value = []
+    }
+
     return {
       searchText,
       gender,
@@ -154,6 +161,7 @@ export default defineComponent({
       tableColumns,
       tableConfig,
       searchPatient,
+      resetQuery
     };
   },
 });
@@ -171,5 +179,6 @@ export default defineComponent({
   height: 50px !important;
   margin-top: 0;
   margin-bottom: 0;
+  margin-right: .5rem;
 }
 </style>
