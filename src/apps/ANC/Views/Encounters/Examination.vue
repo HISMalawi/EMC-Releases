@@ -226,7 +226,7 @@ export default defineComponent({
                         ]),
                     }),
                     this.toOption('Ball'),
-                    this.toOption('Nill palpable')
+                    this.toOption('Nil palpable')
                 ] as Option[]
             }
         },
@@ -296,7 +296,7 @@ export default defineComponent({
             helpText: 'Fetal movement felt',
             type: FieldType.TT_SELECT,
             validation: (v: Option) => Validation.required(v),
-            condition: (f: any) => f.presentation.value != 'Ball' || f.presentation.value != 'Nil palpable',
+            condition: (f: any) => !['Ball', 'Nil palpable'].includes(f.presentation.label),
             computedValue: (v: Option) => this.service.buildValueCoded('Fetal movement felt', `${v.value}`),
             options: () => this.yesNoUnknownOptions()
         },
