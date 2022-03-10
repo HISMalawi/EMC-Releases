@@ -152,7 +152,7 @@ export default defineComponent({
                 type: FieldType.TT_TABLE_VIEWER,
                 condition: () => this.activity === 'edit' && UserService.isAdmin(),
                 options: async (f: any, c: any, table: any) => {
-                    const statusRowIndex = 4
+                    const statusRowIndex = 3
                     const columns = ['Attributes', 'Values', 'Actions']
                     const deactivateButton = (status: string) => ({
                         name: status === 'Active' ? 'Deactivate' : 'Activate' ,
@@ -184,13 +184,15 @@ export default defineComponent({
                             this.fieldComponent = this.activeField
                         }
                     })
+                    const rowBtns = [navButton('Add/Append Role', 'add_roles')]
+                    if (this.userData.role.split(',').length > 1) {
+                        rowBtns.push(navButton('Remove Role', 'remove_roles'))
+                    }
                     const rows = [
-                        ['Username', this.userData.username, ''],
-                        ['Role', this.userData.role, navButton('Update role', 'roles')],
-                        ['Name', `${this.userData.given_name} ${this.userData.family_name}`, navButton('Edit usernames', 'given_name')],
-                        ['Password', '*******', navButton('Change password', 'new_password')],
-                        ['Status', this.userData.status,  deactivateButton(this.userData.status)],
-                        ['Date created', this.userData.created, ''],
+                        ['<b>Name</b>', `${this.userData.given_name} ${this.userData.family_name}`, navButton('Edit Name', 'given_name'), ''],
+                        ['<b>Password</b>', '*******', navButton('Change password', 'new_password'), ''],
+                        ['<b>Role</b>', this.userData.role.split(',').join('<br/>'), ...rowBtns],
+                        ['<b>Status</b>', this.userData.status,  deactivateButton(this.userData.status), ''],
                     ]
                     return [{
                         label: '',
