@@ -2,8 +2,13 @@
   <Layout>
     <ion-grid>
       <ion-row>
-        <ion-col size="12" style="display: flex; justify-content: center">
-          <ion-item class="ion-margin-horizontal box" lines="none">
+        <ion-col>
+          <h1>Patients Search Results Table</h1>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="10" style="display: flex; justify-content: flex-start">
+          <ion-item class="ion-margin-end box" lines="none">
             <ion-input
               style="min-width: 350px"
               placeholder="Search by Name or ARV Number"
@@ -11,14 +16,28 @@
               v-on:keyup.enter="searchPatient"
             />
           </ion-item>
-          <ion-item class="ion-margin-horizontal box" lines="none">
+          <ion-item class="ion-margin-end box" lines="none">
             <label class="ion-padding-end">Select Gender </label>
             <ion-select v-model="gender">
               <ion-select-option value="M">Male</ion-select-option>
               <ion-select-option value="F">Female</ion-select-option>
             </ion-select>
           </ion-item>
-          <ion-button class="searchBtn" @click="searchPatient">Search</ion-button>
+          <ion-button class="searchBtn ion-margin-end" @click="searchPatient">Search</ion-button>
+        </ion-col>
+        <ion-col>
+          <ion-button class="searchBtn" @click="''" color="success" style="float: right;">
+            Add New Patient
+          </ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12" style="min-height: 320px; margin-top: .5rem">
+          <report-data-table
+            :rows="tableRows"
+            :columns="tableColumns"
+            :config="tableConfig"
+          />
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -26,27 +45,43 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonGrid, IonRow, IonCol, loadingController, IonItem, IonInput, IonSelect, IonSelectOption } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import { toastWarning } from "@/utils/Alerts";
+import ReportDataTable from "@/components/DataViews/tables/ReportDataTable.vue";
+import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 
 export default defineComponent({
   components: {
     Layout,
-    IonGrid, 
-    IonRow, 
+    IonGrid,
+    IonRow,
     IonCol,
     IonItem,
     IonInput,
     IonSelect,
-    IonSelectOption
+    IonSelectOption,
+    ReportDataTable
   },
   setup() {
     const searchText = ref("");
     const gender = ref("");
+    const tableRows = ref<RowInterface[][]>([])
+    const tableColumns: ColumnInterface[][] = [[
+      table.thTxt('ARV Number'),
+      table.thTxt('First Name'),
+      table.thTxt('Last Name'),
+      table.thTxt('Gender'),
+      table.thTxt('Date of Birth'),
+      table.thTxt('Actions', {colspan: 2}),
+    ]]
+    const tableConfig = { 
+      showIndex: false,
+      cssClasses: "table-bordered table-striped his-card"
+    }
 
     const parseSearchText = async (nameOrArvNumber: string) => {
       if (nameOrArvNumber.match(/^(\w+-ARV-\w+)$/)) {
@@ -87,12 +122,23 @@ export default defineComponent({
         loader.present();
         try {
           const { type, value } = await parseSearchText(searchText.value);
-          const results = (type === "name")
+          const results: any[] = (type === "name")
             ? await Patientservice.search(buildSearchByNameQuery(value, gender.value))
             : (type === 'arv_number')
             ? await Patientservice.findByOtherID(4, value)
             : []
-            console.log(results)
+          tableRows.value = results.map(r => {
+            const patient = new Patientservice(r)
+            return [
+              table.td(patient.getArvNumber() || 'N/A'),
+              table.td(patient.getGivenName()),
+              table.td(patient.getFamilyName()),
+              table.td(patient.getGender()),
+              table.tdDate(patient.getBirthdate().toString()),
+              table.tdBtn('Select', () => console.log(patient)),
+              table.tdBtn('Void', () => console.log(patient), {}, 'danger')
+            ]
+          })
         } catch (error) {
           toastWarning(error)
         } finally {
@@ -104,6 +150,9 @@ export default defineComponent({
     return {
       searchText,
       gender,
+      tableRows,
+      tableColumns,
+      tableConfig,
       searchPatient,
     };
   },
