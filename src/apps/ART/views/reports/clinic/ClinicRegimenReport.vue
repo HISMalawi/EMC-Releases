@@ -8,6 +8,9 @@
         :reportReady="reportReady"
         :isLoading="isLoading"
         :onReportConfiguration="onPeriod"
+        :config="{
+                showIndex: false
+        }"
         > 
     </report-template>
 </template>
@@ -32,9 +35,11 @@ export default defineComponent({
                 table.thTxt('ARV#'),
                 table.thTxt('Gender'),
                 table.thTxt('DOB'),
+                table.thTxt('ART start date'),
+                table.thTxt('Weight (KG)'),
                 table.thTxt('Curr.Reg'),
                 table.thTxt('ARVs'), 
-                table.thTxt('Curr.reg dispensed')
+                table.thTxt('Dispensed date')
             ]
         ]
     }),
@@ -65,6 +70,8 @@ export default defineComponent({
                     table.td(d.arv_number),
                     table.td(d.gender),
                     table.tdDate(d.birthdate),
+                    table.tdDate(d.art_start_date),
+                    table.td(d.current_weight),
                     table.td(d.current_regimen),
                     table.td(medications.join(', ')),
                     table.tdDate(lastDispenseDate)
