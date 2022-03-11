@@ -28,5 +28,10 @@ export default [
         name: 'social history',
         path: '/anc/social_history/:patient_id',
         component: () => import("@/apps/ANC/Views/Encounters/SocialHistory.vue")
+    },
+    {
+        name: 'lab results',
+        path: '/anc/lab_results/:patient_id',
+        component: () => import("@/apps/ANC/Views/Encounters/LabResults.vue")
     }
 ]
