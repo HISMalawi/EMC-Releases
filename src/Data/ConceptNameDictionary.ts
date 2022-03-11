@@ -1,6 +1,31 @@
 export default [
    {
       "categories": [],
+      "concept_id" : 3340,
+      "name" : "Currently taking alcohol"
+   },
+   {
+      "categories": [],
+      "concept_id" : 1057,
+      "name": "Never Married"
+   },
+   {
+      "categories": [],
+      "concept_id" :5555,
+      "name": "Married"
+   },
+   {
+      "categories": [],
+      "concept_id" :1056,
+      "name": "Seperated"
+   },
+   {
+      "categories": [],
+      "concept_id": 1058,
+      "name": "Divorced",
+   },
+   {
+      "categories": [],
       "concept_id": 6686,
       "name": 'Ultrasound'
    },
