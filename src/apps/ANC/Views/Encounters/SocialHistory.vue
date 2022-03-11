@@ -171,3 +171,8 @@ export default defineComponent({
     }
 })
 </script>
+<style scoped>
+    .his-card {
+        padding: 2px;
+    }
+</style>
