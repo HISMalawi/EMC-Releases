@@ -115,7 +115,7 @@ export default defineComponent({
             'given_name': names.given_name,
             'family_name': names.family_name,
             'username': userObj.username,
-            'role': userObj.roles.map((r: any) => r.role).join(','),
+            'role': userObj.roles.map((r: any) => r.role),
             'created': HisDate.toStandardHisDisplayFormat(userObj.date_created),
             'status': userObj.deactivated_on ? 'Inactive' : 'Active'
         }
@@ -198,13 +198,13 @@ export default defineComponent({
                         }
                     })
                     const rowBtns = [navButton('Add/Append Role', 'roles')]
-                    if (this.userData.role.split(',').length > 1) {
+                    if (this.userData.role.length > 1) {
                         rowBtns.push(navButton('Remove Role', 'remove_roles'))
                     }
                     const rows = [
                         ['<b>Name</b>', `${this.userData.given_name} ${this.userData.family_name}`, navButton('Edit Name', 'given_name'), ''],
                         ['<b>Password</b>', '*******', navButton('Change password', 'new_password'), ''],
-                        ['<b>Role</b>', this.userData.role.split(',').join('<br/>'), ...rowBtns],
+                        ['<b>Role</b>', this.userData.role.join('<br/>'), ...rowBtns],
                         ['<b>Status</b>', this.userData.status,  deactivateButton(this.userData.status), ''],
                     ]
                     return [{
@@ -274,8 +274,8 @@ export default defineComponent({
                 type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 condition: () => this.editConditionCheck(['remove_roles']) && UserService.isAdmin() && this.activity === 'edit',
-                computedValue: (v: Option) => this.userData.role.split(',').filter((i: string) => i != v.label),
-                options: () => this.mapToOption(this.userData.role.split(',')),
+                computedValue: (v: Option) => this.userData.role.filter((i: string) => i != v.label),
+                options: () => this.mapToOption(this.userData.role),
                 config: {
                     showKeyboard: true
                 }
