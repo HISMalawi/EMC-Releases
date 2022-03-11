@@ -192,10 +192,15 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
             { type: 'day', value: dayValue, default: 'DD' },
         ]
         return parts.reduce((partValues: any, dpart: any) => {
-            if (part === dpart.type && value) {
-                partValues.push(value)
+            const wl = [null, undefined, 'Unknown', '']
+            if (part === dpart.type) {
+                if (wl.includes(value)) {
+                    partValues.push(dpart.default)
+                } else {
+                    partValues.push(value)
+                }
             } else {
-                if (!dpart.value) {
+                if (wl.includes(dpart.value)) {
                     partValues.push(dpart.default)
                 } else {
                     partValues.push(dpart.value)
