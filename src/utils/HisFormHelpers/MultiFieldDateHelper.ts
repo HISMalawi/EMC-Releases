@@ -324,7 +324,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     // DAY CONFIG
     day.proxyID = field.id
 
-    day.updateHelpTextOnValue = (data: any) => `${year.helpText} (${buildHelpTextDate(data?.label, 'day')})`
+    day.updateHelpTextOnValue = (data: any) => `${day.helpText} (${buildHelpTextDate(data?.label, 'day')})`
 
     day.condition = (f: any) => !`${f[monthID].value}`.match(/unknown/i) && datePartCondition(f) 
 
