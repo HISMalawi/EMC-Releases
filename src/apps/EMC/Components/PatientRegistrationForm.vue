@@ -5,16 +5,31 @@
           <ion-title class=" ion-text-center ion-margin-vertical"><b>Personal Details</b></ion-title>
           <ion-row class="ion-margin-bottom">
             <ion-col size="4">
-              <ion-label style="margin-bottom: 1em">First Name (*): </ion-label>
-              <ion-input v-model="patient.givenName.value" placeholder="First Name" class="box ion-margin-top" />
+              <ion-label>First Name (*): </ion-label>
+              <ion-input 
+                v-model="patient.givenName.value"
+                placeholder="First Name" 
+                class="ion-margin-top"
+                :class="patient.givenName.hasErrors ? 'box-error' : 'box'" 
+              />
             </ion-col>
             <ion-col size="4">
               <ion-label class="ion-padding-end">Middle Name: </ion-label>
-              <ion-input v-model="patient.middleName.value" class="box ion-margin-top" placeholder="Middle Name" />
+              <ion-input 
+                v-model="patient.middleName.value" 
+                class="ion-margin-top" 
+                placeholder="Middle Name"
+                :class="patient.middleName.hasErrors ? 'box-error' : 'box'"
+              />
             </ion-col>
             <ion-col size="4">
               <ion-label class="ion-padding-end">Family Name (*): </ion-label>
-              <ion-input  v-model="patient.familyName.value" class="box ion-margin-top" placeholder="Family Name" />
+              <ion-input 
+                v-model="patient.familyName.value" 
+                class="ion-margin-top" 
+                placeholder="Family Name"
+                :class="patient.familyName.hasErrors ? 'box-error' : 'box'"
+              />
             </ion-col>
           </ion-row>
           <ion-row class="ion-margin-bottom">
@@ -34,25 +49,57 @@
               <ion-row>
                 <template v-if="estimateAge">
                   <ion-col size="12">
-                    <ion-input v-model="patient.birthdate.age" class="box" :min="1" type="number" placeholder="Enter age estimate" />
+                    <ion-input 
+                      v-model="patient.birthdate.age" 
+                      :class="patient.birthdate.hasErrors ? 'box-error' : 'box'" 
+                      :min="1" 
+                      :max="120" 
+                      type="number" 
+                      placeholder="Enter age estimate" 
+                    />
                   </ion-col>
                 </template>
                 <template v-else>
                   <ion-col size="4">
-                    <ion-input v-model="patient.birthdate.day" class="box" :min="1" type="number" placeholder="DD" />
+                    <ion-input 
+                      v-model="patient.birthdate.day" 
+                      :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
+                      :min="1" 
+                      :max="31"
+                      type="number" 
+                      placeholder="DD" 
+                    />
                   </ion-col>
                   <ion-col size="4">
-                    <ion-input v-model="patient.birthdate.month" class="box" :min="1" type="number" placeholder="MM" />
+                    <ion-input 
+                      v-model="patient.birthdate.month" 
+                      :class="patient.birthdate.hasErrors ? 'box-error' : 'box'" 
+                      :min="1"
+                      :max="12"
+                      type="number" 
+                      placeholder="MM" 
+                    />
                   </ion-col>
                   <ion-col size="4">
-                    <ion-input v-model="patient.birthdate.year" class="box" :min="1920" type="number" placeholder="YYYY" />
+                    <ion-input 
+                      v-model="patient.birthdate.year" 
+                      :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
+                      :min="1920" 
+                      type="number" 
+                      placeholder="YYYY" 
+                    />
                   </ion-col>
                 </template>
               </ion-row>
             </ion-col>
             <ion-col size="5" style="padding-top: .4rem;">
               <ion-label >Gender (*): </ion-label>
-              <ion-select class="box ion-margin-top" v-model="patient.gender.value">
+              <ion-select 
+                class="ion-margin-top"
+                :class="patient.gender.hasErrors ? 'box-error' : 'box'" 
+                v-model="patient.gender.value"
+                placeholder="select gender"
+              >
                 <ion-select-option>Male</ion-select-option>
                 <ion-select-option>Female</ion-select-option>
               </ion-select>
@@ -67,7 +114,13 @@
                   <ion-checkbox v-model="patientPhoneUnknown"></ion-checkbox>
                 </span>
               </ion-label>
-              <ion-input v-model="patient.cellphone.value" :disabled="patient.cellphone.disabled" placeholder="Cellphone Number" class="box ion-margin-top" />
+              <ion-input 
+                v-model="patient.cellphone.value" 
+                :disabled="patient.cellphone.disabled" 
+                placeholder="Cellphone Number" 
+                class="ion-margin-top"
+                :class="patient.cellphone.hasErrors ? 'box-error' : 'box'"
+              />
             </ion-col>
           </ion-row>
           <ion-title class=" ion-text-center ion-margin-vertical"><b>Physical Address</b></ion-title>
@@ -80,8 +133,20 @@
                   <ion-checkbox v-model="addCustomVillage"></ion-checkbox>
                 </span>
               </ion-label>
-              <ion-input v-if="addCustomVillage" v-model="patient.homeVillage.value" placeholder="enter village" class="box ion-margin-top" />
-              <ion-select class="box ion-margin-top" placeholder="Select Village" v-model="patient.homeVillage.value" v-else>
+              <ion-input 
+                v-if="addCustomVillage" 
+                v-model="patient.homeVillage.value" 
+                placeholder="enter village" 
+                class="ion-margin-top"
+                :class="patient.homeVillage.hasErrors ? 'box-error' : 'box'"
+              />
+              <ion-select 
+                class="ion-margin-top"
+                :class="patient.homeVillage.hasErrors ? 'box-error' : 'box'"
+                placeholder="Select Village" 
+                v-model="patient.homeVillage.value" 
+                v-else
+              >
                 <ion-select-option>Test Village</ion-select-option>
                 <ion-select-option>Test Village</ion-select-option>
               </ion-select>
@@ -94,8 +159,20 @@
                   <ion-checkbox v-model="addCustomLandmark"></ion-checkbox>
                 </span> 
               </ion-label>
-              <ion-input v-if="addCustomLandmark" v-model="patient.landmark.value" placeholder="enter closest landmark or plot number" class="box ion-margin-top" />
-              <ion-select class="box ion-margin-top" placeholder="Select Landmark" v-model="patient.landmark.value" v-else>
+              <ion-input 
+                v-if="addCustomLandmark" 
+                v-model="patient.landmark.value" 
+                placeholder="enter closest landmark or plot number" 
+                class="ion-margin-top"
+                :class="patient.landmark.hasErrors ? 'box-error' : 'box'"
+              />
+              <ion-select 
+                class="ion-margin-top"
+                :class="patient.landmark.hasErrors ? 'box-error' : 'box'"
+                placeholder="Select Landmark" 
+                v-model="patient.landmark.value" 
+                v-else
+              >
                 <ion-select-option>Church</ion-select-option>
                 <ion-select-option>Primary School</ion-select-option>
               </ion-select>
@@ -111,11 +188,23 @@
           <ion-row class="ion-margin-bottom">
             <ion-col size="4">
               <ion-label>First Name (*): </ion-label>
-              <ion-input v-model="guardian.givenName.value" :disabled="guardian.givenName.disabled" placeholder="First Name" class="box ion-margin-top" />
+              <ion-input 
+                v-model="guardian.givenName.value" 
+                :disabled="guardian.givenName.disabled" 
+                placeholder="First Name" 
+                class="ion-margin-top" 
+                :class="guardian.givenName.hasErrors ? 'box-error' : 'box'"
+              />
             </ion-col>
             <ion-col size="4">
               <ion-label>Family Name (*): </ion-label>
-              <ion-input v-model="guardian.familyName.value" :disabled="guardian.familyName.disabled" class="box ion-margin-top" placeholder="Family Name" />
+              <ion-input 
+                v-model="guardian.familyName.value" 
+                :disabled="guardian.familyName.disabled" 
+                class="ion-margin-top" 
+                placeholder="Family Name" 
+                :class="guardian.familyName.hasErrors ? 'box-error' : 'box'"
+              />
             </ion-col>
             <ion-col size="4">
               <ion-label>
@@ -125,9 +214,18 @@
                   <ion-checkbox v-model="guardianPhoneUnknown"></ion-checkbox>
                 </span>
               </ion-label>
-              <ion-input v-model="guardian.cellphone.value" :disabled="guardian.cellphone.disabled" placeholder="Cellphone Number" class="box ion-margin-top" />
+              <ion-input 
+                v-model="guardian.cellphone.value" 
+                :disabled="guardian.cellphone.disabled" 
+                placeholder="Cellphone Number" 
+                class="ion-margin-top" 
+                :class="guardian.cellphone.hasErrors ? 'box-error' : 'box'"
+              />
             </ion-col>
           </ion-row>
+          <ion-title class="ion-text-center ion-margin-top ion-padding-top errors" v-if="hasErrors">
+            <b>All required fields (*) must be completed before proceeding.</b>
+          </ion-title>
         </ion-col>
       </ion-row>
   </ion-grid>
@@ -148,6 +246,10 @@ export default defineComponent({
       type: Object as PropType<Record<string, any>>,
       required: true
     },
+    hasErrors: {
+      type: Boolean,
+      default: false
+    }
   },
   components: {
     IonGrid,
@@ -222,5 +324,16 @@ export default defineComponent({
 .checkbox-label {
   color: rgb(67, 149, 204);
   font-weight: bold;
+}
+
+.errors {
+  color: red;
+}
+
+.box-error {
+  border-color: red;
+  border-width: thin;
+  border-style: solid;
+  border-radius: 3px;
 }
 </style>

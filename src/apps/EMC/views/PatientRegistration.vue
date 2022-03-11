@@ -10,6 +10,7 @@
         <PatientRegistrationForm
           :patientDetails="patient"
           :guardianDetails="guardian"
+          :hasErrors="hasErrors"
           @updatePatient="updatePatient"
           @updateGuardian="updateGuardian"
         />
@@ -26,11 +27,12 @@
 <script lang="ts">
 import { defineComponent, reactive, ref, watch } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import { IonGrid, IonRow, IonCol, IonInput, IonSelect, IonSelectOption, IonCheckbox } from "@ionic/vue";
+import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import { toastWarning } from "@/utils/Alerts";
 import PatientRegistrationForm from "../Components/PatientRegistrationForm.vue";
+import Validation from "@/components/Forms/validations/StandardValidations"
 
 export default defineComponent({
   components: {
@@ -38,66 +40,84 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    IonInput,
-    IonSelect,
-    IonSelectOption,
-    IonCheckbox,
     PatientRegistrationForm
 },
   setup() {
+    const hasErrors = ref(false)
     const patient = reactive<Record<string, any>>({
       givenName: {
-        required: true,
-        disabled: false,
-        value: ''
+        value: '',
+        validation: (name: string) => Validation.validateSeries([
+          () => Validation.isName(name),
+          () => Validation.required(name)
+        ]) 
       },
       familyName: {
-        required: true,
-        disabled: false,
-        value: ''
+        value: '',
+        validation: (name: string) => Validation.validateSeries([
+          () => Validation.isName(name),
+          () => Validation.required(name)
+        ])        
       },
       middleName: {
-        required: false,
-        disabled: false,
         value: '',
+        validation: (name: string) => name.length && Validation.isName(name)
       },
       gender: {
-        required: true,
-        disabled: false,
-        value: ''
+        value: '',
+        validation: (gender: string) => Validation.isName(gender)
       },
       birthdate: {
-        required: true,
         day: '',
         month: '',
-        year: ''
+        year: '',
+        age: '',
+        validation: (dateOrAge: string) => Validation.required(dateOrAge)
       },
       cellphone: {
-        required: true,
-        value: ''
+        value: '',
+        validation: (phone: string) => Validation.validateSeries([
+          () => Validation.isMWPhoneNumber(phone),
+          () => Validation.required(phone)
+        ])
       },
       homeVillage: {
-        required: true,
-        value: ''
+        value: '',
+        validation: (name: string) => Validation.validateSeries([
+          () => Validation.isName(name),
+          () => Validation.required(name)
+        ])
       },
       landmark: {
-        required: true,
-        value: ''
+        value: '',
+        validation: (name: string) => Validation.validateSeries([
+          () => Validation.isName(name),
+          () => Validation.required(name)
+        ])
       },
     })
 
     const guardian = reactive<Record<string, any>>({
       givenName: {
-        required: true,
-        value: ''
+        value: '',
+        validation: (name: string) => Validation.validateSeries([
+          () => Validation.isName(name),
+          () => Validation.required(name)
+        ])
       },
       familyName: {
-        required: true,
-        value: ''
+        value: '',
+        validation: (name: string) => Validation.validateSeries([
+          () => Validation.isName(name),
+          () => Validation.required(name)
+        ])
       },
       cellphone: {
-        required: true,
-        value: ''
+        value: '',
+        validation: (phone: string) => Validation.validateSeries([
+          () => Validation.isMWPhoneNumber(phone),
+          () => Validation.required(phone)
+        ])
       },
     })
 
@@ -109,13 +129,36 @@ export default defineComponent({
       Object.assign(patient, newPatient)
     }
 
+    const isClientDetailsInvalid = (client: Record<string, any>) => {
+      let isInvalid = false;
+      for (const key in client){
+        if(key === 'birthdate') {
+          client.birthdate.hasErrors = (!client.birthdate.day || !client.birthdate.month || !client.birthdate.year) && !client.birthdate.age
+          isInvalid = !!client.birthdate.hasErrors
+        } else if(client[key].value !== 'Unknown'){
+          const errs = client[key].validation({value: client[key].value, label: ''})
+          if(errs) {
+            client[key].hasErrors = true,
+            isInvalid = true
+          } else {
+            client[key].hasErrors = false
+          }
+        } else {
+          client[key].hasErrors = false
+        }      
+      }
+      return isInvalid
+    }
+
     const goNext = () => {
-      console.log(patient)
+      // double negation to force execution of all conditions
+      hasErrors.value = !(!isClientDetailsInvalid(patient) || !isClientDetailsInvalid(guardian))
     }
 
     return {
       patient,
       guardian,
+      hasErrors,
       updatePatient,
       updateGuardian,
       goNext,
