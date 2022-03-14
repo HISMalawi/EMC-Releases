@@ -33,7 +33,7 @@
             </ion-col>
           </ion-row>
           <ion-row class="ion-margin-bottom">
-            <ion-col size="6">
+            <ion-col size="4">
               <ion-label>
                 <span v-if="estimateAge">Estimage Age (*):</span>
                 <span v-else>Date of Birth (*):</span>
@@ -60,7 +60,7 @@
                 type="date"
               />
             </ion-col>
-            <ion-col size="6">
+            <ion-col size="4">
               <ion-label >Gender (*): </ion-label>
               <ion-select 
                 class="ion-margin-top"
@@ -72,9 +72,7 @@
                 <ion-select-option>Female</ion-select-option>
               </ion-select>
             </ion-col>
-          </ion-row>
-          <ion-row class="ion-margin-bottom">
-            <ion-col size="12">
+            <ion-col size="4">
               <ion-label>
                 Cellphone Number (*):
                 <span class="ion-float-right ion-margin-end checkbox-label">
@@ -91,7 +89,7 @@
               />
             </ion-col>
           </ion-row>
-          <ion-title class=" ion-text-center ion-margin-vertical"><b>Physical Address</b></ion-title>
+          <ion-title class=" ion-text-center ion-margin-vertical ion-padding-top"><b>Physical Address</b></ion-title>
           <ion-row class="ion-margin-bottom">
             <ion-col size="6">
               <ion-label>
@@ -146,7 +144,7 @@
               </ion-select>
             </ion-col>
           </ion-row>
-          <ion-title class=" ion-text-center ion-margin-vertical">
+          <ion-title class=" ion-text-center ion-margin-vertical ion-padding-top">
             <b>Guardian details</b>
             <span class="ion-margin-start checkbox-label">
               Guardian Details Unknown? 
