@@ -1,24 +1,24 @@
 <template>
-    <ion-item>
-        <ion-input
-            v-model="valueInput"
-            :placeholder="config?.component?.placeholder || 'Enter numeric values only'"
-            type="Number"
-            inputmode="Number"
-            :disabled="isDisabled"
-            :max="config?.component?.max || null"
-            :min="config?.component?.max || null"/>
-    </ion-item>
+    <ion-input
+        v-model="valueInput"
+        class="box-input"
+        :class="config?.component?.cssClass" 
+        :placeholder="config?.component?.placeholder || 'Enter numeric values only'"
+        type="Number"
+        inputmode="Number"
+        :disabled="isDisabled"
+        :max="config?.component?.max || null"
+        :min="config?.component?.max || null"/>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import DTMixinVue from './DTMixin.vue'
-import { IonInput, IonItem } from "@ionic/vue"
+import { IonInput } from "@ionic/vue"
 
 export default defineComponent({
     name: 'DT_CHECKBOX',
-    components: { IonInput, IonItem },
+    components: { IonInput },
     emits: ['onValue'],
     mixins:[DTMixinVue]
 })

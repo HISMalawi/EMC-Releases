@@ -1,7 +1,11 @@
 <template>
-    <ion-item>
+    <ion-item class="box-input" lines="none">
         <ion-label> Select </ion-label>
-        <ion-select :disabled="isDisabled" v-model="checkedOptionList" multiple="true"> 
+        <ion-select 
+            :class="config?.component?.cssClass" 
+            :disabled="isDisabled" 
+            v-model="checkedOptionList" 
+            multiple="true"> 
             <ion-select-option
                 :key="index"
                 :value="option"
@@ -17,7 +21,7 @@
 import { defineComponent } from 'vue'
 import DTMixinVue from './DTMixin.vue'
 import {
-    IonItem,
+  IonItem,
     IonLabel,
     IonSelect,
     IonSelectOption 

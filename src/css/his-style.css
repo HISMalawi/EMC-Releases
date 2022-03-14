@@ -17,6 +17,13 @@
     border: 0 !important;
 }
 
+.box-input {
+    border-color: #a3a3a3;
+    border-width: thin;
+    border-style: solid;
+    border-radius: 3px;
+}
+
 .input_display {
     border-top: none;
     border-left: none;
