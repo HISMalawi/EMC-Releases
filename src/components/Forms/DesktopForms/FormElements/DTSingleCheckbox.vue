@@ -1,21 +1,20 @@
 <template>
-    <ion-item>
-        <ion-checkbox 
-            :disabled="isDisabled" 
-            v-model="valueInput"
-        >
-        </ion-checkbox>
-    </ion-item>
+    <ion-checkbox 
+        :class="config?.component?.cssClass" 
+        :disabled="isDisabled" 
+        v-model="valueInput"
+    >
+    </ion-checkbox>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import DTMixinVue from './DTMixin.vue'
-import { IonCheckbox, IonItem } from "@ionic/vue"
+import { IonCheckbox } from "@ionic/vue"
 
 export default defineComponent({
     name: "DT_CHECKBOX",
-    components: { IonCheckbox, IonItem },
+    components: { IonCheckbox },
     mixins:[DTMixinVue],
     created() {
         if (typeof this.valueInput === 'string') {

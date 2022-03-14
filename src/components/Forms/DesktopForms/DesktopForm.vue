@@ -1,74 +1,73 @@
 <template>
     <ion-grid :style="{height:'99%', overflowX: 'auto'}"> 
         <ion-row
-            v-for="(fields, rowIndex) in fieldRows"
-            :key="rowIndex"
+            v-for="(fieldTurples, sectionName) in fieldSectionData"
+            :key="sectionName"
             >
-            <ion-col
-                v-for="(field, fieldIndex) in fields" 
-                :key="fieldIndex"
-                size="12" 
-                size-sm
-                v-show="updateFieldCondition(field)"
-                >
-                <ion-row> 
+            <ion-col size="12"> 
+                <ion-row>
                     <ion-col> 
-                        <ion-label 
-                            :style="{ fontWeight: 'bold'}"
-                            :class="{
-                                'field-errors': hasErrors(field.id)
-                            }">
-                            {{ updateFieldHelpText(field) }}
-                            <span v-if="updateFieldRequired(field)">(*)</span>
-                        </ion-label>
+                        <h3 class="ion-text-center"> <b> {{sectionName}} </b> </h3>
                     </ion-col>
                 </ion-row>
-                <ion-row> 
-                    <ion-col>    
-                    <keep-alive> 
-                    <component
-                        v-bind:is="field.type"
-                        :key="field.id"
-                        :fdata="formData"
-                        :cdata="computedData"
-                        :field="field"
-                        :clear="clearField"
-                        :config="field.config"
-                        :formUpdate="curFieldUpdate"
-                        @onValue="(val) => onValue(val, field)">
-                    </component>
-                    </keep-alive>
-                    </ion-col>
-                </ion-row>
-                <ion-row v-if="hasErrors(field.id)"> 
-                    <ion-col class="error-message"> 
-                        {{getErrors(field.id)}}
+            </ion-col>
+            <ion-col size="12" v-for="(fieldRows, rowIndex) in fieldTurples" :key="rowIndex">
+                <ion-row>    
+                    <ion-col
+                        v-for="(field, fieldIndex) in fieldRows" 
+                        :key="fieldIndex"
+                        size="12" 
+                        size-sm
+                        v-show="updateFieldCondition(field)"
+                        >
+                        <ion-row> 
+                            <ion-col> 
+                                <ion-label
+                                    :style="{ fontWeight: 'bold',  ...(field?.config?.label?.style ? field?.config?.label?.style : {})}"
+                                    :class="hasErrors(field.id) ? 'field-errors' : (field.config?.label?.cssClass || '')">
+                                    {{ updateFieldHelpText(field) }}
+                                    <span v-if="updateFieldRequired(field)">(*)</span>
+                                </ion-label>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row> 
+                            <ion-col>    
+                            <keep-alive> 
+                            <component
+                                v-bind:is="field.type"
+                                :key="field.id"
+                                :fdata="formData"
+                                :cdata="computedData"
+                                :field="field"
+                                :clear="clearField"
+                                :config="field.config"
+                                :formUpdate="curFieldUpdate"
+                                @onValue="(val) => onValue(val, field)">
+                            </component>
+                            </keep-alive>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row v-if="hasErrors(field.id)"> 
+                            <ion-col class="error-message"> 
+                                {{getErrors(field.id)}}
+                            </ion-col>
+                        </ion-row>
                     </ion-col>
                 </ion-row>
             </ion-col>
         </ion-row>
-        <ion-row>
-            <ion-col size="6">
-                <ion-button 
-                    :disabled="isSubmitting || formHasErrors" 
-                    @click="onSubmit">
-                    Submit
-                </ion-button>
-            </ion-col>
-            <ion-col size="6">
-                <ion-button
-                    color="danger"
-                    :disabled="isSubmitting" 
-                    @click="clearField='ALL'">
-                    Clear
-                </ion-button>
-            </ion-col>
-        </ion-row>
+        <slot
+            name="buttons"
+            :onSubmit="onSubmit" 
+            :onClear="() => clearField='ALL'" 
+            :isSubmitting="isSubmitting" 
+            :hasErrors="formHasErrors">
+        </slot>
     </ion-grid>
 </template>
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { DerivedInterface, DtFieldInterface } from "@/components/Forms/DesktopForms/DTFieldInterface"
+import { DerivedInterface, DtFieldInterface, DtFormSections } from "@/components/Forms/DesktopForms/DTFieldInterface"
 import { Option } from "@/components/Forms/FieldInterface"
 import { DesktopFormElements } from "@/components/Forms/DesktopForms/DTFormElements"
 import {
@@ -97,14 +96,15 @@ export default defineComponent({
             type: Function,
             required: true
         },
-        fields: {
-            type: Object as PropType<DtFieldInterface[]>,
-            required: true   
+        fieldSections: {
+            type: Object as PropType<DtFormSections[]>,
+            required: true
         }
     },
     data: () => ({
         clearField: '' as string,
-        fieldRows: [] as Array<DtFieldInterface[]>,
+        fields: [] as DtFieldInterface[],
+        fieldSectionData: [] as any,
         formData: {} as Record<string, Option | Option[] | null>,
         computedData: {} as Record<string, any>,
         /**Track the field which is emitting a value */
@@ -119,11 +119,15 @@ export default defineComponent({
         isSubmitting: false
     }),
     watch: {
-        fields: {
-            handler(fields: DtFieldInterface[]) {
-                if (!isEmpty(fields)) {
-                    this.setFieldData(fields)
-                    this.fieldRows = this.buildFieldRows(fields)
+        fieldSections: {
+            handler(fieldSections: DtFormSections[]) {
+                if (!isEmpty(fieldSections)) {
+                    // Maintain a flat list of fields (with sections)
+                    this.fields = fieldSections.reduce((fields: DtFieldInterface[], section: DtFormSections) => {
+                        return [...fields, ...section.fields]
+                    }, [])
+                    this.setFieldData(this.fields)
+                    this.fieldSectionData = this.buildfieldSectionData(fieldSections)
                 }
             },
             deep: true,
@@ -306,22 +310,31 @@ export default defineComponent({
             return this.updateField(field.id, field.onUpdateRequired, field.required, true)
         },
         /**
-         * Converts fields into turples to represet rows on the form
+         * Build a grid sections of fields with related group names or field IDs
          */
-        buildFieldRows(fields: Array<DtFieldInterface>): Array<DtFieldInterface[]> {
-            const collection: any = { }
-            fields.forEach(field => {
-                //Group fields with similar group name
-                if (!field.group) {
-                    collection[field.id] = [field]
-                    return
+        buildfieldSectionData(fields: DtFormSections[]): any {
+            const data = fields.reduce((collection: any, data: any) => {
+                if (!(data.section in collection)) {
+                    collection[data.section] = {}
                 } 
-                if (!(field.group in collection)) {
-                    collection[field.group] = []
-                }
-                collection[field.group].push(field)
-            })
-            return Object.values(collection)
+                // Group fields into turples
+                data.fields.forEach((f: any) => {
+                    if (!f.group) {
+                        collection[data.section][f.id] = [f]
+                    } else {
+                        if (!(f.group in collection[data.section])) {
+                            collection[data.section][f.group] = []
+                        }
+                        collection[data.section][f.group].push(f)
+                    }
+                })
+                return collection
+            }, {})
+            // Assign fields to Section titles
+            return Object.keys(data).reduce((sections: any, key: any) => {
+                sections[key] = Object.values(data[key])
+                return sections
+            }, {})
         }
     }
 })

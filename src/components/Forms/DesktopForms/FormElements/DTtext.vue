@@ -1,25 +1,25 @@
 <template>
-    <ion-item>
-        <ion-input
-            type="text"
-            inputmode="text"
-            v-model="valueInput"
-            :disabled="isDisabled"
-            :value="valueInput"
-            :placeholder="config?.component?.placeholder || 'Enter something'"
-            :max="config?.component?.max || null"
-            :min="config?.component?.max || null"/>
-    </ion-item>
+    <ion-input
+        type="text"
+        inputmode="text"
+        v-model="valueInput"
+        class="box-input"
+        :disabled="isDisabled"
+        :value="valueInput"
+        :placeholder="config?.component?.placeholder || 'Enter something'"
+        :class="config?.component?.cssClass"
+        :max="config?.component?.max || null"
+        :min="config?.component?.max || null"/>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import DTMixinVue from './DTMixin.vue'
-import { IonInput, IonItem } from "@ionic/vue"
+import { IonInput } from "@ionic/vue"
 
 export default defineComponent({
     name: 'DT_TEXT',
-    components: { IonInput, IonItem },
+    components: { IonInput },
     emits: ['onValue'],
     mixins:[DTMixinVue]
 })

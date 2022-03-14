@@ -49,7 +49,7 @@ export default defineComponent({
         IonFooter
     },
     setup() {
-        const showFullscreenNotice = ref(!document.fullscreenElement)
+        const showFullscreenNotice = ref(false)//ref(!document.fullscreenElement)
 
         document.addEventListener('fullscreenchange', () => {
             showFullscreenNotice.value = !document.fullscreenElement 
