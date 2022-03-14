@@ -1,6 +1,6 @@
 <template>
   <ion-grid>
-    <ion-row class="his-card">
+    <ion-row>
         <ion-col size="12">
           <ion-title class=" ion-text-center ion-margin-vertical"><b>Personal Details</b></ion-title>
           <ion-row class="ion-margin-bottom">

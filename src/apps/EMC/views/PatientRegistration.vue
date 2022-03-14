@@ -6,18 +6,18 @@
           <h1>New Patient Registration</h1>
         </ion-col>
       </ion-row>
-      <keep-alive>
-        <PatientRegistrationForm
-          :patientDetails="patient"
-          :guardianDetails="guardian"
-          :hasErrors="hasErrors"
-          @updatePatient="updatePatient"
-          @updateGuardian="updateGuardian"
-        />
-      </keep-alive>
-      <ion-row class="ion-margin-top">
-        <ion-col class="ion-margin-top">
-          <ion-button class="searchBtn" @click="goNext">Next step</ion-button>
+      <ion-row class="his-card">
+        <keep-alive>
+          <PatientRegistrationForm
+            :patientDetails="patient"
+            :guardianDetails="guardian"
+            :hasErrors="hasErrors"
+            @updatePatient="updatePatient"
+            @updateGuardian="updateGuardian"
+          />
+        </keep-alive>
+        <ion-col class="ion-margin-top" size="12">
+          <ion-button class="searchBtn ion-float-end" @click="goNext">Next step</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>
