@@ -1,7 +1,16 @@
 <template>
-    <Form 
-        :fieldSections="fields" 
-        :onSubmitForm="onfinish"/>
+    <div class="his-card ion-margin">
+        <Form :fieldSections="fields" :onSubmitForm="onfinish">
+            <template #buttons="{ isSubmitting, hasErrors, onClear, onSubmit }">
+                <ion-row>
+                    <ion-col size="12">
+                        <ion-button @click="onSubmit" class="ion-float-end" size="large" :disabled="isSubmitting || hasErrors">Next Step</ion-button>
+                        <ion-button @click="onClear" color="warning" class="ion-float-end" size="large">Clear All</ion-button>
+                    </ion-col>
+                </ion-row>
+            </template>
+        </Form>
+    </div>
 </template>
 
 <script lang="ts">
