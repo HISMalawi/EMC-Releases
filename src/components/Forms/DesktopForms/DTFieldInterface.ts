@@ -89,3 +89,8 @@ export interface DtFieldInterface {
         global?: Record<string, any>;
     };
 }
+
+export interface DtFormSections {
+    section: string;
+    fields: DtFieldInterface[]
+}
