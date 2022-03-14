@@ -142,6 +142,10 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'Viral Load Coverage',
                 pathName: 'pepfar_vl_coverage'
+            },
+            {
+                name: 'SC ARV',
+                pathName: 'sc_arv'
             }
         ]
     }
