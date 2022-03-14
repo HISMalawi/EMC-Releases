@@ -478,12 +478,24 @@ export default defineComponent({
      * Provides validations for TPT selections and value updates
      */
     async on3HPValueUpdate(listData: Option[], curOption: Option, formData: any) {
-      const is3HPorTPT = (i: Option) => i.label.match(/ipt|3hp/i)
+      const is3HPorTPT = (i: Option) => i.label.match(/IPT|3HP/i) ? true : false
+
       //Checks if IPT and 3HP are both selected and returns a boolean
-      const ipt3HPConflict = listData
-        .filter(i => is3HPorTPT(i))
-        .map(i => i.isChecked)
-        .every(Boolean)
+      const ipt3HPConflict: boolean = (() => {
+        const checkedDrugs = listData.reduce(
+        (checkedDrugs: string[], item: Option) => {
+          if (is3HPorTPT(item) 
+            && !(item.label in checkedDrugs) 
+            && item.isChecked) {
+            checkedDrugs.push(item.label)
+          }
+          return checkedDrugs
+        }, [])
+        return checkedDrugs.includes('IPT') 
+          && (checkedDrugs.includes('3HP (RFP + INH)') 
+          || checkedDrugs.includes('INH 300 / RFP 300 (3HP)'))
+      })()
+
       // check if no tpt is present
       const noTpTPresent = is3HPorTPT(curOption) 
         && listData.filter(i => is3HPorTPT(i)).map(i => !i.isChecked)
@@ -564,6 +576,13 @@ export default defineComponent({
           }
         }),
         this.toOption('3HP (RFP + INH)', {
+          appendOptionParams: () => { 
+            if (completed3HP) return disableOption('Completed 3HP')
+
+            if (this.TBSuspected) return disableOption('TB Suspect')
+          }
+        }),
+        this.toOption('INH 300 / RFP 300 (3HP)', {
           appendOptionParams: () => { 
             if (completed3HP) return disableOption('Completed 3HP')
 
