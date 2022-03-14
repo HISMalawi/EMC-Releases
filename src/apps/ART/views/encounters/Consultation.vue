@@ -537,12 +537,24 @@ export default defineComponent({
           if (is3HPorTPT(i)) {
             i.isChecked =
               action === 'Prescribe IPT' && i.label === 'IPT' || 
-              action ==='Prescribe 3HP' && i.label === '3HP (RFP + INH)'
+              action ==='Prescribe 3HP' && i.label === 'INH 300 / RFP 300 (3HP)'
           }
           return i
         })
       }
-      return listData
+      return listData.map(i => {
+        // By default, toggle between variants of 3HP. All of them cant be selected at once
+        if (curOption.label === '3HP (RFP + INH)' 
+          && i.label === 'INH 300 / RFP 300 (3HP)'
+          && curOption.isChecked) {
+          i.isChecked = false
+        } else if (curOption.label === 'INH 300 / RFP 300 (3HP)' 
+          && i.label === '3HP (RFP + INH)'
+          && curOption.isChecked ) {
+            i.isChecked = false
+        }
+        return i
+      })
     },
     medicationOrderOptions(formData: any, prechecked=[] as Option[]): Option[] {
       const completed3HP = this.didCompleted3HP(formData)
@@ -576,7 +588,7 @@ export default defineComponent({
           }
         }),
         this.toOption('3HP (RFP + INH)', {
-          appendOptionParams: () => { 
+          appendOptionParams: () => {
             if (completed3HP) return disableOption('Completed 3HP')
 
             if (this.TBSuspected) return disableOption('TB Suspect')
@@ -588,7 +600,7 @@ export default defineComponent({
 
             if (this.TBSuspected) return disableOption('TB Suspect')
 
-            return { isChecked : autoSelect3HP }
+            return { isChecked: autoSelect3HP }
           }
         }),
         this.toOption('IPT', {
