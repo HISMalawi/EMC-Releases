@@ -39,6 +39,7 @@ export default defineComponent({
   components: { HisStandardForm },
   data: () => ({
     fields: [] as any,
+    currentWeight: -1 as any,
     weightTrail: [] as any,
     customRegimens: [] as any,
     isDrugRefillPatient: false as boolean,
@@ -82,6 +83,8 @@ export default defineComponent({
 
           await this.initAdherence(this.patient, this.providerID);
           await this.guardianOnlyVisit();
+
+          this.currentWeight = Number((await this.patient.getRecentWeight()))
 
           // this.wasTransferredIn = await this.getTransferInStatus()
 
@@ -592,6 +595,8 @@ export default defineComponent({
             if (completed3HP) return disableOption('Completed 3HP')
 
             if (this.TBSuspected) return disableOption('TB Suspect')
+
+            if (this.currentWeight < 20) return disableOption('Weight below regulation') 
           }
         }),
         this.toOption('INH 300 / RFP 300 (3HP)', {
@@ -599,6 +604,8 @@ export default defineComponent({
             if (completed3HP) return disableOption('Completed 3HP')
 
             if (this.TBSuspected) return disableOption('TB Suspect')
+
+            if (this.currentWeight < 25) return disableOption('Weight below regulation') 
 
             return { isChecked: autoSelect3HP }
           }
