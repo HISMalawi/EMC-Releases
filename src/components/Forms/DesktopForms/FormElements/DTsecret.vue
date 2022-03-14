@@ -1,14 +1,15 @@
 <template>
-    <ion-input
-        v-model="valueInput"
-        class="box-input"
-        type="Password"
-        inputmode="Password"
-        :class="config?.component?.cssClass"
-        :disabled="isDisabled"
-        :max="config?.component?.max || null"
-        :min="config?.component?.max || null"
-    />
+    <ion-item class="box-input" lines="none">
+        <ion-input
+            v-model="valueInput"
+            type="Password"
+            inputmode="Password"
+            :class="config?.component?.cssClass"
+            :disabled="isDisabled"
+            :max="config?.component?.max || null"
+            :min="config?.component?.max || null"
+        />
+    </ion-item>
 </template>
 
 <script lang="ts">

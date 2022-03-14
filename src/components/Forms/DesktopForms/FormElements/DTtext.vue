@@ -1,15 +1,16 @@
 <template>
-    <ion-input
+   <ion-item class="box-input" lines="none">
+        <ion-input
         type="text"
         inputmode="text"
         v-model="valueInput"
-        class="box-input"
         :disabled="isDisabled"
         :value="valueInput"
         :placeholder="config?.component?.placeholder || 'Enter something'"
         :class="config?.component?.cssClass"
         :max="config?.component?.max || null"
         :min="config?.component?.max || null"/>
+   </ion-item>
 </template>
 
 <script lang="ts">

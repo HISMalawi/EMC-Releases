@@ -1,12 +1,13 @@
 <template>
-    <ion-input
-        v-model="valueInput"
-        class="box-input"
-        type="Date"
-        inputmode="Date"
-        :class="config?.component?.cssClass"
-        :disabled="isDisabled"
-    />
+    <ion-item class="box-input" lines="none">
+        <ion-input
+            v-model="valueInput"
+            type="Date"
+            inputmode="Date"
+            :class="config?.component?.cssClass"
+            :disabled="isDisabled"
+        />
+    </ion-item>
 </template>
 
 <script lang="ts">

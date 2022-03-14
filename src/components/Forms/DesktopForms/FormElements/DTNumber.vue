@@ -1,14 +1,15 @@
 <template>
-    <ion-input
-        v-model="valueInput"
-        class="box-input"
-        :class="config?.component?.cssClass" 
-        :placeholder="config?.component?.placeholder || 'Enter numeric values only'"
-        type="Number"
-        inputmode="Number"
-        :disabled="isDisabled"
-        :max="config?.component?.max || null"
-        :min="config?.component?.max || null"/>
+    <ion-item class="box-input" lines="none">
+        <ion-input
+            v-model="valueInput"
+            :class="config?.component?.cssClass" 
+            :placeholder="config?.component?.placeholder || 'Enter numeric values only'"
+            type="Number"
+            inputmode="Number"
+            :disabled="isDisabled"
+            :max="config?.component?.max || null"
+            :min="config?.component?.max || null"/>
+    </ion-item>
 </template>
 
 <script lang="ts">
