@@ -68,11 +68,12 @@ export default defineComponent({
         validation: (gender: string) => Validation.isName(gender)
       },
       birthdate: {
-        day: '',
-        month: '',
-        year: '',
-        age: '',
-        validation: (dateOrAge: string) => Validation.required(dateOrAge)
+        value: '',
+        validation: (date: string) => Validation.required(date)
+      },
+      estimatedBirthdate: {
+        value: '',
+        validation: (age: string) => Validation.required(age)
       },
       cellphone: {
         value: '',

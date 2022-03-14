@@ -33,66 +33,34 @@
             </ion-col>
           </ion-row>
           <ion-row class="ion-margin-bottom">
-            <ion-col size="7">
-              <ion-row>
-                <ion-col size="12">
-                  <ion-label>
-                    <span v-if="estimateAge">Estimage Age (*):</span>
-                    <span v-else>Date of Birth (*):</span>
-                    <span class="ion-float-right ion-margin-end checkbox-label">
-                      Estimate Date of Birth
-                      <ion-checkbox v-model="estimateAge"></ion-checkbox>
-                    </span>
-                  </ion-label>
-                </ion-col>
-              </ion-row>
-              <ion-row>
-                <template v-if="estimateAge">
-                  <ion-col size="12">
-                    <ion-input 
-                      v-model="patient.birthdate.age" 
-                      :class="patient.birthdate.hasErrors ? 'box-error' : 'box'" 
-                      :min="1" 
-                      :max="120" 
-                      type="number" 
-                      placeholder="Enter age estimate" 
-                    />
-                  </ion-col>
-                </template>
-                <template v-else>
-                  <ion-col size="4">
-                    <ion-input 
-                      v-model="patient.birthdate.day" 
-                      :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
-                      :min="1" 
-                      :max="31"
-                      type="number" 
-                      placeholder="DD" 
-                    />
-                  </ion-col>
-                  <ion-col size="4">
-                    <ion-input 
-                      v-model="patient.birthdate.month" 
-                      :class="patient.birthdate.hasErrors ? 'box-error' : 'box'" 
-                      :min="1"
-                      :max="12"
-                      type="number" 
-                      placeholder="MM" 
-                    />
-                  </ion-col>
-                  <ion-col size="4">
-                    <ion-input 
-                      v-model="patient.birthdate.year" 
-                      :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
-                      :min="1920" 
-                      type="number" 
-                      placeholder="YYYY" 
-                    />
-                  </ion-col>
-                </template>
-              </ion-row>
+            <ion-col size="6">
+              <ion-label>
+                <span v-if="estimateAge">Estimage Age (*):</span>
+                <span v-else>Date of Birth (*):</span>
+                <span class="ion-float-right ion-margin-end checkbox-label">
+                  Estimate Date of Birth
+                  <ion-checkbox v-model="estimateAge"></ion-checkbox>
+                </span>
+              </ion-label>
+              <ion-input
+                v-if="estimateAge"
+                v-model="patient.estimatedAge.value"
+                class="ion-margin-top"
+                :class="patient.birthdate.hasErrors ? 'box-error' : 'box'" 
+                :min="1" 
+                :max="120" 
+                type="number" 
+                placeholder="Enter age estimate" 
+              />
+              <ion-input 
+                v-else
+                v-model="patient.birthdate.value"
+                class="ion-margin-top"
+                :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
+                type="date"
+              />
             </ion-col>
-            <ion-col size="5" style="padding-top: .4rem;">
+            <ion-col size="6">
               <ion-label >Gender (*): </ion-label>
               <ion-select 
                 class="ion-margin-top"
