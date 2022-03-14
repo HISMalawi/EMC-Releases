@@ -85,6 +85,10 @@ export interface DtFieldInterface {
      * Miscelleneous configurations for field
      */
     config?: {
+        label?: {
+            style?: Record<string, string>;
+            cssClass?: string;
+        }
         component?: Record<string, any>;
         global?: Record<string, any>;
     };

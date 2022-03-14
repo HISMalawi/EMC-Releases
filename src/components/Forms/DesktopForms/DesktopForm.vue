@@ -22,11 +22,9 @@
                         >
                         <ion-row> 
                             <ion-col> 
-                                <ion-label 
-                                    :style="{ fontWeight: 'bold'}"
-                                    :class="{
-                                        'field-errors': hasErrors(field.id)
-                                    }">
+                                <ion-label
+                                    :style="{ fontWeight: 'bold',  ...(field?.config?.label?.style ? field?.config?.label?.style : {})}"
+                                    :class="hasErrors(field.id) ? 'field-errors' : (field.config?.label?.cssClass || '')">
                                     {{ updateFieldHelpText(field) }}
                                     <span v-if="updateFieldRequired(field)">(*)</span>
                                 </ion-label>
