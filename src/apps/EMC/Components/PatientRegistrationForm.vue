@@ -44,7 +44,7 @@
               </ion-label>
               <ion-input
                 v-if="estimateAge"
-                v-model="patient.estimatedAge.value"
+                v-model="patient.estimatedBirthdate.value"
                 class="ion-margin-top"
                 :class="patient.birthdate.hasErrors ? 'box-error' : 'box'" 
                 :min="1" 
