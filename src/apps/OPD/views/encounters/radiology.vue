@@ -14,12 +14,14 @@ import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { modalController, IonPage } from '@ionic/vue';
+import { PrintoutService } from "@/services/printout_service";
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
   mixins: [EncounterMixinVue],
   data: () => ({
     radiologyService: {} as any,
+    count: 0
   }),
   watch: {
     ready: {
@@ -35,9 +37,11 @@ export default defineComponent({
   },
   methods: {
     async onSubmit(_: any, computedData: any){     
-      const data = await Promise.all(computedData.radiology)   
+      const data = await Promise.all(computedData.radiology)
+      console.log({data})   
       await this.radiologyService.createEncounter()    
       await this.radiologyService.saveObservationList(data)
+      await this.printOrders(data)
       this.nextTask()        
     },
     async launchOrderSelection() {
@@ -79,6 +83,26 @@ export default defineComponent({
           }
         },
       ]
+    },
+    async printOrders(orders: any) {
+      await orders.forEach(async (element: any) => {
+        this._timeout(element)
+      });
+      this.count++
+    },
+    async print(element: any) {
+      const p = new PrintoutService();
+      console.log({element})
+      const url = `/radiology/barcode?radio_order=${element.concept_id}`
+      console.log({url})
+      await p.printLbl(url)
+    },
+    async _timeout(element: any) {
+      await this.timeout(3000)
+      this.print(element)
+    },
+    timeout(ms: any) {
+      return new Promise(resolve => setTimeout(resolve, ms))
     }
   }
 })
