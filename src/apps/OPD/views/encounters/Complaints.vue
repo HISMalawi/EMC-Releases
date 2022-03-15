@@ -21,7 +21,6 @@ import { FieldType } from '@/components/Forms/BaseFormElements';
 import { modalController, IonPage } from '@ionic/vue';
 import { ObservationService } from "@/services/observation_service"
 import { EncounterService } from '@/services/encounter_service'
-import { isValueEmpty } from "@/utils/Strs"
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
