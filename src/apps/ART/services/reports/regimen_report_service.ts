@@ -55,4 +55,9 @@ export class RegimenReportService extends ArtReportService {
     getRegimensByWeight() {
         return this.getReport(`programs/${this.programID}/reports/regimens_by_weight_and_gender`)
     }
+    
+    getSCReport(isPepfar=false) {
+        return this.getReport('sc_arvdisp', { pepfar: isPepfar })
+    }
+    
 }

@@ -37,10 +37,12 @@ import TextBanner from "@/components/FormElements/HisTextBanner.vue"
 import DrugDispenser from "@/components/FormElements/GeneralDrugDispenser.vue"
 import HisDataTable from "@/components/FormElements/HisDataTable.vue"
 import DrugTransferInQty from "@/components/FormElements/DrugTransferInput.vue"
+import HisGridSelector from "@/components/FormElements/HisGridSelector.vue"
 
 // Reference names for BaseFormComponents
 export enum FieldType {
     TT_DATA_TABLE = 'HisDataTable',
+    TT_GRID_SELECTOR = 'HisGridSelector',
     TT_NOTE = 'NoteInput',
     TT_BARCODE = 'BarcodeInput',
     TT_MONTHLY_DAYS="monthly-days",
@@ -122,5 +124,6 @@ export const BaseFormComponents = {
     DrugDispenser,
     ClinicHolidayPicker,
     NoteInput,
-    DrugTransferInQty
+    DrugTransferInQty,
+    HisGridSelector
 }
