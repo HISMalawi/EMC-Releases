@@ -1,6 +1,16 @@
 export default [
    {
       "categories": [],
+      "concept_id": 10563,
+      "name": "Drug received from previous facility"
+   },
+   {
+      "categories": [],
+      "concept_id": 10564,
+      "name": "Date drug received from previous facility"
+   },
+   {
+      "categories": [],
       "concept_id": 6397,
       "name": "Height for age percent of median"
    },
