@@ -1,6 +1,11 @@
 <template>
   <ion-page>
-    <his-standard-form :cancelDestinationPath="cancelDestination" :fields="fields" :onFinishAction="onSubmit"/>
+    <his-standard-form 
+      :cancelDestinationPath="cancelDestination" 
+      :fields="fields" 
+      :onFinishAction="onSubmit"
+      :skipSummary="false"
+    />
   </ion-page>
 </template>
 
@@ -14,12 +19,17 @@ import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { modalController, IonPage } from '@ionic/vue';
+import { ObservationService } from "@/services/observation_service"
+import { EncounterService } from '@/services/encounter_service'
+import { isValueEmpty } from "@/utils/Strs"
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
   mixins: [EncounterMixinVue],
   data: () => ({
     complaintsService: {} as any,
+    todaysDate: ObservationService.getSessionDate(),
+    presentingComplaints: "" as any
   }),
   watch: {
     ready: {
@@ -49,8 +59,65 @@ export default defineComponent({
       modal.present()
       await modal.onDidDismiss()
     },
+    async fetchLatestTriageEncounter() {
+      await ObservationService.getObs({
+          'concept_id': '10539',
+          'start_date': this.todaysDate,
+          'end_date': this.todaysDate,
+          'person_id': this.patientID,
+      }).then(async (data: any) => {
+          await this.getTriagePresentingComplaints(data)
+        }
+      );
+      if(this.presentingComplaints.length > 0)
+      return true;
+    },
+    async getTriagePresentingComplaints(data: any){
+      if(data.length > 0){
+        const encounters = await EncounterService.getEncounters(this.patientID, this.todaysDate)
+        const date = this.todaysDate
+
+        const todayPresentingComplaints = encounters.filter(function (el: any){
+          return el.type.name == "TRIAGE PRESENTING COMPLAINTS" &&
+          new Date(el.encounter_datetime).toISOString().slice(0, 10) == date 
+        });
+        
+        this.presentingComplaints =   todayPresentingComplaints[0].observations;
+      }
+    },
+    buildResults() {
+      const columns = [ 'Group','Presenting complaints'];
+      let group = "";
+      let rows =this.presentingComplaints.map((item: any) =>{
+        if(item.obs_group_id != null)
+          return [group,item.value_text]
+
+        group = item.value_text;
+      });
+      rows = rows.filter((el: any) =>{
+        return el != undefined
+      })
+       
+      return [
+        {
+          label: '',
+          value: '',
+          other: { columns, rows},
+        },
+      ];
+    },
     getFields(): Array<Field>{
       return [
+         {
+          id: "triage_complaints",
+          helpText: "Triage Presenting Complaint",
+          condition: () => this.fetchLatestTriageEncounter(),
+          type: FieldType.TT_TABLE_VIEWER,
+          options: (d: any) => this.buildResults(),
+          config: {
+            hiddenFooterBtns: ["Clear"],
+          },
+        },
         {
           id: 'complaints',
           helpText: 'Presenting Complaints',
