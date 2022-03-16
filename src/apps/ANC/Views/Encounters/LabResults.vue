@@ -121,7 +121,7 @@ export default defineComponent({
                 id: 'prev_hiv_test_date',
                 helpText: 'Previous HIV test',
                 required: true,
-                minDate: () => this.patient.birthdate(),
+                minDate: () => this.patient.getBirthdate(),
                 maxDate: () => this.service.getDate(),
                 estimation: {
                     allowUnknown: false
