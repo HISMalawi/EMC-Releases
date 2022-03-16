@@ -353,7 +353,10 @@ export default defineComponent({
                 id: 'wbc',
                 helpText: 'White Blood Cells Test Result (cmm)',
                 type: FieldType.TT_NUMBER,
-                validation: (v: Option) => Validation.required(v),
+                validation: (v: Option) => this.validateSeries([
+                    () => Validation.required(v),
+                    () => Validation.rangeOf(v, 1, 1000000)
+                ]),
                 computedValue: (v: Option) => this.service.buildValueNumber('White blood cells', v.value),
                 condition: (f: any) => f.available_urine_tests.map((o: Option) => o.value).includes('WBC'),
             },
@@ -361,7 +364,10 @@ export default defineComponent({
                 id: 'rbc',
                 helpText: 'Red Blood Cells Test Result (cmm)',
                 type: FieldType.TT_NUMBER,
-                validation: (v: Option) => Validation.required(v),
+                validation: (v: Option) => this.validateSeries([
+                    () => Validation.required(v),
+                    () => Validation.rangeOf(v, 1, 1000000)
+                ]),
                 computedValue: (v: Option) => this.service.buildValueNumber('Red blood cells', v.value),
                 condition: (f: any) => f.available_urine_tests.map((o: Option) => o.value).includes('RBC'),
             },
