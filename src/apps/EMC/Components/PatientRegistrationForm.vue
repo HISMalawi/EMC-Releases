@@ -52,13 +52,32 @@
                 type="number" 
                 placeholder="Enter age estimate" 
               />
-              <ion-input 
-                v-else
-                v-model="patient.birthdate.value"
-                class="ion-margin-top"
-                :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
-                type="date"
-              />
+              <ion-row v-else style="width: 100%; padding-top: .5rem;">
+                <ion-col size="4">
+                  <ion-input 
+                    v-model="day"
+                    :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
+                    type="number"
+                    placeholder="DD"
+                  />
+                </ion-col>
+                <ion-col size="4">
+                  <ion-input 
+                    v-model="month"
+                    :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
+                    type="number"
+                    placeholder="MM"
+                  />
+                </ion-col>
+                <ion-col size="4">
+                  <ion-input 
+                    v-model="year"
+                    :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
+                    type="number"
+                    placeholder="YYYY"
+                  />
+                </ion-col>
+              </ion-row>
             </ion-col>
             <ion-col size="4">
               <ion-label >Gender (*): </ion-label>
@@ -199,7 +218,7 @@
 
 <script lang="ts">
 import { IonCheckbox, IonCol, IonGrid, IonInput, IonRow, IonSelect, IonSelectOption } from '@ionic/vue'
-import { defineComponent, PropType, reactive, ref, watch } from 'vue'
+import { computed, defineComponent, PropType, reactive, ref, watch } from 'vue'
 
 export default defineComponent({
   name: 'PatientRegistrationForm',
@@ -236,12 +255,23 @@ export default defineComponent({
     const patientPhoneUnknown = ref(false)
     const guardian = reactive(props.guardianDetails)
     const patient = reactive(props.patientDetails)
+    const day = ref('')
+    const month = ref('')
+    const year = ref('')
+    const birthdate = computed(() => (day.value && month.value && year.value) 
+      ? `${year.value}-${month.value}-${day.value}` 
+      : ''
+    )
 
     watch(guardianNotAvailable, (isNotAvailable) =>{
       for (const key in guardian) {
         guardian[key].value = isNotAvailable ? 'Unknown' : '' 
         guardian[key].disabled = isNotAvailable
       }
+    })
+
+    watch(birthdate, newBirthdate => {
+      if(newBirthdate) guardian.birthdate.value = newBirthdate
     })
 
     watch(guardianPhoneUnknown, (isUnknown) => {
@@ -272,7 +302,10 @@ export default defineComponent({
       guardianPhoneUnknown,
       patientPhoneUnknown,
       patient,
-      guardian
+      guardian,
+      day,
+      month,
+      year,
     }
   },
 })
