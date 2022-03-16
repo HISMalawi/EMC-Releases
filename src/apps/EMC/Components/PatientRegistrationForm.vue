@@ -46,7 +46,7 @@
                 v-if="estimateAge"
                 v-model="patient.estimatedBirthdate.value"
                 class="ion-margin-top"
-                :class="patient.birthdate.hasErrors ? 'box-error' : 'box'" 
+                :class="patient.estimatedBirthdate.hasErrors ? 'box-error' : 'box'" 
                 :min="1" 
                 :max="120" 
                 type="number" 
@@ -56,6 +56,8 @@
                 <ion-col size="4">
                   <ion-input 
                     v-model="day"
+                    :min="1"
+                    :max="31"
                     :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
                     type="number"
                     placeholder="DD"
@@ -64,6 +66,8 @@
                 <ion-col size="4">
                   <ion-input 
                     v-model="month"
+                    :min="1"
+                    :max="31"
                     :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
                     type="number"
                     placeholder="MM"
@@ -72,6 +76,7 @@
                 <ion-col size="4">
                   <ion-input 
                     v-model="year"
+                    :min="1920"
                     :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
                     type="number"
                     placeholder="YYYY"
@@ -223,6 +228,10 @@ import { computed, defineComponent, PropType, reactive, ref, watch } from 'vue'
 export default defineComponent({
   name: 'PatientRegistrationForm',
   props: {
+    isBirthdateEstimated: {
+      type: Boolean,
+      default: false
+    },
     guardianDetails: {
       type: Object as PropType<Record<string, any>>,
       required: true
@@ -245,9 +254,12 @@ export default defineComponent({
     IonSelectOption,
     IonCheckbox,
   },
-  emits: ["updatePatient", "updateGuardian"],
+  emits: ["updatePatient", "updateGuardian", "estimateBirthdate"],
   setup(props, { emit }) {
-    const estimateAge = ref(false)
+    const estimateAge = computed({
+      get: () => props.isBirthdateEstimated,
+      set: (value) => emit("estimateBirthdate", value)
+    })
     const guardianNotAvailable = ref(false)
     const addCustomVillage = ref(false)
     const addCustomLandmark = ref(false)
@@ -271,7 +283,7 @@ export default defineComponent({
     })
 
     watch(birthdate, newBirthdate => {
-      if(newBirthdate) guardian.birthdate.value = newBirthdate
+      if(newBirthdate) patient.birthdate.value = newBirthdate
     })
 
     watch(guardianPhoneUnknown, (isUnknown) => {

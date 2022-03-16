@@ -12,8 +12,10 @@
             :patientDetails="patient"
             :guardianDetails="guardian"
             :hasErrors="hasErrors"
+            :isBirthdateEstimated="isBirthdateEstimated"
             @updatePatient="updatePatient"
             @updateGuardian="updateGuardian"
+            @estimateBirthdate="updateBirthdateEstimated"
           />
           <ion-button class="ion-margin-top ion-float-end" @click="onFinish" size="large" color="success">Finish</ion-button>
         </ion-col>
@@ -34,6 +36,13 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { Option } from "@/components/Forms/FieldInterface";
 import HisDate from "@/utils/Date";
 
+interface DTInputField {
+  value: string;
+  required?: boolean;
+  validation?: (option: Option) => string[] | null;
+  hasErrors?: boolean;
+}
+
 export default defineComponent({
   components: {
     Layout,
@@ -44,101 +53,68 @@ export default defineComponent({
 },
   setup() {
     const hasErrors = ref(false)
-    const patient = reactive<Record<string, any>>({
+    const isBirthdateEstimated = ref(false)
+    const patient = reactive<Record<string, DTInputField>>({
       givenName: {
         value: '',
-        validation: (name: string) => Validation.validateSeries([
-          () => Validation.isName(name),
-          () => Validation.required(name)
-        ]) 
+        required: true
       },
       familyName: {
         value: '',
-        validation: (name: string) => Validation.validateSeries([
-          () => Validation.isName(name),
-          () => Validation.required(name)
-        ])        
+        required: true
       },
       middleName: {
         value: '',
-        validation: (name: string) => name.length && Validation.isName(name)
       },
       gender: {
         value: '',
-        validation: (gender: string) => Validation.isName(gender)
+        required: true
       },
       birthdate: {
         value: '',
-        validation: (date: string) => Validation.required(date)
+        validation: (date: Option) => {
+          if(!date.other.estimated && !date.value) return ['Invalid birthdate']
+          return null
+        }
       },
       estimatedBirthdate: {
         value: '',
-        validation: (age: string) => Validation.required(age)
+        validation: (age: Option) => {
+          if(age.other.estimated && !age.value) return ['Invalid age estimate']
+          return null
+        }
       },
       cellphone: {
         value: '',
-        validation: (phone: string) => Validation.validateSeries([
-          () => Validation.isMWPhoneNumber(phone),
-          () => Validation.required(phone)
-        ])
+        required: true,
+        validation: (phone: Option) => Validation.isMWPhoneNumber(phone)
       },
       homeVillage: {
         value: '',
-        validation: (name: string) => Validation.validateSeries([
-          () => Validation.isName(name),
-          () => Validation.required(name)
-        ])
+        required: true,
       },
       landmark: {
         value: '',
-        validation: (name: string) => Validation.validateSeries([
-          () => Validation.isName(name),
-          () => Validation.required(name)
-        ])
-      },
+        required: true,
+      }
     })
 
-    const guardian = reactive<Record<string, any>>({
+    const guardian = reactive<Record<string, DTInputField>>({
       givenName: {
         value: '',
-        validation: (name: string) => Validation.validateSeries([
-          () => Validation.isName(name),
-          () => Validation.required(name)
-        ])
+        required: true,
       },
       familyName: {
         value: '',
-        validation: (name: string) => Validation.validateSeries([
-          () => Validation.isName(name),
-          () => Validation.required(name)
-        ])
+        required: true,
       },
       cellphone: {
         value: '',
-        validation: (phone: string) => Validation.validateSeries([
-          () => Validation.isMWPhoneNumber(phone),
-          () => Validation.required(phone)
-        ])
+        required: true,
+        validation: (phone: Option) => Validation.isMWPhoneNumber(phone)
       },
     })
 
-    const summaryData = computed<Option[]>(() => {
-      const birthdate = patient.birthdate.value 
-        ? HisDate.toStandardHisDisplayFormat(patient.birthdate.value)
-        : HisDate.toStandardHisDisplayFormat(
-          HisDate.estimateDateFromAge(patient.estimatedBirthdate.value)
-        )
-
-      return [
-        { label: 'Name', value: `${patient.givenName.value} ${patient.middleName.value} ${patient.familyName.value}`.trim()},
-        { label: 'Birthdate' , value: birthdate },
-        { label: 'Gender', value: patient.gender.value },
-        { label: "Cellphone", value: patient.cellphone.value },
-        { label: "Physical address", value: `${patient.homeVillage.value} near ${patient.landmark.value}`},
-        { label: "Guardian name", value: `${guardian.givenName.value} ${guardian.familyName.value}`},
-        { label: "Guardian cellphone", value: guardian.cellphone.value}
-      ]
-    })
     const updateGuardian = (newGauardian: Record<string, any>) => {
       Object.assign(guardian, newGauardian)
     }
@@ -147,20 +123,26 @@ export default defineComponent({
       Object.assign(patient, newPatient)
     }
 
+    const updateBirthdateEstimated = (value: boolean) => {
+      isBirthdateEstimated.value = value
+    }
+
     const isClientDetailsInvalid = (client: Record<string, any>) => {
       let isInvalid = false;
       for (const key in client){
-        if(key === 'birthdate' || key === 'estimatedBirthdate') {
-          client[key].hasErrors = (client.birthdate.value || client.estimatedBirthdate.value) ? null : ['Required birthdate']
-          isInvalid = !client.birthdate.hasErrors
-        } else if(client[key].value !== 'Unknown'){
-          const errs = client[key].validation({value: client[key].value, label: ''})
-          if(errs) {
-            client[key].hasErrors = true,
-            isInvalid = true
-          } else {
-            client[key].hasErrors = false
-          }
+        let errors: string[] | null = null
+        if(client[key].value !== 'Unknown' && typeof client[key].validation === 'function') {
+          errors = client[key].validation({
+            value: client[key].value, 
+            label: '',
+            other: (key == 'birthdate' || key === 'estimatedBirthdate') 
+              ? { estimated: isBirthdateEstimated.value }
+              : null 
+          })
+        } 
+        if ((client[key].required && !client[key].value) || errors) {
+          client[key].hasErrors = true,
+          isInvalid = true
         } else {
           client[key].hasErrors = false
         }      
@@ -171,14 +153,14 @@ export default defineComponent({
     const onFinish = () => {
       // double negation to force execution of all conditions
       hasErrors.value = !(!isClientDetailsInvalid(patient) || !isClientDetailsInvalid(guardian))
-      console.log(patient, guardian)
     }
  
     return {
-      summaryData,
       patient,
       guardian,
       hasErrors,
+      isBirthdateEstimated,
+      updateBirthdateEstimated,
       updatePatient,
       updateGuardian,
       onFinish,
