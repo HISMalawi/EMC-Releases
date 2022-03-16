@@ -20,6 +20,7 @@ import { ObsValue } from '@/services/observation_service'
 import { generateDateFields } from '@/utils/HisFormHelpers/MultiFieldDateHelper'
 import HisDate from "@/utils/Date"
 import ANC_PROP from "@/apps/ANC/anc_global_props"
+import { alertConfirmation } from '@/utils/Alerts'
 
 export default defineComponent({
   components: { IonPage },
@@ -31,6 +32,7 @@ export default defineComponent({
     artStatus: '' as string,
     arvStartDate: '' as string,
     recencyEssayActivated: false as boolean,
+    riskOfPreclampsia: null as boolean | null,
     service: {} as any
   }),
   watch: {
@@ -166,23 +168,34 @@ export default defineComponent({
                 type: FieldType.TT_MULTIPLE_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 condition: () => true,
-                onload: () => {
-                    //TODO: Add PreEclampsia warning if bp_systolic >= 140 && bp_diastolic >= 90
-                },
-                options: (f: any) => {
-                    const options = []
+                options: async (f: any) => {
+                    const options: Option[] = []
                     if (f.prev_hiv_test_result && f.prev_hiv_test_result.value != 'Positive' 
                         || !this.service.getHivStatus().match(/positive/i)) {
-                        options.push('HIV')
+                        options.push(this.toOption('HIV'))
                     }
-                    return this.mapStrToOptions([
-                        ...options,
-                        'HB',
-                        'Syphilis',
-                        'Malaria',
-                        'Blood Group',
-                        'Urine'
-                    ])
+                    options.push(this.toOption('HB'))
+                    options.push(this.toOption('Syphilis'))
+                    options.push(this.toOption('Malaria'))
+                    options.push(this.toOption('Blood Group'))
+                    const urine: Option = {
+                        label: 'Urine',
+                        value: 'Urine',
+                        isChecked: false
+                    }
+                    if (this.riskOfPreclampsia === null) {
+                        this.riskOfPreclampsia = await this.service.isAtRiskOfPreEclampsia()
+                        if (this.riskOfPreclampsia) {
+                            const ok: boolean = await alertConfirmation(
+                                'Select urine test to conduct urine protein test', {
+                                header: 'Client is at risk of pre-eclampsia.',
+                                cancelBtnLabel: 'Remind later',
+                                confirmBtnLabel: 'Select Urine Test'
+                            })
+                            urine.isChecked = ok
+                        }
+                    }
+                    return [...options, urine]
                 }
             },
             {
