@@ -109,6 +109,7 @@ export default defineComponent({
                 id: 'prev_hiv_test_result',
                 helpText: 'Previous HIV test results',
                 type: FieldType.TT_SELECT,
+                validation: (v: Option) => Validation.required(v),
                 condition: (f: any) => this.inArray(
                     f.lab_results, (v: Option) => v.label === 'Previous HIV test done' && v.value === 'Yes'), 
                 options: () => {
@@ -118,7 +119,8 @@ export default defineComponent({
                         'Inconclusive',
                         'Unknown'
                     ])
-                }
+                },
+                computedValue: (v: Option) => this.service.buildValueCoded('Previous HIV Test Results', v.value)
             },
             ...generateDateFields({
                 id: 'prev_hiv_test_date',
@@ -129,18 +131,15 @@ export default defineComponent({
                 estimation: {
                     allowUnknown: false
                 },
-                computeValue: (date: string) => {
-                    return {
-                        date
-                    }
-                },
-                condition: (f: any) => f.prev_hiv_test_result?.value ? true : false
+                condition: (f: any) => f.prev_hiv_test_result?.value ? true : false,
+                computeValue: (date: string) => this.service.buildValueDate('Previous HIV Test Date', date)
             }),
             {
                 id: 'on_art',
                 helpText: 'Patient on ART',
                 type: FieldType.TT_TEXT,
                 validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option) => this.service.buildValueCoded('On Art', v.value),
                 condition: (f: any) => f.prev_hiv_test_result.value === 'Positive',
                 options: () => this.yesNoOptions()
             },
@@ -149,6 +148,7 @@ export default defineComponent({
                 helpText: 'ARV Number',
                 type: FieldType.TT_TEXT,
                 validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option) => this.service.buildValueText('Art number', v.value),
                 condition: (f: any) => f.on_art.value === 'Yes'
             },
             {

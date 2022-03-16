@@ -1,6 +1,11 @@
 export default [
    {
       "categories": [],
+      "concept_id": 9656,
+      "name": "Previous HIV Test Results"
+   },
+   {
+      "categories": [],
       "concept_id": 2473,
       "name": "B-HCG"
    },
@@ -8,6 +13,11 @@ export default [
       "categories": [],
       "concept_id": 9655,
       "name": "Previous HIV Test Done"
+   },
+   {
+      "categories": [],
+      "concept_id": 9657,
+      "name": "Previous HIV Test Date"
    },
    {
       "categories": [],
@@ -638,6 +648,16 @@ export default [
       "categories": [],
       "concept_id": 703,
       "name": "Positive"
+   },
+   {
+      "categories": [],
+      "concept_id": 9436,
+      "name": "inconclusive"
+   },
+   {
+      "categories": [],
+      "concept_id": 6698,
+      "name": "trace"
    },
    {
       "categories": [],
