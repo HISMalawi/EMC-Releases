@@ -105,7 +105,6 @@ function confirmationSummary(patient: any, program: any) {
   }
 }
 
-
 const OPD: AppInterface = {
   programID: 14,
   applicationName: 'OPD',
