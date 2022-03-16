@@ -90,21 +90,15 @@ export default defineComponent({
                 condition: () => !this.service.isSubsequentVisit,
                 options: () => {
                     const options: Option[] = [
-                        {
-                            label: 'Pregnancy test done', 
-                            value: 'B-HCG',
-                            other: {
-                                values: this.yesNoOptions()
-                            }
-                        }
+                        this.toYesNoOption('Pregnancy test done', { concept: 'B-HCG'})
                     ]
                     if (!this.service.getHivStatus().match(/positive/i)) {
-                        options.push(this.toYesNoOption('Previous HIV test done'))
+                        options.push(this.toYesNoOption('Previous HIV test done', { concept: 'Previous HIV test done'}))
                     }
                     return options
                 },
                 validation: (v: Option) => Validation.required(v),
-                computedValue: (v: Option[]) => v.map(d => this.service.buildValueCoded(d.label, d.value))
+                computedValue: (v: Option[]) => v.map(d => this.service.buildValueCoded(d.other.concept, d.value))
             },
             {
                 id: 'prev_hiv_test_result',
@@ -209,7 +203,7 @@ export default defineComponent({
             {
                 id: 'on_art_1',
                 helpText: 'Patient on ART',
-                type: FieldType.TT_TEXT,
+                type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 condition: (f: any) => f.hiv_status.value === 'Positive',
                 computedValue: (v: Option) => this.service.buildValueCoded('On Art', v.value),
@@ -252,7 +246,7 @@ export default defineComponent({
             {
                 id: 'syphilis',
                 helpText: 'Syphilis Test Result',
-                type: FieldType.TT_TEXT,
+                type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 computedValue: (v: Option) => this.service.buildValueCoded('Syphilis Test Result', v.value),
                 condition: (f: any) => f.available_test_results.map((v: Option) => v.value).includes('Syphilis'),

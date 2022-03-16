@@ -657,7 +657,7 @@ export default [
    {
       "categories": [],
       "concept_id": 6698,
-      "name": "trace"
+      "name": "Trace"
    },
    {
       "categories": [],

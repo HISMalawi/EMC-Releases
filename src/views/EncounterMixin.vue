@@ -138,11 +138,12 @@ export default defineComponent({
                 { label: "No", value: "No" }
             ]
         },
-        toYesNoOption(label: string): Option {
+        toYesNoOption(label: string, other: any={}): Option {
             return {
                 label,
                 value: '',
                 other: {
+                    ...other,
                     values: this.yesNoOptions()
                 }
             } 
