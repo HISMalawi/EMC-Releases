@@ -102,7 +102,8 @@ export default defineComponent({
                     }
                     return options
                 },
-                computedValue: (v: Option[]) => v.map(d => this.service.buildValueCoded(d.label, d.value)),
+                validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option[]) => v.map(d => this.service.buildValueCoded(d.label, d.value))
             },
             {
                 id: 'prev_hiv_test_result',
