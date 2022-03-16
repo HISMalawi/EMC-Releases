@@ -63,7 +63,9 @@ export default defineComponent({
   },
   methods: {
     async getActivities() {
-      const data = await Service.getJson('user_properties?property=OPD_activities')
+      const data = await Service.getJson('user_properties', {
+        property: 'OPD_activities'
+      })
       if(isEmpty(data)){
         toastWarning("Activities not found");
       } else {
@@ -77,7 +79,7 @@ export default defineComponent({
     },
     async postActivities() {
       const userActivities = {
-        property: "activities",
+        property: "OPD_activities",
         'property_value': this.selectedActivities,
       };
       const res = await Service.postJson('user_properties', userActivities)
