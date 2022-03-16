@@ -37,19 +37,18 @@ export class AncLabResultService extends AppEncounterService {
     async loadHivStatus() {
         const res = await this.requestHivStatus()
         if (res) {
-            this.hivStatus = res['hiv_status']
-            this.artStatus = res['art_status']
-            this.arvNumber = res['arv_number']
-            this.arvStartDate = res['arv_start_date']
+            this.hivStatus = res['hiv_status'] || ''
+            this.artStatus = res['art_status'] || ''
+            this.arvNumber = res['arv_number'] || ''
+            this.arvStartDate = res['arv_start_date'] || ''
         }
     }
 
     async loadPregnancyStatus() {
         const res = await this.requestSubsequentVisit()
         if (res) {
-            this.isSubsequentVisit = res['subsequent_visit']
-            this.isPregnancyTestDone = res['pregnancy_test']
-            this.hivStatus = res['hiv_status']
+            this.isSubsequentVisit = res['subsequent_visit'] || false
+            this.isPregnancyTestDone = res['pregnancy_test'] || false
         }
     }
 
