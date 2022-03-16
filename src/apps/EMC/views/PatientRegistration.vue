@@ -7,38 +7,15 @@
         </ion-col>
       </ion-row>
       <ion-row class="his-card">
-        <template v-if="showForm">
-          <keep-alive>
-            <PatientRegistrationForm
-              :patientDetails="patient"
-              :guardianDetails="guardian"
-              :hasErrors="hasErrors"
-              @updatePatient="updatePatient"
-              @updateGuardian="updateGuardian"
-            />
-          </keep-alive>
-        </template>
-        <template v-else>
-          <ion-col size="12" class="ion-margin-vertical">
-            <h1 class=" ion-text-center ion-margin-vertical"><b>Registration Summary</b></h1>
-          </ion-col>          
-          <ion-col size="12">
-            <ion-list>
-              <ion-item v-for="(item, index) in summaryData" :key="index">
-                <ion-label style="display: flex; justify-content: space-between">
-                  <span>{{ item.label }}</span>
-                  <span><b>{{ item.value }}</b></span>
-                </ion-label>
-              </ion-item>
-            </ion-list>
-          </ion-col>
-        </template>
-        <ion-col class="ion-margin-top" size="12">
-          <ion-button class="searchBtn ion-float-end" @click="goNext" v-if="showForm">Next step</ion-button>
-          <template v-else>
-            <ion-button class="searchBtn ion-float-end" @click="onFinish" color="success">Finish</ion-button>
-            <ion-button class="searchBtn ion-float-end" @click="onPrevious">Previous</ion-button>
-          </template>
+        <ion-col size="12">
+          <PatientRegistrationForm
+            :patientDetails="patient"
+            :guardianDetails="guardian"
+            :hasErrors="hasErrors"
+            @updatePatient="updatePatient"
+            @updateGuardian="updateGuardian"
+          />
+          <ion-button class="ion-margin-top ion-float-end" @click="onFinish" size="large" color="success">Finish</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -66,7 +43,6 @@ export default defineComponent({
     PatientRegistrationForm
 },
   setup() {
-    const showForm = ref(true)
     const hasErrors = ref(false)
     const patient = reactive<Record<string, any>>({
       givenName: {
@@ -192,19 +168,10 @@ export default defineComponent({
       return isInvalid
     }
 
-    const goNext = () => {
+    const onFinish = () => {
       // double negation to force execution of all conditions
       hasErrors.value = !(!isClientDetailsInvalid(patient) || !isClientDetailsInvalid(guardian))
-      console.log(hasErrors.value)
-      showForm.value = hasErrors.value
-    }
-
-    const onFinish = () => {
       console.log(patient, guardian)
-    }
-
-    const onPrevious = () => {
-      showForm.value = true
     }
  
     return {
@@ -212,22 +179,10 @@ export default defineComponent({
       patient,
       guardian,
       hasErrors,
-      showForm,
       updatePatient,
       updateGuardian,
-      goNext,
       onFinish,
-      onPrevious
     };
   },
 });
 </script>
-
-<style scoped>
-.searchBtn {
-  height: 50px !important;
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-right: .5rem;
-}
-</style>
