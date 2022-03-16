@@ -99,9 +99,7 @@ export default defineComponent({
                         }
                     ]
                     if (!this.service.getHivStatus().match(/positive/i)) {
-                        options.push(this.toOption('Previous HIV test done',{
-                            values: this.yesNoOptions()
-                        }))
+                        options.push(this.toYesNoOption('Previous HIV test done'))
                     }
                     return options
                 },
