@@ -10,9 +10,8 @@ import { Observation } from '@/interfaces/observation';
 import { OrderService } from '@/services/order_service';
 import { RelationshipService } from '@/services/relationship_service';
 import { Order } from '@/interfaces/order';
-import { TaskInterface } from '../interfaces/TaskInterface';
-import { modalController } from '@ionic/vue';
-import ActivitiesModal  from '@/apps/OPD/components/ActivitiesSelection.vue';
+import { seletActivities } from '@/utils/WorkflowTaskHelper';
+
 
 async function onRegisterPatient(patientId: number) {
   const program = new PatientProgramService(patientId)
@@ -106,29 +105,6 @@ function confirmationSummary(patient: any, program: any) {
   }
 }
 
-async function seletActivities() {
-  const activities = PRIMARY_ACTIVITIES
-    .filter(a => (typeof a.availableOnActivitySelection === 'boolean'
-      && a.availableOnActivitySelection)
-      || typeof a.availableOnActivitySelection != 'boolean'
-    )
-    .map((activity: TaskInterface) => ({
-      value: activity.workflowID
-        || activity.name,
-      selected: false
-    }))
-  
-  const modal = await modalController.create({
-    component: ActivitiesModal,
-    cssClass:  "large-modal",
-    backdropDismiss: false,
-    componentProps: {
-      activities
-    }
-  })
-  modal.present();
-  await modal.onDidDismiss()
-}
 
 const OPD: AppInterface = {
   programID: 14,
@@ -143,7 +119,7 @@ const OPD: AppInterface = {
   onRegisterPatient,
   formatPatientProgramSummary,
   confirmationSummary,
-  init:async () => await seletActivities(),
+  init: async () => await seletActivities(PRIMARY_ACTIVITIES, 'OPD_activities'),
   programPatientIdentifiers: {
     'National ID': {
       id: 28,

@@ -1,5 +1,5 @@
 import { modalController } from "@ionic/vue";
-import ActivitiesModal from "@/apps/ART/Components/ActivitiesSelection.vue";
+import ActivitiesModal from "@/components/ActivitiesSelection.vue";
 import { PRIMARY_ACTIVITIES } from "./ArtProgramActivities";
 import {TaskInterface} from "./../../interfaces/TaskInterface"
 import { WorkflowService } from "@/services/workflow_service"
@@ -18,7 +18,7 @@ import DrugModalVue from "@/apps/ART/Components/DrugModal.vue";
 import ART_GLOBAL_PROP from "../art_global_props";
 import { isEmpty } from "lodash";
 import { Order } from "@/interfaces/order";
-import { addWorkflowTask, nextTask } from "@/utils/WorkflowTaskHelper";
+import { addWorkflowTask, nextTask, seletActivities } from "@/utils/WorkflowTaskHelper";
 import dayjs from "dayjs";
 import { Service } from "@/services/service";
 import { Patientservice } from '@/services/patient_service';
@@ -34,32 +34,6 @@ async function enrollInArtProgram(patientID: number, patientType: string, clinic
 
     await patientTypeService.createEncounter()
     await patientTypeService.save()
-}
-
-/**
- * Present a modal to select Art activities
- */
-async function showArtActivities() {
-    const activities = PRIMARY_ACTIVITIES
-        .filter(a => (typeof a.availableOnActivitySelection === 'boolean' 
-            && a.availableOnActivitySelection)
-            || typeof a.availableOnActivitySelection != 'boolean'
-        )
-        .map((activity: TaskInterface)=> ({
-            value: activity.workflowID 
-                || activity.name,
-            selected: false
-        }))
-    const modal = await modalController.create({
-        component: ActivitiesModal,
-        cssClass: activities.length > 7 ? "large-modal" : "",
-        backdropDismiss: false,
-        componentProps: {
-            activities
-        }
-    });
-    modal.present();
-    await modal.onDidDismiss()
 }
 
 /**
@@ -86,7 +60,7 @@ function orderToString(order: Order, showDate = true) {
 }
 
 export async function init(context='') {
-    await showArtActivities()
+    await seletActivities(PRIMARY_ACTIVITIES)
     if (context === 'HomePage') {
         await showStockManagementChart()
     }
