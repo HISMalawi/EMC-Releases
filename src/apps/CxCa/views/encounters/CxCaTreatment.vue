@@ -65,9 +65,10 @@ export default defineComponent({
           flows[conceptName] = conceptID;
         });
       });
+      const stateValue = formData.patient_outcome.value;
       const state = {
         'location_id': ProgramService.getLocationName(),
-        state: flows["Continue follow-up"],
+        state: flows[stateValue],
         date: ProgramService.getSessionDate(),
       };
       const saveState = await ProgramService.createState(
@@ -76,13 +77,6 @@ export default defineComponent({
         state
       );
       if (!saveState) return toastWarning("Unable to update state");
-      // const data = formData["referral_outcome"];
-      // const receptionObs = await this.reception.buildValueCoded(
-      //   "Cancer treatment procedure",
-      //   data.value
-      // );
-
-      // const obs = await this.reception.saveObs(receptionObs);
       const vals: any = [];
       Object.keys(computed).forEach(element => {
         vals.push(computed[element].obs);

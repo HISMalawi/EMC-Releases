@@ -186,7 +186,7 @@ export default defineComponent({
             ]);
           },
           condition(formData: any) {
-            return formData.screening_result.value === "VIA Positive";
+            return formData.screening_result.value !== "VIA Negative";
           },
           computedValue: (value: any) => ({
             obs: this.screeningResult.buildValueCoded('Directly observed treatment option', value.value)
