@@ -5,7 +5,7 @@ export enum ANC_GLOBAL_PROP {
 }
 
 function recencyEssayActivated() {
-    return GlobalPropertyService.isProp(`${ANC_GLOBAL_PROP.RECENCY_ESSAY_ACTIVATED}=true`)
+    return GlobalPropertyService.isProp(`${ANC_GLOBAL_PROP.RECENCY_ESSAY_ACTIVATED}=Yes`)
 }
 
 export default {
