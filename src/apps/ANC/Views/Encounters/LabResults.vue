@@ -243,8 +243,12 @@ export default defineComponent({
             {
                 id: 'hb_result',
                 helpText: 'HB Test Result (g/dl)',
-                type: FieldType.TT_TEXT,
-                validation: (v: Option) => Validation.required(v),
+                type: FieldType.TT_NUMBER,
+                validation: (v: Option) => this.validateSeries([
+                    () => Validation.required(v),
+                    () => Validation.rangeOf(v, 2, 16)
+                ]),
+                computedValue: (v: Option) => this.service.buildValueNumber('HB Test Result', v.value),
                 condition: (f: any) => f.available_test_results.map((v: Option) => v.value).includes('HB'),
             },
             {
@@ -252,6 +256,7 @@ export default defineComponent({
                 helpText: 'Syphilis Test Result',
                 type: FieldType.TT_TEXT,
                 validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option) => this.service.buildValueCoded('Syphilis Test Result', v.value),
                 condition: (f: any) => f.available_test_results.map((v: Option) => v.value).includes('Syphilis'),
                 options: () => {
                     return this.mapStrToOptions([
@@ -266,6 +271,7 @@ export default defineComponent({
                 type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 condition: (f: any) => f.available_test_results.map((v: Option) => v.value).includes('Malaria'),
+                computedValue: (v: Option) => this.service.buildValueCoded('Malaria Test Result', v.value),
                 options: () => {
                     return this.mapStrToOptions([
                         'Negative',
@@ -279,6 +285,7 @@ export default defineComponent({
                 type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 condition: (f: any) => f.available_test_results.map((v: Option) => v.value).includes('Blood Group'),
+                computedValue: (v: Option) => this.service.buildValueText('Blood group', v.value),
                 options: () => {
                     return this.mapStrToOptions([
                         "A+",
@@ -314,6 +321,7 @@ export default defineComponent({
                 type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 condition: (f: any) => f.available_urine_tests.map((o: Option) => o.value).includes('Protein'),
+                computedValue: (v: Option) => this.service.buildValueText('Urine protein', v.value),
                 options: () => {
                     return this.mapStrToOptions([
                         "Negative",
@@ -328,9 +336,10 @@ export default defineComponent({
             {
                 id: 'glucose',
                 helpText: 'Glucose Test Result (mg/dl)',
-                type: FieldType.TT_TEXT,
+                type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 condition: (f: any) => f.available_urine_tests.map((o: Option) => o.value).includes('Glucose'),
+                computedValue: (v: Option) => this.service.buildValueText('Blood glucose', v.value),
                 options: () => {
                     return this.mapStrToOptions([
                         "Normal",
@@ -345,6 +354,7 @@ export default defineComponent({
                 helpText: 'White Blood Cells Test Result (cmm)',
                 type: FieldType.TT_NUMBER,
                 validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option) => this.service.buildValueNumber('White blood cells', v.value),
                 condition: (f: any) => f.available_urine_tests.map((o: Option) => o.value).includes('WBC'),
             },
             {
@@ -352,13 +362,15 @@ export default defineComponent({
                 helpText: 'Red Blood Cells Test Result (cmm)',
                 type: FieldType.TT_NUMBER,
                 validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option) => this.service.buildValueNumber('Red blood cells', v.value),
                 condition: (f: any) => f.available_urine_tests.map((o: Option) => o.value).includes('RBC'),
             },
             {
                 id: 'nitrate',
                 helpText: 'Nitrate Test Result',
-                type: FieldType.TT_TEXT,
+                type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option) => this.service.buildValueCoded('Urine Nitrate Test', v.value),
                 condition: (f: any) => f.available_urine_tests.map((o: Option) => o.value).includes('Nitrate'),
                 options: () => {
                     return this.mapStrToOptions([
