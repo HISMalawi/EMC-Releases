@@ -175,9 +175,14 @@ export default defineComponent({
                 type: FieldType.TT_MULTIPLE_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 condition: () => true,
-                options: () => {
+                options: (f: any) => {
+                    const options = []
+                    if (f.prev_hiv_test_result && f.prev_hiv_test_result.value != 'Positive' 
+                        || !this.service.getHivStatus().match(/positive/i)) {
+                        options.push('HIV')
+                    }
                     return this.mapStrToOptions([
-                        'HIV',
+                        ...options,
                         'HB',
                         'Syphilis',
                         'Malaria',
