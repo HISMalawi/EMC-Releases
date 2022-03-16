@@ -207,7 +207,21 @@ export default [
       "concept_id": 149,
       "name": "Cervicitis"
    },
- 
+   {
+      "categories": [],
+      "name": "INH 300 / RFP 300 (3HP)",
+      "concept_id": 10565
+   },
+   {
+      "categories": [],
+      "concept_id": 10563,
+      "name": "Drug received from previous facility"
+   },
+   {
+      "categories": [],
+      "concept_id": 10564,
+      "name": "Date drug received from previous facility"
+   },
    {
       "categories": [],
       "concept_id": 6397,
