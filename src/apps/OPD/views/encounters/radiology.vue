@@ -13,6 +13,9 @@ import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { PrintoutService } from "@/services/printout_service";
+import { ConceptService } from "@/services/concept_service";
+import ApiClient from "@/services/api_client";
+import moment from "dayjs";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -33,13 +36,13 @@ export default defineComponent({
     }
   },
   methods: {
-    async onSubmit(_: any, computedData: any){     
+    async onSubmit(_: any, computedData: any){   
+       
       const data = await Promise.all(computedData.radiology)
-      console.log({data})   
+      console.log({data})
       await this.radiologyService.createEncounter()    
       await this.radiologyService.saveObservationList(data)
-      await this.printOrders(data)
-      //this.nextTask()      
+      await this.printOrders(data)      
     },
     getFields(): Array<Field>{
       return [
@@ -60,10 +63,10 @@ export default defineComponent({
     async printOrders(orders: any) {
       let count = 0
       const delay = (ms: number) => new Promise(res => setTimeout(res, ms))
-      const callPrint = async (element: any) => {
+      const callPrint = async (order: any) => {
         count++
         await delay(2000 * count)
-        this.print(element)
+        this.print(order)
       }
       const miliSec = 2200 * orders.length 
       const callNextTask = async () => {
@@ -71,26 +74,31 @@ export default defineComponent({
         this.nextTask()
       };
       let ordersCount = 0
-      await orders.forEach(async (element: any) => {
+      await orders.forEach(async (order: any) => {
         if (ordersCount == 0) {
-          this.print(element)
+          this.print(order)
         } else {
-          callPrint(element)
+          callPrint(order)
         }
         ordersCount++
       })
       callNextTask()
     },
-    
-    async print(element: any) {
-      const p = new PrintoutService();
-      console.log({element})
+    async print(order: any) {
+      const p = new PrintoutService()
+      const xRayName = await ConceptService.getConceptNameFromApi(order.child.value_coded)
+      let newAccessionNumber = null
+      const response = await ApiClient.get(`sequences/next_accession_number`)
+      if (response && response.status == 200) {
+        const data = await response.json()
+        newAccessionNumber = data['accession_number']
+      }
       let url = `/radiology/barcode`
-          url += `?accession_number=${null}`
-          url += `?patient_national_id=${null}`
-          url += `?patient_name=${'Dominic Kasanga'}`
-          url += `?radio_order=${'Left ankle AP+Lat'}`
-          url += `?date_created=${'Wed Mar 16 2022'}`
+          url += `?accession_number=${newAccessionNumber}`
+          url += `?patient_national_id=${this.patient.getNationalID()}`
+          url += `?patient_name=${this.patient.getFullName()}`
+          url += `?radio_order=${xRayName}`
+          url += `?date_created=${moment(order.obs_datetime)}`
       await p.printLbl(url)
     },
   }
