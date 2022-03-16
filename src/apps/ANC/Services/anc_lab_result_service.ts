@@ -6,13 +6,16 @@ export class AncLabResultService extends AppEncounterService {
     artStatus: string;
     arvNumber: string;
     arvStartDate: string;
-
+    isSubsequentVisit: boolean;
+    isPregnancyTestDone: boolean;
     constructor(patientID: number, providerID: number){
         super(patientID, 32, providerID)
         this.hivStatus = ''
         this.artStatus = ''
         this.arvNumber = ''
         this.arvStartDate = ''
+        this.isPregnancyTestDone = false
+        this.isSubsequentVisit = false
     }
 
     getHivStatus() {
@@ -41,8 +44,21 @@ export class AncLabResultService extends AppEncounterService {
         }
     }
 
+    async loadPregnancyStatus() {
+        const res = await this.requestSubsequentVisit()
+        if (res) {
+            this.isSubsequentVisit = res['subsequent_visit']
+            this.isPregnancyTestDone = res['pregnancy_test']
+            this.hivStatus = res['hiv_status']
+        }
+    }
+
     requestHivStatus() {
         return Service.getJson(`programs/${this.programID}/patients/${this.patientID}/art_hiv_status`)
+    }
+
+    requestSubsequentVisit() {
+        return Service.getJson(`programs/${this.programID}/patients/${this.patientID}/subsequent_visit`)
     }
 
 }

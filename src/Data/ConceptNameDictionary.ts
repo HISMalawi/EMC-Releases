@@ -1,6 +1,16 @@
 export default [
    {
       "categories": [],
+      "concept_id": 2473,
+      "name": "B-HCG"
+   },
+   {
+      "categories": [],
+      "concept_id": 9655,
+      "name": "Previous HIV Test Done"
+   },
+   {
+      "categories": [],
       "concept_id" : 3340,
       "name" : "Currently taking alcohol"
    },
