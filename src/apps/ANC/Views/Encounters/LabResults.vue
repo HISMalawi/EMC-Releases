@@ -109,6 +109,8 @@ export default defineComponent({
                 id: 'prev_hiv_test_result',
                 helpText: 'Previous HIV test results',
                 type: FieldType.TT_SELECT,
+                condition: (f: any) => this.inArray(
+                    f.lab_results, (v: Option) => v.label === 'Previous HIV test done' && v.value === 'Yes'), 
                 options: () => {
                     return this.mapStrToOptions([
                         'Negative',
