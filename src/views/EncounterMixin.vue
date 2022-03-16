@@ -138,6 +138,15 @@ export default defineComponent({
                 { label: "No", value: "No" }
             ]
         },
+        toYesNoOption(label: string): Option {
+            return {
+                label,
+                value: '',
+                other: {
+                    values: this.yesNoOptions()
+                }
+            } 
+        },
         mapOptions(options: Array<string>) {
             return options.map((option) => {
                 return { label: option, value: option }

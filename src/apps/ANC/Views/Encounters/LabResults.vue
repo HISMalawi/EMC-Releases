@@ -19,6 +19,7 @@ import { IonPage } from "@ionic/vue"
 import { ObsValue } from '@/services/observation_service'
 import { generateDateFields } from '@/utils/HisFormHelpers/MultiFieldDateHelper'
 import HisDate from "@/utils/Date"
+import ANC_PROP from "@/apps/ANC/anc_global_props"
 
 export default defineComponent({
   components: { IonPage },
@@ -29,6 +30,7 @@ export default defineComponent({
     hivStatus: '' as string,
     artStatus: '' as string,
     arvStartDate: '' as string,
+    recencyEssayActivated: false as boolean,
     service: {} as any
   }),
   watch: {
@@ -38,6 +40,7 @@ export default defineComponent({
             this.service = new AncLabResultService(this.patientID, this.providerID)
             await this.service.loadPregnancyStatus()
             await this.service.loadHivStatus()
+            this.recencyEssayActivated = await ANC_PROP.recencyEssayActivated()
             this.formFields = this.getFields()
         } 
       },
@@ -154,9 +157,17 @@ export default defineComponent({
             {
                 id: 'recency_essay',
                 helpText: 'Rapid Recency Essay - Asante Results',
-                type: FieldType.TT_TEXT,
+                type: FieldType.TT_MULTIPLE_YES_NO,
                 validation: (v: Option) => Validation.required(v),
-                condition: () => false
+                condition: (f: any) => f.prev_hiv_test_result.value === 'Positive' && this.recencyEssayActivated,
+                computedValue: (v: Option[]) => v.map(d => this.service.buildValueCoded(d.label, d.value)),
+                options: () => {
+                    return [
+                        this.toYesNoOption('Line 1. Control Line Present'),
+                        this.toYesNoOption('Line 2. Positive Verification Line Present'),
+                        this.toYesNoOption('Line 3. Long-term Line Present')
+                    ]
+                }
             },
             {
                 id: 'available_test_results',
