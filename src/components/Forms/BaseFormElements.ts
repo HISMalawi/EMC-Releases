@@ -37,6 +37,7 @@ import TextBanner from "@/components/FormElements/HisTextBanner.vue"
 import DrugDispenser from "@/components/FormElements/GeneralDrugDispenser.vue"
 import HisDataTable from "@/components/FormElements/HisDataTable.vue"
 import HisGroupSelector from "@/components/FormElements/HisGroupSelector.vue"
+import AncPregnancyInfoConfig from "@/components/FormElements/AncPregnancyInfoConfig.vue"
 
 // Reference names for BaseFormComponents
 export enum FieldType {
@@ -79,7 +80,8 @@ export enum FieldType {
     TT_IP_ADDRESS = 'IPAddressInput',
     TT_TEXT_BANNER = 'text-banner',
     TT_DRUG_DISPENSER = 'drug-dispenser',
-    TT_CLINIC_HOLIDAY_PICKER = 'clinic-holiday-picker'
+    TT_CLINIC_HOLIDAY_PICKER = 'clinic-holiday-picker',
+    TT_ANC_PREGNANCY_INPUT_CONFIG = 'anc-pregnancy-info-config'
 }
 
 // Components to be rendered
@@ -122,5 +124,6 @@ export const BaseFormComponents = {
     DrugDispenser,
     ClinicHolidayPicker,
     NoteInput,
-    HisGroupSelector
+    HisGroupSelector,
+    AncPregnancyInfoConfig
 }

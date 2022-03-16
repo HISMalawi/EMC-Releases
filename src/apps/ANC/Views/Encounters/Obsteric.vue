@@ -17,9 +17,6 @@ import { Field, Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { IonPage } from "@ionic/vue"
 import { ObsValue } from '@/services/observation_service'
-import { generateDateFields } from '@/utils/HisFormHelpers/MultiFieldDateHelper'
-import HisDate from "@/utils/Date"
-import ANC_PROP from "@/apps/ANC/anc_global_props"
 import { alertConfirmation } from '@/utils/Alerts'
 
 export default defineComponent({
@@ -79,6 +76,15 @@ export default defineComponent({
                     () => Validation.required(v),
                     () => Validation.rangeOf(v, 0, f.gravida.value - 1)
                 ])
+            },
+            {
+                id: 'known_pregnancies',
+                helpText: 'Pregnancies with available information',
+                type: FieldType.TT_ANC_PREGNANCY_INPUT_CONFIG,
+                condition: (f: any) => f.para.value > 0,
+                config: {
+                  pregnancyCount: (f: any) => f.para.value
+                }
             }
         ]
     }
