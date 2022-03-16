@@ -33,6 +33,7 @@ import { FooterBtnEvent, Option, OptionDescriptionInterface } from "../Forms/Fie
 import { defineComponent } from "vue";
 import { IonCheckbox, IonText, IonChip,  } from "@ionic/vue";
 import SelectMixin from "@/components/FormElements/SelectMixin.vue"
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   components: { IonCheckbox, IonText, IonChip },
@@ -104,6 +105,10 @@ export default defineComponent({
   },
   async activated() {
     this.$emit('onFieldActivated', this)
+    // Optionally Prevent from rebuilding options everytime the component is activated
+    if (!isEmpty(this.listData) && this.config.buildOptionsOnce) {
+      return
+    }
     this.listData = await this.options(this.fdata, this.getChecked(this.listData), this.cdata, this.listData)
     this.$emit('onValue', this.getChecked(this.listData))
   }
