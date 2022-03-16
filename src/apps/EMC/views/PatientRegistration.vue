@@ -39,7 +39,7 @@ import HisDate from "@/utils/Date";
 interface DTInputField {
   value: string;
   required?: boolean;
-  validation?: (option: Option) => string[] | null;
+  validation?: (option: Option, formData?: Record<string, DTInputField>) => string[] | null;
   hasErrors?: boolean;
 }
 
@@ -54,6 +54,11 @@ export default defineComponent({
   setup() {
     const hasErrors = ref(false)
     const isBirthdateEstimated = ref(false)
+    const isInRange = (value: number | string, min: number, max: number) => {
+      if(!value) return false
+      if(typeof value === 'string') value = parseInt(value)
+      return (value >= min && value <= max)
+    }
     const patient = reactive<Record<string, DTInputField>>({
       givenName: {
         value: '',
@@ -70,17 +75,47 @@ export default defineComponent({
         value: '',
         required: true
       },
-      birthdate: {
+      birthDay: {
         value: '',
-        validation: (date: Option) => {
-          if(!date.other.estimated && !date.value) return ['Invalid birthdate']
-          return null
+        validation: (day: Option, formData: any) => {
+          const maxDay = (
+            formData.birthYear.value >= HisDate.getCurrentYear() && 
+            formData.birthMonth.value >= (HisDate.getCurrentMonth() + 1)
+          ) ? HisDate.getCurrentDay() : 31
+          if(!day.other.estimated && isInRange(day.value, 1, maxDay)){
+            return null
+          }
+          return ['Invalid month']
+        }
+      },
+      birthMonth: {
+        value: '',
+        validation: (month: Option, formData: any) => {
+          const maxMonth = formData.birthYear.value >= HisDate.getCurrentYear() 
+            ? HisDate.getCurrentMonth() + 1 
+            : 12
+          if(!month.other.estimated && isInRange(month.value, 1, maxMonth)){
+            return null
+          }
+          return ['Invalid month']
+        }
+      },
+      birthYear: {
+        value: '',
+        validation: (year: Option) => {
+          const maxYear = (new Date).getFullYear()
+          if(!year.other.estimated && isInRange(year.value, 1, maxYear)){
+            return null
+          }
+          return ['Invalid month']
         }
       },
       estimatedBirthdate: {
         value: '',
         validation: (age: Option) => {
-          if(age.other.estimated && !age.value) return ['Invalid age estimate']
+          if(age.other.estimated && (!age.value || isInRange(age.value, 1, 120))) {
+            return ['Invalid age estimate']
+          }
           return null
         }
       },
@@ -132,13 +167,12 @@ export default defineComponent({
       for (const key in client){
         let errors: string[] | null = null
         if(client[key].value !== 'Unknown' && typeof client[key].validation === 'function') {
-          errors = client[key].validation({
+          const option = {
             value: client[key].value, 
             label: '',
-            other: (key == 'birthdate' || key === 'estimatedBirthdate') 
-              ? { estimated: isBirthdateEstimated.value }
-              : null 
-          })
+            other: { estimated: isBirthdateEstimated.value }
+          }
+          errors = client[key].validation(option, client)
         } 
         if ((client[key].required && !client[key].value) || errors) {
           client[key].hasErrors = true,

@@ -59,6 +59,8 @@ function subtract(date: string, unit: any, value: number) {
 function dateIsAfter(date: string) { return dayjs().isAfter(date) }
 
 function getCurrentYear() { return dayjs().year() }
+function getCurrentMonth() { return dayjs().month() }
+function getCurrentDay() { return dayjs().date() }
 
 function getDateBeforeByDays(date: string, days: number) {
     const dateObj = new Date(date)
@@ -132,6 +134,8 @@ export default {
     estimateDateFromAge,
     getYearFromAge,
     getCurrentYear,
+    getCurrentMonth,
+    getCurrentDay,
     getDateBeforeByDays,
     getMonth,
     getDay,

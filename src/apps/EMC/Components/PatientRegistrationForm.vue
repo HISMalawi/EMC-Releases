@@ -55,29 +55,29 @@
               <ion-row v-else style="width: 100%; padding-top: .5rem;">
                 <ion-col size="4">
                   <ion-input 
-                    v-model="day"
+                    v-model="patient.birthDay.value"
                     :min="1"
                     :max="31"
-                    :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
+                    :class="patient.birthDay.hasErrors ? 'box-error' : 'box'"
                     type="number"
                     placeholder="DD"
                   />
                 </ion-col>
                 <ion-col size="4">
                   <ion-input 
-                    v-model="month"
+                    v-model="patient.birthMonth.value"
                     :min="1"
-                    :max="31"
-                    :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
+                    :max="12"
+                    :class="patient.birthMonth.hasErrors ? 'box-error' : 'box'"
                     type="number"
                     placeholder="MM"
                   />
                 </ion-col>
                 <ion-col size="4">
                   <ion-input 
-                    v-model="year"
-                    :min="1920"
-                    :class="patient.birthdate.hasErrors ? 'box-error' : 'box'"
+                    v-model="patient.birthYear.value"
+                    :min="1900"
+                    :class="patient.birthYear.hasErrors ? 'box-error' : 'box'"
                     type="number"
                     placeholder="YYYY"
                   />
@@ -267,23 +267,12 @@ export default defineComponent({
     const patientPhoneUnknown = ref(false)
     const guardian = reactive(props.guardianDetails)
     const patient = reactive(props.patientDetails)
-    const day = ref('')
-    const month = ref('')
-    const year = ref('')
-    const birthdate = computed(() => (day.value && month.value && year.value) 
-      ? `${year.value}-${month.value}-${day.value}` 
-      : ''
-    )
 
     watch(guardianNotAvailable, (isNotAvailable) =>{
       for (const key in guardian) {
         guardian[key].value = isNotAvailable ? 'Unknown' : '' 
         guardian[key].disabled = isNotAvailable
       }
-    })
-
-    watch(birthdate, newBirthdate => {
-      if(newBirthdate) patient.birthdate.value = newBirthdate
     })
 
     watch(guardianPhoneUnknown, (isUnknown) => {
@@ -315,9 +304,6 @@ export default defineComponent({
       patientPhoneUnknown,
       patient,
       guardian,
-      day,
-      month,
-      year,
     }
   },
 })
