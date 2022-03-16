@@ -12,7 +12,7 @@ import { RelationshipService } from '@/services/relationship_service';
 import { Order } from '@/interfaces/order';
 import { TaskInterface } from '../interfaces/TaskInterface';
 import { modalController } from '@ionic/vue';
-import ActivitiesModal  from '@/apps/OPD/components/ActivitiesSelection.vue';
+import ActivitiesModal  from '@/components/ActivitiesSelection.vue'
 
 async function onRegisterPatient(patientId: number) {
   const program = new PatientProgramService(patientId)
@@ -123,7 +123,8 @@ async function seletActivities() {
     cssClass:  "large-modal",
     backdropDismiss: false,
     componentProps: {
-      activities
+      activities,
+      property: 'OPD_activities'
     }
   })
   modal.present();

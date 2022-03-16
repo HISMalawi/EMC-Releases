@@ -1,5 +1,5 @@
 import { modalController } from "@ionic/vue";
-import ActivitiesModal from "@/apps/ART/Components/ActivitiesSelection.vue";
+import ActivitiesModal from "@/components/ActivitiesSelection.vue";
 import { PRIMARY_ACTIVITIES } from "./ArtProgramActivities";
 import {TaskInterface} from "./../../interfaces/TaskInterface"
 import { WorkflowService } from "@/services/workflow_service"
@@ -52,7 +52,7 @@ async function showArtActivities() {
         }))
     const modal = await modalController.create({
         component: ActivitiesModal,
-        cssClass: activities.length > 7 ? "large-modal" : "",
+        cssClass: "large-modal",
         backdropDismiss: false,
         componentProps: {
             activities
