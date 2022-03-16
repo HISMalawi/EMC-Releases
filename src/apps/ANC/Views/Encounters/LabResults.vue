@@ -21,6 +21,7 @@ import { generateDateFields } from '@/utils/HisFormHelpers/MultiFieldDateHelper'
 import HisDate from "@/utils/Date"
 import ANC_PROP from "@/apps/ANC/anc_global_props"
 import { alertConfirmation } from '@/utils/Alerts'
+import { isEmpty } from 'lodash'
 
 export default defineComponent({
   components: { IonPage },
@@ -90,7 +91,8 @@ export default defineComponent({
                 helpText: 'Lab Results',
                 type: FieldType.TT_MULTIPLE_YES_NO,
                 condition: () => !this.service.isSubsequentVisit,
-                options: () => {
+                options: (f: any) => {
+                    if (f.lab_results) return f.lab_results
                     const options: Option[] = [
                         this.toYesNoOption('Pregnancy test done', { concept: 'B-HCG'})
                     ]
@@ -134,7 +136,7 @@ export default defineComponent({
             {
                 id: 'on_art',
                 helpText: 'Patient on ART',
-                type: FieldType.TT_TEXT,
+                type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 computedValue: (v: Option) => this.service.buildValueCoded('On Art', v.value),
                 condition: (f: any) => f.prev_hiv_test_result.value === 'Positive',
@@ -153,12 +155,12 @@ export default defineComponent({
                 helpText: 'Rapid Recency Essay - Asante Results',
                 type: FieldType.TT_MULTIPLE_YES_NO,
                 condition: (f: any) => f.prev_hiv_test_result.value === 'Positive' && this.recencyEssayActivated,
-                computedValue: (v: Option[]) => v.map(d => this.service.buildValueCoded(d.label, d.value)),
+                computedValue: (v: Option[]) => v ? v.map(d => this.service.buildValueCoded(d.label, d.value)) : null,
                 options: () => {
                     return [
                         this.toYesNoOption('Line 1. Control Line Present'),
                         this.toYesNoOption('Line 2. Positive Verification Line Present'),
-                        this.toYesNoOption('Line 3. Long-term Line Present')
+                        this.toYesNoOption('Line 3. Long-Term Line Present')
                     ]
                 }
             },
@@ -167,7 +169,6 @@ export default defineComponent({
                 helpText: 'Available Lab Tests',
                 type: FieldType.TT_MULTIPLE_SELECT,
                 validation: (v: Option) => Validation.required(v),
-                condition: () => true,
                 options: async (f: any) => {
                     const options: Option[] = []
                     if (f.prev_hiv_test_result && f.prev_hiv_test_result.value != 'Positive' 
@@ -196,6 +197,9 @@ export default defineComponent({
                         }
                     }
                     return [...options, urine]
+                },
+                config: {
+                    buildOptionsOnce: true
                 }
             },
             {
@@ -233,10 +237,9 @@ export default defineComponent({
             {
                 id: 'recency_essay_1',
                 helpText: 'Rapid Recency Essay - Asante Results',
-                type: FieldType.TT_TEXT,
-                validation: (v: Option) => Validation.required(v),
+                type: FieldType.TT_MULTIPLE_YES_NO,
                 condition: (f: any) => f.hiv_status.value === 'Positive' && this.recencyEssayActivated,
-                computedValue: (v: Option[]) => v ? v.map(d => this.service.buildValueCoded(d.label, d.value)) : null,
+                computedValue: (v: Option[]) => v ? v.map(d => this.service.buildValueCoded(d.label, d.value)) : null,                
                 options: () => {
                     return [
                         this.toYesNoOption('Line 1. Control Line Present'),
@@ -318,6 +321,9 @@ export default defineComponent({
                         "RBC",
                         "Nitrate"
                     ])
+                },
+                config: {
+                    buildOptionsOnce: true
                 }
             },
             {
