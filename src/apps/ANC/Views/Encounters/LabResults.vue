@@ -21,7 +21,6 @@ import { generateDateFields } from '@/utils/HisFormHelpers/MultiFieldDateHelper'
 import HisDate from "@/utils/Date"
 import ANC_PROP from "@/apps/ANC/anc_global_props"
 import { alertConfirmation } from '@/utils/Alerts'
-import { isEmpty } from 'lodash'
 
 export default defineComponent({
   components: { IonPage },

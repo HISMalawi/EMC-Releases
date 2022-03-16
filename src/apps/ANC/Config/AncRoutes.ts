@@ -33,5 +33,10 @@ export default [
         name: 'lab results',
         path: '/anc/lab_results/:patient_id',
         component: () => import("@/apps/ANC/Views/Encounters/LabResults.vue")
+    },
+    {
+        name: 'obstetric history',
+        path: '/anc/obsteric/:patient_id',
+        component: () => import("@/apps/ANC/Views/Encounters/Obsteric.vue")
     }
 ]
