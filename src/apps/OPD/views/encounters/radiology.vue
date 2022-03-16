@@ -9,19 +9,16 @@ import { defineComponent } from 'vue'
 import HisStandardForm from "@/components/Forms/TouchScreenForm.vue";
 import EncounterMixinVue from '@/views/EncounterMixin.vue';
 import { PatientRadiologyService } from "@/apps/OPD/services/patient_radiology_service";
-import LabOrderModal from "@/components/DataViews/LabOrderModal.vue"
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
-import { modalController, IonPage } from '@ionic/vue';
 import { PrintoutService } from "@/services/printout_service";
 
 export default defineComponent({
-  components: { HisStandardForm, IonPage },
+  components: { HisStandardForm },
   mixins: [EncounterMixinVue],
   data: () => ({
-    radiologyService: {} as any,
-    count: 0
+    radiologyService: {} as any
   }),
   watch: {
     ready: {
@@ -42,16 +39,7 @@ export default defineComponent({
       await this.radiologyService.createEncounter()    
       await this.radiologyService.saveObservationList(data)
       await this.printOrders(data)
-      this.nextTask()        
-    },
-    async launchOrderSelection() {
-      const modal = await modalController.create({
-        component: LabOrderModal,
-        backdropDismiss: false,
-        cssClass: 'large-modal'
-      })
-      modal.present()
-      await modal.onDidDismiss()
+      //this.nextTask()      
     },
     getFields(): Array<Field>{
       return [
@@ -66,44 +54,45 @@ export default defineComponent({
               child: (await this.radiologyService.buildValueCodedFromConceptId(option.other.parent, option.other.concept_id))
             }))
           },
-          config: {
-            footerBtns: [
-              {
-                name: "Lab Order",
-                size: "large",
-                slot: "end",
-                color: "primary",
-                visible: true,
-                onClick: async () => await this.launchOrderSelection(),
-                visibleOnStateChange: (state: Record<string, any>) => {
-                  return state.index === 1;
-                },
-              },
-            ],
-          }
         },
       ]
     },
     async printOrders(orders: any) {
+      let count = 0
+      const delay = (ms: number) => new Promise(res => setTimeout(res, ms))
+      const callPrint = async (element: any) => {
+        count++
+        await delay(2000 * count)
+        this.print(element)
+      }
+      const miliSec = 2200 * orders.length 
+      const callNextTask = async () => {
+        await delay(miliSec);
+        this.nextTask()
+      };
+      let ordersCount = 0
       await orders.forEach(async (element: any) => {
-        this._timeout(element)
-      });
-      this.count++
+        if (ordersCount == 0) {
+          this.print(element)
+        } else {
+          callPrint(element)
+        }
+        ordersCount++
+      })
+      callNextTask()
     },
+    
     async print(element: any) {
       const p = new PrintoutService();
       console.log({element})
-      const url = `/radiology/barcode?radio_order=${element.concept_id}`
-      console.log({url})
+      let url = `/radiology/barcode`
+          url += `?accession_number=${null}`
+          url += `?patient_national_id=${null}`
+          url += `?patient_name=${'Dominic Kasanga'}`
+          url += `?radio_order=${'Left ankle AP+Lat'}`
+          url += `?date_created=${'Wed Mar 16 2022'}`
       await p.printLbl(url)
     },
-    async _timeout(element: any) {
-      await this.timeout(3000)
-      this.print(element)
-    },
-    timeout(ms: any) {
-      return new Promise(resolve => setTimeout(resolve, ms))
-    }
   }
 })
 </script>
