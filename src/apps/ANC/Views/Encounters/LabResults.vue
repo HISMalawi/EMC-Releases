@@ -18,19 +18,25 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { IonPage } from "@ionic/vue"
 import { ObsValue } from '@/services/observation_service'
 import { generateDateFields } from '@/utils/HisFormHelpers/MultiFieldDateHelper'
+import HisDate from "@/utils/Date"
 
 export default defineComponent({
   components: { IonPage },
   mixins: [EncounterMixinVue],
   data: () => ({
     formFields: [] as any,
+    arvNumber: '' as string,
+    hivStatus: '' as string,
+    artStatus: '' as string,
+    arvStartDate: '' as string,
     service: {} as any
   }),
   watch: {
     ready: {
-      handler(ready: boolean) {
+      async handler(ready: boolean) {
         if (ready) {
             this.service = new AncLabResultService(this.patientID, this.providerID)
+            await this.service.loadHivStatus()
             this.formFields = this.getFields()
         } 
       },
@@ -47,16 +53,31 @@ export default defineComponent({
     getFields(): Field[] {
         return [
             {
-                id: '',
-                helpText: '',
-                type: FieldType.TT_TEXT,
-                validation: (v: Option) => Validation.required(v),
-                condition: () => true
-            },
-            {
                 id: 'art_summary',
                 helpText: 'ART Summary',
-                type: FieldType.TT_TEXT_BANNER
+                type: FieldType.TT_SUMMARY,
+                condition: () => this.service.getHivStatus().match(/positive/i),
+                options: () => {
+                    return [
+                        {
+                            label: 'HIV Status', 
+                            value: `
+                                <b style="color:${this.service.getHivStatus().match(/positive/i) ? 'red': 'green'}">
+                                    ${this.service.getHivStatus()}
+                                </b>
+                            `
+                        },
+                        {
+                            label: 'On Art', value: this.service.getArtStatus() || 'Unknown'
+                        },
+                        {
+                            label: 'Art Start date', value: HisDate.toStandardHisDisplayFormat(this.service.getArvStartDate()) || 'N/A'
+                        },
+                        {
+                            label: 'ARV Number', value: this.service.getArvNumber() || 'N/A'
+                        }
+                    ]
+                }
             },
             {
                 id: 'lab_results',
