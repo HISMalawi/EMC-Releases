@@ -158,7 +158,6 @@ export default defineComponent({
                 id: 'recency_essay',
                 helpText: 'Rapid Recency Essay - Asante Results',
                 type: FieldType.TT_MULTIPLE_YES_NO,
-                validation: (v: Option) => Validation.required(v),
                 condition: (f: any) => f.prev_hiv_test_result.value === 'Positive' && this.recencyEssayActivated,
                 computedValue: (v: Option[]) => v.map(d => this.service.buildValueCoded(d.label, d.value)),
                 options: () => {
@@ -175,6 +174,9 @@ export default defineComponent({
                 type: FieldType.TT_MULTIPLE_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 condition: () => true,
+                onload: () => {
+                    //TODO: Add PreEclampsia warning if bp_systolic >= 140 && bp_diastolic >= 90
+                },
                 options: (f: any) => {
                     const options = []
                     if (f.prev_hiv_test_result && f.prev_hiv_test_result.value != 'Positive' 
@@ -197,6 +199,7 @@ export default defineComponent({
                 type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 condition: (f: any) => f.available_test_results.map((v: Option) => v.value).includes('HIV'),
+                computedValue: (v: Option) => this.service.buildValueCoded('HIV status', v.value),
                 options: () => {
                     return this.mapStrToOptions([
                         'Negative',
@@ -211,6 +214,7 @@ export default defineComponent({
                 type: FieldType.TT_TEXT,
                 validation: (v: Option) => Validation.required(v),
                 condition: (f: any) => f.hiv_status.value === 'Positive',
+                computedValue: (v: Option) => this.service.buildValueCoded('On Art', v.value),
                 options: () => this.yesNoOptions()
             },
             {
@@ -218,6 +222,7 @@ export default defineComponent({
                 helpText: 'ARV Number',
                 type: FieldType.TT_TEXT,
                 validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option) => this.service.buildValueText('Art number', v.value),
                 condition: (f: any) => f.on_art_1.value === 'Yes'
             },
             {
@@ -225,7 +230,15 @@ export default defineComponent({
                 helpText: 'Rapid Recency Essay - Asante Results',
                 type: FieldType.TT_TEXT,
                 validation: (v: Option) => Validation.required(v),
-                condition: () => true
+                condition: (f: any) => f.hiv_status.value === 'Positive' && this.recencyEssayActivated,
+                computedValue: (v: Option[]) => v ? v.map(d => this.service.buildValueCoded(d.label, d.value)) : null,
+                options: () => {
+                    return [
+                        this.toYesNoOption('Line 1. Control Line Present'),
+                        this.toYesNoOption('Line 2. Positive Verification Line Present'),
+                        this.toYesNoOption('Line 3. Long-term Line Present')
+                    ]
+                }
             },
             {
                 id: 'hb_result',

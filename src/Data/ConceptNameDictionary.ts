@@ -652,7 +652,7 @@ export default [
    {
       "categories": [],
       "concept_id": 9436,
-      "name": "inconclusive"
+      "name": "Inconclusive"
    },
    {
       "categories": [],
