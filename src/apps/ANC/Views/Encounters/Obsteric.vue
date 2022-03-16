@@ -68,6 +68,17 @@ export default defineComponent({
                     () => Validation.required(v),
                     () => Validation.rangeOf(v, 1, 19)
                 ])
+            },
+            {
+                id: 'para',
+                helpText: 'Para',
+                type: FieldType.TT_NUMBER,
+                condition: (f: any) => f.gravida.value > 1,
+                computedValue: (v: Option) => this.service.buildValueNumber('Parity', v.value), 
+                validation: (v: Option, f: any) => this.validateSeries([
+                    () => Validation.required(v),
+                    () => Validation.rangeOf(v, 0, f.gravida.value - 1)
+                ])
             }
         ]
     }
