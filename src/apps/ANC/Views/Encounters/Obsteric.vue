@@ -18,6 +18,7 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { IonPage } from "@ionic/vue"
 import { ObsValue } from '@/services/observation_service'
 import { alertConfirmation } from '@/utils/Alerts'
+import { getNumberOrdinal } from "@/utils/Strs"
 
 export default defineComponent({
   components: { IonPage },
@@ -95,8 +96,9 @@ export default defineComponent({
 					const abortionCount = f.knownPregnancies.length - parseInt(`${f.gravida.value}`)
 					const knownAbortions: Option[] = []
 					for(let i=0; i < abortionCount; ++i) {
+						const num = i + 1
 						knownAbortions.push({
-							label: `${i + 1} Abortion`,
+							label: `<span style="color:red;">${num}<sup>${getNumberOrdinal(num)}</sup> Abortion</span>`,
 							value: 1,
 							other: {
 								data: [
@@ -217,7 +219,9 @@ export default defineComponent({
 							}
 						})
 					}
-					const knownPregnancies = f.known_pregnancies.map((p: Option) => {
+					const knownPregnancies = f.known_pregnancies.map((p: Option, index: number) => {
+						const num = index + 1
+						p.label = `${num}<sup>${getNumberOrdinal(num)}</sup> delivery`
 						p.other = {
 							data: [
 								{
@@ -371,6 +375,7 @@ export default defineComponent({
 								}
 							]
 						}
+						return p
 					})
 					return [...knownPregnancies, ...knownAbortions] as Option[]
 				}
