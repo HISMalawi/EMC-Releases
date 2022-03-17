@@ -5,7 +5,7 @@
         <ion-title class="ion-text-center ion-margin-vertical">{{ title }}</ion-title>
       </ion-col>
     </ion-row>
-    <ion-row>
+    <ion-row v-if="searchable">
       <ion-col>
         <ion-input
           class="box-input"
@@ -69,6 +69,10 @@ export default defineComponent({
       type: String,
       default: "Select Items",
     },
+    searchable: {
+      type: Boolean,
+      default: true,
+    }
   },
   components: {
     IonCol,

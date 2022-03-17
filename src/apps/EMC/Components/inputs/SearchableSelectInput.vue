@@ -42,6 +42,10 @@ export default defineComponent({
       type: String,
       default: "Select Items",
     },
+    searchable: {
+      type: Boolean,
+      default: true,
+    }
   },
   emits: ["onSelect"],
   setup(props, { emit }) {
@@ -54,7 +58,8 @@ export default defineComponent({
           asyncOptions: props.asyncOptions,
           options: props.options,
           title: props.placeholder,
-          multiSelect: props.multiSelect
+          multiSelect: props.multiSelect,
+          searchable: props.searchable
         }
       })
 
