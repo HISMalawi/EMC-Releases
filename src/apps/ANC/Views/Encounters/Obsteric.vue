@@ -108,6 +108,9 @@ export default defineComponent({
 												id: 'year',
 												helpText: 'Year of birth',
 												type: FieldType.TT_NUMBER,
+												computedValue: (v: Option) => {
+													return this.service.buildValueNumber('Year of abortion', v.value)
+												},
 												validation: (v: Option) => this.validateSeries([
 													() => Validation.required(v),
 													() => {
@@ -127,6 +130,9 @@ export default defineComponent({
 												id: 'place_of_abortion',
 												helpText: 'Place of abortion',
 												type: FieldType.TT_SELECT,
+												computedValue: (v: Option) => {
+													return this.service.buildValueText('Place of abortion', v.value)
+												},
 												validation: (v: Option) => this.validateSeries([
 													() => Validation.required(v)
 												]),
@@ -150,6 +156,9 @@ export default defineComponent({
 												id: 'type_of_abortion',
 												helpText: 'Type of abortion',
 												type: FieldType.TT_SELECT,
+												computedValue: (v: Option) => {
+													return this.service.buildValueCoded('Type of Abortion', v.value)
+												},
 												validation: (v: Option) => this.validateSeries([
 													() => Validation.required(v)
 												]),
@@ -173,6 +182,9 @@ export default defineComponent({
 												validation: (v: Option) => this.validateSeries([
 													() => Validation.required(v)
 												]),
+												computedValue: (v: Option) => {
+													return this.service.buildValueText('Procedure done', v.value)
+												},
 												options: () => {
 													return this.mapStrToOptions([
 														"Manual Vacuum Aspiration (MVA)", 
@@ -191,6 +203,9 @@ export default defineComponent({
 												id: 'gestation_weeks',
 												helpText: 'Gestation (weeks)',
 												type: FieldType.TT_NUMBER,
+												computedValue: (v: Option) => {
+													return this.service.buildValueNumber('Gestation', v.value)
+												},
 												validation: (v: Option) => this.validateSeries([
 													() => Validation.required(v),
 													() => Validation.rangeOf(v, 0, 30)
