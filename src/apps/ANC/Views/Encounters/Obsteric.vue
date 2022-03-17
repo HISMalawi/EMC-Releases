@@ -109,7 +109,12 @@ export default defineComponent({
 												helpText: 'Year of birth',
 												type: FieldType.TT_NUMBER,
 												validation: (v: Option) => this.validateSeries([
-													() => Validation.required(v)
+													() => Validation.required(v),
+													() => {
+														const [minY] = this.patient.getBirthdate()
+														const [maxY] = this.service.getDate()
+														return Validation.rangeOf(v, minY, maxY) 
+													}
 												])
 											}
 										}
@@ -124,7 +129,16 @@ export default defineComponent({
 												type: FieldType.TT_SELECT,
 												validation: (v: Option) => this.validateSeries([
 													() => Validation.required(v)
-												])
+												]),
+												option: () => {
+													return this.mapStrToOptions([
+														"Health facility", 
+														"In transit", 
+														"TBA", 
+														"Home", 
+														"Other"
+													])
+												}
 											}
 										}
 									},
@@ -140,7 +154,10 @@ export default defineComponent({
 													() => Validation.required(v)
 												]),
 												options: () => {
-													return []
+													return this.mapStrToOptions([
+														"Complete abortion", 
+														"Incomplete abortion"
+													])
 												}
 											}
 										}
@@ -157,7 +174,11 @@ export default defineComponent({
 													() => Validation.required(v)
 												]),
 												options: () => {
-													return []
+													return this.mapStrToOptions([
+														"Manual Vacuum Aspiration (MVA)", 
+														"Evacuation", 
+														"None"
+													])
 												}
 											}
 										}
@@ -171,7 +192,8 @@ export default defineComponent({
 												helpText: 'Gestation (weeks)',
 												type: FieldType.TT_NUMBER,
 												validation: (v: Option) => this.validateSeries([
-													() => Validation.required(v)
+													() => Validation.required(v),
+													() => Validation.rangeOf(v, 0, 30)
 												])
 											}
 										}
@@ -191,7 +213,12 @@ export default defineComponent({
 										helpText: 'Year of birth',
 										type: FieldType.TT_NUMBER,
 										validation: (v: Option) => this.validateSeries([
-											() => Validation.required(v)
+											() => Validation.required(v),
+											() => {
+												const [minY] = this.patient.getBirthdate()
+												const [maxY] = this.service.getDate()
+												return Validation.rangeOf(v, minY, maxY) 
+											}
 										])
 									}
 								},
@@ -204,7 +231,12 @@ export default defineComponent({
 										type: FieldType.TT_SELECT,
 										validation: (v: Option) => Validation.required(v), 
 										options: () => {
-											return []
+											return this.mapStrToOptions([
+												"Health facility", 
+												"In transit", 
+												"TBA", 
+												"Home"
+											])
 										}
 									}
 								},
@@ -216,7 +248,8 @@ export default defineComponent({
 										helpText: 'Gestation (weeks)',
 										type: FieldType.TT_NUMBER,
 										validation: (v: Option) => this.validateSeries([
-											() => Validation.required(v)
+											() => Validation.required(v),
+											() => Validation.rangeOf(v, 5, 42)
 										])
 									}
 								},
@@ -229,7 +262,14 @@ export default defineComponent({
 										type: FieldType.TT_SELECT,
 										validation: (v: Option) => Validation.required(v),
 										options: () => {
-											return []
+											return this.mapStrToOptions([
+												"Spontaneous Vertex", 
+												"Caesarean Section", 
+												"Vacuum extraction delivery", 
+												"Breech", 
+												"Forceps", 
+												"Others"
+											])
 										}
 									}
 								},
@@ -242,7 +282,11 @@ export default defineComponent({
 										type: FieldType.TT_SELECT,
 										validation: (v: Option) => Validation.required(v),
 										options: () => {
-											return []
+											return this.mapStrToOptions([
+												"Alive", 
+												"Macerated Still Birth (MSB)", 
+												"Fresh Still Birth (FSB)"
+											])
 										}
 									}
 								},
@@ -254,7 +298,8 @@ export default defineComponent({
 										helpText: 'Birth weight',
 										type: FieldType.TT_NUMBER,
 										validation: (v: Option) => this.validateSeries([
-											() => Validation.required(v)
+											() => Validation.required(v),
+											() => Validation.rangeOf(v, 1, 5)
 										])
 									}
 								},
@@ -269,7 +314,7 @@ export default defineComponent({
 											() => Validation.required(v)
 										]),
 										options: () => {
-											return []
+											return this.yesNoOptions()
 										}
 									}
 								},
@@ -279,13 +324,10 @@ export default defineComponent({
 									field: {
 										id: 'age_at_death',
 										helpText: 'Age at death',
-										type: FieldType.TT_TEXT,
+										type: FieldType.TT_NUMBER,
 										validation: (v: Option) => this.validateSeries([
 											() => Validation.required(v)
-										]),
-										options: () => {
-											return []
-										}
+										])
 									}
 								}
 							]
