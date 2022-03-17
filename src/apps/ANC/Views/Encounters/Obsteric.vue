@@ -212,6 +212,9 @@ export default defineComponent({
 										id: 'year',
 										helpText: 'Year of birth',
 										type: FieldType.TT_NUMBER,
+										computedValue: (v: Option) => {
+											return this.service.buildValueNumber('Year of Birth', v.value)
+										},
 										validation: (v: Option) => this.validateSeries([
 											() => Validation.required(v),
 											() => {
@@ -229,6 +232,9 @@ export default defineComponent({
 										id: 'place_of_birth',
 										helpText: 'Place of birth',
 										type: FieldType.TT_SELECT,
+										computedValue: (v: Option) => {
+											return this.service.buildValueText('Place of birth', v.value)
+										},
 										validation: (v: Option) => Validation.required(v), 
 										options: () => {
 											return this.mapStrToOptions([
@@ -247,6 +253,9 @@ export default defineComponent({
 										id: 'gestation_weeks',
 										helpText: 'Gestation (weeks)',
 										type: FieldType.TT_NUMBER,
+										computedValue: (v: Option) => {
+											return this.service.buildValueNumber('Gestation', v.value)
+										},
 										validation: (v: Option) => this.validateSeries([
 											() => Validation.required(v),
 											() => Validation.rangeOf(v, 5, 42)
@@ -260,6 +269,9 @@ export default defineComponent({
 										id: 'method_of_delivery',
 										helpText: 'Method of delivery',
 										type: FieldType.TT_SELECT,
+										computedValue: (v: Option) => {
+											return this.service.buildValueText('Method of delivery', v.value)
+										},
 										validation: (v: Option) => Validation.required(v),
 										options: () => {
 											return this.mapStrToOptions([
@@ -280,6 +292,9 @@ export default defineComponent({
 										id: 'condition_at_birth',
 										helpText: 'Condition at birth',
 										type: FieldType.TT_SELECT,
+										computedValue: (v: Option) => {
+											return this.service.buildValueText('Condition at Birth', v.value)
+										},
 										validation: (v: Option) => Validation.required(v),
 										options: () => {
 											return this.mapStrToOptions([
@@ -297,6 +312,9 @@ export default defineComponent({
 										id: 'birth_weight',
 										helpText: 'Birth weight',
 										type: FieldType.TT_NUMBER,
+										computedValue: (v: Option) => {
+											return this.service.buildValueText('Birth weight', v.value)
+										},
 										validation: (v: Option) => this.validateSeries([
 											() => Validation.required(v),
 											() => Validation.rangeOf(v, 1, 5)
@@ -310,6 +328,9 @@ export default defineComponent({
 										id: 'alive_now',
 										helpText: 'Alive now',
 										type: FieldType.TT_SELECT,
+										computedValue: (v: Option) => {
+											return this.service.buildValueCoded('Alive', v.value)
+										},
 										validation: (v: Option) => this.validateSeries([
 											() => Validation.required(v)
 										]),
@@ -325,6 +346,9 @@ export default defineComponent({
 										id: 'age_at_death',
 										helpText: 'Age at death',
 										type: FieldType.TT_NUMBER,
+										computedValue: (v: Option) => {
+											return this.service.buildValueText('Age at Death', v.value)
+										},
 										validation: (v: Option) => this.validateSeries([
 											() => Validation.required(v)
 										])
