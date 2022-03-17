@@ -55,6 +55,7 @@ import {
     arrowUp,
     arrowDown
 } from "ionicons/icons"
+import { getNumberOrdinal } from "@/utils/Strs"
 
 export default defineComponent({
     name: "HisSelect",
@@ -85,17 +86,12 @@ export default defineComponent({
         }
     },
     methods: {
-        getNumberOrdinal(n: number) {
-            const s = ["th", "st", "nd", "rd"],
-                v = n % 100;
-            return (s[(v - 20) % 10] || s[v] || s[0]);
-        },
         buildOptions(limit: number) {
             const options = []
             for(let i=0; i < limit; ++i) {
                 const num = i + 1 
                 options.push({
-                    label: `${num} <sup>${this.getNumberOrdinal(num)}</sup>`,
+                    label: `${num} <sup>${getNumberOrdinal(num)}</sup>`,
                     value: 1,
                     isChecked: true
                 })
