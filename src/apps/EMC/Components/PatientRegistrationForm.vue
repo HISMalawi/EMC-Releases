@@ -86,15 +86,15 @@
             </ion-col>
             <ion-col size="4">
               <ion-label >Gender (*): </ion-label>
-              <ion-select 
+              <searchable-select-input
                 class="ion-margin-top"
-                :class="patient.gender.hasErrors ? 'box-error' : 'box'" 
-                v-model="patient.gender.value"
-                placeholder="select gender"
-              >
-                <ion-select-option>Male</ion-select-option>
-                <ion-select-option>Female</ion-select-option>
-              </ion-select>
+                placeholder="Select Gender"
+                :value="patient.gender.value"
+                :class="patient.gender.hasErrors ? 'box-error' : 'box'"
+                :options="genderOptions"
+                :searchable="false"
+                @onSelect="setPatientGender"
+              />
             </ion-col>
             <ion-col size="4">
               <ion-label>
@@ -137,8 +137,8 @@
                 :value="patient.homeVillage.value"
                 :class="patient.homeVillage.hasErrors ? 'box-error' : 'box'"
                 :asyncOptions="getVillagesByName"
-                @onSelect="(option) => patient.homeVillage.value = option.label"
-              ></searchable-select-input>
+                @onSelect="setPatientVillage"
+              />
             </ion-col>
             <ion-col size="6">
               <ion-label>
@@ -155,16 +155,15 @@
                 class="ion-margin-top"
                 :class="patient.landmark.hasErrors ? 'box-error' : 'box'"
               />
-              <ion-select 
-                class="ion-margin-top"
-                :class="patient.landmark.hasErrors ? 'box-error' : 'box'"
-                placeholder="Select Landmark" 
-                v-model="patient.landmark.value" 
+              <searchable-select-input
                 v-else
-              >
-                <ion-select-option>Church</ion-select-option>
-                <ion-select-option>Primary School</ion-select-option>
-              </ion-select>
+                class="ion-margin-top"
+                placeholder="Select Closest Landmark"
+                :value="patient.landmark.value"
+                :class="patient.landmark.hasErrors ? 'box-error' : 'box'"
+                :options="landmarks"
+                @onSelect="setPatientLandmark"
+              />
             </ion-col>
           </ion-row>
           <ion-title class=" ion-text-center ion-margin-vertical ion-padding-top">
@@ -221,10 +220,11 @@
 </template>
 
 <script lang="ts">
-import { IonCheckbox, IonCol, IonGrid, IonInput, IonRow, IonSelect, IonSelectOption } from '@ionic/vue'
+import { IonCheckbox, IonCol, IonGrid, IonInput, IonRow } from '@ionic/vue'
 import { computed, defineComponent, PropType, reactive, ref, watch } from 'vue'
-import { getVillagesByName } from "@/utils/HisFormHelpers/LocationFieldOptions";
+import { getLandmarks, getVillagesByName } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import SearchableSelectInput from './inputs/SearchableSelectInput.vue'
+import { Option } from '@/components/Forms/FieldInterface';
 
 export default defineComponent({
   name: 'PatientRegistrationForm',
@@ -251,8 +251,6 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonInput,
-    IonSelect,
-    IonSelectOption,
     IonCheckbox,
     SearchableSelectInput
 },
@@ -262,6 +260,11 @@ export default defineComponent({
       get: () => props.isBirthdateEstimated,
       set: (value) => emit("estimateBirthdate", value)
     })
+    const genderOptions = [
+      { label: "Male", value: "M" },
+      { label: "Female", value: "F"}
+    ]
+    const landmarks = getLandmarks()
     const guardianNotAvailable = ref(false)
     const addCustomVillage = ref(false)
     const addCustomLandmark = ref(false)
@@ -269,6 +272,21 @@ export default defineComponent({
     const patientPhoneUnknown = ref(false)
     const guardian = reactive(props.guardianDetails)
     const patient = reactive(props.patientDetails)
+
+    const setPatientLandmark = (option: Option) => {
+      patient.landmark.value = option.label
+      patient.landmark.other = option
+    }
+
+    const setPatientVillage = (option: Option) => {
+      patient.homeVillage.value = option.label
+      patient.homeVillage.other = option
+    }
+
+    const setPatientGender = (option: Option) => {
+      patient.gender.value = option.label
+      patient.gender.other = option
+    }
 
     watch(guardianNotAvailable, (isNotAvailable) =>{
       for (const key in guardian) {
@@ -306,7 +324,12 @@ export default defineComponent({
       patientPhoneUnknown,
       patient,
       guardian,
-      getVillagesByName
+      landmarks,
+      genderOptions,
+      getVillagesByName,
+      setPatientLandmark,
+      setPatientVillage,
+      setPatientGender
     }
   },
 })

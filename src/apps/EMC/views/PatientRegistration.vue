@@ -41,6 +41,7 @@ interface DTInputField {
   required?: boolean;
   validation?: (option: Option, formData?: Record<string, DTInputField>) => string[] | null;
   hasErrors?: boolean;
+  other?: any;
 }
 
 export default defineComponent({
