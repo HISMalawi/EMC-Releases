@@ -30,7 +30,7 @@
                             </ion-row>
                             
                         </td>
-                        <td><ion-checkbox v-model="item.isChecked"/></td>
+                        <td><ion-checkbox color="medium" v-model="item.isChecked"/></td>
                     </tr>
                 </tbody>
             </table>
