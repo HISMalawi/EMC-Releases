@@ -78,3 +78,27 @@ export async function getVillagesByName(name=''): Promise<Option[]> {
         other: village
     }))
 }
+
+export function getLandmarks(): Option[] {
+    const landmarks = [
+        'Catholic Church',
+        'CCAP',
+        'Seventh Day',
+        'Mosque',
+        'Primary School',
+        'Borehole',
+        'Secondary School',
+        'College',
+        'Market',
+        'Football Ground',
+        'Other'
+    ]
+
+    return landmarks.map(landmark =>({
+        label: landmark,
+        value: landmark,
+        other: {
+            code: landmark
+        }
+    }))
+}
