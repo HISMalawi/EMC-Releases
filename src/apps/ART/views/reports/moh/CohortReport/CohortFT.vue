@@ -678,14 +678,14 @@
         <div class="granules">
           <div class="granules-row">
             <div class="granules-cell granules-right-td"><span>PP</span></div>
-            <div class="granules-cell"><span>P</span></div>
+            <div class="granules-cell"><span>P</span>&nbsp;</div>
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
               <a href="#" @click.prevent="drillDown('four_pp');" id="four_pp">{{four_pp}}</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click.prevent="drillDown('four_p');" id="four_p">{{four_p}}</a>
+              <a href="#" @click.prevent="drillDown('four_p');" id="four_p">{{four_p}}&nbsp;</a>
             </div>
           </div>
         </div>
@@ -773,7 +773,7 @@
         <div class="granules">
           <div class="granules-row">
             <div class="granules-cell granules-right-td"><span>Tabs</span></div>
-            <div class="granules-cell"><span>Granules</span></div>
+            <div class="granules-cell"><span>Granules</span>&nbsp;</div>
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
@@ -833,12 +833,12 @@
       <td>
         <div class="granules">
           <div class="granules-row">
-            <div class="granules-cell granules-right-td"><span>Tabs</span></div>
-            <div class="granules-cell"><span>Granules</span></div>
+            <div class="granules-cell granules-right-td"><span>Tabs</span>&nbsp;</div>
+            <div class="granules-cell"><span>Granules</span>&nbsp;&nbsp;</div>
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
-              <a href="#" @click.prevent="drillDown('eleven_p_tabs');" id="eleven_p_tabs">{{eleven_p_tabs}}</a>
+              <a href="#" @click.prevent="drillDown('eleven_p_tabs');" id="eleven_p_tabs">{{eleven_p_tabs}} &nbsp;</a>
             </div>
             <div class="granules-cell">
               <a href="#" @click.prevent="drillDown('eleven_p_granules');" id="eleven_p_granules">{{eleven_p_granules}}</a>
@@ -847,8 +847,8 @@
         </div>
         <div class="granules">
           <div class="granules-row">
-            <div class="granules-cell granules-right-td"><span>PP</span><br/> <span>Tabs</span></div>
-            <div class="granules-cell"><span>PP</span> <br/> <span>Granules</span></div>
+            <div class="granules-cell granules-right-td"><span>PP</span><br/> <span>Tabs</span>&nbsp;</div>
+            <div class="granules-cell"><span>PP</span> <br/> <span>Granules</span>&nbsp;</div>
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
@@ -863,15 +863,15 @@
       <td> 
         <div class="granules">
           <div class="granules-row">
-            <div class="granules-cell granules-right-td"><span>Tabs</span></div>
+            <div class="granules-cell granules-right-td"><span>Tabs</span>&nbsp;</div>
             <div class="granules-cell"><span>Granules</span></div>
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
-              <a href="#" @click.prevent="drillDown('eleven_pa_tabs');" id="eleven_pa_tabs">{{eleven_pa_tabs}}</a>
+              <a href="#" @click.prevent="drillDown('eleven_pa_tabs');" id="eleven_pa_tabs">{{eleven_pa_tabs}}&nbsp;</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click.prevent="drillDown('eleven_pa_granules');" id="eleven_pa_granules">{{eleven_pa_granules}}</a>
+              <a href="#" @click.prevent="drillDown('eleven_pa_granules');" id="eleven_pa_granules">{{eleven_pa_granules}}&nbsp;</a>
             </div>
           </div>
         </div>
@@ -946,14 +946,14 @@
           <div class="granules-row">
 
             <div class="granules-cell granules-right-td"><span>PP</span></div>
-            <div class="granules-cell"><span>P&nbsp;</span></div>
+            <div class="granules-cell"><span>P&nbsp;&nbsp;</span></div>
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
               <a href="#" @click="drillDown('fourteen_pp');" id="fourteen_pp">{{fourteen_pp}}</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click="drillDown('fourteen_p');" id="fourteen_p">{{fourteen_p}}</a>
+              <a href="#" @click="drillDown('fourteen_p');" id="fourteen_p">{{fourteen_p}}&nbsp;&nbsp;</a>
             </div>
           </div>
         </div>
@@ -984,7 +984,7 @@
               <a href="#" @click="drillDown('fifteen_pp');" id="fifteen_pp">{{fifteen_pp}}</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click="drillDown('fifteen_p');" id="fifteen_p">{{fifteen_p}}</a>
+              <a href="#" @click="drillDown('fifteen_p');" id="fifteen_p">{{fifteen_p}}&nbsp;&nbsp;</a>
             </div>
           </div>
         </div>
@@ -1024,14 +1024,14 @@
         <div class="granules">
           <div class="granules-row">
             <div class="granules-cell granules-right-td"><span>PP</span></div>
-            <div class="granules-cell"><span>P&nbsp;</span></div>
+            <div class="granules-cell"><span>P&nbsp;&nbsp;</span></div>
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
               <a href="#" @click="drillDown('seventeen_pp');" id="seventeen_pp">{{seventeen_pp}}</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click="drillDown('seventeen_p');" id="seventeen_p">{{seventeen_p}}</a>
+              <a href="#" @click="drillDown('seventeen_p');" id="seventeen_p">{{seventeen_p}}&nbsp;</a>
             </div>
           </div>
         </div>
