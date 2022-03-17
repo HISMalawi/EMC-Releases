@@ -786,15 +786,15 @@
         </div>
         <div class="granules">
           <div class="granules-row">
-            <div class="granules-cell granules-right-td"><span>PP Gran.</span></div>
-            <div class="granules-cell"><span>PP Tabs</span></div>
+            <div class="granules-cell granules-right-td"><span>PP</span> <br/> <span>Tabs</span></div>
+            <div class="granules-cell"><span>PP</span> <br/> <span>Granules</span></div>
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
-              <a href="#" @click.prevent="drillDown('nine_pp_granules');" id="nine_pp_granules">{{nine_pp_granules}}</a>
+              <a href="#" @click.prevent="drillDown('nine_pp_tabs');" id="nine_pp_tabs">{{nine_pp_tabs}}</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click.prevent="drillDown('nine_pp_tabs');" id="nine_pp_tabs">{{nine_pp_tabs}}</a>
+              <a href="#" @click.prevent="drillDown('nine_pp_granules');" id="nine_pp_granules">{{nine_pp_granules}}</a>
             </div>
           </div>
         </div>
@@ -847,8 +847,8 @@
         </div>
         <div class="granules">
           <div class="granules-row">
-            <div class="granules-cell granules-right-td"><span>PP Tabs</span></div>
-            <div class="granules-cell"><span>PP Granules</span></div>
+            <div class="granules-cell granules-right-td"><span>PP</span><br/> <span>Tabs</span></div>
+            <div class="granules-cell"><span>PP</span> <br/> <span>Granules</span></div>
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
