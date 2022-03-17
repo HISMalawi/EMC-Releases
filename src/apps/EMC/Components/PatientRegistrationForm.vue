@@ -64,7 +64,7 @@
                   />
                 </ion-col>
                 <ion-col size="4">
-                  <ion-input 
+                  <ion-input
                     v-model="patient.birthMonth.value"
                     :min="1"
                     :max="12"
@@ -130,16 +130,15 @@
                 class="ion-margin-top"
                 :class="patient.homeVillage.hasErrors ? 'box-error' : 'box'"
               />
-              <ion-select 
-                class="ion-margin-top"
-                :class="patient.homeVillage.hasErrors ? 'box-error' : 'box'"
-                placeholder="Select Village" 
-                v-model="patient.homeVillage.value" 
+              <searchable-select-input
                 v-else
-              >
-                <ion-select-option>Test Village</ion-select-option>
-                <ion-select-option>Test Village</ion-select-option>
-              </ion-select>
+                class="ion-margin-top"
+                placeholder="Select Home Village"
+                :value="patient.homeVillage.value"
+                :class="patient.homeVillage.hasErrors ? 'box-error' : 'box'"
+                :asyncOptions="getVillagesByName"
+                @onSelect="(option) => patient.homeVillage.value = option.label"
+              ></searchable-select-input>
             </ion-col>
             <ion-col size="6">
               <ion-label>
@@ -224,6 +223,8 @@
 <script lang="ts">
 import { IonCheckbox, IonCol, IonGrid, IonInput, IonRow, IonSelect, IonSelectOption } from '@ionic/vue'
 import { computed, defineComponent, PropType, reactive, ref, watch } from 'vue'
+import { getVillagesByName } from "@/utils/HisFormHelpers/LocationFieldOptions";
+import SearchableSelectInput from './inputs/SearchableSelectInput.vue'
 
 export default defineComponent({
   name: 'PatientRegistrationForm',
@@ -253,7 +254,8 @@ export default defineComponent({
     IonSelect,
     IonSelectOption,
     IonCheckbox,
-  },
+    SearchableSelectInput
+},
   emits: ["updatePatient", "updateGuardian", "estimateBirthdate"],
   setup(props, { emit }) {
     const estimateAge = computed({
@@ -304,6 +306,7 @@ export default defineComponent({
       patientPhoneUnknown,
       patient,
       guardian,
+      getVillagesByName
     }
   },
 })
