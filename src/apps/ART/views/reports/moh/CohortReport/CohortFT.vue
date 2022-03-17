@@ -775,11 +775,11 @@
             <th colspan="2" class="bolder-right">Tabs</th>
             <th colspan="2">Granules</th>
           </tr>
-          <tr>
-            <td>PP</td>
-            <td>P</td>
-            <td>PP</td>
-            <td>P</td>
+          <tr class="th-borders">
+            <th>PP</th>
+            <th>P</th>
+            <th>PP</th>
+            <th>P</th>
           </tr>
           <tr> 
             <td><a href="#" @click.prevent="drillDown('nine_pp_tabs');" id="nine_pp_tabs">{{nine_pp_tabs}}&nbsp;</a></td>
@@ -826,11 +826,11 @@
             <th colspan="2" class="bolder-right">Tabs</th>
             <th colspan="2">Granules</th>
           </tr>
-          <tr>
-            <td>PP</td>
-            <td>P</td>
-            <td>PP</td>
-            <td>P</td>
+          <tr class="th-borders">
+            <th>PP</th>
+            <th>P</th>
+            <th>PP</th>
+            <th>P</th>
           </tr>
           <tr> 
             <td><a href="#" @click.prevent="drillDown('eleven_pp_tabs');" id="eleven_pp_tabs">{{eleven_pp_tabs}}&nbsp;</a></td>
@@ -1947,6 +1947,9 @@ export default {
 </script>
 
 <style scoped>
+.th-borders > th {
+  border: 1px solid black;
+}
 .bolder-right {
   border-right: 1px solid black;
 }
