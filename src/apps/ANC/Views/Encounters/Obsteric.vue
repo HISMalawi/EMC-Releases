@@ -85,6 +85,214 @@ export default defineComponent({
                 config: {
                   pregnancyCount: (f: any) => f.para.value
                 }
+            },
+            {
+				id: 'pregnancy_details',
+				helpText: 'Pregnancy details',
+				type: FieldType.TT_ANC_PREGNANCY_DETAILS_INPUT,
+				condition: (f: any) => f.para.value > 0,
+				options: (f: any) => {
+					const abortionCount = f.knownPregnancies.length - parseInt(`${f.gravida.value}`)
+					const knownAbortions: Option[] = []
+					for(let i=0; i < abortionCount; ++i) {
+						knownAbortions.push({
+							label: `${i + 1} Abortion`,
+							value: 1,
+							other: {
+								data: [
+									{
+										label: 'Year of abortion',
+										value: '',
+										other: {
+											field: {
+												id: 'year',
+												helpText: 'Year of birth',
+												type: FieldType.TT_NUMBER,
+												validation: (v: Option) => this.validateSeries([
+													() => Validation.required(v)
+												])
+											}
+										}
+									},
+									{
+										label: 'Place of abortion',
+										value: '',
+										other: {
+											field: {
+												id: 'place_of_abortion',
+												helpText: 'Place of abortion',
+												type: FieldType.TT_SELECT,
+												validation: (v: Option) => this.validateSeries([
+													() => Validation.required(v)
+												])
+											}
+										}
+									},
+									{
+										label: 'Type of abortion',
+										value: '',
+										other: {
+											field: {
+												id: 'type_of_abortion',
+												helpText: 'Type of abortion',
+												type: FieldType.TT_SELECT,
+												validation: (v: Option) => this.validateSeries([
+													() => Validation.required(v)
+												]),
+												options: () => {
+													return []
+												}
+											}
+										}
+									},
+									{
+										label: 'Procedure done',
+										value: '',
+										other: {
+											field: {
+												id: 'procedure_done',
+												helpText: 'Procedure done',
+												type: FieldType.TT_SELECT,
+												validation: (v: Option) => this.validateSeries([
+													() => Validation.required(v)
+												]),
+												options: () => {
+													return []
+												}
+											}
+										}
+									},
+									{
+										label: 'Gestation (weeks)',
+										value: '',
+										other: {
+											field: {
+												id: 'gestation_weeks',
+												helpText: 'Gestation (weeks)',
+												type: FieldType.TT_NUMBER,
+												validation: (v: Option) => this.validateSeries([
+													() => Validation.required(v)
+												])
+											}
+										}
+									}
+								]
+							}
+						})
+					}
+					const knownPregnancies = f.known_pregnancies.map((p: Option) => {
+						p.other = {
+							data: [
+								{
+									label: 'Year of birth',
+									value: '',
+									field: {
+										id: 'year',
+										helpText: 'Year of birth',
+										type: FieldType.TT_NUMBER,
+										validation: (v: Option) => this.validateSeries([
+											() => Validation.required(v)
+										])
+									}
+								},
+								{
+									label: 'Place of birth',
+									value: '',
+									field: {
+										id: 'place_of_birth',
+										helpText: 'Place of birth',
+										type: FieldType.TT_SELECT,
+										validation: (v: Option) => Validation.required(v), 
+										options: () => {
+											return []
+										}
+									}
+								},
+								{
+									label: 'Gestation (weeks)',
+									value: '',
+									field: {
+										id: 'gestation_weeks',
+										helpText: 'Gestation (weeks)',
+										type: FieldType.TT_NUMBER,
+										validation: (v: Option) => this.validateSeries([
+											() => Validation.required(v)
+										])
+									}
+								},
+								{
+									label: 'Method of delivery',
+									value: '',
+									field: {
+										id: 'method_of_delivery',
+										helpText: 'Method of delivery',
+										type: FieldType.TT_SELECT,
+										validation: (v: Option) => Validation.required(v),
+										options: () => {
+											return []
+										}
+									}
+								},
+								{
+									label: 'Condition at birth',
+									value: '',
+									field: {
+										id: 'condition_at_birth',
+										helpText: 'Condition at birth',
+										type: FieldType.TT_SELECT,
+										validation: (v: Option) => Validation.required(v),
+										options: () => {
+											return []
+										}
+									}
+								},
+								{
+									label: 'Birth weight',
+									value: '',
+									field: {
+										id: 'birth_weight',
+										helpText: 'Birth weight',
+										type: FieldType.TT_NUMBER,
+										validation: (v: Option) => this.validateSeries([
+											() => Validation.required(v)
+										])
+									}
+								},
+								{
+									label: 'Alive now',
+									value: '',
+									field: {
+										id: 'alive_now',
+										helpText: 'Alive now',
+										type: FieldType.TT_SELECT,
+										validation: (v: Option) => this.validateSeries([
+											() => Validation.required(v)
+										]),
+										options: () => {
+											return []
+										}
+									}
+								},
+								{
+									label: 'Age at death',
+									value: '',
+									field: {
+										id: 'age_at_death',
+										helpText: 'Age at death',
+										type: FieldType.TT_TEXT,
+										validation: (v: Option) => this.validateSeries([
+											() => Validation.required(v)
+										]),
+										options: () => {
+											return []
+										}
+									}
+								}
+							]
+						}
+					})
+					return [...knownPregnancies, ...knownAbortions] as Option[]
+				}
             }
         ]
     }
