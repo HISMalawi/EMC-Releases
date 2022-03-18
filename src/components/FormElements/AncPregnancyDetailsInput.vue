@@ -1,31 +1,40 @@
 <template>
     <view-port>
-        <div class='view-port-content'>
-            <table class="pregnancy-table"> 
-                <thead class="ion-text-center"> 
-                    <tr> 
-                        <th>Pregnancy</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody class="ion-text-center"> 
-                    <tr v-for="(item, index) in listData" :key="index"> 
-                        <td> 
-                            <ion-item>
-                                <ion-label>{{item.label}}</ion-label>
+        <ion-grid class='view-port-content'> 
+            <ion-row> 
+                <ion-col size="4">
+                    <ion-list> 
+                        <ion-radio-group v-model="selected">
+                            <ion-item detail v-for="(item, index) in listData" :key="index"> 
+                                <ion-radio slot="start" :value="item"></ion-radio>
+                                <ion-label v-html="item.label"></ion-label>
                             </ion-item>
-                        </td>
-                        <td>
-                            <ion-row>
-                                <ion-col></ion-col>
-                                <ion-col></ion-col>
-                                <ion-col></ion-col>
-                            </ion-row>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                        </ion-radio-group>
+                    </ion-list>
+                </ion-col>
+                <ion-col v-if="selected" size="8">
+                    <ion-grid class="his-card" v-for="(subItemRows, subItemRowIndex) in selected.other.data" :key="subItemRowIndex">
+                        <ion-row> 
+                            <ion-col class="ion-text-center"> 
+                                {{subItemRowIndex+1}}
+                            </ion-col>
+                        </ion-row>
+                        <p/>
+                        <ion-row v-for="(subItem, subIndex) in subItemRows" :key="subIndex"> 
+                            <ion-col>
+                                <ion-label><b>{{subItem.label}}</b></ion-label>
+                            </ion-col>
+                            <ion-col>
+                                <b>{{subItem.value || '?'}}</b>
+                            </ion-col>
+                            <ion-col>
+                                <ion-button @click="editField(subItem)">EDIT</ion-button>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-col>
+            </ion-row>
+        </ion-grid>            
     </view-port>
 </template>
 
@@ -35,10 +44,10 @@ import { Option } from '../Forms/FieldInterface'
 import FieldMixinVue from './FieldMixin.vue'
 import ViewPort from '../DataViews/ViewPort.vue'
 import { 
-    IonCheckbox,
-    IonInput,
+    IonRadioGroup,
+    IonRadio,
+    IonGrid,
     IonButton,
-    IonIcon,
     IonCol,
     IonRow,
 } from "@ionic/vue"
@@ -51,13 +60,13 @@ export default defineComponent({
     name: "HisSelect",
     mixins: [FieldMixinVue],
     components: {
-        IonInput,
         IonButton,
-        IonCheckbox,
+        IonRadioGroup,
+        IonRadio,
+        IonGrid,
         IonCol,
         IonRow,
-        IonIcon,
-        ViewPort,
+        ViewPort
     },
     setup() {
         return {
@@ -66,33 +75,20 @@ export default defineComponent({
         }
     },
     data: () => ({
+        selected: null as Option | null,
         listData: [] as Option[]
     }),
     async activated() {
         this.$emit('onFieldActivated', this)
-        if (typeof this.config.pregnancyCount === 'function') {
-            this.listData = this.buildOptions((await this.config.pregnancyCount(this.fdata)))
-            this.$emit('onValue', this.listData)
-        }
+        this.selected = null
+        this.listData = await this.options(this.fdata)
     },
     methods: {
-        getNumberOrdinal(n: number) {
-            const s = ["th", "st", "nd", "rd"],
-                v = n % 100;
-            return (s[(v - 20) % 10] || s[v] || s[0]);
-        },
-        buildOptions(limit: number) {
-            const options = []
-            for(let i=0; i < limit; ++i) {
-                const num = i + 1 
-                options.push({
-                    label: `${num} <sup>${this.getNumberOrdinal(num)}</sup>`,
-                    value: 1,
-                    isChecked: true
-                })
-            }
-            return options
-        }
+       editField() {
+           /**
+            * TODO: update field values
+            */
+       }
     },
     watch: {
         listData: {
@@ -105,30 +101,7 @@ export default defineComponent({
 })
 </script>
 <style scoped>
-    .baby-count {
-        padding: 2em;
-        font-size: 1.3;
-        border: 2px solid #ccc;
-    }
-    .pregnancy-table {
-        width: 100%;
-    }
-    thead {
-        background: lightblue;
-        font-size: 1.3rem;
-        font-weight: 'bold'
-    }
-    td, th {
-        border: solid 1px #3333;
-    }
-    th {
-        padding: 1.2em;
-    }
-    td {
-       font-size: 1.3rem; 
-       padding: 1.4em;
-    }
-    ion-checkbox {
+    ion-radio {
         --size: 38px;
     }
 </style>
