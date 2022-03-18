@@ -4,7 +4,7 @@
       :cancelDestinationPath="cancelDestination" 
       :fields="fields" 
       :onFinishAction="onSubmit"
-      :skipSummary="false"
+      :skipSummary="true"
     />
   </ion-page>
 </template>
@@ -28,7 +28,8 @@ export default defineComponent({
   data: () => ({
     complaintsService: {} as any,
     todaysDate: ObservationService.getSessionDate(),
-    presentingComplaints: "" as any
+    presentingComplaints: "" as any,
+    triageComplaintStatus: false
   }),
   watch: {
     ready: {
@@ -68,8 +69,10 @@ export default defineComponent({
           await this.getTriagePresentingComplaints(data)
         }
       );
-      if(this.presentingComplaints.length > 0)
-      return true;
+      if(this.presentingComplaints.length > 0){
+        this.triageComplaintStatus = true;
+        return true;
+      }
     },
     async getTriagePresentingComplaints(data: any){
       if(data.length > 0){
@@ -96,7 +99,7 @@ export default defineComponent({
       rows = rows.filter((el: any) =>{
         return el != undefined
       })
-       
+      this.presentingComplaints = rows;
       return [
         {
           label: '',
@@ -105,9 +108,10 @@ export default defineComponent({
         },
       ];
     },
+
     getFields(): Array<Field>{
       return [
-         {
+        {
           id: "triage_complaints",
           helpText: "Triage Presenting Complaint",
           condition: () => this.fetchLatestTriageEncounter(),
@@ -128,6 +132,25 @@ export default defineComponent({
               child: (await this.complaintsService.buildValueCodedFromConceptId(option.other.parent, option.other.concept_id))
             }))
           },
+          beforeNext: (data: any) => {
+            if(this.triageComplaintStatus){
+              const OPDComplaint = data.map((value: any)=>{
+                return {
+                  'label': "OPD Presenting Complaints",
+                  'value': value.label,
+                };
+              })
+              const triageComplaint = this.presentingComplaints.map((value: any)=>{
+                return {
+                  'label': 'Triage Presenting Complaint',
+                  'value': value[1],
+                };
+              })
+              this.presentingComplaints = OPDComplaint.concat(triageComplaint);
+            }
+            
+            return true
+          },
           config: {
             footerBtns: [
               {
@@ -144,9 +167,23 @@ export default defineComponent({
             ],
           }
         },
+        {
+          id: "all_presenting_complaints",
+          helpText: "Summary",
+          condition: () => this.triageComplaintStatus,
+          type: FieldType.TT_SUMMARY,
+          options: (d: any) => this.presentingComplaints,
+          config: {
+            hiddenFooterBtns: ["Clear"],
+          },
+        },
       ]
     }
   }
 })
 </script>
-
+<style>
+  .his-table tr {
+    height: 50px;
+  }
+</style>
