@@ -1716,26 +1716,28 @@ export default {
         this.nine_pa += this.params[i].contents;
 
       if(this.params[i].name == 'nine_pp')
-        this.nine_pp += this.params[i].contents;
+        this.nine_pp += parseInt(this.params[i].contents);
       
-      if(this.params[i].name == 'nine_pa_tabs')
-        this.nine_pa += this.params[i].contents 
+      if(this.params[i].name == 'nine_pa_tabs'){
+        this.nine_pa += parseInt(this.params[i].contents) 
         this.nine_pa_tabs = this.params[i].contents;
-      
-      if(this.params[i].name == 'nine_pp_granules')
-        this.nine_pp += this.params[i].contents
+      }
+      if(this.params[i].name == 'nine_pp_granules'){
+        this.nine_pp += parseInt(this.params[i].contents)
         this.nine_pp_granules = this.params[i].contents;
-
-      if(this.params[i].name == 'nine_pp_tabs')
-        this.nine_pp += this.params[i].contents
+      }
+      if(this.params[i].name == 'nine_pp_tabs'){
+        this.nine_pp += parseInt(this.params[i].contents)
         this.nine_pp_tabs = this.params[i].contents;
-
-      if(this.params[i].name == 'nine_pa_granules')
-        this.nine_pa += this.params[i].contents
+      }
+      if(this.params[i].name == 'nine_pa_granules'){
+        this.nine_pa += parseInt(this.params[i].contents)
         this.nine_pa_granules = this.params[i].contents;
+      }
 
       if(this.params[i].name == 'ten_a')
         this.ten_a = this.params[i].contents;
+
       if(this.params[i].name == 'eleven_p')
         this.eleven_p = this.params[i].contents;
       
@@ -1744,24 +1746,24 @@ export default {
 
       // Needs review
       if(this.params[i].name == 'eleven_pp')
-        this.eleven_pp += this.params[i].contents;
+        this.eleven_pp += parseInt(this.params[i].contents);
       
-      if(this.params[i].name == 'eleven_pp_granules')
-        this.eleven_pp += this.params[i].contents
+      if(this.params[i].name == 'eleven_pp_granules'){
+        this.eleven_pp += parseInt(this.params[i].contents)
         this.eleven_pp_granules = this.params[i].contents;
-      
-      if(this.params[i].name == 'eleven_pp_tabs')
-        this.eleven_pp += this.params[i].contents
-        this.eleven_pp_tabs = this.params[i].contents;
-      
-      if(this.params[i].name == 'eleven_pa_granules')
-        this.eleven_pa += this.params[i].contents
-        this.eleven_pa_granules = this.params[i].contents;
-      
-      if(this.params[i].name == 'eleven_pa_tabs')
-        this.eleven_pa += this.params[i].contents
+      }
+      if(this.params[i].name == 'eleven_pp_tabs'){
+        this.eleven_pp += parseInt(this.params[i].contents)
+        this.eleven_pp_tabs = this.params[i].contents
+      }
+      if(this.params[i].name == 'eleven_pa_granules'){
+        this.eleven_pa += parseInt(this.params[i].contents)
+        this.eleven_pa_granules = this.params[i].contents
+      }
+      if(this.params[i].name == 'eleven_pa_tabs'){
+        this.eleven_pa += parseInt(this.params[i].contents)
         this.eleven_pa_tabs = this.params[i].contents;
-
+      }
       if(this.params[i].name == 'eleven_p_tabs')
         this.eleven_p_tabs = this.params[i].contents;
       
