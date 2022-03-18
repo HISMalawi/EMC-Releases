@@ -276,8 +276,7 @@ export default defineComponent({
           await RelationsService.createRelation(patientId, guardianId, 13)
          console.log(await RelationsService.getRelations())
         }
-        toastSuccess("Client registered successfully!!!", 10000)
-        // router.push(`/emc/registration/${patientId}/true`)
+        router.push(`/emc/registration/${patientId}/true`)
       } catch (error: any) {
         toastWarning(error)
       }
