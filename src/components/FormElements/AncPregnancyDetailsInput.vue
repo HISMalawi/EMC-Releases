@@ -66,6 +66,7 @@ import {
     arrowDown
 } from "ionicons/icons"
 import TouchField from "@/components/Forms/SIngleTouchField.vue"
+import { isEmpty } from 'lodash'
 
 export default defineComponent({
     name: "HisSelect",
@@ -119,7 +120,43 @@ export default defineComponent({
     watch: {
         listData: {
             handler(data: Option[]) {
-                this.$emit('onValue', data)
+                const incompleteLabels: string[] = []
+                const values = data.map((i: any) => i.other.data)
+                    /**Flatten sub value structures*/
+                    .reduce((allData: Option[], data: any) => {
+                        return [...allData, ...data.reduce((a: any, d: any) => [...a, ...d], [])]
+                    }, [])
+                    .filter((i: any) => {
+                        if (i.required && i.value ==='') {
+                            incompleteLabels.push(i.label)
+                            return false
+                        } else if (!i.required) {
+                            return false
+                        }
+                        return true
+                    })
+                    /**format to Option data structure*/
+                    .map((i: any) => {
+                        return {
+                            label: i.label,
+                            value: i.value,
+                            other: {
+                                obs: i.computedValue
+                            }
+                        }
+                    })
+                // Emit an error object if values are empty
+                if (!isEmpty(incompleteLabels)) {
+                    this.$emit('onValue', [{ 
+                        label: '_INCOMPLETE_RECORD_ERROR_', 
+                        value: incompleteLabels.length,
+                        other: {
+                            incompleteLabels
+                        }
+                    }])
+                    return
+                }
+                this.$emit('onValue', values)
             },
             deep: true
         }
@@ -128,6 +165,6 @@ export default defineComponent({
 </script>
 <style scoped>
     ion-radio {
-        --size: 38px;
+        --size: 48px;
     }
 </style>
