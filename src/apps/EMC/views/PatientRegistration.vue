@@ -25,12 +25,10 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref, watch } from "vue";
+import { defineComponent, reactive, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
-import { Patientservice } from "@/services/patient_service";
-import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
-import { toastSuccess, toastWarning } from "@/utils/Alerts";
+import { toastWarning } from "@/utils/Alerts";
 import PatientRegistrationForm from "../Components/PatientRegistrationForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Option } from "@/components/Forms/FieldInterface";
@@ -277,7 +275,7 @@ export default defineComponent({
          console.log(await RelationsService.getRelations())
         }
         router.push(`/emc/registration/${patientId}/true`)
-      } catch (error: any) {
+      } catch (error) {
         toastWarning(error)
       }
     }
