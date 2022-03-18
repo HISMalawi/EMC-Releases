@@ -805,8 +805,8 @@
             <ion-col><span>PA</span></ion-col>
           </ion-row>
           <ion-row> 
-            <ion-col class="dotted-border"><a href="#" @click.prevent="drillDown('eleven_pp_tabs');" id="eleven_pp_tabs">{{eleven_pp_tabs}}</a></ion-col>
-            <ion-col><a href="#" @click.prevent="drillDown('eleven_pa_tabs');" id="eleven_pa_tabs">{{eleven_pa_tabs}}</a></ion-col>
+            <ion-col class="dotted-border"><a href="#" @click.prevent="drillDown('eleven_pp');" id="eleven_pp">{{eleven_pp}}</a></ion-col>
+            <ion-col><a href="#" @click.prevent="drillDown('eleven_pa');" id="eleven_pa">{{eleven_pa}}</a></ion-col>
           </ion-row>
         </ion-grid>
       </td>
@@ -1713,21 +1713,25 @@ export default {
         this.nine_a = this.params[i].contents;
       
       if(this.params[i].name == 'nine_pa')
-        this.nine_pa = this.params[i].contents;
+        this.nine_pa += this.params[i].contents;
 
       if(this.params[i].name == 'nine_pp')
-        this.nine_pp = this.params[i].contents;
+        this.nine_pp += this.params[i].contents;
       
       if(this.params[i].name == 'nine_pa_tabs')
+        this.nine_pa += this.params[i].contents 
         this.nine_pa_tabs = this.params[i].contents;
       
       if(this.params[i].name == 'nine_pp_granules')
+        this.nine_pp += this.params[i].contents
         this.nine_pp_granules = this.params[i].contents;
 
       if(this.params[i].name == 'nine_pp_tabs')
+        this.nine_pp += this.params[i].contents
         this.nine_pp_tabs = this.params[i].contents;
 
       if(this.params[i].name == 'nine_pa_granules')
+        this.nine_pa += this.params[i].contents
         this.nine_pa_granules = this.params[i].contents;
 
       if(this.params[i].name == 'ten_a')
@@ -1738,19 +1742,24 @@ export default {
       if(this.params[i].name == 'eleven_pa')
         this.eleven_pa = this.params[i].contents;
 
+      // Needs review
       if(this.params[i].name == 'eleven_pp')
-        this.eleven_pp = this.params[i].contents;
+        this.eleven_pp += this.params[i].contents;
       
       if(this.params[i].name == 'eleven_pp_granules')
+        this.eleven_pp += this.params[i].contents
         this.eleven_pp_granules = this.params[i].contents;
       
       if(this.params[i].name == 'eleven_pp_tabs')
+        this.eleven_pp += this.params[i].contents
         this.eleven_pp_tabs = this.params[i].contents;
       
       if(this.params[i].name == 'eleven_pa_granules')
+        this.eleven_pa += this.params[i].contents
         this.eleven_pa_granules = this.params[i].contents;
       
       if(this.params[i].name == 'eleven_pa_tabs')
+        this.eleven_pa += this.params[i].contents
         this.eleven_pa_tabs = this.params[i].contents;
 
       if(this.params[i].name == 'eleven_p_tabs')
