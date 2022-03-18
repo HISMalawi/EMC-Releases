@@ -88,6 +88,9 @@ export default defineComponent({
 
           // this.wasTransferredIn = await this.getTransferInStatus()
           this.wasTransferredIn = await this.getTransferInStatus()
+          this.currentWeight = Number((await this.patient.getRecentWeight()))
+
+          // this.wasTransferredIn = await this.getTransferInStatus()
 
           this.dateStartedArt = await this.getDateStartedArt()
 
