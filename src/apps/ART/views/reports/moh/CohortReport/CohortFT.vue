@@ -627,7 +627,6 @@
       <td class="numbers">&nbsp;</td>
       <td colspan="7" style="text-align:left; font-weight: bold; padding-left: 10px;">Secondary outcomes of those alive on ART</td>
       <td><b>P</b>aeds formul.</td>
-      <td><b>P</b>aeds + <b>A</b>dults formul.</td>
       <td><b>A</b>dults formul.</td>
     </tr>
     
@@ -643,7 +642,6 @@
         border-left-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">0</td>
       <td><a href="#" @click.prevent="drillDown('zero_p');">{{zero_p}}</a></td>
-      <td style="background-color:#D9D9D9;">&nbsp;</td>
       <td><a href="#" @click.prevent="drillDown('zero_a');">{{zero_a}}</a></td>
     </tr>
     
@@ -659,7 +657,6 @@
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">2</td>
       <td><a href="#" @click.prevent="drillDown('two_p');">{{two_p}}</a></td>
-      <td style="background-color:#D9D9D9;">&nbsp;</td>
       <td><a href="#" @click.prevent="drillDown('two_a');">{{two_a}}</a></td>
     </tr>
 
@@ -675,22 +672,17 @@
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">4</td>
       <td>
-        <div class="granules">
-          <div class="granules-row">
-            <div class="granules-cell granules-right-td"><span>PP</span></div>
-            <div class="granules-cell"><span>P</span>&nbsp;</div>
-          </div>
-          <div class="granules-row">
-            <div class="granules-cell granules-right-td">
-              <a href="#" @click.prevent="drillDown('four_pp');" id="four_pp">{{four_pp}}</a>
-            </div>
-            <div class="granules-cell">
-              <a href="#" @click.prevent="drillDown('four_p');" id="four_p">{{four_p}}&nbsp;</a>
-            </div>
-          </div>
-        </div>
+        <ion-grid>
+          <ion-row> 
+            <ion-col><span>PP</span></ion-col>
+            <ion-col><span>PA</span></ion-col>
+          </ion-row>
+          <ion-row> 
+            <ion-col><a href="#" @click.prevent="drillDown('four_pp');" id="four_pp">{{four_pp}}</a></ion-col>
+            <ion-col><a href="#" @click.prevent="drillDown('four_pa');" id="four_pa">{{four_pa}}</a></ion-col>
+          </ion-row>
+        </ion-grid>
       </td>
-      <td><a href="#" @click.prevent="drillDown('four_pa');" id="four_pa">{{four_pa}}</a></td>
       <td><a href="#" @click.prevent="drillDown('four_a');">{{four_a}}</a></td>
     </tr>
     
@@ -705,7 +697,6 @@
       <td style="border-right-width:0px; border-bottom-width: 0px;
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">5</td>
-      <td style="background-color:#D9D9D9;">&nbsp;</td>
       <td style="background-color:#D9D9D9;">&nbsp;</td>
       <td><a href="#" @click.prevent="drillDown('five_a');">{{five_a}}</a></td>
     </tr>
@@ -722,7 +713,6 @@
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">6</td>
       <td style="background-color:#D9D9D9;">&nbsp;</td>
-      <td style="background-color:#D9D9D9;">&nbsp;</td>
       <td><a href="#" @click.prevent="drillDown('six_a');">{{six_a}}</a></td>
     </tr>
     
@@ -737,7 +727,6 @@
       <td style="border-right-width:0px; border-bottom-width: 0px;
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">7</td>
-      <td style="background-color:#D9D9D9;">&nbsp;</td>
       <td style="background-color:#D9D9D9;">&nbsp;</td>
       <td><a href="#" @click.prevent="drillDown('seven_a');">{{seven_a}}</a></td>
     </tr>
@@ -754,7 +743,6 @@
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">8</td>
       <td style="background-color:#D9D9D9;">&nbsp;</td>
-      <td style="background-color:#D9D9D9;">&nbsp;</td>
       <td><a href="#" @click.prevent="drillDown('eight_a');">{{eight_a}}</a></td>
     </tr>
     
@@ -770,26 +758,17 @@
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">9</td>
       <td>
-        <table class="regimen-breakdown">
-          <tr>
-            <th colspan="2" class="bolder-right">Tabs</th>
-            <th colspan="2">Granules</th>
-          </tr>
-          <tr class="th-borders">
-            <th>PP</th>
-            <th>P</th>
-            <th>PP</th>
-            <th>P</th>
-          </tr>
-          <tr> 
-            <td><a href="#" @click.prevent="drillDown('nine_pp_tabs');" id="nine_pp_tabs">{{nine_pp_tabs}}&nbsp;</a></td>
-            <td><a href="#" @click.prevent="drillDown('nine_p_tabs');" id="nine_p_tabs">{{nine_p_tabs}}&nbsp;</a></td>
-            <td><a href="#" @click.prevent="drillDown('nine_pp_granules');" id="nine_pp_granules">{{nine_pp_granules}}&nbsp;</a></td>
-            <td><a href="#" @click.prevent="drillDown('nine_p_granules');" id="nine_p_granules">{{nine_p_granules}}&nbsp;</a></td>
-          </tr>
-        </table>
+        <ion-grid>
+          <ion-row> 
+            <ion-col><span>PP</span></ion-col>
+            <ion-col><span>PA</span></ion-col>
+          </ion-row>
+          <ion-row> 
+            <ion-col><a href="#" @click.prevent="drillDown('nine_pp_tabs');" id="nine_pp_tabs">{{nine_pp_tabs}}</a></ion-col>
+            <ion-col><a href="#" @click.prevent="drillDown('nine_pa');" id="nine_pa">{{nine_pa}}</a></ion-col>
+          </ion-row>
+        </ion-grid>
       </td>
-      <td><a href="#" @click.prevent="drillDown('nine_pa');" id="nine_pa">{{nine_pa}}</a></td>
       <td><a href="#" @click.prevent="drillDown('nine_a');">{{nine_a}}</a></td>
     </tr>
     
@@ -804,7 +783,6 @@
       <td style="border-right-width:0px; border-bottom-width: 0px;
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">10</td>
-      <td style="background-color:#D9D9D9;">&nbsp;</td>
       <td style="background-color:#D9D9D9;">&nbsp;</td>
       <td><a href="#" @click.prevent="drillDown('ten_a');">{{ten_a}}</a></td>
     </tr>
@@ -821,40 +799,16 @@
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">11</td>
       <td>
-        <table class="regimen-breakdown">
-          <tr>
-            <th colspan="2" class="bolder-right">Tabs</th>
-            <th colspan="2">Granules</th>
-          </tr>
-          <tr class="th-borders">
-            <th>PP</th>
-            <th>P</th>
-            <th>PP</th>
-            <th>P</th>
-          </tr>
-          <tr> 
-            <td><a href="#" @click.prevent="drillDown('eleven_pp_tabs');" id="eleven_pp_tabs">{{eleven_pp_tabs}}&nbsp;</a></td>
-            <td><a href="#" @click.prevent="drillDown('eleven_p_tabs');" id="eleven_p_tabs">{{eleven_p_tabs}}&nbsp;</a></td>
-            <td><a href="#" @click.prevent="drillDown('eleven_pp_granules');" id="eleven_pp_granules">{{eleven_pp_granules}}&nbsp;</a></td>
-            <td><a href="#" @click.prevent="drillDown('eleven_p_granules');" id="eleven_p_granules">{{eleven_p_granules}}&nbsp;</a></td>
-          </tr>
-        </table>
-      </td>
-      <td>
-        <div class="granules">
-          <div class="granules-row">
-            <div class="granules-cell granules-right-td"><span>Tabs</span>&nbsp;</div>
-            <div class="granules-cell"><span>Granules</span></div>
-          </div>
-          <div class="granules-row">
-            <div class="granules-cell granules-right-td">
-              <a href="#" @click.prevent="drillDown('eleven_pa_tabs');" id="eleven_pa_tabs">{{eleven_pa_tabs}}&nbsp;</a>
-            </div>
-            <div class="granules-cell">
-              <a href="#" @click.prevent="drillDown('eleven_pa_granules');" id="eleven_pa_granules">{{eleven_pa_granules}}&nbsp;</a>
-            </div>
-          </div>
-        </div>
+        <ion-grid>
+          <ion-row> 
+            <ion-col><span>PP</span></ion-col>
+            <ion-col><span>PA</span></ion-col>
+          </ion-row>
+          <ion-row> 
+            <ion-col><a href="#" @click.prevent="drillDown('eleven_pp_tabs');" id="eleven_pp_tabs">{{eleven_pp_tabs}}</a></ion-col>
+            <ion-col><a href="#" @click.prevent="drillDown('eleven_pa_tabs');" id="eleven_pa_tabs">{{eleven_pa_tabs}}</a></ion-col>
+          </ion-row>
+        </ion-grid>
       </td>
       <td><a href="#" @click.prevent="drillDown('eleven_a');">{{eleven_a}}</a></td>
     </tr>
@@ -870,8 +824,18 @@
       <td style="border-right-width:0px; border-bottom-width: 0px;
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">12</td>
-      <td><a href="#" @click.prevent="drillDown('twelve_pp');" id="twelve_pp">{{twelve_pp}}</a></td>
-      <td><a href="#" @click.prevent="drillDown('twelve_pa');">{{twelve_pa}}</a></td>
+      <td>
+        <ion-grid>
+          <ion-row> 
+            <ion-col><span>PP</span></ion-col>
+            <ion-col><span>PA</span></ion-col>
+          </ion-row>
+          <ion-row> 
+            <ion-col><a href="#" @click.prevent="drillDown('twelve_pp');" id="twelve_pp">{{twelve_pp}}</a></ion-col>
+            <ion-col><a href="#" @click.prevent="drillDown('twelve_pa');" id="twelve_pa">{{twelve_pa}}</a></ion-col>
+          </ion-row>
+        </ion-grid>
+      </td>
       <td><a href="#" @click.prevent="drillDown('twelve_a');">{{twelve_a}}</a></td>
     </tr>
     
@@ -887,7 +851,6 @@
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">13</td>
       <td style="background-color:#D9D9D9;">&nbsp;</td>
-      <td style="background-color:#D9D9D9;">&nbsp;</td>
       <td><a href="#" @click.prevent="drillDown('thirteen_a');">{{thirteen_a}}</a></td>
     </tr>
     
@@ -902,24 +865,18 @@
       <td style="border-right-width:0px; border-bottom-width: 0px;
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">14</td>
-        <td>
-        <div class="granules">
-          <div class="granules-row">
-
-            <div class="granules-cell granules-right-td"><span>PP</span></div>
-            <div class="granules-cell"><span>P&nbsp;&nbsp;</span></div>
-          </div>
-          <div class="granules-row">
-            <div class="granules-cell granules-right-td">
-              <a href="#" @click="drillDown('fourteen_pp');" id="fourteen_pp">{{fourteen_pp}}</a>
-            </div>
-            <div class="granules-cell">
-              <a href="#" @click="drillDown('fourteen_p');" id="fourteen_p">{{fourteen_p}}&nbsp;&nbsp;</a>
-            </div>
-          </div>
-        </div>
+      <td>
+        <ion-grid>
+          <ion-row> 
+            <ion-col><span>PP</span></ion-col>
+            <ion-col><span>PA</span></ion-col>
+          </ion-row>
+          <ion-row> 
+            <ion-col><a href="#" @click.prevent="drillDown('fourteen_pp');" id="fourteen_pp">{{fourteen_pp}}</a></ion-col>
+            <ion-col><a href="#" @click.prevent="drillDown('fourteen_pa');" id="fourteen_pa">{{fourteen_pa}}</a></ion-col>
+          </ion-row>
+        </ion-grid>
       </td>
-      <td><a href="#" @click.prevent="drillDown('fourteen_pa');">{{fourteen_pa}}</a></td>
       <td><a href="#" @click.prevent="drillDown('fourteen_a');">{{fourteen_a}}</a></td>
     </tr>
     
@@ -934,23 +891,18 @@
       <td style="border-right-width:0px; border-bottom-width: 0px;
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">15</td>
-        <td>
-        <div class="granules">
-          <div class="granules-row">
-            <div class="granules-cell granules-right-td"><span>PP</span></div>
-            <div class="granules-cell"><span>P&nbsp;</span></div>
-          </div>
-          <div class="granules-row">
-            <div class="granules-cell granules-right-td">
-              <a href="#" @click="drillDown('fifteen_pp');" id="fifteen_pp">{{fifteen_pp}}</a>
-            </div>
-            <div class="granules-cell">
-              <a href="#" @click="drillDown('fifteen_p');" id="fifteen_p">{{fifteen_p}}&nbsp;&nbsp;</a>
-            </div>
-          </div>
-        </div>
+      <td>
+        <ion-grid>
+          <ion-row> 
+            <ion-col><span>PP</span></ion-col>
+            <ion-col><span>PA</span></ion-col>
+          </ion-row>
+          <ion-row> 
+            <ion-col><a href="#" @click.prevent="drillDown('fifteen_pp');" id="fifteen_pp">{{fifteen_pp}}</a></ion-col>
+            <ion-col><a href="#" @click.prevent="drillDown('fifteen_pa');" id="fifteen_pa">{{fifteen_pa}}</a></ion-col>
+          </ion-row>
+        </ion-grid>
       </td>
-      <td><a href="#" @click.prevent="drillDown('fifteen_pa');">{{fifteen_pa}}</a></td>
       <td><a href="#" @click.prevent="drillDown('fifteen_a');">{{fifteen_a}}</a></td>
     </tr>
     
@@ -966,7 +918,6 @@
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">16</td>
       <td><a href="#" @click.prevent="drillDown('sixteen_p');">{{sixteen_p}}</a></td>
-      <td style="background-color:#D9D9D9;">&nbsp;</td>
       <td><a href="#" @click.prevent="drillDown('sixteen_a');">{{sixteen_a}}</a></td>
     </tr>
     
@@ -982,22 +933,17 @@
         border-left-width:0px; border-top-width:0px; text-align:right; padding-right: 5px;
         font-weight:bold;">17</td>
       <td>
-        <div class="granules">
-          <div class="granules-row">
-            <div class="granules-cell granules-right-td"><span>PP</span></div>
-            <div class="granules-cell"><span>P&nbsp;&nbsp;</span></div>
-          </div>
-          <div class="granules-row">
-            <div class="granules-cell granules-right-td">
-              <a href="#" @click="drillDown('seventeen_pp');" id="seventeen_pp">{{seventeen_pp}}</a>
-            </div>
-            <div class="granules-cell">
-              <a href="#" @click="drillDown('seventeen_p');" id="seventeen_p">{{seventeen_p}}&nbsp;</a>
-            </div>
-          </div>
-        </div>
+        <ion-grid>
+          <ion-row> 
+            <ion-col><span>PP</span></ion-col>
+            <ion-col><span>PA</span></ion-col>
+          </ion-row>
+          <ion-row> 
+            <ion-col><a href="#" @click.prevent="drillDown('seventeen_pp');" id="seventeen_pp">{{seventeen_pp}}</a></ion-col>
+            <ion-col><a href="#" @click.prevent="drillDown('seventeen_pa');" id="seventeen_pa">{{seventeen_pa}}</a></ion-col>
+          </ion-row>
+        </ion-grid>
       </td>
-      <td><a href="#" @click.prevent="drillDown('seventeen_pa');">{{seventeen_pa}}</a></td>
       <td><a href="#" @click.prevent="drillDown('seventeen_a');">{{seventeen_a}}</a></td>
     </tr>
     
@@ -1010,7 +956,6 @@
       <td colspan="2" style="border-right-width:0px; border-bottom-width: 0px;
         border-left-width:0px; border-top-width:0px;
         text-align:left; padding-left:10px;">Other (paed./adult)</td>
-      <td>&nbsp;</td>
       <td>&nbsp;</td>
       <td><a href="#" @click.prevent="drillDown('unknown_regimen');">{{unknown_regimen}}</a></td>
     </tr>
@@ -1281,11 +1226,20 @@
 
 <script>
 /* eslint-disable @typescript-eslint/camelcase */
-import moment from "dayjs";
 import { Service } from "@/services/service"
 import dayjs from 'dayjs';
+import {
+  IonGrid,
+  IonRow,
+  IonCol
+} from "@ionic/vue"
 
 export default {
+  components: {
+    IonGrid,
+    IonRow,
+    IonCol
+  },
   data: function(){
     return {
       items: [3,4,5,6,7,8,9],
@@ -2021,6 +1975,7 @@ td {
 .granules-cell {
   display: table-cell;
   text-align: center;
+  padding: 10px;
 }
 .granules span{
   font-size: 10px;
