@@ -98,6 +98,8 @@ export default defineComponent({
 						? ['Pregnancy details incomplete!!']
 						: null
 				]),
+				computedValue: (v: Option[]) => v.filter(d => d?.other?.obs || false)
+					.map((d: Option) => d.other.obs),
 				options: (f: any) => {
 					const abortionCount = parseInt(`${f.gravida.value}`) - parseInt(`${f.para.value}`)
 					const knownAbortions: Option[] = []
