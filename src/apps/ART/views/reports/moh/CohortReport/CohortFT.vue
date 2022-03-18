@@ -674,11 +674,11 @@
       <td>
         <ion-grid>
           <ion-row> 
-            <ion-col><span>PP</span></ion-col>
+            <ion-col class="dotted-border"><span>PP</span></ion-col>
             <ion-col><span>PA</span></ion-col>
           </ion-row>
           <ion-row> 
-            <ion-col><a href="#" @click.prevent="drillDown('four_pp');" id="four_pp">{{four_pp}}</a></ion-col>
+            <ion-col class="dotted-border"><a href="#" @click.prevent="drillDown('four_pp');" id="four_pp">{{four_pp}}</a></ion-col>
             <ion-col><a href="#" @click.prevent="drillDown('four_pa');" id="four_pa">{{four_pa}}</a></ion-col>
           </ion-row>
         </ion-grid>
@@ -760,11 +760,11 @@
       <td>
         <ion-grid>
           <ion-row> 
-            <ion-col><span>PP</span></ion-col>
+            <ion-col class="dotted-border"><span>PP</span></ion-col>
             <ion-col><span>PA</span></ion-col>
           </ion-row>
           <ion-row> 
-            <ion-col><a href="#" @click.prevent="drillDown('nine_pp_tabs');" id="nine_pp_tabs">{{nine_pp_tabs}}</a></ion-col>
+            <ion-col class="dotted-border"><a href="#" @click.prevent="drillDown('nine_pp_tabs');" id="nine_pp_tabs">{{nine_pp_tabs}}</a></ion-col>
             <ion-col><a href="#" @click.prevent="drillDown('nine_pa');" id="nine_pa">{{nine_pa}}</a></ion-col>
           </ion-row>
         </ion-grid>
@@ -801,11 +801,11 @@
       <td>
         <ion-grid>
           <ion-row> 
-            <ion-col><span>PP</span></ion-col>
+            <ion-col class="dotted-border"><span>PP</span></ion-col>
             <ion-col><span>PA</span></ion-col>
           </ion-row>
           <ion-row> 
-            <ion-col><a href="#" @click.prevent="drillDown('eleven_pp_tabs');" id="eleven_pp_tabs">{{eleven_pp_tabs}}</a></ion-col>
+            <ion-col class="dotted-border"><a href="#" @click.prevent="drillDown('eleven_pp_tabs');" id="eleven_pp_tabs">{{eleven_pp_tabs}}</a></ion-col>
             <ion-col><a href="#" @click.prevent="drillDown('eleven_pa_tabs');" id="eleven_pa_tabs">{{eleven_pa_tabs}}</a></ion-col>
           </ion-row>
         </ion-grid>
@@ -827,11 +827,11 @@
       <td>
         <ion-grid>
           <ion-row> 
-            <ion-col><span>PP</span></ion-col>
+            <ion-col class="dotted-border"><span>PP</span></ion-col>
             <ion-col><span>PA</span></ion-col>
           </ion-row>
           <ion-row> 
-            <ion-col><a href="#" @click.prevent="drillDown('twelve_pp');" id="twelve_pp">{{twelve_pp}}</a></ion-col>
+            <ion-col class="dotted-border"><a href="#" @click.prevent="drillDown('twelve_pp');" id="twelve_pp">{{twelve_pp}}</a></ion-col>
             <ion-col><a href="#" @click.prevent="drillDown('twelve_pa');" id="twelve_pa">{{twelve_pa}}</a></ion-col>
           </ion-row>
         </ion-grid>
@@ -868,11 +868,11 @@
       <td>
         <ion-grid>
           <ion-row> 
-            <ion-col><span>PP</span></ion-col>
+            <ion-col class="dotted-border"><span>PP</span></ion-col>
             <ion-col><span>PA</span></ion-col>
           </ion-row>
           <ion-row> 
-            <ion-col><a href="#" @click.prevent="drillDown('fourteen_pp');" id="fourteen_pp">{{fourteen_pp}}</a></ion-col>
+            <ion-col class="dotted-border"><a href="#" @click.prevent="drillDown('fourteen_pp');" id="fourteen_pp">{{fourteen_pp}}</a></ion-col>
             <ion-col><a href="#" @click.prevent="drillDown('fourteen_pa');" id="fourteen_pa">{{fourteen_pa}}</a></ion-col>
           </ion-row>
         </ion-grid>
@@ -894,11 +894,11 @@
       <td>
         <ion-grid>
           <ion-row> 
-            <ion-col><span>PP</span></ion-col>
+            <ion-col class="dotted-border"><span>PP</span></ion-col>
             <ion-col><span>PA</span></ion-col>
           </ion-row>
           <ion-row> 
-            <ion-col><a href="#" @click.prevent="drillDown('fifteen_pp');" id="fifteen_pp">{{fifteen_pp}}</a></ion-col>
+            <ion-col class="dotted-border"><a href="#" @click.prevent="drillDown('fifteen_pp');" id="fifteen_pp">{{fifteen_pp}}</a></ion-col>
             <ion-col><a href="#" @click.prevent="drillDown('fifteen_pa');" id="fifteen_pa">{{fifteen_pa}}</a></ion-col>
           </ion-row>
         </ion-grid>
@@ -935,11 +935,11 @@
       <td>
         <ion-grid>
           <ion-row> 
-            <ion-col><span>PP</span></ion-col>
+            <ion-col class="dotted-border"><span>PP</span></ion-col>
             <ion-col><span>PA</span></ion-col>
           </ion-row>
           <ion-row> 
-            <ion-col><a href="#" @click.prevent="drillDown('seventeen_pp');" id="seventeen_pp">{{seventeen_pp}}</a></ion-col>
+            <ion-col class="dotted-border"><a href="#" @click.prevent="drillDown('seventeen_pp');" id="seventeen_pp">{{seventeen_pp}}</a></ion-col>
             <ion-col><a href="#" @click.prevent="drillDown('seventeen_pa');" id="seventeen_pa">{{seventeen_pa}}</a></ion-col>
           </ion-row>
         </ion-grid>
@@ -1983,5 +1983,12 @@ td {
 .granules-right-td {
   border-right-style: dotted !important;
   border-right-width: 1px;
+}
+.dotted-border {
+  border-right-style: dotted !important;
+  border-right-width: 1px;
+}
+ion-col > span {
+  font-size: 0.7rem;
 }
 </style>
