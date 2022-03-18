@@ -82,148 +82,151 @@ export default defineComponent({
                 id: 'known_pregnancies',
                 helpText: 'Pregnancies with available information',
                 type: FieldType.TT_ANC_PREGNANCY_INPUT_CONFIG,
-                condition: (f: any) => f.para.value > 0,
+                condition: (f: any) => f.gravida.value > 1 && f.para.value > 0,
                 config: {
-                  pregnancyCount: (f: any) => f.para.value
+                  pregnancyCount: (f: any) => parseInt(`${f.gravida.value}`) - parseInt(`${f.para.value}`)
                 }
             },
             {
 				id: 'pregnancy_details',
 				helpText: 'Pregnancy details',
 				type: FieldType.TT_ANC_PREGNANCY_DETAILS_INPUT,
-				condition: (f: any) => f.para.value > 0,
+				condition: (f: any) => f.gravida.value > 1,
 				options: (f: any) => {
-					const abortionCount = f.knownPregnancies.length - parseInt(`${f.gravida.value}`)
+					const abortionCount = parseInt(`${f.gravida.value}`) - parseInt(`${f.para.value}`)
 					const knownAbortions: Option[] = []
 					for(let i=0; i < abortionCount; ++i) {
 						const num = i + 1
 						knownAbortions.push({
 							label: `<span style="color:red;">${num}<sup>${getNumberOrdinal(num)}</sup> Abortion</span>`,
-							value: 1,
+							value: -1,
 							other: {
 								data: [
-									{
-										label: 'Year of abortion',
-										value: '',
-										other: {
-											field: {
-												id: 'year',
-												helpText: 'Year of birth',
-												type: FieldType.TT_NUMBER,
-												computedValue: (v: Option) => {
-													return this.service.buildValueNumber('Year of abortion', v.value)
-												},
-												validation: (v: Option) => this.validateSeries([
-													() => Validation.required(v),
-													() => {
-														const [minY] = this.patient.getBirthdate()
-														const [maxY] = this.service.getDate()
-														return Validation.rangeOf(v, minY, maxY) 
+									[
+										{
+											label: 'Year of abortion',
+											value: '',
+											other: {
+												field: {
+													id: 'year',
+													helpText: 'Year of birth',
+													type: FieldType.TT_NUMBER,
+													computedValue: (v: Option) => {
+														return this.service.buildValueNumber('Year of abortion', v.value)
+													},
+													validation: (v: Option) => this.validateSeries([
+														() => Validation.required(v),
+														() => {
+															const [minY] = this.patient.getBirthdate()
+															const [maxY] = this.service.getDate()
+															return Validation.rangeOf(v, minY, maxY) 
+														}
+													])
+												}
+											}
+										},
+										{
+											label: 'Place of abortion',
+											value: '',
+											other: {
+												field: {
+													id: 'place_of_abortion',
+													helpText: 'Place of abortion',
+													type: FieldType.TT_SELECT,
+													computedValue: (v: Option) => {
+														return this.service.buildValueText('Place of abortion', v.value)
+													},
+													validation: (v: Option) => this.validateSeries([
+														() => Validation.required(v)
+													]),
+													option: () => {
+														return this.mapStrToOptions([
+															"Health facility", 
+															"In transit", 
+															"TBA", 
+															"Home", 
+															"Other"
+														])
 													}
-												])
+												}
 											}
-										}
-									},
-									{
-										label: 'Place of abortion',
-										value: '',
-										other: {
-											field: {
-												id: 'place_of_abortion',
-												helpText: 'Place of abortion',
-												type: FieldType.TT_SELECT,
-												computedValue: (v: Option) => {
-													return this.service.buildValueText('Place of abortion', v.value)
-												},
-												validation: (v: Option) => this.validateSeries([
-													() => Validation.required(v)
-												]),
-												option: () => {
-													return this.mapStrToOptions([
-														"Health facility", 
-														"In transit", 
-														"TBA", 
-														"Home", 
-														"Other"
+										},
+										{
+											label: 'Type of abortion',
+											value: '',
+											other: {
+												field: {
+													id: 'type_of_abortion',
+													helpText: 'Type of abortion',
+													type: FieldType.TT_SELECT,
+													computedValue: (v: Option) => {
+														return this.service.buildValueCoded('Type of Abortion', v.value)
+													},
+													validation: (v: Option) => this.validateSeries([
+														() => Validation.required(v)
+													]),
+													options: () => {
+														return this.mapStrToOptions([
+															"Complete abortion", 
+															"Incomplete abortion"
+														])
+													}
+												}
+											}
+										},
+										{
+											label: 'Procedure done',
+											value: '',
+											other: {
+												field: {
+													id: 'procedure_done',
+													helpText: 'Procedure done',
+													type: FieldType.TT_SELECT,
+													validation: (v: Option) => this.validateSeries([
+														() => Validation.required(v)
+													]),
+													computedValue: (v: Option) => {
+														return this.service.buildValueText('Procedure done', v.value)
+													},
+													options: () => {
+														return this.mapStrToOptions([
+															"Manual Vacuum Aspiration (MVA)", 
+															"Evacuation", 
+															"None"
+														])
+													}
+												}
+											}
+										},
+										{
+											label: 'Gestation (weeks)',
+											value: '',
+											other: {
+												field: {
+													id: 'gestation_weeks',
+													helpText: 'Gestation (weeks)',
+													type: FieldType.TT_NUMBER,
+													computedValue: (v: Option) => {
+														return this.service.buildValueNumber('Gestation', v.value)
+													},
+													validation: (v: Option) => this.validateSeries([
+														() => Validation.required(v),
+														() => Validation.rangeOf(v, 0, 30)
 													])
 												}
 											}
 										}
-									},
-									{
-										label: 'Type of abortion',
-										value: '',
-										other: {
-											field: {
-												id: 'type_of_abortion',
-												helpText: 'Type of abortion',
-												type: FieldType.TT_SELECT,
-												computedValue: (v: Option) => {
-													return this.service.buildValueCoded('Type of Abortion', v.value)
-												},
-												validation: (v: Option) => this.validateSeries([
-													() => Validation.required(v)
-												]),
-												options: () => {
-													return this.mapStrToOptions([
-														"Complete abortion", 
-														"Incomplete abortion"
-													])
-												}
-											}
-										}
-									},
-									{
-										label: 'Procedure done',
-										value: '',
-										other: {
-											field: {
-												id: 'procedure_done',
-												helpText: 'Procedure done',
-												type: FieldType.TT_SELECT,
-												validation: (v: Option) => this.validateSeries([
-													() => Validation.required(v)
-												]),
-												computedValue: (v: Option) => {
-													return this.service.buildValueText('Procedure done', v.value)
-												},
-												options: () => {
-													return this.mapStrToOptions([
-														"Manual Vacuum Aspiration (MVA)", 
-														"Evacuation", 
-														"None"
-													])
-												}
-											}
-										}
-									},
-									{
-										label: 'Gestation (weeks)',
-										value: '',
-										other: {
-											field: {
-												id: 'gestation_weeks',
-												helpText: 'Gestation (weeks)',
-												type: FieldType.TT_NUMBER,
-												computedValue: (v: Option) => {
-													return this.service.buildValueNumber('Gestation', v.value)
-												},
-												validation: (v: Option) => this.validateSeries([
-													() => Validation.required(v),
-													() => Validation.rangeOf(v, 0, 30)
-												])
-											}
-										}
-									}
+									]
 								]
 							}
 						})
 					}
-					const knownPregnancies = f.known_pregnancies.map((p: Option, index: number) => {
+					const successDeliveries = f.known_pregnancies || []
+					const successfulPregnancyData = successDeliveries.filter((p: Option) => p.isChecked).map((p: Option, index: number) => {
 						const num = index + 1
-						p.label = `${num}<sup>${getNumberOrdinal(num)}</sup> delivery`
-						p.other = {
-							data: [
+						const data: any = []
+						for(let i=0; i < p.value; ++i) {
+							data.push([
 								{
 									label: 'Year of birth',
 									value: '',
@@ -373,11 +376,13 @@ export default defineComponent({
 										])
 									}
 								}
-							]
+							])
 						}
+						p.label = `${num}<sup>${getNumberOrdinal(num)}</sup> delivery`
+						p.other = { data }
 						return p
 					})
-					return [...knownPregnancies, ...knownAbortions] as Option[]
+					return [...successfulPregnancyData, ...knownAbortions] as Option[]
 				}
             }
         ]
