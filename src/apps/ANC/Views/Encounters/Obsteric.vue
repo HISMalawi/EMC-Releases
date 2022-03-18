@@ -106,6 +106,7 @@ export default defineComponent({
 										{
 											label: 'Year of abortion',
 											value: '',
+											required: () => true,
 											field: {
 												id: 'year',
 												helpText: 'Year of abortion',
@@ -126,6 +127,7 @@ export default defineComponent({
 										{
 											label: 'Place of abortion',
 											value: '',
+											required: () => true,
 											field: {
 												id: 'place_of_abortion',
 												helpText: 'Place of abortion',
@@ -150,6 +152,7 @@ export default defineComponent({
 										{
 											label: 'Type of abortion',
 											value: '',
+											required: () => true,
 											field: {
 												id: 'type_of_abortion',
 												helpText: 'Type of abortion',
@@ -171,6 +174,7 @@ export default defineComponent({
 										{
 											label: 'Procedure done',
 											value: '',
+											required: () => true,
 											field: {
 												id: 'procedure_done',
 												helpText: 'Procedure done',
@@ -193,6 +197,7 @@ export default defineComponent({
 										{
 											label: 'Gestation (weeks)',
 											value: '',
+											required: () => true,
 											field: {
 												id: 'gestation_weeks',
 												helpText: 'Gestation (weeks)',
@@ -221,6 +226,7 @@ export default defineComponent({
 								{
 									label: 'Year of birth',
 									value: '',
+									required: () => true,
 									field: {
 										id: 'year',
 										helpText: 'Year of birth',
@@ -241,6 +247,7 @@ export default defineComponent({
 								{
 									label: 'Place of birth',
 									value: '',
+									required: () => true,
 									field: {
 										id: 'place_of_birth',
 										helpText: 'Place of birth',
@@ -262,6 +269,7 @@ export default defineComponent({
 								{
 									label: 'Gestation (weeks)',
 									value: '',
+									required: () => true,
 									field: {
 										id: 'gestation_weeks',
 										helpText: 'Gestation (weeks)',
@@ -278,6 +286,7 @@ export default defineComponent({
 								{
 									label: 'Method of delivery',
 									value: '',
+									required: () => true,
 									field: {
 										id: 'method_of_delivery',
 										helpText: 'Method of delivery',
@@ -301,6 +310,7 @@ export default defineComponent({
 								{
 									label: 'Condition at birth',
 									value: '',
+									required: () => true,
 									field: {
 										id: 'condition_at_birth',
 										helpText: 'Condition at birth',
@@ -321,6 +331,7 @@ export default defineComponent({
 								{
 									label: 'Birth weight',
 									value: '',
+									required: () => true,
 									field: {
 										id: 'birth_weight',
 										helpText: 'Birth weight',
@@ -337,6 +348,7 @@ export default defineComponent({
 								{
 									label: 'Alive now',
 									value: '',
+									required: () => false,
 									field: {
 										id: 'alive_now',
 										helpText: 'Alive now',
@@ -355,6 +367,7 @@ export default defineComponent({
 								{
 									label: 'Age at death',
 									value: '',
+									required: () => false,
 									field: {
 										id: 'age_at_death',
 										helpText: 'Age at death',

@@ -99,6 +99,9 @@ export default defineComponent({
                     currentField: option.field,
                     onFinish: (v: any) => {
                         option.value = v
+                        if (typeof option?.field?.computedValue === 'function') {
+                            option.computedValue = option?.field?.computedValue(v)
+                        }
                     }
                 }
             })
