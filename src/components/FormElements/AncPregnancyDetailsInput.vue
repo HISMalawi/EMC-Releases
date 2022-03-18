@@ -6,35 +6,39 @@
                     <ion-list> 
                         <ion-radio-group v-model="selected">
                             <ion-item detail v-for="(item, index) in listData" :key="index"> 
-                                <ion-radio slot="start" :value="item"></ion-radio>
+                                <ion-radio slot="start" :value="item.label"></ion-radio>
                                 <ion-label v-html="item.label"></ion-label>
                             </ion-item>
                         </ion-radio-group>
                     </ion-list>
                 </ion-col>
-                <ion-col v-if="selected" size="8">
-                    <ion-grid class="his-card" v-for="(subItemRows, subItemRowIndex) in selected.other.data" :key="subItemRowIndex">
-                        <ion-row> 
-                            <ion-col class="ion-text-center"> 
-                                {{subItemRowIndex+1}}
-                            </ion-col>
-                        </ion-row>
-                        <p/>
-                        <ion-row v-for="(subItem, subIndex) in subItemRows" :key="subIndex"> 
-                            <ion-col>
-                                <ion-label><b>{{subItem.label}}</b></ion-label>
-                            </ion-col>
-                            <ion-col>
-                                <b>{{subItem.value || '?'}}</b>
-                            </ion-col>
-                            <ion-col>
-                                <ion-button @click="editField(subItem)">EDIT</ion-button>
-                            </ion-col>
-                        </ion-row>
-                    </ion-grid>
+                <ion-col>
+                    <div v-for="(option, optionIndex) in listData" :key="optionIndex"> 
+                        <div v-if="selected === option.label">
+                            <ion-grid class="his-card" v-for="(rows, rowIndex) in option.other.data" :key="rowIndex">
+                                <ion-row>
+                                    <ion-col class="ion-text-center"> 
+                                        {{rowIndex+1}}
+                                    </ion-col>
+                                </ion-row>
+                                <p/>
+                                <ion-row v-for="(rowItem, rowIndex) in rows" :key="rowIndex"> 
+                                    <ion-col>
+                                        <ion-label><b>{{rowItem.label}}</b></ion-label>
+                                    </ion-col>
+                                    <ion-col>
+                                        <b>{{rowItem?.value?.label || '?'}}</b>
+                                    </ion-col>
+                                    <ion-col>
+                                        <ion-button @click="editField(rowItem)">EDIT</ion-button>
+                                    </ion-col>
+                                </ion-row>
+                            </ion-grid>
+                        </div>
+                    </div>
                 </ion-col>
             </ion-row>
-        </ion-grid>            
+        </ion-grid>
     </view-port>
 </template>
 
@@ -50,11 +54,13 @@ import {
     IonButton,
     IonCol,
     IonRow,
+    modalController
 } from "@ionic/vue"
 import {
     arrowUp,
     arrowDown
 } from "ionicons/icons"
+import TouchField from "@/components/Forms/SIngleTouchField.vue"
 
 export default defineComponent({
     name: "HisSelect",
@@ -75,19 +81,28 @@ export default defineComponent({
         }
     },
     data: () => ({
-        selected: null as Option | null,
+        selected: '' as string,
         listData: [] as Option[]
     }),
     async activated() {
         this.$emit('onFieldActivated', this)
-        this.selected = null
         this.listData = await this.options(this.fdata)
     },
     methods: {
-       editField() {
-           /**
-            * TODO: update field values
-            */
+       async editField(option: any) {
+            const modal = await modalController.create({
+                component: TouchField,
+                backdropDismiss: false,
+                cssClass: "full-modal",
+                componentProps: {
+                    dismissType: 'modal',
+                    currentField: option.field,
+                    onFinish: (v: any) => {
+                        option.value = v
+                    }
+                }
+            })
+            modal.present()
        }
     },
     watch: {
