@@ -92,7 +92,6 @@ export default defineComponent({
         }
 
         watch(itemsPerPage, (newValue) => {
-            console.log(props.totalRowCount)
             if(typeof newValue === 'number') emit('onItemsPerPage', newValue)
         }, 
         { 
