@@ -15,7 +15,7 @@
                 <ion-col>
                     <div v-for="(option, optionIndex) in listData" :key="optionIndex"> 
                         <div v-if="selected === option.label">
-                            <ion-grid class="his-card" v-for="(rows, rowIndex) in option.other.data" :key="rowIndex">
+                            <ion-grid class="his-card" v-for="(rows, mainRowIndex) in option.other.data" :key="mainRowIndex">
                                 <ion-row>
                                     <ion-col class="ion-text-center"> 
                                         {{rowIndex+1}}
@@ -30,7 +30,12 @@
                                         <b>{{rowItem?.value?.label || '?'}}</b>
                                     </ion-col>
                                     <ion-col>
-                                        <ion-button @click="editField(rowItem)">EDIT</ion-button>
+                                        <ion-button 
+                                            :disabled="rowItem.disabled" 
+                                            @click="editField(rowItem, listData[optionIndex].other.data[mainRowIndex])"
+                                            >
+                                            EDIT
+                                        </ion-button>
                                     </ion-col>
                                 </ion-row>
                             </ion-grid>
@@ -89,7 +94,7 @@ export default defineComponent({
         this.listData = await this.options(this.fdata)
     },
     methods: {
-       async editField(option: any) {
+       async editField(option: any, rowItems: any) {
             const modal = await modalController.create({
                 component: TouchField,
                 backdropDismiss: false,
@@ -101,6 +106,9 @@ export default defineComponent({
                         option.value = v
                         if (typeof option?.field?.computedValue === 'function') {
                             option.computedValue = option?.field?.computedValue(v)
+                        }
+                        if (typeof option?.field?.onValueUpdate === 'function') {
+                            option.field.onValueUpdate(v, rowItems)
                         }
                     }
                 }
