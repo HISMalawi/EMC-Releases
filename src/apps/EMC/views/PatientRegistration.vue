@@ -30,11 +30,16 @@ import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
-import { toastWarning } from "@/utils/Alerts";
+import { toastSuccess, toastWarning } from "@/utils/Alerts";
 import PatientRegistrationForm from "../Components/PatientRegistrationForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Option } from "@/components/Forms/FieldInterface";
 import HisDate from "@/utils/Date";
+import { LocationService } from "@/services/location_service";
+import { isEmpty } from "lodash";
+import { PatientRegistrationService } from "@/services/patient_registration_service";
+import { useRouter } from "vue-router";
+import { RelationsService } from "@/services/relations_service";
 
 interface DTInputField {
   value: string;
@@ -53,6 +58,7 @@ export default defineComponent({
     PatientRegistrationForm
 },
   setup() {
+    const router = useRouter()
     const hasErrors = ref(false)
     const isBirthdateEstimated = ref(false)
     const isInRange = (value: number | string, min: number, max: number) => {
@@ -120,7 +126,7 @@ export default defineComponent({
           return null
         }
       },
-      cellphone: {
+      cellPhoneNumber: {
         value: '',
         required: true,
         validation: (phone: Option) => Validation.isMWPhoneNumber(phone)
@@ -144,7 +150,7 @@ export default defineComponent({
         value: '',
         required: true,
       },
-      cellphone: {
+      cellPhoneNumber: {
         value: '',
         required: true,
         validation: (phone: Option) => Validation.isMWPhoneNumber(phone)
@@ -185,9 +191,96 @@ export default defineComponent({
       return isInvalid
     }
 
-    const onFinish = () => {
+    const convertToUnderscores = (str: string) => str.split(/(?=[A-Z])/).join('_').toLowerCase()
+
+    const resolvePerson = (client: Record<string, DTInputField>, other = {} as Record<string, any>) => {
+      const person: Record<string, any> = {
+        ...other,
+        'facility_name': null,
+        'occupation': null,
+      }
+      for (const key in client) {
+        if(key === 'birthDay' || key === 'birthMonth' || key === 'birthYear') continue
+        person[convertToUnderscores(key)] = client[key].value
+      }
+      return person
+    }
+
+    const resolveAddress = async (village = {} as DTInputField) => {
+      const TA = village.value 
+        ? await LocationService.getTraditionalAuthorityById(village.other.traditional_authority_id)
+        : null
+      
+      const district = isEmpty(TA) 
+        ? null
+        : await LocationService.getDistrictByID(TA[0].district_id)
+
+      return {
+        'home_district': isEmpty(district) ?  "N/A" : district[0].name,
+        'home_traditional_authority': isEmpty(TA) ? "N/A" : TA[0].name ,
+        'home_village': village.value || "N/A",
+        'current_district': isEmpty(district) ? "N/A" : district[0].name,
+        'current_traditional_authority': isEmpty(TA) ? "N/A" : TA[0].name,
+        'current_village': village.value || "N/A" 
+      }
+    }
+
+    const registerPatient = async (registerGuardian: boolean) => {
+       const registrationService = new PatientRegistrationService()
+      const birthdate = isBirthdateEstimated.value 
+        ? HisDate.toStandardHisFormat(HisDate.estimateDateFromAge(parseFloat(`${patient.estimatedBirthdate.value}`)))
+        : HisDate.toStandardHisFormat(`${patient.birthYear.value}-${patient.birthMonth.value}-${patient.birthDay.value}`)
+
+      const address = await resolveAddress(patient.homeVillage)
+      const person = resolvePerson(patient, {
+        birthdate,
+        ...address,
+        'isPatient': true,
+        'patient_type': null,
+        'birthdate_estimated': isBirthdateEstimated.value ? "Yes" : "No",
+        'relationship': registerGuardian ? "Yes" : "No",
+      })
+      await registrationService.createPerson(person)
+      await registrationService.createPatient()
+      return registrationService.getPersonID()
+    }
+
+    const registerGuardian = async (patientId: string | number) => {
+       const registrationService = new PatientRegistrationService()
+      const address = await resolveAddress()
+      const person = resolvePerson(guardian, {
+        ...address,
+        'middle_name': "",
+        'gender': "N/A",
+        'birthdate': "N/A",
+        'birthdate_estimated': "N/A",
+        'landmark': "N/A",
+        'relationship': "N/A",
+        'patient_type': "",
+        'isPatient': false,
+        'patient_id': patientId
+      })
+      await registrationService.registerGuardian(person)
+      return registrationService.getPersonID()
+    }
+
+    const onFinish = async () => {
       // double negation to force execution of all conditions
       hasErrors.value = !(!isClientDetailsInvalid(patient) || !isClientDetailsInvalid(guardian))
+      if(hasErrors.value) return
+      try {
+        const guardianAvailable = guardian.givenName.value !== 'Unknown' &&  guardian.familyName.value !== 'Unknown'
+        const patientId = await registerPatient(guardianAvailable)
+        if(guardianAvailable) {
+          const guardianId = await registerGuardian(patientId)
+          await RelationsService.createRelation(patientId, guardianId, 13)
+         console.log(await RelationsService.getRelations())
+        }
+        toastSuccess("Client registered successfully!!!", 10000)
+        // router.push(`/emc/registration/${patientId}/true`)
+      } catch (error: any) {
+        toastWarning(error)
+      }
     }
  
     return {

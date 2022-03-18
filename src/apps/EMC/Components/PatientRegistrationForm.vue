@@ -105,11 +105,11 @@
                 </span>
               </ion-label>
               <ion-input 
-                v-model="patient.cellphone.value" 
-                :disabled="patient.cellphone.disabled" 
+                v-model="patient.cellPhoneNumber.value" 
+                :disabled="patient.cellPhoneNumber.disabled" 
                 placeholder="Cellphone Number" 
                 class="ion-margin-top"
-                :class="patient.cellphone.hasErrors ? 'box-error' : 'box'"
+                :class="patient.cellPhoneNumber.hasErrors ? 'box-error' : 'box'"
               />
             </ion-col>
           </ion-row>
@@ -203,11 +203,11 @@
                 </span>
               </ion-label>
               <ion-input 
-                v-model="guardian.cellphone.value" 
-                :disabled="guardian.cellphone.disabled" 
+                v-model="guardian.cellPhoneNumber.value" 
+                :disabled="guardian.cellPhoneNumber.disabled" 
                 placeholder="Cellphone Number" 
                 class="ion-margin-top" 
-                :class="guardian.cellphone.hasErrors ? 'box-error' : 'box'"
+                :class="guardian.cellPhoneNumber.hasErrors ? 'box-error' : 'box'"
               />
             </ion-col>
           </ion-row>
@@ -275,12 +275,12 @@ export default defineComponent({
 
     const setPatientLandmark = (option: Option) => {
       patient.landmark.value = option.label
-      patient.landmark.other = option
+      patient.landmark.other = option.other
     }
 
     const setPatientVillage = (option: Option) => {
       patient.homeVillage.value = option.label
-      patient.homeVillage.other = option
+      patient.homeVillage.other = option.other
     }
 
     const setPatientGender = (option: Option) => {
@@ -296,13 +296,13 @@ export default defineComponent({
     })
 
     watch(guardianPhoneUnknown, (isUnknown) => {
-      guardian.cellphone.value = isUnknown ? 'Unknown' : ''
-      guardian.cellphone.disabled = isUnknown
+      guardian.cellPhoneNumber.value = isUnknown ? 'Unknown' : ''
+      guardian.cellPhoneNumber.disabled = isUnknown
     })
 
     watch(patientPhoneUnknown, (isUnknown) => {
-      patient.cellphone.value = isUnknown ? 'Unknown' : ''
-      patient.cellphone.disabled = isUnknown
+      patient.cellPhoneNumber.value = isUnknown ? 'Unknown' : ''
+      patient.cellPhoneNumber.disabled = isUnknown
     })
 
     watch(guardian, newGuardian => emit("updateGuardian", newGuardian), {
