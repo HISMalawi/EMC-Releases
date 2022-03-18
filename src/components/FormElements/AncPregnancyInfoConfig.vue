@@ -102,9 +102,10 @@ export default defineComponent({
     watch: {
         listData: {
             handler(data: Option[]) {
-                this.$emit('onValue', data)
+                if (data) this.$emit('onValue', data)
             },
-            deep: true
+            deep: true,
+            immediate: true
         }
     }
 })
