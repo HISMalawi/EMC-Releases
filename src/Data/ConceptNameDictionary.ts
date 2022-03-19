@@ -1,6 +1,11 @@
 export default [
    {
       "categories": [],
+      "concept_id": 2895,
+      "name": "Alive"
+   },
+   {
+      "categories": [],
       "concept_id": 9656,
       "name": "Previous HIV Test Results"
    },

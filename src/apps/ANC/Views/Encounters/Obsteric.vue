@@ -141,7 +141,8 @@ export default defineComponent({
 												helpText: 'Place of abortion',
 												type: FieldType.TT_SELECT,
 												computedValue: (v: Option) => {
-													return this.service.buildValueText('Place of abortion', v.value)
+													// concept taken as is from old anc system
+													return this.service.buildValueText('Place of birth', v.value)
 												},
 												validation: (v: Option) => this.validateSeries([
 													() => Validation.required(v)
