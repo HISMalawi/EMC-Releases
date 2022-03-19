@@ -1281,9 +1281,26 @@ export default {
     },
     renderResults() {
       this.indicator = this.params.reduce((indicators, indicator) => {
-        indicators[indicator.name] = parseInt(indicator.contents)
+        const name = indicator.name
+        const value = parseInt(indicator.contents)
+        if (['nine_pp', 'nine_pp_granules', 'nine_pp_tabs'].includes(name)) {
+          indicators.nine_pp += value
+        } else if (['nine_pa', 'nine_pa_granules', 'nine_pa_tabs'].includes(name)) {
+          indicators.nine_pa += value
+        } else if (['eleven_pp', 'eleven_pp_granules', 'eleven_pp_tabs'].includes(name)) {
+          indicators.eleven_pp += value
+        } else if (['eleven_pa', 'eleven_pa_granules', 'eleven_pa_tabs'].includes(name)) {
+          indicators.eleven_pa += value
+        } else {
+          indicators[name] = value
+        }
         return indicators
-      }, {})
+      }, {
+        nine_pa: 0,
+        nine_pp: 0,
+        eleven_pp: 0,
+        eleven_pa: 0
+      })
     },
     drillDown(indicatorName){
       const indicator = find(this.params, {name: indicatorName})
