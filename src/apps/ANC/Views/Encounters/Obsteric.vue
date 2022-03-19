@@ -421,7 +421,70 @@ export default defineComponent({
 					})
 					return [...successfulPregnancyData, ...knownAbortions] as Option[]
 				}
-            }
+            },
+			{
+				id: 'previous_complications',
+				helpText: 'Previous complications',
+				type: FieldType.TT_MULTI_SELECT_GRID,
+				condition: (f: any) => f.gravida.value > 1,
+				validation: (v: Option[]) => this.validateSeries([
+					() => Validation.required(v),
+					() => {
+						const hasMissingValues = v.map(v => v.value==='').some(Boolean)
+						return hasMissingValues 
+							? ['Please complete Complication selection!!'] 
+							: null
+					}
+				]),
+				computedValue: (v: Option[]) => {
+					return v.filter(d => d.value != '')
+						.map(d => this.service.buildValueCoded(d.label, d.value))
+				},
+				options: () => {
+					return [
+						{ 
+							label: 'Episiotomy', 
+							value: '',
+							other: {
+								options: this.yesNoOptions()
+							}
+						},
+						{ 
+							label: 'Hemorrhage', 
+							value: '',
+							other: {
+								options: this.mapStrToOptions([
+									'No',
+									'APH',
+									'PPH'
+								])
+							}
+						},
+						{ 
+							label: 'Pre-eclampsia', 
+							value: '',
+							other: {
+								onClick: (option: Option, listData: Option[]) => {
+									listData.forEach(l => {
+										if (l.label === 'Eclampsia') {
+											l.other.visible = option.value === 'Yes'
+										}
+									})
+								},
+								options: this.yesNoOptions()
+							}
+						},
+						{
+							label: 'Eclampsia',
+							value: '',
+							other: {
+								visible: false,
+								options: this.yesNoOptions()
+							}
+						}
+					]
+				}
+			}
         ]
     }
   }

@@ -1,6 +1,31 @@
 export default [
    {
       "categories": [],
+      "concept_id": 7977,
+      "name": "Hemorrhage"
+   },
+   {
+      "categories": [],
+      "concept_id": 7156,
+      "name": "Eclampsia"
+   },
+   {
+      "categories": [],
+      "concept_id": 8758,
+      "name": "Episiotomy"
+   },
+   {
+      "categories": [],
+      "concept_id": 228,
+      "name": "APH"
+   },
+   {
+      "categories": [],
+      "concept_id": 230,
+      "name": "PPH"
+   },
+   {
+      "categories": [],
       "concept_id": 2895,
       "name": "Alive"
    },
