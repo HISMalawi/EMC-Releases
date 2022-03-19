@@ -84,7 +84,7 @@ export default defineComponent({
                 type: FieldType.TT_ANC_PREGNANCY_INPUT_CONFIG,
                 condition: (f: any) => f.gravida.value > 1 && f.para.value > 0,
                 config: {
-                  pregnancyCount: (f: any) => parseInt(`${f.gravida.value}`) - parseInt(`${f.para.value}`)
+                  pregnancyCount: (f: any) => f.para.value
                 }
             },
             {
@@ -101,7 +101,7 @@ export default defineComponent({
 				computedValue: (v: Option[]) => v.filter(d => d?.other?.obs || false)
 					.map((d: Option) => d.other.obs),
 				options: (f: any) => {
-					const abortionCount = parseInt(`${f.gravida.value}`) - parseInt(`${f.para.value}`)
+					const abortionCount = (parseInt(`${f.gravida.value}`) - parseInt(`${f.para.value}`)) - 1
 					const knownAbortions: Option[] = []
 					for(let i=0; i < abortionCount; ++i) {
 						const num = i + 1
@@ -404,7 +404,6 @@ export default defineComponent({
 								}
 							])
 						}
-						p.label = `${num}<sup>${getNumberOrdinal(num)}</sup> delivery`
 						p.other = { data }
 						return p
 					})
