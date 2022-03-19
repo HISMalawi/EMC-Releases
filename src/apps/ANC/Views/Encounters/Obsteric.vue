@@ -361,8 +361,11 @@ export default defineComponent({
 										},
 										validation: (v: Option) => this.validateSeries([
 											() => Validation.required(v),
-											() => Validation.rangeOf(v, 1, 5)
-										])
+											() => typeof v.value === 'number' ? Validation.rangeOf(v, 1, 5) : null,
+										]),
+										config: {
+											noChars: false
+										}
 									}
 								},
 								{
