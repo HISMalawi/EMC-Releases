@@ -98,8 +98,10 @@ export default defineComponent({
 						? ['Pregnancy details incomplete!!']
 						: null
 				]),
-				computedValue: (v: Option[]) => v.filter(d => d?.other?.obs || false)
-					.map((d: Option) => d.other.obs),
+				config: {
+					hiddenFooterBtns: ['Clear']
+				},
+				computedValue: (v: Option[]) => v.filter(d => d?.other?.obs || false).map((d: Option) => d.other.obs),
 				options: (f: any) => {
 					const abortionCount = (parseInt(`${f.gravida.value}`) - parseInt(`${f.para.value}`)) - 1
 					const knownAbortions: Option[] = []
@@ -332,10 +334,6 @@ export default defineComponent({
 													i.required = v.value === 'Alive'
 													i.disabled = v.value != 'Alive'
 												}
-												if (i.label === 'Age at death') {
-													i.required = v.value != 'Alive'
-													i.disabled = v.value === 'Alive'
-												}
 											})
 										},
 										validation: (v: Option) => Validation.required(v),
@@ -381,6 +379,14 @@ export default defineComponent({
 										type: FieldType.TT_SELECT,
 										computedValue: (v: Option) => {
 											return this.service.buildValueCoded('Alive', v.value)
+										},
+										onValueUpdate: (v: Option, rowItems: any) => {
+											rowItems.forEach((i: any) => {
+												if (i.label === 'Age at death') {
+													i.required = v.value === 'No'
+													i.disabled = v.value === 'Yes'
+												}
+											})
 										},
 										validation: (v: Option) => this.validateSeries([
 											() => Validation.required(v)
