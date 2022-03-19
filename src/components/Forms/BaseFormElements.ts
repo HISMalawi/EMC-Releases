@@ -1,3 +1,4 @@
+import HisAgeInput from "@/components/FormElements/HisAgeInput.vue"
 import BarcodeInput from "@/components/FormElements/HisBarcodeInput.vue"
 import NoteInput from "@/components/FormElements/HisNote.vue"
 import SingleSelect from "@/components/FormElements/HisSelect.vue";
@@ -42,6 +43,7 @@ import AncPregnancyDetailsInput from "@/components/FormElements/AncPregnancyDeta
 
 // Reference names for BaseFormComponents
 export enum FieldType {
+    TT_AGE_INPUT='his-age-input',
     TT_GROUP_SELECTOR = 'HisGroupSelector',
     TT_DATA_TABLE = 'HisDataTable',
     TT_NOTE = 'NoteInput',
@@ -128,5 +130,6 @@ export const BaseFormComponents = {
     NoteInput,
     HisGroupSelector,
     AncPregnancyInfoConfig,
-    AncPregnancyDetailsInput
+    AncPregnancyDetailsInput,
+    HisAgeInput
 }

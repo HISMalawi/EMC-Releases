@@ -68,6 +68,8 @@ import YesNo from "@/components/FormElements/YesNoSelect.vue"
 import MultiYesNo from "@/components/FormElements/MultiYesNoSelect.vue"
 import IPAddressInput from "@/components/FormElements/HisIPAddress.vue"
 import DateInput from "@/components/FormElements/HisDateInput.vue"
+import HisAgeInput from "@/components/FormElements/HisAgeInput.vue"
+
 export default defineComponent({
     name: 'SingleFieldTouchForm',
     components: {
@@ -88,7 +90,8 @@ export default defineComponent({
         MultiYesNo,
         SingleSelectCards,
         DateInput,
-        IPAddressInput
+        IPAddressInput,
+        HisAgeInput
     },
     props: {
         dismissType: {
