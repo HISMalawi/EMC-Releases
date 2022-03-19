@@ -22,6 +22,7 @@
                     :onValue="currentField.onValue"
                     :defaultValue="currentField.defaultValue"
                     :onValueUpdate="currentField.onValueUpdate"
+                    :config="currentField.config"
                     @onValue="onFieldValue"
                 >
                 </component>
