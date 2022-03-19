@@ -84,7 +84,8 @@ export default defineComponent({
                 type: FieldType.TT_ANC_PREGNANCY_INPUT_CONFIG,
                 condition: (f: any) => f.gravida.value > 1 && f.para.value > 0,
                 config: {
-                  pregnancyCount: (f: any) => f.para.value
+					hiddenFooterBtns: ['Clear'],
+					pregnancyCount: (f: any) => f.para.value
                 }
             },
             {
@@ -439,6 +440,9 @@ export default defineComponent({
 				computedValue: (v: Option[]) => {
 					return v.filter(d => d.value != '')
 						.map(d => this.service.buildValueCoded(d.label, d.value))
+				},
+				config: {
+					hiddenFooterBtns: ['Clear']
 				},
 				options: () => {
 					return [
