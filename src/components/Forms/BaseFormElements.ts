@@ -1,3 +1,4 @@
+import HisMultiSelectGrid from "@/components/FormElements/HisMultiSelectGrid.vue" 
 import HisAgeInput from "@/components/FormElements/HisAgeInput.vue"
 import BarcodeInput from "@/components/FormElements/HisBarcodeInput.vue"
 import NoteInput from "@/components/FormElements/HisNote.vue"
@@ -43,6 +44,7 @@ import AncPregnancyDetailsInput from "@/components/FormElements/AncPregnancyDeta
 
 // Reference names for BaseFormComponents
 export enum FieldType {
+    TT_MULTI_SELECT_GRID='his-multi-select-grid',
     TT_AGE_INPUT='his-age-input',
     TT_GROUP_SELECTOR = 'HisGroupSelector',
     TT_DATA_TABLE = 'HisDataTable',
@@ -131,5 +133,6 @@ export const BaseFormComponents = {
     HisGroupSelector,
     AncPregnancyInfoConfig,
     AncPregnancyDetailsInput,
-    HisAgeInput
+    HisAgeInput,
+    HisMultiSelectGrid
 }
