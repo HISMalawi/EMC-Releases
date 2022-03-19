@@ -398,7 +398,7 @@ export default defineComponent({
 									field: {
 										id: 'age_at_death',
 										helpText: 'Age at death',
-										type: FieldType.TT_NUMBER,
+										type: FieldType.TT_AGE_INPUT,
 										computedValue: (v: Option) => {
 											return this.service.buildValueText('Age at Death', v.value)
 										},
