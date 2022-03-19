@@ -225,12 +225,11 @@ export default defineComponent({
 							}
 						})
 					}
-					const successfulPregnancyData = (f.known_pregnancies || [])
-						.filter((p: Option) => p.isChecked)
-						.map((p: Option, index: number) => {
-						const num = index + 1
+					const successfulPregnancyData = (f.known_pregnancies || []).filter((p: Option) => p.isChecked).map((p: Option) => {
 						const data: any = []
+						const rowTitles = []
 						for(let i=0; i < p.value; ++i) {
+							rowTitles.push(`${i+1}<sup>${getNumberOrdinal(i+1)}</sup> born in ${p.label} pregnancy`)
 							data.push([
 								{
 									label: 'Year of birth',
@@ -406,7 +405,7 @@ export default defineComponent({
 							])
 						}
 						p.label = `${p.label} delivery`
-						p.other = { data }
+						p.other = { data, rowTitles }
 						return p
 					})
 					return [...successfulPregnancyData, ...knownAbortions] as Option[]

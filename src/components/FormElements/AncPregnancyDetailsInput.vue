@@ -3,7 +3,7 @@
         <ion-grid class='view-port-content'> 
             <ion-row> 
                 <ion-col size="4">
-                    <ion-list> 
+                    <ion-list class="his-card"> 
                         <ion-radio-group v-model="selected">
                             <ion-item detail v-for="(item, index) in listData" :key="index"> 
                                 <ion-radio slot="start" :value="item.label"></ion-radio>
@@ -15,10 +15,10 @@
                 <ion-col>
                     <div v-for="(option, optionIndex) in listData" :key="optionIndex"> 
                         <div v-if="selected === option.label">
-                            <ion-grid class="his-card" v-for="(rows, mainRowIndex) in option.other.data" :key="mainRowIndex">
-                                <ion-row>
+                            <ion-grid style="margin-bottom: 10px;" class="his-card" v-for="(rows, mainRowIndex) in option.other.data" :key="mainRowIndex">
+                                <ion-row v-if="option?.other?.rowTitles" style="background: #ccc;">
                                     <ion-col class="ion-text-center"> 
-                                        {{rowIndex+1}}
+                                       <ion-title v-html="option?.other?.rowTitles ? option?.other?.rowTitles[mainRowIndex] || '' : ''"> </ion-title>
                                     </ion-col>
                                 </ion-row>
                                 <p/>
@@ -52,7 +52,8 @@ import { defineComponent } from 'vue'
 import { Option } from '../Forms/FieldInterface'
 import FieldMixinVue from './FieldMixin.vue'
 import ViewPort from '../DataViews/ViewPort.vue'
-import { 
+import {
+    IonTitle,
     IonRadioGroup,
     IonRadio,
     IonGrid,
@@ -72,6 +73,7 @@ export default defineComponent({
     name: "HisSelect",
     mixins: [FieldMixinVue],
     components: {
+        IonTitle,
         IonButton,
         IonRadioGroup,
         IonRadio,
@@ -93,6 +95,7 @@ export default defineComponent({
     async activated() {
         this.$emit('onFieldActivated', this)
         this.listData = await this.options(this.fdata)
+        if (this.listData.length) this.selected = this.listData[0].label
     },
     methods: {
        async editField(option: any, rowItems: any) {
