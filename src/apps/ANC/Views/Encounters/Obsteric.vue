@@ -404,6 +404,7 @@ export default defineComponent({
 								}
 							])
 						}
+						p.label = `${p.label} delivery`
 						p.other = { data }
 						return p
 					})
