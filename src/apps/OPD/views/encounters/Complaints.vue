@@ -1,11 +1,6 @@
 <template>
   <ion-page>
-    <his-standard-form 
-      :cancelDestinationPath="cancelDestination" 
-      :fields="fields" 
-      :onFinishAction="onSubmit"
-      :skipSummary="true"
-    />
+    <his-standard-form :cancelDestinationPath="cancelDestination" :fields="fields" :onFinishAction="onSubmit"/>
   </ion-page>
 </template>
 
