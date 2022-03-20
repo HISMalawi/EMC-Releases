@@ -29,7 +29,6 @@ export default defineComponent({
     complaintsService: {} as any,
     todaysDate: ObservationService.getSessionDate(),
     presentingComplaints: "" as any,
-    triageComplaintStatus: false
   }),
   watch: {
     ready: {
@@ -59,32 +58,20 @@ export default defineComponent({
       modal.present()
       await modal.onDidDismiss()
     },
-    async fetchLatestTriageEncounter() {
-      await ObservationService.getObs({
-          'concept_id': '10539',
-          'start_date': this.todaysDate,
-          'end_date': this.todaysDate,
-          'person_id': this.patientID,
-      }).then(async (data: any) => {
-          await this.getTriagePresentingComplaints(data)
-        }
-      );
-      if(this.presentingComplaints.length > 0){
-        this.triageComplaintStatus = true;
-        return true;
-      }
-    },
-    async getTriagePresentingComplaints(data: any){
+    async getTriagePresentingComplaints(){
+      const data =  await this.complaintsService.fetchLatestTriageEncounter();
       if(data.length > 0){
         const encounters = await EncounterService.getEncounters(this.patientID, this.todaysDate)
-        const date = this.todaysDate
-
         const todayPresentingComplaints = encounters.filter(function (el: any){
           return el.type.name == "TRIAGE PRESENTING COMPLAINTS" &&
-          new Date(el.encounter_datetime).toISOString().slice(0, 10) == date 
+          new Date(el.encounter_datetime).toISOString().slice(0, 10) == ObservationService.getSessionDate() 
         });
         
         this.presentingComplaints =   todayPresentingComplaints[0].observations;
+        return true;
+      }
+      else{
+        return false;
       }
     },
     buildResults() {
@@ -114,7 +101,7 @@ export default defineComponent({
         {
           id: "triage_complaints",
           helpText: "Triage Presenting Complaint",
-          condition: () => this.fetchLatestTriageEncounter(),
+          condition: () => this.getTriagePresentingComplaints(),
           type: FieldType.TT_TABLE_VIEWER,
           options: (d: any) => this.buildResults(),
           config: {
@@ -133,7 +120,7 @@ export default defineComponent({
             }))
           },
           beforeNext: (data: any) => {
-            if(this.triageComplaintStatus){
+            if(this.presentingComplaints.length > 0){
               const OPDComplaint = data.map((value: any)=>{
                 return {
                   'label': "OPD Presenting Complaints",
@@ -170,7 +157,7 @@ export default defineComponent({
         {
           id: "all_presenting_complaints",
           helpText: "Summary",
-          condition: () => this.triageComplaintStatus,
+          condition: () => this.presentingComplaints.length > 0,
           type: FieldType.TT_SUMMARY,
           options: (d: any) => this.presentingComplaints,
           config: {
