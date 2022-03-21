@@ -104,6 +104,19 @@ export class AuthService{
         return version && version.length <= 25 ? version : '-'
     }
 
+    getAppConf(confKey: 'promptFullScreenDialog') {
+        const conf: any =  sessionStorage.getItem('appConf')
+        if (conf) {
+            try {
+                const confObj = JSON.parse(conf)
+                return confObj[confKey]
+            } catch (e) {
+                console.error(e)
+            }
+        }
+        return null
+    }
+
     async getApiVersion(): Promise<string> {
         const api: any = await this.getJson('version')
         return api && api['System version'] ? api['System version'] : '-'
