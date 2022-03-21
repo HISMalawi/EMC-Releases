@@ -40,5 +40,10 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
         id: 'obstetric history',
         name: 'Obstetric history',
         icon: 'obstetric_history.png'
+    },
+    {
+        id: 'current pregnancy',
+        name: 'Current Pregnancy',
+        icon: 'current_preg.png'
     }
 ]

@@ -38,5 +38,10 @@ export default [
         name: 'obstetric history',
         path: '/anc/obsteric/:patient_id',
         component: () => import("@/apps/ANC/Views/Encounters/Obsteric.vue")
+    },
+    {
+        name: 'current pregnancy',
+        path: '/anc/current_pregnancy/:patient_id',
+        component: () => import("@/apps/ANC/Views/Encounters/CurrentPregnancy.vue")
     }
 ]
