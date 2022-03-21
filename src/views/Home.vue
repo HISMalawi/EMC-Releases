@@ -12,7 +12,7 @@
       <ion-toolbar class="full-component-view">
         <ion-row>
           <ion-col>
-            <div class="tool-bar-medium-card">
+            <div class="tool-bar-medium-card" v-if="deskstop">
               <ion-row> 
                 <ion-col size-lg="5" size-sm="4"> 
                   <img 
@@ -30,6 +30,19 @@
                     class="barcode-input" 
                     ref="scanBarcode"
                   />
+                </ion-col>
+              </ion-row>
+            </div>
+            <div class="tool-bar-medium-card" v-if="!deskstop">
+              <ion-row> 
+                <ion-col size-lg="5" size-sm="4" @click="openCamera"> 
+                  <img 
+                    :style="{
+                      width: '230px', 
+                      height: '90px',
+                      margin: '0'
+                    }"
+                    :src="QRPlusBarcode"/>
                 </ion-col>
               </ion-row>
             </div>
@@ -228,12 +241,16 @@ export default defineComponent({
       ready: false,
       patientBarcode: "",
       overviewComponent: {} as any,
-      isBDE: false
+      isBDE: false,
+      deskstop: false
     };
   },
   computed: {
     barcodeLogo(): string {
       return Img('barcode.svg')
+    },
+    QRPlusBarcode(): string {
+      return Img('qr_plus_barcode.png')
     },
     appOverview(): any {
       return this.app.homeOverviewComponent
@@ -315,6 +332,9 @@ export default defineComponent({
         this.$router.push('/login')
       }
       auth.clearSession()
+    },
+    openCamera(){
+      this.$router.push('/camera_scanner')
     }
   },
   created() {
@@ -326,6 +346,9 @@ export default defineComponent({
     }, 1500)
   },
   mounted(){
+    if(document.getElementsByClassName("plt-desktop").length == 1)
+      this.deskstop = true;
+
     const app = HisApp.getActiveApp()
     if (!app) {
       this.openModal();
