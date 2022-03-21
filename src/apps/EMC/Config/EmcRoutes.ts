@@ -18,4 +18,9 @@ export default [
     path: "/emc/patient/registration",
     component: () => import("@/apps/EMC/views/PatientRegistration.vue"),
   },
+  {
+    path: "/emc/registration/:id/:new",
+    name: "new registration",
+    component: () => import("@/apps/EMC/views/ClinicRegistration.vue")
+  },
 ];
