@@ -56,6 +56,10 @@ export interface Field {
      */
     proxyID?: string | number;
     helpText: string;
+    /**
+     * When form value changes, helpText is updated
+     */
+    updateHelpTextOnValue?: (value: Option[] | Option, form: any) => string;
     dynamicHelpText?: (form: any) => string;
     type: FieldType;
     group?: string;  // Categories fields with related data

@@ -123,7 +123,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             alert: async ({dde}: any) => {
                 await infoActionSheet(
                     'Missing Local NPID',
-                    `Patient has a missing local NPID "${dde.remoteNpidDiff}"`,
+                    `Local NPID of "${dde.localNpidDiff}" does not match remote "${dde.remoteNpidDiff}"`,
                     `Proceed to Fix issue`,
                     [
                         { 
@@ -139,7 +139,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         },
         conditions: {
             dde({localNpidDiff, remoteNpidDiff}: any) {
-                return !localNpidDiff && localNpidDiff != remoteNpidDiff
+                return localNpidDiff != remoteNpidDiff
             },
             globalProperties({ddeEnabled}: any) {
                 return ddeEnabled === true
