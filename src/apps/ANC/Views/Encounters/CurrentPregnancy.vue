@@ -18,7 +18,6 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { IonPage } from "@ionic/vue"
 import { ObsValue } from '@/services/observation_service'
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions"
-import { Service } from '@/services/service'
 
 export default defineComponent({
   components: { IonPage },
@@ -51,9 +50,12 @@ export default defineComponent({
                 id: 'lnmp',
                 proxyID: 'delivery_date',
                 helpText: 'Last Normal Menstrual Period',
-                type: FieldType.TT_DATETIME,
+                type: FieldType.TT_FULL_DATE,
                 computedValue: (v: Option) => this.service.buildValueDate('Last menstrual period', v.value),
-                validation: (v: Option) => Validation.required(v)
+                validation: (v: Option) => Validation.required(v),
+                config: {
+                    allowUnknown: true
+                }
             },
             {
                 id: 'estimate_lmp',
@@ -71,11 +73,12 @@ export default defineComponent({
                 id: 'planned_delivery_place',
                 helpText: 'Planned delivery place',
                 type: FieldType.TT_SELECT,
-                computedValue: (v: Option) => this.service.buildValueText('Planned Delivery Place', v.value),
+                computedValue: (v: Option) => this.service.buildValueText('Planned Delivery Place', v.label),
                 validation: (v: Option) => Validation.required(v),
-                defaultValue: () => Service.getLocationName(),
-                options: () => {
-                    return getFacilities()
+                options: (_: any, filter='') => getFacilities(filter),
+                config: {
+                    showKeyboard: true,
+                    isFilterDataViaApi: true
                 }
             },
             {
