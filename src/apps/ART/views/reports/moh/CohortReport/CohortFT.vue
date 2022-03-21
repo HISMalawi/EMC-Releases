@@ -679,10 +679,10 @@
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
-              <a href="#" @click="drillDown('four_pp');" id="four_pp">{{four_pp || 0}}</a>
+              <a href="#" @click.prevent="drillDown('four_pp');" id="four_pp">{{four_pp || 0}}</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click="drillDown('four_pa');" id="four_pa">{{four_pa || 0}}</a>
+              <a href="#" @click.prevent="drillDown('four_pa');" id="four_pa">{{four_pa || 0}}</a>
             </div>
           </div>
         </div>
@@ -769,10 +769,10 @@
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
-              <a href="#" @click="drillDown('nine_pp');" id="nine_pp">{{indicator.nine_pp || 0}}</a>
+              <a href="#" @click.prevent="drillDown('nine_pp');" id="nine_pp">{{indicator.nine_pp || 0}}</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click="drillDown('nine_pa');" id="nine_pa">{{indicator.nine_pa || 0}}</a>
+              <a href="#" @click.prevent="drillDown('nine_pa');" id="nine_pa">{{indicator.nine_pa || 0}}</a>
             </div>
           </div>
         </div>
@@ -814,10 +814,10 @@
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
-              <a href="#" @click="drillDown('eleven_pp');" id="eleven_pp">{{indicator.eleven_pp}}</a>
+              <a href="#" @click.prevent="drillDown('eleven_pp');" id="eleven_pp">{{indicator.eleven_pp}}</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click="drillDown('eleven_pa');" id="eleven_pa">{{indicator.eleven_pa}}</a>
+              <a href="#" @click.prevent="drillDown('eleven_pa');" id="eleven_pa">{{indicator.eleven_pa}}</a>
             </div>
           </div>
         </div>
@@ -844,10 +844,10 @@
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
-              <a href="#" @click="drillDown('twelve_pp');" id="twelve_pp">{{indicator.twelve_pp || 0}}</a>
+              <a href="#" @click.prevent="drillDown('twelve_pp');" id="twelve_pp">{{indicator.twelve_pp || 0}}</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click="drillDown('twelve_pa');" id="twelve_pa">{{indicator.twelve_pa || 0}}</a>
+              <a href="#" @click.prevent="drillDown('twelve_pa');" id="twelve_pa">{{indicator.twelve_pa || 0}}</a>
             </div>
           </div>
         </div>
@@ -889,10 +889,10 @@
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
-              <a href="#" @click="drillDown('fourteen_pp');" id="fourteen_pp">{{indicator.fourteen_pp || 0}}</a>
+              <a href="#" @click.prevent="drillDown('fourteen_pp');" id="fourteen_pp">{{indicator.fourteen_pp || 0}}</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click="drillDown('fourteen_pa');" id="fourteen_pa">{{indicator.fourteen_pa || 0}}</a>
+              <a href="#" @click.prevent="drillDown('fourteen_pa');" id="fourteen_pa">{{indicator.fourteen_pa || 0}}</a>
             </div>
           </div>
         </div>
@@ -919,10 +919,10 @@
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
-              <a href="#" @click="drillDown('fifteen_pp');" id="fifteen_pp">{{indicator.fifteen_pp || 0}}</a>
+              <a href="#" @click.prevent="drillDown('fifteen_pp');" id="fifteen_pp">{{indicator.fifteen_pp || 0}}</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click="drillDown('fifteen_pa');" id="fifteen_pa">{{indicator.fifteen_pa || 0}}</a>
+              <a href="#" @click.prevent="drillDown('fifteen_pa');" id="fifteen_pa">{{indicator.fifteen_pa || 0}}</a>
             </div>
           </div>
         </div>
@@ -964,10 +964,10 @@
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
-              <a href="#" @click="drillDown('seventeen_pp');" id="seventeen_pp">{{indicator.seventeen_pp || 0}}</a>
+              <a href="#" @click.prevent="drillDown('seventeen_pp');" id="seventeen_pp">{{indicator.seventeen_pp || 0}}</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click="drillDown('seventeen_pa');" id="seventeen_pa">{{indicator.seventeen_p || 0}}</a>
+              <a href="#" @click.prevent="drillDown('seventeen_pa');" id="seventeen_pa">{{indicator.seventeen_p || 0}}</a>
             </div>
           </div>
         </div>
@@ -1301,24 +1301,9 @@ export default {
       this.indicator = this.params.reduce((indicators, indicator) => {
         const name = indicator.name
         const value = parseInt(indicator.contents)
-        if (['nine_pp', 'nine_pp_granules', 'nine_pp_tabs'].includes(name)) {
-          indicators.nine_pp += value
-        } else if (['nine_pa', 'nine_pa_granules', 'nine_pa_tabs'].includes(name)) {
-          indicators.nine_pa += value
-        } else if (['eleven_pp', 'eleven_pp_granules', 'eleven_pp_tabs'].includes(name)) {
-          indicators.eleven_pp += value
-        } else if (['eleven_pa', 'eleven_pa_granules', 'eleven_pa_tabs'].includes(name)) {
-          indicators.eleven_pa += value
-        } else {
-          indicators[name] = value
-        }
+        indicators[name] = value
         return indicators
-      }, {
-        nine_pa: 0,
-        nine_pp: 0,
-        eleven_pp: 0,
-        eleven_pa: 0
-      })
+      }, {})
     },
     drillDown(indicatorName){
       const indicator = find(this.params, {name: indicatorName})
