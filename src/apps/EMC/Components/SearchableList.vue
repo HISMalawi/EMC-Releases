@@ -126,7 +126,7 @@ export default defineComponent({
 
 <style scoped>
 .list {
-  height: 420px;
+  height: 470px;
   overflow-y: scroll;
 }
 </style>y
