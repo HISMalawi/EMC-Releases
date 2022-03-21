@@ -26,10 +26,15 @@
                 />
             </ion-col>
         </ion-row>
-        <ion-row> 
+        <ion-row>
             <ion-col class="ion-text-center" > 
-                <ion-button style="width:30%; height:6vh;" @click="today"> 
+                <ion-button color="success" style="width:100%; height:6vh;" @click="today"> 
                     <b>TODAY</b>
+                </ion-button>
+            </ion-col>
+            <ion-col> 
+                <ion-button :disabled="!config.allowUnknown" color="warning" style="width:100%; height:6vh;" @click="value='Unknown'"> 
+                    <b>Unknown</b>
                 </ion-button>
             </ion-col>
         </ion-row>
