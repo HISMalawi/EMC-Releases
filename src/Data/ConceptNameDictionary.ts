@@ -1958,4 +1958,24 @@ export default [
       "concept_id": 8426,
       "name": 'Radiology Orders'
    },
+   {
+      "name": 'Hand x-ray',
+      "concept_id": 10337
+   },
+   {
+      "name": 'Foot x-ray',
+      "concept_id": 10334
+   },
+   {
+      "name": 'Leg x-ray',
+      "concept_id": 10342
+   },
+   {
+      "name": 'Pelvis x-ray',
+      "concept_id": 10343
+   },
+   {
+      "name": 'Shoulder x-ray',
+      "concept_id": 10344
+   },
 ]

@@ -36,13 +36,13 @@ export default defineComponent({
     }
   },
   methods: {
-    async onSubmit(_: any, computedData: any){   
-       
+    async onSubmit(_: any, computedData: any){
       const data = await Promise.all(computedData.radiology)
-      console.log({data})
       await this.radiologyService.createEncounter()    
       await this.radiologyService.saveObservationList(data)
-      await this.printOrders(data)      
+     //console.log( await this.radiologyService.saveObservationList(data))
+      await this.printOrders(data)
+      await this.submitToPacs(data)      
     },
     getFields(): Array<Field>{
       return [
@@ -86,20 +86,61 @@ export default defineComponent({
     },
     async print(order: any) {
       const p = new PrintoutService()
-      const xRayName = await ConceptService.getConceptNameFromApi(order.child.value_coded)
+      //const xRayName = await ConceptService.getConceptNameFromApi(order.child.value_coded)
+
+      let url = `/radiology/barcode`
+          url += `?accession_number=${await this.getAccesionNumber()}`
+          url += `?patient_national_id=${this.patient.getNationalID()}`
+          url += `?patient_name=${this.patient.getFullName()}`
+          url += `?radio_order=${await this.getConceptName(order.child.value_coded)}`
+          url += `?date_created=${moment(order.obs_datetime)}`
+      await p.printLbl(url)
+    },
+    async getConceptName(conceptId: any) {
+      const name = await ConceptService.getConceptNameFromApi(conceptId)
+      return name
+    },
+    async submitToPacs(orders: any) {
+       //if(sessionStorage.radiology_status == 'true'){
+      orders.forEach(async (order: any) => {
+        const arryObj = [
+          {
+            "main_value_text": await this.getConceptName(order.value_coded),
+            "obs_id": '',
+            "sub_value_text": await this.getConceptName(order.child.value_coded), 
+          }
+        ]
+        const patientData = {
+          'patient_details': {
+            "patient_name": this.patient.getFullName(),
+            "patientAge": this.patient.getAge(),
+            "patientDOB": this.patient.getBirthdate(),
+            "patientGender": this.patient.getGender(),
+            "national_id": this.patient.getNationalID(),
+            "person_id": this.patient.getID(),
+            "encounter_id": this.radiologyService.getEncounterID(),
+            "date_created": this.radiologyService.getDate(),
+            "accession_number": this.getAccesionNumber(),
+          },
+          'physician_details': {
+            "username": sessionStorage.getItem("username"),
+            "userID": sessionStorage.getItem("userID"),
+            "userRoles": sessionStorage.getItem("userRoles"),
+          },
+          'radiology_orders': arryObj 
+        }
+
+        console.log({patientData})
+      })
+    },
+    async getAccesionNumber() {
       let newAccessionNumber = null
       const response = await ApiClient.get(`sequences/next_accession_number`)
       if (response && response.status == 200) {
         const data = await response.json()
         newAccessionNumber = data['accession_number']
       }
-      let url = `/radiology/barcode`
-          url += `?accession_number=${newAccessionNumber}`
-          url += `?patient_national_id=${this.patient.getNationalID()}`
-          url += `?patient_name=${this.patient.getFullName()}`
-          url += `?radio_order=${xRayName}`
-          url += `?date_created=${moment(order.obs_datetime)}`
-      await p.printLbl(url)
+      return newAccessionNumber
     },
   }
 })
