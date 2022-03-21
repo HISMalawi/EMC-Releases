@@ -10,7 +10,7 @@ import { Observation } from '@/interfaces/observation';
 import { OrderService } from '@/services/order_service';
 import { RelationshipService } from '@/services/relationship_service';
 import { Order } from '@/interfaces/order';
-import { seletActivities } from '@/utils/WorkflowTaskHelper';
+import { selectActivities } from '@/utils/WorkflowTaskHelper';
 
 
 async function onRegisterPatient(patientId: number) {
@@ -118,7 +118,7 @@ const OPD: AppInterface = {
   onRegisterPatient,
   formatPatientProgramSummary,
   confirmationSummary,
-  init: async () => await seletActivities(PRIMARY_ACTIVITIES, 'OPD_activities'),
+  init: async () => await selectActivities(PRIMARY_ACTIVITIES, 'OPD_activities'),
   programPatientIdentifiers: {
     'National ID': {
       id: 28,

@@ -16,7 +16,7 @@ import DrugModalVue from "@/apps/ART/Components/DrugModal.vue";
 import ART_GLOBAL_PROP from "../art_global_props";
 import { isEmpty } from "lodash";
 import { Order } from "@/interfaces/order";
-import { addWorkflowTask, nextTask, seletActivities } from "@/utils/WorkflowTaskHelper";
+import { addWorkflowTask, nextTask, selectActivities } from "@/utils/WorkflowTaskHelper";
 import dayjs from "dayjs";
 import { Service } from "@/services/service";
 import { Patientservice } from '@/services/patient_service';
@@ -58,7 +58,7 @@ function orderToString(order: Order, showDate = true) {
 }
 
 export async function init(context='') {
-    await seletActivities(PRIMARY_ACTIVITIES)
+    await selectActivities(PRIMARY_ACTIVITIES)
     if (context === 'HomePage') {
         await showStockManagementChart()
     }

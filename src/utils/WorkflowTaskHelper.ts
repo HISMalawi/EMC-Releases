@@ -76,7 +76,7 @@ export async function nextTask(patientID: number, router: any, curRoute: any = {
    router.push(`/patient/dashboard/${patientID}`)
 }
 
-export async function seletActivities(programActivities: TaskInterface[], property = 'activities') {
+export async function selectActivities(programActivities: TaskInterface[], property = 'activities') {
   const activities = programActivities
     .filter(a => (typeof a.availableOnActivitySelection === 'boolean'
       && a.availableOnActivitySelection)
