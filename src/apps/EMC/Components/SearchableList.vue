@@ -15,7 +15,7 @@
         ></ion-input>
       </ion-col>
     </ion-row>
-    <ion-row class="list">
+    <ion-row style="overflow-y: scroll" :style="{height: searchable ? '420px': '470px'}">
       <ion-col>
         <ion-list>
           <ion-radio-group v-model="selectedItem">
@@ -27,7 +27,7 @@
         </ion-list>
       </ion-col>
     </ion-row>
-    <ion-row style="border-top: 1px solid #a3a3a3; ">
+    <ion-row style="border-top: 1px solid #a3a3a3;">
       <ion-col>
         <ion-button class="ion-float-end ion-margin-end" :disabled="!selectedItem" @click="onConfirm">confirm</ion-button>
         <ion-button  color="danger" @click="onCancel">Cancel</ion-button>
@@ -123,10 +123,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped>
-.list {
-  height: 470px;
-  overflow-y: scroll;
-}
-</style>y
