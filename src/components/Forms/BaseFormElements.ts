@@ -41,6 +41,7 @@ import HisDataTable from "@/components/FormElements/HisDataTable.vue"
 import HisGroupSelector from "@/components/FormElements/HisGroupSelector.vue"
 import AncPregnancyInfoConfig from "@/components/FormElements/AncPregnancyInfoConfig.vue"
 import AncPregnancyDetailsInput from "@/components/FormElements/AncPregnancyDetailsInput.vue"
+import AncLmpDateInput from "@/components/FormElements/AncLmpDateInput.vue"
 
 // Reference names for BaseFormComponents
 export enum FieldType {
@@ -87,7 +88,8 @@ export enum FieldType {
     TT_DRUG_DISPENSER = 'drug-dispenser',
     TT_CLINIC_HOLIDAY_PICKER = 'clinic-holiday-picker',
     TT_ANC_PREGNANCY_INPUT_CONFIG = 'anc-pregnancy-info-config',
-    TT_ANC_PREGNANCY_DETAILS_INPUT = 'anc-pregnancy-details-input'
+    TT_ANC_PREGNANCY_DETAILS_INPUT = 'anc-pregnancy-details-input',
+    TT_ANC_LMP_DATE_INPUT = 'anc-lmp-date-input'
 }
 
 // Components to be rendered
@@ -134,5 +136,6 @@ export const BaseFormComponents = {
     AncPregnancyInfoConfig,
     AncPregnancyDetailsInput,
     HisAgeInput,
-    HisMultiSelectGrid
+    HisMultiSelectGrid,
+    AncLmpDateInput
 }

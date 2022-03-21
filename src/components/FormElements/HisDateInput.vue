@@ -1,6 +1,7 @@
 <template>
     <view-port :showFull="false">
         <ion-input class="input_display" :readonly="true" :value="value"/>
+        <slot :date="value"> </slot>
     </view-port>
     <ion-grid class="his-floating-keyboard">
         <ion-row> 

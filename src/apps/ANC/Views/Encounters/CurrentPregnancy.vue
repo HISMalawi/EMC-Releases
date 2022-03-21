@@ -18,6 +18,7 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { IonPage } from "@ionic/vue"
 import { ObsValue } from '@/services/observation_service'
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions"
+import HisDate from "@/utils/Date"
 
 export default defineComponent({
   components: { IonPage },
@@ -61,10 +62,14 @@ export default defineComponent({
                 id: 'lnmp',
                 proxyID: 'delivery_date',
                 helpText: 'Last Normal Menstrual Period',
-                type: FieldType.TT_FULL_DATE,
+                type: FieldType.TT_ANC_LMP_DATE_INPUT,
                 computedValue: (v: Option) => this.buildDelieveryDateObs(v.value as string),
                 validation: (v: Option) => Validation.required(v),
                 config: {
+                    calculateDelieveryDate: (d: string) => HisDate.toStandardHisDisplayFormat(
+                        this.service.estimateDelieveryDate(d)
+                    ),
+                    calculateGestationWeeks: (d: string) => this.service.calculateWeekOfFirstVisit(d),
                     allowUnknown: true
                 }
             },
