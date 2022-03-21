@@ -1,4 +1,7 @@
+import { TaskInterface } from "@/apps/interfaces/TaskInterface";
+import ActivitiesModal  from '@/components/ActivitiesSelection.vue'
 import { WorkflowService } from "@/services/workflow_service"
+import { modalController } from "@ionic/vue";
 import { isEmpty } from "lodash"
 
 export enum WorkflowSessionKeys {
@@ -71,4 +74,29 @@ export async function nextTask(patientID: number, router: any, curRoute: any = {
        console.log(e) 
     }
    router.push(`/patient/dashboard/${patientID}`)
+}
+
+export async function selectActivities(programActivities: TaskInterface[], property = 'activities') {
+  const activities = programActivities
+    .filter(a => (typeof a.availableOnActivitySelection === 'boolean'
+      && a.availableOnActivitySelection)
+      || typeof a.availableOnActivitySelection !== 'boolean'
+    )
+    .map((activity: TaskInterface) => ({
+      value: activity.workflowID
+        || activity.name,
+      selected: false
+    }))
+  
+  const modal = await modalController.create({
+    component: ActivitiesModal,
+    cssClass:  "large-modal",
+    backdropDismiss: false,
+    componentProps: {
+      activities,
+      property
+    }
+  })
+  modal.present();
+  await modal.onDidDismiss()
 }
