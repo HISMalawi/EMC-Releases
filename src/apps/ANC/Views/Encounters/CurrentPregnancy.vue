@@ -44,6 +44,17 @@ export default defineComponent({
       await this.service.saveObservationList(obs as ObsValue[])
       this.nextTask()
     },
+    buildDelieveryDateObs(lmpDate: string) {
+        return [
+            this.service.buildValueDate('Last menstrual period', lmpDate),
+            this.service.buildValueDate('Estimated date of delivery', 
+                this.service.estimateDelieveryDate(lmpDate)
+            ),
+            this.service.buildValueNumber('Week of First Visit', 
+                this.service.calculateWeekOfFirstVisit(lmpDate)
+            )
+        ]
+    },
     getFields(): Field[] {
         return [
             {
@@ -51,7 +62,7 @@ export default defineComponent({
                 proxyID: 'delivery_date',
                 helpText: 'Last Normal Menstrual Period',
                 type: FieldType.TT_FULL_DATE,
-                computedValue: (v: Option) => this.service.buildValueDate('Last menstrual period', v.value),
+                computedValue: (v: Option) => this.buildDelieveryDateObs(v.value as string),
                 validation: (v: Option) => Validation.required(v),
                 config: {
                     allowUnknown: true
@@ -63,7 +74,9 @@ export default defineComponent({
                 helpText: 'Gestation (months)',
                 type: FieldType.TT_NUMBER,
                 condition: (f: any) => f.lnmp.value === 'Unknown',
-                computedValue: (v: Option) => this.service.buildValueDate('Estimated date of delivery', v.value),
+                computedValue: (v: Option) => {
+                    return this.buildDelieveryDateObs(this.service.calculateGestationDateFromPeriod(v.value))
+                },
                 validation: (v: Option) => this.validateSeries([
                     () => Validation.required(v),
                     () => Validation.rangeOf(v, 1, 10)
