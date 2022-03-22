@@ -115,6 +115,8 @@ export default defineComponent({
           async (data: any)=> {
             await this.getPatientDataObj(data).then(
               async(dat: any) => {
+                const delay = (ms: number) => new Promise(res => setTimeout(res, ms))
+                await delay(20000)          
                 await ApiClient.post(`radiology/radiology_orders`,dat)
               }
             )
