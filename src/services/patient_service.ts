@@ -16,6 +16,7 @@ export class Patientservice extends Service {
         super()
         this.patient = patient;
     }
+    create() { return Service.postJson('/patients', this.patient) }
 
     public static mergePatients(payload: any) {
         payload['program_id'] = super.getProgramID()

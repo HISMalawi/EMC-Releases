@@ -160,13 +160,16 @@ export default defineComponent({
         }
     },
     async create(_: any, computedData: any) {
-        const person: any = PersonField.resolvePerson(computedData)
+        let person: any = PersonField.resolvePerson(computedData)
+        person = this.presets.nationalIDStatus == "true" ? this.appendNationalIDData(person) : person
         const attributes: Array<any> = this.resolvePersonAttributes(computedData)
         const registration: any = new PatientRegistrationService()
         await registration.registerPatient(person, attributes)
 
         const patientID = registration.getPersonID()
 
+        if(this.presets.nationalIDStatus == "true") 
+            this.saveNationalID(patientID)
         if (this.app.onRegisterPatient) {
             const exit = await this.app.onRegisterPatient(
                 patientID, person, attributes, this.$router, this.$route
@@ -177,6 +180,22 @@ export default defineComponent({
             return this.$router.push(`/guardian/registration/${patientID}`)
         }
         await nextTask(patientID, this.$router)
+    },
+    appendNationalIDData(person: any){
+        Object.assign(person,{
+            'given_name': this.presets.given_name,
+            "family_name": this.presets.family_name,
+            "gender": this.presets.gender,
+            "birthdate": this.presets.birthdate,
+        })
+    },
+    async saveNationalID(patientID: any){
+        const parametersPassed: any =  {
+            'person_id': patientID, 
+            'program_id': Patientservice.getProgramID(),
+            'malawi_national_ID': this.presets.malawiNationalID
+            };
+        await new Patientservice(parametersPassed).create();
     },
     async update(computedData: any) {
         const person: any = PersonField.resolvePerson(computedData)
@@ -215,13 +234,13 @@ export default defineComponent({
     },
     givenNameField(): Field {
         const name: Field = PersonField.getGivenNameField()
-        name.condition = () => this.editConditionCheck(['given_name'])
+        name.condition = () => this.editConditionCheck(['given_name']) && this.presets.nationalIDStatus != "true"
         name.defaultValue = () => this.presets.given_name
         return name
     },
     familyNameField(): Field {
         const name: Field = PersonField.getFamilyNameField()
-        name.condition = () => this.editConditionCheck(['family_name'])
+        name.condition = () => this.editConditionCheck(['family_name']) && this.presets.nationalIDStatus != "true"
         name.defaultValue = () => this.presets.family_name
         return name
     },
@@ -234,7 +253,7 @@ export default defineComponent({
             if (!this.isEditMode() && IS_CXCA) {
                 return false
             }
-            return this.editConditionCheck(['gender'])
+            return this.editConditionCheck(['gender']) && this.presets.nationalIDStatus != "true"
         }
 
         if (IS_CXCA && !this.isEditMode()) {
@@ -273,7 +292,8 @@ export default defineComponent({
         dobConfig.defaultValue = () => this.presets.birthdate
         dobConfig.condition = () => this.editConditionCheck([
             'year_birth_date', 'month_birth_date', 'day_birth_date'
-        ])
+        ]) 
+        
         return generateDateFields(dobConfig)
     },
     homeRegionField(): Field {
@@ -453,19 +473,30 @@ export default defineComponent({
             id: 'results',
             helpText: 'Search results',
             type: FieldType.TT_PERSON_RESULT_VIEW,
-            dynamicHelpText: (f: any) => {
-                return `Search results for
-                "${f.given_name.value} ${f.family_name.value} | ${f.gender.label}"
-                `
+            dynamicHelpText: (form: any) => {
+                return this.presets.nationalIDStatus == "true" ?
+                 `Search results for "${this.presets.given_name} ${this.presets.family_name} | ${this.presets.gender}"` : 
+                 `Search results for "${form.given_name.value} ${form.family_name.value} | ${form.gender.label}"`;
             },
             appearInSummary: () => false,
             condition: () => !this.isEditMode(),
             validation: (val: Option) => Validation.required(val),
             options: async (form: any) => {
-                const payload = {
-                    'given_name': form.given_name.value,
-                    'family_name': form.family_name.value,
-                    'gender': form.gender.value
+                let payload;
+                if(this.presets.nationalIDStatus == "true"){
+                    this.presets.gender = this.presets.gender == "Male" ? "M" : "F"
+                    payload  = {
+                        'given_name': this.presets.given_name,
+                        'family_name': this.presets.family_name,
+                        'gender': this.presets.gender
+                    } 
+                }
+                else{
+                    payload = {
+                        'given_name': form.given_name.value,
+                        'family_name': form.family_name.value,
+                        'gender': form.gender.value
+                    }
                 }
                 // DDE enabled search
                 if (this.ddeInstance.isEnabled()) {
@@ -505,7 +536,9 @@ export default defineComponent({
                         name: 'New Patient',
                         slot: 'end',
                         onClick: () => {
-                            this.fieldComponent = 'year_birth_date'
+                            this.presets.nationalIDStatus != "true"?
+                            this.fieldComponent = 'year_birth_date':
+                            this.fieldComponent = 'home_region'
                         }
                     },
                     {
