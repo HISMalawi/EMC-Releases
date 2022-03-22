@@ -38,7 +38,7 @@ import HisDate from "@/utils/Date";
 import { IonCol, IonInput, IonRow } from '@ionic/vue';
 
 export default defineComponent({
-  name: 'DTDatePicker',
+  name: 'DateInput',
   props: {
     minDate: {
       type: String,
