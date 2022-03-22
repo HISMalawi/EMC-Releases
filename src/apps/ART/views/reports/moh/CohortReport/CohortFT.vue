@@ -679,10 +679,10 @@
           </div>
           <div class="granules-row">
             <div class="granules-cell granules-right-td">
-              <a href="#" @click.prevent="drillDown('four_pp');" id="four_pp">{{four_pp || 0}}</a>
+              <a href="#" @click.prevent="drillDown('four_pp');" id="four_pp">{{indicator.four_pp || 0}}</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click.prevent="drillDown('four_pa');" id="four_pa">{{four_pa || 0}}</a>
+              <a href="#" @click.prevent="drillDown('four_pa');" id="four_pa">{{indicator.four_pa || 0}}</a>
             </div>
           </div>
         </div>
