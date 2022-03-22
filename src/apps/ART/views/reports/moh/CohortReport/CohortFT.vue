@@ -967,7 +967,7 @@
               <a href="#" @click.prevent="drillDown('seventeen_pp');" id="seventeen_pp">{{indicator.seventeen_pp || 0}}</a>
             </div>
             <div class="granules-cell">
-              <a href="#" @click.prevent="drillDown('seventeen_pa');" id="seventeen_pa">{{indicator.seventeen_p || 0}}</a>
+              <a href="#" @click.prevent="drillDown('seventeen_pa');" id="seventeen_pa">{{indicator.seventeen_pa || 0}}</a>
             </div>
           </div>
         </div>
