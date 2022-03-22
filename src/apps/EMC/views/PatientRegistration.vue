@@ -29,7 +29,7 @@ import { defineComponent, reactive, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { toastWarning } from "@/utils/Alerts";
-import PatientRegistrationForm from "../Components/PatientRegistrationForm.vue";
+import PatientRegistrationForm from "@/apps/EMC/Components/PatientRegistrationForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Option } from "@/components/Forms/FieldInterface";
 import HisDate from "@/utils/Date";

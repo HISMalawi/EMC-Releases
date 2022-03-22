@@ -223,7 +223,7 @@
 import { IonCheckbox, IonCol, IonGrid, IonInput, IonRow } from '@ionic/vue'
 import { computed, defineComponent, PropType, reactive, ref, watch } from 'vue'
 import { getLandmarks, getVillagesByName } from "@/utils/HisFormHelpers/LocationFieldOptions";
-import SearchableSelectInput from './inputs/SearchableSelectInput.vue'
+import SearchableSelectInput from "@/apps/EMC/Components/forms/inputs/SearchableSelectInput.vue"
 import { Option } from '@/components/Forms/FieldInterface';
 
 export default defineComponent({
