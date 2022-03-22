@@ -95,7 +95,7 @@ export default defineComponent({
       return [
         {
           id: "triage_complaints",
-          helpText: "Triage Presenting Complaint",
+          helpText: "Triaging Complaints",
           condition: () => this.getTriagePresentingComplaints(),
           type: FieldType.TT_TABLE_VIEWER,
           options: (d: any) => this.buildResults(),
@@ -118,13 +118,13 @@ export default defineComponent({
             if(this.presentingComplaints.length > 0){
               const OPDComplaint = data.map((value: any)=>{
                 return {
-                  'label': "OPD Presenting Complaints",
+                  'label': "OPD Complaints",
                   'value': value.label,
                 };
               })
               const triageComplaint = this.presentingComplaints.map((value: any)=>{
                 return {
-                  'label': 'Triage Presenting Complaint',
+                  'label': 'Triaging Complaints',
                   'value': value[1],
                 };
               })
