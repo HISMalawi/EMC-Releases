@@ -1,14 +1,11 @@
 <template>
-  <ion-label>
-    <span>{{ label }}</span>
-  </ion-label>
   <ion-row style="width: 100%; padding-top: 0.5rem">
     <ion-col size="4">
       <ion-input
         v-model="day"
         :min="1"
         :max="31"
-        :class="hasErrors ? 'box-error' : 'box'"
+        :class="hasErrors ? 'box-input-error' : 'box-input'"
         type="number"
         placeholder="DD"
       />
@@ -18,7 +15,7 @@
         v-model="month"
         :min="1"
         :max="12"
-        :class="hasErrors ? 'box-error' : 'box'"
+        :class="hasErrors ? 'box-input-error' : 'box-input'"
         type="number"
         placeholder="MM"
       />
@@ -27,7 +24,7 @@
       <ion-input
         v-model="year"
         :min="1900"
-        :class="hasErrors ? 'box-error' : 'box'"
+        :class="hasErrors ? 'box-input-error' : 'box-input'"
         type="number"
         placeholder="YYYY"
       />
@@ -38,15 +35,11 @@
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from 'vue'
 import HisDate from "@/utils/Date";
-import { IonCol, IonInput, IonLabel, IonRow } from '@ionic/vue';
+import { IonCol, IonInput, IonRow } from '@ionic/vue';
 
 export default defineComponent({
   name: 'DTDatePicker',
   props: {
-    label: {
-      type: String,
-      default: "Date"
-    },
     minDate: {
       type: String,
       default: '1900-01-01'
@@ -59,7 +52,6 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonInput,
-    IonLabel,
   },
   emits: ['onValue'],
   setup(props, { emit }) {
