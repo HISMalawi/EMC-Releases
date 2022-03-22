@@ -343,7 +343,7 @@ export default defineComponent({
             ...rows,
             [],
             [`Date Created: ${this.date}`],
-            // TODO: Get actual HIS-CORE version from a file
+            [`Quarter: ${this.period}`],
             [`HIS-Core Version: ${this.coreVersion}`],
             [`API Version: ${this.apiVersion}`],
             [`Site UUID: ${this.siteUUID}`]
