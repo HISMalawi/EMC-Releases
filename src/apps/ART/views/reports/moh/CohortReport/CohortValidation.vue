@@ -30,19 +30,22 @@ export default {
   },
   methods: {
     runValidations(params: any) {
-        const rules = this.getRuleChecks()
+        // Transform indicators from array to a simple key value pair object
         const indicators = params.reduce((data: Record<string, number>, indicator: any) => {
             data[indicator.name] = parseInt(indicator.contents)
             return data
         }, {})
-        this.reportConsistency = rules.filter((r: any) => {
+        this.reportConsistency = this.getRuleChecks().filter((r: any) => {
             if (r.sum) {
+                // Convert indicator strings to their equivalent cohort values for SUM calculation
                 const sum = r.sum.map((i: string) => indicators[i])
                     .reduce((sum: number, value: number) => sum + value, 0)
+                // run comparator to detect errors on the report
                 return r.comparator(indicators, sum)
             }
             return false
-        }).map((r: any) => r.error())
+            })
+            .map((r: any) => r.error())
     },
     getRuleChecks() {
         return [
@@ -121,9 +124,7 @@ export default {
                     'cum_children_24_months_14_years_at_art_initiation',
                     'cum_adults_at_art_initiation'
                 ],
-                comparator: (i: any, sum: number) => {
-                    return i['cum_total_registered'] != sum
-                },
+                comparator: (i: any, sum: number) => i['cum_total_registered'] != sum,
                 error: () => `
                     Section 36 - 38: Total registered (Cummulative) is not equal to
                     A Children below 24 m at ART initiation + B Children 24 m - 14 yrs at ART initiation + C Adults 15 years+ at ART initiation 
