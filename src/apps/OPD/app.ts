@@ -10,6 +10,7 @@ import { Observation } from '@/interfaces/observation';
 import { OrderService } from '@/services/order_service';
 import { RelationshipService } from '@/services/relationship_service';
 import { Order } from '@/interfaces/order';
+import {PROPERTIES} from "@/apps/OPD/config/globalPropertySettings"
 import { selectActivities } from '@/utils/WorkflowTaskHelper';
 
 
@@ -115,6 +116,7 @@ const OPD: AppInterface = {
   primaryPatientActivites: PRIMARY_ACTIVITIES,
   secondaryPatientActivites: SECONDARY_ACTIVITIES,
   homeOverviewComponent: HomeOverview,
+  globalPropertySettings: PROPERTIES,
   onRegisterPatient,
   formatPatientProgramSummary,
   confirmationSummary,

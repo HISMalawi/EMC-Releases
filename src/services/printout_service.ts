@@ -43,6 +43,30 @@ export class PrintoutService extends Service {
         const { platformType } = usePlatform()
         if (platformType.value === 'desktop') {
             try {
+                
+                await PrintoutService.showPrinterImage()
+                // Do a preflight to make sure that we can print that label
+                // before changing document location
+                const preFetch = await Service.getText(url)
+
+                if (!preFetch) throw 'Unable to print Label. Try again later'
+
+                document.location = (await ApiClient.expandPath(url)) as any
+            } catch (e) {
+                toastWarning(e, 3000)
+            }
+        } else {
+            toastWarning('Sorry, your Platform does not support Label printing. Bye!')
+        }
+    }
+
+    //display the PrinterImage once
+    async printLbls(url: any, showLbl: boolean) {
+        const { platformType } = usePlatform()
+        if (platformType.value === 'desktop') {
+            try {
+                
+                if(showLbl)
                 await PrintoutService.showPrinterImage()
                 // Do a preflight to make sure that we can print that label
                 // before changing document location

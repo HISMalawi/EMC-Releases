@@ -7,7 +7,8 @@ export enum GLOBAL_PROP {
     SITE_UUID = 'site_uuid',
     PORTAL_ENABLED = 'portal.enabled',
     PORTAL_PROPERTIES = 'portal.properties',
-    DDE_ENABLED = 'dde_enabled'
+    DDE_ENABLED = 'dde_enabled',
+    PACS_ENABLED = 'pacs_enabled'
 }
 
 function ddeEnabled() {
@@ -58,6 +59,14 @@ function setPortalEnabled(isTrue: boolean) {
     return GlobalPropertyService.set(GLOBAL_PROP.PORTAL_ENABLED, `${isTrue}`)
 }
 
+function PACsEnabled(isTrue: boolean){
+    return GlobalPropertyService.set(GLOBAL_PROP.PACS_ENABLED, `${isTrue}`)
+}
+
+function isPACsEnabled(){
+    return GlobalPropertyService.get(GLOBAL_PROP.PACS_ENABLED)
+}
+
 export default {
     setHealthCenterID,
     sitePrefix,
@@ -70,5 +79,7 @@ export default {
     portalEnabled,
     setSitePrefix,
     setPortalIP,
-    setPortalEnabled
+    setPortalEnabled,
+    PACsEnabled,
+    isPACsEnabled
 }

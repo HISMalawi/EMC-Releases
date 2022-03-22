@@ -16,6 +16,7 @@ import { PrintoutService } from "@/services/printout_service";
 import { ConceptService } from "@/services/concept_service";
 import ApiClient from "@/services/api_client";
 import moment from "dayjs";
+import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -39,10 +40,10 @@ export default defineComponent({
     async onSubmit(_: any, computedData: any){
       const data = await Promise.all(computedData.radiology)
       await this.radiologyService.createEncounter()    
-      await this.radiologyService.saveObservationList(data)
-     //console.log( await this.radiologyService.saveObservationList(data))
+      const savedObsData = await this.radiologyService.saveObservationList(data)
       await this.printOrders(data)
-      await this.submitToPacs(data)      
+      await this.submitToPacs(savedObsData)
+      this.nextTask()     
     },
     getFields(): Array<Field>{
       return [
@@ -62,77 +63,87 @@ export default defineComponent({
     },
     async printOrders(orders: any) {
       let count = 0
+      let showLbl = true
       const delay = (ms: number) => new Promise(res => setTimeout(res, ms))
       const callPrint = async (order: any) => {
         count++
         await delay(2000 * count)
-        this.print(order)
+        this.print(order,showLbl)
       }
-      const miliSec = 2200 * orders.length 
-      const callNextTask = async () => {
-        await delay(miliSec);
-        this.nextTask()
-      };
       let ordersCount = 0
       await orders.forEach(async (order: any) => {
         if (ordersCount == 0) {
-          this.print(order)
+          this.print(order,showLbl)
         } else {
           callPrint(order)
+          showLbl = false
         }
         ordersCount++
       })
-      callNextTask()
     },
-    async print(order: any) {
+    async print(order: any, showLbl: boolean) {
       const p = new PrintoutService()
-      //const xRayName = await ConceptService.getConceptNameFromApi(order.child.value_coded)
-
       let url = `/radiology/barcode`
           url += `?accession_number=${await this.getAccesionNumber()}`
-          url += `?patient_national_id=${this.patient.getNationalID()}`
-          url += `?patient_name=${this.patient.getFullName()}`
-          url += `?radio_order=${await this.getConceptName(order.child.value_coded)}`
-          url += `?date_created=${moment(order.obs_datetime)}`
-      await p.printLbl(url)
+          url += `&patient_national_id=${this.patient.getNationalID()}`
+          url += `&patient_name=${this.patient.getFullName()}`
+          url += `&radio_order=${await this.getConceptName(order.child.value_coded)}`
+          url += `&date_created=${moment(order.obs_datetime)}`
+      await p.printLbls(url,showLbl)
     },
     async getConceptName(conceptId: any) {
       const name = await ConceptService.getConceptNameFromApi(conceptId)
       return name
     },
-    async submitToPacs(orders: any) {
-       //if(sessionStorage.radiology_status == 'true'){
-      orders.forEach(async (order: any) => {
-        const arryObj = [
-          {
-            "main_value_text": await this.getConceptName(order.value_coded),
-            "obs_id": '',
-            "sub_value_text": await this.getConceptName(order.child.value_coded), 
-          }
-        ]
-        const patientData = {
-          'patient_details': {
-            "patient_name": this.patient.getFullName(),
-            "patientAge": this.patient.getAge(),
-            "patientDOB": this.patient.getBirthdate(),
-            "patientGender": this.patient.getGender(),
-            "national_id": this.patient.getNationalID(),
-            "person_id": this.patient.getID(),
-            "encounter_id": this.radiologyService.getEncounterID(),
-            "date_created": this.radiologyService.getDate(),
-            "accession_number": this.getAccesionNumber(),
-          },
-          'physician_details': {
-            "username": sessionStorage.getItem("username"),
-            "userID": sessionStorage.getItem("userID"),
-            "userRoles": sessionStorage.getItem("userRoles"),
-          },
-          'radiology_orders': arryObj 
-        }
-
-        console.log({patientData})
-      })
+    async getOrdersObj(savedObsData: any){
+      const arryObj: any = []
+        savedObsData.forEach(async (order: any) => {
+          arryObj.push(
+            {
+              "main_value_text": await this.getConceptName(order.value_coded),
+              "obs_id": order.obs_id,
+              "sub_value_text": await this.getConceptName(order.children[0].value_coded)
+            }
+          )
+        })
+      return arryObj
     },
+    async submitToPacs(savedObsData: any) {
+      const isPACsEnabled = await GLOBAL_PROP.isPACsEnabled()
+      if (isPACsEnabled) {
+        await this.getOrdersObj(savedObsData).then(
+          async (data: any)=> {
+            await this.getPatientDataObj(data).then(
+              async(dat: any) => {
+                await ApiClient.post(`radiology/radiology_orders`,dat)
+              }
+            )
+          }
+        )
+      }
+    },
+    async  getPatientDataObj(arryObj: any) {
+      const patientData = {
+      'patient_details': {
+        "patient_name": this.patient.getFullName(),
+        "patientAge": this.patient.getAge(),
+        "patientDOB": this.patient.getBirthdate(),
+        "patientGender": this.patient.getGender(),
+        "national_id": this.patient.getNationalID(),
+        "person_id": this.patient.getID(),
+        "encounter_id": this.radiologyService.getEncounterID(),
+        "date_created": this.radiologyService.getDate(),
+        "accession_number": await this.getAccesionNumber(),
+        },
+        'physician_details': {
+          "username": sessionStorage.getItem("username"),
+          "userID": sessionStorage.getItem("userID"),
+          "userRoles": sessionStorage.getItem("userRoles"),
+        },
+        'radiology_orders': arryObj,
+      }
+      return patientData
+  },
     async getAccesionNumber() {
       let newAccessionNumber = null
       const response = await ApiClient.get(`sequences/next_accession_number`)
