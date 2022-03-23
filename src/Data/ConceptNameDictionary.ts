@@ -45,6 +45,16 @@ export default [
    },
    {
       "categories": [],
+      "concept_id": 7455,
+      "name": "TB suspected"
+   },
+   {
+      "categories": [],
+      "concept_id": 7454,
+      "name": "TB NOT suspected"
+   },
+   {
+      "categories": [],
       "concept_id": 7458,
       "name": "Confirmed TB on treatment"
    },
