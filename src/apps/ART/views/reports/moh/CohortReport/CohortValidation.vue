@@ -12,29 +12,22 @@ export default {
     reportConsistency: [] as string[]
   }),
   props: {
-      dataparams: {
+      indicators: {
         type: Object,
         default: () => ({})
       }
   },
   watch: {
-    dataparams: {
-        handler(params: any) {
-            if (!isEmpty(params)) {
-                this.runValidations(params)
-            }
+    indicators: {
+        handler(indicators: Record<string, number>) {
+            if (!isEmpty(indicators)) this.runValidations(indicators)
         },
         deep: true,
-        immediate: true,
+        immediate: true
     }
   },
   methods: {
-    runValidations(params: any) {
-        // Transform indicators from array to a simple key value pair object
-        const indicators = params.reduce((data: Record<string, number>, indicator: any) => {
-            data[indicator.name] = parseInt(indicator.contents)
-            return data
-        }, {})
+    runValidations(indicators: any) {
         this.reportConsistency = this.getRuleChecks().filter((r: any) => {
             if (r.sum) {
                 // Convert indicator strings to their equivalent cohort values for SUM calculation
