@@ -1253,7 +1253,8 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from "vue";
+export default defineComponent({
   props: {
     indicators: {
       type: Object,
@@ -1266,7 +1267,7 @@ export default {
       this.$emit('onClickIndicator', indicatorsName)
     }
   }
-}
+})
 </script>
 <style scoped>
 a {
