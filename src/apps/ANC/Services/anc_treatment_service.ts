@@ -41,10 +41,15 @@ export class AncTreatmentService extends AppEncounterService {
         if (data) {
             return Object.keys(data['set_names'])
                 .reduce((sets: Array<any>, setKey: string) => {
+                    const name = data['set_names'][setKey]
+                    const description = data['set_descriptions'][setKey]
+                    const drugs = data['drug_sets'][setKey]
                     sets.push({
-                        name: data['set_names'][setKey],
-                        description: data['set_descriptions'][setKey],
-                        drugs: data['drug_sets'][setKey]
+                        name,
+                        description,
+                        drugs: Object.keys(drugs).reduce(
+                            (a: any, k: string) => [...a, { id: parseInt(k), ...drugs[k]}], []
+                        )
                     })
                     return sets
                 }, [])
