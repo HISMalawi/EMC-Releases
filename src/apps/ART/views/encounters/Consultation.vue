@@ -1173,7 +1173,7 @@ export default defineComponent({
             this.TBSuspected = data.value === "TB Suspected"
             return {
               tag: 'consultation',
-              obs: this.consultation.buildValueText("TB Status", data.value)
+              obs: this.consultation.buildValueCoded("TB Status", data.value)
             }
           },
           beforeNext: async (data: Option) => {
