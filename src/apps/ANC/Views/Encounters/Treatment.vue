@@ -39,7 +39,7 @@
                                             class="dosage-input"/> 
                                         </td>
                                     <td> 
-                                        <ion-button color="danger">
+                                        <ion-button @click="removeDrug(drug)" color="danger">
                                             Remove
                                         </ion-button> 
                                     </td>
@@ -255,6 +255,9 @@ export default defineComponent({
             (v: Option) => {
                 drug.duration = v.value as number
             })
+        },
+        removeDrug(drug: ActiveDrug) {
+            this.activeDrugs = this.activeDrugs.filter(d => d.name != drug.name)
         },
         clear() {
             //Clear all selected drugs
