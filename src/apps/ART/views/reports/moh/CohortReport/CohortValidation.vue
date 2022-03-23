@@ -7,7 +7,9 @@
 </template>
 <script lang="ts">
 import { isEmpty } from 'lodash'
-export default {
+import { defineComponent } from "vue";
+
+export default defineComponent({
   data: () => ({
     reportConsistency: [] as string[]
   }),
@@ -291,7 +293,7 @@ export default {
         ]
     }
   }
-}
+})
 </script>
 
 <style scoped>
