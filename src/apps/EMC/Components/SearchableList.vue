@@ -110,7 +110,7 @@ export default defineComponent({
     }
 
     onMounted(async () => {
-      await getFilteredList('a');
+      await getFilteredList('');
     });
 
     return {
