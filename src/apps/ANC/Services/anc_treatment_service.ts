@@ -35,4 +35,20 @@ export class AncTreatmentService extends AppEncounterService {
             'encounter_id': this.getEncounterID(),
         })
     }
+
+    async getDrugSets() {
+        const data = await AppEncounterService.getJson('drug_sets')
+        if (data) {
+            return Object.keys(data['set_names'])
+                .reduce((sets: Array<any>, setKey: string) => {
+                    sets.push({
+                        name: data['set_names'][setKey],
+                        description: data['set_descriptions'][setKey],
+                        drugs: data['drug_sets'][setKey]
+                    })
+                    return sets
+                }, [])
+        }
+        return []
+    }
 }
