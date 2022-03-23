@@ -48,22 +48,15 @@
                         </table>
                     </ion-col>
                 </ion-row>
-                <ion-row class="his-card section">
-                    <ion-col> 
-                        <ion-list>
-                            <ion-item @click="appendDrugSetDrugs(dSet.drugs)" 
-                                button v-for="(dSet, dIndex) in drugSets" :key="dIndex">
-                                <ion-label>{{dSet.name}} ({{dSet.description}})</ion-label>
-                            </ion-item>
-                        </ion-list>
-                    </ion-col>
-                </ion-row>
             </ion-grid>
         </ion-content>
         <ion-footer> 
             <ion-toolbar color="dark">
                 <ion-button slot="start" size="large" color="danger">
                     Cancel
+                </ion-button>
+                <ion-button @click="addDrugSet" slot="end" size="large"> 
+                    Add Set
                 </ion-button>
                 <ion-button @click="addDrug" slot="end" size="large"> 
                     Add Drug
@@ -92,8 +85,6 @@ import {
     IonInput,
     IonCol,
     IonFooter,
-    IonList,
-    IonItem,
     IonToolbar,
     IonButton,
     modalController
@@ -126,9 +117,7 @@ export default defineComponent({
         IonInput,
         IonButton,
         IonFooter,
-        IonToolbar,
-        IonList,
-        IonItem,
+        IonToolbar
     },
     mixins: [EncounterMixinVue],
     data: () => ({
@@ -151,8 +140,28 @@ export default defineComponent({
         }
     },
     methods: {
-        appendDrugSetDrugs(drugs: any) {
-            this.activeDrugs = [...this.activeDrugs, ...Object.values(drugs) as ActiveDrug[]]
+        addDrugSet() {
+            this.launchEditor({
+                id: 'drug_set',
+                helpText: 'Select a drugset',
+                type: FieldType.TT_MULTIPLE_SELECT,
+                validation: (v: Option) => Validation.required(v),
+                options: () => {
+                    return this.drugSets.map((d: any) => ({
+                        label: d.name,
+                        value: d.description,
+                        other: {
+                            drugs: d.drugs
+                        }
+                    }))
+                }
+            }, 
+            (v: Option[]) => {
+                this.activeDrugs = [
+                    ...this.activeDrugs, 
+                    ...v.map(d => d.other.drugs).reduce((a: any, c: any) => a.concat(c), [])
+                ]
+            })
         },
         addDrug() {
             this.launchEditor({
@@ -175,12 +184,13 @@ export default defineComponent({
                         value: d.drug_id,
                         other: {
                             activeDrugValue: {
-                                'drug_name': d.name,
+                                id: d.drug_id,
                                 duration: '',
                                 frequency: '',
                                 units: d.units,
-                                dose: d.dost_strength
-                            } 
+                                'drug_name': d.name,
+                                dose: d.dose_strength
+                            }
                         }
                     }))
                 },
@@ -190,7 +200,7 @@ export default defineComponent({
                 }
             }, 
             (data: Option) => {
-                this.activeDrugs.push(data.other.activeDrugValue)
+                this.activeDrugs = [...this.activeDrugs, data.other.activeDrugValue]
             })
         },
         editDrugFrequency(drug: ActiveDrug) {
@@ -309,6 +319,6 @@ export default defineComponent({
     }
     .section {
         margin-top: 10px;
-        height: 40vh;
+        height: 80vh;
     }
 </style>
