@@ -43,5 +43,10 @@ export default [
         name: 'current pregnancy',
         path: '/anc/current_pregnancy/:patient_id',
         component: () => import("@/apps/ANC/Views/Encounters/CurrentPregnancy.vue")
+    },
+    {
+        name: 'treatment',
+        path: '/anc/treatment/:patient_id',
+        component: () => import("@/apps/ANC/Views/Encounters/Treatment.vue")
     }
 ]
