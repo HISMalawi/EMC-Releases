@@ -39,6 +39,7 @@ export default defineComponent({
   components: { HisStandardForm },
   data: () => ({
     fields: [] as any,
+    currentWeight: -1 as any,
     weightTrail: [] as any,
     customRegimens: [] as any,
     isDrugRefillPatient: false as boolean,
@@ -83,6 +84,9 @@ export default defineComponent({
           await this.initAdherence(this.patient, this.providerID);
           await this.guardianOnlyVisit();
 
+          this.currentWeight = Number((await this.patient.getRecentWeight()))
+
+          // this.wasTransferredIn = await this.getTransferInStatus()
           this.wasTransferredIn = await this.getTransferInStatus()
 
           this.dateStartedArt = await this.getDateStartedArt()
@@ -466,12 +470,24 @@ export default defineComponent({
      * Provides validations for TPT selections and value updates
      */
     async on3HPValueUpdate(listData: Option[], curOption: Option, formData: any) {
-      const is3HPorTPT = (i: Option) => i.label.match(/ipt|3hp/i)
+      const is3HPorTPT = (i: Option) => i.label.match(/IPT|3HP/i) ? true : false
+
       //Checks if IPT and 3HP are both selected and returns a boolean
-      const ipt3HPConflict = listData
-        .filter(i => is3HPorTPT(i))
-        .map(i => i.isChecked)
-        .every(Boolean)
+      const ipt3HPConflict: boolean = (() => {
+        const checkedDrugs = listData.reduce(
+        (checkedDrugs: string[], item: Option) => {
+          if (is3HPorTPT(item) 
+            && !(item.label in checkedDrugs) 
+            && item.isChecked) {
+            checkedDrugs.push(item.label)
+          }
+          return checkedDrugs
+        }, [])
+        return checkedDrugs.includes('IPT') 
+          && (checkedDrugs.includes('3HP (RFP + INH)') 
+          || checkedDrugs.includes('INH 300 / RFP 300 (3HP)'))
+      })()
+
       // check if no tpt is present
       const noTpTPresent = is3HPorTPT(curOption) 
         && listData.filter(i => is3HPorTPT(i)).map(i => !i.isChecked)
@@ -513,12 +529,24 @@ export default defineComponent({
           if (is3HPorTPT(i)) {
             i.isChecked =
               action === 'Prescribe IPT' && i.label === 'IPT' || 
-              action ==='Prescribe 3HP' && i.label === '3HP (RFP + INH)'
+              action ==='Prescribe 3HP' && i.label === 'INH 300 / RFP 300 (3HP)'
           }
           return i
         })
       }
-      return listData
+      return listData.map(i => {
+        // By default, toggle between variants of 3HP. All of them cant be selected at once
+        if (curOption.label === '3HP (RFP + INH)' 
+          && i.label === 'INH 300 / RFP 300 (3HP)'
+          && curOption.isChecked) {
+          i.isChecked = false
+        } else if (curOption.label === 'INH 300 / RFP 300 (3HP)' 
+          && i.label === '3HP (RFP + INH)'
+          && curOption.isChecked ) {
+            i.isChecked = false
+        }
+        return i
+      })
     },
     medicationOrderOptions(formData: any, prechecked=[] as Option[]): Option[] {
       const completed3HP = this.didCompleted3HP(formData)
@@ -552,12 +580,23 @@ export default defineComponent({
           }
         }),
         this.toOption('3HP (RFP + INH)', {
+          appendOptionParams: () => {
+            if (completed3HP) return disableOption('Completed 3HP')
+
+            if (this.TBSuspected) return disableOption('TB Suspect')
+
+            if (this.currentWeight < 20) return disableOption('Weight below regulation') 
+          }
+        }),
+        this.toOption('INH 300 / RFP 300 (3HP)', {
           appendOptionParams: () => { 
             if (completed3HP) return disableOption('Completed 3HP')
 
             if (this.TBSuspected) return disableOption('TB Suspect')
 
-            return { isChecked : autoSelect3HP }
+            if (this.currentWeight < 25) return disableOption('Weight below regulation') 
+
+            return { isChecked: autoSelect3HP }
           }
         }),
         this.toOption('IPT', {

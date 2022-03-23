@@ -5,22 +5,18 @@
     </ion-toolbar>
   </ion-header>
   <ion-content>
-    <ion-grid>
-      <ion-row>
-        <ion-col v-for="(entries, index) in multiViewActivities" :key="index" :size="singleView ? 12: 6" >
-         <div class="his-card clickable" v-for="(entry, index) in entries" :key="index" @click="entry.selected = !entry.selected"> 
-            <ion-row >
-              <ion-col size="1">
-                <ion-checkbox v-model="entry.selected" />
-              </ion-col>
-              <ion-col class="ion-text-center">
-                {{ entry.value }}
-              </ion-col>
-            </ion-row>
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+    <multi-column-view :items="appActivities" #default="{entries}" :numberOfColumns="2">
+      <div class="his-card clickable" v-for="(entry, index) in entries" :key="index" @click="entry.selected = !entry.selected"> 
+        <ion-row >
+          <ion-col size="1">
+            <ion-checkbox v-model="entry.selected" />
+          </ion-col>
+          <ion-col class="ion-text-center">
+            {{ entry.value }}
+          </ion-col>
+        </ion-row>
+      </div>
+    </multi-column-view>
   </ion-content>
   <ion-footer>
     <ion-toolbar>
@@ -40,9 +36,10 @@ import {
 } from "@ionic/vue";
 import { defineComponent, PropType } from "vue";
 import { toastWarning } from "@/utils/Alerts"
-import ApiClient from "@/services/api_client";
 import { ActivityInterface } from "@/apps/interfaces/AppInterface"
-import { chunk } from "lodash";
+import { Service } from "@/services/service";
+import { isEmpty } from "lodash";
+import MultiColumnView from "./containers/MultiColumnView.vue";
 
 export default defineComponent({
   name: "Modal",
@@ -51,9 +48,9 @@ export default defineComponent({
       type: Object as PropType<ActivityInterface[]>,
       required: true
     },
-    title: {
+    property: {
       type: String, 
-      default: ""
+      default: "activities"
     },
   },
   watch: {
@@ -69,36 +66,28 @@ export default defineComponent({
   },
   methods: {
     async getActivities() {
-      //
-      const response = await ApiClient.get(
-        `/user_properties?property=activities`
-      );
-
-      if (!response || response.status !== 200) {
-        //
-        toastWarning("Could not get user activities");
-      } 
-      else {
-        //
-        const data: any = await response.json();
+      const data = await Service.getJson('user_properties', {
+        property: this.property
+      })
+      if(isEmpty(data)){
+        toastWarning("Activities not found");
+      } else {
         this.appActivities = this.appActivities.map((el) => {
-          if (data.property_value.search(el.value) >= 0) {
-            el.selected = true;
-          }
-          return el;
-        });
+        if (data.property_value.search(el.value) >= 0) {
+          el.selected = true;
+        }
+        return el;
+      });
       }
     },
     async postActivities() {
       const userActivities = {
-        property: "activities",
+        property: this.property,
         'property_value': this.selectedActivities,
       };
-      const response = await ApiClient.post(`/user_properties`, userActivities);
-
-      if (!response || response.status !== 201) {
+      const res = await Service.postJson('user_properties', userActivities)
+      if (!res) {
         toastWarning("Could not save activities");
-        //
       } else {
         await modalController.dismiss();
       }
@@ -111,24 +100,11 @@ export default defineComponent({
         .map((el) => el.value )
         .join(",");
     },
-    singleView(): boolean {
-      const size = this.appActivities.length
-      if (size > this.splitFactor) 
-        return  false
-      return true
-    },
-    multiViewActivities():  Array<ActivityInterface[]>{
-      const size = this.singleView 
-        ? this.appActivities.length 
-        : Math.ceil(this.appActivities.length/2)
-      return chunk(this.appActivities, size)
-    }
   },
   data() {
     return {
       content: "Content",
       appActivities: [] as Array<ActivityInterface>,
-      splitFactor: 7
     };
   },
   components: {
@@ -138,7 +114,8 @@ export default defineComponent({
     IonTitle,
     IonToolbar,
     IonCheckbox,
-  },
+    MultiColumnView
+},
 });
 </script>
 <style scoped>

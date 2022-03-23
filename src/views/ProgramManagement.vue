@@ -130,7 +130,7 @@ export default defineComponent({
                 actions.push({
                     name: 'Print',
                     color: 'primary',
-                    action: async () => await this.patientProgram.printTransferout()
+                    action: async () => await this.patientProgram.printTransferout(s.start_date)
                 })
             }
             return actions

@@ -1,6 +1,11 @@
 export default [
    {
       "categories": [],
+      "name": "INH 300 / RFP 300 (3HP)",
+      "concept_id": 10565
+   },
+   {
+      "categories": [],
       "concept_id": 10563,
       "name": "Drug received from previous facility"
    },
