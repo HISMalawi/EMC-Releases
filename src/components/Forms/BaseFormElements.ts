@@ -42,6 +42,8 @@ import HisGroupSelector from "@/components/FormElements/HisGroupSelector.vue"
 import AncPregnancyInfoConfig from "@/components/FormElements/AncPregnancyInfoConfig.vue"
 import AncPregnancyDetailsInput from "@/components/FormElements/AncPregnancyDetailsInput.vue"
 import AncLmpDateInput from "@/components/FormElements/AncLmpDateInput.vue"
+import DrugTransferInQty from "@/components/FormElements/DrugTransferInput.vue"
+import HisGridSelector from "@/components/FormElements/HisGridSelector.vue"
 
 // Reference names for BaseFormComponents
 export enum FieldType {
@@ -49,6 +51,7 @@ export enum FieldType {
     TT_AGE_INPUT='his-age-input',
     TT_GROUP_SELECTOR = 'HisGroupSelector',
     TT_DATA_TABLE = 'HisDataTable',
+    TT_GRID_SELECTOR = 'HisGridSelector',
     TT_NOTE = 'NoteInput',
     TT_BARCODE = 'BarcodeInput',
     TT_MONTHLY_DAYS="monthly-days",
@@ -89,7 +92,8 @@ export enum FieldType {
     TT_CLINIC_HOLIDAY_PICKER = 'clinic-holiday-picker',
     TT_ANC_PREGNANCY_INPUT_CONFIG = 'anc-pregnancy-info-config',
     TT_ANC_PREGNANCY_DETAILS_INPUT = 'anc-pregnancy-details-input',
-    TT_ANC_LMP_DATE_INPUT = 'anc-lmp-date-input'
+    TT_ANC_LMP_DATE_INPUT = 'anc-lmp-date-input',
+    TT_DRUG_TRANSFER_IN = 'drug-transfer-in-qty'
 }
 
 // Components to be rendered
@@ -137,5 +141,7 @@ export const BaseFormComponents = {
     AncPregnancyDetailsInput,
     HisAgeInput,
     HisMultiSelectGrid,
-    AncLmpDateInput
+    AncLmpDateInput,
+    DrugTransferInQty,
+    HisGridSelector
 }

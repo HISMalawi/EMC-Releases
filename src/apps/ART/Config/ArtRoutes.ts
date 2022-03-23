@@ -49,6 +49,7 @@ import HyperTensionDiagnosis from "@/apps/ART/views/encounters/hypertension_diag
 import BPPrescription from "@/apps/ART/views/encounters/BPDrug_management.vue"
 import SocialHistory from "@/apps/ART/views/encounters/SocialHistory.vue"
 import BPAdherence from "@/apps/ART/views/encounters/BPAdherence.vue"
+import SCARV from "@/apps/ART/views/reports/pepfar/SCARVReport.vue"
 
 export default [
     {
@@ -401,7 +402,12 @@ export default [
                 name: 'pepfar_vl_coverage',
                 path: 'pepfar_vl_coverage',
                 component: PepFarVlCoverage
-            }
+            },
+            {
+                name: 'sc_arv',
+                path: 'sc_arv',
+                component: SCARV
+            },
         ]
     }
 ]
