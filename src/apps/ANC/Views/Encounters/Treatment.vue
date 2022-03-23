@@ -20,7 +20,7 @@
                             </thead>
                             <tbody> 
                                 <tr v-for="(drug, drugIndex) in activeDrugs" :key="drugIndex"> 
-                                    <td> <b>{{drug.name}}</b> </td>
+                                    <td> <b>{{drug.drug_name}}</b> </td>
                                     <td> 
                                         <ion-input 
                                             readonly
@@ -51,7 +51,8 @@
                 <ion-row class="his-card section">
                     <ion-col> 
                         <ion-list>
-                            <ion-item button v-for="(dSet, dIndex) in drugSets" :key="dIndex">
+                            <ion-item @click="appendDrugSetDrugs(dSet.drugs)" 
+                                button v-for="(dSet, dIndex) in drugSets" :key="dIndex">
                                 <ion-label>{{dSet.name}} ({{dSet.description}})</ion-label>
                             </ion-item>
                         </ion-list>
@@ -107,7 +108,7 @@ import { DrugService } from '@/services/drug_service'
 
 interface ActiveDrug {
     id: number;
-    name: string;
+    'drug_name': string;
     dose: string;
     duration: number;
     frequency: string;
@@ -150,6 +151,9 @@ export default defineComponent({
         }
     },
     methods: {
+        appendDrugSetDrugs(drugs: any) {
+            this.activeDrugs = [...this.activeDrugs, ...Object.values(drugs) as ActiveDrug[]]
+        },
         addDrug() {
             this.launchEditor({
                 id: 'new_drug',
@@ -171,7 +175,7 @@ export default defineComponent({
                         value: d.drug_id,
                         other: {
                             activeDrugValue: {
-                                name: d.name,
+                                'drug_name': d.name,
                                 duration: '',
                                 frequency: '',
                                 units: d.units,
@@ -192,7 +196,7 @@ export default defineComponent({
         editDrugFrequency(drug: ActiveDrug) {
             this.launchEditor({
                 id: 'frequency',
-                helpText: `Edit drug frequency for ${drug.name}`,
+                helpText: `Edit drug frequencpy for ${drug.drug_name}`,
                 type: FieldType.TT_SELECT,
                 defaultValue: () => drug.frequency,
                 validation: (v: Option) => Validation.required(v),
@@ -248,7 +252,7 @@ export default defineComponent({
         editDrugDuration(drug: ActiveDrug) {
             this.launchEditor({
                 id: 'duration',
-                helpText: `Edit duration of ${drug.name}`,
+                helpText: `Edit duration of ${drug.drug_name}`,
                 type: FieldType.TT_NUMBER,
                 validation: (v: Option) => Validation.required(v)
             }, 
@@ -257,7 +261,7 @@ export default defineComponent({
             })
         },
         removeDrug(drug: ActiveDrug) {
-            this.activeDrugs = this.activeDrugs.filter(d => d.name != drug.name)
+            this.activeDrugs = this.activeDrugs.filter(d => d.drug_name != drug.drug_name)
         },
         clear() {
             //Clear all selected drugs
