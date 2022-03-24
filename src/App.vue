@@ -1,5 +1,9 @@
 <template>
   <ion-app>
+    <modal-container 
+      @modalDismissed="activeModal=''" 
+      :modalName="activeModal"> 
+    </modal-container>
     <full-screen-notice v-if="checkFullScreen"/>
     <update-notification v-if="checkForUpdates"/>
     <ion-router-outlet :key="$route.fullPath"/>
@@ -12,6 +16,7 @@ import { IonApp, IonRouterOutlet } from '@ionic/vue';
 import { defineComponent, ref, watch } from 'vue';
 import ApiClient, { ApiBusEvents } from "@/services/api_client"
 import EventBus from "@/utils/EventBus"
+import { EventChannels } from "@/utils/EventBus"
 import { toastWarning, alertConfirmation } from './utils/Alerts';
 import { useRoute } from 'vue-router';
 import ConnectionError from "@/components/ConnectionError.vue"
@@ -23,11 +28,13 @@ import router from '@/router/index';
 import { loadingController } from "@ionic/vue"
 import { AuthService } from './services/auth_service';
 import FullScreenNotice from "@/components/FullScreenModifier.vue"
+import ModalContainer from "@/components/ModalContainer.vue"
 
 export default defineComponent({
   name: 'App',
   components: {
     FullScreenNotice,
+    ModalContainer,
     IonApp,
     IonRouterOutlet,
     ConnectionError,
@@ -41,6 +48,7 @@ export default defineComponent({
     const checkFullScreen = ref(false)
     const checkForUpdates = ref(true)
     const auth = new AuthService()
+    const activeModal = ref('')
 
     // synchronize date every 1 hour
     auth.initDateSync(3600000)
@@ -69,7 +77,11 @@ export default defineComponent({
     watch(healthCheckInterval, (interval: any) => {
       apiOk.value = !interval
     })
-  
+
+    EventBus.on(
+      EventChannels.SHOW_MODAL, (modal: any) => activeModal.value = modal
+    )
+
     EventBus.on(
       ApiBusEvents.BEFORE_API_REQUEST, () => nprogress.start()
     )
@@ -110,6 +122,7 @@ export default defineComponent({
     return {
       apiOk,
       checkForUpdates,
+      activeModal,
       notConfigPage,
       checkFullScreen
     }

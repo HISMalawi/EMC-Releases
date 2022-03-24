@@ -375,7 +375,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             alert: async () => {
                 const action = await infoActionSheet(
                     'Demographics',
-                    'Patient data is incomplete data',
+                    'Patient data is incomplete',
                     'Do you want to review and update now?',
                     [
                         { 
