@@ -11,7 +11,7 @@ import { OrderService } from '@/services/order_service';
 import { RelationshipService } from '@/services/relationship_service';
 import { Order } from '@/interfaces/order';
 import { selectActivities } from '@/utils/WorkflowTaskHelper';
-import { isValidNationalID } from '@/utils/NationalId';
+import Validation from '@/components/Forms/validations/StandardValidations';
 
 
 async function onRegisterPatient(patientId: number) {
@@ -127,7 +127,7 @@ const OPD: AppInterface = {
       isPrimary: true,
       useForSearch: true,
       prefix: () => '',
-      validation: (value) => isValidNationalID(value) ? null : ['Invalid National ID']
+      validation: (value) => Validation.isMWNationalID(value)
     },
   }
 }

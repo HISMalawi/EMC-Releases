@@ -21,6 +21,12 @@ function isMWPhoneNumber(val: any) {
     const validation = /^(\+?265|0)(((88|9[89])\d{7})|(1\d{6})|(2\d{8})|(31\d{8}))$/
     return !val || !val.value.match(validation) ? ['Not a valid phone number']: null
 }
+
+function isMWNationalID(val: string): null | Array<string> {
+    const nationalIDRegex = /^(?=[a-zA-Z0-9]*$)(?=\d+[a-zA-Z]|[a-zA-Z]+\d)([a-zA-Z\d]){8}$/
+    return !val || !nationalIDRegex.test(val) ? ['Not a valid phone number'] : null
+}
+
 function isIPAddress(val: any) {
     const validation = /\b(?:(?:2(?:[0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9])\.){3}(?:(?:2([0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9]))\b/
     return !val || !val.value.match(validation) ? ['Not a valid IP address']: null
@@ -75,5 +81,6 @@ export default {
     neitherOr,
     anyEmpty,
     notTheSame,
-    isIPAddress
+    isIPAddress,
+    isMWNationalID
 }
