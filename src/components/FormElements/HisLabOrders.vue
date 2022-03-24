@@ -14,11 +14,11 @@
           <td>{{ data.accession_number }}</td>
           <td>{{ data.test_name }}</td>
           <td>{{ data.specimen }}</td>
-          <td>{{ HisDate.toStandardHisDisplayFormat(data.ordered) }}</td>
+          <td>{{ data.ordered }}</td>
           <td>
             <span v-for="(d, i) in data.result" :key="i"> {{ d }} <br /></span>
           </td>
-          <td>{{ HisDate.toStandardHisDisplayFormat(data.released) }}</td>
+          <td>{{ data.released }}</td>
         </tr>
       </table>
     </div>
@@ -72,9 +72,18 @@ export default defineComponent({
   },
   async created() {
     const items = await this.options(this.fdata);
-    this.rows = items[0].other.values;
-  },
-});
+    const rows = items[0].other.values;
+    this.rows = rows.map((o: any) => {
+      if (o.ordered) {
+        o.ordered = HisDate.toStandardHisDisplayFormat(o.ordered)
+      }
+      if (o.released) {
+        o.released = HisDate.toStandardHisDisplayFormat(o.released)
+      }
+      return o
+    })
+  }
+})
 </script>
 <style scoped>
 table {

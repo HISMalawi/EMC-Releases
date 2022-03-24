@@ -95,9 +95,9 @@ export class OrderService extends Service {
                     'accession_number': accessionNumber,
                     'test_name': tests[i].name,
                     specimen: testStatus,
-                    ordered: HisDate.toStandardHisFormat(dateOrdered),
+                    ordered: dateOrdered ? HisDate.toStandardHisFormat(dateOrdered) : '',
                     result: resultsArr,
-                    released: HisDate.toStandardHisFormat(resultDate)
+                    released: resultDate ? HisDate.toStandardHisFormat(resultDate) : ''
                 })
 
             }
