@@ -95,12 +95,15 @@ export default defineComponent({
                     id: 'national_id',
                     helpText: 'Enter National ID',
                     type: FieldType.TT_TEXT,
-                    validation: (value: any) => Validation.required(value),
+                    validation: ({value}: Option) => Validation.isMWNationalID(value.toString()),
                     condition: (fields: any) => fields.national_id_available.value === 'Yes',
                     summaryMapValue: ({ value }: Option) => ({
                         value,
                         label: 'National ID'
-                    })
+                    }),
+                    config: {
+                        casing: 'uppercase'
+                    }
                 },
                 {
                     id: 'patient_pregnant',
