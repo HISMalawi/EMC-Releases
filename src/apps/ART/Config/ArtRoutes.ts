@@ -238,6 +238,11 @@ export default [
         component: DataCleaning
     },
     {
+        name: 'moh_disaggregated_report',
+        path: '/art/moh_disaggregated_report',
+        component: MohDisaggregatedReport
+    },
+    {
         path: '/art/report/moh',
         component: ReportTemplate,
         children: [
@@ -245,11 +250,6 @@ export default [
                 name: 'moh_cohort',
                 path: 'moh_cohort',
                 component: MohCohort
-            },
-            {
-                name: 'moh_disaggregated',
-                path: 'moh_disaggregated',
-                component: MohDisaggregatedReport
             }, 
             {
                 name: 'moh_survial_analysis',

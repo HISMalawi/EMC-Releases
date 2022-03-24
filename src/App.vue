@@ -5,7 +5,7 @@
       :modalName="activeModal"> 
     </modal-container>
     <full-screen-notice v-if="checkFullScreen"/>
-    <update-notification/>
+    <update-notification v-if="checkForUpdates"/>
     <ion-router-outlet :key="$route.fullPath"/>
     <connection-error v-if="!apiOk && notConfigPage"/>
   </ion-app>
@@ -46,6 +46,7 @@ export default defineComponent({
     const notConfigPage = ref(true)
     const healthCheckInterval = ref(null) as any
     const checkFullScreen = ref(false)
+    const checkForUpdates = ref(true)
     const auth = new AuthService()
     const activeModal = ref('')
 
@@ -54,6 +55,10 @@ export default defineComponent({
 
     if (typeof auth.getAppConf('promptFullScreenDialog') === 'boolean') {
       checkFullScreen.value = auth.getAppConf('promptFullScreenDialog')
+    }
+
+    if (typeof auth.getAppConf('showUpdateNotifications') === 'boolean') {
+      checkForUpdates.value =  auth.getAppConf('showUpdateNotifications')
     }
 
     nprogress.configure({ 
@@ -116,6 +121,7 @@ export default defineComponent({
     )
     return {
       apiOk,
+      checkForUpdates,
       activeModal,
       notConfigPage,
       checkFullScreen
