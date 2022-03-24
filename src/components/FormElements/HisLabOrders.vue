@@ -46,7 +46,7 @@ export default defineComponent({
           'accession_number': d.accession_number,
           'test_name': d.tests[0].name,
           'specimen': d.specimen.name,
-          'ordered': d.order_date,
+          'ordered': HisDate.toStandardHisDisplayFormat(d.order_date),
           'result': [],
           'release': ''
       }))
