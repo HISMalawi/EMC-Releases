@@ -216,7 +216,7 @@ export default defineComponent({
           slot: "end",
           color: "primary",
           visible: true,
-          onClick: () => document.location = `/art/report/moh/moh_disaggregated?${this.reportUrlParams}` as any
+          onClick: () => this.$router.push(`/art/moh_disaggregated_report?${this.reportUrlParams}`)
         },
         {
           name: "Finish",
