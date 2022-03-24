@@ -1,5 +1,4 @@
 import { Patient } from '@/interfaces/patient';
-import { getFullName } from '@/interfaces/name'
 import { getPersonAttribute } from '@/interfaces/personAttribute'
 import { getPatientIdentifier } from '@/interfaces/patientIdentifier'
 import { ObservationService } from './observation_service';
@@ -47,6 +46,9 @@ export class Patientservice extends Service {
     public static async assignNHID(patientId: number | string) {
         return super.postJson(`/patients/${patientId}/npid`, {});
     }
+    public static reassignARVNumber(patientIdentifierId: number | string, data: Record<string, any>) {
+        return super.putJson("patient_identifiers/" + patientIdentifierId, data)
+    }
     public static toPatient(json: string): Patient {
         return JSON.parse(json);
     }
@@ -80,6 +82,13 @@ export class Patientservice extends Service {
 
     assignNpid() {
        return Patientservice.assignNHID(this.getID()) 
+    }
+
+    updateARVNumber(newARVNumber: string) {
+        const patientIdentifierId = this.getIdentifiers().find(i => i.type.name === "ARV Number")?.patient_identifier_id || ''
+        return Patientservice.reassignARVNumber(patientIdentifierId, {
+            identifier: newARVNumber
+        })
     }
 
     isMale() {
@@ -147,10 +156,15 @@ export class Patientservice extends Service {
         return obs.length >= 1 ? obs[0].value_numeric: -1
     }
     async getWeightHistory() {
-        const weights = await ObservationService.getAll(this.getID(), 'weight')
-        return weights.map((obs: Observation) => ({
-            weight: obs.value_numeric, date: obs.obs_datetime
-        }))
+        try {
+            const weights = await ObservationService.getAll(this.getID(), 'weight')
+            return weights.map((obs: Observation) => ({
+                weight: obs.value_numeric, date: obs.obs_datetime
+            }))
+        } catch (e) {
+            console.warn(e)
+            return []
+        }
     }
     async getCompleteTBTherapyHistory() {
         const data = await ObservationService.getAll(this.getID(), 'TB treatment history')
@@ -236,8 +250,21 @@ export class Patientservice extends Service {
         return this.patient.person.names[0].family_name
     }
 
+    private normaliseName(name: string) {
+        return name.replace(/n\/a|unknown|null|undefined/gi, '').trim()
+    }
+
     getFullName() {
-        return getFullName(this.patient.person.names[0]);
+        try {
+            const name = this.patient.person.names[0]
+            const firstName = name.given_name;
+            const lastName = name.family_name;
+            const middleName = name.middle_name;
+            return this.normaliseName(`${firstName} ${middleName} ${lastName}`)
+        } catch (e) {
+            console.error(e)
+            return 'Unknown'
+        }
     }
 
     getDocID() {
@@ -275,12 +302,14 @@ export class Patientservice extends Service {
             .patient_identifiers
             .filter((i: any) => i.type.name === 'Filing number' 
                 || i.type.name === 'Archived filing number')
-        return !isEmpty(finder) ? finder[0].identifier : ''
+        return !isEmpty(finder) ? finder[0].identifier : 'N/A'
     }
 
     private findIdentifierByType(type: string) {
-        const ids = this.patient.patient_identifiers.filter((i: any) => i.type.name === type )
-        return ids.length >= 1 ? ids[0].identifier : 'Unknown'
+        return this.patient.patient_identifiers
+            .filter((i: any) => i.type.name === type)
+            .sort((a: any, b: any) => a['date_created'] < b['date_created'] ? 1 : 0)
+            .reduce((defaultID, curID) => defaultID === 'Unknown' ? curID.identifier : defaultID, 'Unknown')
     }
 
     getIdentifiers() {
