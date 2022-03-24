@@ -168,7 +168,7 @@ export default defineComponent({
           })
         ]))
       }
-      await this.drilldownAsyncRows(`Drill table ${resourceId}`, columns, asyncRows)
+      await this.drilldownAsyncRows(`Drill table ${resourceId}`, columns, asyncRows, false)
     },
     exportToCsv() {
       const headers = ['Indicators', 'Value']
