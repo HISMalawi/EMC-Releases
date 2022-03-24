@@ -28,6 +28,16 @@ export interface GeneralDataInterface {
     value: string;
 }
 
+export interface ProgramIdentifierInterface {
+    id: number;
+    name: string;
+    isPrimary: boolean;
+    useForSearch: boolean;
+    prefix: () => Promise<string> | string;
+    validation?: (value: string) => string[] | null
+    globalPropertySetting?: string;
+}
+
 export interface AppInterface {
     /**
      * Map primary key value of a program here. All records will
@@ -56,14 +66,7 @@ export interface AppInterface {
     */
     readonly programPatientIdentifiers?: Record<
         string, 
-        {
-            id: number;
-            name: string;
-            isPrimary: boolean;
-            useForSearch: boolean;
-            prefix: () => Promise<string> | string;
-            globalPropertySetting?: string;
-        }
+        ProgramIdentifierInterface
     >;
     /**
      * Component that is rendered on the landing page that'll typically
