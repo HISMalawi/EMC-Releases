@@ -124,7 +124,7 @@ export default defineComponent({
             await this.emitValue({ label: text, value: text })
         },
         async keypress(text: any){
-            const input = handleVirtualInput(text, this.value, this.config.showLowerCasesOnly)
+            const input = handleVirtualInput(text, this.value, this.config?.casing)
             await this.emitValue({ label: input, value: input })
         }
     },
