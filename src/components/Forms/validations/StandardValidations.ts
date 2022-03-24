@@ -25,7 +25,6 @@ function isMWPhoneNumber(val: any) {
 
 function isMWNationalID(value: string): null | Array<string> {
     const nationalIDRegex = /^(?=[a-zA-Z0-9]*$)(?=\d+[a-zA-Z]|[a-zA-Z]+\d)([a-zA-Z\d]){8}$/
-    console.log(value, nationalIDRegex.test(value))
     return !value || !nationalIDRegex.test(value) ? ['Not a valid Malawi National ID number'] : null
 }
 
