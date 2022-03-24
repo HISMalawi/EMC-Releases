@@ -1,4 +1,5 @@
 import {isEmpty} from "lodash"
+import { Option } from '@/components/Forms/FieldInterface';
 
 function validateSeries(conditions: Array<any>){
     try {
@@ -22,9 +23,10 @@ function isMWPhoneNumber(val: any) {
     return !val || !val.value.match(validation) ? ['Not a valid phone number']: null
 }
 
-function isMWNationalID(val: string): null | Array<string> {
+function isMWNationalID(value: string): null | Array<string> {
     const nationalIDRegex = /^(?=[a-zA-Z0-9]*$)(?=\d+[a-zA-Z]|[a-zA-Z]+\d)([a-zA-Z\d]){8}$/
-    return !val || !nationalIDRegex.test(val) ? ['Not a valid phone number'] : null
+    console.log(value, nationalIDRegex.test(value))
+    return !value || !nationalIDRegex.test(value) ? ['Not a valid Malawi National ID number'] : null
 }
 
 function isIPAddress(val: any) {
