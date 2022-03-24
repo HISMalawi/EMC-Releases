@@ -32,8 +32,8 @@ export default defineComponent({
         isLoading: false as boolean,
         columns: [
             [
-                table.thTxt('ARV#'),
                 table.thTxt('NPID'), 
+                table.thTxt('Client Type'), 
                 table.thTxt('First name'),
                 table.thTxt('Last name'), 
                 table.thTxt('Gender'),
@@ -60,8 +60,8 @@ export default defineComponent({
         async setRows(data: Array<any>) {
             data.forEach((d: any) => {
                 this.rows.push([
-                    table.td(d.arv_number),
                     table.td(d.npid),
+                    table.td(d.patient_type),
                     table.td(d.given_name),
                     table.td(d.family_name),
                     table.td(d.gender),
