@@ -104,7 +104,7 @@ export class AuthService{
         return version && version.length <= 25 ? version : '-'
     }
 
-    getAppConf(confKey: 'promptFullScreenDialog') {
+    getAppConf(confKey: 'promptFullScreenDialog' | 'showUpdateNotifications') {
         const conf: any =  sessionStorage.getItem('appConf')
         if (conf) {
             try {
