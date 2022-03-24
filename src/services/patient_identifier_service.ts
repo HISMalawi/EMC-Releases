@@ -5,10 +5,10 @@ export class PatientIdentifierService extends Service {
         super()
     }
 
-    static create(patientId: number, nidType: number, nid: string) { 
+    static create(patientId: number, type: number, identifier: string) { 
       return super.postJson('patient_identifiers', {
-        identifier: nid,
-        'identifier_type': nidType, 
+        'identifier': identifier,
+        'identifier_type': type, 
         'patient_id': patientId
     })
   }
