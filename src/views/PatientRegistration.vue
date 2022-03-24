@@ -2,7 +2,7 @@
   <ion-page>
     <his-standard-form
         @onIndex="fieldComponent=''"
-        :skipSummary="skipSummary"
+        :skipSummary="true"
         :activeField="fieldComponent"
         :fields="fields"
         :onFinishAction="onFinish"
@@ -34,6 +34,8 @@ import { IonPage } from "@ionic/vue"
 import { infoActionSheet } from "@/utils/ActionSheets"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 
+import { PatientIdentifierService } from "@/services/patient_identifier_service";
+
 export default defineComponent({
   components: { HisStandardForm, IonPage },
   data: () => ({
@@ -64,6 +66,7 @@ export default defineComponent({
     fields: [] as Array<Field>,
     isMilitarySite: false,
     presets: {} as any,
+    registrationSummary: {} as any,
     form: {} as Record<string, Option> | Record<string, null>
   }),
   watch: {
@@ -114,6 +117,7 @@ export default defineComponent({
         fields.push(this.rankField())
         fields.push(this.relationshipField())
         fields.push(this.possibleDuplicatesField())
+        fields.push(this.patientRegistrationSummary())
         return fields
     },
     isEditMode() {
@@ -166,10 +170,12 @@ export default defineComponent({
         const registration: any = new PatientRegistrationService()
         await registration.registerPatient(person, attributes)
 
+        console.log(person)
         const patientID = registration.getPersonID()
 
         if(this.presets.nationalIDStatus == "true") 
             this.saveNationalID(patientID)
+
         if (this.app.onRegisterPatient) {
             const exit = await this.app.onRegisterPatient(
                 patientID, person, attributes, this.$router, this.$route
@@ -182,20 +188,17 @@ export default defineComponent({
         await nextTask(patientID, this.$router)
     },
     appendNationalIDData(person: any){
-        Object.assign(person,{
+       return Object.assign(person,{
             'given_name': this.presets.given_name,
-            "family_name": this.presets.family_name,
-            "gender": this.presets.gender,
-            "birthdate": this.presets.birthdate,
+            'family_name': this.presets.family_name,
+            'gender': this.presets.gender,
+            'birthdate': this.presets.birthdate,
+            'birthdate_estimated': false
         })
     },
+    
     async saveNationalID(patientID: any){
-        const parametersPassed: any =  {
-            'person_id': patientID, 
-            'program_id': Patientservice.getProgramID(),
-            'malawi_national_ID': this.presets.malawiNationalID
-            };
-        await new Patientservice(parametersPassed).create();
+        await PatientIdentifierService.create(patientID, 28, this.presets.malawiNationalID)
     },
     async update(computedData: any) {
         const person: any = PersonField.resolvePerson(computedData)
@@ -758,6 +761,60 @@ export default defineComponent({
             }
         }
     },
+    patientRegistrationSummary(): Field 
+    {
+        return{
+          id: "all_presenting_complaints",
+          helpText: "Summary",
+          type: FieldType.TT_SUMMARY,
+          options: (f: any, c: any) => {  
+                return this.buildRegistrationSummary(c)
+          },
+          config: {
+            hiddenFooterBtns: ["Clear"],
+          }
+        }
+    },
+    buildRegistrationSummary(data: any){
+        data = Object.keys(data).map(function(key, index) {
+            if(data[key] != null){
+                return {
+                'label': key.replace(/_/g,' ').replace(/(^\w|\s\w)/g, m => m.toUpperCase()),
+                'value': key == "birth_date" ? data[key]['date'] : data[key]['person']
+                } 
+            }
+        });
+        data = data.filter((x: any)=>{
+            return x != undefined
+        })
+
+       const nationalIDData = [
+            {
+                'label': "Given Name",
+                'value': this.presets.given_name
+            },
+            {
+                'label': "Family Name",
+                'value': this.presets.family_name
+            },
+            {
+                'label': "Gender",
+                'value': this.presets.gender
+            },
+            {
+                'label': "Birthdate",
+                'value': this.presets.birthdate
+            },
+            {
+                'label': "Malawi National ID",
+                'value': this.presets.malawiNationalID
+            } 
+        ]
+        if(this.presets.nationalIDStatus == "true")
+            data = nationalIDData.concat(data)
+
+        return data
+    }
   }
 })
 </script>
