@@ -1,5 +1,7 @@
 import {Role} from "@/interfaces/role"
+import dayjs from "dayjs"
 import ApiClient from "./api_client"
+import HisDate  from "@/utils/Date"
 
 export class InvalidCredentialsError extends Error {
     message: string
@@ -72,6 +74,13 @@ export class AuthService{
             username: this.username,
             password: password
         })
+    }
+
+    async checkTimeIntegrity() {
+        const serverDate = await this.getSystemDate()
+        const localDate = HisDate.currentDate()
+        if (!serverDate) throw 'Unable to fetch server date'
+        return localDate === serverDate
     }
 
     initDateSync(interval = 1000) {
