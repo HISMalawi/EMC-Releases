@@ -87,6 +87,7 @@ export default defineComponent({
         ]),
         config: {
           initialKb: '0-9',
+          casing: 'uppercase',
           prependValue: (f: any) => {
             programIdentifer = f.identifier_type.other
             return programIdentifer.prefix()
