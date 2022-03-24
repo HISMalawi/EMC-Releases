@@ -11,5 +11,5 @@
 		{ "name": "LOS", "available": true },
 		{ "name": "CxCa", "available": true},
 		{ "name": "OPD", "available": true }
-	],
+	]
 }
