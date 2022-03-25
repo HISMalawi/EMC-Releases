@@ -2,7 +2,7 @@
   <ion-grid>
     <ion-row>
       <ion-col size-lg="6" size-sm="12">
-        <p>Total visits / incomplete visits: last 5 days</p>
+        <span class="his-md-text">Total visits / incomplete visits: last 5 days</span>
         <apexchart
           width="100%"
           type="bar"
@@ -11,8 +11,8 @@
         ></apexchart>
       </ion-col>
       <ion-col size-lg="6" size-sm="12">
-        <p>Encounters created today</p>
-        <table>
+        <span class="his-md-text">Encounters created today</span>
+        <table class="his-sm-text">
           <tr>
             <th></th>
             <th>Female</th>
@@ -169,26 +169,23 @@ ion-grid {
 .encounter-td {
   text-align: left;
   border: 1px solid #dddddd;
-  padding: 0.7em;
 }
 .other-td {
   text-align: right;
   font-weight: bold;
   border: 1px solid #dddddd;
   min-width: 60px;
-    padding: 0.7em;
 
 }
 table {
-  font-family: arial, sans-serif;
   border-collapse: collapse;
   width: 100%;
   height: 49vh;
-  font-size: 15px;
 }
 
 td,
 th {
+  padding: 0.3em;
   text-align: right;
 }
 
@@ -199,7 +196,7 @@ tr:nth-child(even) {
   td,
   th {
     text-align: right;
-    padding: 1.0em;
+    padding: 0.7em;
   }
 }
 </style>

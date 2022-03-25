@@ -36,7 +36,7 @@
           </ion-col>
           <ion-col size="5">
             <div class="tool-bar-medium-card">
-              <div class="tool-bar-medium-content"> 
+              <div class="his-sm-text tool-bar-medium-content"> 
                 <p>Facility name: <b>{{ facilityName }}</b></p>
                 <p>Location: <b> {{ userLocation }}</b></p>
                 <p>Date: <ion-label :color="isBDE ? 'danger' : 'success'">
@@ -57,15 +57,15 @@
       <ion-segment scrollable :value="activeTab" class="ion-justify-content-center">
         <ion-segment-button :value="1" @click="activeTab = 1">
           <ion-icon :icon="statsChart"> </ion-icon>
-          <ion-label>Overview</ion-label>
+          <ion-label class="his-sm-text">Overview</ion-label>
         </ion-segment-button>
         <ion-segment-button v-if="canReport" :value="2" @click="activeTab = 2">
           <ion-icon :icon="pieChart"> </ion-icon>
-          <ion-label>Reports</ion-label>
+          <ion-label class="his-sm-text">Reports</ion-label>
         </ion-segment-button>
         <ion-segment-button :value="3" @click="activeTab = 3">
           <ion-icon :icon="settings"> </ion-icon>
-          <ion-label>Administration</ion-label>
+          <ion-label class="his-sm-text">Administration</ion-label>
         </ion-segment-button>
       </ion-segment>
     </ion-toolbar>
@@ -361,7 +361,7 @@ ion-icon {
   padding: 0.2em;
 }
 .tool-bar-medium-content {
-  padding: 10px;
+  padding: 0.3em;
 }
 .tool-bar-medium-card {
   height: 100px;
