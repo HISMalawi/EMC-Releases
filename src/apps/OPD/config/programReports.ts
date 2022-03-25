@@ -5,23 +5,31 @@ export const REPORTS: FolderInterface[] = [
         name: 'MoH',
         icon: 'login-logos/Malawi-Coat_of_arms_of_arms.png',
         defaultFilesIcon: 'reports.png',
-        condition: () => false,
+        condition: () => true,
         files: [
             {
                 name: 'LA report',
-                pathName: 'moh_la'
+                pathName: 'moh_la',
+                condition: () => false
             },
             {
                 name: 'Drug report',
-                pathName: 'moh_drug'
+                pathName: 'moh_drug',
+                condition: () => false
             },
             {
                 name: 'Malaria report',
-                pathName: 'moh_malaria' 
+                pathName: 'moh_malaria',
+                condition: () => false 
             },
             {
                 name: 'IPT',
-                pathName: 'moh_ipt'
+                pathName: 'moh_ipt',
+                condition: () => false
+            },
+            {
+                name: 'IDSR Weekley report',
+                pathName: 'idsr_weekly',
             }
         ]
     },
@@ -29,7 +37,7 @@ export const REPORTS: FolderInterface[] = [
         name: 'PEPFAR',
         icon: 'login-logos/PEPFAR.png',
         defaultFilesIcon: 'reports.png',
-        condition: () => false,
+        condition: () => true,
         files: [
             {
                 name: 'IDSR report',

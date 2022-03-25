@@ -9,6 +9,12 @@ export interface QuarterInterface {
     end: string;
 }
 
+export interface EpiWeeKInterface {
+    name: string;
+    start: string;
+    end: string;
+}
+
 export const AGE_GROUPS = [
     '0-5 months', '6-11 months',
     '12-23 months', '2-4 years', 
@@ -78,12 +84,12 @@ export class OpdReportService extends Service {
     startDate: string;
     endDate: string;
     date: string;
-    quarter: string
+    epiweek: string;
     constructor() {
         super()
         this.endDate = ''
         this.startDate = ''
-        this.quarter = ''
+        this.epiweek = ''
         this.date = Service.getSessionDate()
         this.programID = Service.getProgramID()
     }
@@ -147,8 +153,8 @@ export class OpdReportService extends Service {
         this.endDate = endDate
     }
 
-    setQuarter(quarter: string) {
-        this.quarter = quarter
+    setEpiWeek(epiweek: string) {
+        this.epiweek = epiweek
     }
 
     getReport(url: string, params={}) {
@@ -161,8 +167,11 @@ export class OpdReportService extends Service {
             payload['start_date'] = this.startDate
             payload['end_date'] = this.endDate
         }
-        if (this.quarter) {
-            payload['quarter'] = this.quarter
+        if (this.epiweek) {
+            payload['epiweek'] = this.epiweek
+        }
+        if (this.epiweek) {
+            payload['epiweek'] = this.epiweek
         }
         return { ...payload, ...config }
     }
@@ -178,5 +187,19 @@ export class OpdReportService extends Service {
             --year
         }
         return quarters
+    }
+
+    static async getReportEpiWeeks() {
+        const epiWeeks: Array<EpiWeeKInterface> = []
+        const epiWeeksObj = await Service.getJson('get_weeks')
+        epiWeeksObj.reverse().forEach( (item: any) => { 
+            const dates = item[1].split(" ")
+            const startDate = dates[0]
+            const endDate = dates[2]
+            const txt = item[0].split('W')
+            const name = txt[0] +"/W"+ txt[1]
+            epiWeeks.push({ name: name, start: startDate, end: endDate })
+        })
+        return epiWeeks
     }
 }

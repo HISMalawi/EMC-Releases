@@ -102,5 +102,16 @@ export default [
       }
     ]
   },
+  {
+    path: '/opd/reports/moh',
+    component: BaseReport,
+    children: [
+      {
+        name: 'idsr_weekly',
+        path: "idsr_weekly",
+        component: () => import('@/apps/OPD/views/reports/moh/IDSRReport/IDSRWeekly.vue')
+      }
+    ]
+  },
 ]
 
