@@ -46,9 +46,7 @@ export class IDSRReportService extends OpdReportService {
         let start = txt[2].split("(")[1]
         let end = txt[4].split(")")[0]
         start = moment(start).toISOString().slice(0,10)
-        end = moment(end).toISOString().slice(0,10)
-        console.log({start})
-        console.log({end})        
+        end = moment(end).toISOString().slice(0,10)        
         return { 
             'start_date': start,
             'end_date': end,
