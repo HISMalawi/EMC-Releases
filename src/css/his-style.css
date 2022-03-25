@@ -15,14 +15,12 @@
 .his-sm-text {
     font-weight: var(--his-font-weight);
     font-size: var(--his-sm-font-size);
-    color: var(--his-font-color);
     font-family: var(--his-font-family);
 }
 
 .his-md-text {
     font-weight: var(--his-font-weight);
     font-size: var(--his-md-font-size);
-    color: var(--his-font-color);
     font-family: var(--his-font-family);
 }
 
@@ -121,7 +119,6 @@
 }
 
 .his-card {
-    font-size: 1em;
     border: 1px solid #cccbcb;
     background: var(--his-card-primary-color);
     padding: var(--his-card-primary-padding);
