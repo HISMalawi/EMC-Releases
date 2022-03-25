@@ -1,7 +1,7 @@
 <template>
   <view-port>
     <div class="view-port-content">
-      <table>
+      <table class="his-sm-text">
         <tr>
           <th>Accession #</th>
           <th>Test Name</th>

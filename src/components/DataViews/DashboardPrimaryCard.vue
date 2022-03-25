@@ -1,13 +1,13 @@
 <template>
     <div class="card"> 
-        <div class="title-card" :style="{backgroundColor: titleColor}">
-            <ion-badge color="light">{{ counter }}</ion-badge>
-            {{title}} 
+        <div class="his-md-text title-card" :style="{backgroundColor: titleColor}">
+            <ion-badge class="his-sm-text" color="light">{{ counter }}</ion-badge>
+            <ion-label> {{title}} </ion-label> 
         </div>
         <ion-list>
-            <ion-item v-for="(item, index) in items" :key="index" :style="{fontSize: '0.8em'}">
+            <ion-item v-for="(item, index) in items" :key="index">
                 <ion-label v-html="item.label"></ion-label>
-                <ion-chip v-if="item.value" slot='end'>
+                <ion-chip  class="his-sm-text" v-if="item.value" slot='end'>
                   <ion-icon :icon="icon"></ion-icon>
                     <ion-label>{{ item.value }}</ion-label>
                 </ion-chip>

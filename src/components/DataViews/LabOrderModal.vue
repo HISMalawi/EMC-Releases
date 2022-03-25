@@ -1,7 +1,7 @@
 <template>
   <ion-header>
     <ion-toolbar>
-      <ion-title>Lab orders</ion-title>
+      <ion-title class="his-lg-text">Lab orders</ion-title>
     </ion-toolbar>
   </ion-header>
   <ion-content :style="{ overflowY: 'hidden', background: 'grey' }" >
@@ -10,12 +10,13 @@
         <ion-col size="6">
           <ion-list :style="{overflowY: 'auto', height:'78vh'}"> 
             <ion-item 
+              class="his-sm-text"
               v-for="(data, index) in testTypes" 
               :key="data"
               :disabled="activeIndex !== null && activeIndex !== index && !isOrderComplete" 
               detail
             > 
-              <ion-label> {{ data.name }} </ion-label>
+              <ion-label text-wrap> {{ data.name }} </ion-label>
               <ion-checkbox 
                 v-model="data.isChecked" 
                 slot="start" 
@@ -28,7 +29,7 @@
           <div class="ion-margin-bottom">
             <ion-list v-if="!extendedLabsEnabled">   
               <ion-radio-group v-model="testTypes[activeIndex]['specimen']">
-                <div class="side-title">
+                <div class="his-md-text side-title">
                   Select specimen
                 </div>
                   <ion-item v-for="data in specimens" :key="data" > 
@@ -38,23 +39,23 @@
               </ion-radio-group>
             </ion-list>
             <ion-radio-group v-model="testTypes[activeIndex]['reason']">
-              <div class="side-title">
+              <div class="his-md-text side-title">
                 Main test(s) reason
               </div>
-              <ion-item v-for="data in reasons" :key="data"> 
+              <ion-item class="his-sm-text" v-for="data in reasons" :key="data"> 
                 <ion-label>{{data}}</ion-label>
                 <ion-radio slot="start" :value="data" ></ion-radio>
               </ion-item>
             </ion-radio-group>
           </div>
           <div :style="{background: 'lightyellow', height: '200px'}">
-            <table>
+            <table class="his-sm-text">
               <thead>
                 <tr>
-                  <td>Test</td>
-                  <td>Specimen</td>
-                  <td>Reason</td>
-                  <td>Action</td>
+                  <th>Test</th>
+                  <th>Specimen</th>
+                  <th>Reason</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -256,7 +257,6 @@ ion-col {
   padding: 0.5em;
   text-align: center;
   background: rgb(233, 232, 232);
-  font-size: 1.2em;
 }
 td,
 th {

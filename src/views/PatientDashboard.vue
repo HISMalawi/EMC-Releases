@@ -128,7 +128,7 @@
                         <visit-dates-card :title="visitDatesTitle" :items="visitDates" @onselect="onActiveVisitDate"> </visit-dates-card>
                     </ion-col>
                     <ion-col size="9.6">
-                        <div class="his-card"> 
+                        <div class="his-sm-text his-card"> 
                         <ion-row> 
                            <ion-col size-md="4" size-sm="6"> 
                                Today's Date: <b>{{ currentDate }}</b>
@@ -623,7 +623,7 @@ export default defineComponent({
             const modal = await modalController.create({
                 component: CardDrilldown,
                 backdropDismiss: false,
-                cssClass: "custom-modal",
+                cssClass: "large-modal",
                 componentProps: {
                     columns,
                     rows,
