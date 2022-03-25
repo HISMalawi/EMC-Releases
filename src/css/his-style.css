@@ -234,6 +234,9 @@ ion-checkbox {
     --size: 28px!important;
 }
 
+ion-item {
+    padding: 0;
+}
 @media (max-width: 1024px) {
     .keypad-modal .modal-wrapper {
         width: 340px;
