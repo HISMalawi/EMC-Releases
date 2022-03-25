@@ -282,8 +282,8 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                             color: 'primary'
                         },
                         { 
-                            name: 'Transfer In',  
-                            slot: 'end', 
+                            name: 'Continue',
+                            slot: 'end',
                             color: 'success'
                         }
                     ],
