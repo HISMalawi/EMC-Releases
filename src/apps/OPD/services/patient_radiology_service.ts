@@ -69,8 +69,7 @@ export class PatientRadiologyService extends AppEncounterService {
   }
 
   async getAccesionNumber() {
-  const data = await Service.getJson(`sequences/next_accession_number`)
-  return data['accession_number']
+    return (await Service.getJson(`sequences/next_accession_number`))['accession_number']
   }
 
   async printOrders(orders: any, patient: any, gotoPatientDashboard: Function) {

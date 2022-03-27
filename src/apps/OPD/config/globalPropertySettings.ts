@@ -16,10 +16,6 @@ export const PROPERTIES: FolderInterface[] = [
         condition: () => UserService.isAdmin(),
         files: [
             globalPropConfig(
-                "Is this a military site?",
-                OPD_GLOBAL_PROP.MILITARY_SITE
-            ),
-            globalPropConfig(
                 "Activate PACs for Radiology Examination",
                 OPD_GLOBAL_PROP.PACS_ENABLED
             )
