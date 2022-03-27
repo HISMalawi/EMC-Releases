@@ -1,7 +1,6 @@
 import { FolderInterface } from "@/apps/interfaces/AppInterface";
 import { UserService } from "@/services/user_service"
-import { ART_GLOBAL_PROP } from "@/apps/ART/art_global_props"
-import { GLOBAL_PROP } from "@/apps/GLOBAL_APP/global_prop";
+import { OPD_GLOBAL_PROP } from "@/apps/OPD/opd_global_props";
 
 function globalPropConfig(label: string, prop: string) {
     return {
@@ -18,11 +17,11 @@ export const PROPERTIES: FolderInterface[] = [
         files: [
             globalPropConfig(
                 "Is this a military site?",
-                GLOBAL_PROP.MILITARY_SITE
+                OPD_GLOBAL_PROP.MILITARY_SITE
             ),
             globalPropConfig(
                 "Activate PACs for Radiology Examination",
-                GLOBAL_PROP.PACS_ENABLED
+                OPD_GLOBAL_PROP.PACS_ENABLED
             )
         ]
     }
