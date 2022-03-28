@@ -131,6 +131,10 @@ export default defineComponent({
       type: String,
       default: ''
     },
+    canExport: {
+      type: Boolean,
+      default: true
+    },
     onFinish: {
       type: Function
     }
@@ -161,7 +165,7 @@ export default defineComponent({
         size: "large",
         slot: "start",
         color: "primary",
-        visible: true,
+        visible: this.canExport,
         onClick: () => {
           const {columns, rows} = toExportableFormat(this.activeColumns, this.activeRows)
           toCsv(columns, rows, this.getFileName())
@@ -172,7 +176,7 @@ export default defineComponent({
         size: "large",
         slot: "start",
         color: "primary",
-        visible: true,
+        visible: this.canExport,
         onClick: () => {
           const {columns, rows} = toExportableFormat(this.activeColumns, this.activeRows)
           toTablePDF(columns, rows, this.getFileName())

@@ -31,7 +31,7 @@ export default defineComponent({
         confirmPatient(patient: number) {
             return this.$router.push(`/patients/confirm?person_id=${patient}`)
         },
-        async drilldownAsyncRows(title: string, columns: Array<any>, asyncRows: Function) {
+        async drilldownAsyncRows(title: string, columns: Array<any>, asyncRows: Function, canExport=true) {
             const modal = await modalController.create({
                 component: DrilldownTable,
                 cssClass: 'large-modal',
@@ -39,6 +39,7 @@ export default defineComponent({
                     title, 
                     columns, 
                     asyncRows,
+                    canExport,
                     showFilters: true,
                     rowsPerPage: 50,
                     paginated: true,

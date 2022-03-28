@@ -23,7 +23,7 @@ export class PatientRadiologyService extends AppEncounterService {
         url += `&patient_name=${accompanyingData.fullName}`
         url += `&radio_order=${await ConceptService.getConceptNameFromApi(order.child.value_coded)}`
         url += `&date_created=${moment(order.obs_datetime)}`
-    await p.printLbls(url,showLbl)
+    await p.printLbl(url,showLbl)
   }
 
   async submitToPacs(savedObsData: any, patient: any) {

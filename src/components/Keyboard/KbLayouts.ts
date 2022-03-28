@@ -57,7 +57,7 @@ export const ALPHABETICAL_LO = [
 export const QWERTY_LO = [
     ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
     ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', "'"],
-    ['z', 'x', 'c', 'v', 'b', 'm', 'n', ',', '.', 'A-Z']
+    ['z', 'x', 'c', 'v', 'b', 'n', 'm',',', '.', 'A-Z']
 ]
 
 export const CHARACTERS_AND_NUMBERS_LO = [

@@ -197,6 +197,9 @@ export default defineComponent({
   },
   computed: {
     isOrderComplete(): boolean {
+      if(this.extendedLabsEnabled){
+        return !!this.testTypes[this.activeIndex]['reason'] 
+      }
       return (this.testTypes[this.activeIndex]['specimenConcept'] || this.testTypes[this.activeIndex]['specimen']) 
         && this.testTypes[this.activeIndex]['reason'] 
     },
