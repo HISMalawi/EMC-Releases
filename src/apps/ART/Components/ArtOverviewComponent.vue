@@ -196,7 +196,7 @@ tr:nth-child(even) {
   td,
   th {
     text-align: right;
-    padding: 0.7em;
+    padding: 0.8em;
   }
 }
 </style>

@@ -37,12 +37,9 @@
           <ion-col size="5">
             <div class="tool-bar-medium-card">
               <div class="his-sm-text tool-bar-medium-content"> 
-                <p>Facility name: <b>{{ facilityName }}</b></p>
-                <p>Location: <b> {{ userLocation }}</b></p>
-                <p>Date: <ion-label :color="isBDE ? 'danger' : 'success'">
-                  <b> {{ sessionDate }} </b> 
-                  </ion-label></p>
-                <p>User:<b> {{ userName }}</b></p>
+                <span>Facility name: <b>{{ facilityName }}</b></span> <br/>
+                <span>Location: <b> {{ userLocation }}</b></span><br/>
+                <span>User: <b>{{ userName }}</b> | Date: <ion-label :color="isBDE ? 'danger' : 'success'"><b>{{ sessionDate }} </b></ion-label></span><br/>
               </div>
             </div>
           </ion-col>
@@ -361,7 +358,7 @@ ion-icon {
   padding: 0.2em;
 }
 .tool-bar-medium-content {
-  padding: 0.3em;
+  padding: 0.4em;
 }
 .tool-bar-medium-card {
   height: 100px;
