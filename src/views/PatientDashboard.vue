@@ -561,14 +561,7 @@ export default defineComponent({
             const labOrders = await OrderService.getOrders(this.patientId, {date})
             return labOrders.map((order: any) => ({
                 label: order.specimen.name,
-                value: this.toTime(order.order_date),
-                other: {
-                    tableRow: [
-                        order.accession_number, 
-                        order.specimen.name,
-                        this.toTime(order.order_date)
-                    ]
-                }
+                value: this.toTime(order.order_date)
             }))
         },
         async getPatientAlertCardInfo(){

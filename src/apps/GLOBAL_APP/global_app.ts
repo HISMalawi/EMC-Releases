@@ -166,8 +166,13 @@ export default {
     {
       id: "change_session_Date",
       name: "Change session date",
+      action: ({ patient }: any, router: any) => {
+        router.push({
+          path: '/session/date',
+          query: { 'patient_id': patient.patient_id}
+        })
+      },
       description: "Change session date (for retrospective entry)",
-      url: "/session/date",
       icon: "time.png"
     },
     {
