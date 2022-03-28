@@ -4,7 +4,7 @@
             <ion-thumbnail slot="start">
                 <img :src="icon"/>
             </ion-thumbnail>
-            <ion-label class="his-sm-text">{{title}}</ion-label>
+            <ion-label class="his-sm-text" style="font-weight:600;color:#333!important;">{{title}}</ion-label>
         </ion-item>
     </ion-card>
 </template>

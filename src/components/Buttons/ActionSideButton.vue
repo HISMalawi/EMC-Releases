@@ -40,7 +40,7 @@ export default defineComponent({
     .his-card {
         color: black;
         padding: 0.4em;
-        margin: 0.2em;
+        margin: 0.4em;
         text-align: center;
         font-weight: bold;
     }
