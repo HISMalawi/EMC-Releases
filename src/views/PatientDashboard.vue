@@ -235,7 +235,7 @@ import TaskSelector from "@/components/DataViews/TaskSelectorModal.vue"
 import EncounterView from "@/components/DataViews/DashboardEncounterModal.vue"
 import CardDrilldown from "@/components/DataViews/DashboardTableModal.vue"
 import { WorkflowService } from "@/services/workflow_service"
-import { toastSuccess, toastDanger, alertConfirmation } from "@/utils/Alerts";
+import { toastSuccess, alertConfirmation } from "@/utils/Alerts";
 import _, { isEmpty, uniq } from "lodash"
 import MinimalToolbar from "@/components/PatientDashboard/Poc/MinimalToolbar.vue"
 import FullToolbar from "@/components/PatientDashboard/Poc/FullToolbar.vue"
@@ -271,7 +271,8 @@ import {
   IonCol,
   IonFooter,
   IonToolbar,
-  modalController
+  modalController,
+  loadingController
 } from "@ionic/vue";
 import { EncounterService } from '@/services/encounter_service'
 import { ConceptService } from "@/services/concept_service"
@@ -516,10 +517,17 @@ export default defineComponent({
                     id: encounter.encounter_id,
                     columns: ['Observation', 'Value', 'Time'],
                     onVoid: async (reason: any) => {
+                        const loading = await loadingController
+                            .create({
+                            message: 'Please wait....',
+                            backdropDismiss: false
+                        })
+                        await loading.present()
                         await EncounterService.voidEncounter(encounter.encounter_id, reason)
                         /**Refresh card data*/
                         await this.loadCardData(this.activeVisitDate as string)
                         this.nextTask = await this.getNextTask(this.patientId)
+                        loadingController.dismiss()
                         toastSuccess('Encounter has been voided!', 2000)
                     },
                     getRows: async () => {
