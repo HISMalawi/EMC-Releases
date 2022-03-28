@@ -1,6 +1,6 @@
 <template>
   <ion-app>
-    <full-screen-notice />
+    <full-screen-notice v-if="checkFullScreen"/>
     <update-notification/>
     <ion-router-outlet :key="$route.fullPath"/>
     <connection-error v-if="!apiOk && notConfigPage"/>
@@ -38,9 +38,15 @@ export default defineComponent({
     const route = useRoute()
     const notConfigPage = ref(true)
     const healthCheckInterval = ref(null) as any
+    const checkFullScreen = ref(false)
+    const auth = new AuthService()
 
     // synchronize date every 1 hour
-    new AuthService().initDateSync(3600000)
+    auth.initDateSync(3600000)
+
+    if (typeof auth.getAppConf('promptFullScreenDialog') === 'boolean') {
+      checkFullScreen.value = auth.getAppConf('promptFullScreenDialog')
+    }
 
     nprogress.configure({ 
       easing: 'ease', 
@@ -98,8 +104,9 @@ export default defineComponent({
     )
     return {
       apiOk,
-      notConfigPage
+      notConfigPage,
+      checkFullScreen
     }
-  },
-});
+  }
+})
 </script>

@@ -9,6 +9,7 @@ import {Observation} from "@/interfaces/observation"
 import  { BMIService } from "@/services/bmi_service"
 import { find, isEmpty } from 'lodash';
 import { isValueEmpty } from '@/utils/Strs';
+import { PatientIdentifierService } from './patient_identifier_service';
 
 export class Patientservice extends Service {
     patient: Patient;
@@ -89,6 +90,10 @@ export class Patientservice extends Service {
         return Patientservice.reassignARVNumber(patientIdentifierId, {
             identifier: newARVNumber
         })
+    }
+
+    updateMWNationalId(newId: string) {
+        return PatientIdentifierService.create(this.getID(), 28, newId)
     }
 
     isMale() {
@@ -276,10 +281,10 @@ export class Patientservice extends Service {
         return this.findIdentifierByType('National id')
     }
 
-    getMalawiNationalID() {
+    getMWNationalID() {
         return this.findIdentifierByType('Malawi National ID')
     }
-
+    
     getArvNumber() {
         return this.findIdentifierByType('ARV Number')
     }

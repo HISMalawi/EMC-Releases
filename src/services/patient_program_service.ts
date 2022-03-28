@@ -94,9 +94,9 @@ export class PatientProgramService extends ProgramService {
         return ProgramService.enrollProgram(this.patientId, this.programId, this.programDate)
     }
 
-    printTransferout() {
+    printTransferout(date: string) {
         const print = new PrintoutService()
-        return print.printLbl(`/programs/${this.programId}/patients/${this.patientId}/labels/transfer_out`)    
+        return print.printLbl(`/programs/${this.programId}/patients/${this.patientId}/labels/transfer_out?date=${date}`)    
     }
     async transferOutEncounter(facility: any) {
         const transferOut = new AppEncounterService(this.patientId, 119)

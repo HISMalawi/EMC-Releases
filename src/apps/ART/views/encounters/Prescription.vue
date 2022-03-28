@@ -255,7 +255,7 @@ export default defineComponent({
             for(const value in regimenCategories) {
                 const regimenDrugs = regimenCategories[value]
                 const label = regimenDrugs.map((r: RegimenInterface) => 
-                    r.alternative_drug_name || r.concept_name).join(' + ')
+                    r.alternative_drug_name || r.concept_name).sort().join(' + ')
 
                 options.push({ 
                     label, 

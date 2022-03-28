@@ -85,8 +85,8 @@ export default defineComponent({
       this.malawiNationalID = this.malawiNationalID.at(-1).split('~');
 
       this.clientID = this.malawiNationalID[2];
-      this.surname = this.malawiNationalID[1];
-      this.firstname = this.malawiNationalID[3].split(',')[0];
+      this.surname = this.capitaliseFirstLetter(this.malawiNationalID[1].toLowerCase());
+      this.firstname = this.capitaliseFirstLetter(this.malawiNationalID[3].split(',')[0].toLowerCase());
       this.gender = this.malawiNationalID[5];
       this.birthday = this.malawiNationalID[6];
     },
@@ -102,6 +102,9 @@ export default defineComponent({
           nationalIDStatus: 'true'
         },
       });
+    },
+    capitaliseFirstLetter(data: string){
+     return data.replace(/(^\w|\s\w)/g, m => m.toUpperCase())
     }
   }
 });
