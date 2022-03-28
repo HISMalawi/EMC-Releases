@@ -1,9 +1,9 @@
 <template>
     <ion-header>
         <ion-toolbar>
-            <ion-title class="ion-text-center">
-                <h4 :class="color"> {{ title }} </h4>
-                <h4 v-if="subtitle">{{ subtitle }}</h4>
+            <ion-title class="ion-text-center his-md-text">
+                <h2 :class="color"> {{ title }} </h2>
+                <h2 v-if="subtitle">{{ subtitle }}</h2>
             </ion-title>
         </ion-toolbar>
   </ion-header>

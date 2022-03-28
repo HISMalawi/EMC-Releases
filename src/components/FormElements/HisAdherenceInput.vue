@@ -3,12 +3,12 @@
         <div class='view-port-content'>
             <ion-grid> 
                 <ion-row> 
-                    <ion-col size="8"><b class="his-md-text"> {{config?.titles?.label || "Medication" }} </b> </ion-col>
-                    <ion-col size="4"><b class="his-md-text"> {{config?.titles?.value || "Amount Remaining" }}</b> </ion-col>
+                    <ion-col size="8"><b class="his-lg-text"> {{config?.titles?.label || "Medication" }} </b> </ion-col>
+                    <ion-col size="4"><b class="his-lg-text"> {{config?.titles?.value || "Amount Remaining" }}</b> </ion-col>
                 </ion-row>
                 <ion-row v-for="(data, index) in listData" :key="index"> 
                     <ion-col size="8">  
-                       <div class="his-sm-text his-card" :style="{textAlign:'left'}"> {{ data.label }} </div>
+                       <div class="his-md-text his-card" :style="{textAlign:'left'}"> {{ data.label }} </div>
                     </ion-col>
                     <ion-col size="4"> 
                         <ion-input :value="data.value" @click="launchKeyPad(data)" class="his-card his-md-text"/>

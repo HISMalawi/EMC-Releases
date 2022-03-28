@@ -74,8 +74,8 @@
   </ion-content>
   <ion-footer>
     <ion-toolbar> 
-      <ion-button @click="postActivities" slot="end" :disabled="finalOrders.length === 0"> Place orders </ion-button>
-      <ion-button @click="closeModal([])" slot="start" color="danger"> Close </ion-button>
+      <ion-button @click="postActivities" size="large" slot="end" :disabled="finalOrders.length === 0"> Place orders </ion-button>
+      <ion-button @click="closeModal([])" size="large" slot="start" color="danger"> Close </ion-button>
     </ion-toolbar>
   </ion-footer>
 </template>

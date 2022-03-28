@@ -239,8 +239,10 @@ body {
 ion-checkbox {
     --size: 28px!important;
 }
-
-ion-item {
+ion-radio {
+    --size: 38px!important;
+}
+ion-item, ion-label {
     padding: 0;
 }
 @media (max-width: 1024px) {

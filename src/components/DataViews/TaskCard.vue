@@ -4,7 +4,7 @@
             <ion-thumbnail slot="start">
                 <img :src="icon"/>
             </ion-thumbnail>
-            <ion-label class="his-md-text">{{title}}</ion-label>
+            <ion-label class="his-sm-text">{{title}}</ion-label>
         </ion-item>
     </ion-card>
 </template>
@@ -41,8 +41,11 @@ export default defineComponent({
 })
 </script>
 <style scoped>
+    ion-item {
+        padding: 0;
+    }
     .task-card {
-        padding: 0px;
+        padding: 0;
         margin: 0;
         height: 73px;
         overflow: hidden;
