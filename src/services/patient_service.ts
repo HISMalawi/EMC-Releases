@@ -275,7 +275,11 @@ export class Patientservice extends Service {
     getNationalID() {
         return this.findIdentifierByType('National id')
     }
-    
+
+    getMalawiNationalID() {
+        return this.findIdentifierByType('Malawi National ID')
+    }
+
     getArvNumber() {
         return this.findIdentifierByType('ARV Number')
     }

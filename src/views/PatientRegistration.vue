@@ -35,6 +35,7 @@ import { infoActionSheet } from "@/utils/ActionSheets"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 
 import { PatientIdentifierService } from "@/services/patient_identifier_service";
+import { getFullName } from '../interfaces/name';
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
@@ -170,7 +171,6 @@ export default defineComponent({
         const registration: any = new PatientRegistrationService()
         await registration.registerPatient(person, attributes)
 
-        console.log(person)
         const patientID = registration.getPersonID()
 
         if(this.presets.nationalIDStatus == "true") 
