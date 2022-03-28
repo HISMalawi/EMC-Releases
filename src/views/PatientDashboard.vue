@@ -420,7 +420,7 @@ export default defineComponent({
                 label: 'Activities',
                 items: this.encountersCardItems,
                 icon: timeOutline,
-                color: '#658afb',
+                color: 'primary',
                 onClick: () => this.openModal(
                     this.encountersCardItems, 
                     'Select Activities', 
@@ -432,7 +432,7 @@ export default defineComponent({
             const label = 'Lab Orders'
             return {
                 label,
-                color: '#69bb7b',
+                color: 'success',
                 icon: timeOutline,
                 items: this.labOrderCardItems,
                 onClick: () => this.$router.push(`/art/encounters/lab/${this.patient.getID()}`)
@@ -441,7 +441,7 @@ export default defineComponent({
         alertsCard() {
             return {
                 label: 'Alerts',
-                color: '#f95d5d',
+                color: 'danger',
                 icon: warningOutline,
                 items: this.alertCardItems,
                 onClick: () => { /* TODO, list all alerts */ }
@@ -450,7 +450,7 @@ export default defineComponent({
         medicationCard() {
             return {
                 label: 'Medications',
-                color: '#fdb044',
+                color: 'warning',
                 icon: timeOutline,
                 items: this.medicationCardItems,
                 onClick: () => {

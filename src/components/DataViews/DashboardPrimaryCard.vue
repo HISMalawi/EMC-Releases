@@ -1,9 +1,9 @@
 <template>
-    <div class="card"> 
-        <div class="his-md-text title-card" :style="{backgroundColor: titleColor}">
-            <ion-badge class="his-sm-text" color="light">{{ counter }}</ion-badge>
+    <div class="card">
+        <ion-item :color="titleColor" lines="none" class="his-md-text title-card"> 
+            <ion-badge slot="start" class="his-sm-text" color="light"><b>{{ counter }}</b></ion-badge>
             <ion-label> {{title}} </ion-label> 
-        </div>
+        </ion-item>
         <ion-list>
             <ion-item v-for="(item, index) in items" :key="index">
                 <ion-label v-html="item.label"></ion-label>
@@ -79,7 +79,7 @@ export default defineComponent({
     transform: translateY(4px);
 }
 .title-card {
-    padding: 8px;
+    padding: 5px;
     width: 100%;
     color: white;
 }
