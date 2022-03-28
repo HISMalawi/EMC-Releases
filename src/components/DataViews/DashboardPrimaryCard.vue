@@ -6,7 +6,7 @@
         </ion-item>
         <ion-list>
             <ion-item v-for="(item, index) in items" :key="index">
-                <ion-label v-html="item.label"></ion-label>
+                <ion-label :class="item?.other?.wrapTxt ? 'ion-text-wrap' : ''" v-html="item.label"></ion-label>
                 <ion-chip  class="his-sm-text" v-if="item.value" slot='end'>
                   <ion-icon :icon="icon"></ion-icon>
                     <ion-label>{{ item.value }}</ion-label>
