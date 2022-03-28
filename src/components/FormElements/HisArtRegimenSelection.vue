@@ -95,10 +95,10 @@ export default defineComponent({
 </script>
 <style scoped>
 #view-port {
-    height: 78vh;
+    height: 75vh;
 }
 .view-port-content {
-    height: 100%;
+    height: 99%;
 }
 .regimen-item {
     margin: 3.8%;
