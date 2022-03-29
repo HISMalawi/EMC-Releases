@@ -45,16 +45,16 @@ export default defineComponent({
   methods: {
     async onFinish(formData: any) {
       const newArvNumber = formData['arv_number'].value
+      if(newArvNumber === this.patient.getArvNumber()) return this.$router.back()
       const exists = await IdentifierService.arvNumberExists(newArvNumber)
-      if(!exists || newArvNumber === this.patient.getArvNumber()) {
+      if(exists) toastWarning("ARV number already exists", 5000)
+      else {
         try {
-          this.patient.updateARVNumber()
+          await this.patient.updateARVNumber(newArvNumber)
           this.$router.back()
         } catch (error) {
           toastWarning(error)
         }
-      } else {
-        toastWarning("ARV number already exists")
       }     
     },
     getFields(): Array<Field> {
