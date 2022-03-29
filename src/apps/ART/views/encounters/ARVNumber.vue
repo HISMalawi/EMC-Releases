@@ -9,15 +9,13 @@
 </template> 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Field, Option } from "@/components/Forms/FieldInterface"
+import { Field } from "@/components/Forms/FieldInterface"
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations";
-import { toastWarning, toastSuccess } from "@/utils/Alerts"
+import { toastWarning } from "@/utils/Alerts"
 import EncounterMixinVue from '../../../../views/EncounterMixin.vue'
 import HisApp from "@/apps/app_lib"
-import { isEmpty } from "lodash";
-import { Patientservice } from "@/services/patient_service";
 import { IdentifierService } from "@/services/identifier_service";
 
 export default defineComponent({
