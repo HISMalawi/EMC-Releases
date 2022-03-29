@@ -29,10 +29,7 @@ export default defineComponent({
     columns: [[
       table.thTxt('VISIT DATE', thStyles),
       table.thTxt('WEIGHT (Kg)', thStyles),
-      table.thTxt('HEIGHT (cm)', thStyles),
-      table.thTxt('BMI', thStyles),
       table.thTxt('REG', thStyles),
-      table.thTxt('ADHERENCE', thStyles),
       table.thTxt('VIRAL LOAD', thStyles),
       table.thTxt('TB STATUS', thStyles),
       table.thTxt('OUTCOME', thStyles),
@@ -88,10 +85,7 @@ export default defineComponent({
         return [
           table.tdBtn(item.label, () => this.printLabel(item.value), tdStyles, 'secondary'),
           table.td(item.data.weight, tdStyles),
-          table.td(item.data.height, tdStyles),
-          table.td(item.data.bmi || '', tdStyles),
           table.td(item.data.regimen, tdStyles),
-          table.td(this.formatAdherence(item.data.adherence), tdStyles),
           table.td(item.data['viral_load'], tdStyles),
           table.td(item.data['tb_status'].match(/Unknown/i) ? 'TB NOT suspected' : item.data['tb_status'], tdStyles),
           table.td(item.data.outcome, tdStyles),
