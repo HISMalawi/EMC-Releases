@@ -2,9 +2,10 @@
     <ion-row>
         <ion-col size="5">
             <div class="large-card">
-                <h3> {{ foundRecordsTitle }} ({{listData.length}}):  </h3>
+                <h2> {{ foundRecordsTitle }} ({{listData.length}}):  </h2>
                 <ion-list>
                     <ion-item
+                        class="his-sm-text"
                         button
                         v-for="(result, index) in listData"
                         :key="index"
@@ -24,6 +25,7 @@
                 <h3> {{ detailsTitle }} </h3>
                 <ion-list>
                     <ion-item
+                      class="his-md-text"
                       v-for="(opt, index) in selectedResult?.other?.options || []"
                       :key="index"
                       inset="none"
@@ -32,7 +34,7 @@
                           {{ opt.label }} 
                       </ion-label>
                       <ion-label slot="end"> 
-                          {{ opt.value }} 
+                        <b>{{ opt.value }}</b> 
                       </ion-label>
                     </ion-item>
                 </ion-list>
