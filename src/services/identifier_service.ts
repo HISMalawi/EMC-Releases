@@ -17,10 +17,6 @@ export class IdentifierService extends Service {
         return super.getJson('types/patient_identifiers')
     }
 
-    static async voidArvNumber(arvNumber: string) {
-        return super.getJson(`programs/${super.getProgramID()}/void_arv_number/${arvNumber}`)
-    }
-
     static async arvNumberExists(arvNumber: string): Promise<boolean> {
         const data = await super.getJson(`programs/${super.getProgramID()}/lookup_arv_number/${arvNumber}`)
         return data.exists
