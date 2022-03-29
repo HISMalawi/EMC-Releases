@@ -263,6 +263,9 @@ export default defineComponent({
   text-align: center;
 }
 .appointments {
+  position: absolute;
+  top: 15px;
+  right: 5px;
   color: greenyellow;
 }
 </style>
