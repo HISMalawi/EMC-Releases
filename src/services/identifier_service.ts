@@ -1,4 +1,5 @@
 import { Service } from "./service";
+import ART from "@/apps/ART/app"
 
 export interface DuplicateIdentifiersInterface {
     count: number;
@@ -14,6 +15,13 @@ export class IdentifierService extends Service {
  
     static getIdentifierTypes() {
         return super.getJson('types/patient_identifiers')
+    }
+
+    static async voidArvNumber(arvNumber: number) {
+        if (ART && ART.programPatientIdentifiers) {
+            const prefix = await ART.programPatientIdentifiers['ARV Number'].prefix()
+            return super.getJson(`programs/1/void_arv_number/${prefix}${arvNumber}`)
+        }
     }
 
     getIdentifierType() {
