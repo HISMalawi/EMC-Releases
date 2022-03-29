@@ -24,6 +24,11 @@ export class IdentifierService extends Service {
         }
     }
 
+    static async arvNumberExists(arvNumber: string): Promise<boolean> {
+        const data = await super.getJson(`programs/${super.getProgramID()}/lookup_arv_number/${arvNumber}`)
+        return data.exists
+    }
+
     getIdentifierType() {
         return this.identifierType
     }
