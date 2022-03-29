@@ -35,35 +35,31 @@
           </ion-col>
           <ion-col size="4" class="his-card">
             <ion-list>
-              <ion-item>
-                <ion-label>
+              <ion-item class="his-sm-text">
+                <ion-label class="ion-text-wrap">
                   <b>Medication Run out Date</b>
-                  <br>
-                  <br>
+                  <p/>
                   <span>{{ rDate }}</span>
                 </ion-label>
               </ion-item>
-              <ion-item>
-                <ion-label>
+              <ion-item class="his-sm-text">
+                <ion-label class="ion-text-wrap">
                   <b>User set appointment date</b>
-                  <br>
-                  <br>
+                  <p/>
                   <span>{{ aDate }}</span>
                 </ion-label>
               </ion-item>
-              <ion-item>
-                <ion-label>
-                  <b>Appointment(s)</b>
-                  <br>
-                  <br>
+              <ion-item class="his-sm-text">
+                <ion-label class="ion-text-wrap">
+                  <b>Appointment(s)</b> 
+                  <p/>
                   <span>{{ appointments.length }}</span>
                 </ion-label>
               </ion-item>
-              <ion-item>
-                <ion-label>
+              <ion-item class="his-sm-text">
+                <ion-label class="ion-text-wrap"> 
                   <b>Appointment limit (per/day)</b>
-                  <br>
-                  <br>
+                  <p/>
                   <span>{{ appointmentLimit }}</span>
                 </ion-label>
               </ion-item>
