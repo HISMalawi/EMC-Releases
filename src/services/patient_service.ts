@@ -9,6 +9,7 @@ import {Observation} from "@/interfaces/observation"
 import  { BMIService } from "@/services/bmi_service"
 import { find, isEmpty } from 'lodash';
 import { isValueEmpty } from '@/utils/Strs';
+import { PatientIdentifierService } from './patient_identifier_service';
 
 export class Patientservice extends Service {
     patient: Patient;
@@ -82,6 +83,10 @@ export class Patientservice extends Service {
 
     assignNpid() {
        return Patientservice.assignNHID(this.getID()) 
+    }
+
+    createArvNumber(arvNumber: string) {
+        return PatientIdentifierService.create(this.getID(), 4, arvNumber)
     }
 
     updateARVNumber(newARVNumber: string) {

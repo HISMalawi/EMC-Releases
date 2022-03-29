@@ -53,6 +53,11 @@ import SCARV from "@/apps/ART/views/reports/pepfar/SCARVReport.vue"
 
 export default [
     {
+        name: "Edit ARV Number",
+        path: "/art/arv-number/:patient_id",
+        component: () => import("@/apps/ART/views/encounters/ARVNumber.vue")
+    },
+    {
         name: 'preferences',
         path: "/art/preferences",
         component: () => import("@/apps/ART/views/preferences/AllPreferences.vue")
