@@ -63,9 +63,6 @@ export default defineComponent({
           id: "arv_number",
           helpText: "Update ARV Number",
           type: FieldType.TT_TEXT,
-          computedValue: ({ value }: Option) => {
-            return value
-          },
           validation: (val: any) => Validation.required(val),
           defaultValue: () => this.currentArvNumber,
           config: {
@@ -78,8 +75,19 @@ export default defineComponent({
                 return arvType.prefix()
               }
               return ''
-            }
-          }
+            },
+            footerBtns: [
+              {
+                name: "Void ARV Number",
+                slot: "end",
+                color: 'danger',
+                onClick: async (formData: any) => {
+                  await this.patient.updateARVNumber("Unknown")
+                  this.$router.back()
+                }
+              }
+            ]
+          },
         }
       ]
     }
