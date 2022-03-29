@@ -17,11 +17,13 @@ import { toastWarning } from "@/utils/Alerts"
 import EncounterMixinVue from '../../../../views/EncounterMixin.vue'
 import HisApp from "@/apps/app_lib"
 import { IdentifierService } from "@/services/identifier_service";
+import { ProgramService } from "@/services/program_service";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
   components: { HisStandardForm },
   data: () => ({
+    patientHasARVNumber: false,
     currentArvNumber: "" as any,
     prependValue: "" as any,
   }),
@@ -34,6 +36,10 @@ export default defineComponent({
           const a = arvNumber.split('-')
           this.currentArvNumber = a[2].replace(/^\D+|\s/g, "")
           this.prependValue = `${a[0]}-${a[1]}-`
+          this.patientHasARVNumber = true
+        } else {
+          const suggestedNumber =  await ProgramService.getNextSuggestedARVNumber();
+          this.currentArvNumber = suggestedNumber.arv_number.replace(/^\D+|\s/g, "");
         }
         this.fields = this.getFields();
       },
@@ -48,12 +54,14 @@ export default defineComponent({
       if(exists) toastWarning("ARV number already exists", 5000)
       else {
         try {
-          await this.patient.updateARVNumber(newArvNumber)
+          if(this.patientHasARVNumber) 
+            await this.patient.updateARVNumber(newArvNumber)
+          else await this.patient.createArvNumber(newArvNumber)
           this.$router.back()
         } catch (error) {
           toastWarning(error)
         }
-      }     
+      }   
     },
     getFields(): Array<Field> {
       return [
