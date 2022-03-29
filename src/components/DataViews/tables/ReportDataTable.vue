@@ -33,7 +33,7 @@
                     :style="item.style"
                     > 
                     <div v-if="item.event"> 
-                        <a href="#" :style="item.style" :class="item.cssClass"
+                        <a href="#" class="his-sm-text" :style="item.style" :class="item.cssClass"
                             v-if="item?.event?.obj === 'link'"
                             @click.prevent="item.event.click()">
                             {{ item.td }}
@@ -51,7 +51,7 @@
                         </ion-button>
                     </div>
                     <div v-else> 
-                        <span v-html="item.td"></span>
+                        <span class="his-sm-text" v-html="item.td"></span>
                     </div>
                 </td>
             </tr>

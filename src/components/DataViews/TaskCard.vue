@@ -4,7 +4,9 @@
             <ion-thumbnail slot="start">
                 <img :src="icon"/>
             </ion-thumbnail>
-            <ion-label class="title">{{title}}</ion-label>
+            <ion-label 
+                class="his-sm-text ion-text-wrap" 
+                style="font-weight:600;color:#333!important;">{{title}}</ion-label>
         </ion-item>
     </ion-card>
 </template>
@@ -41,10 +43,11 @@ export default defineComponent({
 })
 </script>
 <style scoped>
-    .title {
-        font-size: 0.7em;
-        font-weight: 600;
-        color: #333333;
+    ion-thumbnail {
+        --size: 18px!important;
+    }
+    ion-item {
+        padding: 0;
     }
     .task-card {
         padding: 0;
