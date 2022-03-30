@@ -160,7 +160,7 @@ export default defineComponent({
           table.td(person['arv_number']),
           table.td(`${person['given_name']} ${person['family_name']}`),
           table.td(person['gender']),
-          table.td(HisDate.getAgeInYears(person['birthdate'])),
+          table.td(`${HisDate.toStandardHisDisplayFormat(person['birthdate'])} (${HisDate.getAgeInYears(person['birthdate'])})`),
           table.td(person['outcome'] || 'N/A'),
           table.tdBtn('Select', async () => {
             await modalController.dismiss({})
