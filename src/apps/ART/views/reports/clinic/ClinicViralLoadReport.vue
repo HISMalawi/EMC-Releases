@@ -86,7 +86,7 @@ export default defineComponent({
             this.setRows((await this.report.getViralLoadResults(resultType.value.toLowerCase())))
         },
         async setRows(data: Array<any>) {
-            data.forEach((d: any) => {
+            this.sortByArvNumber(data).forEach((d: any) => {
                this.rows.push([
                     table.td(d.arv_number),
                     table.td(d.gender),

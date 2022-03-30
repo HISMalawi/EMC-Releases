@@ -91,7 +91,7 @@ export default defineComponent({
                     table.thTxt('Dispensed date')
                 ]
             ]
-            const asyncRows = () => patients.map(
+            const asyncRows = () => this.sortByArvNumber(patients).map(
                 (p: any) => ([
                    table.td(p.arv_number),
                    table.tdDate(p.birthdate),

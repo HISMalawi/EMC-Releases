@@ -1,5 +1,5 @@
 <template>
-    <table class="report-table">
+    <table class="report-table" :class="config.tableCssTheme || ''">
         <thead class='stick-report-header' v-if="tableColumns">
             <tr v-for="(columns, colIndex) in tableColumns" :key="colIndex">
                 <th v-for="(column, columnIndex) in columns" 
@@ -283,7 +283,7 @@ export default defineComponent({
         try {
             this.isLoading = true
             this.activeRows = typeof this.rowParser === 'function'
-                ? await Promise.all(this.rowParser(pageRows))
+                ? await this.rowParser(pageRows)
                 : pageRows
         } catch (e) {
             toastDanger(e)
@@ -383,6 +383,7 @@ export default defineComponent({
         background: white;
         position: sticky;
         top: 0;
+        z-index: 1000;
     }
     table {
         width: 100%;
@@ -392,7 +393,7 @@ export default defineComponent({
         background: #3880ff;
         color: white;
         padding: 0.5em;
-        font-size: 1.2em!important;
+        font-size: 1.2em;
     }
     th, td {
         width: 3%;
@@ -406,6 +407,6 @@ export default defineComponent({
         font-size: 1.3em;
     }
     tr:nth-child(even) {
-        background-color: #f7f3f3;
+        background-color: #f0f0f0;
     }
 </style>

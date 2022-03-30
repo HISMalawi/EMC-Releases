@@ -44,18 +44,15 @@ export default defineComponent({
     },
     methods: {
         async onPeriod(_: any, config: any) {
-            this.reportReady = true
-            this.isLoading = true
             this.rows = []
             this.report = new PatientReportService()
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()
             this.setRows((await this.report.getPregnantWomen()))
-            this.isLoading = false
         },
         async setRows(data: Array<any>) {
-            data.forEach((d: any) => {
+            this.sortByArvNumber(data).forEach((d: any) => {
                this.rows.push([
                     table.td(d.arv_number),
                     table.td(d.given_name),

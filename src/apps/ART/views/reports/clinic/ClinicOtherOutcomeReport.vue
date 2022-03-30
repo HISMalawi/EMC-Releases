@@ -126,7 +126,7 @@ export default defineComponent({
             )
         },
         setRows(data: Array<any>, rowBuilder: Function) {
-            if (data) data.forEach((d: any) => this.rows.push(rowBuilder(d)))
+            if (data) this.sortByArvNumber(data, 'identifier').forEach((d: any) => this.rows.push(rowBuilder(d)))
         }
     }
 })

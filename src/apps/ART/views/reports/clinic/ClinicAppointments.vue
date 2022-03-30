@@ -73,9 +73,9 @@ export default defineComponent({
             this.setRows(this.appointments)
         },
         async setRows(data: Array<any>) {
-            data.forEach((data: any) => {
+            this.sortByArvNumber(data).forEach((data: any) => {
                 this.rows.push([
-                    table.td(data.arv_number || 'N/A'),
+                    this.tdARV(data.arv_number || 'N/A'),
                     table.td(data.given_name),
                     table.td(data.family_name),
                     table.td(data.gender),

@@ -155,12 +155,12 @@ export default defineComponent({
         ]
       ]
       const asyncRows = async () => {
-        const persons = await this.report.getCohortDrillDown(resourceId)
+        const persons = this.sortByArvNumber((await this.report.getCohortDrillDown(resourceId)) as Array<any> || [], 'arv_number')
         return persons.map((person: any) => ([
-          table.td(person['arv_number']),
+          this.tdARV(person['arv_number']),
           table.td(`${person['given_name']} ${person['family_name']}`),
           table.td(person['gender']),
-          table.td(HisDate.getAgeInYears(person['birthdate'])),
+          table.td(`${HisDate.toStandardHisDisplayFormat(person['birthdate'])} (${HisDate.getAgeInYears(person['birthdate'])})`),
           table.td(person['outcome'] || 'N/A'),
           table.tdBtn('Select', async () => {
             await modalController.dismiss({})
