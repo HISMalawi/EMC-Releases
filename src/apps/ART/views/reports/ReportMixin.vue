@@ -28,6 +28,17 @@ export default defineComponent({
         toDate(date: string) {
             return HisDate.toStandardHisDisplayFormat(date)
         },
+        sortByArvNumber(data: Array<any>, attr: string) {
+            return data.sort((a: any, b: any) => this.getArvInt(a[attr]) > this.getArvInt(b[attr]) ? 1 : -1)
+        },
+        getArvInt(arv: string) {
+            const [prfx, art, arvNumStr] = arv.split('-')
+            const arvNumInt = parseInt(arvNumStr)
+            return typeof arvNumInt === 'number' ? arvNumInt : 0 
+        },
+        tdARV(arv: string, params={}) {
+            return table.td(arv, { sortValue: this.getArvInt(arv), ...params})
+        },
         confirmPatient(patient: number) {
             return this.$router.push(`/patients/confirm?person_id=${patient}`)
         },
@@ -78,8 +89,8 @@ export default defineComponent({
                     table.thTxt('Actions')
                 ]
             ]
-            const rowParser = (tableRows: Array<any[]>) => {
-                return tableRows.map(async (defaultRow: Array<any>) => {
+            const rowParser = async (tableRows: Array<any[]>) => {
+                const t = tableRows.map(async (defaultRow: Array<any>) => {
                     const [index, id ] = defaultRow
                     if (id in this.drillDownCache) {
                         const [oldIndex, ...rest] = this.drillDownCache[id]
@@ -90,7 +101,7 @@ export default defineComponent({
                     const patient = new Patientservice(data)
                     const row = [
                         index,
-                        table.td(patient.getArvNumber()), 
+                        this.tdARV(patient.getArvNumber()), 
                         table.td(patient.getGender()), 
                         table.tdDate(patient.getBirthdate().toString()),
                         table.tdBtn('Show', async () => {
@@ -101,6 +112,8 @@ export default defineComponent({
                     this.drillDownCache[id] = row
                     return row
                 })
+                const rows = await Promise.all(t)
+                return rows.sort((a: any, b: any) => a[1].sortValue > b[1].sortValue ? 1 : -1)
             }
             return { rowParser, columns }
         },
