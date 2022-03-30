@@ -14,26 +14,11 @@
     </ion-row>
     <ion-row>
       <ion-col>
-        <ion-card class="his-card" style="padding: 0 !important">
-          <ion-card-header>
-            <ion-card-title>
-              Summary of Visits
-              <span class="ion-float-right ion-margin-end ion-margin-bottom">
-                <ion-button>Add Visit</ion-button>
-                <ion-button>Update Outcome</ion-button>
-                <ion-button>Viral Load</ion-button>
-              </span>
-            </ion-card-title>
-          </ion-card-header>
-          <ion-card-content class="ion-no-padding">
-            <visit-information
-              :getVisitDates="getPatientVisitDates"
-              @onPrint="printLabel"
-              @onDetails="showMore"
-              style="font-size: 11px"
-            />
-          </ion-card-content>
-        </ion-card>
+        <visits-summary
+          v-if="patientId !== 0"
+          :patientId="patientId"
+          :startDate="startDate"
+        />
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -60,12 +45,13 @@ import { ProgramService } from "@/services/program_service";
 import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { NavBtnInterface } from "@/components/HisDynamicNavFooterInterface";
 import Layout from "../Components/Layout.vue";
+import VisitsSummary from "../Components/tables/VisitsSummary.vue";
 
 export default defineComponent({
   components: {
-    VisitInformation,
     InformationHeader,
     Layout,
+    VisitsSummary,
   },
   data: () => ({
     isBDE: false as boolean,
@@ -89,6 +75,7 @@ export default defineComponent({
     alertCardItems: [] as Array<Option>,
     btns: [] as Array<NavBtnInterface>,
     guardians: "",
+    startDate: ''
   }),
   computed: {
     visitDatesTitle(): string {
@@ -115,6 +102,15 @@ export default defineComponent({
   },
   methods: {
     async init() {
+      const date = await ObservationService.getAll(
+        this.patientId,
+        "Date ART started"
+      );
+
+      this.startDate = !isEmpty(date)
+        ? HisDate.toStandardHisDisplayFormat(date[0].value_datetime)
+        : "N/A";
+
       this.patient = await this.fetchPatient(this.patientId);
       this.guardians = await this.getGuardian();
       this.patientCardInfo = await this.getPatientCardInfo(this.patient);
@@ -210,15 +206,6 @@ export default defineComponent({
         "Confirmatory HIV test location"
       );
 
-      let startDate = await ObservationService.getAll(
-        this.patientId,
-        "Date ART started"
-      );
-
-      startDate = !isEmpty(startDate)
-        ? toStandardHisDisplayFormat(startDate[0].value_datetime)
-        : "N/A";
-
       const TI = await ObservationService.getFirstValueCoded(
         this.patientId,
         "Ever received ART"
@@ -300,14 +287,14 @@ export default defineComponent({
         { label: "Init W(KG)", value: await patient.getInitialWeight() },
         { label: "Init H(CM)", value: await patient.getInitialHeight() },
         { label: "BMI", value: await patient.getInitialBMI() },
-        { label: "Initial TB Status", value: await patient.getInitialTBStatus() },
+        // { label: "Initial TB Status", value: await patient.getInitialTBStatus() },
         { label: "Pregnant at Initiation", value: "No" },
         { label: "TI", value: TI },
         { label: "Agrees to follow up", value: agreesToFollowUp },
         { label: "Reason for starting ART", value: reasonForStarting },
         { label: "HIV test date", value: `${dateOfTest ? dateOfTest : ""}` },
         { label: "HIV test place", value: `${placeOfTest ? placeOfTest : ""}` },
-        { label: "Date of starting first line ART", value: startDate },
+        { label: "Date of starting first line ART", value: this.startDate },
         ...(await this.getTBStats()),
       ] as Option[];
     },
