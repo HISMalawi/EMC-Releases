@@ -3,6 +3,7 @@ import { sort } from 'fast-sort';
 
 export interface TableInterface {
     showIndex?: boolean;
+    tableCssTheme?: string;
 }
 export interface ColumnInterface {
     th: string | number | Date;
