@@ -24,6 +24,9 @@ import { find } from "lodash"
 export default defineComponent({
     name: "HisSelect",
     mixins: [SelectMixin],
+    data: () => ({
+        isInit: false as boolean
+    }),
     watch: {
         clear() { 
             this.clearSelection() 
@@ -32,7 +35,10 @@ export default defineComponent({
     async activated() {
         this.$emit('onFieldActivated', this)
         this.listData = await this.options(this.fdata)
-        await this.setDefaultValue()
+        if (!this.isInit) {
+            await this.setDefaultValue()
+        }
+        this.isInit = true
     },
     methods: {
         async setDefaultValue() {
@@ -43,6 +49,7 @@ export default defineComponent({
                     if (found) {
                         this.onselect(found)
                     } else {
+                        this.selected = defaults
                         this.filter = defaults
                     }
                 }
