@@ -283,7 +283,7 @@ export default defineComponent({
         try {
             this.isLoading = true
             this.activeRows = typeof this.rowParser === 'function'
-                ? await Promise.all(this.rowParser(pageRows))
+                ? await this.rowParser(pageRows)
                 : pageRows
         } catch (e) {
             toastDanger(e)
