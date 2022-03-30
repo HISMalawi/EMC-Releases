@@ -48,7 +48,10 @@
           :rows="rows"
           :columns="columns"
           :showFilters="showFilters"
-          :config="config"
+          :config="{
+            ...config,
+            tableCssTheme: tableCssTheme
+          }"
           @onActiveColumns="onActiveColumns"
           @onActiveRows="onActiveRows"
           >
@@ -209,6 +212,7 @@ export default defineComponent({
     apiVersion: Service.getApiVersion(),
     coreVersion: Service.getCoreVersion(),
     artVersion: Service.getAppVersion(),
+    tableCssTheme: 'art-report-theme'
   }),
   watch: {
     validationErrors: {
