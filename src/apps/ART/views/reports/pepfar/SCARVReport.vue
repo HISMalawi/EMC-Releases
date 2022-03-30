@@ -39,7 +39,7 @@ export default defineComponent({
         this.fields = this.getDateDurationFields()
     },
     methods: {
-        drilldown(number: string, patients: Array<any>) {
+        drilldown(name: string, number: string, patients: Array<any>) {
             const columns = [
                 [
                     table.thTxt('ARV #'),
@@ -58,7 +58,7 @@ export default defineComponent({
             )
             if (patients.length <= 0) return table.td(0)
 
-            return table.tdLink(number, () => this.drilldownAsyncRows('', columns, asyncRows))
+            return table.tdLink(number, () => this.drilldownAsyncRows(name, columns, asyncRows))
         },
         async onPeriod(_: any, config: any) {
             this.reportReady = true
@@ -76,7 +76,7 @@ export default defineComponent({
             data.forEach((element: any) => {
                  this.rows.push([
                     table.td(element.name),
-                    this.drilldown(element.units, element.dispensations),
+                    this.drilldown(element.name, element.units, element.dispensations),
                 ])
             });
         }
