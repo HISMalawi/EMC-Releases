@@ -13,7 +13,7 @@
         </ion-title>
         <ion-item  v-if="!showtitleOnly"> 
           <ion-thumbnail slot="start"> 
-            <ion-img :src="reportLogo"/>
+            <ion-img :src="logo"/>
           </ion-thumbnail>
           <ion-label>
             <ul class="header-text-list"> 
@@ -136,7 +136,6 @@ export default defineComponent({
     },
     reportLogo: {
       type: String,
-      default: Img('login-logos/Malawi-Coat_of_arms_of_arms.png')
     },
     showtitleOnly: {
       type: Boolean,
@@ -236,6 +235,17 @@ export default defineComponent({
     }
   },
   computed: {
+    logo(): string {
+      if (!this.reportLogo && typeof this.reportPrefix === 'string') {
+        if (this.reportPrefix.match(/pepfar/i)) {
+          return Img('login-logos/PEPFAR.png')
+        }
+        if (this.reportPrefix.match(/moh/i)) {          
+          return Img('login-logos/Malawi-Coat_of_arms_of_arms.png')
+        }
+      }
+      return Img('reports.png')
+    },
     hasErrors(): boolean {
       return !isEmpty(this.validationErrors)
     },

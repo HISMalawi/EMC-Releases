@@ -7,6 +7,7 @@
         :columns="columns"
         :reportReady="reportReady"
         :isLoading="isLoading"
+        reportPrefix="PEPFAR"
         :onReportConfiguration="onPeriod"
         > 
     </report-template>
