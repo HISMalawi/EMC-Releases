@@ -36,6 +36,7 @@ import HisDate from "@/utils/Date"
 import Url from "@/utils/Url"
 import { modalController } from "@ionic/vue";
 import table from "@/components/DataViews/tables/ReportDataTable"
+import { Service } from "@/services/service";
 
 export default defineComponent({
   mixins: [ReportMixinVue],
@@ -93,7 +94,7 @@ export default defineComponent({
           const state = await this.report.requestIDSR(data)
           if (state.status === 200) {
             const data = await state.json()
-            this.reportID = data
+            this.reportID = "data"
             this.idsr = data
             this.isLoading = false
             this.report.cacheCohort(data)
@@ -123,7 +124,34 @@ export default defineComponent({
     async regenerate() {
       await this.onPeriod(this.formData, this.computedFormData, true)
     },
-    async onDrillDown(resourceId: string) {
+    async onDrillDown(patientIDS: string) {
+      patientIDS = patientIDS + ''
+      const patientIds = patientIDS.split(',')
+      const patients = await this.report.getPatientsDetails(patientIds)
+      const columns = [
+        [
+          table.thTxt('First name'),
+          table.thTxt('Last name'),
+          table.thTxt('Gender'),
+          table.thTxt('Phone'),
+          table.thTxt('Address'),
+          table.thTxt('Action')
+        ]
+      ]
+      const asyncRows = async () => {
+        return patients.map((person: any) => ([
+          table.td(person.givenName),
+          table.td(person.familyName),
+          table.td(person.gender),
+          table.td(person.phone),
+          table.td(person.address),
+          table.tdBtn('Select', async () => {
+            await modalController.dismiss({})
+            this.$router.push({ path: `/patient/dashboard/${person.personId}`})
+          })
+        ]))
+      }
+      await this.drilldownAsyncRows(`Drill table ${'haha'}`, columns, asyncRows)
     },
     getBtns() {
       return  [

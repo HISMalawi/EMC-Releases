@@ -10,14 +10,14 @@
     <td class="td-text-align-left td-span-width">Total</td>
   </tr>
   <!-- <div class="aaa" :v-if="show"> -->
-    <weekly-dummy v-if="show"></weekly-dummy>
+    <weekly-dummy v-if="show"></weekly-dummy>totalPatientIds
   <!-- </div> -->
   <tr   v-for="(condition, index) in conditions" :key="index">
     <td class="td-text-align-right">{{condition.id}}</td>
     <td class="td-text-align-right" style="width: 30%;padding: revert;">{{condition.name}}</td>
-    <td id="ls-5yrs" class="td-text-align-right"> <a> {{condition.lessThanFiveYears}} </a> </td>
-    <td id="grt-5yrs" class="td-text-align-right"> <a> {{condition.greaterThanEqualFiveYears}} </a> </td>
-    <td id="total" class="td-text-align-right"> <a> {{condition.total}} </a> </td>
+    <td id="ls-5yrs" class="td-text-align-right" @click="onDrillDown(condition.lessThanFiveYearsPatientIds);"> <a> {{condition.lessThanFiveYears}} </a> </td>
+    <td id="grt-5yrs" class="td-text-align-right" @click="onDrillDown(condition.greaterThanEqualFiveYearsPatientIds);"> <a> {{condition.greaterThanEqualFiveYears}} </a> </td>
+    <td id="total" class="td-text-align-right"  @click="onDrillDown(condition.greaterThanEqualFiveYearsPatientIds +','+ condition.lessThanFiveYearsPatientIds);"> <a> {{condition.total}} </a> </td>
   </tr>
   </table>
 
@@ -49,8 +49,11 @@ export default {
           id: '',
           name: '',
           lessThanFiveYears: '',
+          lessThanFiveYearsPatientIds: '',
           greaterThanEqualFiveYears: '',
-          total: ''
+          greaterThanEqualFiveYearsPatientIds: '',
+          total: '',
+          totalPatientIds: ''
         }
        item.name = key
        let total = 0
@@ -60,13 +63,18 @@ export default {
          total +=value1.length;
 
          item.total = total
+         
 
          if (key1 == '<5yrs') {
            item.lessThanFiveYears = value1.length
+           item.lessThanFiveYearsPatientIds = value1
+           item.totalPatientIds+= value1
          }
 
          if (key1 == '>=5yrs') {
            item.greaterThanEqualFiveYears = value1.length
+           item.greaterThanEqualFiveYearsPatientIds = value1
+           item.totalPatientIds+= value1
          }
           let ids ='';
           for(let k=0; k<value1.length; k++) {

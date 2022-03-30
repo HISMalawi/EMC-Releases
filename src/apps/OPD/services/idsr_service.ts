@@ -1,6 +1,7 @@
 import { find } from "lodash";
 import { OpdReportService } from "./opd_report_service";
 import moment from "dayjs"
+import { Service } from "@/services/service";
 
 export enum CohortVar {
     MOH_CACHE = 'mohCache'
@@ -104,4 +105,33 @@ export class IDSRReportService extends OpdReportService {
         }
         return -1
     }
+
+    async getPatientsDetails(patientIds: Array<[]>) {
+        const patients = []
+        for(const patientID of patientIds) {
+            const res = await Service.getJson(`patients/${patientID}`)
+            if(res) {
+              const person = res.person
+              const addressesObj = person.addresses[0]
+              const personObj = {
+                'givenName': '',
+                'familyName': '',
+                'gender': '',
+                'address': '',
+                'phone': '',
+                'personId': ''
+              }
+              
+              personObj.givenName = person.names[0].given_name
+              personObj.familyName = person.names[0].family_name
+              personObj.gender = person.gender
+              personObj.phone = person.person_attributes[1].value
+              personObj.personId = person.person_id
+              personObj.address = addressesObj.state_province +", "+ addressesObj.city_village +", "+ addressesObj.address1
+              patients.push(personObj)
+              }
+            }
+        return patients
+    }
+
 }
