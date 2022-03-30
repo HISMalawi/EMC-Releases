@@ -28,13 +28,21 @@ export default defineComponent({
         toDate(date: string) {
             return HisDate.toStandardHisDisplayFormat(date)
         },
-        sortByArvNumber(data: Array<any>, attr: string) {
-            return data.sort((a: any, b: any) => this.getArvInt(a[attr]) > this.getArvInt(b[attr]) ? 1 : -1)
+        sortByArvNumber(data: Array<any>, attr='arv_number') {
+            try {
+                return data.sort((a: any, b: any) => this.getArvInt(a[attr]) > this.getArvInt(b[attr]) ? 1 : -1)
+            } catch(e) {
+                console.error(e)
+                return data
+            }
         },
         getArvInt(arv: string) {
-            const [prfx, art, arvNumStr] = arv.split('-')
-            const arvNumInt = parseInt(arvNumStr)
-            return typeof arvNumInt === 'number' ? arvNumInt : 0 
+            if (typeof arv === 'string') {
+                const [prfx, art, arvNumStr] = arv.split('-')
+                const arvNumInt = parseInt(arvNumStr)
+                return typeof arvNumInt === 'number' ? arvNumInt : 0 
+            }
+            return 0
         },
         tdARV(arv: string, params={}) {
             return table.td(arv, { sortValue: this.getArvInt(arv), ...params})

@@ -56,7 +56,7 @@ export default defineComponent({
             this.setRows((await this.report.getMissedAppointments()))
         },
         async setRows(data: Array<any>) {
-            data.forEach((d: any) => {
+            this.sortByArvNumber(data).forEach((d: any) => {
                this.rows.push([
                     table.td(d.arv_number),
                     table.td(d.given_name),

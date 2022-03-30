@@ -88,8 +88,8 @@ export default defineComponent({
           ]
         ]
         const asyncRows = () =>
-          patients.map((p: any) => ([
-            table.td(p.arv_number), 
+          this.sortByArvNumber(patients).map((p: any) => ([
+            this.tdARV(p.arv_number), 
             table.tdDate(p.birthdate), 
             table.td(p.gender),
             table.tdBtn('Show', () => this.$router.push({ path: `/patient/dashboard/${p.patient_id}`}))
