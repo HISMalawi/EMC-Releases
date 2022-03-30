@@ -8,9 +8,6 @@
         :reportReady="reportReady"
         :isLoading="isLoading"
         :onReportConfiguration="onPeriod"
-        :config="{
-                showIndex: false
-        }"
         > 
     </report-template>
 </template>
@@ -26,20 +23,14 @@ export default defineComponent({
     mixins: [ReportMixin],
     components: { ReportTemplate },
     data: () => ({
-        title: 'Clinic Regimen Report',
+        title: 'SC ARV dispensation report',
         rows: [] as Array<any>,
         reportReady: false as boolean,
         isLoading: false as boolean,
         columns: [
             [
-                table.thTxt('ARV#'),
-                table.thTxt('Gender'),
-                table.thTxt('DOB'),
-                table.thTxt('ART start date'),
-                table.thTxt('Weight (KG)'),
-                table.thTxt('Curr.Reg'),
-                table.thTxt('ARVs'), 
-                table.thTxt('Dispensed date')
+                table.thTxt('ARV drug category'), 
+                table.thTxt('# of bottles (units dispensed)')
             ]
         ]
     }),
@@ -47,36 +38,46 @@ export default defineComponent({
         this.fields = this.getDateDurationFields()
     },
     methods: {
+        drilldown(number: string, patients: Array<any>) {
+            const columns = [
+                [
+                    table.thTxt('ARV #'),
+                    table.thTxt('Drug'),
+                    table.thTxt('Quantity'),
+                    table.thDate('Date')
+                ]
+            ]
+            const asyncRows = () => patients.map(
+                (p: any) => ([
+                   table.td(p[3]),
+                   table.td(p[0]),
+                   table.td(p[1]),
+                   table.tdDate(p[2])
+               ])
+            )
+            if (patients.length <= 0) return table.td(0)
+
+            return table.tdLink(number, () => this.drilldownAsyncRows('', columns, asyncRows))
+        },
         async onPeriod(_: any, config: any) {
             this.reportReady = true
             this.isLoading = true
             this.rows = []
             this.report = new RegimenReportService()
-            this.report.setReportType('moh')
+            this.report.setReportType('pepfar')
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()
-            this.setRows((await this.report.getRegimenReport()))
+            this.setRows((await this.report.getSCReport()))
             this.isLoading = false
         },
         setRows(data: any) {
-            Object.values(data).map((d: any) => {
-                let lastDispenseDate = ''
-                const medications = d.medication.map((m: any) => {
-                    lastDispenseDate = this.toDate(m.start_date)
-                    return `${m.medication} (${m.quantity})`
-                })
-                this.rows.push([
-                    table.td(d.arv_number),
-                    table.td(d.gender),
-                    table.tdDate(d.birthdate),
-                    table.tdDate(d.art_start_date),
-                    table.td(d.current_weight),
-                    table.td(d.current_regimen),
-                    table.td(medications.join(', ')),
-                    table.tdDate(lastDispenseDate)
+            data.forEach((element: any) => {
+                 this.rows.push([
+                    table.td(element.name),
+                    this.drilldown(element.units, element.dispensations),
                 ])
-            })
+            });
         }
     }
 })

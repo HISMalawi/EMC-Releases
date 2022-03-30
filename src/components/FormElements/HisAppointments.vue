@@ -35,35 +35,31 @@
           </ion-col>
           <ion-col size="4" class="his-card">
             <ion-list>
-              <ion-item>
-                <ion-label>
+              <ion-item class="his-sm-text">
+                <ion-label class="ion-text-wrap">
                   <b>Medication Run out Date</b>
-                  <br>
-                  <br>
+                  <p/>
                   <span>{{ rDate }}</span>
                 </ion-label>
               </ion-item>
-              <ion-item>
-                <ion-label>
+              <ion-item class="his-sm-text">
+                <ion-label class="ion-text-wrap">
                   <b>User set appointment date</b>
-                  <br>
-                  <br>
+                  <p/>
                   <span>{{ aDate }}</span>
                 </ion-label>
               </ion-item>
-              <ion-item>
-                <ion-label>
-                  <b>Appointment(s)</b>
-                  <br>
-                  <br>
+              <ion-item class="his-sm-text">
+                <ion-label class="ion-text-wrap">
+                  <b>Appointment(s)</b> 
+                  <p/>
                   <span>{{ appointments.length }}</span>
                 </ion-label>
               </ion-item>
-              <ion-item>
-                <ion-label>
+              <ion-item class="his-sm-text">
+                <ion-label class="ion-text-wrap"> 
                   <b>Appointment limit (per/day)</b>
-                  <br>
-                  <br>
+                  <p/>
                   <span>{{ appointmentLimit }}</span>
                 </ion-label>
               </ion-item>
@@ -83,7 +79,7 @@ import HisDate from "@/utils/Date";
 import { AppointmentService } from "@/apps/ART/services/appointment_service";
 import FieldMixinVue from "./FieldMixin.vue";
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
-import { alertConfirmation, toastWarning } from "@/utils/Alerts";
+import { alertConfirmation } from "@/utils/Alerts";
 
 export default defineComponent({
   components: { ViewPort, Calendar, IonGrid, IonCol, IonRow },
@@ -143,8 +139,15 @@ export default defineComponent({
     async isDateAvalaible(date: string) {
       const appointments = await this.getAppointments(date)
       if(appointments.length !== 0 && appointments.length >= this.appointmentLimit) {
-        toastWarning("Appointment limit reached for the selected date. Please select another date", 3000)
-        return false
+        const confirm = await alertConfirmation(
+          `Appointment limit reached for the selected date ${HisDate.toStandardHisDisplayFormat(date)}`, 
+          {
+            header: "APPOINTMENT LIMIT REACHED",
+            cancelBtnLabel: "Proceed with Selected Date",
+            confirmBtnLabel: "Select Another Date"
+          }
+        )
+        if (confirm) return false
       }
 
       if(this.clinicHolidays.includes(HisDate.toStandardHisFormat(date))){
@@ -256,6 +259,9 @@ export default defineComponent({
   text-align: center;
 }
 .appointments {
+  position: absolute;
+  top: 15px;
+  right: 5px;
   color: greenyellow;
 }
 </style>

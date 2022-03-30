@@ -88,7 +88,7 @@ export default defineComponent({
       return [
         {
           id: "who_is_present",
-          helpText: "Hiv Reception",
+          helpText: "HIV reception",
           type: FieldType.TT_MULTIPLE_YES_NO,
           validation: (val: any) => Validation.required(val) || Validation.neitherOr(val) || Validation.anyEmpty(val),
           computedValue: (d: Array<Option>) => {
@@ -109,7 +109,7 @@ export default defineComponent({
             if (form.who_is_present) return form.who_is_present as Option[]
             return [
               {
-                label: "Patient Present?",
+                label: "Patient present?",
                 value: "",
                 other: {
                   concept: "Patient Present",
@@ -118,7 +118,7 @@ export default defineComponent({
                 },
               },
               {
-                label: "Guardian Present?",
+                label: "Guardian present?",
                 value: "",
                 other: {
                   concept: "Guardian Present",

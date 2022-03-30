@@ -1,21 +1,22 @@
 <template>
   <ion-header>
     <ion-toolbar>
-      <ion-title>Lab orders</ion-title>
+      <ion-title class="his-lg-text">Lab orders</ion-title>
     </ion-toolbar>
   </ion-header>
-  <ion-content :style="{ overflowY: 'hidden', background: 'grey' }" >
+  <ion-content style="overflow:hidden;background:grey;height:70vh;">
     <ion-grid>
       <ion-row>
         <ion-col size="6">
-          <ion-list :style="{overflowY: 'auto', height:'78vh'}"> 
+          <ion-list :style="{overflowY: 'auto', height:'75vh'}"> 
             <ion-item 
+              class="his-sm-text"
               v-for="(data, index) in testTypes" 
               :key="data"
               :disabled="activeIndex !== null && activeIndex !== index && !isOrderComplete" 
               detail
             > 
-              <ion-label> {{ data.name }} </ion-label>
+              <ion-label text-wrap> {{ data.name }} </ion-label>
               <ion-checkbox 
                 v-model="data.isChecked" 
                 slot="start" 
@@ -24,11 +25,11 @@
             </ion-item>
           </ion-list>
         </ion-col>
-        <ion-col :style="{overflowY: 'auto', height:'78vh'}" v-if="activeIndex != null && selectedOrders.length > 0">
+        <ion-col :style="{overflowY: 'auto', height:'79vh'}" v-if="activeIndex != null && selectedOrders.length > 0">
           <div class="ion-margin-bottom">
             <ion-list v-if="!extendedLabsEnabled">   
               <ion-radio-group v-model="testTypes[activeIndex]['specimen']">
-                <div class="side-title">
+                <div class="his-md-text side-title">
                   Select specimen
                 </div>
                   <ion-item v-for="data in specimens" :key="data" > 
@@ -38,23 +39,23 @@
               </ion-radio-group>
             </ion-list>
             <ion-radio-group v-model="testTypes[activeIndex]['reason']">
-              <div class="side-title">
+              <div class="his-md-text side-title">
                 Main test(s) reason
               </div>
-              <ion-item v-for="data in reasons" :key="data"> 
+              <ion-item class="his-sm-text" v-for="data in reasons" :key="data"> 
                 <ion-label>{{data}}</ion-label>
                 <ion-radio slot="start" :value="data" ></ion-radio>
               </ion-item>
             </ion-radio-group>
           </div>
-          <div :style="{background: 'lightyellow', height: '200px'}">
-            <table>
+          <div :style="{background: 'lightyellow', height: '34vh'}">
+            <table class="his-sm-text">
               <thead>
                 <tr>
-                  <td>Test</td>
-                  <td>Specimen</td>
-                  <td>Reason</td>
-                  <td>Action</td>
+                  <th>Test</th>
+                  <th>Specimen</th>
+                  <th>Reason</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -73,8 +74,8 @@
   </ion-content>
   <ion-footer>
     <ion-toolbar> 
-      <ion-button @click="postActivities" slot="end" :disabled="finalOrders.length === 0"> Place orders </ion-button>
-      <ion-button @click="closeModal([])" slot="start" color="danger"> Close </ion-button>
+      <ion-button @click="postActivities" size="large" slot="end" :disabled="finalOrders.length === 0"> Place orders </ion-button>
+      <ion-button @click="closeModal([])" size="large" slot="start" color="danger"> Close </ion-button>
     </ion-toolbar>
   </ion-footer>
 </template>
@@ -100,7 +101,6 @@ import { OrderService } from "@/services/order_service";
 import { LabOrderService } from "@/apps/ART/services/lab_order_service";
 import { PrintoutService } from "@/services/printout_service";
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
-import { isEmpty } from "lodash";
 
 export default defineComponent({
   name: "Modal",
@@ -197,6 +197,9 @@ export default defineComponent({
   },
   computed: {
     isOrderComplete(): boolean {
+      if(this.extendedLabsEnabled){
+        return !!this.testTypes[this.activeIndex]['reason'] 
+      }
       return (this.testTypes[this.activeIndex]['specimenConcept'] || this.testTypes[this.activeIndex]['specimen']) 
         && this.testTypes[this.activeIndex]['reason'] 
     },
@@ -250,10 +253,9 @@ ion-col {
 }
 .side-title {
   width: 100%;
-  padding: 0.5em;
+  padding: 0.3em;
   text-align: center;
   background: rgb(233, 232, 232);
-  font-size: 1.2em;
 }
 td,
 th {

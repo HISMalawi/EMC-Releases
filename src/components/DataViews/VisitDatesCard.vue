@@ -1,6 +1,6 @@
 <template>
   <div class="card his-card">
-    <div class="header-section">
+    <div class="his-md-text header-section">
       {{ title }} 
     </div>
     
@@ -13,6 +13,7 @@
     <div :class="listAlignmentClass">
       <ion-list> 
         <ion-item
+          class="his-md-text"
           v-for="(item, index) in activeListItems" :key="index"
           @click="onselect(item)"
           :detail="true"

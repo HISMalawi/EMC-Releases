@@ -33,7 +33,7 @@
                     :style="item.style"
                     > 
                     <div v-if="item.event"> 
-                        <a href="#" :style="item.style" :class="item.cssClass"
+                        <a href="#" class="his-sm-text" :style="item.style" :class="item.cssClass"
                             v-if="item?.event?.obj === 'link'"
                             @click.prevent="item.event.click()">
                             {{ item.td }}
@@ -51,7 +51,7 @@
                         </ion-button>
                     </div>
                     <div v-else> 
-                        <span v-html="item.td"></span>
+                        <span class="his-sm-text" v-html="item.td"></span>
                     </div>
                 </td>
             </tr>
@@ -167,11 +167,9 @@ export default defineComponent({
     async itemsPerPage(perPage: number) {
         if (!isEmpty(this.tableRows)) {
             this.currentPage = 0
-            this.isLoading = true
             await delayPromise(100)
             this.paginateTableRows(perPage)
             await this.setPage(this.currentPage)
-            this.isLoading = false
         }
     },
     tableRows: {
@@ -246,8 +244,6 @@ export default defineComponent({
                 this.tableRows = []
                 return
             } 
-
-            this.isLoading = true
             this.tableRows = this.addColumnIndexes(rows)
             if (this.paginated) {
                 this.paginateTableRows()
@@ -255,7 +251,6 @@ export default defineComponent({
             } else {
                 this.activeRows = this.tableRows
             }
-            this.isLoading = false
         },
         immediate: true,
         deep: true
@@ -286,6 +281,7 @@ export default defineComponent({
         const pageRows = this.paginatedRows[index]
         if (!pageRows) return
         try {
+            this.isLoading = true
             this.activeRows = typeof this.rowParser === 'function'
                 ? await Promise.all(this.rowParser(pageRows))
                 : pageRows
@@ -294,6 +290,7 @@ export default defineComponent({
             this.errorMessage = `${e}`
             console.error(e)
         }
+        this.isLoading = false
     },
     async sort(index: number, column: any ) {
         // Do not sort rows which have a parser function because not all values
@@ -308,7 +305,6 @@ export default defineComponent({
         }
         this.sortedIndex = index
         if (this.sortOrder in column) {
-            this.isLoading = true
             if (this.paginated) {
                 this.tableRows = column[this.sortOrder](index, this.tableRows)
                 this.paginateTableRows()
@@ -316,7 +312,6 @@ export default defineComponent({
             } else {
                 this.activeRows = column[this.sortOrder](index, this.tableRows)
             }
-            this.isLoading = false
         }
     },
     searchDataSet(searchTerm: string, dataset: Array<any>) {
@@ -335,9 +330,7 @@ export default defineComponent({
     },
     async onChangePage(page: number) {
         this.currentPage = page
-        this.isLoading = true
         await this.setPage(page)
-        this.isLoading = false
     }
   },
   computed: {

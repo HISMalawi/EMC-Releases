@@ -7,9 +7,11 @@
           <b style="color: #cd853f">EMR</b>
         </ion-label>
       </ion-title>
-      <ion-label class="ion-padding" slot="end">
-        Version: <b>{{ version }}</b>
-      </ion-label>
+      <template #end>
+        <ion-label class="ion-padding">
+          Version: <b>{{ version }}</b>
+        </ion-label>
+      </template>
     </ion-toolbar>
   </ion-header>
   <ion-content fullscreen="false">
@@ -208,6 +210,27 @@ export default defineComponent({
         console.warn('input error')
       }
     },
+    doLogin: async function () {
+      if (this.userInput.username && this.userInput.password) {
+        this.auth.setUsername(this.userInput.username)
+        try {
+          if (!(await this.auth.checkTimeIntegrity())) {
+            throw "Local date does not match API date. Please Update your device's date"
+          }
+          await this.auth.login(this.userInput.password)
+          this.auth.startSession()
+          this.$router.push("/select_hc_location");
+        } catch (e) {
+          if (e instanceof InvalidCredentialsError ) {
+            toastWarning("Invalid username or password");
+          } else {
+            toastDanger(e, 50000)
+          }
+        }
+      } else {
+        toastWarning("Complete form to log in");
+      }
+    }
   },
   computed: {
     btnStyles(): string {

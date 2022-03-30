@@ -2,8 +2,8 @@
     <ion-header>
         <ion-toolbar>
             <ion-title class="ion-text-center">
-                <h4 :class="color"> {{ title }} </h4>
-                <h4 v-if="subtitle">{{ subtitle }}</h4>
+                <span class="his-lg-text" :class="color"> {{ title }} </span>
+                <h1 v-if="subtitle">{{ subtitle }}</h1>
             </ion-title>
         </ion-toolbar>
   </ion-header>

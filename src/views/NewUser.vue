@@ -96,8 +96,13 @@ export default defineComponent({
         return listOptions.map((item: any) => ({ label: item, value: item })) 
     },
     async getRoles() {
-        const roles = await UserService.getAllRoles()
-        return roles.map((r: any) => ({
+        return (await UserService.getAllRoles()).filter((r: any) => {
+            try {
+                return !this.userData.role.split(',').includes(r.role)
+            } catch(e) {
+                return true
+            }
+        }).map((r: any) => ({
             label: r.role,
             value: r.role,
             other: r
@@ -110,7 +115,7 @@ export default defineComponent({
             'given_name': names.given_name,
             'family_name': names.family_name,
             'username': userObj.username,
-            'role': userObj.roles.map((r: any) => r.role).join(', '),
+            'role': userObj.roles.map((r: any) => r.role),
             'created': HisDate.toStandardHisDisplayFormat(userObj.date_created),
             'status': userObj.deactivated_on ? 'Inactive' : 'Active'
         }
@@ -150,13 +155,16 @@ export default defineComponent({
                 id: 'user_info',
                 helpText: 'User information',
                 type: FieldType.TT_TABLE_VIEWER,
+                dynamicHelpText: () => `User: ${this.userData.username} | Added On: ${this.userData.created}`,
                 condition: () => this.activity === 'edit' && UserService.isAdmin(),
                 options: async (f: any, c: any, table: any) => {
-                    const statusRowIndex = 4
+                    const statusRowIndex = 3
                     const columns = ['Attributes', 'Values', 'Actions']
                     const deactivateButton = (status: string) => ({
                         name: status === 'Active' ? 'Deactivate' : 'Activate' ,
                         type: 'button',
+                        style: { width: '65%', fontWeight: 'bold' },
+                        color: status === 'Active' ? 'danger' : 'success',
                         action: async () => {
                             try {
                                 if (status === 'Active') {
@@ -179,18 +187,25 @@ export default defineComponent({
                     const navButton = (name: string, targetField: string) => ({ 
                         name, 
                         type: 'button',
+                        color: 'light',
+                        style: {
+                            fontWeight: 'bold',
+                            width: '65%'
+                        },
                         action: () => {
                             this.activeField = targetField
                             this.fieldComponent = this.activeField
                         }
                     })
+                    const rowBtns = [navButton('Add/Append Role', 'roles')]
+                    if (this.userData.role.length > 1) {
+                        rowBtns.push(navButton('Remove Role', 'remove_roles'))
+                    }
                     const rows = [
-                        ['Username', this.userData.username, ''],
-                        ['Role', this.userData.role, navButton('Update role', 'roles')],
-                        ['Name', `${this.userData.given_name} ${this.userData.family_name}`, navButton('Edit usernames', 'given_name')],
-                        ['Password', '*******', navButton('Change password', 'new_password')],
-                        ['Status', this.userData.status,  deactivateButton(this.userData.status)],
-                        ['Date created', this.userData.created, ''],
+                        ['<b>Name</b>', `${this.userData.given_name} ${this.userData.family_name}`, navButton('Edit Name', 'given_name'), ''],
+                        ['<b>Password</b>', '*******', navButton('Change password', 'new_password'), ''],
+                        ['<b>Role</b>', this.userData.role.join('<br/>'), ...rowBtns],
+                        ['<b>Status</b>', this.userData.status,  deactivateButton(this.userData.status), ''],
                     ]
                     return [{
                         label: '',
@@ -216,8 +231,7 @@ export default defineComponent({
                 type: FieldType.TT_TEXT,
                 computedValue: (val: Option) => val.value,
                 defaultValue: () => this.userData.given_name,
-                condition: () => this.editConditionCheck(['given_name']) 
-                    && UserService.isAdmin(),
+                condition: () => this.editConditionCheck(['given_name']) && UserService.isAdmin(),
                 validation: (val: any) => Validation.isName(val),
                 options: async (form: any) => {
                     if (!form.given_name || form.given_name.value === null) return []
@@ -233,8 +247,7 @@ export default defineComponent({
                 computedValue: (val: Option) => val.value,
                 defaultValue: () => this.userData.family_name,
                 validation: (val: any) => Validation.isName(val),
-                condition: () => this.editConditionCheck(['given_name']) 
-                    && UserService.isAdmin(),
+                condition: () => this.editConditionCheck(['given_name']) && UserService.isAdmin(),
                 options: async (form: any) => {
                     if (!form.family_name || form.family_name.value === null) return []
 
@@ -247,10 +260,22 @@ export default defineComponent({
                 helpText: "Role",
                 type: FieldType.TT_SELECT,
                 computedValue: (val: Option) => [val.value],
-                condition: () => this.editConditionCheck(['roles']) 
-                    && UserService.isAdmin(),
+                condition: () => this.editConditionCheck(['roles']) && UserService.isAdmin(),
                 validation: (val: any) => Validation.required(val),
-                options: async() => await this.getRoles(),
+                options: () => this.getRoles(),
+                config: {
+                    showKeyboard: true
+                }
+            },
+            {
+                id: 'remove_roles',
+                helpText: "Remove Roles",
+                proxyID: 'roles',
+                type: FieldType.TT_SELECT,
+                validation: (v: Option) => Validation.required(v),
+                condition: () => this.editConditionCheck(['remove_roles']) && UserService.isAdmin() && this.activity === 'edit',
+                computedValue: (v: Option) => this.userData.role.filter((i: string) => i != v.label),
+                options: () => this.mapToOption(this.userData.role),
                 config: {
                     showKeyboard: true
                 }
@@ -263,8 +288,9 @@ export default defineComponent({
                 condition: () => this.activity === 'edit' 
                     && this.editConditionCheck(['roles']) 
                     && UserService.isAdmin(),
+                defaultComputedOutput: () => false,
                 validation: (val: any) => Validation.required(val),
-                options: () => [
+                    options: () => [
                     {
                         label: 'Yes', value: 'true'
                     },

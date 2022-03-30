@@ -32,43 +32,18 @@ export default defineComponent({
     data: () => ({
         rows: [] as Array<any>,
         title: 'Regimen distribution (Weight)',
-        columns: [
+        columns: [] as Array<any>
+    }),
+    created() {
+        this.columns = [
             [
                 table.thTxt('Weight band'),
                 table.thTxt('Gender'),
-                table.thNum('0A'),
-                table.thNum('2A'),
-                table.thNum('4A'),
-                table.thNum('5A'),
-                table.thNum('6A'),
-                table.thNum('7A'),
-                table.thNum('8A'),
-                table.thNum('9A'),
-                table.thNum('10A'),
-                table.thNum('11A'),
-                table.thNum('12A'),
-                table.thNum('13A'),
-                table.thNum('14A'),
-                table.thNum('15A'),
-                table.thNum('16A'),
-                table.thNum('17A'),
-                table.thNum('0P'),
-                table.thNum('2P'),
-                table.thNum('4P'),
-                table.thNum('9P'),
-                table.thNum('11P'),
-                table.thNum('14P'),
-                table.thNum('14PP'),
-                table.thNum('15P'),
-                table.thNum('15PP'),
-                table.thNum('16P'),
-                table.thNum('17P'),
+                ...REGIMENS.map(r => table.thNum(r)),
                 table.thNum('Unknown'),
                 table.thNum('Total (regimen)')
             ]
-        ]
-    }),
-    created() {
+        ] 
         this.fields = this.getDateDurationFields()
     },
     methods: {

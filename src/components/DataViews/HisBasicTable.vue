@@ -1,5 +1,5 @@
 <template>
-  <table :class="classStyles">
+  <table class="his-md-text" :class="classStyles">
     <tr>
       <th v-for="(column, hIndex) in columns" :key="hIndex">
         {{ column }}
@@ -22,9 +22,12 @@
           </div>
         </div>
         <div v-else-if="isActionButton(item)">
-          <ion-button @click="item.action(dataItems)">{{
-            item.name
-          }}</ion-button>
+          <ion-button 
+            :color="item?.color || 'primary'"
+            :style="item.style" 
+            @click="item.action(dataItems)">{{
+              item.name
+            }}</ion-button>
         </div>
         <div v-else>
           <span v-html="item"></span>

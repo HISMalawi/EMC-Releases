@@ -3,6 +3,7 @@
         <his-text-input :readonly="!showKeyboard" :value="selected" @onValue="(value) => onKbValue(value, showKeyboard)" /> 
         <ion-list class='view-port-content'>
             <ion-item 
+                class="his-md-text"
                 button v-for="(item, index) in filtered" 
                 :color="item.label === selected ? 'lightblue': ''" 
                 :key="index"
@@ -69,10 +70,6 @@ export default defineComponent({
     .view-port-content {
         height: 91%;
         padding-bottom: 0px;
-    }
-    ion-item {
-        --min-height: 40px;
-        font-size: 1.1em;
     }
     #view-port {
         height: 82vh;

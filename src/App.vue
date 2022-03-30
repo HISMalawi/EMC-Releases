@@ -1,7 +1,11 @@
 <template>
   <ion-app>
-    <full-screen-notice />
-    <update-notification/>
+    <modal-container 
+      @modalDismissed="activeModal=''" 
+      :modalName="activeModal"> 
+    </modal-container>
+    <full-screen-notice v-if="checkFullScreen"/>
+    <update-notification v-if="checkForUpdates"/>
     <ion-router-outlet :key="$route.fullPath"/>
     <connection-error v-if="!apiOk && notConfigPage"/>
   </ion-app>
@@ -12,6 +16,7 @@ import { IonApp, IonRouterOutlet } from '@ionic/vue';
 import { defineComponent, ref, watch } from 'vue';
 import ApiClient, { ApiBusEvents } from "@/services/api_client"
 import EventBus from "@/utils/EventBus"
+import { EventChannels } from "@/utils/EventBus"
 import { toastWarning, alertConfirmation } from './utils/Alerts';
 import { useRoute } from 'vue-router';
 import ConnectionError from "@/components/ConnectionError.vue"
@@ -23,11 +28,13 @@ import router from '@/router/index';
 import { loadingController } from "@ionic/vue"
 import { AuthService } from './services/auth_service';
 import FullScreenNotice from "@/components/FullScreenModifier.vue"
+import ModalContainer from "@/components/ModalContainer.vue"
 
 export default defineComponent({
   name: 'App',
   components: {
     FullScreenNotice,
+    ModalContainer,
     IonApp,
     IonRouterOutlet,
     ConnectionError,
@@ -38,9 +45,21 @@ export default defineComponent({
     const route = useRoute()
     const notConfigPage = ref(true)
     const healthCheckInterval = ref(null) as any
+    const checkFullScreen = ref(false)
+    const checkForUpdates = ref(true)
+    const auth = new AuthService()
+    const activeModal = ref('')
 
     // synchronize date every 1 hour
-    new AuthService().initDateSync(3600000)
+    auth.initDateSync(3600000)
+
+    if (typeof auth.getAppConf('promptFullScreenDialog') === 'boolean') {
+      checkFullScreen.value = auth.getAppConf('promptFullScreenDialog')
+    }
+
+    if (typeof auth.getAppConf('showUpdateNotifications') === 'boolean') {
+      checkForUpdates.value =  auth.getAppConf('showUpdateNotifications')
+    }
 
     nprogress.configure({ 
       easing: 'ease', 
@@ -58,7 +77,11 @@ export default defineComponent({
     watch(healthCheckInterval, (interval: any) => {
       apiOk.value = !interval
     })
-  
+
+    EventBus.on(
+      EventChannels.SHOW_MODAL, (modal: any) => activeModal.value = modal
+    )
+
     EventBus.on(
       ApiBusEvents.BEFORE_API_REQUEST, () => nprogress.start()
     )
@@ -98,8 +121,11 @@ export default defineComponent({
     )
     return {
       apiOk,
-      notConfigPage
+      checkForUpdates,
+      activeModal,
+      notConfigPage,
+      checkFullScreen
     }
-  },
-});
+  }
+})
 </script>

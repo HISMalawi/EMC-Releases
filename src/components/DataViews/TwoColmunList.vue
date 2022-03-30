@@ -2,7 +2,7 @@
     <ion-list>
         <ion-row>
             <ion-col v-for="(items, index) in multiViewSummaryItems" :key="index" :size="singleView ? 12: 6" >
-                <ion-item v-for="(item, index) in items" :key="index">
+                <ion-item class="his-sm-text" v-for="(item, index) in items" :key="index">
                     <ion-label> {{item.label}} </ion-label>
                     <ion-label class="lb-value" slot="end"> {{item.value}} </ion-label>
                 </ion-item>

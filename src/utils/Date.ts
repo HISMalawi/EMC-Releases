@@ -8,6 +8,10 @@ function currentDisplayDate() {
     return dayjs().format(DISPLAY_DATE_FORMAT)
 }
 
+function currentDate() {
+    return dayjs().format(STANDARD_DATE_FORMAT)
+}
+
 function dateDiffInDays(date1: string, date2: string) {
     return dayjs(date1).diff(date2, 'days')
 }
@@ -121,6 +125,7 @@ function getDateQuarter(date: string | Date) {
   }
 
 export default {
+    currentDate,
     getYearOfAge,
     getYear,
     dateDiffInDays,

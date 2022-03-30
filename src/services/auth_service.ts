@@ -1,5 +1,7 @@
 import {Role} from "@/interfaces/role"
+import dayjs from "dayjs"
 import ApiClient from "./api_client"
+import HisDate  from "@/utils/Date"
 
 export class InvalidCredentialsError extends Error {
     message: string
@@ -74,6 +76,13 @@ export class AuthService{
         })
     }
 
+    async checkTimeIntegrity() {
+        const serverDate = await this.getSystemDate()
+        const localDate = HisDate.currentDate()
+        if (!serverDate) throw 'Unable to fetch server date'
+        return localDate === serverDate
+    }
+
     initDateSync(interval = 1000) {
         setInterval(async () => {
             const date = await this.getSystemDate()
@@ -102,6 +111,19 @@ export class AuthService{
         const res = await fetch('HEAD', { method: 'GET' })
         const version = await res?.text()
         return version && version.length <= 25 ? version : '-'
+    }
+
+    getAppConf(confKey: 'promptFullScreenDialog' | 'showUpdateNotifications') {
+        const conf: any =  sessionStorage.getItem('appConf')
+        if (conf) {
+            try {
+                const confObj = JSON.parse(conf)
+                return confObj[confKey]
+            } catch (e) {
+                console.error(e)
+            }
+        }
+        return null
     }
 
     async getApiVersion(): Promise<string> {

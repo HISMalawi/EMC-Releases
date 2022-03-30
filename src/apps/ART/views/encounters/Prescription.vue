@@ -24,6 +24,8 @@ import { HTN_SESSION_KEY } from '../../services/htn_service'
 import { ProgramService } from '@/services/program_service'
 import table from "@/components/DataViews/tables/ReportDataTable"
 
+const MEDICATION_STYLE = { style : { fontSize:'1.3rem !important', borderBottom: 'solid 2px #ccc', color: 'black', background: 'white' }}
+
 export default defineComponent({
     mixins: [EncounterMixinVue],
     data: () => ({
@@ -200,6 +202,9 @@ export default defineComponent({
                drugs = await this.getLpvDrugs()
             } else if (this.facts.starterPackNeeded) {
                drugs = await this.getStarterPackDrugs()
+               if (isEmpty(drugs)) {
+                    drugs = this.facts.regimenDrugs
+               }
             } else {
                 drugs = this.facts.regimenDrugs
             }
@@ -252,7 +257,7 @@ export default defineComponent({
             for(const value in regimenCategories) {
                 const regimenDrugs = regimenCategories[value]
                 const label = regimenDrugs.map((r: RegimenInterface) => 
-                    r.alternative_drug_name || r.concept_name).join(' + ')
+                    r.alternative_drug_name || r.concept_name).sort().join(' + ')
 
                 options.push({ 
                     label, 
@@ -336,7 +341,7 @@ export default defineComponent({
             return regimens.map((regimen: any) => {
                 return this.prescription.toOrderObj(
                     regimen.drug_id, 
-                    regimen.drug_name,
+                    regimen.alternative_drug_name || regimen.drug_name,
                     regimen.units, 
                     regimen.am, 
                     regimen.pm,
@@ -462,14 +467,17 @@ export default defineComponent({
                         dataTableConfig: {
                             showIndex: false
                         },
+                        viewPortStyle: {
+                            height: '76vh'
+                        },
                         columns: () => [
                             [
-                                table.thTxt('Drug name'),
-                                table.thTxt('Units'),
-                                table.thTxt('AM'),
-                                table.thTxt('Noon'),
-                                table.thTxt('PM'),
-                                table.thTxt('Frequency')
+                                table.thTxt('Drug name', MEDICATION_STYLE),
+                                table.thTxt('Units', MEDICATION_STYLE),
+                                table.thTxt('AM', MEDICATION_STYLE),
+                                table.thTxt('Noon',  MEDICATION_STYLE),
+                                table.thTxt('PM', MEDICATION_STYLE),
+                                table.thTxt('Frequency', MEDICATION_STYLE)
                             ]
                         ],
                         rows: () => this.drugs.map((d: any) => {
@@ -490,7 +498,7 @@ export default defineComponent({
                                 })()
                             }
                             return [
-                                table.td(d.drug_name, conf),
+                                table.td(d.alternative_drug_name || d.drug_name, conf),
                                 table.td(d.units, conf),
                                 table.td(d.am, conf),
                                 table.td(d.noon, conf),

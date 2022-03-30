@@ -3,15 +3,19 @@
         <div class='view-port-content'>
             <ion-grid> 
                 <ion-row> 
-                    <ion-col size="8"><b class="his-lg-text"> {{config?.titles?.label || "Medication" }} </b> </ion-col>
-                    <ion-col size="4"><b class="his-lg-text"> {{config?.titles?.value || "Amount Remaining" }}</b> </ion-col>
+                    <ion-col size="6"><b> Medication </b> </ion-col>
+                    <ion-col size="3"><b> Given Amount</b> </ion-col>
+                    <ion-col size="3"><b> Pills brought </b> </ion-col>
                 </ion-row>
                 <ion-row v-for="(data, index) in listData" :key="index"> 
-                    <ion-col size="8">  
-                       <div class="his-md-text his-card" :style="{textAlign:'left'}"> {{ data.label }} </div>
+                    <ion-col size="6">  
+                       <div class="his-card" :style="{textAlign:'left'}"> {{ data.label }} </div>
                     </ion-col>
-                    <ion-col size="4"> 
-                        <ion-input :value="data.value" @click="launchKeyPad(data)" class="his-card his-md-text"/>
+                    <ion-col size="3"> 
+                        <ion-input :value="data.value" @click="launchKeyPad(data, 'Given amount')" class="his-card"/>
+                    </ion-col>
+                    <ion-col size="3"> 
+                        <ion-input :value="data.other.pillsBrought" @click="launchKeyPad(data, 'Pills brought')" class="his-card"/>
                     </ion-col>
                 </ion-row>
             </ion-grid>   
@@ -48,6 +52,7 @@ export default defineComponent({
         handler() {
             this.listData = this.listData.filter((item: Option) => {
                 item.value = ''
+                item.other.pillsBrought = ''
                 return true
             })
         },
@@ -66,17 +71,24 @@ export default defineComponent({
     this.listData = await this.options(this.fdata, this.cdata, this.listData)
   },
   methods: {
-    async launchKeyPad(item: Option) {
+    async launchKeyPad(item: Option, type: 'Given amount' | 'Pills brought') {
         const modal = await modalController.create({
             component: KeyPad,
             backdropDismiss: false,
             cssClass: 'keypad-modal',
             componentProps: {
                 title: item.label,
-                preset: item.value,
+                preset: type === 'Given amount' 
+                    ? item.value 
+                    : item.other.pillsBrought,
                 strictNumbers: true,
                 onKeyPress(val: string){
-                    item.value = val
+                    if (type === 'Given amount') {
+                        item.value = val
+                    }
+                    if (type === 'Pills brought') {
+                        item.other.pillsBrought = val
+                    }
                 }
             }
         })

@@ -1,7 +1,5 @@
 import { modalController } from "@ionic/vue";
-import ActivitiesModal from "@/apps/ART/Components/ActivitiesSelection.vue";
 import { PRIMARY_ACTIVITIES } from "./ArtProgramActivities";
-import {TaskInterface} from "./../../interfaces/TaskInterface"
 import { WorkflowService } from "@/services/workflow_service"
 import PatientAlerts from "@/services/patient_alerts"
 import { RelationshipService } from "@/services/relationship_service";
@@ -18,7 +16,7 @@ import DrugModalVue from "@/apps/ART/Components/DrugModal.vue";
 import ART_GLOBAL_PROP from "../art_global_props";
 import { isEmpty } from "lodash";
 import { Order } from "@/interfaces/order";
-import { addWorkflowTask, nextTask } from "@/utils/WorkflowTaskHelper";
+import { addWorkflowTask, nextTask, selectActivities } from "@/utils/WorkflowTaskHelper";
 import dayjs from "dayjs";
 import { Service } from "@/services/service";
 import { Patientservice } from '@/services/patient_service';
@@ -34,32 +32,6 @@ async function enrollInArtProgram(patientID: number, patientType: string, clinic
 
     await patientTypeService.createEncounter()
     await patientTypeService.save()
-}
-
-/**
- * Present a modal to select Art activities
- */
-async function showArtActivities() {
-    const activities = PRIMARY_ACTIVITIES
-        .filter(a => (typeof a.availableOnActivitySelection === 'boolean' 
-            && a.availableOnActivitySelection)
-            || typeof a.availableOnActivitySelection != 'boolean'
-        )
-        .map((activity: TaskInterface)=> ({
-            value: activity.workflowID 
-                || activity.name,
-            selected: false
-        }))
-    const modal = await modalController.create({
-        component: ActivitiesModal,
-        cssClass: activities.length > 7 ? "large-modal" : "",
-        backdropDismiss: false,
-        componentProps: {
-            activities
-        }
-    });
-    modal.present();
-    await modal.onDidDismiss()
 }
 
 /**
@@ -86,7 +58,7 @@ function orderToString(order: Order, showDate = true) {
 }
 
 export async function init(context='') {
-    await showArtActivities()
+    await selectActivities(PRIMARY_ACTIVITIES)
     if (context === 'HomePage') {
         await showStockManagementChart()
     }
@@ -140,53 +112,33 @@ export function formatPatientProgramSummary(data: any) {
     ]
 }
 /**
- * Loads lab order results and filters them by Viral Load results or Order
+ * Loads lab result card data
  * @param patientId 
  * @param date 
  * @returns 
  */
 export async function getPatientDashboardLabOrderCardItems(patientId: number, date: string) {
-    const orders = await OrderService.getOrders(patientId)
-    const d = (date: string) => HisDate.toStandardHisFormat(date)
-    const t = (date: string) => HisDate.toStandardHisTimeFormat(date)
-    // filter All viral load results on visit date
-    const vlOrders = orders.filter((o: any) => {
-        try {
-            return o.tests[0].name.match(/HIV/i) && d(o.tests[0].result[0].date) === d(date) 
-        } catch(e) {
-            return false
-        }
-    })
-    if (!isEmpty(vlOrders)) {
-        return vlOrders.map((order: any) => {
-            const test = order.tests[0]
-            const result = test.result[0]
-            return {
-                label: orderToString(order, false),
-                value: t(result.date),
-                other: {
-                    tableRow: [
-                        order.accession_number, 
-                        order.specimen.name,
-                        t(order.order_date)
-                    ]
-                }
-            }
-        })
-    }
-    // Show the order
-    return orders.filter((o: any) => d(o.order_date) === d(date))
-        .map((labOrder: any) => ({
-            label: `Order:  ${labOrder.specimen.name}`,
-            value: t(labOrder.order_date),
+    const data = (await OrderService.getOrders(patientId)).reduce((results: any, order: any) => {
+        const tresults = order.tests.filter(
+            (t: any) => t.name.match(/HIV/i) && !isEmpty(t.result))
+            .map((t: any) => t?.result)
+        return results.concat(tresults.reduce((a: any, c: any) => a.concat(c), []))
+    }, [])
+    .map((result: any) => {
+        const vlStatus = OrderService.isHighViralLoadResult(result) ? '(<b style="color: #eb445a;">High</b>)' : ''
+        return {
+            label: `${result.indicator.name} &nbsp ${result.value_modifier}${result.value} ${vlStatus}`,
+            value: HisDate.toStandardHisDisplayFormat(result.date),
             other: {
-                tableRow: [
-                    labOrder.accession_number, 
-                    labOrder.specimen.name,
-                    t(labOrder.order_date)
-                ]
+                wrapTxt: true
             }
-        }))
+        }
+    }).sort((a: any, b: any) => new Date(a.value) > new Date(b.value) ? -1 : 1)
+    if (data.length >= 2) {
+        const [result1, result2] = data
+        return [result1, result2]
+    }
+    return data
 }
 
 export function confirmationSummary(patient: Patientservice, program: any) {

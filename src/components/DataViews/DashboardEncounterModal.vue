@@ -1,7 +1,7 @@
 <template>
   <ion-header>
     <ion-toolbar>
-      <ion-title>
+      <ion-title class="his-md-text">
         <span>{{ title }}</span>
         <span style="float: right;">Provider: {{ active.provider }}</span>
       </ion-title>
@@ -12,11 +12,12 @@
       <ion-col size="4">
         <ion-list>
           <ion-item
-            v-for="(item, index) in items"
+            class="his-sm-text"
+            v-for="(item, index) in encounters"
             :key="index"
             :color="item.other.id === active.id ? 'primary' : ''"
             :detail="true"
-            @click="() => showDetails(item.label, item.other)"
+            @click="() => showDetails(item)"
           >
             {{ item.label }}
           </ion-item>
@@ -80,6 +81,7 @@ export default defineComponent({
       rows: [],
       columns: []
     } as any,
+    encounters: [] as any
   }),
   computed: {
     canVoid(): boolean {
@@ -88,9 +90,10 @@ export default defineComponent({
   },
   watch: {
     items: {
-      handler(items: any){
-        if (items.length >= 1) {
-          this.showDetails(items[0].label, items[0].other)
+      handler(items: Option[]){
+        if (!isEmpty(items)) {
+          this.encounters = items
+          this.showDetails(this.encounters[0])
         } 
       },
       immediate: true,
@@ -108,29 +111,36 @@ export default defineComponent({
     },
   },
   methods: {
-    async closeModal() {
-      await modalController.dismiss({})
+    closeModal() {
+      modalController.dismiss({})
     },
-    async voidActiveItem() {
-      await popVoidReason(async (reason: string) => {
+    removeEncounter(id: number) {
+      this.encounters = this.encounters.filter(
+        (i: any) => i.other.id != id
+      )
+    },
+    voidActiveItem() {
+      popVoidReason(async (reason: string) => {
         try {
           await this.active.onVoid(reason)
-          this.active = {}          
-          if (this.items.length >= 1) {
-            this.showDetails(this.items[0].label, this.items[0].other)
-          } 
+          this.removeEncounter(this.active.id)
+          this.active = {}
+          // Set next active item
+          if (!isEmpty(this.encounters)) {
+            this.showDetails(this.encounters[0])
+          }
         } catch (e) {
           toastDanger(e)
         }
       }, 'void-modal custom-modal-backdrop') 
     },
-    async showDetails(name: string, {id, provider, columns, getRows, onVoid}: any) {
-      this.active.id = id
-      this.active.name = name
-      this.active.columns = columns;
-      this.active.onVoid = onVoid
-      this.active.rows = await getRows()
-      this.active.provider = provider
+    async showDetails(item: Option) {
+      this.active.id = item.other.id
+      this.active.name = item.label
+      this.active.columns = item.other.columns;
+      this.active.onVoid = item.other.onVoid
+      this.active.rows = await item.other.getRows()
+      this.active.provider = item.other.provider
     },
   },
 });

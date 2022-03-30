@@ -11,7 +11,7 @@
             </ion-row>
         </ion-grid>
         <ion-list v-if="listData.length > 0" class='view-port-content'>
-            <ion-item button v-for="(item, index) in listData" :key="index" @click="onselect(item)"> 
+            <ion-item class="his-md-text" button v-for="(item, index) in listData" :key="index" @click="onselect(item)"> 
                 <ion-label> {{item.label}} </ion-label>
             </ion-item>
         </ion-list>
