@@ -57,7 +57,7 @@ export default defineComponent({
             this.title = `Clinic Defaulters report <b>(${data.length} Defaulters)</b>`
         },
         async setRows(data: Array<any>) {
-            data.forEach((data: any) => {
+            this.sortByArvNumber(data).forEach((data: any) => {
                 this.rows.push([
                     table.td(data.arv_number),
                     table.td(data.given_name),

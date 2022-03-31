@@ -146,7 +146,7 @@ export default defineComponent({
         setPatientLevelRows(results: Array<Option>) {
             this.columns = this.patientLevelColumns
             results.forEach(({other}: Option)  => {
-                other.forEach((d: any) => {
+                this.sortByArvNumber(other).forEach((d: any) => {
                     this.rows.push([
                         table.td(d.arv_number),
                         table.td(d.gender),

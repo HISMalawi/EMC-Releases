@@ -22,6 +22,7 @@ import '@ionic/vue/css/text-transformation.css';
 import '@ionic/vue/css/flex-utils.css';
 import '@ionic/vue/css/display.css';
 
+import '@/css/art-report-theme.css';
 import '@/css/his-style.css';
 import '@/css/art-style.css';
 import '@/css/his-keyboard.css';

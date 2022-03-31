@@ -9,6 +9,9 @@
             :canExportCsv="false"
             :canExportPDf="false"
             :showtitleOnly="true"
+            :config="{
+                showIndex: false
+            }"
             :onReportConfiguration="onPeriod"> 
         </report-template>
     </ion-page>
@@ -73,17 +76,18 @@ export default defineComponent({
             this.setRows(this.appointments)
         },
         async setRows(data: Array<any>) {
-            data.forEach((data: any) => {
+            this.sortByArvNumber(data).forEach((data: any) => {
                 this.rows.push([
-                    table.td(data.arv_number || 'N/A'),
+                    this.tdARV(data.arv_number || 'N/A'),
                     table.td(data.given_name),
                     table.td(data.family_name),
                     table.td(data.gender),
                     table.tdDate(data.birthdate),
                     table.td(
-                       `District: ${data.district}
-                        Village: ${data.village}
-                        Land-mark: ${data.land_mark}`
+                       `District: <br/> <b>${data.district}</b><br/>
+                        Village: <br/> <b>${data.village}</b><br/>
+                        Land-mark: <br/> <b>${data.land_mark}</b><br/>
+                        Cellphone: <br/> <b>${data.cell_phone}</b>`
                     ),
                     table.tdBtn('Select', () => this.confirmPatient(data.person_id))
                 ])
