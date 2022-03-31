@@ -9,6 +9,9 @@
             :canExportCsv="false"
             :canExportPDf="false"
             :showtitleOnly="true"
+            :config="{
+                showIndex: false
+            }"
             :onReportConfiguration="onPeriod"> 
         </report-template>
     </ion-page>
@@ -81,9 +84,10 @@ export default defineComponent({
                     table.td(data.gender),
                     table.tdDate(data.birthdate),
                     table.td(
-                       `District: ${data.district}
-                        Village: ${data.village}
-                        Land-mark: ${data.land_mark}`
+                       `District: <b>${data.district}</b><br/>
+                        Village: <b>${data.village}</b><br/>
+                        Land-mark: <b>${data.land_mark}</b><br/>
+                        Cellphone: <b>${data.cell_phone}</b>`
                     ),
                     table.tdBtn('Select', () => this.confirmPatient(data.person_id))
                 ])
