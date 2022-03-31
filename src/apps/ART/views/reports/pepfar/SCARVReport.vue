@@ -48,7 +48,10 @@ export default defineComponent({
                     table.thDate('Date')
                 ]
             ]
-            const asyncRows = () => patients.map(
+            const sortedPatients = patients.sort((a: any, b: any) => {
+                return this.getArvInt(a[3]) > this.getArvInt(b[3]) ? 1 : -1
+            })
+            const asyncRows = () => sortedPatients.map(
                 (p: any) => ([
                    table.td(p[3]),
                    table.td(p[0]),
