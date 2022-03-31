@@ -21,14 +21,14 @@
 </template>
 
 <script lang="ts">
-import table, { ColumnInterface, RowInterface } from '@/components/DataViews/tables/ReportDataTable';
+import table, { ColumnInterface } from '@/components/DataViews/tables/ReportDataTable';
 import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import { Patientservice } from '@/services/patient_service';
 import { ProgramService } from '@/services/program_service';
 import HisDate from "@/utils/Date";
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle } from '@ionic/vue';
 import dayjs from 'dayjs';
-import { defineComponent, onMounted, reactive, ref } from 'vue';
+import { defineComponent, reactive, ref } from 'vue';
 
 export default defineComponent({
   props: {
