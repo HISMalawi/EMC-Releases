@@ -71,8 +71,10 @@ export default defineComponent({
     ]])
 
     const formatVisitDate = (date: string) => {
-      const monthsElapsed = dayjs(date).diff(props.startDate, 'months')
-      return `${HisDate.toStandardHisDisplayFormat(date)} (${monthsElapsed}M)`
+      const monthsElapsed = props.startDate !== "N/A" 
+          ? '(' + dayjs(date).diff(props.startDate, 'months') + 'M)' 
+          : ''
+      return `${HisDate.toStandardHisDisplayFormat(date)} ${monthsElapsed}`
     }
 
     const getPatientVisits = async () => {

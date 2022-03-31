@@ -15,7 +15,7 @@
     <ion-row>
       <ion-col>
         <visits-summary
-          v-if="patientId !== 0"
+          v-if="patientId !== 0 && startDate"
           :patientId="patientId"
           :startDate="startDate"
         />
@@ -44,6 +44,8 @@ import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { NavBtnInterface } from "@/components/HisDynamicNavFooterInterface";
 import Layout from "../Components/Layout.vue";
 import VisitsSummary from "../Components/tables/VisitsSummary.vue";
+import { OrderService } from "@/services/order_service";
+import { DrugOrderService } from "@/services/drug_order_service";
 
 export default defineComponent({
   components: {
@@ -100,20 +102,28 @@ export default defineComponent({
   },
   methods: {
     async init() {
-      const date = await ObservationService.getAll(
-        this.patientId,
-        "Date ART started"
-      );
-
-      this.startDate = !isEmpty(date)
-        ? HisDate.toStandardHisDisplayFormat(date[0].value_datetime)
-        : "N/A";
-
       this.patient = await this.fetchPatient(this.patientId);
+      this.setARTStartDate()
       this.guardians = await this.getGuardian();
       this.patientCardInfo = await this.getPatientCardInfo(this.patient);
       this.btns.push(this.getFinishBtn());
     },
+    async setARTStartDate() {
+      let date = await ObservationService.getFirstValueDatetime(this.patientId, "Date ART started")
+
+      if (date === undefined) {
+        date = await ObservationService.getFirstValueText(this.patientId, "Date ART started")
+      }
+
+      if (date === undefined) {
+        const orders = await DrugOrderService.getAllDrugOrders(this.patientId, 100000);
+        if(!isEmpty(orders)){
+          date = orders[0].order['start_date']
+        }
+      }
+      this.startDate = date ? HisDate.toStandardHisDisplayFormat(date) : "N/A";
+    },
+
     async getGuardian() {
       const relationship = await RelationshipService.getGuardianDetails(
         this.patientId
