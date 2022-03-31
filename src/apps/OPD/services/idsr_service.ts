@@ -121,7 +121,6 @@ export class IDSRReportService extends OpdReportService {
                 'phone': '',
                 'personId': ''
               }
-              
               personObj.givenName = person.names[0].given_name
               personObj.familyName = person.names[0].family_name
               personObj.gender = person.gender
@@ -132,6 +131,55 @@ export class IDSRReportService extends OpdReportService {
               }
             }
         return patients
+    }
+
+    renderResults(params: any) {
+        const all = []
+        let count = 1
+        for (const [key, value] of Object.entries(params)) {
+            const temp: any = []
+            const condition: any = value
+            const item = {
+                id: 0,
+                name: '',
+                lessThanFiveYears: '',
+                lessThanFiveYearsPatientIds: '',
+                greaterThanEqualFiveYears: '',
+                greaterThanEqualFiveYearsPatientIds: '',
+                total: 0,
+                totalPatientIds: ''
+            }
+            item.name = key
+            let total = 0
+            
+            item.id = count
+            count += 1 
+            for (const [key1, value1] of Object.entries(condition)) {
+                const conditionDetails: any = value1
+                total +=conditionDetails.length;
+                item.total = total
+                if(conditionDetails.length) {
+                    temp.push(...(this.getIdsArrayObj(conditionDetails)))
+                    item.totalPatientIds = temp
+                }
+                
+                if (key1 == '<5yrs') {
+                item.lessThanFiveYears = conditionDetails.length
+                item.lessThanFiveYearsPatientIds = conditionDetails
+                }
+   
+            if (key1 == '>=5yrs') {
+              item.greaterThanEqualFiveYears = conditionDetails.length
+              item.greaterThanEqualFiveYearsPatientIds = conditionDetails
+            }
+          }
+          all.push(item)
+        }
+        return all
+    }
+    getIdsArrayObj(patientIds: string) {
+        patientIds = patientIds + ''
+        return patientIds.split(',') as []
     }
 
 }

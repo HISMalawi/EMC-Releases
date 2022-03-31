@@ -36,7 +36,6 @@ import HisDate from "@/utils/Date"
 import Url from "@/utils/Url"
 import { modalController } from "@ionic/vue";
 import table from "@/components/DataViews/tables/ReportDataTable"
-import { Service } from "@/services/service";
 
 export default defineComponent({
   mixins: [ReportMixinVue],
@@ -125,8 +124,10 @@ export default defineComponent({
       await this.onPeriod(this.formData, this.computedFormData, true)
     },
     async onDrillDown(patientIDS: string) {
+      console.log({patientIDS})
       patientIDS = patientIDS + ''
       const patientIds = patientIDS.split(',')
+      console.log({patientIds})
       const patients = await this.report.getPatientsDetails(patientIds)
       const columns = [
         [
@@ -151,7 +152,7 @@ export default defineComponent({
           })
         ]))
       }
-      await this.drilldownAsyncRows(`Drill table ${'haha'}`, columns, asyncRows)
+      await this.drilldownAsyncRows(`Drill Down`, columns, asyncRows)
     },
     getBtns() {
       return  [
