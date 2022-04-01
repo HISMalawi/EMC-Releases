@@ -17,11 +17,11 @@
   </tr>
   <tr>
     <td class="td-text-align-left">Week Dates: </td>
-    <td class="td-text-align-left">{{quarterYr}}</td>
+    <td class="td-text-align-left">{{weekdates}}</td>
   </tr>
   <tr>
     <td class="td-text-align-left">Total OPD Visits: </td>
-    <td class="td-text-align-left"><span id="total_visits"></span></td>
+    <td class="td-text-align-left"><span id="total_visits">{{totalOPDVisits}}</span></td>
   </tr>
   </table>
 </template>
@@ -36,13 +36,21 @@
       reportparams: {
         type: Object,
         required: true
+      },
+      weekdates: {
+        type: String,
+        required: true
+      },
+      totalOPDVisits: {
+        type: Number,
+        required: true
       }
     },
     data: function(){
       return {
         items: ['3.','4.','5.','6.','7.','8.','9.'],
         quarterStr: null,
-        quarterYr: null,
+        quarterYr: null
       }
     },
     methods: {

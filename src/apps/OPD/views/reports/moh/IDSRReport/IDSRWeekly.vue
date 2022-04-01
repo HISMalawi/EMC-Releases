@@ -13,7 +13,7 @@
   <ion-page v-if="reportReady">
     <ion-content>
       <div id="report-content">
-        <idsr-h :key="componentKey" :reportparams="period" ref="header" :clinicName="clinicName"></idsr-h>
+        <idsr-h :key="componentKey" :reportparams="period" ref="header" :weekdates="weekDates" :clinicName="clinicName" :totalOPDVisits="TotalOPDVisits" ></idsr-h>
         <weekly :key="componentKey" :onDrillDown="onDrillDown" :params="idsr" :reportid="reportID" :epiweek="period" ref="rep"> </weekly>
       </div>
     </ion-content>
@@ -49,6 +49,8 @@ export default defineComponent({
     isLoading: false as boolean,
     fields: [] as Array<Field>,
     reportID: -1 as any,
+    weekDates: '' as string,
+    TotalOPDVisits: 0 as number,
     clinicName: IDSRReportService.getLocationName(),
     reportReady: false as boolean,
     reportUrlParams: '' as string
@@ -61,45 +63,40 @@ export default defineComponent({
     async onPeriod(form: any, config: any, regenerate=false) {
       this.componentKey += 1
       this.formData = form
+      let data: any = {}
       this.computedFormData = config
       this.reportReady = true 
       this.isLoading = true
       this.report = new IDSRReportService()
+      this.weekDates = this.report.Span(form.epiweek.other.start, form.epiweek.other.end)
       this.report.setRegenerate(regenerate)
-      let data: any = {}
+      this.report.setEpiWeek(form.epiweek.label)
+      this.report.setStartDate(HisDate.toStandardHisFormat(form.epiweek.other.start))
+      this.report.setEndDate(HisDate.toStandardHisFormat(form.epiweek.other.end))
+      data = this.report.epiWeeksRequestParams()
+      this.period = form.epiweek.label
+      this.reportUrlParams = Url.parameterizeObjToString({ 
+        'start_date': HisDate.toStandardHisFormat(form.epiweek.other.start),
+        'end_date': HisDate.toStandardHisFormat(form.epiweek.other.end),
+        'epiweek': form.epiweek.label
+      })
 
-      if (form.epiweek.value === 'custom_period') {
-        this.report.setStartDate(config.start_date)
-        this.report.setEndDate(config.end_date)
-        this.period = `Custom ${this.report.getDateIntervalPeriod()}`
-        data = this.report.datePeriodRequestParams()
-      } else {
-        this.report.setEpiWeek(form.epiweek.label)
-        this.report.setStartDate(HisDate.toStandardHisFormat(form.epiweek.other.start))
-        this.report.setEndDate(HisDate.toStandardHisFormat(form.epiweek.other.end))
-        data = this.report.qaurterRequestParams()
-        this.period = form.epiweek.label
-        this.reportUrlParams = Url.parameterizeObjToString({ 
-          'start_date': HisDate.toStandardHisFormat(form.epiweek.other.start),
-          'end_date': HisDate.toStandardHisFormat(form.epiweek.other.end),
-          'epiweek': form.epiweek.label
-        })
-      }
       const request = await this.report.requestIDSR(data)
       if (request.ok) {
-        // Check the backend if background task is complete
-        const interval = setInterval(async () => {
-          data.regenerate = false
-          const state = await this.report.requestIDSR(data)
-          if (state.status === 200) {
-            const data = await state.json()
-            this.reportID = "data"
-            this.idsr = data
-            this.isLoading = false
-            this.report.cacheCohort(data)
-            clearInterval(interval)
+          const OPDVisitsRequest = await this.report.getOPDVisits(this.report.registrationRequestParams())
+          if (OPDVisitsRequest.ok) {
+            data.regenerate = false
+            if(OPDVisitsRequest.status === 200) {
+              const arrayOb =   await OPDVisitsRequest.json()
+            this.TotalOPDVisits = arrayOb.length
+            }
+            if (request.status === 200) {
+              const data = await request.json()
+              this.reportID = "data"
+              this.idsr = data
+              this.isLoading = false
+            }
           }
-        }, 3000)
       }
     },
     async printSpec() {
@@ -123,11 +120,8 @@ export default defineComponent({
     async regenerate() {
       await this.onPeriod(this.formData, this.computedFormData, true)
     },
-    async onDrillDown(patientIDS: string) {
-      console.log({patientIDS})
-      patientIDS = patientIDS + ''
-      const patientIds = patientIDS.split(',')
-      console.log({patientIds})
+    async onDrillDown(patientIds: string) {
+      patientIds = this.report.getIdsArrayObj(patientIds)
       const patients = await this.report.getPatientsDetails(patientIds)
       const columns = [
         [

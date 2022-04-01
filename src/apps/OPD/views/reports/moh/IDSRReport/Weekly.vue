@@ -9,9 +9,7 @@
     <td class="td-text-align-left td-span-width">&#62;&#61;5 yrs</td>
     <td class="td-text-align-left td-span-width">Total</td>
   </tr>
-  <!-- <div class="aaa" :v-if="show"> -->
-    <weekly-dummy v-if="show"></weekly-dummy>
-  <!-- </div> -->
+  <weekly-dummy v-if="show"></weekly-dummy>
   <tr   v-for="(condition, index) in conditions" :key="index">
     <td class="td-text-align-right">{{condition.id}}</td>
     <td class="td-text-align-right" style="width: 30%;padding: revert;">{{condition.name}}</td>
@@ -20,7 +18,6 @@
     <td id="total" class="td-text-align-right"  @click="onDrillDown(condition.totalPatientIds);"> <a> {{condition.total}} </a> </td>
   </tr>
   </table>
-
 </template>
 
 <script>
@@ -41,24 +38,11 @@ export default {
    renderResults() {
      const report = new IDSRReportService()
      const Conditions = report.renderResults(this.params)
-
      if(Conditions.length) {
-       console.log({Conditions})
        this.conditions = Conditions
        this.show = false
-     }
-     
+     } 
    },
-  //  async drillDown(indicator_name){
-  //   if(!this.reportid)
-  //   return;
-  //   for(let i = 0; i < this.params.length;  i++){
-  //     if(this.params[i].name === indicator_name){
-  //       indicator_id = this.params[i].id;
-  //     }
-  //   }
-  //   await this.onDrillDown(indicator_id)
-  //  }
   },
   watch: {
     params: {
