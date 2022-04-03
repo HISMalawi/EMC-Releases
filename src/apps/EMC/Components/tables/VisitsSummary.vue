@@ -51,7 +51,7 @@ export default defineComponent({
   setup(props) {
     const tableConfig = reactive({
       showIndex: false,
-      cssClasses: "table-bordered table-striped",
+      tableCssTheme: "emc-datatable-theme"
     })
 
     const columns = ref<ColumnInterface[][]>([[
