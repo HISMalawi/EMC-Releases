@@ -150,4 +150,13 @@ export class IDSRReportService extends OpdReportService {
             this.OPDVistisUrl(), params
         )
     }
+
+    getCSVString(IDSRConditionsObj: any) {
+        let CSVString = `Diseases/Events/Conditions, <5 yrs, >=5 yrs, Total,\n`
+        for(const condition of IDSRConditionsObj) {
+          const row = `${condition.name},${condition.lessThanFiveYears},${condition.greaterThanEqualFiveYears},${condition.total},\n`
+          CSVString+=row
+        }
+        return {CSVString}
+      }
 }

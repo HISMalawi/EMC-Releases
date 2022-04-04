@@ -13,7 +13,7 @@
   </tr>
   <tr>
     <td class="td-text-align-left">Week Number:</td>
-    <td class="td-text-align-left"><span id="wknum">{{quarterStr}}</span></td>
+    <td class="td-text-align-left"><span id="wknum">{{epiweek}}</span></td>
   </tr>
   <tr>
     <td class="td-text-align-left">Week Dates: </td>
@@ -41,35 +41,15 @@
         type: String,
         required: true
       },
+      epiweek: {
+        type: String,
+        required: true
+      },
       totalOPDVisits: {
         type: Number,
         required: true
       }
     },
-    data: function(){
-      return {
-        items: ['3.','4.','5.','6.','7.','8.','9.'],
-        quarterStr: null,
-        quarterYr: null
-      }
-    },
-    methods: {
-      renderQuarter() {
-        if(this.reportparams) {
-          const [quarter, startPeriod, _, endPeriod] = this.reportparams.split(" ");
-          this.quarterStr = quarter;
-          this.quarterYr  = quarter.match(/custom/i) ? `${startPeriod} - ${endPeriod}` : startPeriod
-        }
-      }
-    },
-    watch: {
-      reportparams: {
-        immediate: true,
-        handler() {
-          this.renderQuarter();
-        }
-      }
-    }
   }
   </script>
 

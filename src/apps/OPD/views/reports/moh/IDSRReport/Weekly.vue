@@ -24,6 +24,8 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import WeeklyDummy from '@/apps/OPD/views/reports/moh/IDSRReport/WeeklyDummy.vue'
 import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
+import { Service } from "@/services/service"
+import dayjs from 'dayjs';
 
 export default {
   components: { WeeklyDummy },
@@ -33,7 +35,7 @@ export default {
       conditions: []
     }
   },
-  props: ["params", "reportid", "quarter", "onDrillDown"],
+  props: ["params", "onDrillDown","epiweek"],
   methods: {
    renderResults() {
      const report = new IDSRReportService()
@@ -42,6 +44,33 @@ export default {
        this.conditions = Conditions
        this.show = false
      } 
+   },
+   onDownload() {
+     const report = new IDSRReportService()
+     let {CSVString} = report.getCSVString(this.conditions)
+     CSVString += `
+          Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}
+          His-Core Version: ${Service.getCoreVersion()}
+          API Version: ${Service.getApiVersion()}
+          Report Period: ${this.epiweek}
+          Site: ${Service.getLocationName()}
+          Site UUID: ${Service.getSiteUUID()}`
+          ;
+      // }
+      const csvData = new Blob([CSVString], { type: "text/csv;charset=utf-8;" });
+      //IE11 & Edge
+      const reportTitle = `${Service.getLocationName()} Weekly IDSR report ${this.quarter}`;
+      if (navigator.msSaveBlob) {
+        navigator.msSaveBlob(csvData, 'exportFilename');
+      } else {
+        //In FF link must be added to DOM to be clicked
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(csvData);
+        link.setAttribute("download", `${reportTitle}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
    },
   },
   watch: {

@@ -13,8 +13,8 @@
   <ion-page v-if="reportReady">
     <ion-content>
       <div id="report-content">
-        <idsr-h :key="componentKey" :reportparams="period" ref="header" :weekdates="weekDates" :clinicName="clinicName" :totalOPDVisits="TotalOPDVisits" ></idsr-h>
-        <weekly :key="componentKey" :onDrillDown="onDrillDown" :params="idsr" :reportid="reportID" :epiweek="period" ref="rep"> </weekly>
+        <idsr-h :key="componentKey" :epiweek="epiweek" ref="header" :weekdates="weekDates" :clinicName="clinicName" :totalOPDVisits="TotalOPDVisits" ></idsr-h>
+        <weekly :key="componentKey" :onDrillDown="onDrillDown" :params="idsr" :epiweek="epiweek" ref="rep"> </weekly>
       </div>
     </ion-content>
     <his-footer :btns="btns"></his-footer>
@@ -50,6 +50,7 @@ export default defineComponent({
     fields: [] as Array<Field>,
     reportID: -1 as any,
     weekDates: '' as string,
+    epiweek: '' as string,
     TotalOPDVisits: 0 as number,
     clinicName: IDSRReportService.getLocationName(),
     reportReady: false as boolean,
@@ -74,11 +75,10 @@ export default defineComponent({
       this.report.setStartDate(HisDate.toStandardHisFormat(form.epiweek.other.start))
       this.report.setEndDate(HisDate.toStandardHisFormat(form.epiweek.other.end))
       data = this.report.epiWeeksRequestParams()
-      this.period = form.epiweek.label
+      this.epiweek = form.epiweek.label.split(" ")[0]
       this.reportUrlParams = Url.parameterizeObjToString({ 
         'start_date': HisDate.toStandardHisFormat(form.epiweek.other.start),
-        'end_date': HisDate.toStandardHisFormat(form.epiweek.other.end),
-        'epiweek': form.epiweek.label
+        'end_date': HisDate.toStandardHisFormat(form.epiweek.other.end)
       })
 
       const request = await this.report.requestIDSR(data)
@@ -148,6 +148,17 @@ export default defineComponent({
     },
     getBtns() {
       return  [
+        {
+          name: "CSV",
+          size: "large",
+          slot: "start",
+          color: "primary",
+          visible: true,
+          onClick: async () => {
+            const rep = this.$refs.rep as any
+            rep.onDownload()
+          }
+        },
         {
           name: "PDF",
           size: "large",
