@@ -92,6 +92,7 @@ export class OrderService extends Service {
                     resultsArr.push(name + "   " + valueModifier + value);
                 }
                 formatted.push({
+                    'order_id': orders[x].order_id,
                     'accession_number': accessionNumber,
                     'test_name': tests[i].name,
                     specimen: testStatus,

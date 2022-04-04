@@ -33,6 +33,7 @@ import table from "@/components/DataViews/tables/ReportDataTable"
 import { PatientTypeService } from "../../services/patient_type_service";
 import { PrescriptionService } from "../../services/prescription_service";
 import { DispensationService } from "../../services/dispensation_service";
+import { PatientPrintoutService } from "@/services/patient_printout_service";
 
 export default defineComponent({
   mixins: [AdherenceMixinVue],
@@ -799,6 +800,9 @@ export default defineComponent({
             ];
           },
           config: {
+            printOrder: (orderID: number) => {
+              return new PatientPrintoutService(this.patientID).printLabOrderLbl(orderID)
+            },
             hiddenFooterBtns: ["Clear"],
             footerBtns: [
               {
