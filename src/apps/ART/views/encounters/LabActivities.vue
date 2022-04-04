@@ -46,7 +46,7 @@ export default defineComponent({
             this.fieldContext = fieldContext
           },
           options: async () => {
-            const orders = await OrderService.getOrders(this.patientID);
+            const orders: any = await OrderService.getOrdersIncludingGivenResultStatus(this.patientID);
             const VLOrders = OrderService.formatLabs(orders);
             return [
               {

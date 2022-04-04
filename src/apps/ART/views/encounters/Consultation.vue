@@ -43,6 +43,7 @@ export default defineComponent({
     currentWeight: -1 as any,
     weightTrail: [] as any,
     customRegimens: [] as any,
+    labOrders: [] as any,
     isDrugRefillPatient: false as boolean,
     weightLossPercentageNum: 0 as number,
     lostTenPercentBodyWeight: false as boolean,
@@ -108,6 +109,8 @@ export default defineComponent({
           this.weightLossPercentageNum = this.patient.getWeightLossPercentageFromTrail(this.weightTrail)
 
           this.lostTenPercentBodyWeight = this.weightLossPercentageNum >= 10
+
+          this.labOrders = await this.getVlLabData()
 
           if (this.CxCaEnabled) {
             const { start, end } = await ART_PROP.cervicalCancerScreeningAgeBounds()
@@ -615,6 +618,10 @@ export default defineComponent({
     isNonePatientClient() {
       return this.guardianVisit || this.isDrugRefillPatient
     },
+    async getVlLabData() {
+      const orders = await OrderService.getOrdersIncludingGivenResultStatus(this.patientID)
+      return OrderService.formatLabs(orders);
+    },
     getFields(): any {
       return [
         {
@@ -786,18 +793,16 @@ export default defineComponent({
           type: FieldType.TT_LAB_ORDERS,
           unload: () => this.checkVLReminder(),
           onload: (fieldContext: any) =>  this.labOrderFieldContext = fieldContext,
-          options: async () => {
-            const orders = await OrderService.getOrders(this.patientID);
-            const VLOrders = OrderService.formatLabs(orders);
+          options: () => {
             return [
               {
                 label: "Lab orders",
                 value: "order trail",
                 other: {
-                  values: VLOrders,
-                },
-              },
-            ];
+                  values: this.labOrders
+                }
+              }
+            ]
           },
           config: {
             printOrder: (orderID: number) => {

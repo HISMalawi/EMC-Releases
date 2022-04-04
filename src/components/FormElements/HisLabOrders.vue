@@ -9,6 +9,7 @@
           <th>Ordered</th>
           <th>Result</th>
           <th>Released</th>
+          <th>Given</th>
         </tr>
         <tr v-for="(data, index) in rows" :key="index">
           <td><ion-button color="light" fill="none" @click="printOrder(data)">{{ data.accession_number }}</ion-button></td>
@@ -19,6 +20,11 @@
             <span v-for="(d, i) in data.result" :key="i"> {{ d }} <br /></span>
           </td>
           <td>{{ data.released }}</td>
+          <td> 
+            <span :style="`color: ${data.result_given === 'Yes' ? 'green;' : 'black;'}`"> 
+              {{ data.result_given }} 
+            </span>
+          </td>
         </tr>
       </table>
     </div>
@@ -51,6 +57,7 @@ export default defineComponent({
     formatOrders(rawOrders: Array<any>) {
       return rawOrders.map((d: any) => ({
           'id': d.order_id,
+          'result_given': d.result_given,
           'accession_number': d.accession_number,
           'test_name': d.tests[0].name,
           'specimen': d.specimen.name,

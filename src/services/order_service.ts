@@ -2,6 +2,8 @@ import { Order } from '@/interfaces/order';
 import { Service } from '@/services/service'
 import HisDate from "@/utils/Date"
 import { ConceptService } from './concept_service';
+import { ObservationService } from './observation_service';
+
 export class OrderService extends Service {
     constructor() {
         super()
@@ -16,8 +18,32 @@ export class OrderService extends Service {
         });
     }
 
+    static async getOrdersIncludingGivenResultStatus(patientID: number, params={}) {
+        const data = (await this.getOrders(patientID, params)).map(async (order: Order) => {
+            const remappedOrder: any = { ...order, 'result_given': false }
+            const obsResultID = order.tests.filter(order => order.result != null)
+                .map((tests: any) => tests.result)
+                .reduce((results: any, result: any) => [...results, ...result], [])
+                .reduce((_: any, result: any) => result.id, null)
+            try {
+                remappedOrder['result_given'] = !obsResultID ? 'N/A'
+                    : await (await ObservationService.get(obsResultID as number))
+                        .children.reduce(async (status: string, obs: any) => {
+                            return (await ConceptService.getConceptID('Result Given to Client')) === obs.concept_id
+                            && (await ConceptService.getConceptName(obs.value_coded)) === 'Yes'
+                                ? 'Yes'
+                                : status
+                        }, 'No')
+            } catch (e) {
+                console.error(e)
+            }
+            return remappedOrder
+        })
+        return await Promise.all(data)
+    }
+
     static getTestTypes() {
-        return super.getJson('/lab/test_types');
+        return super.getJson('/lab/test_types')
     }
 
     static getTestTypesBySpecimen(specimenType='') {
@@ -71,7 +97,7 @@ export class OrderService extends Service {
         return false
     }
 
-    static formatLabs(orders: Order[]) {
+    static formatLabs(orders: any) {
         const formatted = [];
         for (let x = 0; x < orders.length; x++) {
             const accessionNumber = orders[x].accession_number;
@@ -93,12 +119,13 @@ export class OrderService extends Service {
                 }
                 formatted.push({
                     'order_id': orders[x].order_id,
+                    'result_given': orders[x]['result_given'] || 'N/A',
                     'accession_number': accessionNumber,
                     'test_name': tests[i].name,
                     specimen: testStatus,
                     ordered: dateOrdered ? HisDate.toStandardHisFormat(dateOrdered) : '',
                     result: resultsArr,
-                    released: resultDate ? HisDate.toStandardHisFormat(resultDate) : ''
+                    released: resultDate ? HisDate.toStandardHisFormat(resultDate) : '',
                 })
 
             }

@@ -23,6 +23,10 @@ export class ObservationService extends ConceptService {
         super()
     }
 
+    static get(obsID: number) {
+        return super.getJson(`/observations/${obsID}`)
+    }
+
     static create(data: Observation) {
         return super.postJson('/observations', data)     
     }
