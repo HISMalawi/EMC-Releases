@@ -82,9 +82,8 @@ export default defineComponent({
       })
 
       const request = await this.report.requestIDSR(data)
-      if (request.ok) {
-          const OPDVisitsRequest = await this.report.getOPDVisits(this.report.registrationRequestParams())
-          if (OPDVisitsRequest.ok) {
+      const OPDVisitsRequest = await this.report.getOPDVisits(this.report.registrationRequestParams())
+      if (request.ok && OPDVisitsRequest.ok) {
             data.regenerate = false
             if(OPDVisitsRequest.status === 200) {
               const arrayOb =   await OPDVisitsRequest.json()
@@ -96,7 +95,6 @@ export default defineComponent({
               this.idsr = data
               this.isLoading = false
             }
-          }
       }
     },
     async printSpec() {
