@@ -110,6 +110,11 @@ export default [
         name: 'idsr_weekly',
         path: "idsr_weekly",
         component: () => import('@/apps/OPD/views/reports/moh/IDSRReport/IDSRWeekly.vue')
+      },
+      {
+        name: 'idsr_monthly',
+        path: "idsr_monthly",
+        component: () => import('@/apps/OPD/views/reports/moh/IDSRReport/IDSRMonthly.vue')
       }
     ]
   },

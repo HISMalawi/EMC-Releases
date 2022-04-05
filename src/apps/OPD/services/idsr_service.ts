@@ -12,6 +12,12 @@ export interface CohortValidationInterface {
     check: (indicator: number, param: number) => boolean;
 }
 
+export interface CommonInterface {
+    name: string;
+    start: string;
+    end: string;
+}
+
 export class IDSRReportService extends OpdReportService {
     regenerate: boolean;
     constructor() {
@@ -21,6 +27,10 @@ export class IDSRReportService extends OpdReportService {
 
     private IDSRWeeklyUrl() {
         return `generate_weekly_idsr_report`
+    }
+
+    private IDSRMonthlyUrl() {
+        return `generate_monthly_idsr_report`
     }
 
     private OPDVistisUrl() {
@@ -34,6 +44,12 @@ export class IDSRReportService extends OpdReportService {
     requestIDSR(params: any) {
         return OpdReportService.ajxGet(
             this.IDSRWeeklyUrl(), params
+        )
+    }
+
+    requestIDSRMonthly(params: any) {
+        return OpdReportService.ajxGet(
+            this.IDSRMonthlyUrl(), params
         )
     }
 
@@ -114,19 +130,21 @@ export class IDSRReportService extends OpdReportService {
             count += 1 
             for (const [key1, value1] of Object.entries(condition)) {
                 const conditionDetails: any = value1
-                total +=conditionDetails.length;
-                item.total = total
-                if(conditionDetails.length) {
-                    temp.push(...conditionDetails)
-                    item.totalPatientIds = temp
+                if (conditionDetails != null) {
+                    total +=conditionDetails.length;
+                    item.total = total
+                    if(conditionDetails.length) {
+                        temp.push(...conditionDetails)
+                        item.totalPatientIds = temp
+                    }
+                    if (key1 == '<5yrs') {
+                    item.lessThanFiveYears = conditionDetails.length
+                    item.lessThanFiveYearsPatientIds = conditionDetails
+                    }
+                if (key1 == '>=5yrs') {
+                item.greaterThanEqualFiveYears = conditionDetails.length
+                item.greaterThanEqualFiveYearsPatientIds = conditionDetails
                 }
-                if (key1 == '<5yrs') {
-                item.lessThanFiveYears = conditionDetails.length
-                item.lessThanFiveYearsPatientIds = conditionDetails
-                }
-            if (key1 == '>=5yrs') {
-              item.greaterThanEqualFiveYears = conditionDetails.length
-              item.greaterThanEqualFiveYearsPatientIds = conditionDetails
             }
           }
           all.push(item)
@@ -158,5 +176,32 @@ export class IDSRReportService extends OpdReportService {
           CSVString+=row
         }
         return {CSVString}
-      }
+    }
+
+    static async getReportEpiWeeks() {
+        const epiWeeks: Array<CommonInterface> = []
+        const epiWeeksObj = await Service.getJson('get_weeks')
+        epiWeeksObj.reverse().forEach( (item: any) => { 
+            const dates = item[1].split(" ")
+            const startDate = dates[0]
+            const endDate = dates[2]
+            const txt = item[0].split('W')
+            const name = txt[0] +"/W"+ txt[1]
+            epiWeeks.push({ name: name, start: startDate, end: endDate })
+        })
+        return epiWeeks
+    }
+
+    static async getReportMonths() {
+        const months: Array<CommonInterface> = []
+        const epiWeeksObj = await Service.getJson('get_months')
+        epiWeeksObj.forEach( (item: any) => {
+            const _payload = item[1];
+            const monthandyear = _payload[0]
+            const startandendmonths = _payload[1];
+            const dates = startandendmonths.split("to");
+            months.push({ name: monthandyear, start: dates[0], end: dates[1].trim() })
+        })
+        return months
+    }
 }

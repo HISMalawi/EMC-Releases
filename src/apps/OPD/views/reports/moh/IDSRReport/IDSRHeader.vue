@@ -1,7 +1,7 @@
 <template>
   <table style="margin: auto; width: 95%; margin-top: 1%;">
     <tr id="">
-      <td colspan="5" id="" style="border-right-style: solid; font-weight: bold; text-align: center;">WEEKLY DISEASE SURVEILLANCE REPORT</td>
+      <td colspan="5" id="" style="border-right-style: solid; font-weight: bold; text-align: center;">{{reportname}}</td>
     </tr>
   <tr>
     <td class="td-text-align-left">Country:</td>
@@ -47,6 +47,10 @@
       },
       totalOPDVisits: {
         type: Number,
+        required: true
+      },
+      reportname: {
+        type: String,
         required: true
       }
     },

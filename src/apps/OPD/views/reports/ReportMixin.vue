@@ -5,7 +5,7 @@ import { Patientservice } from "@/services/patient_service"
 import HisDate from "@/utils/Date"
 import { modalController } from "@ionic/vue";
 import DrilldownTable from "@/apps/ART/views/reports/BasicReportTemplate.vue"
-import { OpdReportService } from "@/apps/OPD/services/opd_report_service"
+import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
@@ -115,7 +115,7 @@ export default defineComponent({
             }
             return table.td(0)
         },
-        getDateDurationFields(): Array<Field> {
+        getEpiweeksFields(): Array<Field> {
             return [
                 {
                     id: 'epiweek',
@@ -123,7 +123,26 @@ export default defineComponent({
                     type: FieldType.TT_SELECT,
                     validation: (val: Option) => Validation.required(val),
                     options: async () => {
-                        const epiWeeks = await OpdReportService.getReportEpiWeeks()
+                        const epiWeeks = await IDSRReportService.getReportEpiWeeks()
+                        const items: Array<Option> = epiWeeks.map((q: any) => ({
+                            label: q.name +' - ('+ moment(q.start).format('DD/MMM/YYYY') +' - '+ moment(q.end).format('DD/MMM/YYYY')+')',
+                            value: q.start,
+                            other: q
+                        }))
+                        return items
+                    }
+                },
+            ]
+        },
+        getMonthlyFields(): Array<Field> {
+            return [
+                {
+                    id: 'idsrmonth',
+                    helpText: 'Select Month',
+                    type: FieldType.TT_SELECT,
+                    validation: (val: Option) => Validation.required(val),
+                    options: async () => {
+                        const epiWeeks = await IDSRReportService.getReportMonths()
                         const items: Array<Option> = epiWeeks.map((q: any) => ({
                             label: q.name +' - ('+ moment(q.start).format('DD/MMM/YYYY') +' - '+ moment(q.end).format('DD/MMM/YYYY')+')',
                             value: q.start,

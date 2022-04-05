@@ -30,7 +30,12 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'IDSR Weekley report',
                 pathName: 'idsr_weekly',
+            },
+            {
+                name: 'IDSR Monthly report',
+                pathName: 'idsr_monthly',
             }
+
         ]
     },
     {
