@@ -57,6 +57,7 @@ export default defineComponent({
     formatOrders(rawOrders: Array<any>) {
       return rawOrders.map((d: any) => ({
           'id': d.order_id,
+          'encounter_id': d.encounter_id,
           'result_given': d.result_given,
           'accession_number': d.accession_number,
           'test_name': d.tests[0].name,
@@ -82,10 +83,8 @@ export default defineComponent({
       }
     }
   },
-  activated() {
+  async activated() {
     this.$emit('onFieldActivated', this)
-  },
-  async created() {
     const items = await this.options(this.fdata);
     const rows = items[0].other.values;
     this.rows = rows.map((o: any) => {

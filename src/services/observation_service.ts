@@ -10,6 +10,7 @@ export interface ObsValue {
     value_modifier?: string | null;
     value_boolean?: string;
     value_numeric?: number;
+    obs_group_id?: number;
     obs_datetime?: string;
 }
 

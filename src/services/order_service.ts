@@ -108,6 +108,7 @@ export class OrderService extends Service {
             for (let i = 0; i < tests.length; i++) {
                 const results = (tests[i].result ? tests[i].result : []);
                 const resultsArr = [];
+                const resultIds = [];
                 let resultDate = '';
 
                 for (let r = 0; r < results.length; r++) {
@@ -116,8 +117,10 @@ export class OrderService extends Service {
                     const value = results[r].value;
                     const valueModifier = results[r].value_modifier.replace('&lt;', '<').replace('&gt;', '>');
                     resultsArr.push(name + "   " + valueModifier + value);
+                    resultIds.push(results[r].id)
                 }
                 formatted.push({
+                    'encounter_id': orders[x].encounter_id,
                     'order_id': orders[x].order_id,
                     'result_given': orders[x]['result_given'] || 'N/A',
                     'accession_number': accessionNumber,
@@ -125,6 +128,7 @@ export class OrderService extends Service {
                     specimen: testStatus,
                     ordered: dateOrdered ? HisDate.toStandardHisFormat(dateOrdered) : '',
                     result: resultsArr,
+                    resultIds,
                     released: resultDate ? HisDate.toStandardHisFormat(resultDate) : '',
                 })
 
