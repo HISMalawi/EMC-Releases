@@ -108,6 +108,12 @@ export default {
           pathUrl: "/art/patient_visits",
           condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ART'
             : false
+        },
+        {
+          name: "Data cleaning verification",
+          pathUrl: "/art/data_cleaning_verification",
+          condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ART'
+            : false
         }
       ]
     },
