@@ -10,7 +10,7 @@ import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { isEmpty } from 'lodash';
-import { ANTI_MALARIA_DRUGS, DrugPrescriptionService, DRUG_DOSE_FREQUENCIES } from '../../services/drug_prescription_service';
+import { ANTI_MALARIA_DRUGS, DrugPrescriptionService, DRUG_FREQUENCIES } from '../../services/drug_prescription_service';
 import { modalController } from '@ionic/core';
 import PrescriptionModalVue from '@/apps/OPD/components/PrescriptionModal.vue';
 import HisDate from "@/utils/Date"
@@ -74,7 +74,7 @@ export default defineComponent({
       return prescriptions.map(drug => {
         const startDate = DrugPrescriptionService.getSessionDate()
         const frequencyCount = (typeof drug.frequency === 'number') ? drug.frequency :  this.getFrequencyCount(drug.frequency)
-        const frequency = DRUG_DOSE_FREQUENCIES[frequencyCount]
+        const frequency = DRUG_FREQUENCIES[frequencyCount]
         return {
           'drug_inventory_id': drug.drug_id,
           'equivalent_daily_dose': drug.dose_strength * frequencyCount,

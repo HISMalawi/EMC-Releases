@@ -81,7 +81,7 @@ import Validation from "@/components/Forms/validations/StandardValidations";
 import { Service } from "@/services/service";
 import HisKeypad from "@/components/Keyboard/HisKeypad.vue";
 import { trash } from "ionicons/icons";
-import { DRUG_DOSE_FREQUENCIES } from "@/apps/OPD/services/drug_prescription_service";
+import { DRUG_FREQUENCIES } from "@/apps/OPD/services/drug_prescription_service";
 import { optionsActionSheet } from "@/utils/ActionSheets";
 import RadioSheet from "@/components/DataViews/actionsheet/RadioActionSheet.vue";
 
@@ -123,7 +123,7 @@ export default defineComponent({
         cssClass: "",
         componentProps: {
           title: `${drug.label} Frequency`,
-          list: DRUG_DOSE_FREQUENCIES.map(f => f.label),
+          list: DRUG_FREQUENCIES.map(f => f.label),
           actionButtons: [
             { name: "Cancel", color: "danger", slot: "start", role: "default" },
             { name: "Ok", slot: "end", role: "action" },
