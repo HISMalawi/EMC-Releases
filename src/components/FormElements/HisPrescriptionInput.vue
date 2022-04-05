@@ -1,0 +1,222 @@
+<template>
+  <ion-grid>
+    <ion-row class="his-card section drug-section-style">
+      <ion-col>
+        <table>
+          <thead>
+            <tr>
+              <th>Drug</th>
+              <th>Frequency</th>
+              <th>Duration</th>
+              <th>Dosage</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(drug, drugIndex) in drugs" :key="drugIndex">
+              <td>
+                <b>{{ drug.label }}</b>
+              </td>
+              <td>
+                <ion-input
+                  readonly
+                  @click="selectFrequency(drug)"
+                  :value="drug.other.frequency"
+                  class="dosage-input"
+                  placeholder="Add frequency.."
+                />
+              </td>
+              <td>
+                <ion-input
+                  readonly
+                  @click="launchKeyPad(drug, 'duration')"
+                  :value="drug.other.duration"
+                  placeholder="Add duration.."
+                  class="dosage-input"
+                />
+              </td>
+              <td>
+                <ion-input
+                  readonly
+                  @click="launchKeyPad(drug, 'dosage')"
+                  :value="drug.other.dosage"
+                  placeholder="Add dosage.."
+                  class="dosage-input"
+                />
+              </td>
+              <td>
+                <ion-button @click="removeDrug(drug)" color="danger">
+                  <ion-icon :icon="trash"></ion-icon>
+                </ion-button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import ViewPort from "@/components/DataViews/ViewPort.vue";
+import FieldMixinVue from "./FieldMixin.vue";
+import {
+  IonGrid,
+  IonCol,
+  IonRow,
+  IonButton,
+  IonList,
+  IonInput,
+  IonIcon,
+  IonLabel,
+  IonItem,
+  modalController,
+} from "@ionic/vue";
+import { find, isEmpty } from "lodash";
+import TouchField from "@/components/Forms/SIngleTouchField.vue";
+import { Field, Option } from "../Forms/FieldInterface";
+import { FieldType } from "../Forms/BaseFormElements";
+import Validation from "@/components/Forms/validations/StandardValidations";
+import { Service } from "@/services/service";
+import HisKeypad from "@/components/Keyboard/HisKeypad.vue";
+import { trash } from "ionicons/icons";
+import { DRUG_DOSE_FREQUENCIES } from "@/apps/OPD/services/drug_prescription_service";
+import { optionsActionSheet } from "@/utils/ActionSheets";
+import RadioSheet from "@/components/DataViews/actionsheet/RadioActionSheet.vue";
+
+export default defineComponent({
+  components: {
+    // ViewPort,
+    IonInput,
+    IonGrid,
+    IonCol,
+    IonIcon,
+    IonRow,
+    IonButton,
+  },
+  mixins: [FieldMixinVue],
+  data: () => ({
+    trash,
+    drugs: [] as Option[],
+  }),
+  async activated() {
+    this.$emit("onFieldActivated", this);
+    const drugs: Option[] = await this.options();
+    this.drugs = drugs.map((d) => {
+      d.other = {
+        frequency: "",
+        duration: "",
+        dosage: "",
+      };
+      return d;
+    });
+  },
+  methods: {
+    removeDrug(drug: Option) {
+      this.drugs = this.drugs.filter((d) => d.label != drug.label);
+    },
+    async selectFrequency(drug: Option) {
+      const modal = await modalController.create({
+        component: RadioSheet,
+        backdropDismiss: false,
+        cssClass: "",
+        componentProps: {
+          title: `${drug.label} Frequency`,
+          list: DRUG_DOSE_FREQUENCIES.map(f => f.label),
+          actionButtons: [
+            { name: "Cancel", color: "danger", slot: "start", role: "default" },
+            { name: "Ok", slot: "end", role: "action" },
+          ],
+        },
+      });
+      modal.present();
+      const { data } = await modal.onDidDismiss();
+      console.log(data)
+      if (data.action !== "Cancel") {
+        drug.other.frequency = data.selection;
+      }
+    },
+    async launchKeyPad(drug: Option, field: string) {
+      const modal = await modalController.create({
+        component: HisKeypad,
+        backdropDismiss: false,
+        cssClass: "keypad-modal",
+        componentProps: {
+          title: `${drug.label} ${field}`,
+          preset: drug.other[field],
+          strictNumbers: true,
+          onKeyPress(val: string) {
+            drug.other[field] = val;
+          },
+        },
+      });
+      modal.present();
+    },
+  },
+  computed: {},
+  watch: {
+    clear() {
+      this.drugs = this.drugs.map((d: any) => {
+        d.frequency = "";
+        d.duration = "";
+        d.dose = "";
+        d.units = "";
+        return d;
+      });
+    },
+    drugs: {
+      async handler() {
+        if(this.onValue){
+          const isOk = await this.onValue(this.drugs);
+        }
+        this.$emit("onValue", this.drugs);
+      },
+      immediate: true,
+      deep: true,
+    },
+  },
+});
+</script>
+<style scoped>
+ion-label {
+  font-weight: bold;
+}
+.border-right {
+  border-right: solid 1px #ccc;
+}
+.scroll-list {
+  height: 70vh;
+  overflow: auto;
+}
+.input_display {
+  font-size: 1.3em;
+}
+</style>
+<style scoped>
+.dosage-input {
+  text-align: center;
+  border: solid 1px #ccc;
+  height: 50px;
+  width: 100%;
+  background-color: rgb(252, 252, 241);
+}
+table {
+  width: 100%;
+}
+.drug-section-style {
+  padding: 0;
+  background: #ffffff;
+}
+td,
+th {
+  border: solid 1px #3333;
+}
+th {
+  padding: 0.8em;
+}
+td {
+  padding: 0.4em;
+  font-size: 0.9rem;
+}
+</style>

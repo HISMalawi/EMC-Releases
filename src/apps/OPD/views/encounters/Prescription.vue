@@ -23,7 +23,8 @@ export default defineComponent({
     activeField: '',
     prescriptionService: {} as any,
     hasMalaria: false,
-    drugOrders: [] as any
+    drugOrders: [] as any,
+    selectedDrugs: [] as Option[],
   }),
   watch: {
     ready: {
@@ -95,12 +96,13 @@ export default defineComponent({
           validation: (data: any) => Validation.required(data),
           options: () => this.prescriptionService.getDrugOptions(),
           onload: () => this.activeField = '',
-          beforeNext: async (data: Option[]) => {
-            const prescriptions = await this.getPrescriptionDetails(data)
-            if(isEmpty(prescriptions)) return false
-            this.drugOrders = this.mapToOrders(prescriptions)
-            return true
-          },
+          unload: (data: Option[]) => this.selectedDrugs = data,
+          // beforeNext: async (data: Option[]) => {
+          //   const prescriptions = await this.getPrescriptionDetails(data)
+          //   if(isEmpty(prescriptions)) return false
+          //   this.drugOrders = this.mapToOrders(prescriptions)
+          //   return true
+          // },
           config: {
             showKeyboard: true,
             footerBtns: [
@@ -118,6 +120,17 @@ export default defineComponent({
               },
             ]
           }
+        },
+        {
+          id: 'drugs_details',
+          helpText: 'Complete prescribed drug details',
+          type: FieldType.TT_PRESCRIPTION_INPUT,
+          validation: (data: any) => Validation.required(data),
+          options: () => this.selectedDrugs,
+          onValue: (data: Option) => {
+            if(isEmpty(data)) this.activeField = 'drugs'
+            return true
+          },
         },
         {
           id: 'malaria_drugs',
