@@ -1,5 +1,11 @@
 <template>
-  <his-standard-form :cancelDestinationPath="cancelDestination" :fields="fields" :activeField="activeField" :onFinishAction="onSubmit"/>
+  <his-standard-form 
+    :cancelDestinationPath="cancelDestination" 
+    :fields="fields" 
+    :activeField="activeField" 
+    :onFinishAction="onSubmit"
+    :skipSummary="true"
+  />
 </template>
 
 <script lang="ts">
@@ -131,6 +137,11 @@ export default defineComponent({
             if(isEmpty(data)) this.activeField = 'drugs'
             return true
           },
+          beforeNext: (data: Option[]) => {
+            if(isEmpty(data)) return false
+            this.drugOrders = this.mapToOrders(data)
+            return true
+          }
         },
         {
           id: 'malaria_drugs',
