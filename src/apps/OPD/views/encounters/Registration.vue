@@ -57,7 +57,7 @@ export default defineComponent({
                     helpText: 'Type of visit',
                     type: FieldType.TT_SELECT,
                     validation: (value: any) => Validation.required(value),
-                    computedValue: ({value}: Option) => ({ obs: this.registrationService.buildValueCoded('Type of visit', value)}),
+                    computedValue: (v: Option) => ({ obs: this.registrationService.buildValueCoded('Type of visit', v.value)}),
                     options: () => {
                         return [
                             { label: 'New', value: 'New patient' },
@@ -92,7 +92,7 @@ export default defineComponent({
                     id: 'national_id',
                     helpText: 'Enter National ID',
                     type: FieldType.TT_TEXT,
-                    validation: ({value}: Option) => Validation.isMWNationalID(value.toString()),
+                    validation: (value: Option) => Validation.isMWNationalID(value),
                     condition: (fields: any) => fields.national_id_available.value === 'Yes',
                     summaryMapValue: ({ value }: Option) => ({
                         value,
