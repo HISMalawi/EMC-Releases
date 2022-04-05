@@ -4,12 +4,22 @@ import { AppEncounterService } from "@/services/app_encounter_service"
 import { DrugOrderService } from "@/services/drug_order_service";
 import { isEmpty } from "lodash";
 
-export const DRUG_DOSE_FREQUENCIES: Record<number, string> = {
-  1: "OD", 
-  2: "BD",
-  3: "TDS", 
-  4: "QID"
-}
+export const DRUG_FREQUENCIES: Array<{label: string; value: string; frequency: number; [x: string]: any}> = [
+  { label : "ONCE A DAY (OD)", value : "OD", frequency : 1 },
+  { label : "TWICE A DAY (BD)", value : "BD", frequency : 2 },
+  { label : "THREE A DAY (TDS)", value : "TDS", frequency : 3 },
+  { label : "FOUR TIMES A DAY (QID)", value : "QID", frequency : 4 },
+  { label : "FIVE TIMES A DAY (5X/D)", value : "5X/D", frequency : 5 },
+  { label : "SIX TIMES A DAY (Q4HRS)", value : "Q4HRS", frequency : 6 },
+  { label : "IN THE MORNING (QAM)", value : "QAM", frequency : 1 },
+  { label : "ONCE A DAY AT NOON (QNOON)", value : "QNOON", frequency : 1 },
+  { label : "IN THE EVENING (QPM)", value : "QPM", frequency : 1 },
+  { label : "ONCE A DAY AT NIGHT (QHS)", value : "QHS", frequency : 1 },
+  { label : "EVERY OTHER DAY (QOD)", value : "QOD", frequency : 0.5 },
+  { label : "ONCE A WEEK (QWK)", value : "QWK", frequency : 0.14 },
+  { label : "ONCE A MONTH", value : "ONCE A MONTH", frequency : 0.03 },
+  { label : "TWICE A MONTH", value : "TWICE A MONTH", frequency : 0.071 }
+]
 
 export const ANTI_MALARIA_DRUGS = [
   {
