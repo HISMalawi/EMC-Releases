@@ -12,13 +12,12 @@ import { FieldType } from "@/components/Forms/BaseFormElements"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { Patientservice } from "@/services/patient_service"
 import { toastDanger, toastWarning } from "@/utils/Alerts"
-import { AppInterface } from "@/apps/interfaces/AppInterface";
+import { AppInterface, ProgramIdentifierInterface } from "@/apps/interfaces/AppInterface";
 import { Field, Option } from "@/components/Forms/FieldInterface"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import HisApp from "@/apps/app_lib"
 import { filter, get, isEmpty } from "lodash"
 import table from "@/components/DataViews/tables/ReportDataTable"
-import { PatientIdentifier } from "@/interfaces/patientIdentifier";
 import { ProgramService } from "@/services/program_service";
 import { loadingController, modalController } from "@ionic/core";
 import { GlobalPropertyService } from "@/services/global_property_service";
@@ -74,16 +73,24 @@ export default defineComponent({
       }
     },
     getIdSearchField(): Field {
+      let programIdentifer: ProgramIdentifierInterface;
       return {
         id: "identifier",
         helpText: "Identifier",
         dynamicHelpText: (f: any) => `Search by ${f.identifier_type.label}`,
         type: FieldType.TT_TEXT,
-        validation: (val: Option) => Validation.required(val),
+        validation: (val: Option) => Validation.validateSeries([
+          () => Validation.required(val),
+          () => (typeof programIdentifer.validation === 'function') 
+            ? programIdentifer.validation(val.value.toString())
+            : null
+        ]),
         config: {
           initialKb: '0-9',
+          casing: 'uppercase',
           prependValue: (f: any) => {
-            return f.identifier_type.other.prefix()
+            programIdentifer = f.identifier_type.other
+            return programIdentifer.prefix()
           }
         },
         

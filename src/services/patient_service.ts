@@ -96,6 +96,10 @@ export class Patientservice extends Service {
         })
     }
 
+    updateMWNationalId(newId: string) {
+        return PatientIdentifierService.create(this.getID(), 28, newId)
+    }
+
     isMale() {
         return ['Male', 'M'].includes(this.getGender())
     }
@@ -279,6 +283,10 @@ export class Patientservice extends Service {
 
     getNationalID() {
         return this.findIdentifierByType('National id')
+    }
+
+    getMWNationalID() {
+        return this.findIdentifierByType('Malawi National ID')
     }
     
     getArvNumber() {
