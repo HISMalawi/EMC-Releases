@@ -4,7 +4,7 @@
             :fields="fields"
             :onFinishAction="onFinish"
             :skipSummary="true"
-            :cancelDestinationPath="cancelDestination"
+            cancelDestinationPath="/"
         >
         </his-standard-form>
     </ion-page>
