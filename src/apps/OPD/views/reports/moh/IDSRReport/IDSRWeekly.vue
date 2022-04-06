@@ -13,8 +13,8 @@
   <ion-page v-if="reportReady">
     <ion-content>
       <div id="report-content">
-        <idsr-h :key="componentKey" :reportname="reportName" :epiweek="epiweek" ref="header" :weekdates="weekDates" :clinicName="clinicName" :totalOPDVisits="TotalOPDVisits" ></idsr-h>
-        <weekly :key="componentKey" :onDrillDown="onDrillDown" :params="idsr" :epiweek="epiweek" ref="rep"> </weekly>
+        <idsr-h :key="componentKey" :reportName="reportName" :rangeLabel="rangeLabel" :range="range" ref="header" :periodLabel="periodLabel" :periodDates="periodDates" :clinicName="clinicName" :totalOPDVisits="TotalOPDVisits" ></idsr-h>
+        <weekly :key="componentKey" :onDrillDown="onDrillDown" :params="idsr" :epiweek="range" ref="rep"> </weekly>
       </div>
     </ion-content>
     <his-footer :btns="btns"></his-footer>
@@ -49,9 +49,11 @@ export default defineComponent({
     isLoading: false as boolean,
     fields: [] as Array<Field>,
     reportID: -1 as any,
-    weekDates: '' as string,
+    periodLabel: 'Week Dates',
+    periodDates: '' as string,
     reportName: 'WEEKLY DISEASE SURVEILLANCE REPORT',
-    epiweek: '' as string,
+    rangeLabel: 'Week Number',
+    range: '' as string,
     TotalOPDVisits: 0 as number,
     clinicName: IDSRReportService.getLocationName(),
     reportReady: false as boolean,
@@ -70,13 +72,13 @@ export default defineComponent({
       this.reportReady = true 
       this.isLoading = true
       this.report = new IDSRReportService()
-      this.weekDates = this.report.Span(form.epiweek.other.start, form.epiweek.other.end)
+      this.periodDates = this.report.Span(form.epiweek.other.start, form.epiweek.other.end)
       this.report.setRegenerate(regenerate)
       this.report.setEpiWeek(form.epiweek.label)
       this.report.setStartDate(HisDate.toStandardHisFormat(form.epiweek.other.start))
       this.report.setEndDate(HisDate.toStandardHisFormat(form.epiweek.other.end))
       data = this.report.epiWeeksRequestParams()
-      this.epiweek = form.epiweek.label.split(" ")[0]
+      this.range = form.epiweek.label.split(" ")[0]
       this.reportUrlParams = Url.parameterizeObjToString({ 
         'start_date': HisDate.toStandardHisFormat(form.epiweek.other.start),
         'end_date': HisDate.toStandardHisFormat(form.epiweek.other.end)

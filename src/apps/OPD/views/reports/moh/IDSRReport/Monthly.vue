@@ -35,7 +35,7 @@ export default {
       conditions: []
     }
   },
-  props: ["params", "onDrillDown","epiweek"],
+  props: ["params", "onDrillDown","month"],
   methods: {
    renderResults() {
      const report = new IDSRReportService()
@@ -52,7 +52,7 @@ export default {
           Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}
           His-Core Version: ${Service.getCoreVersion()}
           API Version: ${Service.getApiVersion()}
-          Report Period: ${this.epiweek}
+          Report Period: ${this.month}
           Site: ${Service.getLocationName()}
           Site UUID: ${Service.getSiteUUID()}`
           ;

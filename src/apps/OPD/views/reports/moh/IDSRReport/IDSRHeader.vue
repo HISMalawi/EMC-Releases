@@ -1,7 +1,7 @@
 <template>
   <table style="margin: auto; width: 95%; margin-top: 1%;">
     <tr id="">
-      <td colspan="5" id="" style="border-right-style: solid; font-weight: bold; text-align: center;">{{reportname}}</td>
+      <td colspan="5" id="" style="border-right-style: solid; font-weight: bold; text-align: center;">{{reportName}}</td>
     </tr>
   <tr>
     <td class="td-text-align-left">Country:</td>
@@ -12,12 +12,12 @@
     <td class="td-text-align-left">{{clinicName}}</td>
   </tr>
   <tr>
-    <td class="td-text-align-left">Week Number:</td>
-    <td class="td-text-align-left"><span id="wknum">{{epiweek}}</span></td>
+    <td class="td-text-align-left">{{rangeLabel}}:</td>
+    <td class="td-text-align-left">{{range}}</td>
   </tr>
   <tr>
-    <td class="td-text-align-left">Week Dates: </td>
-    <td class="td-text-align-left">{{weekdates}}</td>
+    <td class="td-text-align-left">{{periodLabel}}</td>
+    <td class="td-text-align-left">{{periodDates}}</td>
   </tr>
   <tr>
     <td class="td-text-align-left">Total OPD Visits: </td>
@@ -37,22 +37,30 @@
         type: Object,
         required: true
       },
-      weekdates: {
-        type: String,
-        required: true
-      },
-      epiweek: {
-        type: String,
-        required: true
-      },
       totalOPDVisits: {
         type: Number,
         required: true
       },
-      reportname: {
+      reportName: {
         type: String,
         required: true
-      }
+      },
+      periodLabel: {
+        type: String,
+        required: true
+      },
+      periodDates: {
+        type: String,
+        required: true
+      },
+      rangeLabel: {
+        type: String,
+        required: true
+      },
+      range: {
+        type: String,
+        required: true
+      },
     },
   }
   </script>

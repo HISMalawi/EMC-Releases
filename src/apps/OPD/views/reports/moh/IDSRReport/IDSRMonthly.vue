@@ -13,8 +13,8 @@
   <ion-page v-if="reportReady">
     <ion-content>
       <div id="report-content">
-        <idsr-h :key="componentKey" :reportname="reportName" :epiweek="epiweek" ref="header" :weekdates="weekDates" :clinicName="clinicName" :totalOPDVisits="TotalOPDVisits" ></idsr-h>
-        <monthly :key="componentKey" :onDrillDown="onDrillDown" :params="idsr" :epiweek="epiweek" ref="rep"> </monthly>
+        <idsr-h :key="componentKey" :reportName="reportName" :rangeLabel="rangeLabel" :range="range" ref="header" :periodLabel="periodLabel" :periodDates="periodDates" :clinicName="clinicName" :totalOPDVisits="TotalOPDVisits" ></idsr-h>
+        <monthly :key="componentKey" :onDrillDown="onDrillDown" :params="idsr" :month="range"  ref="rep"> </monthly>
       </div>
     </ion-content>
     <his-footer :btns="btns"></his-footer>
@@ -49,9 +49,11 @@ export default defineComponent({
     isLoading: false as boolean,
     fields: [] as Array<Field>,
     reportID: -1 as any,
-    weekDates: '' as string,
+    periodLabel: 'Month Dates',
+    periodDates: '' as string,
     reportName: 'MONTHLY DISEASE SURVEILLANCE REPORT',
-    epiweek: '' as string,
+    rangeLabel: 'Month',
+    range: '' as string,
     TotalOPDVisits: 0 as number,
     clinicName: IDSRReportService.getLocationName(),
     reportReady: false as boolean,
@@ -70,13 +72,13 @@ export default defineComponent({
       this.reportReady = true 
       this.isLoading = true
       this.report = new IDSRReportService()
-      this.weekDates = this.report.Span(form.idsrmonth.other.start, form.idsrmonth.other.end)
+      this.periodDates = this.report.Span(form.idsrmonth.other.start, form.idsrmonth.other.end)
       this.report.setRegenerate(regenerate)
       this.report.setEpiWeek(form.idsrmonth.label)
       this.report.setStartDate(HisDate.toStandardHisFormat(form.idsrmonth.other.start))
       this.report.setEndDate(HisDate.toStandardHisFormat(form.idsrmonth.other.end))
       data = this.report.epiWeeksRequestParams()
-      this.epiweek = form.idsrmonth.label.split(" ")[0]
+      this.range = form.idsrmonth.label.split(" ")[0]
       this.reportUrlParams = Url.parameterizeObjToString({ 
         'start_date': HisDate.toStandardHisFormat(form.idsrmonth.other.start),
         'end_date': HisDate.toStandardHisFormat(form.idsrmonth.other.end)
