@@ -105,6 +105,7 @@ export default defineComponent({
     const drugs: Option[] = await this.options();
     this.drugs = drugs.map((d) => {
       d.other = {
+        ...d.other,
         frequency: "",
         duration: "",
         dosage: "",
@@ -120,7 +121,6 @@ export default defineComponent({
       const modal = await modalController.create({
         component: RadioSheet,
         backdropDismiss: false,
-        cssClass: "",
         componentProps: {
           title: `${drug.label} Frequency`,
           list: DRUG_FREQUENCIES.map(f => f.label),
@@ -132,7 +132,6 @@ export default defineComponent({
       });
       modal.present();
       const { data } = await modal.onDidDismiss();
-      console.log(data)
       if (data.action !== "Cancel") {
         drug.other.frequency = data.selection;
       }
