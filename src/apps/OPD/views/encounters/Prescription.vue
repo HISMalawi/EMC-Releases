@@ -76,20 +76,19 @@ export default defineComponent({
       date.setDate(date.getDate() + duration)
       return HisDate.toStandardHisFormat(date)
     },
-    mapToOrders(prescriptions: any[]): any[] {
-      return prescriptions.map(drug => {
+    mapToOrders(drugs: Option[]): any[] {
+      return drugs.map(drug => {
         const startDate = DrugPrescriptionService.getSessionDate()
-        const frequencyCount = (typeof drug.frequency === 'number') ? drug.frequency :  this.getFrequencyCount(drug.frequency)
-        const frequency = DRUG_FREQUENCIES[frequencyCount]
+        const frequency = DRUG_FREQUENCIES.find(f => f.label === drug.other.frequency)
         return {
-          'drug_inventory_id': drug.drug_id,
-          'equivalent_daily_dose': drug.dose_strength * frequencyCount,
+          'drug_inventory_id': drug.other.drug_id,
+          'equivalent_daily_dose': drug.other.dose_strength * frequency!.value,
           'start_date': startDate,
-          'auto_expire_date': this.calculateExpireDate(startDate, drug.duration), 
-          'units': drug.units,
-          'instructions': `${drug.name}: ${frequencyCount} ${frequency} for ${drug.duration}`,
-          'dose': drug.dose_strength,
-          'frequency': frequency
+          'auto_expire_date': this.calculateExpireDate(startDate, drug.other.duration), 
+          'units': drug.other.units,
+          'instructions': `${drug.label}: ${frequency!.value} ${frequency!.code} for ${drug.other.duration}`,
+          'dose': drug.other.dose_strength,
+          'frequency': frequency!.code,
         }
       })
     },
