@@ -93,6 +93,9 @@ export default defineComponent({
         }
       })
     },
+    isOrderComplete(drugs: Option[]): boolean {
+      return drugs.every(drug => drug.other.frequency && drug.other.duration && drug.other.dosage)
+    },
     getFields(): Array<Field>{
       return [
         {
@@ -103,12 +106,6 @@ export default defineComponent({
           options: () => this.prescriptionService.getDrugOptions(),
           onload: () => this.activeField = '',
           unload: (data: Option[]) => this.selectedDrugs = data,
-          // beforeNext: async (data: Option[]) => {
-          //   const prescriptions = await this.getPrescriptionDetails(data)
-          //   if(isEmpty(prescriptions)) return false
-          //   this.drugOrders = this.mapToOrders(prescriptions)
-          //   return true
-          // },
           config: {
             showKeyboard: true,
             footerBtns: [
@@ -133,14 +130,14 @@ export default defineComponent({
           type: FieldType.TT_PRESCRIPTION_INPUT,
           validation: (data: any) => Validation.required(data),
           options: () => this.selectedDrugs,
-          onValue: (data: Option) => {
-            if(isEmpty(data)) this.activeField = 'drugs'
-            return true
-          },
           beforeNext: (data: Option[]) => {
             if(isEmpty(data)) return false
-            this.drugOrders = this.mapToOrders(data)
-            return true
+            if(this.isOrderComplete(data)){
+              this.drugOrders = this.mapToOrders(data)
+              return true
+            }
+            toastWarning('Please complete all fields')
+            return false
           }
         },
         {
