@@ -131,7 +131,7 @@ export class AppEncounterService extends ObservationService {
         } 
     }
 
-    private saveObs(obs: ObsValue) {
+    saveObs(obs: ObsValue) {
         return AppEncounterService.saveObs(this.encounterID, obs)
     }
 }
