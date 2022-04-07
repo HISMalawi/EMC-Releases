@@ -95,7 +95,7 @@ export default defineComponent({
     },
     buildHighlevelView(){
       const data: any = this.reportData;
-        for(let value in data){
+        for(const value in data){
             const drug = data[value]['drug_name']
             let drugName = data.filter((item: any)=>{
                 return item.drug_name == drug
