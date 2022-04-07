@@ -1,20 +1,13 @@
 <template>
   <table class="my-table" style="margin: auto; width: 95%; margin-top: 3%; margin-bottom: 3%;">
   <tr>
-    <td rowspan="2" colspan="2" class="td-text-align-left" style="width: min-content;">Diseases/Events/Conditions</td>
-    <td colspan="3" class="td-text-align-left" style="text-align: center;">Out-patient Cases</td>
+    <td  colspan="2" class="td-text-align-left" style="width: min-content;">Diseases/Events/Conditions</td>
+    <td  class="td-text-align-left" style="text-align: center;">#</td>
   </tr>
-  <tr>
-    <td class="td-text-align-left td-span-width">&#60;5 yrs</td>
-    <td class="td-text-align-left td-span-width">&#62;&#61;5 yrs</td>
-    <td class="td-text-align-left td-span-width">Total</td>
-  </tr>
-  <monthly-dummy v-if="show"></monthly-dummy>
+  <hmis-dummy v-if="show"></hmis-dummy>
   <tr   v-for="(condition, index) in conditions" :key="index">
-    <td class="td-text-align-right">{{condition.id}}</td>
-    <td class="td-text-align-right" style="width: 30%;padding: revert;">{{condition.name}}</td>
-    <td id="ls-5yrs" class="td-text-align-right" @click="onDrillDown(condition.lessThanFiveYearsPatientIds);"> <a> {{condition.lessThanFiveYears}} </a> </td>
-    <td id="grt-5yrs" class="td-text-align-right" @click="onDrillDown(condition.greaterThanEqualFiveYearsPatientIds);"> <a> {{condition.greaterThanEqualFiveYears}} </a> </td>
+    <td class="td-text-align-right td-wd">{{condition.id}}</td>
+    <td class="td-text-align-right" style="width: 60%;padding: revert;">{{condition.name}}</td>
     <td id="total" class="td-text-align-right"  @click="onDrillDown(condition.totalPatientIds);"> <a> {{condition.total}} </a> </td>
   </tr>
   </table>
@@ -22,23 +15,23 @@
 
 <script>
 /* eslint-disable @typescript-eslint/camelcase */
-import MonthlyDummy from '@/apps/OPD/views/reports/moh/IDSRReport/MonthlyDummy.vue'
-import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
+import HmisDummy from '@/apps/OPD/views/reports/moh/HMIS/HMISDummy.vue'
+import { HMISReportService } from "@/apps/OPD/services/hmis_report_service"
 import { Service } from "@/services/service"
 import dayjs from 'dayjs';
 
 export default {
-  components: { MonthlyDummy },
+  components: { HmisDummy },
   data: function(){
     return {
       show: true,
       conditions: []
     }
   },
-  props: ["params", "onDrillDown","month"],
+  props: ["params", "onDrillDown","periodDates"],
   methods: {
    renderResults() {
-     const report = new IDSRReportService()
+     const report = new HMISReportService()
      const Conditions = report.renderResults(this.params)
      if(Conditions.length) {
        this.conditions = Conditions
@@ -46,13 +39,13 @@ export default {
      } 
    },
    onDownload() {
-     const report = new IDSRReportService()
+     const report = new HMISReportService()
      let {CSVString} = report.getCSVString(this.conditions)
      CSVString += `
           Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}
           His-Core Version: ${Service.getCoreVersion()}
           API Version: ${Service.getApiVersion()}
-          Report Period: ${this.month}
+          Report Period: ${this.periodDates}
           Site: ${Service.getLocationName()}
           Site UUID: ${Service.getSiteUUID()}`
           ;
@@ -147,5 +140,8 @@ td {
 .granules-right-td {
   border-right-style: dotted !important;
   border-right-width: 1px;
+}
+.td-text-align-right.td-wd {
+    width: 10%;
 }
 </style>

@@ -1,16 +1,19 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { Field } from '@/components/Forms/FieldInterface'
+import { generateDateFields } from "@/utils/HisFormHelpers/MultiFieldDateHelper"
 import { Patientservice } from "@/services/patient_service"
 import HisDate from "@/utils/Date"
 import { modalController } from "@ionic/vue";
 import DrilldownTable from "@/apps/ART/views/reports/BasicReportTemplate.vue"
+import { OpdReportService } from "@/apps/OPD/services/opd_report_service"
 import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import moment from "dayjs"
+import { Service } from '@/services/service';
 
 export default defineComponent({
     data: () => ({
@@ -151,6 +154,67 @@ export default defineComponent({
                         return items
                     }
                 },
+            ]
+        },
+        getDateDurationFields(useQuarter=false, setCustomQuarterPeriod=false, maxQuarter=5): Array<Field> {
+            const minDate = '2001-01-01'
+            const maxDate = Service.getSessionDate()
+            return [
+                {
+                    id: 'quarter',
+                    helpText: 'Select Quarter',
+                    type: FieldType.TT_SELECT,
+                    condition: () => useQuarter,
+                    validation: (val: Option) => Validation.required(val),
+                    options: () => {
+                        const quarters = OpdReportService.getReportQuarters(maxQuarter)
+                        let items: Array<Option> = quarters.map((q: any) => ({
+                            label: q.name,
+                            value: q.start,
+                            other: q
+                        }))
+                        if (setCustomQuarterPeriod) {
+                            items = [
+                                {
+                                    label: 'Set custom period',
+                                    value: 'custom_period',
+                                    other: {}
+                                },
+                                ...items
+                            ]
+                        }
+                        return items
+                    }
+                },
+                ...generateDateFields({
+                    id: 'start_date',
+                    helpText: 'Start',
+                    required: true,
+                    condition: (f: any) => f.quarter && f.quarter.value === 'custom_period' || !useQuarter,
+                    minDate: () => minDate,
+                    maxDate: () => maxDate,
+                    estimation: {
+                        allowUnknown: false
+                    },
+                    computeValue: (date: string) => date 
+                }),
+                ...generateDateFields({
+                    id: 'end_date',
+                    helpText: 'End',
+                    required: true,
+                    condition: (f: any) => f.quarter && f.quarter.value === 'custom_period' || !useQuarter,
+                    unload: (d: any, s: any, f: any, c: any) => {
+                        if (s === 'next') {
+                            this.endDate = c.end_date
+                        }
+                    },
+                    minDate: (_: any, c: any) => c.start_date,
+                    maxDate: () => maxDate,
+                    estimation: {
+                        allowUnknown: false
+                    },
+                    computeValue: (date: string) => date
+                })
             ]
         }
     }

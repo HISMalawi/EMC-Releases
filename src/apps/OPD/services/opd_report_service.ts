@@ -9,12 +9,6 @@ export interface QuarterInterface {
     end: string;
 }
 
-export interface EpiWeeKInterface {
-    name: string;
-    start: string;
-    end: string;
-}
-
 export const AGE_GROUPS = [
     '0-5 months', '6-11 months',
     '12-23 months', '2-4 years', 
@@ -189,17 +183,4 @@ export class OpdReportService extends Service {
         return quarters
     }
 
-    static async getReportEpiWeeks() {
-        const epiWeeks: Array<EpiWeeKInterface> = []
-        const epiWeeksObj = await Service.getJson('get_weeks')
-        epiWeeksObj.reverse().forEach( (item: any) => { 
-            const dates = item[1].split(" ")
-            const startDate = dates[0]
-            const endDate = dates[2]
-            const txt = item[0].split('W')
-            const name = txt[0] +"/W"+ txt[1]
-            epiWeeks.push({ name: name, start: startDate, end: endDate })
-        })
-        return epiWeeks
-    }
 }

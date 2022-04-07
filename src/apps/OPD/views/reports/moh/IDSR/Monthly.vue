@@ -9,7 +9,7 @@
     <td class="td-text-align-left td-span-width">&#62;&#61;5 yrs</td>
     <td class="td-text-align-left td-span-width">Total</td>
   </tr>
-  <weekly-dummy v-if="show"></weekly-dummy>
+  <monthly-dummy v-if="show"></monthly-dummy>
   <tr   v-for="(condition, index) in conditions" :key="index">
     <td class="td-text-align-right">{{condition.id}}</td>
     <td class="td-text-align-right" style="width: 30%;padding: revert;">{{condition.name}}</td>
@@ -22,20 +22,20 @@
 
 <script>
 /* eslint-disable @typescript-eslint/camelcase */
-import WeeklyDummy from '@/apps/OPD/views/reports/moh/IDSRReport/WeeklyDummy.vue'
+import MonthlyDummy from '@/apps/OPD/views/reports/moh/IDSR/MonthlyDummy.vue'
 import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
 import { Service } from "@/services/service"
 import dayjs from 'dayjs';
 
 export default {
-  components: { WeeklyDummy },
+  components: { MonthlyDummy },
   data: function(){
     return {
       show: true,
       conditions: []
     }
   },
-  props: ["params", "onDrillDown","epiweek"],
+  props: ["params", "onDrillDown","month"],
   methods: {
    renderResults() {
      const report = new IDSRReportService()
@@ -52,7 +52,7 @@ export default {
           Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}
           His-Core Version: ${Service.getCoreVersion()}
           API Version: ${Service.getApiVersion()}
-          Report Period: ${this.epiweek}
+          Report Period: ${this.month}
           Site: ${Service.getLocationName()}
           Site UUID: ${Service.getSiteUUID()}`
           ;

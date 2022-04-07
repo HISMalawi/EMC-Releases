@@ -18,19 +18,15 @@ export interface CommonInterface {
     end: string;
 }
 
-export class IDSRReportService extends OpdReportService {
+export class HMISReportService extends OpdReportService {
     regenerate: boolean;
     constructor() {
         super()
         this.regenerate = false
     }
 
-    private IDSRWeeklyUrl() {
-        return `generate_weekly_idsr_report`
-    }
-
-    private IDSRMonthlyUrl() {
-        return `generate_monthly_idsr_report`
+    private HMIS15Url() {
+        return `generate_hmis_15_report`
     }
 
     private OPDVistisUrl() {
@@ -41,44 +37,27 @@ export class IDSRReportService extends OpdReportService {
         this.regenerate = regenerate
     }
 
-    requestIDSRWeekly(params: any) {
+    requestHMIS15(params: any) {
         return OpdReportService.ajxGet(
-            this.IDSRWeeklyUrl(), params
+            this.HMIS15Url(), params
         )
     }
 
-    requestIDSRMonthly(params: any) {
-        return OpdReportService.ajxGet(
-            this.IDSRMonthlyUrl(), params
-        )
-    }
-
-    epiWeeksRequestParams() {
-        const { start, end} = this.getStartEndDates()        
+    epiWeeksRequestParams() {      
         return { 
-            'start_date': start,
-            'end_date': end,
+            'start_date': this.startDate,
+            'end_date': this.endDate,
             request: 'true'
         }
     }
 
     registrationRequestParams() {
-        const { start, end} = this.getStartEndDates()
         return { 
-            'start_date': start,
-            'end_date': end,
+            'start_date': this.startDate,
+            'end_date': this.endDate,
             'date': Service.getApiDate,
             'program_id': Service.getProgramID()
         }
-    }
-
-    getStartEndDates() {
-        const txt = this.epiweek.split(" ")
-        let start = txt[2].split("(")[1]
-        let end = txt[4].split(")")[0]
-        start = moment(start).toISOString().slice(0,10)
-        end = moment(end).toISOString().slice(0,10)
-        return { start, end}
     }
 
     async getPatientsDetails(patientIds: Array<[]>) {
@@ -117,10 +96,6 @@ export class IDSRReportService extends OpdReportService {
             const item = {
                 id: 0,
                 name: '',
-                lessThanFiveYears: '',
-                lessThanFiveYearsPatientIds: '',
-                greaterThanEqualFiveYears: '',
-                greaterThanEqualFiveYearsPatientIds: '',
                 total: 0,
                 totalPatientIds: ''
             }
@@ -129,6 +104,7 @@ export class IDSRReportService extends OpdReportService {
             item.id = count
             count += 1 
             for (const [key1, value1] of Object.entries(condition)) {
+                key1
                 const conditionDetails: any = value1
                 if (conditionDetails != null) {
                     total +=conditionDetails.length;
@@ -137,14 +113,6 @@ export class IDSRReportService extends OpdReportService {
                         temp.push(...conditionDetails)
                         item.totalPatientIds = temp
                     }
-                    if (key1 == '<5yrs') {
-                    item.lessThanFiveYears = conditionDetails.length
-                    item.lessThanFiveYearsPatientIds = conditionDetails
-                    }
-                if (key1 == '>=5yrs') {
-                item.greaterThanEqualFiveYears = conditionDetails.length
-                item.greaterThanEqualFiveYearsPatientIds = conditionDetails
-                }
             }
           }
           all.push(item)
@@ -170,9 +138,9 @@ export class IDSRReportService extends OpdReportService {
     }
 
     getCSVString(IDSRConditionsObj: any) {
-        let CSVString = `Diseases/Events/Conditions, <5 yrs, >=5 yrs, Total,\n`
+        let CSVString = `Diseases/Events/Conditions, #,\n`
         for(const condition of IDSRConditionsObj) {
-          const row = `${condition.name},${condition.lessThanFiveYears},${condition.greaterThanEqualFiveYears},${condition.total},\n`
+          const row = `${condition.name},${condition.total},\n`
           CSVString+=row
         }
         return {CSVString}

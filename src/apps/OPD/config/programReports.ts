@@ -28,12 +28,16 @@ export const REPORTS: FolderInterface[] = [
                 condition: () => false
             },
             {
-                name: 'IDSR Weekley report',
+                name: 'IDSR Weekley Report',
                 pathName: 'idsr_weekly',
             },
             {
-                name: 'IDSR Monthly report',
+                name: 'IDSR Monthly Report',
                 pathName: 'idsr_monthly',
+            },
+            {
+                name: 'HMIS 15 Report',
+                pathName: 'hmis_15',
             }
 
         ]

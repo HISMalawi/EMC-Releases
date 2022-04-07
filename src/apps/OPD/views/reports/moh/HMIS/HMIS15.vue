@@ -13,8 +13,8 @@
   <ion-page v-if="reportReady">
     <ion-content>
       <div id="report-content">
-        <idsr-h :key="componentKey" :reportName="reportName" :rangeLabel="rangeLabel" :range="range" ref="header" :periodLabel="periodLabel" :periodDates="periodDates" :clinicName="clinicName" :totalOPDVisits="TotalOPDVisits" ></idsr-h>
-        <monthly :key="componentKey" :onDrillDown="onDrillDown" :params="idsr" :month="range"  ref="rep"> </monthly>
+        <hmis-header :key="componentKey" :reportName="reportName" :rangeLabel="rangeLabel" :range="range" ref="header" :periodLabel="periodLabel" :periodDates="periodDates" :clinicName="clinicName" :totalOPDVisits="TotalOPDVisits" ></hmis-header>
+        <hmis-template :key="componentKey" :onDrillDown="onDrillDown" :params="idsr" :periodDates="periodDates" ref="rep"></hmis-template>
       </div>
     </ion-content>
     <his-footer :btns="btns"></his-footer>
@@ -29,9 +29,9 @@ import { IonPage, IonContent, IonLoading } from "@ionic/vue"
 import { Field } from '@/components/Forms/FieldInterface'
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import ReportMixinVue from "../../ReportMixin.vue";
-import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
-import IdsrH from "@/apps/OPD/views/reports/moh/IDSRReport/IDSRHeader.vue"
-import Monthly from "@/apps/OPD/views/reports/moh/IDSRReport/Monthly.vue"
+import { HMISReportService } from "@/apps/OPD/services/hmis_report_service"
+import HmisHeader from "@/apps/OPD/views/reports/moh/HMIS/HMISHeader.vue"
+import HmisTemplate from "@/apps/OPD/views/reports/moh/HMIS/HMISTemplate.vue"
 import HisDate from "@/utils/Date"
 import Url from "@/utils/Url"
 import { modalController } from "@ionic/vue";
@@ -39,7 +39,7 @@ import table from "@/components/DataViews/tables/ReportDataTable"
 
 export default defineComponent({
   mixins: [ReportMixinVue],
-  components: { IonLoading, IdsrH, Monthly, HisStandardForm, HisFooter, IonPage, IonContent },
+  components: { IonLoading, HmisHeader, HmisTemplate, HisStandardForm, HisFooter, IonPage, IonContent },
   data: () => ({
     formData: {} as any,
     componentKey: 0 as number,
@@ -49,19 +49,17 @@ export default defineComponent({
     isLoading: false as boolean,
     fields: [] as Array<Field>,
     reportID: -1 as any,
-    periodLabel: 'Month Dates',
+    periodLabel: 'Period',
     periodDates: '' as string,
-    reportName: 'MONTHLY DISEASE SURVEILLANCE REPORT',
-    rangeLabel: 'Month',
-    range: '' as string,
+    reportName: 'New Cases (OPD plus inpatient)',
     TotalOPDVisits: 0 as number,
-    clinicName: IDSRReportService.getLocationName(),
+    clinicName: HMISReportService.getLocationName(),
     reportReady: false as boolean,
     reportUrlParams: '' as string
   }),
   created() {
     this.btns = this.getBtns()
-    this.fields = this.getMonthlyFields()
+    this.fields = this.getDateDurationFields()
   },
   methods: {
     async onPeriod(form: any, config: any, regenerate=false) {
@@ -71,20 +69,19 @@ export default defineComponent({
       this.computedFormData = config
       this.reportReady = true 
       this.isLoading = true
-      this.report = new IDSRReportService()
-      this.periodDates = this.report.Span(form.idsrmonth.other.start, form.idsrmonth.other.end)
+      this.report = new HMISReportService()
+      this.periodDates = this.report.Span(config.start_date, config.end_date)
       this.report.setRegenerate(regenerate)
-      this.report.setEpiWeek(form.idsrmonth.label)
-      this.report.setStartDate(HisDate.toStandardHisFormat(form.idsrmonth.other.start))
-      this.report.setEndDate(HisDate.toStandardHisFormat(form.idsrmonth.other.end))
+      this.report.setEpiWeek(config.end_date)
+      this.report.setStartDate(HisDate.toStandardHisFormat(config.start_date))
+      this.report.setEndDate(HisDate.toStandardHisFormat(config.end_date))
       data = this.report.epiWeeksRequestParams()
-      this.range = form.idsrmonth.label.split(" ")[0]
       this.reportUrlParams = Url.parameterizeObjToString({ 
-        'start_date': HisDate.toStandardHisFormat(form.idsrmonth.other.start),
-        'end_date': HisDate.toStandardHisFormat(form.idsrmonth.other.end)
+        'start_date': HisDate.toStandardHisFormat(config.start_date),
+        'end_date': HisDate.toStandardHisFormat(config.end_date)
       })
 
-      const request = await this.report.requestIDSRMonthly(data)
+      const request = await this.report.requestHMIS15(data)
       const OPDVisitsRequest = await this.report.getOPDVisits(this.report.registrationRequestParams())
       if (request.ok && OPDVisitsRequest.ok) {
             data.regenerate = false
