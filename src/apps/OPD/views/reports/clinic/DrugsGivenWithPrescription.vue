@@ -75,43 +75,41 @@ export default defineComponent({
       ])
     },
     async showModal() {
-     
       this.buildHighlevelView();
-      const data = [
-        { count: 1 ,label: "New patient", value: [...this.reportData.filter((d: any) => d.visit_type === 'New patient')].length },
-        { count: 1 ,label: "Referral", value: [...this.reportData.filter((d: any) => d.visit_type === 'Referral')].length },
-        { count: 1 ,label: "Revisiting", value: [...this.reportData.filter((d: any) => d.visit_type === 'Revisiting')].length }
+      const columns = [
+        [
+          table.thTxt('Number'),
+          table.thTxt('Drug Name'),
+          table.thTxt('Quantity')
+        ]
       ]
-      console.log('show modal',this.highLevelStats)
-      const modal = await modalController.create({
-        component: SummaryModal,
-        backdropDismiss: true,
-        cssClass: 'action-sheet-modal',
-        componentProps: {
-          list: this.highLevelStats
-        } 
-      })
-      modal.present()
+      let counter = 1;
+      const asyncRows = async () => {
+        return this.highLevelStats.map((drug: any) => ([
+          table.td(counter++),
+          table.td(drug.label),
+          table.td(drug.value)
+        ]))
+      }
+      await this.drilldownAsyncRows("Durgs Given with prescription Report Summary", columns, asyncRows, false)
     },
     buildHighlevelView(){
       const data: any = this.reportData;
-        for(const value in data){
-            const drug = data[value]['drug_name']
-            let drugName = data.filter((item: any)=>{
-                return item.drug_name == drug
-            })
-            
-            let quantity =0;
-            drugName = drugName.map((data: any) =>{
-                quantity += data.quantity
-                return {label : data.drug_name, value : quantity}
-            })[drugName.length - 1]
+      for(const value in data){
+        const drug = data[value]['drug_name']
+        let drugName = data.filter((item: any)=>{
+            return item.drug_name == drug
+        })
+        
+        let quantity =0;
+        drugName = drugName.map((data: any) =>{
+            quantity += data.quantity
+            return {label : data.drug_name, value : quantity}
+        })[drugName.length - 1]
 
-            this.highLevelStats.push(drugName);
-        }
-
-        this.highLevelStats = this.highLevelStats.filter((v: any,i: any,a: any)=>a.findIndex((v2: any)=>['place','label'].every(k=>v2[k] ===v[k]))===i)
-        console.log('build high',this.highLevelStats)
+        this.highLevelStats.push(drugName);
+      }
+      this.highLevelStats = this.highLevelStats.filter((v: any,i: any,a: any)=>a.findIndex((v2: any)=>['place','label'].every(k=>v2[k] ===v[k]))===i)
     }
   },
 })
