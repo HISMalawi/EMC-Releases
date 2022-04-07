@@ -14,7 +14,7 @@
     <ion-content>
       <div id="report-content">
         <hmis-header :key="componentKey" :reportName="reportName" :rangeLabel="rangeLabel" :range="range" ref="header" :periodLabel="periodLabel" :periodDates="periodDates" :clinicName="clinicName" :totalOPDVisits="TotalOPDVisits" ></hmis-header>
-        <hmis-template :key="componentKey" :onDrillDown="onDrillDown" :params="idsr" :periodDates="periodDates" ref="rep"></hmis-template>
+        <hmis-template :key="componentKey" :reportName="reportName" :onDrillDown="onDrillDown" :params="idsr" :periodDates="periodDates" ref="rep"></hmis-template>
       </div>
     </ion-content>
     <his-footer :btns="btns"></his-footer>
@@ -75,7 +75,7 @@ export default defineComponent({
       this.report.setEpiWeek(config.end_date)
       this.report.setStartDate(HisDate.toStandardHisFormat(config.start_date))
       this.report.setEndDate(HisDate.toStandardHisFormat(config.end_date))
-      data = this.report.epiWeeksRequestParams()
+      data = this.report.RequestParams()
       this.reportUrlParams = Url.parameterizeObjToString({ 
         'start_date': HisDate.toStandardHisFormat(config.start_date),
         'end_date': HisDate.toStandardHisFormat(config.end_date)
@@ -104,7 +104,7 @@ export default defineComponent({
         printW.document.write(`
             <html>
               <head>
-                <title>Print IDSR Weelky Report</title>
+                <title>Print ${this.reportName}</title>
                 <link rel="stylesheet" media="print" href="/assets/css/cohort.css" />
               </head>
               <body>

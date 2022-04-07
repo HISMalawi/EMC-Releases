@@ -43,7 +43,7 @@ export class HMISReportService extends OpdReportService {
         )
     }
 
-    epiWeeksRequestParams() {      
+    RequestParams() {      
         return { 
             'start_date': this.startDate,
             'end_date': this.endDate,
@@ -144,32 +144,5 @@ export class HMISReportService extends OpdReportService {
           CSVString+=row
         }
         return {CSVString}
-    }
-
-    static async getReportEpiWeeks() {
-        const epiWeeks: Array<CommonInterface> = []
-        const epiWeeksObj = await Service.getJson('get_weeks')
-        epiWeeksObj.reverse().forEach( (item: any) => { 
-            const dates = item[1].split(" ")
-            const startDate = dates[0]
-            const endDate = dates[2]
-            const txt = item[0].split('W')
-            const name = txt[0] +"/W"+ txt[1]
-            epiWeeks.push({ name: name, start: startDate, end: endDate })
-        })
-        return epiWeeks
-    }
-
-    static async getReportMonths() {
-        const months: Array<CommonInterface> = []
-        const epiWeeksObj = await Service.getJson('get_months')
-        epiWeeksObj.forEach( (item: any) => {
-            const _payload = item[1];
-            const monthandyear = _payload[0]
-            const startandendmonths = _payload[1];
-            const dates = startandendmonths.split("to");
-            months.push({ name: monthandyear, start: dates[0], end: dates[1].trim() })
-        })
-        return months
     }
 }
