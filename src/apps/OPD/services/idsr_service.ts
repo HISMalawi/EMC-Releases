@@ -2,10 +2,6 @@ import { OpdReportService } from "./opd_report_service";
 import moment from "dayjs"
 import { Service } from "@/services/service";
 
-export enum CohortVar {
-    MOH_CACHE = 'mohCache'
-}
-
 export interface CohortValidationInterface {
     param: number | string;
     error: (indicator: number, param: number) => string;

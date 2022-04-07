@@ -59,7 +59,7 @@ export default {
       // }
       const csvData = new Blob([CSVString], { type: "text/csv;charset=utf-8;" });
       //IE11 & Edge
-      const reportTitle = `${Service.getLocationName()} Weekly IDSR report ${this.quarter}`;
+      const reportTitle = `${Service.getLocationName()} MOnthly IDSR report ${this.quarter}`;
       if (navigator.msSaveBlob) {
         navigator.msSaveBlob(csvData, 'exportFilename');
       } else {

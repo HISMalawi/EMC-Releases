@@ -107,7 +107,7 @@ export default defineComponent({
         printW.document.write(`
             <html>
               <head>
-                <title>Print IDSR Weelky Report</title>
+                <title>Print IDSR Monthly Report</title>
                 <link rel="stylesheet" media="print" href="/assets/css/cohort.css" />
               </head>
               <body>
