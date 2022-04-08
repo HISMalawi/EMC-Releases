@@ -40,9 +40,9 @@ export default defineComponent({
                 table.thTxt('ARV#'), 
                 table.thTxt('Gender'), 
                 table.thTxt('Birthdate'), 
-                table.thTxt('Specimen'), 
+                table.thTxt('Specimen'),
                 table.thTxt('Ordered'), 
-                table.thTxt('Result'), 
+                table.thTxt('Result'),
                 table.thTxt('Released'),
                 table.thTxt('Action')
             ]

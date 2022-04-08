@@ -5,8 +5,6 @@
         :rows="rows" 
         :fields="fields"
         :columns="columns"
-        :canExportCsv="false"
-        :canExportPDf="false"
         :reportReady="reportReady"
         :isLoading="isLoading"
         :onReportConfiguration="onPeriod"
@@ -34,8 +32,8 @@ export default defineComponent({
             [
                 table.thTxt('NPID'), 
                 table.thTxt('Client Type'), 
-                table.thTxt('First name'),
-                table.thTxt('Last name'), 
+                table.thTxt('First name', {exportable: false}),
+                table.thTxt('Last name', {exportable: false}), 
                 table.thTxt('Gender'),
                 table.thTxt('DOB'),
                 table.thTxt('Date set')

@@ -5,8 +5,6 @@
         :rows="rows" 
         :fields="fields"
         :columns="columns"
-        :canExportCsv="false"
-        :canExportPDf="false"
         :reportReady="reportReady"
         :isLoading="isLoading"
         :onReportConfiguration="onPeriod"
@@ -33,8 +31,8 @@ export default defineComponent({
         columns: [
             [
                 table.thTxt('ARV#'),
-                table.thTxt('First name'),
-                table.thTxt('Last name'),
+                table.thTxt('First name', {exportable: false}),
+                table.thTxt('Last name' , {exportable: false}),
                 table.thTxt('birthdate')
             ]
         ]
