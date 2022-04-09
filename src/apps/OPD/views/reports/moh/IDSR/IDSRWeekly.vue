@@ -171,6 +171,22 @@ export default defineComponent({
           onClick: () => this.printSpec()
         },
         {
+          name: "Back",
+          size: "large",
+          slot: "end",
+          color: "warning",
+          visible: true,
+          onClick: () => this.reportReady = false
+        },
+        {
+          name: "Refresh",
+          size: "large",
+          slot: "end",
+          color: "warning",
+          visible: true,
+          onClick: async () => this.regenerate()
+        },
+        {
           name: "Finish",
           size: "large",
           slot: "end",
