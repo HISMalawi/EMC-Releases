@@ -53,6 +53,11 @@ import SCARV from "@/apps/ART/views/reports/pepfar/SCARVReport.vue"
 
 export default [
     {
+        name: "Data cleaning verification",
+        path: "/art/data_cleaning_verification",
+        component: () => import("@/apps/ART/views/reports/inconsistencies/DataCleaningVerification.vue")
+    },
+    {
         name: "Edit ARV Number",
         path: "/art/arv-number/:patient_id",
         component: () => import("@/apps/ART/views/encounters/ARVNumber.vue")
