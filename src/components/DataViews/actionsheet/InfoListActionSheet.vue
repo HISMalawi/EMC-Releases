@@ -3,7 +3,7 @@
     <ion-content>
         <ul> 
             <li v-for="(item, index) in list" :key="index">
-                <span v-html="item"> </span>
+                <span class="his-md-text" v-html="item"> </span>
             </li>
         </ul>
     </ion-content>

@@ -1,7 +1,7 @@
 <template>
   <ion-header>
     <ion-toolbar>
-      <ion-title>
+      <ion-title class="his-md-text">
         <span>{{ title }}</span>
         <span style="float: right;">Provider: {{ active.provider }}</span>
       </ion-title>
@@ -12,6 +12,7 @@
       <ion-col size="4">
         <ion-list>
           <ion-item
+            class="his-sm-text"
             v-for="(item, index) in encounters"
             :key="index"
             :color="item.other.id === active.id ? 'primary' : ''"

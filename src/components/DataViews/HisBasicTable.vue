@@ -1,5 +1,5 @@
 <template>
-  <table :class="classStyles">
+  <table class="his-md-text" :class="classStyles">
     <tr>
       <th v-for="(column, hIndex) in columns" :key="hIndex">
         {{ column }}

@@ -11,7 +11,7 @@
       <ion-toolbar>
         <ion-row> 
           <ion-col>
-            <ion-title>{{ helpText }}</ion-title>
+            <ion-title class="his-lg-text">{{ helpText }}</ion-title>
           </ion-col>
           <ion-col v-if="currentField?.config?.toolbarInfo">
             <info-card :style="{height: '100%'}" :items="currentField?.config?.toolbarInfo"/>

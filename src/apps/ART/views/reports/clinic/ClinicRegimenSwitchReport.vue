@@ -50,7 +50,7 @@ export default defineComponent({
             this.setRows((await this.report.getRegimenSwitchReport(false)))
         },
         setRows(data: any) {
-            Object.values(data).forEach((d: any) => {
+            this.sortByArvNumber(Object.values(data)).forEach((d: any) => {
                 let lastDispenseDate = ''
                 const medications = d.medication.map((m: any) => {
                     lastDispenseDate = m.start_date

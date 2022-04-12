@@ -9,4 +9,12 @@ export class PatientComplaintsService extends AppEncounterService {
   static async getComplaintsList(complaintType: string, filter = '') {
     return ConceptService.getConceptSet(complaintType, filter) 
   }
+  async fetchLatestTriageEncounter() { 
+   return await PatientComplaintsService.getObs({
+        'concept_id': ConceptService.getConceptID("History of COVID-19 contact") ,
+        'start_date': this.date,
+        'end_date': this.date,
+        'person_id': this.patientID,
+    })
+  }
 }

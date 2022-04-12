@@ -108,6 +108,12 @@ export default {
           pathUrl: "/art/patient_visits",
           condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ART'
             : false
+        },
+        {
+          name: "Data cleaning verification",
+          pathUrl: "/art/data_cleaning_verification",
+          condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ART'
+            : false
         }
       ]
     },
@@ -166,8 +172,13 @@ export default {
     {
       id: "change_session_Date",
       name: "Change session date",
+      action: ({ patient }: any, router: any) => {
+        router.push({
+          path: '/session/date',
+          query: { 'patient_id': patient.patient_id}
+        })
+      },
       description: "Change session date (for retrospective entry)",
-      url: "/session/date",
       icon: "time.png"
     },
     {

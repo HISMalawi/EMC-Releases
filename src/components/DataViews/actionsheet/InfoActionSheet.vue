@@ -1,10 +1,10 @@
 <template>
     <action-header :title="title" :subtitle="subtitle" :color="color"> </action-header>
     <ion-content>
-        <div class="info-content"> 
-            <h3 :class="color">
+        <div class="info-content his-md-text"> 
+            <h2 :class="color">
                 {{ bodyTitle }} 
-            </h3>
+            </h2>
             <p class='description' v-html="bodyText"> </p> 
         </div>
     </ion-content>
