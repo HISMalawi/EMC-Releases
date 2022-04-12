@@ -2,7 +2,6 @@ import { AppEncounterService } from "@/services/app_encounter_service"
 import { ConceptService } from '@/services/concept_service';
 import { PrintoutService } from "@/services/printout_service";
 import OPD_GLOBAL_PROP from "@/apps/OPD/opd_global_props";
-import ApiClient from "@/services/api_client";
 import { Service } from "@/services/service";
 import moment from "dayjs";
 
@@ -40,7 +39,7 @@ export class PatientRadiologyService extends AppEncounterService {
             async(dat: any) => {
               const delay = (ms: number) => new Promise(res => setTimeout(res, ms))
               await delay(20000)        
-              await ApiClient.post(`radiology/radiology_orders`,dat)
+              await Service.postJson(`radiology/radiology_orders`,dat)
             }
           )
         }
@@ -54,18 +53,13 @@ export class PatientRadiologyService extends AppEncounterService {
       savedObsData.forEach(async (order: any) => {
         arryObj.push(
           {
-            "main_value_text": await this.getConceptName(order.value_coded),
+            "main_value_text":await ConceptService.getConceptNameFromApi(order.value_coded),
             "obs_id": order.obs_id,
-            "sub_value_text": await this.getConceptName(order.children[0].value_coded)
+            "sub_value_text":await ConceptService.getConceptNameFromApi(order.children[0].value_coded)
           }
         )
       })
     return arryObj
-  }
-
-  async getConceptName(conceptId: any) {
-    const name = await ConceptService.getConceptNameFromApi(conceptId)
-    return name
   }
 
   async getAccesionNumber() {
