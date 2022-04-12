@@ -1158,10 +1158,11 @@ export default defineComponent({
           validation: (data: any) => Validation.required(data),
           computedValue: (data: any) => {
             this.TBSuspected = data.value === "Yes"
-            return ({
-              tag: 'consultation',
-              obs: this.consultation.buildValueCoded("TB treatment", data.value) 
-            })
+            const obs = [
+              this.consultation.buildValueCoded("TB treatment", data.value)
+            ]
+            if (this.TBSuspected) obs.push(this.consultation.buildValueCoded("TB Status", "Confirmed TB on treatment"))
+            return ({ tag: 'consultation', obs })
           },
           options: () => this.yesNoOptions()
         },
@@ -1220,7 +1221,7 @@ export default defineComponent({
               if (action === 'Order now') this.labOrderFieldContext.launchOrderSelection([
                 'TB Microscopic Exam', 
                 'GeneXpert', 
-                'Culture & Sensitivity', 
+                'Culture & Sensitivity',
                 'TB Tests'
               ])
             }
