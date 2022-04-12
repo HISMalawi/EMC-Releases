@@ -122,7 +122,7 @@ const ApiClient = (() => {
     const remove = (uri: string, data: object) => execFetch(uri, { method: 'DELETE', body: JSON.stringify(data)});
     const put = (uri: string, data: object) => execFetch(uri, { method: 'PUT', body: JSON.stringify(data) });
     const healthCheck = () => get('_health')
-    return { get, post, put, remove, getConfig, setLocalStorage, removeOnly, expandPath, healthCheck };
+    return { get, post, put, remove, getConfig, setLocalStorage, removeOnly, expandPath, healthCheck, getFileConfig };
 })();
 
 export default ApiClient;
