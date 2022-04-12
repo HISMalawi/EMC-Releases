@@ -6,8 +6,6 @@
             :rows="rows" 
             :fields="fields"
             :columns="columns"
-            :canExportCsv="false"
-            :canExportPDf="false"
             :onReportConfiguration="onPeriod"
             > 
         </report-template>
@@ -32,14 +30,14 @@ export default defineComponent({
         columns: [
             [
                 table.thTxt('ARV#'),
-                table.thTxt('First name'),
-                table.thTxt('Last name'), 
+                table.thTxt('First name', {exportable: false}),
+                table.thTxt('Last name', {exportable: false}), 
                 table.thTxt('Gender'),
                 table.thTxt('DOB'),
                 table.thTxt('Appointment'),
                 table.thTxt('Days missed'),
                 table.thTxt('Current outcome'),
-                table.thTxt('Contact details')
+                table.thTxt('Contact details', {exportable:false})
             ]
         ]
     }),

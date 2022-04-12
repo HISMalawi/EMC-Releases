@@ -6,8 +6,6 @@
             :rows="rows"
             :fields="fields"
             :columns="columns"
-            :canExportCsv="false"
-            :canExportPDf="false"
             :showtitleOnly="true"
             reportPrefix="PEPFAR"
             :onReportConfiguration="onPeriod"
@@ -30,17 +28,15 @@ export default defineComponent({
     data: () => ({
         title: 'Defaulters report',
         rows: [] as Array<any>,
-        reportReady: false as boolean,
-        isLoading: false as boolean,
         columns: [
             [
                 table.thTxt('ARV#'),
-                table.thTxt('First name'),
-                table.thTxt('Last name'),
+                table.thTxt('First name', {exportable: false}),
+                table.thTxt('Last name' , {exportable: false}),
                 table.thTxt('Gender'),
                 table.thDate('Birthdate'),
                 table.thDate('Date defaulted'),
-                table.thTxt('Address')
+                table.thTxt('Address', {exportable: false})
             ]
         ]
     }),
