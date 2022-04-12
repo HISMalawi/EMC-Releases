@@ -2,10 +2,13 @@
 	"apiURL": "0.0.0.0",
 	"apiPort": "3000",
 	"apiProtocol": "http",
+	"appConf": {
+		"promptFullScreenDialog": false
+	},
 	"apps": [
 		{ "name": "ART", "available": true },
 		{ "name": "LOS", "available": true },
 		{ "name": "CxCa", "available": true},
 		{ "name": "OPD", "available": true }
-	]
+	],
 }

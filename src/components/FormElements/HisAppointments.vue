@@ -83,7 +83,7 @@ import HisDate from "@/utils/Date";
 import { AppointmentService } from "@/apps/ART/services/appointment_service";
 import FieldMixinVue from "./FieldMixin.vue";
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
-import { alertConfirmation, toastWarning } from "@/utils/Alerts";
+import { alertConfirmation } from "@/utils/Alerts";
 
 export default defineComponent({
   components: { ViewPort, Calendar, IonGrid, IonCol, IonRow },
@@ -143,8 +143,15 @@ export default defineComponent({
     async isDateAvalaible(date: string) {
       const appointments = await this.getAppointments(date)
       if(appointments.length !== 0 && appointments.length >= this.appointmentLimit) {
-        toastWarning("Appointment limit reached for the selected date. Please select another date", 3000)
-        return false
+        const confirm = await alertConfirmation(
+          `Appointment limit reached for the selected date ${HisDate.toStandardHisDisplayFormat(date)}`, 
+          {
+            header: "APPOINTMENT LIMIT REACHED",
+            cancelBtnLabel: "Proceed with Selected Date",
+            confirmBtnLabel: "Select Another Date"
+          }
+        )
+        if (confirm) return false
       }
 
       if(this.clinicHolidays.includes(HisDate.toStandardHisFormat(date))){

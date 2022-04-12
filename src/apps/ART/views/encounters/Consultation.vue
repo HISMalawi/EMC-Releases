@@ -88,6 +88,9 @@ export default defineComponent({
 
           // this.wasTransferredIn = await this.getTransferInStatus()
           this.wasTransferredIn = await this.getTransferInStatus()
+          this.currentWeight = Number((await this.patient.getRecentWeight()))
+
+          // this.wasTransferredIn = await this.getTransferInStatus()
 
           this.dateStartedArt = await this.getDateStartedArt()
 
@@ -1170,11 +1173,11 @@ export default defineComponent({
             this.TBSuspected = data.value === "TB Suspected"
             return {
               tag: 'consultation',
-              obs: this.consultation.buildValueText("TB Status", data.value)
+              obs: this.consultation.buildValueCoded("TB Status", data.value)
             }
           },
           beforeNext: async (data: Option) => {
-            if (`${data.value}`.match(/suspected/i)) {
+            if (data.value === "TB Suspected") {
               const action = await infoActionSheet(
                 "Lab Order",
                 "The patient is a TB suspect. Do you want to take lab orders?",

@@ -113,6 +113,7 @@ import { IncompleteEntityError, BadRequestError } from "@/services/service"
 import  { ART_GLOBAL_PROP } from "@/apps/ART/art_global_props"
 import  { GLOBAL_PROP } from "@/apps/GLOBAL_APP/global_prop"
 import { OrderService } from "@/services/order_service";
+import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -560,6 +561,14 @@ export default defineComponent({
           await this.reloadPatient()
           return FlowState.FORCE_EXIT
         },
+        'addAsDrugRefill': async() => {
+          await this.createPatientType('Drug Refill')
+          return FlowState.CONTINUE
+        },
+        'addAsExternalConsultation': async () => {
+          await this.createPatientType('External consultation')
+          return FlowState.CONTINUE
+        },
         'updateLocalDiffs': async () => {
           await this.ddeInstance.updateLocalDifferences(
             this.facts.dde.localDiffs
@@ -576,6 +585,11 @@ export default defineComponent({
         }
       }
       return state
+    },
+    async createPatientType(patientType: 'Drug Refill' | 'External consultation') {
+      const type = new PatientTypeService(this.patient.getID(), -1)
+      await type.createEncounter()
+      await type.savePatientType(patientType)
     },
     async onVoid() {
       voidWithReason(async (reason: string) => {

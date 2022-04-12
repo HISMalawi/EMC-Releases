@@ -1,4 +1,4 @@
-export default function kbHandler(newInput: string, accumulator: string, showLowerCasesOnly = false): string {
+export default function kbHandler(newInput: string, accumulator: string, casing?: 'lowercase' | 'uppercase'): string {
     let output = accumulator
     if (newInput.match(/enter/i)) {
         return `${output}\r\n`
@@ -26,8 +26,18 @@ export default function kbHandler(newInput: string, accumulator: string, showLow
             output = `${accumulator}${newInput}`
         }
     }
-    if (typeof output === 'string' && output && !showLowerCasesOnly) {
-        output = output.charAt(0).toUpperCase() + output.slice(1)
+    if (typeof output === 'string' && output) {
+        switch (casing) {
+            case 'lowercase':
+                output = output.toLowerCase()
+                break;
+            case 'uppercase':
+                output = output.toUpperCase()
+                break;
+            default:
+                output = output.charAt(0).toUpperCase() + output.slice(1)
+                break;
+        }
     }
     return output
 }

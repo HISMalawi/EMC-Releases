@@ -35,6 +35,7 @@ import { infoActionSheet } from "@/utils/ActionSheets"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 
 import { PatientIdentifierService } from "@/services/patient_identifier_service";
+import { getFullName } from '../interfaces/name';
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
@@ -170,11 +171,13 @@ export default defineComponent({
         const registration: any = new PatientRegistrationService()
         await registration.registerPatient(person, attributes)
 
-        console.log(person)
         const patientID = registration.getPersonID()
 
-        if(this.presets.nationalIDStatus == "true") 
-            this.saveNationalID(patientID)
+        if(this.presets.nationalIDStatus == "true"){ 
+            const patient = await Patientservice.findByID(patientID)
+            this.patient = new Patientservice(patient)
+            await this.patient.updateMWNationalId(this.presets.malawiNationalID)
+        }
 
         if (this.app.onRegisterPatient) {
             const exit = await this.app.onRegisterPatient(
@@ -195,10 +198,6 @@ export default defineComponent({
             'birthdate': this.presets.birthdate,
             'birthdate_estimated': false
         })
-    },
-    
-    async saveNationalID(patientID: any){
-        await PatientIdentifierService.create(patientID, 28, this.presets.malawiNationalID)
     },
     async update(computedData: any) {
         const person: any = PersonField.resolvePerson(computedData)
