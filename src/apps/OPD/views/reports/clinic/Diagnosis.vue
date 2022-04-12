@@ -81,12 +81,12 @@ export default defineComponent({
         table.thTxt("Address")
       ]]
     },
-    buildColumn(patients: Array<string>) {
+    buildColumn(patients: Array<string>, title='') {
       if(isEmpty(patients)) {
         return table.td(0)
       }
       return table.tdLink(patients.length, async () => this.drilldownData(
-        "Diagnosis report",
+        title,
         this.getDrillDownColumns(),
         patients,
         (tableRows: any[][]) => {
@@ -124,14 +124,14 @@ export default defineComponent({
 
             row.push([
               table.td(diagnosis, {style: {textAlign: 'left'}}),
-              this.buildColumn(underSixFemales),
-              this.buildColumn(underSixMales),
-              this.buildColumn(underFiveFemales),
-              this.buildColumn(underFiveMales),
-              this.buildColumn(underFourteenFemales),
-              this.buildColumn(underFourteenMales),
-              this.buildColumn(overFourteenFemales),
-              this.buildColumn(overFourteenMales),
+              this.buildColumn(underSixFemales, `under 6 months females diagnosed with ${diagnosis}`),
+              this.buildColumn(underSixMales, `under 6 months males diagnosed with ${diagnosis}`),
+              this.buildColumn(underFiveFemales, `under 5 years females diagnosed with ${diagnosis}`),
+              this.buildColumn(underFiveMales, `under 5 years males diagnosed with ${diagnosis}`),
+              this.buildColumn(underFourteenFemales, `under 14 years females diagnosed with ${diagnosis}`),
+              this.buildColumn(underFourteenMales, `under 14 years males diagnosed with ${diagnosis}`),
+              this.buildColumn(overFourteenFemales, `over 14 years females diagnosed with ${diagnosis}`),
+              this.buildColumn(overFourteenMales, `over 14 years males diagnosed with ${diagnosis}`),
               this.buildColumn([
                 ...underFiveFemales,
                 ...underFiveMales,
@@ -141,7 +141,7 @@ export default defineComponent({
                 ...underFourteenMales,
                 ...overFourteenFemales,
                 ...overFourteenMales
-              ]),
+              ], `Total diagnosed with ${diagnosis}`),
             ])
           })
         })
