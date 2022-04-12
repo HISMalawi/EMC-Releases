@@ -38,7 +38,7 @@ export default defineComponent({
         table.thTxt('Age Groups', {colspan: 2, ...border}),
         table.thTxt('<6 months', {colspan: 2, ...border}),
         table.thTxt('6 months < 5 yrs', {colspan: 2, ...border}),
-        table.thTxt('5 months < 14 yrs', {colspan: 2, ...border}),
+        table.thTxt('5 yrs < 14 yrs', {colspan: 2, ...border}),
         table.thTxt('> 14 yrs', {colspan: 2, ...border}),
         table.thTxt(''),
       ],
