@@ -1972,5 +1972,10 @@ export default [
       ],
       "concept_id": 5328,
       "name": "Persistent generalized lymphadenopathy"
+   },
+   {
+      "categories": [],
+      "concept_id": 10539,
+      "name": "History of COVID-19 contact"
    }
 ]
