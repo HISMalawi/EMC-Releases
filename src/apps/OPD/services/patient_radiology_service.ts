@@ -37,8 +37,7 @@ export class PatientRadiologyService extends AppEncounterService {
           }
           await patient.getPatientDataObj(data, accompData).then(
             async(dat: any) => {
-              const delay = (ms: number) => new Promise(res => setTimeout(res, ms))
-              await delay(20000)        
+              await Service.delay(20000)        
               await Service.postJson(`radiology/radiology_orders`,dat)
             }
           )
@@ -74,10 +73,9 @@ export class PatientRadiologyService extends AppEncounterService {
       'NationalID': patient.getNationalID(),
       'fullName': patient.getFullName(),
     }
-    const delay = (ms: number) => new Promise(res => setTimeout(res, ms))
     const callPrint = async (order: any) => {
       count++
-      await delay(3000 * count)
+      await  Service.delay(3000 * count)
       this.print(order,showLbl,accompanyingData)
     }
     let ordersCount = 0
