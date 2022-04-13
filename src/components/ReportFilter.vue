@@ -15,7 +15,7 @@
         <ion-col>
             <ion-input
                 :disabled="disableSearchFilter"
-                class="input_display"
+                class="input_display search_input"
                 :value="searchFilter"
                 @click="launchSearcher"
                 placeholder="Search here...">
@@ -110,5 +110,10 @@ export default defineComponent({
 <style scoped>
     .input_display {
         font-size: var(--his-lg-font-size);
+        width: 300px;
+        margin-bottom: 2%;
+    }
+    .search_input{
+        float: right;
     }
 </style>

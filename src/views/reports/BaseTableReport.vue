@@ -24,18 +24,49 @@
           </ion-col>
         </ion-row>
       </ion-toolbar>
+      <ion-toolbar> 
+        <report-filter
+          :showPerPageFilter="showFilters || paginated"
+          :disableSearchFilter="isTableLoading"
+          :disablePerPageFilter="isTableLoading"
+          :totalRowCount="tableRows.length"
+          @onItemsPerPage="(i) => itemsPerPage = i"
+          @onSearchFilter="(f) => searchFilter = f"> 
+        </report-filter>
+      </ion-toolbar>
     </ion-header>
     <ion-content>
       <div class="report-content">
         <report-table
           :rows="rows"
-          :columns="columns"
           :paginated="paginated"
-          :itemsPerPage="itemsPerPage"
-        ></report-table>
+          :asyncRows="asyncRows"
+          :rowParser="rowParser"
+          :columns="columns"
+          :showFilters="showFilters"
+          :newPage="currentPage"
+          :searchFilter="searchFilter"
+          :rowsPerPage="itemsPerPage"
+          @onIsLoading="(l) => isTableLoading = l"
+          @onTableRows="(r) => tableRows = r"
+          @onPagination="(p) => totalPages = p.length"
+          @onActiveColumns="(c) => activeColumns = c"
+          @onActiveRows="(r) => activeRows = r">
+        </report-table>
       </div>
     </ion-content>
-    <his-footer :btns="btns"></his-footer>
+    <ion-footer>
+      <ion-toolbar>
+        <pagination
+          v-if="!searchFilter && paginated || !searchFilter && totalPages > 0 && paginated"
+          :perPage="itemsPerPage"
+          :maxVisibleButtons="10"
+          :totalPages="totalPages"
+          @onChangePage="(p) => currentPage=p"
+          />
+      </ion-toolbar>
+    </ion-footer>
+    <his-footer :color="footerColor" :btns="btns"></his-footer>
   </ion-page>
 </template>
 
@@ -54,8 +85,13 @@ import {
   IonToolbar, 
   IonRow,
   IonCol,
-  loadingController
+  loadingController,
+  IonFooter
 } from "@ionic/vue"
+import { Service } from "@/services/service"
+import HisDate from "@/utils/Date"
+import ReportFilter from "@/components/ReportFilter.vue"
+import Pagination from "@/components/Pagination.vue"
 import { toastDanger } from "@/utils/Alerts";
 
 export default defineComponent({
@@ -68,10 +104,13 @@ export default defineComponent({
     IonContent, 
     IonToolbar, 
     IonRow, 
-    IonCol
+    IonCol,
+    Pagination, 
+    ReportFilter,  
+    IonFooter 
   },
   props: {
-    title: {
+       title: {
       type: String,
       required: true,
     },
@@ -95,10 +134,6 @@ export default defineComponent({
         type: Boolean,
         default: false
     },
-    itemsPerPage: {
-        type: Number,
-        default: 5
-    },
     customBtns: {
       type: Array,
       default: () => []
@@ -114,6 +149,31 @@ export default defineComponent({
     onReportConfiguration: {
       type: Function,
       required: false
+    },
+    rowParser: {
+      type: Function
+    },
+    showFilters: {
+      type: Boolean,
+      default: false
+    },
+    rowsPerPage: {
+      type: Number
+    },
+    asyncRows: {
+      type: Function
+    },
+    footerColor: {
+      type: String,
+      default: 'dark'
+    },
+    customFileName: {
+      type: String,
+      default: ''
+    },
+    canExport: {
+      type: Boolean,
+      default: true
     }
   },
   data: () => ({
@@ -122,7 +182,17 @@ export default defineComponent({
     btns: [] as Array<any>,
     isLoadingData: false as boolean,
     showForm: false as boolean,
-    logo: "/assets/images/login-logos/Malawi-Coat_of_arms_of_arms.png" as string
+    logo: "/assets/images/login-logos/Malawi-Coat_of_arms_of_arms.png" as string,
+    isTableLoading: false as boolean,
+    searchFilter: '' as string,
+    itemsPerPage: 50 as number,
+    currentPage: 0 as number,
+    tableRows: [] as any,
+    totalPages: 0 as number,
+    activeColumns: [] as any,
+    activeRows: [] as any,
+    date: HisDate.toStandardHisDisplayFormat(Service.getSessionDate()),
+    apiVersion: Service.getApiVersion(),
   }),
   methods: {
     getFileName() {
