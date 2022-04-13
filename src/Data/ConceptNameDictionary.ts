@@ -1,6 +1,26 @@
 export default [
    {
       "categories": [],
+      "name": "Result Given to Client",
+      "concept_id": 9764
+   },
+   {
+      "categories": [],
+      "name": "INH 300 / RFP 300 (3HP)",
+      "concept_id": 10565
+   },
+   {
+      "categories": [],
+      "concept_id": 10563,
+      "name": "Drug received from previous facility"
+   },
+   {
+      "categories": [],
+      "concept_id": 10564,
+      "name": "Date drug received from previous facility"
+   },
+   {
+      "categories": [],
       "concept_id": 6397,
       "name": "Height for age percent of median"
    },
@@ -1952,5 +1972,10 @@ export default [
       ],
       "concept_id": 5328,
       "name": "Persistent generalized lymphadenopathy"
+   },
+   {
+      "categories": [],
+      "concept_id": 10539,
+      "name": "History of COVID-19 contact"
    }
 ]

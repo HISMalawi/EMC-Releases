@@ -42,10 +42,13 @@ export default defineComponent({
         showStatus: false as boolean,
         columns: [
             [
+                table.thTxt('District'),
                 table.thTxt('Age group'),
                 table.thTxt('Gender'),
-                table.thNum('3HP'),
-                table.thNum('6H')
+                table.thNum('3HP (Started New on ART)'),
+                table.thNum('6H (Started New on ART)'),
+                table.thNum('3HP (Started Previously on ART)'),
+                table.thNum('6H (Started Previously on ART)')
             ]
         ],
         totalIpt: [] as number[],
@@ -88,7 +91,7 @@ export default defineComponent({
                     table.thTxt('Dispensed date')
                 ]
             ]
-            const asyncRows = () => patients.map(
+            const asyncRows = () => this.sortByArvNumber(patients).map(
                 (p: any) => ([
                    table.td(p.arv_number),
                    table.tdDate(p.birthdate),
@@ -103,15 +106,19 @@ export default defineComponent({
             const fullGender = gender === 'M' ? 'Males' : 'Females'
             for(const ageIndex in AGE_GROUPS) {
                 const group = AGE_GROUPS[ageIndex]
-                if (!isEmpty(this.cohort) && group in this.cohort) {
+                const location = this.cohort['Location'];
+                if (!isEmpty(this.cohort) && group in this.cohort && ageIndex) {
                     const data = this.cohort[group]
-                    this.total3hp = uniq([...this.total3hp, ...data['3HP'][gender]])
-                    this.totalIpt = uniq([...this.totalIpt, ...data['6H'][gender]])
+                    this.total3hp = uniq([...this.total3hp, ...data['3HP_new'][gender], ...data['3HP_prev'][gender]])
+                    this.totalIpt = uniq([...this.totalIpt, ...data['6H_new'][gender], ...data['6H_prev'][gender]])
                     this.rows.push([
+                        table.td(location),
                         table.td(group),
                         table.td(gender),
-                        this.drilldown(data['3HP'][gender], `${group} ${fullGender} on 3HP`),
-                        this.drilldown(data['6H'][gender], `${group} ${fullGender} on 6H`)
+                        this.drilldown(data['3HP_new'][gender], `${group} ${fullGender} New on 3HP`),
+                        this.drilldown(data['6H_new'][gender], `${group} ${fullGender} New on 6H`),
+                        this.drilldown(data['3HP_prev'][gender], `${group} ${fullGender} Previously on 3HP`),
+                        this.drilldown(data['6H_prev'][gender], `${group} ${fullGender} Previously on 6H`)
                     ])
                 } else {
                     this.rows.push([

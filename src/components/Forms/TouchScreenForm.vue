@@ -11,7 +11,7 @@
       <ion-toolbar>
         <ion-row> 
           <ion-col>
-            <ion-title>{{ helpText }}</ion-title>
+            <ion-title class="his-lg-text">{{ helpText }}</ion-title>
           </ion-col>
           <ion-col v-if="currentField?.config?.toolbarInfo">
             <info-card :style="{height: '100%'}" :items="currentField?.config?.toolbarInfo"/>
@@ -135,6 +135,7 @@ export default defineComponent({
       btnName: '',
       btnOutput: null as any,
     } as FooterBtnEvent,
+    helpText: '' as string,
     valueClearIndex: 0 as number,
     currentIndex: 0,
     currentField: {} as Field,
@@ -154,13 +155,6 @@ export default defineComponent({
       | "onValue"
       | "default"
   }),
-  computed: {
-    helpText(): string {
-      return this.currentField.dynamicHelpText
-        ? this.currentField.dynamicHelpText(this.formData)
-        : this.currentField.helpText
-    }
-  },
   watch: {
     /**
      * Initiate the form if all fields are available
@@ -639,6 +633,9 @@ export default defineComponent({
           this.computedFormData[id] = computeValue
         }
       }
+      if (typeof this.currentField.updateHelpTextOnValue === 'function') {
+        this.helpText = this.currentField.updateHelpTextOnValue(value, computeValue) 
+      }
     },
     /**
      * Determine which field to show next by it's condition
@@ -674,6 +671,17 @@ export default defineComponent({
       this.state = state;
       this.currentIndex = index;
       this.currentField = this.currentFields[this.currentIndex];
+      
+      // Set default helpText
+      this.helpText = this.currentField.dynamicHelpText
+        ? this.currentField.dynamicHelpText(this.formData)
+        : typeof this.currentField.updateHelpTextOnValue === 'function' 
+        ? this.currentField.updateHelpTextOnValue(
+          this.formData[this.currentField.id], 
+          this.computedFormData[this.currentField.id]
+        )
+        : this.currentField.helpText
+
       // create new instance of footer buttons all new fields
       this.footerBtns = [this.getCancelBtn()];
       // Load custom buttons defined in the field

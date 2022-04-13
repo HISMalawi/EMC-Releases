@@ -1,5 +1,15 @@
-import {Role} from "@/interfaces/role"
+import { Role } from "@/interfaces/role"
 import ApiClient from "./api_client"
+import HisDate from "@/utils/Date"
+import { __MIN_API_VERSION__ } from "@/MasterConfig"
+
+export class InvalidAPIVersionError extends Error {
+    message: string
+    constructor(version: string) {
+        super()
+        this.message = `Your current API Version of "${version}" does not meet "${__MIN_API_VERSION__}". Contact administrator to update your API Version`
+    }
+}
 
 export class InvalidCredentialsError extends Error {
     message: string
@@ -13,7 +23,7 @@ export enum AuthVariable {
     CORE_VERSION = 'core_version'
 }
 
-export class AuthService{
+export class AuthService {
     username: string
     userID: number
     roles: Role[]
@@ -29,16 +39,20 @@ export class AuthService{
         this.sessionDate = ''
         this.systemVersion = ''
         this.coreVersion = ''
-    }    
+    }
 
     setUsername(username: string) { this.username = username }
+
+    async loadConfig() {
+        ApiClient.getFileConfig()        
+    }
 
     async login(password: string) {
         const response = await this.requestLogin(password)
         if (response) {
             const {
                 authorization: {
-                    token, 
+                    token,
                     user
                 }
             } = response
@@ -63,8 +77,8 @@ export class AuthService{
         localStorage.setItem(AuthVariable.CORE_VERSION, this.coreVersion)
     }
 
-    clearSession() { 
-        sessionStorage.clear() 
+    clearSession() {
+        sessionStorage.clear()
     }
 
     requestLogin(password: string) {
@@ -72,6 +86,46 @@ export class AuthService{
             username: this.username,
             password: password
         })
+    }
+
+    async validateIfCorrectAPIVersion() {
+        const apiVersion = await this.getApiVersion()
+        const apiF = apiVersion.replace(/[^0-9.]/g, '')
+        if (!apiF) {
+            throw new InvalidAPIVersionError(apiVersion)
+        }
+        const comparator = __MIN_API_VERSION__.replace(/[^<>=]/g, '')
+        const minVersion = __MIN_API_VERSION__.replace(/[^0-9.]/g, '')
+        let versionOk = false
+        switch (comparator) {
+            case '>':
+                versionOk = apiF > minVersion;
+                break;
+            case '<':
+                versionOk = apiF < minVersion;
+                break;
+            case '>=':
+                versionOk = apiF >= minVersion;
+                break;
+            case '<=':
+                versionOk = apiF <= minVersion;
+                break;
+            case '=':
+                versionOk = apiF === minVersion;
+                break;
+            default:
+                versionOk = apiF === minVersion
+                break;
+        }
+
+        if (!versionOk) throw new InvalidAPIVersionError(apiVersion)
+    }
+
+    async checkTimeIntegrity() {
+        const serverDate = await this.getSystemDate()
+        const localDate = HisDate.currentDate()
+        if (!serverDate) throw 'Unable to fetch server date'
+        return localDate === serverDate
     }
 
     initDateSync(interval = 1000) {
@@ -89,8 +143,8 @@ export class AuthService{
             }
         }, interval)
     }
-    
-    setActiveVersion (version: string) {
+
+    setActiveVersion(version: string) {
         return localStorage.setItem(AuthVariable.CORE_VERSION, version)
     }
 
@@ -104,25 +158,44 @@ export class AuthService{
         return version && version.length <= 25 ? version : '-'
     }
 
+    versionLockingIsEnabled() {
+        const val = this.getAppConf('enableVersionLocking')
+        // Version locking is enabled by default if no config isset
+        return  typeof val === 'boolean' ? val : true
+    }
+
+    getAppConf(confKey: 'promptFullScreenDialog' | 'showUpdateNotifications' | 'enableVersionLocking') {
+        const conf: any = sessionStorage.getItem('appConf')
+        if (conf) {
+            try {
+                const confObj = JSON.parse(conf)
+                return confObj[confKey]
+            } catch (e) {
+                console.error(e)
+            }
+        }
+        return null
+    }
+
     async getApiVersion(): Promise<string> {
         const api: any = await this.getJson('version')
         return api && api['System version'] ? api['System version'] : '-'
     }
 
     async getSystemDate(): Promise<string> {
-        const {date} = await this.getJson('current_time')
+        const { date } = await this.getJson('current_time')
         return date
     }
 
     private async getJson(url: string) {
         const req = await ApiClient.get(url)
-        if (req && req.ok) 
+        if (req && req.ok)
             return req?.json()
     }
 
     private async postLogin(url: string, params: Record<string, number | string>) {
         const req = await ApiClient.post(url, params)
-        if (!req) 
+        if (!req)
             return
 
         if (req.ok) {

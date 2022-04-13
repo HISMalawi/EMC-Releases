@@ -13,7 +13,7 @@ import { FieldType } from "@/components/Forms/BaseFormElements";
 import { FooterBtnEvent, Option } from "@/components/Forms/FieldInterface";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations";
-import { infoAlert, toastSuccess, toastWarning } from "@/utils/Alerts";
+import { alertConfirmation, infoAlert, toastSuccess, toastWarning } from "@/utils/Alerts";
 import HisDate from "@/utils/Date";
 import { findIndex, isEmpty, find } from "lodash";
 import { ConsultationService } from "@/apps/ART/services/consultation_service";
@@ -33,14 +33,18 @@ import table from "@/components/DataViews/tables/ReportDataTable"
 import { PatientTypeService } from "../../services/patient_type_service";
 import { PrescriptionService } from "../../services/prescription_service";
 import { DispensationService } from "../../services/dispensation_service";
+import { PatientPrintoutService } from "@/services/patient_printout_service";
+import { AppEncounterService } from "@/services/app_encounter_service";
 
 export default defineComponent({
   mixins: [AdherenceMixinVue],
   components: { HisStandardForm },
   data: () => ({
     fields: [] as any,
+    currentWeight: -1 as any,
     weightTrail: [] as any,
     customRegimens: [] as any,
+    labOrders: [] as any,
     isDrugRefillPatient: false as boolean,
     weightLossPercentageNum: 0 as number,
     lostTenPercentBodyWeight: false as boolean,
@@ -83,6 +87,12 @@ export default defineComponent({
           await this.initAdherence(this.patient, this.providerID);
           await this.guardianOnlyVisit();
 
+          this.currentWeight = Number((await this.patient.getRecentWeight()))
+
+          // this.wasTransferredIn = await this.getTransferInStatus()
+          this.wasTransferredIn = await this.getTransferInStatus()
+          this.currentWeight = Number((await this.patient.getRecentWeight()))
+
           // this.wasTransferredIn = await this.getTransferInStatus()
 
           this.dateStartedArt = await this.getDateStartedArt()
@@ -100,6 +110,8 @@ export default defineComponent({
           this.weightLossPercentageNum = this.patient.getWeightLossPercentageFromTrail(this.weightTrail)
 
           this.lostTenPercentBodyWeight = this.weightLossPercentageNum >= 10
+
+          this.labOrders = await this.getVlLabData()
 
           if (this.CxCaEnabled) {
             const { start, end } = await ART_PROP.cervicalCancerScreeningAgeBounds()
@@ -157,8 +169,6 @@ export default defineComponent({
 
       if (!savedObs) return toastWarning("Unable to save patient observations");
 
-      if (this.wasTransferredIn) await this.createArvDispensationAndTreatment(computedData)
-
       toastSuccess("Observations and encounter created!");
 
       if (f.refer_to_clinician && f.refer_to_clinician.value ==='Yes') {
@@ -166,16 +176,6 @@ export default defineComponent({
         return
       }
       this.nextTask();
-    },
-    /**
-     * For tranfer in patients, this method creates both treatment and dispensation
-     * Encounters and drug orders. This will ensure continuation of treatment
-    */
-    async createArvDispensationAndTreatment(computedData: any) {
-      const { arvDrugOrders, buildDispensationOrders } = computedData.arv_quantities
-      await this.prescription.createEncounter()
-      const orders = await this.prescription.createDrugOrder(arvDrugOrders)
-      await this.dispensation.saveDispensations(buildDispensationOrders(orders))
     },
     async getTransferInStatus() {
       const receivedArvs = await ConsultationService.getFirstValueCoded(
@@ -478,12 +478,24 @@ export default defineComponent({
      * Provides validations for TPT selections and value updates
      */
     async on3HPValueUpdate(listData: Option[], curOption: Option, formData: any) {
-      const is3HPorTPT = (i: Option) => i.label.match(/ipt|3hp/i)
+      const is3HPorTPT = (i: Option) => i.label.match(/IPT|3HP/i) ? true : false
+
       //Checks if IPT and 3HP are both selected and returns a boolean
-      const ipt3HPConflict = listData
-        .filter(i => is3HPorTPT(i))
-        .map(i => i.isChecked)
-        .every(Boolean)
+      const ipt3HPConflict: boolean = (() => {
+        const checkedDrugs = listData.reduce(
+        (checkedDrugs: string[], item: Option) => {
+          if (is3HPorTPT(item) 
+            && !(item.label in checkedDrugs) 
+            && item.isChecked) {
+            checkedDrugs.push(item.label)
+          }
+          return checkedDrugs
+        }, [])
+        return checkedDrugs.includes('IPT') 
+          && (checkedDrugs.includes('3HP (RFP + INH)') 
+          || checkedDrugs.includes('INH 300 / RFP 300 (3HP)'))
+      })()
+
       // check if no tpt is present
       const noTpTPresent = is3HPorTPT(curOption) 
         && listData.filter(i => is3HPorTPT(i)).map(i => !i.isChecked)
@@ -525,12 +537,24 @@ export default defineComponent({
           if (is3HPorTPT(i)) {
             i.isChecked =
               action === 'Prescribe IPT' && i.label === 'IPT' || 
-              action ==='Prescribe 3HP' && i.label === '3HP (RFP + INH)'
+              action ==='Prescribe 3HP' && i.label === 'INH 300 / RFP 300 (3HP)'
           }
           return i
         })
       }
-      return listData
+      return listData.map(i => {
+        // By default, toggle between variants of 3HP. All of them cant be selected at once
+        if (curOption.label === '3HP (RFP + INH)' 
+          && i.label === 'INH 300 / RFP 300 (3HP)'
+          && curOption.isChecked) {
+          i.isChecked = false
+        } else if (curOption.label === 'INH 300 / RFP 300 (3HP)' 
+          && i.label === '3HP (RFP + INH)'
+          && curOption.isChecked ) {
+            i.isChecked = false
+        }
+        return i
+      })
     },
     medicationOrderOptions(formData: any, prechecked=[] as Option[]): Option[] {
       const completed3HP = this.didCompleted3HP(formData)
@@ -564,12 +588,23 @@ export default defineComponent({
           }
         }),
         this.toOption('3HP (RFP + INH)', {
+          appendOptionParams: () => {
+            if (completed3HP) return disableOption('Completed 3HP')
+
+            if (this.TBSuspected) return disableOption('TB Suspect')
+
+            if (this.currentWeight < 20) return disableOption('Weight below regulation') 
+          }
+        }),
+        this.toOption('INH 300 / RFP 300 (3HP)', {
           appendOptionParams: () => { 
             if (completed3HP) return disableOption('Completed 3HP')
 
             if (this.TBSuspected) return disableOption('TB Suspect')
 
-            return { isChecked : autoSelect3HP }
+            if (this.currentWeight < 25) return disableOption('Weight below regulation') 
+
+            return { isChecked: autoSelect3HP }
           }
         }),
         this.toOption('IPT', {
@@ -583,6 +618,10 @@ export default defineComponent({
     },
     isNonePatientClient() {
       return this.guardianVisit || this.isDrugRefillPatient
+    },
+    async getVlLabData() {
+      const orders = await OrderService.getOrdersIncludingGivenResultStatus(this.patientID);
+      return OrderService.formatLabs(orders);
     },
     getFields(): any {
       return [
@@ -616,22 +655,23 @@ export default defineComponent({
           condition: () => this.wasTransferredIn,
           minDate: () => this.dateStartedArt,
           maxDate: () => this.consultation.getDate(),
-          computeValue: (date: string) => {
-            this.prescription.setDate(date)
-            this.dispensation.setDate(date)
-            return date
-          },
+          computeValue: (date: string) => ({
+            tag: 'consultation',
+            date,
+            obs: this.consultation.buildValueDate(
+              'Date drug received from previous facility', date
+            )
+          }),
           estimation: {
             allowUnknown: false
           }
         }, this.consultation.getDate()),
         {
-          id: 'other_arv_regimens_received',
-          proxyID: 'arvs_received',
+          id: 'previous_arvs_received',
           helpText: 'Last ARV drugs dispensed',
           type: FieldType.TT_MULTIPLE_SELECT,
-          validation: (v: Option[]) => Validation.required(v),
           computedValue: (v: Option[]) => v.map(d => d.other),
+          validation: (v: Option[]) => Validation.required(v),
           options: async () => {
             if (!isEmpty(this.customRegimens)) return this.customRegimens
             const p = new PrescriptionService(this.patientID, this.providerID)
@@ -654,7 +694,7 @@ export default defineComponent({
           type: FieldType.TT_NEXT_VISIT_INTERVAL_SELECTION,
           condition: () => this.wasTransferredIn,
           validation: (val: Option) => Validation.required(val),
-          unload: (v: Option) => this.prescription.setNextVisitInterval(v.value),
+          computedValue: (d: Option) => d.other.nextAppointment,
           options: () => {
             const intervals = [
               { label: '2 weeks', value: 14 },
@@ -680,6 +720,7 @@ export default defineComponent({
                 other: {
                   label: 'Medication run-out date:',
                   value: HisDate.toStandardHisDisplayFormat(nextAppointment),
+                  nextAppointment,
                   other: {
                     label: "",
                     value: []
@@ -687,67 +728,62 @@ export default defineComponent({
                 }
               }
             })
-          },
-          config: {
-            showRegimenCardTitle: false
           }
         },
         {
           id: 'arv_quantities',
           helpText: 'Amount of drugs dispensed (From last ART Facility)',
-          type: FieldType.TT_ADHERENCE_INPUT,
+          type: FieldType.TT_DRUG_TRANSFER_IN,
           validation: (v: Option[]) => this.validateSeries([
             () => Validation.required(v),
-            () => v.map((i: Option) => i.value === '').some(Boolean) 
-              ? ['Some Drugs are missing values'] 
-              : null
+            () => v.map((i: Option) => i.value === '' || i?.other?.pillsBrought === '')
+              .some(Boolean) ? ['Some Drugs are missing values'] : null
           ]),
-          computedValue: (v: Option[]) => {
-            // Prescription object for creating treatment encounter and orders
-            const arvDrugOrders = v.map(
-              d => this.prescription.toOrderObj(
-                d.other['drug_id'],
-                d.label,
-                d.other['units'],
-                1, // should probably get this from the drug source
-                0, // Should probably get this from the drug source
-                'Daily (QOD)' // Should probably get this from the drug source 
-              )
-            )
-            // callback function that builds dispensation orders based on OrderID
-            const buildDispensationOrders = (orders: Array<any>) => {
-              return v.map( d => {
-                const drugID: number = d.other['drug_id']
-                const order: any = find(orders, { drug: { 'drug_id' : drugID } })
-                const packs: any = this.dispensation.getDrugPackSizes(drugID)
-                const tabs: number = parseInt(d.value as string)
-                const totalPacks: number = tabs / (packs[0] || 30)
-                return this.dispensation.buildDispensations(
-                  order['order_id'], tabs, totalPacks
-                )
-              }).reduce((accum, cur) => accum.concat(cur), [])
+          computedValue: (v: Option[], f: any, c: any) => {
+            return {
+              tag: 'consultation',
+              obs:  v.map(async (d: any) => {
+                const drugID: number = d?.other?.drug?.drug_id || 0
+                return { 
+                  ...(await this.consultation.buildObs(
+                    'Drug received from previous facility', {
+                      'value_drug': drugID,
+                      'value_datetime': c?.drug_interval || null,
+                      'value_numeric': d?.value || 0
+                      }
+                  )),
+                  child: (await this.consultation.buildObs(
+                    'Number of tablets brought to clinic', {
+                      'value_drug': drugID,
+                      'value_numeric': d?.other?.pillsBrought || -1,
+                      'value_datetime': c?.date_last_received_arvs?.date || null
+                   }
+                ))}
+              })
             }
-            return { arvDrugOrders, buildDispensationOrders }
           },
           options: (_: any, c: any, listData: Option) => {
-            return c.arvs_received
+            return c.previous_arvs_received
               .map((d: any) => {
                 const drugName = d['alternative_drug_name'] || d['drug_name'] || d['name']
                 const prevValue = find(listData, { label: drugName })
+                let qty = ''
+                let rmndr = ''
+                if (prevValue) {
+                  qty = prevValue?.value
+                  rmndr = prevValue?.other?.pillsBrought
+                }
                 return {
                   label: drugName,
-                  value: prevValue ? prevValue.value : '',
-                  other: d
+                  value: qty,
+                  other: {
+                    drug: d,
+                    pillsBrought: rmndr
+                  }
                 }
-            })
+              })
           },
-          condition: () => this.wasTransferredIn,
-          config: {
-            titles: {
-              label: 'Medication',
-              value: 'Amount Dispensed'
-            }
-          }
+          condition: () => this.wasTransferredIn
         },
         /**
         * END OF DRUG TRANSFER IN
@@ -756,22 +792,43 @@ export default defineComponent({
           id: "patient_lab_orders",
           helpText: "Lab orders",
           type: FieldType.TT_LAB_ORDERS,
-          unload: () => this.checkVLReminder(),
+          unload: async () => {
+            await this.checkVLReminder()
+            // Check if released results were given to the patient
+            const noGivenResults = this.labOrders.filter((r: any) => r.result_given === 'No')
+            if (noGivenResults.length && (await alertConfirmation('Result(s) Given to Client?'))) {
+              const enc = new AppEncounterService(this.patientID, -1, this.providerID)
+              // flatten array and save observations for results given
+              const obs = noGivenResults.reduce((all: any, result: any) => [
+                ...all, ...(result.resultIds.map(async (resultID: number) =>{
+                  enc.encounterID = result.encounter_id
+                  return enc.saveObs((await enc.buildObs("Result Given to Client", {
+                      "value_coded": "Yes",
+                      "obs_group_id": resultID
+                    })))
+                })) 
+              ], [])
+              await Promise.all(obs)
+            }
+            // refresh data
+            this.labOrders = await this.getVlLabData()
+          },
           onload: (fieldContext: any) =>  this.labOrderFieldContext = fieldContext,
-          options: async () => {
-            const orders = await OrderService.getOrders(this.patientID);
-            const VLOrders = OrderService.formatLabs(orders);
+          options: () => {
             return [
               {
                 label: "Lab orders",
                 value: "order trail",
                 other: {
-                  values: VLOrders,
-                },
-              },
-            ];
+                  values: this.labOrders
+                }
+              }
+            ]
           },
           config: {
+            printOrder: (orderID: number) => {
+              return new PatientPrintoutService(this.patientID).printLabOrderLbl(orderID)
+            },
             hiddenFooterBtns: ["Clear"],
             footerBtns: [
               {
@@ -1101,10 +1158,11 @@ export default defineComponent({
           validation: (data: any) => Validation.required(data),
           computedValue: (data: any) => {
             this.TBSuspected = data.value === "Yes"
-            return ({
-              tag: 'consultation',
-              obs: this.consultation.buildValueCoded("TB treatment", data.value) 
-            })
+            const obs = [
+              this.consultation.buildValueCoded("TB treatment", data.value)
+            ]
+            if (this.TBSuspected) obs.push(this.consultation.buildValueCoded("TB Status", "Confirmed TB on treatment"))
+            return ({ tag: 'consultation', obs })
           },
           options: () => this.yesNoOptions()
         },
@@ -1146,11 +1204,11 @@ export default defineComponent({
             this.TBSuspected = data.value === "TB Suspected"
             return {
               tag: 'consultation',
-              obs: this.consultation.buildValueText("TB Status", data.value)
+              obs: this.consultation.buildValueCoded("TB Status", data.value)
             }
           },
           beforeNext: async (data: Option) => {
-            if (`${data.value}`.match(/suspected/i)) {
+            if (data.value === "TB Suspected") {
               const action = await infoActionSheet(
                 "Lab Order",
                 "The patient is a TB suspect. Do you want to take lab orders?",
@@ -1163,7 +1221,7 @@ export default defineComponent({
               if (action === 'Order now') this.labOrderFieldContext.launchOrderSelection([
                 'TB Microscopic Exam', 
                 'GeneXpert', 
-                'Culture & Sensitivity', 
+                'Culture & Sensitivity',
                 'TB Tests'
               ])
             }

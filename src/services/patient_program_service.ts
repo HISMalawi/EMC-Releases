@@ -57,14 +57,16 @@ export class PatientProgramService extends ProgramService {
              * Find active state/outcome by checking if the 
              * end_date is empty
              */
-            const availableStates = p.patient_states.filter((s: any) => s.end_date === null)
+            const availableStates = p.patient_states
             let outComeStartDate = ''
             let outComeEndDate = ''
             let currentOutcome = 'N/A'
             if (!isEmpty(availableStates)) {
-                outComeStartDate = availableStates[0].start_date
-                outComeEndDate = availableStates[0].end_date
-                currentOutcome = availableStates[0].name
+                // get last state as current outcome
+                const index = availableStates.length-1
+                outComeStartDate = availableStates[index].start_date
+                outComeEndDate = availableStates[index].end_date
+                currentOutcome = availableStates[index].name
             }
             return {
                 program: p.program.name, 
@@ -94,9 +96,9 @@ export class PatientProgramService extends ProgramService {
         return ProgramService.enrollProgram(this.patientId, this.programId, this.programDate)
     }
 
-    printTransferout() {
+    printTransferout(date: string) {
         const print = new PrintoutService()
-        return print.printLbl(`/programs/${this.programId}/patients/${this.patientId}/labels/transfer_out`)    
+        return print.printLbl(`/programs/${this.programId}/patients/${this.patientId}/labels/transfer_out?date=${date}`)    
     }
     async transferOutEncounter(facility: any) {
         const transferOut = new AppEncounterService(this.patientId, 119)

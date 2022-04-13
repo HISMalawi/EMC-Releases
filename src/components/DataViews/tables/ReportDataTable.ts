@@ -3,6 +3,7 @@ import { sort } from 'fast-sort';
 
 export interface TableInterface {
     showIndex?: boolean;
+    tableCssTheme?: string;
 }
 export interface ColumnInterface {
     th: string | number | Date;
@@ -26,6 +27,7 @@ export interface RowInterface {
     value?: string | number | Date;
     style?: Record<string, any>;
     cssClass?: string;
+    sortValue?: 'number' | 'string';
     event?: EventInterface;
 }
 export function prepareCSVValue(value: string | number | Date) {
@@ -92,7 +94,7 @@ function configCell(conf: any) {
         ascSort() {
             if (!conf.ascSort) {
                 return (index: number, rows: Array<RowInterface[]>) => {
-                    return sort(rows).asc(r => r[index].td)
+                    return sort(rows).asc(r => r[index]?.sortValue || r[index]?.td)
                 }
             }
             return conf.ascSort
@@ -100,7 +102,7 @@ function configCell(conf: any) {
         descSort(){
             if (!conf.descSort) {
                 return (index: number, rows: Array<RowInterface[]>) => {
-                    return sort(rows).desc(r => r[index].td)
+                    return sort(rows).desc(r => r[index]?.sortValue || r[index]?.td)
                 }
             }
             return conf.descSort

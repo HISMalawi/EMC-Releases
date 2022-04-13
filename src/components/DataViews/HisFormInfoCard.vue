@@ -2,7 +2,7 @@
     <tool-bar-medium-card>
         <ion-grid>
             <ion-row v-for="(row, rIndex) in rowItems" :key="rIndex">
-                <ion-col class='col'  
+                <ion-col class='col his-sm-text'  
                     v-for="(item, iIndex) in row" 
                     :key="iIndex">
                     <b>{{ item.label }}:</b> {{ item.value }}
@@ -41,7 +41,7 @@ export default defineComponent({
 .col {
   margin: auto;
   margin: 0;
-  padding: 1px;
+  padding: 0;
   text-align: left;
 }
 </style>

@@ -8,11 +8,7 @@ export class PatientLabService extends AppEncounterService  {
     }
 
     getOrders(status: 'drawn' | 'ordered') {
-        return OrderService.getOrders(
-            this.patientID, {
-                status,
-                date: this.date
-            })
+        return OrderService.getOrders(this.patientID, { status })
     }
 
     voidOrder(orderID: number, reason: string) {
@@ -26,8 +22,7 @@ export class PatientLabService extends AppEncounterService  {
     }
 
     printSpecimenLabel(orderID: number) {
-        return new PrintoutService()
-            .printLbl(`lab/labels/order?order_id=${orderID}`)
+        return new PrintoutService().printLbl(`lab/labels/order?order_id=${orderID}`)
     }
     
     async placeOrder(params: any) {

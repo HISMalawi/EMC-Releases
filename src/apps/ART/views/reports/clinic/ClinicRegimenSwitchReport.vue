@@ -28,6 +28,8 @@ export default defineComponent({
                 table.thTxt('ARV#'),
                 table.thTxt('Gender'),
                 table.thTxt('DOB'),
+                table.thTxt('ART start date'),
+                table.thTxt('Weight'),
                 table.thTxt('Prev.Reg'),
                 table.thTxt('Curr.Reg'),
                 table.thTxt('ARVs'), 
@@ -48,7 +50,7 @@ export default defineComponent({
             this.setRows((await this.report.getRegimenSwitchReport(false)))
         },
         setRows(data: any) {
-            Object.values(data).forEach((d: any) => {
+            this.sortByArvNumber(Object.values(data)).forEach((d: any) => {
                 let lastDispenseDate = ''
                 const medications = d.medication.map((m: any) => {
                     lastDispenseDate = m.start_date
@@ -58,6 +60,8 @@ export default defineComponent({
                     table.td(d.arv_number),
                     table.td(d.gender),
                     table.tdDate(d.birthdate),
+                    table.tdDate(d.art_start_date),
+                    table.td(d.current_weight),
                     table.td(d.previous_regimen),
                     table.td(d.current_regimen),
                     table.td(medications.join(', ')),

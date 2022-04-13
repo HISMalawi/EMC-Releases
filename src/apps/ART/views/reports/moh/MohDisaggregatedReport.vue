@@ -121,7 +121,9 @@ export default defineComponent({
                 this.report.setQuarter(form.quarter.label)
                 this.report.setStartDate(form.quarter.other.start)
                 this.report.setEndDate(form.quarter.other.end)
-                this.period = form.quarter.label
+                this.period = form.quarter.label === 'Custom'
+                    ? this.report.getDateIntervalPeriod()
+                    : form.quarter.label
             } else {
                 this.mohCohort.setStartDate(config.start_date)
                 this.mohCohort.setEndDate(config.end_date)

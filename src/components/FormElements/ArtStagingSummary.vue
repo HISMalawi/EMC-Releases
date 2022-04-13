@@ -1,15 +1,15 @@
 <template>
     <view-port>
         <div class='primary-info'> 
-            <ul> 
+            <ul class="his-md-text"> 
                 <li v-for="(item, pindex) in titleItems" :key="pindex"> 
                     <b>{{ item.label }}:</b> {{item.value}}
                 </li>
             </ul>
         </div>
         <div class="view-port-content">
-            <b :style="{marginLeft: '3%'}"> {{ config.title }} </b>
-            <ul class='secondary-info'> 
+            <b class="his-lg-text" :style="{marginLeft: '3%'}"> {{ config.title }} </b>
+            <ul class='his-md-text secondary-info'> 
                 <li v-for="(item, index) in bodyItems" :key="index"> 
                     {{ item.value }}
                 </li>

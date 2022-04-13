@@ -132,35 +132,30 @@ export default defineComponent({
             }
         },
         getTestSelectionField(): Field {
-            let fieldContext: any = {}
+            let activeSpecimen = ''
             return {
                 id: 'tests',
                 helpText: 'Select tests',
-                type: FieldType.TT_MULTIPLE_SELECT,
-                onload: (context: any) => fieldContext = context,
+                type: FieldType.TT_GRID_SELECTOR,
                 validation: (val: Option) => Validation.required(val),
                 computedValue: (val: Array<Option>) => {
                     return val.map(v => ({'concept_id': v.value}))
                 },
-                options: async (f: any) => {
-                    let req: any = {}
- 
-                    if (f.specimen) {
-                        req = await OrderService.getTestTypesBySpecimen(
+                options: async (f: any, c: any, listData: Option[]) => {
+                    if (f.specimen && f.specimen.label != activeSpecimen) {
+                        activeSpecimen = f.specimen.label
+                        const req = await OrderService.getTestTypesBySpecimen(
                             f.specimen.label
                         )
+                        return req.map((t: any) => ({
+                            label: t.name,
+                            value: t.concept_id,
+                            isChecked: false,
+                            other: t
+                        }))
                     } else {
-                        if (!isEmpty(fieldContext.listData)) {
-                            return fieldContext.listData
-                        } 
-                        req = await OrderService.getTestTypes()
+                        return listData
                     }
-
-                    return req.map((t: any) => ({
-                        label: t.name,
-                        value: t.concept_id,
-                        other: t
-                    }))
                 }
             }
         },

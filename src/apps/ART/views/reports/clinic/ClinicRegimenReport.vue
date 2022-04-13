@@ -5,9 +5,10 @@
         :rows="rows" 
         :fields="fields"
         :columns="columns"
-        :reportReady="reportReady"
-        :isLoading="isLoading"
         :onReportConfiguration="onPeriod"
+        :config="{
+                showIndex: false
+        }"
         > 
     </report-template>
 </template>
@@ -25,16 +26,16 @@ export default defineComponent({
     data: () => ({
         title: 'Clinic Regimen Report',
         rows: [] as Array<any>,
-        reportReady: false as boolean,
-        isLoading: false as boolean,
         columns: [
             [
                 table.thTxt('ARV#'),
                 table.thTxt('Gender'),
                 table.thTxt('DOB'),
+                table.thTxt('ART start date'),
+                table.thTxt('Weight (KG)'),
                 table.thTxt('Curr.Reg'),
                 table.thTxt('ARVs'), 
-                table.thTxt('Curr.reg dispensed')
+                table.thTxt('Dispensed date')
             ]
         ]
     }),
@@ -43,8 +44,6 @@ export default defineComponent({
     },
     methods: {
         async onPeriod(_: any, config: any) {
-            this.reportReady = true
-            this.isLoading = true
             this.rows = []
             this.report = new RegimenReportService()
             this.report.setReportType('moh')
@@ -52,10 +51,9 @@ export default defineComponent({
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()
             this.setRows((await this.report.getRegimenReport()))
-            this.isLoading = false
         },
         setRows(data: any) {
-            Object.values(data).map((d: any) => {
+            this.sortByArvNumber(Object.values(data)).map((d: any) => {
                 let lastDispenseDate = ''
                 const medications = d.medication.map((m: any) => {
                     lastDispenseDate = this.toDate(m.start_date)
@@ -65,6 +63,8 @@ export default defineComponent({
                     table.td(d.arv_number),
                     table.td(d.gender),
                     table.tdDate(d.birthdate),
+                    table.tdDate(d.art_start_date),
+                    table.td(d.current_weight),
                     table.td(d.current_regimen),
                     table.td(medications.join(', ')),
                     table.tdDate(lastDispenseDate)

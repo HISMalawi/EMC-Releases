@@ -6,8 +6,6 @@
             :rows="rows" 
             :fields="fields"
             :columns="columns"
-            :canExportCsv="false"
-            :canExportPDf="false"
             :showtitleOnly="true"
             :onReportConfiguration="onPeriod"
             > 
@@ -32,12 +30,12 @@ export default defineComponent({
         columns: [
             [
                 table.thTxt('ARV#'),
-                table.thTxt('First name'),
-                table.thTxt('Last name'),
+                table.thTxt('First name',{exportable: false}),
+                table.thTxt('Last name', {exportable: false}),
                 table.thTxt('Gender'),
                 table.thTxt('birthdate'),
                 table.thTxt('Date defaulted'),
-                table.thTxt('Address')
+                table.thTxt('Address', {exportable: false})
             ]
         ]
     }),
@@ -57,7 +55,7 @@ export default defineComponent({
             this.title = `Clinic Defaulters report <b>(${data.length} Defaulters)</b>`
         },
         async setRows(data: Array<any>) {
-            data.forEach((data: any) => {
+            this.sortByArvNumber(data).forEach((data: any) => {
                 this.rows.push([
                     table.td(data.arv_number),
                     table.td(data.given_name),

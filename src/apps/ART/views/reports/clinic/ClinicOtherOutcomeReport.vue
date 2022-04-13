@@ -5,8 +5,6 @@
         :rows="rows" 
         :fields="fields"
         :columns="columns"
-        :canExportCsv="false"
-        :canExportPDf="false"
         :onReportConfiguration="onPeriod"
         > 
     </report-template>
@@ -35,10 +33,10 @@ export default defineComponent({
         const commonColumns = [
             [
                 table.thTxt('ARV#'),
-                table.thTxt('First name'),
-                table.thTxt('Last name'), 
-                table.thTxt('Birthdate'), 
-                table.thTxt('Gender'), 
+                table.thTxt('First name', {exportable: false}),
+                table.thTxt('Last name', {exportable: false}),
+                table.thTxt('Birthdate'),
+                table.thTxt('Gender'),
                 table.thTxt('Outcome date'),
                 table.thTxt('Actions')
             ]
@@ -68,10 +66,10 @@ export default defineComponent({
                             columns: [
                                 [
                                     table.thTxt('ARV#'),
-                                    table.thTxt('First name'),
-                                    table.thTxt('Last name'), 
+                                    table.thTxt('First name', {exportable: false}),
+                                    table.thTxt('Last name', {exportable: false}), 
                                     table.thTxt('Birthdate'), 
-                                    table.thTxt('Gender'), 
+                                    table.thTxt('Gender'),
                                     table.thTxt('Outcome date'),
                                     table.thTxt('TO Location'),
                                     table.thTxt('Actions')
@@ -126,7 +124,7 @@ export default defineComponent({
             )
         },
         setRows(data: Array<any>, rowBuilder: Function) {
-            if (data) data.forEach((d: any) => this.rows.push(rowBuilder(d)))
+            if (data) this.sortByArvNumber(data, 'identifier').forEach((d: any) => this.rows.push(rowBuilder(d)))
         }
     }
 })

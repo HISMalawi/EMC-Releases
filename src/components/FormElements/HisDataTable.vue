@@ -1,5 +1,5 @@
 <template>
-    <view-port>
+    <view-port :style="config.viewPortStyle">
         <div class="view-port-content"> 
             <his-table 
                 :columns="columns" 

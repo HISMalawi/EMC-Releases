@@ -64,7 +64,7 @@ export const REPORTS: FolderInterface[] = [
                 pathName: 'clinic_due_viral_load_report'
             },
             {
-                name: 'External consultation clients',
+                name: 'External and Drug Refill clients',
                 pathName: 'clinic_external_consultation_report'
             },
             {
@@ -142,6 +142,10 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'Viral Load Coverage',
                 pathName: 'pepfar_vl_coverage'
+            },
+            {
+                name: 'SC ARV',
+                pathName: 'sc_arv'
             }
         ]
     }

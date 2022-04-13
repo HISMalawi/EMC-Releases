@@ -7,7 +7,6 @@ import { defineComponent} from 'vue'
 import HisStandardForm from "@/components/Forms/TouchScreenForm.vue";
 import EncounterMixinVue from '@/views/EncounterMixin.vue';
 import { PatientVisitRegistrationService } from "@/apps/OPD/services/patient_registration_service"
-import { PatientIdentifierService } from "@/services/patient_identifier_service";
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
@@ -47,10 +46,8 @@ export default defineComponent({
         async asignNID(formData: any) {
             const nidAvailable = formData['national_id_available']
             const nid = formData['national_id']
-
-            if(nidAvailable && nidAvailable['value'] === 'Yes') {
-                // 28 = Malawi National Identifier Type Id
-                await PatientIdentifierService.create(this.patient.getID(), 28, nid['value'])
+            if(nidAvailable && nidAvailable.value === 'Yes') {
+                await this.patient.updateMWNationalId(nid.value)
             }
         },
         getFields(): Array<Field>{
@@ -60,7 +57,7 @@ export default defineComponent({
                     helpText: 'Type of visit',
                     type: FieldType.TT_SELECT,
                     validation: (value: any) => Validation.required(value),
-                    computedValue: ({value}: Option) => ({ obs: this.registrationService.buildValueCoded('Type of visit', value)}),
+                    computedValue: (v: Option) => ({ obs: this.registrationService.buildValueCoded('Type of visit', v.value)}),
                     options: () => {
                         return [
                             { label: 'New', value: 'New patient' },
@@ -87,7 +84,7 @@ export default defineComponent({
                     helpText: 'National ID avalable',
                     type: FieldType.TT_SELECT,
                     validation: (value: any) => Validation.required(value),
-                    condition: () => this.patient.findIdentifierByType('Malawi National ID') === 'Unknown',
+                    condition: () => this.patient.getMWNationalID() === 'Unknown',
                     options: () => this.yesNoUnknownOptions(),
                     appearInSummary: () => false
                 },
@@ -95,12 +92,15 @@ export default defineComponent({
                     id: 'national_id',
                     helpText: 'Enter National ID',
                     type: FieldType.TT_TEXT,
-                    validation: (value: any) => Validation.required(value),
+                    validation: (value: Option) => Validation.isMWNationalID(value),
                     condition: (fields: any) => fields.national_id_available.value === 'Yes',
                     summaryMapValue: ({ value }: Option) => ({
                         value,
                         label: 'National ID'
-                    })
+                    }),
+                    config: {
+                        casing: 'uppercase'
+                    }
                 },
                 {
                     id: 'patient_pregnant',

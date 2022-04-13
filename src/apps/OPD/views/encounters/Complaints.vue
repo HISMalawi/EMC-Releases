@@ -1,6 +1,10 @@
 <template>
   <ion-page>
-    <his-standard-form :cancelDestinationPath="cancelDestination" :fields="fields" :onFinishAction="onSubmit"/>
+    <his-standard-form 
+    :cancelDestinationPath="cancelDestination" 
+    :fields="fields" 
+    :onFinishAction="onSubmit"
+    :skipSummary="true"/>
   </ion-page>
 </template>
 
@@ -14,12 +18,17 @@ import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { modalController, IonPage } from '@ionic/vue';
+import { ObservationService } from "@/services/observation_service"
+import { EncounterService } from '@/services/encounter_service'
+import HisDate from "@/utils/Date"
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
   mixins: [EncounterMixinVue],
   data: () => ({
     complaintsService: {} as any,
+    todaysDate: ObservationService.getSessionDate(),
+    presentingComplaints: "" as any,
   }),
   watch: {
     ready: {
@@ -49,8 +58,54 @@ export default defineComponent({
       modal.present()
       await modal.onDidDismiss()
     },
+    async getTriagePresentingComplaints(){
+      const data =  await this.complaintsService.fetchLatestTriageEncounter();
+      if(!(data.length > 0)){ return false;}
+
+      const encounters = await EncounterService.getEncounters(this.patientID, this.todaysDate)
+      const todayPresentingComplaints = encounters.filter(function (el: any){
+        return el.type.name == "TRIAGE PRESENTING COMPLAINTS" &&
+        HisDate.toStandardHisFormat(el.encounter_datetime) == ObservationService.getSessionDate() 
+      });
+      if(!(todayPresentingComplaints.length > 0)) {return false;}
+
+      this.presentingComplaints =   todayPresentingComplaints[0].observations;
+      return true;
+    },
+    buildResults() {
+      const columns = [ 'Group','Presenting complaints'];
+      let group = "";
+      let rows =this.presentingComplaints.map((item: any) =>{
+        if(item.obs_group_id != null)
+          return [group,item.value_text]
+
+        group = item.value_text;
+      });
+      rows = rows.filter((el: any) =>{
+        return el != undefined
+      })
+      this.presentingComplaints = rows;
+      return [
+        {
+          label: '',
+          value: '',
+          other: { columns, rows},
+        },
+      ];
+    },
+
     getFields(): Array<Field>{
       return [
+        {
+          id: "triage_complaints",
+          helpText: "Triaging Complaints",
+          condition: () => this.getTriagePresentingComplaints(),
+          type: FieldType.TT_TABLE_VIEWER,
+          options: (d: any) => this.buildResults(),
+          config: {
+            hiddenFooterBtns: ["Clear"],
+          },
+        },
         {
           id: 'complaints',
           helpText: 'Presenting Complaints',
@@ -78,9 +133,38 @@ export default defineComponent({
             ],
           }
         },
+        {
+          id: "all_presenting_complaints",
+          helpText: "Summary",
+          condition: () => this.presentingComplaints.length > 0,
+          type: FieldType.TT_SUMMARY,
+          options: (d: any, b: any) => this.buildSummaryResults(d),
+          config: {
+            hiddenFooterBtns: ["Clear"],
+          },
+        },
       ]
+    },
+    buildSummaryResults(data: any) {
+      const OPDComplaint = data.complaints.map((value: any)=>{
+        return {
+          'label': "OPD Complaints",
+          'value': value.label,
+        };
+      })
+      const triageComplaint = this.presentingComplaints.map((value: any)=>{
+        return {
+          'label': 'Triaging Complaints',
+          'value': value[1],
+        };
+      })
+      return OPDComplaint.concat(triageComplaint);
     }
   }
 })
 </script>
-
+<style>
+  .his-table tr {
+    height: 50px;
+  }
+</style>
