@@ -18,9 +18,7 @@ import { OpdReportService } from "@/apps/OPD/services/opd_report_service"
 import ReportTemplate from "@/views/reports/BaseTableReport.vue"
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 import HisDate from '@/utils/Date'
-import { modalController } from '@ionic/core'
 import ReportMixin from '@/apps/ART/views/reports/ReportMixin.vue'
-import SummaryModal from "@/apps/OPD/components/DrugsGivenSummaryModal.vue";
 import { IonPage } from "@ionic/vue";
 
 export default defineComponent({
@@ -50,7 +48,7 @@ export default defineComponent({
       slot: "start",
       color: "primary",
       visible: true,
-      onClick: async () => this.showModal()
+      onClick: async () => await this.showModal()
     })
   },
   methods: {
@@ -75,7 +73,7 @@ export default defineComponent({
       ])
     },
     async showModal() {
-      this.buildHighlevelView();
+      await this.buildHighlevelView();
       const columns = [
         [
           table.thTxt('Number'),
@@ -84,32 +82,23 @@ export default defineComponent({
         ]
       ]
       let counter = 1;
-      const asyncRows = async () => {
-        return this.highLevelStats.map((drug: any) => ([
-          table.td(counter++),
-          table.td(drug.label),
-          table.td(drug.value)
-        ]))
-      }
-      await this.drilldownAsyncRows("Durgs Given with prescription Report Summary", columns, asyncRows, false)
-    },
-    buildHighlevelView(){
-      const data: any = this.reportData;
-      for(const value in data){
-        const drug = data[value]['drug_name']
-        let drugName = data.filter((item: any)=>{
-            return item.drug_name == drug
-        })
-        
-        let quantity =0;
-        drugName = drugName.map((data: any) =>{
-            quantity += data.quantity
-            return {label : data.drug_name, value : quantity}
-        })[drugName.length - 1]
+      const asyncRows = this.highLevelStats.map((drug: any) => ([
+                          table.td(counter++),
+                          table.td(drug.label),
+                          table.td(drug.value)
+                        ]))
 
-        this.highLevelStats.push(drugName);
-      }
-      this.highLevelStats = this.highLevelStats.filter((v: any,i: any,a: any)=>a.findIndex((v2: any)=>['place','label'].every(k=>v2[k] ===v[k]))===i)
+      await this.drilldownData("Durgs Given with prescription Report Summary", columns, asyncRows, false)
+    },
+    async buildHighlevelView(){
+      const result = await this.reportData.reduce(function(r: any, e: any) {
+        if(!r[e.drug_name]) {
+          r[e.drug_name] = {label:e.drug_name,value:0}
+        }
+        r[e.drug_name].value += e.quantity
+        return r
+      }, {})
+      this.highLevelStats = Object.keys(result).map((d) => {return result[d]})
     }
   },
 })
