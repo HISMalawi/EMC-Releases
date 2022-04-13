@@ -34,7 +34,7 @@ export interface ProgramIdentifierInterface {
     isPrimary: boolean;
     useForSearch: boolean;
     prefix: () => Promise<string> | string;
-    validation?: (value: string) => string[] | null
+    validation?: (value: Option) => string[] | null
     globalPropertySetting?: string;
 }
 
