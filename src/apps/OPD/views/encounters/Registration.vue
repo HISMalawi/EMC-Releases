@@ -102,7 +102,7 @@ export default defineComponent({
                     validation: (value: Option) => Validation.isMWNationalID(value),
                     condition: (fields: any) => fields.national_id_available.value === 'Yes',
                     beforeNext: async (field: Option) => {
-                        if(field.value && await this.mwIdExists(field.value.toString())){
+                        if(field.value && (await this.mwIdExists(field.value.toString()))){
                             toastWarning('National ID already exists')
                             return false
                         }
