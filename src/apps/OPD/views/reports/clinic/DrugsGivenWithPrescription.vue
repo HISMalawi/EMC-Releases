@@ -58,7 +58,7 @@ export default defineComponent({
       reportService.setEndDate(config.end_date)
       this.period = reportService.getDateIntervalPeriod()
       this.reportData = await reportService.getDrugsGivenWithPrescription();
-      this.rows = this.buildRows((await reportService.getDrugsGivenWithPrescription()))
+      this.rows = this.buildRows(this.reportData)
     },
     buildRows(data: any[]): RowInterface[][] {
       if(!data.length) return []
