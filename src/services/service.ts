@@ -171,6 +171,14 @@ export class Service {
         return sessionStorage.siteUUID || ''
     }
 
+    static getProgramName() {
+        const app = this.getActiveApp()
+        
+        if ('applicationName' in app) return app.applicationName
+        
+        return '';
+    }
+
     static getProgramID() {
         const app = this.getActiveApp()
         
