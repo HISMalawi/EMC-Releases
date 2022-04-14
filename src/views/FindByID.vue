@@ -82,7 +82,7 @@ export default defineComponent({
         validation: (val: Option) => Validation.validateSeries([
           () => Validation.required(val),
           () => (typeof programIdentifer.validation === 'function') 
-            ? programIdentifer.validation(val.value.toString())
+            ? programIdentifer.validation(val)
             : null
         ]),
         config: {
