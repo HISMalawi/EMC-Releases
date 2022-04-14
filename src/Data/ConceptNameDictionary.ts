@@ -1,6 +1,11 @@
 export default [
    {
       "categories": [],
+      "name": "Result Given to Client",
+      "concept_id": 9764
+   },
+   {
+      "categories": [],
       "name": "INH 300 / RFP 300 (3HP)",
       "concept_id": 10565
    },
@@ -1993,4 +1998,7 @@ export default [
       "name": 'Shoulder x-ray',
       "concept_id": 10344
    },
+   {"concept_id": 10539,
+   "name": "History of COVID-19 contact"
+   }
 ]

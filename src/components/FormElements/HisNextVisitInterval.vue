@@ -18,15 +18,15 @@
                     <ion-col size="8">
                         <ion-card :style="{height: '65vh'}">
                             <ion-card-content v-if="active.label">
-                                <h3> {{ active.other.label }} </h3>
-                                <ion-item>
+                                <span class="his-md-text"> {{ active.other.label }} </span>
+                                <ion-item class="his-sm-text">
                                    <ion-label> {{ active.other.value }} </ion-label>
                                 </ion-item>
-                                <h3> {{ active.other.other.label }} </h3>
+                                <span class="his-md-text"> {{ active.other.other.label }} </span>
                                 <ion-list>
-                                    <ion-item v-for="(item, index) in active.other.other.value" :key="index"> 
+                                    <ion-item class="his-sm-text" v-for="(item, index) in active.other.other.value" :key="index"> 
                                        <ion-label> {{ item.label }} </ion-label>
-                                       <ion-chip color="primary" slot="end"> {{ item.value }} </ion-chip>
+                                       <ion-chip class="his-md-text" color="primary" slot="end"> {{ item.value }} </ion-chip>
                                     </ion-item>
                                 </ion-list>  
                             </ion-card-content>

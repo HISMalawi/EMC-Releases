@@ -41,4 +41,7 @@ export class PatientPrintoutService extends PrintoutService {
         return this.printPatientLbl('transfer_out')
     }
 
+    printLabOrderLbl(orderID: number) {
+        return this.printLbl(`lab/labels/order?order_id=${orderID}`)
+    }
 }

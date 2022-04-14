@@ -7,7 +7,7 @@
             <ion-grid>
             <ion-row>
             <ion-col size="6" class="ion-col">
-            <h1>{{ item.label }}</h1>
+            <span class="his-lg-text">{{ item.label }}</span>
           </ion-col>
           <ion-col size="6">
             <ion-segment
@@ -16,7 +16,7 @@
               @ionChange="() => onChange(item)"
             >
               <ion-segment-button
-                class="yes-no"
+                class="yes-no his-lg-text"
                 v-for="(option, idx) in item.other.values"
                 :key="idx"
                 :value="option.value"
@@ -101,17 +101,12 @@ export default defineComponent({
 ion-segment-button {
   height: 50px;
   margin: 1%;
-  font-size: 1.6em;
   --indicator-color: #028000;
   --background: white;
 }
 
 .segment-button-checked {
   color: white;
-}
-h1 {
-  font-size: 1.3rem;
-  margin: unset;
 }
 .ion-col{
   margin: auto;

@@ -92,7 +92,6 @@ export default defineComponent({
         }
 
         watch(itemsPerPage, (newValue) => {
-            console.log(props.totalRowCount)
             if(typeof newValue === 'number') emit('onItemsPerPage', newValue)
         }, 
         { 
@@ -108,3 +107,8 @@ export default defineComponent({
     },
 })
 </script>
+<style scoped>
+    .input_display {
+        font-size: var(--his-lg-font-size);
+    }
+</style>

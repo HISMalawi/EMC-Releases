@@ -12,6 +12,7 @@ import { RelationshipService } from '@/services/relationship_service';
 import { Order } from '@/interfaces/order';
 import {PROPERTIES} from "@/apps/OPD/config/globalPropertySettings"
 import { selectActivities } from '@/utils/WorkflowTaskHelper';
+import Validation from '@/components/Forms/validations/StandardValidations';
 
 
 async function onRegisterPatient(patientId: number) {
@@ -127,7 +128,8 @@ const OPD: AppInterface = {
       name: 'National ID',
       isPrimary: true,
       useForSearch: true,
-      prefix: () => ''
+      prefix: () => '',
+      validation: (value) => Validation.isMWNationalID(value)
     },
   }
 }

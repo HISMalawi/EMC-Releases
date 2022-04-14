@@ -6,8 +6,8 @@
   </ion-header>
   <ion-grid class="selector">
     <ion-list> 
-        <ion-item class="ion-padding" v-for="(error, index) in errors" :key="index"> 
-          <span v-html="`${index + 1} ${error}`"></span>
+        <ion-item class="his-md-text ion-padding" v-for="(error, index) in errors" :key="index"> 
+          <span v-html="`(${index + 1}) ${error}`"></span>
         </ion-item>
     </ion-list>
   </ion-grid>

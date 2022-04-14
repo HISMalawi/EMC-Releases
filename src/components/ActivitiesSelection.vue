@@ -11,7 +11,7 @@
           <ion-col size="1">
             <ion-checkbox v-model="entry.selected" />
           </ion-col>
-          <ion-col class="ion-text-center">
+          <ion-col class="ion-text-center his-md-text">
             {{ entry.value }}
           </ion-col>
         </ion-row>
@@ -123,5 +123,4 @@ export default defineComponent({
     padding: 0.55em;
     margin: .5em;
  }
-
 </style>

@@ -317,12 +317,17 @@ export default defineComponent({
                         }
                     }]
                   },
-                  requireNext: false,
                   validation: (val: Option) => Validation.required(val),
                   config: {
+                    overrideDefaultFooterBtns: {
+                        nextBtn: {
+                            name: 'Finish',
+                            onClick: () => this.$router.back()
+                        }
+                    },
                     hiddenFooterBtns: [
                         'Clear',
-                        'Next'
+                        'Cancel'
                     ]
                   }
                 },

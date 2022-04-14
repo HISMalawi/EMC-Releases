@@ -69,11 +69,12 @@ export default defineComponent({
         },
         buildList(options: Array<Option>) {
             const turple: Array<any> = [[], []]
+            const sort = (items: any) => items.sort((a: any, b: any) => a.value > b.value ? 1 : -1)
             options.forEach(o => {
                 const code = parseInt(o.value.toString())
                 code < 10 ? turple[0].push(o) : turple[1].push(o)
             })
-            return turple
+            return [sort(turple[0]), sort(turple[1])]
         },
         async onselect(item: Option) {
             this.selected = item.label
@@ -95,10 +96,10 @@ export default defineComponent({
 </script>
 <style scoped>
 #view-port {
-    height: 78vh;
+    height: 75vh;
 }
 .view-port-content {
-    height: 100%;
+    height: 99%;
 }
 .regimen-item {
     margin: 3.8%;

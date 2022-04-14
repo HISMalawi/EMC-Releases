@@ -9,6 +9,7 @@ import {Observation} from "@/interfaces/observation"
 import  { BMIService } from "@/services/bmi_service"
 import { find, isEmpty } from 'lodash';
 import { isValueEmpty } from '@/utils/Strs';
+import { PatientIdentifierService } from './patient_identifier_service';
 
 export class Patientservice extends Service {
     patient: Patient;
@@ -84,11 +85,19 @@ export class Patientservice extends Service {
        return Patientservice.assignNHID(this.getID()) 
     }
 
+    createArvNumber(arvNumber: string) {
+        return PatientIdentifierService.create(this.getID(), 4, arvNumber)
+    }
+
     updateARVNumber(newARVNumber: string) {
         const patientIdentifierId = this.getIdentifiers().find(i => i.type.name === "ARV Number")?.patient_identifier_id || ''
         return Patientservice.reassignARVNumber(patientIdentifierId, {
             identifier: newARVNumber
         })
+    }
+
+    updateMWNationalId(newId: string) {
+        return PatientIdentifierService.create(this.getID(), 28, newId)
     }
 
     isMale() {
@@ -275,6 +284,10 @@ export class Patientservice extends Service {
     getNationalID() {
         return this.findIdentifierByType('National id')
     }
+
+    getMWNationalID() {
+        return this.findIdentifierByType('Malawi National ID')
+    }
     
     getArvNumber() {
         return this.findIdentifierByType('ARV Number')
@@ -380,6 +393,29 @@ export class Patientservice extends Service {
             addressOBJ.currentVillage = addresses.city_village;
         }
         return addressOBJ;
+    }
+
+    async  getPatientDataObj(arryObj: any, accompanyingData: any) {
+        const patientData = {
+        'patient_details': {
+          "patient_name": this.getFullName(),
+          "patientAge": this.getAge(),
+          "patientDOB": this.getBirthdate(),
+          "patientGender": this.getGender(),
+          "national_id": this.getNationalID(),
+          "person_id": this.getID(),
+          "encounter_id": accompanyingData.encounterId,
+          "date_created": accompanyingData.dateCreated,
+          "accession_number": accompanyingData.accessionNumber
+          },
+          'physician_details': {
+            "username": sessionStorage.getItem("username"),
+            "userID": sessionStorage.getItem("userID"),
+            "userRoles": sessionStorage.getItem("userRoles"),
+          },
+          'radiology_orders': arryObj,
+        }
+        return patientData
     }
 
 }

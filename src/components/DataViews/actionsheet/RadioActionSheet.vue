@@ -3,7 +3,7 @@
     <ion-content class="ion-text-center">
         <ion-list>
             <ion-radio-group :value="activeLabel">
-                <ion-item v-for="(label, index) in list" @click="onclick(label)" :key="index" >
+                <ion-item class="his-md-text" v-for="(label, index) in list" @click="onclick(label)" :key="index" >
                     <ion-radio slot="start" :value="label"></ion-radio>
                     <ion-label>{{ label }} </ion-label>
                 </ion-item>

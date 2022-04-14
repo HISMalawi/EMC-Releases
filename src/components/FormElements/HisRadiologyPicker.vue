@@ -16,7 +16,7 @@
                   v-for="(data, index) in listData" :key="index"
                   @click="getSpecificRadiologyOrders(data.value)"
                   :detail="true"
-                  :color="ActiveCategory === data.label ? 'light':''"
+                  :color="ActiveCategory === data.label ? 'lightblue':''"
                 > 
                   <ion-label> {{ data.label }} </ion-label>
                 </ion-item>
@@ -25,7 +25,7 @@
             <ion-col :style="{overflowY: 'auto', height:'78vh'}" v-if="ActiveCategory">
               <div style="">
                 <ion-list class='view-port-content'>
-                  <ion-item v-for="(entry, index) in activeCategoryItems" :key="index" :color="entry.isChecked ? 'light':''">
+                  <ion-item v-for="(entry, index) in activeCategoryItems" :key="index" :color="entry.isChecked ? 'lightblue':''">
                     <ion-label> 
                       <ion-text>
                         {{ entry.label }} 

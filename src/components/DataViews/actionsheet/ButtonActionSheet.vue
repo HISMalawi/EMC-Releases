@@ -3,6 +3,7 @@
     <ion-content class="ion-text-center">
         <ion-list> 
             <ion-item 
+                class="his-md-text"
                 button
                 :color="activeLabel === label ? 'secondary' : ''"
                 v-for="(label, index) in list" 
