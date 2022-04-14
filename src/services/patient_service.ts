@@ -348,6 +348,11 @@ export class Patientservice extends Service {
     getCurrentTA() {
         return this.getAddresses().currentTA
     }
+
+    getClosestLandmark() {
+        return this.getAttribute(19)
+    }
+
     getPhoneNumber() {
         return this.getAttribute(12) //get phone number
     }
