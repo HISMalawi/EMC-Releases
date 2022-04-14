@@ -15,14 +15,14 @@ export class PatientRadiologyService extends AppEncounterService {
   }
 
   async print(order: any, showLbl: boolean, accompanyingData: any) {
-    const p = new PrintoutService()
     let url = `/radiology/barcode`
         url += `?accession_number=${accompanyingData.accesionNumber}`
         url += `&patient_national_id=${accompanyingData.NationalID}`
         url += `&patient_name=${accompanyingData.fullName}`
         url += `&radio_order=${await ConceptService.getConceptNameFromApi(order.child.value_coded)}`
         url += `&date_created=${moment(order.obs_datetime)}`
-    await p.printLbl(url,showLbl)
+    await  Service.delay(3000)
+    await new PrintoutService().printLbl(url,showLbl)
   }
 
   async submitToPacs(savedObsData: any, patient: any) {
