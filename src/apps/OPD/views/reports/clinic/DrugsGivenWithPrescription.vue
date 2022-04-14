@@ -5,10 +5,9 @@
       :rows="rows"
       :fields="fields"
       :columns="columns"
-      :itemsPerPage="12"
       :period="period"
       :onReportConfiguration="init"
-      paginated
+      :customBtns="customBtns"
     ></report-template>
   </ion-page>
 </template>
@@ -28,6 +27,8 @@ export default defineComponent({
   data: () => ({
     title: 'OPD medication given (with prescription)',
     rows: [] as RowInterface[][], 
+    reportData: [] as any,
+    highLevelStats: [] as any,
     columns: [[
       table.thTxt('First Name'),
       table.thTxt('Last Name'),
@@ -36,10 +37,19 @@ export default defineComponent({
       table.thTxt('Drug'),
       table.thTxt('Quantity'),
       table.thTxt('Date'),
-    ]] as ColumnInterface[][]
+    ]] as ColumnInterface[][],
+    customBtns: [] as any
   }),
   created(){
     this.fields = this.getDateDurationFields()
+    this.customBtns.push({
+      name: "High level view",
+      size: "large",
+      slot: "start",
+      color: "primary",
+      visible: true,
+      onClick: async () => await this.showModal()
+    })
   },
   methods: {
     async init(_: any, config: any){
@@ -47,7 +57,8 @@ export default defineComponent({
       reportService.setStartDate(config.start_date)
       reportService.setEndDate(config.end_date)
       this.period = reportService.getDateIntervalPeriod()
-      this.rows = this.buildRows((await reportService.getDrugsGivenWithPrescription()))
+      this.reportData = await reportService.getDrugsGivenWithPrescription();
+      this.rows = this.buildRows(this.reportData)
     },
     buildRows(data: any[]): RowInterface[][] {
       if(!data.length) return []
@@ -60,6 +71,34 @@ export default defineComponent({
         table.td(record.quantity),
         table.td(HisDate.toStandardHisDisplayFormat(record.date)),
       ])
+    },
+    async showModal() {
+      await this.buildHighlevelView();
+      const columns = [
+        [
+          table.thTxt('Number'),
+          table.thTxt('Drug Name'),
+          table.thTxt('Quantity')
+        ]
+      ]
+      let counter = 1;
+      const asyncRows = this.highLevelStats.map((drug: any) => ([
+                          table.td(counter++),
+                          table.td(drug.label),
+                          table.td(drug.value)
+                        ]))
+
+      await this.drilldownData("Durgs Given with prescription Report Summary", columns, asyncRows, false)
+    },
+    async buildHighlevelView(){
+      const result = await this.reportData.reduce(function(r: any, e: any) {
+        if(!r[e.drug_name]) {
+          r[e.drug_name] = {label:e.drug_name,value:0}
+        }
+        r[e.drug_name].value += e.quantity
+        return r
+      }, {})
+      this.highLevelStats = Object.keys(result).map((d) => {return result[d]})
     }
   },
 })
