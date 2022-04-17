@@ -91,7 +91,7 @@ export default defineComponent({
   }),
   async activated() {
     this.$emit("onFieldActivated", this);
-    const drugs: Option[] = await this.options();
+    const drugs: Option[] = await this.options(this.fdata, this.cdata);
     this.drugs = drugs.map((d) => {
       d.other.frequency = this.getFrequency(d)
       d.other.dosage = this.getDosage(d)

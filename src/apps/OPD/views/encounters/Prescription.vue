@@ -31,7 +31,6 @@ export default defineComponent({
     showMalariaDrugs: false,
     hasMalaria: false,
     drugOrders: [] as any,
-    selectedDrugs: [] as Option[],
   }),
   watch: {
     ready: {
@@ -132,7 +131,6 @@ export default defineComponent({
             })
           },
           onload: () => this.activeField = '',
-          unload: (data: Option[]) => this.selectedDrugs = data,
           config: {
             showKeyboard: true,
             hiddenFooterBtns: ["Back"],
@@ -159,7 +157,7 @@ export default defineComponent({
           helpText: 'Complete prescribed drug details',
           type: FieldType.TT_PRESCRIPTION_INPUT,
           validation: (data: any) => Validation.required(data),
-          options: () => this.selectedDrugs,
+          options: (f: any) => [...f.drugs],
           beforeNext: (data: Option[]) => {
             if(isEmpty(data)) return false
             if(this.isOrderComplete(data)){
