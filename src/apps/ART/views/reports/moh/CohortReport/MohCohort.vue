@@ -158,7 +158,7 @@ export default defineComponent({
       const columns = [
         [
           table.thTxt('ARV number'),
-          table.thTxt('Name'),
+          table.thTxt('Name', { exportable: false }),
           table.thTxt('Gender'),
           table.thTxt('Birth Date'),
           table.thTxt('Outcome'),
@@ -179,7 +179,7 @@ export default defineComponent({
           })
         ]))
       }
-      await this.drilldownAsyncRows(indicator.description, columns, asyncRows, false)
+      await this.drilldownAsyncRows(indicator.description, columns, asyncRows)
     },
     exportToCsv() {
       const headers = ['Indicators', 'Value']

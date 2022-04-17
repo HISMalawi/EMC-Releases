@@ -105,7 +105,12 @@ export class OpdReportService extends Service {
     }
 
     getDiagnosis(){
-        return this.getReport('diagnosis')
+        const url = `programs/${this.programID}/reports/diagnosis`
+        return Service.getJson(url, {
+            'start_date': this.startDate,
+            'end_date': this.endDate,
+            'date': this.date
+        })
     }
 
     getDiagnosisByAddress(){
@@ -116,7 +121,8 @@ export class OpdReportService extends Service {
         const url = `programs/${this.programID}/reports/la_prescriptions`
         return Service.getJson(url, {
             'start_date': this.startDate,
-            'end_date': this.endDate
+            'end_date': this.endDate,
+            
         })
     }
 

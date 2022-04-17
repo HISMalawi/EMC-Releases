@@ -114,6 +114,7 @@ import  { ART_GLOBAL_PROP } from "@/apps/ART/art_global_props"
 import  { GLOBAL_PROP } from "@/apps/GLOBAL_APP/global_prop"
 import { OrderService } from "@/services/order_service";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
+import { ObservationService } from "@/services/observation_service";
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -150,6 +151,7 @@ export default defineComponent({
       currentOutcome: '' as string,
       programs: [] as string[],
       identifiers: [] as string[],
+      patientType: '' as string,
       dde: {
         localNpidDiff: '',
         remoteNpidDiff: '',
@@ -406,6 +408,8 @@ export default defineComponent({
       this.facts.currentOutcome = outcome
       this.facts.programName = program
       this.facts.userRoles = UserService.getUserRoles().map((r: any) => r.role)
+      this.facts.patientType = (await ObservationService.getFirstValueCoded(
+        this.patient.getID(), 'Type of patient'))
     },
     /**
      * Set dde facts if service is enabled.

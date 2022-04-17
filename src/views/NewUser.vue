@@ -311,7 +311,7 @@ export default defineComponent({
                     () => Validation.hasLengthRangeOf(val, 4, 15)
                 ]),
                 config: {
-                    showLowerCasesOnly: true
+                    casing: 'lowercase'
                 },
             },
             {

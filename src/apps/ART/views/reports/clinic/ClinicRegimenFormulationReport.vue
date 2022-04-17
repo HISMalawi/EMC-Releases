@@ -5,8 +5,6 @@
         :rows="rows" 
         :fields="fields"
         :columns="columns"
-        :reportReady="reportReady"
-        :isLoading="isLoading"
         :onReportConfiguration="onPeriod"
         > 
     </report-template>
@@ -30,8 +28,6 @@ export default defineComponent({
         title: 'Regimen Formulation: Patient level report',
         totalClients: [],
         rows: [] as Array<any>,
-        isLoading: false as boolean,
-        reportReady: false as boolean,
         columns: [
             [
                 table.thTxt('ARV#'), 

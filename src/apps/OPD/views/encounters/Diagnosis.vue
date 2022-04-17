@@ -40,21 +40,22 @@ export default defineComponent({
     }
   },
   methods: {
-    async onSubmit(formData: any, computedData: any){   
+    async onSubmit(_: any, computedData: any){
       await this.diagnosisService.createEncounter()
-      await this.notesService.createEncounter()
       
       const diagnosisData = await this.resolveObs({...computedData}, 'diagnosis')      
       await this.diagnosisService.saveObservationList(diagnosisData)
 
       const notesData = await this.resolveObs({...computedData}, 'notes')
-      await this.notesService.saveObservationList(notesData)
+      if(!isEmpty(notesData)) {
+        await this.notesService.createEncounter()
+        await this.notesService.saveObservationList(notesData)
+      }
 
       this.nextTask()        
     },
     mapListToOptions(list: ConceptName[]){
       if(isEmpty(list)) return []
-
       return list.map(item => ({
         label: item.name, value: item.name, other: item.concept_id
       })).sort((a, b) => a.label < b.label ? -1 : a.label > b.label ? 1 : 0)

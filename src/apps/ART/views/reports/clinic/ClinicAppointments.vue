@@ -6,8 +6,6 @@
             :rows="rows" 
             :fields="fields"
             :columns="columns"
-            :canExportCsv="false"
-            :canExportPDf="false"
             :showtitleOnly="true"
             :config="{
                 showIndex: false
@@ -39,11 +37,11 @@ export default defineComponent({
         columns: [
             [
                 table.thTxt('ARV#'),
-                table.thTxt('First name'),
-                table.thTxt('Last name'),
+                table.thTxt('First name', { exportable: false }),
+                table.thTxt('Last name', { exportable: false }) ,
                 table.thTxt('Gender'),
                 table.thTxt('birthdate'),
-                table.thTxt('Current Address'),
+                table.thTxt('Current Address', {exportable: false}),
                 table.thTxt('Actions')
             ]
         ]

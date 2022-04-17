@@ -10,6 +10,7 @@ export interface ObsValue {
     value_modifier?: string | null;
     value_boolean?: string;
     value_numeric?: number;
+    obs_group_id?: number;
     obs_datetime?: string;
 }
 
@@ -21,6 +22,10 @@ export interface Observation {
 export class ObservationService extends ConceptService {
     constructor() {
         super()
+    }
+
+    static get(obsID: number) {
+        return super.getJson(`/observations/${obsID}`)
     }
 
     static create(data: Observation) {

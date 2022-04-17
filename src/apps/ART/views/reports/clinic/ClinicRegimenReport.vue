@@ -5,8 +5,6 @@
         :rows="rows" 
         :fields="fields"
         :columns="columns"
-        :reportReady="reportReady"
-        :isLoading="isLoading"
         :onReportConfiguration="onPeriod"
         :config="{
                 showIndex: false
@@ -28,8 +26,6 @@ export default defineComponent({
     data: () => ({
         title: 'Clinic Regimen Report',
         rows: [] as Array<any>,
-        reportReady: false as boolean,
-        isLoading: false as boolean,
         columns: [
             [
                 table.thTxt('ARV#'),
