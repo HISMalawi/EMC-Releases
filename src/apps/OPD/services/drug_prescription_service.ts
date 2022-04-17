@@ -7,7 +7,7 @@ import { isEmpty } from "lodash";
 export const DRUG_FREQUENCIES: Array<{label: string; code: string; value: number; [x: string]: any}> = [
   { label : "ONCE A DAY (OD)", code : "OD", value : 1 },
   { label : "TWICE A DAY (BD)", code : "BD", value : 2 },
-  { label : "THREE A DAY (TDS)", code : "TDS", value : 3 },
+  { label : "THREE TIMES A DAY (TDS)", code : "TDS", value : 3 },
   { label : "FOUR TIMES A DAY (QID)", code : "QID", value : 4 },
   { label : "FIVE TIMES A DAY (5X/D)", code : "5X/D", value : 5 },
   { label : "SIX TIMES A DAY (Q4HRS)", code : "Q4HRS", value : 6 },
