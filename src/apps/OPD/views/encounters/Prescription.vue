@@ -167,6 +167,29 @@ export default defineComponent({
             return false
           }
         },
+        {
+          id: 'summary',
+          helpText: 'Summary',
+          type: FieldType.TT_TABLE_VIEWER,
+          options: (f: any) => {
+            const drugs: Option[] = f['drugs_details']
+            const columns = [ 'Drug Name','Frequency','Dosage','Duration'];
+            const rows: any[] = drugs.map(drug => [
+              drug.other.name,
+              drug.other.frequency,
+              `${drug.other.dosage} ${drug.other.units}`,
+              `${drug.other.duration} days`
+            ])
+            return [
+              {
+                label: '',
+                value: '',
+                other: { columns, rows},
+              },
+            ];
+          },
+
+        }
       ]
     }
   }
