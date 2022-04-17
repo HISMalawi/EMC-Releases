@@ -104,12 +104,14 @@ export default defineComponent({
     this.$emit("onFieldActivated", this);
     const drugs: Option[] = await this.options();
     this.drugs = drugs.map((d) => {
-      d.other = {
-        ...d.other,
-        frequency: "",
-        duration: "",
-        dosage: "",
-      };
+      console.log(d)
+      if(d.other.frequency === undefined) d.other.frequency = ''
+      if(d.other.duration === undefined) d.other.duration ='' 
+      d.other.dosage = d.other.dosage 
+        ? d.other.dosage 
+        : d.other['dose_strength'] 
+        ? d.other['dose_strength'] 
+        : ''
       return d;
     });
   },

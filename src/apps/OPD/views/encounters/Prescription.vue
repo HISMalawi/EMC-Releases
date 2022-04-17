@@ -28,6 +28,7 @@ export default defineComponent({
   data: () => ({
     activeField: '',
     prescriptionService: {} as any,
+    showMalariaDrugs: false,
     hasMalaria: false,
     drugOrders: [] as any,
     selectedDrugs: [] as Option[],
@@ -98,15 +99,43 @@ export default defineComponent({
     getFields(): Array<Field>{
       return [
         {
+          id: 'malaria_drugs',
+          helpText: "select Malaria Drugs",
+          validation: (data: any) => Validation.required(data),
+          type: FieldType.TT_SELECT,
+          condition: () => this.activeField === 'malaria_drugs' && this.showMalariaDrugs,
+          beforeNext: () => {
+            this.showMalariaDrugs = false
+            this.activeField = 'drugs'
+            return true
+          },
+          options: () => ANTI_MALARIA_DRUGS.map(drug => ({
+            label: `${drug.name}, ${drug.frequency} time(s) a day, for ${drug.duration} days`,
+            value: drug.name,
+            other: drug
+          }))
+        },
+        {
           id: 'drugs',
           helpText: 'Select drugs',
           type: FieldType.TT_MULTIPLE_SELECT,
           validation: (data: any) => Validation.required(data),
-          options: () => this.prescriptionService.getDrugOptions(),
+          options: async (f: any) => {
+            const drugs: Option[] = await this.prescriptionService.getDrugOptions()
+            if(isEmpty(f['malaria_drugs'])) return drugs
+            const malariaDrug: Option = f['malaria_drugs']
+            return drugs.map(drug => {
+              if(drug.other.drug_id !== malariaDrug.other.drug_id) return drug
+              drug.other = {...malariaDrug.other}
+              drug.isChecked = true
+              return drug
+            })
+          },
           onload: () => this.activeField = '',
           unload: (data: Option[]) => this.selectedDrugs = data,
           config: {
             showKeyboard: true,
+            hiddenFooterBtns: ["Back"],
             footerBtns: [
               {
                 name: 'Predefined Malaria Drugs',
@@ -115,9 +144,11 @@ export default defineComponent({
                 visible: false,
                 slot: 'end',
                 onClick: async () => {
-                  if(this.hasMalaria) this.activeField = 'malaria_drugs'
-                  const ok = await alertConfirmation('Patient has no malaria. Do you still want to prescribe anti malaria drugs?')
-                  if(ok) this.activeField = 'malaria_drugs'
+                  if(!this.hasMalaria && !(await alertConfirmation('Patient has no malaria. Do you still want to prescribe anti malaria drugs?'))) {
+                    return;
+                  }
+                  this.activeField = 'malaria_drugs'
+                  this.showMalariaDrugs = true
                 }
               },
             ]
@@ -139,23 +170,6 @@ export default defineComponent({
             return false
           }
         },
-        {
-          id: 'malaria_drugs',
-          helpText: "select Malaria Drugs",
-          validation: (data: any) => Validation.required(data),
-          type: FieldType.TT_SELECT,
-          condition: () => this.activeField === 'malaria_drugs',
-          onValue: (data: Option) => {
-            if(isEmpty(data)) return false
-            this.drugOrders = this.mapToOrders([data.other])
-            return true
-          },
-          options: () => ANTI_MALARIA_DRUGS.map(drug => ({
-            label: `${drug.name}, ${drug.frequency} time(s) a day, for ${drug.duration} days`,
-            value: drug.name,
-            other: drug
-          }))
-        }
       ]
     }
   }
