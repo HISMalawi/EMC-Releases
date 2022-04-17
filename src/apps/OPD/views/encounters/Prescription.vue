@@ -30,7 +30,6 @@ export default defineComponent({
     prescriptionService: {} as any,
     showMalariaDrugs: false,
     hasMalaria: false,
-    drugOrders: [] as any,
   }),
   watch: {
     ready: {
@@ -47,10 +46,11 @@ export default defineComponent({
     }
   },
   methods: {
-    async onSubmit(){   
+    async onSubmit(formData: any){   
+      const drugOrders = this.mapToOrders(formData['drugs_details'])
       const encounter = await this.prescriptionService.createEncounter()
       if (!encounter) return toastWarning('Unable to create treatment encounter')   
-      const drugOrder = await this.prescriptionService.createDrugOrder(this.drugOrders);
+      const drugOrder = await this.prescriptionService.createDrugOrder(drugOrders);
       if(!drugOrder) return toastWarning('Unable to create drug orders!')
       toastSuccess('Drug order has been created')
       this.nextTask()       
@@ -159,10 +159,7 @@ export default defineComponent({
           options: (f: any) => [...f.drugs],
           beforeNext: (data: Option[]) => {
             if(isEmpty(data)) return false
-            if(this.isOrderComplete(data)){
-              this.drugOrders = this.mapToOrders(data)
-              return true
-            }
+            if(this.isOrderComplete(data)) return true
             toastWarning('Please complete all fields')
             return false
           }
