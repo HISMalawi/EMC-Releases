@@ -7,8 +7,8 @@
             <tr>
               <th>Drug</th>
               <th>Frequency</th>
-              <th>Duration</th>
               <th>Dosage</th>
+              <th>Duration</th>
               <th></th>
             </tr>
           </thead>
@@ -29,18 +29,18 @@
               <td>
                 <ion-input
                   readonly
-                  @click="launchKeyPad(drug, 'duration')"
-                  :value="drug.other.duration"
-                  placeholder="Add duration.."
+                  @click="launchKeyPad(drug, 'dosage')"
+                  :value="drug.other.dosage"
+                  placeholder="Add dosage.."
                   class="dosage-input"
                 />
               </td>
               <td>
                 <ion-input
                   readonly
-                  @click="launchKeyPad(drug, 'dosage')"
-                  :value="drug.other.dosage"
-                  placeholder="Add dosage.."
+                  @click="launchKeyPad(drug, 'duration')"
+                  :value="drug.other.duration"
+                  placeholder="Add duration.."
                   class="dosage-input"
                 />
               </td>
