@@ -93,18 +93,25 @@ export default defineComponent({
     this.$emit("onFieldActivated", this);
     const drugs: Option[] = await this.options();
     this.drugs = drugs.map((d) => {
-      console.log(d)
-      if(d.other.frequency === undefined) d.other.frequency = ''
+      d.other.frequency = this.getFrequency(d)
+      d.other.dosage = this.getDosage(d)
       if(d.other.duration === undefined) d.other.duration ='' 
-      d.other.dosage = d.other.dosage 
-        ? d.other.dosage 
-        : d.other['dose_strength'] 
-        ? d.other['dose_strength'] 
-        : ''
       return d;
     });
   },
   methods: {
+    getFrequency(drug: Option) {
+      if(drug.other.frequency) {
+        const frequency = DRUG_FREQUENCIES.find(f => f.value === parseInt(drug.other.frequency))
+        if(frequency) return frequency.label
+      }
+      return ''
+    },
+    getDosage(drug: Option) {
+      if (drug.other.dosage) return drug.other.dosage
+      if(drug.other['dose_strength']) return drug.other['dose_strength']
+      return ''
+    },
     removeDrug(drug: Option) {
       this.drugs = this.drugs.filter((d) => d.label != drug.label);
     },
