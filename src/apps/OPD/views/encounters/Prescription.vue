@@ -82,12 +82,12 @@ export default defineComponent({
         const frequency = DRUG_FREQUENCIES.find(f => f.label === drug.other.frequency)
         return {
           'drug_inventory_id': drug.other.drug_id,
-          'equivalent_daily_dose': drug.other.dose_strength * frequency!.value,
+          'equivalent_daily_dose': drug.other.dosage * frequency!.value,
           'start_date': startDate,
           'auto_expire_date': this.calculateExpireDate(startDate, drug.other.duration), 
           'units': drug.other.units,
           'instructions': `${drug.label}: ${frequency!.value} ${frequency!.code} for ${drug.other.duration}`,
-          'dose': drug.other.dose_strength,
+          'dose': drug.other.dosage,
           'frequency': frequency!.code,
         }
       })
@@ -103,10 +103,9 @@ export default defineComponent({
           validation: (data: any) => Validation.required(data),
           type: FieldType.TT_SELECT,
           condition: () => this.activeField === 'malaria_drugs' && this.showMalariaDrugs,
-          beforeNext: () => {
+          unload: () => {
             this.showMalariaDrugs = false
             this.activeField = 'drugs'
-            return true
           },
           options: () => ANTI_MALARIA_DRUGS.map(drug => ({
             label: `${drug.name}, ${drug.frequency} time(s) a day, for ${drug.duration} days`,
