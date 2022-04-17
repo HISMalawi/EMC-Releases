@@ -55,22 +55,6 @@ export default defineComponent({
       toastSuccess('Drug order has been created')
       this.nextTask()       
     },
-    async getPrescriptionDetails(prescribedDrugs: Option[]) {
-      const modal = await modalController.create({
-        component: PrescriptionModalVue,
-        backdropDismiss: false,
-        cssClass: "large-modal",
-        componentProps: {
-          prescribedDrugs
-        }
-      });
-      modal.present();
-      const { data } = await modal.onDidDismiss();
-      return data
-    },
-    getFrequencyCount(frequency: Record<string, boolean>) {
-      return Object.values(frequency).filter(value => value).length
-    },
     calculateExpireDate(startDate: string | Date, duration: number ) {
       const date = new Date(startDate)
       date.setDate(date.getDate() + duration)
