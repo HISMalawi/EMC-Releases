@@ -59,35 +59,24 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import ViewPort from "@/components/DataViews/ViewPort.vue";
 import FieldMixinVue from "./FieldMixin.vue";
 import {
   IonGrid,
   IonCol,
   IonRow,
   IonButton,
-  IonList,
   IonInput,
   IonIcon,
-  IonLabel,
-  IonItem,
   modalController,
 } from "@ionic/vue";
-import { find, isEmpty } from "lodash";
-import TouchField from "@/components/Forms/SIngleTouchField.vue";
-import { Field, Option } from "../Forms/FieldInterface";
-import { FieldType } from "../Forms/BaseFormElements";
-import Validation from "@/components/Forms/validations/StandardValidations";
-import { Service } from "@/services/service";
+import { Option } from "../Forms/FieldInterface";
 import HisKeypad from "@/components/Keyboard/HisKeypad.vue";
 import { trash } from "ionicons/icons";
 import { DRUG_FREQUENCIES } from "@/apps/OPD/services/drug_prescription_service";
-import { optionsActionSheet } from "@/utils/ActionSheets";
 import RadioSheet from "@/components/DataViews/actionsheet/RadioActionSheet.vue";
 
 export default defineComponent({
   components: {
-    // ViewPort,
     IonInput,
     IonGrid,
     IonCol,
