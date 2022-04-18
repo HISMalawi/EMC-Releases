@@ -1,7 +1,6 @@
 <template>
     <ion-row>
         <ion-col v-if="showPerPageFilter">
-            <br/>
             <select class="input_display" v-model="itemsPerPage" :disabled="disablePerPageFilter">
                 <option :selected="itemsPerPage === 5" :value="5">5 rows/page</option>
                 <option :selected="itemsPerPage === 10" :value="10">10 rows/page</option>
@@ -112,7 +111,11 @@ export default defineComponent({
         font-size: var(--his-lg-font-size);
         width: 300px;
         margin-bottom: 2%;
-    }
+        border: solid 1px #9d9b9b;
+        border-radius: 5px;
+        padding: 9px;
+        margin-top: 2%;
+    }   
     .search_input{
         float: right;
     }
