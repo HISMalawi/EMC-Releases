@@ -36,19 +36,19 @@ export default defineComponent({
           if(!(await GLOBAL_PROP.malawiNationalIDScannerEnabled())){
             toastWarning('Scanning of Malawi National ID is disabled');
             this.goHome();
-          }
-          
-          this.filterNationalID(barcodeData);
-          const data = await Patientservice.findByOtherID(28, this.clientID)
-          
-          if(data.length == 0) {
-            toastWarning('Client Malawi National ID not found');
-            this.searchPatientByNameGender();
-          }
-          else {
-            toastSuccess("Patient found");
-            const searchParam = `person_id=${data[0].patient_id}`
-            this.$router.push(`/patients/confirm?${searchParam}`)
+          }else{
+            this.filterNationalID(barcodeData);
+            const data = await Patientservice.findByOtherID(28, this.clientID)
+            
+            if(data.length == 0) {
+              toastWarning('Client Malawi National ID not found');
+              this.searchPatientByNameGender();
+            }
+            else {
+              toastSuccess("Patient found");
+              const searchParam = `person_id=${data[0].patient_id}`
+              this.$router.push(`/patients/confirm?${searchParam}`)
+            }
           }
         } 
         else

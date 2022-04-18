@@ -12,7 +12,7 @@
       <ion-toolbar class="full-component-view">
         <ion-row>
           <ion-col>
-            <div class="tool-bar-medium-card" v-if="!useVirtualInput" @click="openCamera">
+            <div class="tool-bar-medium-card" @click="openCamera">
               <ion-row> 
                 <ion-col size-lg="5" size-sm="4"> 
                   <img 
