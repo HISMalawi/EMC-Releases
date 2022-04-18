@@ -1,5 +1,5 @@
 <template>
-    <ion-row>
+    <ion-row style="border-top: solid 1px rgb(196 190 196);">
         <ion-col v-if="showPerPageFilter">
             <select class="input_display" v-model="itemsPerPage" :disabled="disablePerPageFilter">
                 <option :selected="itemsPerPage === 5" :value="5">5 rows/page</option>

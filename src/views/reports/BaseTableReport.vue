@@ -282,7 +282,7 @@ export default defineComponent({
 </script>
 <style scoped>
 .logo {
-  width: 100px;
+  width: 60px;
 }
 .report-content {
   margin: auto;
