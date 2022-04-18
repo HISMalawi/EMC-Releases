@@ -12,7 +12,7 @@
       <ion-toolbar class="full-component-view">
         <ion-row>
           <ion-col>
-            <div class="tool-bar-medium-card" v-if="!useVirtualInput">
+            <div class="tool-bar-medium-card" v-if="!useVirtualInput" @click="openCamera">
               <ion-row> 
                 <ion-col size-lg="5" size-sm="4"> 
                   <img 
@@ -30,26 +30,6 @@
                     class="barcode-input" 
                     ref="scanBarcode"
                   />
-                </ion-col>
-              </ion-row>
-            </div>
-            <div class="tool-bar-medium-card" v-if="useVirtualInput" @click="openCamera">
-              <ion-row> 
-                <ion-col size-lg="6" size-sm="6"> 
-                  <img 
-                    :style="{
-                      width: '230px', 
-                      height: '90px',
-                      margin: '0',
-                      'border-bottom-left-radius': '10px',
-                      'border-top-left-radius': '10px',
-                    }"
-                    :src="QRPlusBarcode"/>
-                </ion-col>
-                <ion-col size-lg="6" size-sm="6" style="text-align: center; margin: auto;line-height: 1.2;"> 
-                  <p>Click Here</p>
-                  <p>To Scan QR code Or Barcode</p>
-                  <p> using Camera</p>
                 </ion-col>
               </ion-row>
             </div>
@@ -255,9 +235,6 @@ export default defineComponent({
     barcodeLogo(): string {
       return Img('barcode.svg')
     },
-    QRPlusBarcode(): string {
-      return Img('qr_plus_barcode.png')
-    },
     appOverview(): any {
       return this.app.homeOverviewComponent
     },
@@ -340,6 +317,7 @@ export default defineComponent({
       auth.clearSession()
     },
     openCamera(){
+      if(this.useVirtualInput)
       this.$router.push('/camera_scanner')
     }
   },
