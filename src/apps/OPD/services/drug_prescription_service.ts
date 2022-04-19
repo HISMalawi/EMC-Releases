@@ -83,7 +83,7 @@ export class DrugPrescriptionService extends AppEncounterService {
     if(malariaTestResult === "No") {
       const primaryDiagnosis = await AppEncounterService.getAllValueCoded(this.patientID, 'Primary diagnosis')
       if(primaryDiagnosis.includes('Malaria')) return true
-      const secondaryDiagnosis = await AppEncounterService.getAllValueCoded(this.patientID, 'Primary diagnosis')
+      const secondaryDiagnosis = await AppEncounterService.getAllValueCoded(this.patientID, 'Secondary diagnosis')
       if(secondaryDiagnosis.includes('Malaria')) return true
       return false
     }
