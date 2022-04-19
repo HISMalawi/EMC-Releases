@@ -17,8 +17,6 @@ import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { isEmpty } from 'lodash';
 import { ANTI_MALARIA_DRUGS, DrugPrescriptionService, DRUG_FREQUENCIES } from '../../services/drug_prescription_service';
-import { modalController } from '@ionic/core';
-import PrescriptionModalVue from '@/apps/OPD/components/PrescriptionModal.vue';
 import HisDate from "@/utils/Date"
 import { alertConfirmation, toastSuccess, toastWarning } from '@/utils/Alerts';
 

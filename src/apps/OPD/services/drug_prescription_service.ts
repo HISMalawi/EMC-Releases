@@ -2,6 +2,7 @@ import { ConceptName } from "@/interfaces/conceptName";
 import { DrugInterface } from "@/interfaces/Drug";
 import { AppEncounterService } from "@/services/app_encounter_service"
 import { DrugOrderService } from "@/services/drug_order_service";
+import { OrderService } from "@/services/order_service";
 import { isEmpty } from "lodash";
 
 export const DRUG_FREQUENCIES: Array<{label: string; code: string; value: number; [x: string]: any}> = [
@@ -78,22 +79,17 @@ export class DrugPrescriptionService extends AppEncounterService {
     }))
   }
   async hasMalaria() {
-    const malariaTestResult = await this.getMalariaTestResult()
-    if(malariaTestResult) return true
-    const malariaDiagnosis = await this.getMalariaDiagnosis()
-    if(malariaDiagnosis) return true
-    return false
+    const malariaTestResult = await OrderService.getLatestMalariaTestResult(this.patientID)
+    if(malariaTestResult === "No") {
+      const primaryDiagnosis = await AppEncounterService.getAllValueCoded(this.patientID, 'Primary diagnosis')
+      if(primaryDiagnosis.includes('Malaria')) return true
+      const secondaryDiagnosis = await AppEncounterService.getAllValueCoded(this.patientID, 'Primary diagnosis')
+      if(secondaryDiagnosis.includes('Malaria')) return true
+      return false
+    }
+    return malariaTestResult === "Positive"
   }
-  async getMalariaTestResult() {
-    let malariaTestResult = await AppEncounterService.getFirstValueCoded(this.patientID, 'Malaria Test Result')   
-    if(malariaTestResult) return malariaTestResult
-    malariaTestResult = await AppEncounterService.getFirstValueText(this.patientID, 'Malaria Test Result')
-    if(malariaTestResult) return malariaTestResult
-    return null
-  }
-  async getMalariaDiagnosis() {
-    return AppEncounterService.getFirstValueCoded(this.patientID, 'Malaria')
-  }
+
   createDrugOrder(drugOrders: Array<DrugInterface>){
     return DrugOrderService.create({
       'encounter_id': this.encounterID,
