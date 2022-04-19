@@ -504,7 +504,7 @@ export default defineComponent({
         },
         getProgramCardInfo(info: any) {
            if ('formatPatientProgramSummary' in this.app) {
-             return this.app.formatPatientProgramSummary(info)
+             return this.app.formatPatientProgramSummary(isEmpty(info) ? this.patient : info)
            }
         },
         getActivitiesCardInfo(encounters: Array<Encounter>) {
