@@ -1,5 +1,7 @@
+import { LabOrderService } from "@/apps/ART/services/lab_order_service";
 import { AppEncounterService } from "@/services/app_encounter_service"
 import { ConceptService } from '@/services/concept_service';
+import { OrderService } from "@/services/order_service";
 
 export class PatientDiagnosisService extends AppEncounterService {
     constructor(patientID: number, providerID: number) {
@@ -11,15 +13,5 @@ export class PatientDiagnosisService extends AppEncounterService {
         return AppEncounterService.getJson('concept_set', {
             id: conceptSetId
         })
-    }
-
-    static async getMalariaTestResult(patientId: number) {
-        let malariaTestResult = await AppEncounterService.getFirstValueCoded(patientId, 'Malaria Test Result')   
-        if(malariaTestResult) return malariaTestResult
-
-        malariaTestResult = await AppEncounterService.getFirstValueText(patientId, 'Malaria Test Result')
-        if(malariaTestResult) return malariaTestResult
-
-        return null
     }
 }

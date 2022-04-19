@@ -69,6 +69,25 @@ export class OrderService extends Service {
         });
     }
 
+    static async getLatestMalariaTestResult(patientID: number) {
+        const orders: Order[] = await this.getOrders(patientID)
+        const malariaOrders = orders.filter(order => {
+            for (const test of order.tests) {
+                if(test.name.match(/Malaria/i)) return true
+            }
+            return false
+        });
+        if(malariaOrders.length > 0) {
+            const isPositive = malariaOrders[0].tests.some(test => {
+                return test.result.some(result => {
+                    return result.value.toString().match(/positive/i)
+                })
+            })
+            return isPositive ? 'Positive' : 'Negative'
+        } 
+        return "No"
+    }
+
     static isDBSResult(specimen: string) {
         return specimen.match(/DBS/i)
     }
