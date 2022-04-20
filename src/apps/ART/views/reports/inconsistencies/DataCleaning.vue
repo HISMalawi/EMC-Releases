@@ -106,7 +106,7 @@ export default defineComponent({
         this.report.setStartDate(startDate)
         this.report.setEndDate(endDate)
         this.period = this.report.getDateIntervalPeriod()
-        const data = await this.report.getCleaningToolReport(indicator)
+        const data = this.sortByArvNumber((await this.report.getCleaningToolReport(indicator)) || [], 'arv_number')
         if (!isEmpty(data)) {
             data.forEach((d: any) => {
                 const additionalData = typeof getData === 'function'

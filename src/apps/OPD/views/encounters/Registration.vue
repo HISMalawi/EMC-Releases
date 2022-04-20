@@ -12,6 +12,8 @@ import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { getFacilities } from '@/utils/HisFormHelpers/LocationFieldOptions';
 import { toastWarning } from '@/utils/Alerts';
+import { Patientservice } from '@/services/patient_service';
+import { MALAWI_NATIONAL_ID_TYPE } from '@/constants';
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -50,6 +52,11 @@ export default defineComponent({
                 await this.patient.updateMWNationalId(nid.value)
             }
         },
+        async mwIdExists(nid: string) {
+            if(!nid) return false
+            const people = await Patientservice.findByOtherID(MALAWI_NATIONAL_ID_TYPE, nid)
+            return people.length > 0
+        },
         getFields(): Array<Field>{
             return [
                 {
@@ -57,7 +64,7 @@ export default defineComponent({
                     helpText: 'Type of visit',
                     type: FieldType.TT_SELECT,
                     validation: (value: any) => Validation.required(value),
-                    computedValue: ({value}: Option) => ({ obs: this.registrationService.buildValueCoded('Type of visit', value)}),
+                    computedValue: (v: Option) => ({ obs: this.registrationService.buildValueCoded('Type of visit', v.value)}),
                     options: () => {
                         return [
                             { label: 'New', value: 'New patient' },
@@ -92,8 +99,15 @@ export default defineComponent({
                     id: 'national_id',
                     helpText: 'Enter National ID',
                     type: FieldType.TT_TEXT,
-                    validation: ({value}: Option) => Validation.isMWNationalID(value.toString()),
+                    validation: (value: Option) => Validation.isMWNationalID(value),
                     condition: (fields: any) => fields.national_id_available.value === 'Yes',
+                    beforeNext: async (field: Option) => {
+                        if(field.value && (await this.mwIdExists(field.value.toString()))){
+                            toastWarning('National ID already exists')
+                            return false
+                        }
+                        return true
+                    },
                     summaryMapValue: ({ value }: Option) => ({
                         value,
                         label: 'National ID'

@@ -261,13 +261,13 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             currentOutcome: (outcome: string) => outcome === 'Treatment stopped'
         }
     },
-    "[ART TRANSFER OUT VISIT PURPOSE] Select purpose of visit if patient was transferred out": {
+    "[ART Transferred out patient visit purpose] Select purpose of visit if patient was transferred out": {
         priority: 1,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
             alert: async () => {
                 const action = await infoActionSheet(
-                    'Patient transferred out',
+                    'Purpose of visit',
                     'Transferred out client',
                     'Please select purspose of the visit',
                     [
@@ -282,8 +282,8 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                             color: 'primary'
                         },
                         { 
-                            name: 'Transfer In',  
-                            slot: 'end', 
+                            name: 'Continue',
+                            slot: 'end',
                             color: 'success'
                         }
                     ],
@@ -298,6 +298,74 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         },
         conditions: {
             currentOutcome: (outcome: string) => outcome === 'Patient transferred out',
+            programName: (name: string) => name === 'HIV PROGRAM'
+        }
+    },
+    "[ART Drug refill visit purpose] Select purpose of visit for Drug Refill patients" : {
+        priority: 2,
+        targetEvent: TargetEvent.ON_CONTINUE,
+        actions: {
+            alert: async () => {
+                const action = await infoActionSheet(
+                    'Purpose of visit',
+                    'Drug refill client',
+                    'Please select purspose of the visit',
+                    [
+                        { 
+                            name: 'Consultation', 
+                            slot: 'start', 
+                            color: 'primary'
+                        },
+                        { 
+                            name: 'Drug Refill',
+                            slot: 'end',
+                            color: 'success'
+                        }
+                    ],
+                    'his-warning-color'
+                )
+                return action === 'Consultation'
+                    ? FlowState.ADD_AS_EXTERNAL_CONSULTATION
+                    : FlowState.CONTINUE
+            }
+        },
+        conditions: {
+            currentOutcome: (outcome: string) => outcome != 'Patient transferred out',
+            patientType: (pType: string) => pType === 'Drug Refill',
+            programName: (name: string) => name === 'HIV PROGRAM'
+        }
+    },
+    "[ART External consultation visit purpose] Select purpose of visit if patient is External Consultation": {
+        priority: 2,
+        targetEvent: TargetEvent.ON_CONTINUE,
+        actions: {
+            alert: async () => {
+                const action = await infoActionSheet(
+                    'Purpose of visit',
+                    'External consultation client',
+                    'Please select purspose of the visit',
+                    [
+                        { 
+                            name: 'Drug refill', 
+                            slot: 'start', 
+                            color: 'primary'
+                        },
+                        { 
+                            name: 'External consultation',
+                            slot: 'end',
+                            color: 'success'
+                        }
+                    ],
+                    'his-warning-color'
+                )
+                return action === 'Drug refill'
+                    ? FlowState.ADD_AS_DRUG_REFILL
+                    : FlowState.CONTINUE
+            }
+        },
+        conditions: {
+            currentOutcome: (outcome: string) => outcome != 'Patient transferred out',
+            patientType: (pType: string) => pType === 'External consultation',
             programName: (name: string) => name === 'HIV PROGRAM'
         }
     },
@@ -375,7 +443,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             alert: async () => {
                 const action = await infoActionSheet(
                     'Demographics',
-                    'Patient data is incomplete data',
+                    'Patient data is incomplete',
                     'Do you want to review and update now?',
                     [
                         { 

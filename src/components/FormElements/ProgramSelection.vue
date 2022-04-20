@@ -5,6 +5,7 @@
                 <ion-col size="4">
                     <ion-list>
                         <ion-item
+                            class="his-sm-text"
                             v-for="(program, pIndex) in listData" 
                             :color="program.label === activeProgram.label ? 'primary': ''" 
                             :key="pIndex"
@@ -15,12 +16,12 @@
                     </ion-list>
                 </ion-col>
                 <ion-col size="8">
-                    <h3 
+                    <h1 
                         v-if="activeProgram.label && states.length <= 0"
                         :style="{textAlign:'center'}"> 
                         Program has no states 
-                    </h3>
-                    <table class="his-table" v-if="activeProgram.label && states.length > 0"> 
+                    </h1>
+                    <table class="his-sm-text his-table" v-if="activeProgram.label && states.length > 0"> 
                         <tr>
                             <th>State</th>
                             <th>State Date</th>

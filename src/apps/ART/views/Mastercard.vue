@@ -5,6 +5,7 @@
       :numberOfColumns="4"
       @addGuardian="addGuardian"
       @update="updateDemographics"
+      @updateARVNumber="updateARVNumber"
     ></information-header>
     <ion-content>
       <visit-information
@@ -126,6 +127,9 @@ export default defineComponent({
         },
       });
     },
+    updateARVNumber() {
+      this.$router.push({name: "Edit ARV Number"})
+    },
     getFinishBtn(): NavBtnInterface {
       return {
         name: "Finish",
@@ -209,7 +213,14 @@ export default defineComponent({
       );
 
       return [
-        { label: "ARV Number", value: this.patient.getArvNumber() },
+        { 
+          label: "ARV Number", 
+          value: this.patient.getArvNumber(),
+          other: {
+            editable: true,
+            category: "arv_number"
+          }
+        },
         { label: "National Patient ID", value: patient.getNationalID() },
         {
           label: "Given Name",

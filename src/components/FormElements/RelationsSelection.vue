@@ -4,7 +4,7 @@
             <ion-col>
                 <div class="tool-bar-medium-card"> 
                     <center class="relation-category" :style="{color: '#3880ff'}"> Patient </center>
-                    <ul> 
+                    <ul class="his-sm-text"> 
                         <li>Name: <b>{{patient.name}}</b> </li>
                         <li>Birthdate: <b>{{patient.birthdate}}</b> </li>
                         <li>Home Address: <b>{{patient.homeAddress}}</b></li>
@@ -17,9 +17,9 @@
                 </center>
             </ion-col>
             <ion-col>
-                <div class="tool-bar-medium-card"> 
+                <div class="his-md-text tool-bar-medium-card"> 
                     <center class="relation-category" :style="{color: '#3dc2ff'}"> Guardian </center>
-                    <ul> 
+                    <ul class="his-sm-text"> 
                         <li>Name: <b>{{guardian.name}}</b> </li>
                         <li>Birthdate: <b>{{guardian.birthdate}}</b> </li>
                         <li>Home Address: <b>{{guardian.homeAddress}}</b></li>
@@ -30,7 +30,7 @@
         <div class="view-port-content">
             <ion-row v-for="(relations, rIndex) in relationList" :key="rIndex">
                 <ion-col size="6" v-for="(relation, iIndex) in relations" :key="iIndex">
-                    <div :class="`his-card clickable ${selected === relation.label ? `active-card-color`: ''}`" 
+                    <div class="his-md-text" :class="`his-card clickable ${selected === relation.label ? `active-card-color`: ''}`" 
                         @click="onClick(relation)"> 
                         <ul>
                             <li>Relationship <b>{{relation.label}}</b> </li>
@@ -96,7 +96,7 @@ export default defineComponent({
     height: 81%;
 }
 .tool-bar-medium-card {
-    height: 105px;    
+    height: 17vh;    
 }
 .relation-category {
     margin-top: 1%;

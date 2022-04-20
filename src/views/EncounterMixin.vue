@@ -10,7 +10,7 @@ import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { ENCOUNTER_GUIDELINES, FlowState } from "@/guidelines/encounter_guidelines"
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
-import { sort } from 'fast-sort'
+import { delayPromise } from '@/utils/Timers'
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -80,6 +80,7 @@ export default defineComponent({
         },
         async checkEncounterGuidelines() {
             const findings = matchToGuidelines(this.facts, ENCOUNTER_GUIDELINES)
+            await delayPromise(200)
             for(const index in findings) {
                 const finding = findings[index]
                 if (finding?.actions?.alert) {

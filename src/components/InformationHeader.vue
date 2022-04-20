@@ -37,11 +37,14 @@ export default defineComponent({
       default: 2
     },
   },
-  emits: ['update', 'addGuardian'],
+  emits: ['update','updateARVNumber', 'addGuardian'],
   setup (props, { emit }) {
     const onClick = (entry: Option) => {
       if (entry.other.category === 'demographics') {
         return emit('update', entry.other.attribute)
+      }
+      if(entry.other.category === 'arv_number') {
+        return emit("updateARVNumber")
       }
       return emit('addGuardian')
     }

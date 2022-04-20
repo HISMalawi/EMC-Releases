@@ -53,6 +53,16 @@ import SCARV from "@/apps/ART/views/reports/pepfar/SCARVReport.vue"
 
 export default [
     {
+        name: "Data cleaning verification",
+        path: "/art/data_cleaning_verification",
+        component: () => import("@/apps/ART/views/reports/inconsistencies/DataCleaningVerification.vue")
+    },
+    {
+        name: "Edit ARV Number",
+        path: "/art/arv-number/:patient_id",
+        component: () => import("@/apps/ART/views/encounters/ARVNumber.vue")
+    },
+    {
         name: 'preferences',
         path: "/art/preferences",
         component: () => import("@/apps/ART/views/preferences/AllPreferences.vue")
@@ -238,6 +248,11 @@ export default [
         component: DataCleaning
     },
     {
+        name: 'moh_disaggregated_report',
+        path: '/art/moh_disaggregated_report',
+        component: MohDisaggregatedReport
+    },
+    {
         path: '/art/report/moh',
         component: ReportTemplate,
         children: [
@@ -245,11 +260,6 @@ export default [
                 name: 'moh_cohort',
                 path: 'moh_cohort',
                 component: MohCohort
-            },
-            {
-                name: 'moh_disaggregated',
-                path: 'moh_disaggregated',
-                component: MohDisaggregatedReport
             }, 
             {
                 name: 'moh_survial_analysis',

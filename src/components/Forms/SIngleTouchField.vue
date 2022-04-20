@@ -2,7 +2,7 @@
     <ion-page>
         <ion-header>
             <ion-toolbar>
-                <ion-title class="ion-text-center"> 
+                <ion-title class="his-lg-text ion-text-center"> 
                     {{ currentField.helpText }}
                 </ion-title>
             </ion-toolbar>

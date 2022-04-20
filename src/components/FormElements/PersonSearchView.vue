@@ -2,9 +2,10 @@
     <ion-row>
         <ion-col size="5">
             <div class="large-card">
-                <h3> {{ foundRecordsTitle }} ({{listData.length}}):  </h3>
+                <h2> {{ foundRecordsTitle }} ({{listData.length}}):  </h2>
                 <ion-list>
                     <ion-item
+                        class="his-sm-text"
                         button
                         v-for="(result, index) in listData"
                         :key="index"
@@ -24,7 +25,8 @@
                 <h3> {{ detailsTitle }} </h3>
                 <ion-list>
                     <ion-item
-                      v-for="(opt, index) in selectedResult?.other?.options || []"
+                      class="his-md-text"
+                      v-for="(opt, index) in patientAttributes"
                       :key="index"
                       inset="none"
                       >
@@ -32,7 +34,7 @@
                           {{ opt.label }} 
                       </ion-label>
                       <ion-label slot="end"> 
-                          {{ opt.value }} 
+                        <b>{{ opt.value }}</b> 
                       </ion-label>
                     </ion-item>
                 </ion-list>
@@ -53,6 +55,7 @@ import {
 } from "@ionic/vue";
 import FieldMixinVue from "./FieldMixin.vue";
 import { Option } from "@/components/Forms/FieldInterface"
+import { isArray, isEmpty } from "lodash";
 
 export default defineComponent({
   mixins:[FieldMixinVue],
@@ -70,6 +73,14 @@ export default defineComponent({
     selectedResult: {} as any
   }),
   computed: {
+    patientAttributes(): Option[] {
+      if (!isEmpty(this.selectedResult) && isArray(this.selectedResult?.other?.options)) {
+        return this.selectedResult?.other?.options.filter(
+          (i: any) => typeof i?.other?.show === 'function' ? i?.other?.show() : true
+        )
+      }
+      return []
+    },
     foundRecordsTitle(): string {
       return this.config?.foundRecordsTitle || 'Found People'
     },

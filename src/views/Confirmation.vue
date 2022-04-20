@@ -5,23 +5,23 @@
         <ion-row> 
           <ion-col> 
             <div class="tool-bar-medium-card"> 
-              Patient Name: <b> {{demographics.patientName}}</b> <p/>
-              Birthdate: <b> {{birthdate}} </b> <p/>
-              Gender:  <b>{{demographics.gender}} </b>
+              <span class="his-sm-text">Patient Name: <b> {{demographics.patientName}}</b></span> <p/>
+              <span class="his-sm-text">Birthdate: <b> {{birthdate}} </b></span> <p/>
+              <span class="his-sm-text">Gender:  <b>{{demographics.gender}}</b></span>
             </div>
           </ion-col>
           <ion-col> 
             <div class="tool-bar-medium-card"> 
-              Ancestry district: <b>{{ demographics.ancestryDistrict }}</b> <p/>
-              Ancestry TA: <b>{{ demographics.ancestryTA }}</b> <p/>
-              Ancestry village: <b>{{ demographics.ancestryVillage }}</b> <p/>
+              <span class="his-sm-text">Ancestry district: <b>{{ demographics.ancestryDistrict }}</b></span><p/>
+              <span class="his-sm-text">Ancestry TA: <b>{{ demographics.ancestryTA }}</b></span><p/>
+              <span class="his-sm-text">Ancestry village: <b>{{ demographics.ancestryVillage }}</b></span><p/>
             </div>
           </ion-col>
           <ion-col> 
             <div class="tool-bar-medium-card"> 
-              Current District: <b> {{ demographics.currentDistrict }}</b><p/>
-              Current TA: <b> {{ demographics.currentTA }}</b><p/>
-              Current Village: <b> {{ demographics.currentVillage }}</b><p/>
+              <span class="his-sm-text">Current District:<b> {{ demographics.currentDistrict }}</b><p/></span>
+              <span class="his-sm-text">Current TA: <b> {{ demographics.currentTA }}</b><p/></span>
+              <span class="his-sm-text">Current Village: <b> {{ demographics.currentVillage }}</b><p/></span>
             </div>
           </ion-col>
         </ion-row>
@@ -29,14 +29,14 @@
     </ion-header>
     <ion-content>
       <ion-row>
-        <ion-col size="4" v-for="(card, index) in cards" :key="index">
+        <ion-col size-md="4" size-sm="12" v-for="(card, index) in cards" :key="index">
           <ion-card class="his-card">
             <ion-card-header style="background: #708090 !important;">
               <ion-card-title>{{ card.title.toUpperCase() }}</ion-card-title>
             </ion-card-header>
             <ion-card-content>
               <ul class="card-content"> 
-                <li class='li-item' v-for="(info, id) in card.data" :key="id" style="display: flex; justify-content: space-between;"> 
+                <li class='li-item his-sm-text' v-for="(info, id) in card.data" :key="id" style="display: flex; justify-content: space-between;"> 
                   <span v-if="info.label"> {{ info.label }} &nbsp;</span>
                   <strong v-html="info.value"></strong>
                 </li>
@@ -114,6 +114,7 @@ import  { ART_GLOBAL_PROP } from "@/apps/ART/art_global_props"
 import  { GLOBAL_PROP } from "@/apps/GLOBAL_APP/global_prop"
 import { OrderService } from "@/services/order_service";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
+import { ObservationService } from "@/services/observation_service";
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -150,6 +151,7 @@ export default defineComponent({
       currentOutcome: '' as string,
       programs: [] as string[],
       identifiers: [] as string[],
+      patientType: '' as string,
       dde: {
         localNpidDiff: '',
         remoteNpidDiff: '',
@@ -406,6 +408,8 @@ export default defineComponent({
       this.facts.currentOutcome = outcome
       this.facts.programName = program
       this.facts.userRoles = UserService.getUserRoles().map((r: any) => r.role)
+      this.facts.patientType = (await ObservationService.getFirstValueCoded(
+        this.patient.getID(), 'Type of patient'))
     },
     /**
      * Set dde facts if service is enabled.
@@ -607,21 +611,18 @@ export default defineComponent({
 </script>
 <style scoped>
 .card-content {
-  height: 200px;
+  padding: 0;
+  height: 300px;
   overflow: hidden;
 }
 .tool-bar-medium-card {
-  padding: 10px;
-  width: 94.7%;
-  margin: auto;
-  font-size: 0.9em;
+  padding: 0.3em;
 }
 ul {
   padding: 0;
 }
 .li-item {
   list-style: none;
-  font-size: 1.0em;
   margin: 0;
   padding: 0;
   line-height: 30px;
@@ -639,7 +640,7 @@ ion-col p {
   margin: 0;
 }
 ion-card {
-  height: 270px;
+  height: 35vh;
   padding: 0; 
   border-radius: 6px;
 }

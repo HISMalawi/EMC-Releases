@@ -128,7 +128,7 @@
                         <visit-dates-card :title="visitDatesTitle" :items="visitDates" @onselect="onActiveVisitDate"> </visit-dates-card>
                     </ion-col>
                     <ion-col size="9.6">
-                        <div class="his-card"> 
+                        <div class="his-sm-text his-card"> 
                         <ion-row> 
                            <ion-col size-md="4" size-sm="6"> 
                                Today's Date: <b>{{ currentDate }}</b>
@@ -235,7 +235,7 @@ import TaskSelector from "@/components/DataViews/TaskSelectorModal.vue"
 import EncounterView from "@/components/DataViews/DashboardEncounterModal.vue"
 import CardDrilldown from "@/components/DataViews/DashboardTableModal.vue"
 import { WorkflowService } from "@/services/workflow_service"
-import { toastSuccess, toastDanger, alertConfirmation } from "@/utils/Alerts";
+import { toastSuccess, alertConfirmation, toastDanger } from "@/utils/Alerts";
 import _, { isEmpty, uniq } from "lodash"
 import MinimalToolbar from "@/components/PatientDashboard/Poc/MinimalToolbar.vue"
 import FullToolbar from "@/components/PatientDashboard/Poc/FullToolbar.vue"
@@ -271,7 +271,8 @@ import {
   IonCol,
   IonFooter,
   IonToolbar,
-  modalController
+  modalController,
+  loadingController
 } from "@ionic/vue";
 import { EncounterService } from '@/services/encounter_service'
 import { ConceptService } from "@/services/concept_service"
@@ -420,7 +421,7 @@ export default defineComponent({
                 label: 'Activities',
                 items: this.encountersCardItems,
                 icon: timeOutline,
-                color: '#658afb',
+                color: 'primary',
                 onClick: () => this.openModal(
                     this.encountersCardItems, 
                     'Select Activities', 
@@ -432,7 +433,7 @@ export default defineComponent({
             const label = 'Lab Orders'
             return {
                 label,
-                color: '#69bb7b',
+                color: 'success',
                 icon: timeOutline,
                 items: this.labOrderCardItems,
                 onClick: () => this.$router.push(`/art/encounters/lab/${this.patient.getID()}`)
@@ -441,7 +442,7 @@ export default defineComponent({
         alertsCard() {
             return {
                 label: 'Alerts',
-                color: '#f95d5d',
+                color: 'danger',
                 icon: warningOutline,
                 items: this.alertCardItems,
                 onClick: () => { /* TODO, list all alerts */ }
@@ -450,7 +451,7 @@ export default defineComponent({
         medicationCard() {
             return {
                 label: 'Medications',
-                color: '#fdb044',
+                color: 'warning',
                 icon: timeOutline,
                 items: this.medicationCardItems,
                 onClick: () => {
@@ -516,11 +517,22 @@ export default defineComponent({
                     id: encounter.encounter_id,
                     columns: ['Observation', 'Value', 'Time'],
                     onVoid: async (reason: any) => {
-                        await EncounterService.voidEncounter(encounter.encounter_id, reason)
-                        /**Refresh card data*/
-                        await this.loadCardData(this.activeVisitDate as string)
-                        this.nextTask = await this.getNextTask(this.patientId)
-                        toastSuccess('Encounter has been voided!', 2000)
+                        const loading = await loadingController
+                            .create({
+                            message: 'Please wait....',
+                            backdropDismiss: false
+                        })
+                        await loading.present()
+                        try {
+                            await EncounterService.voidEncounter(encounter.encounter_id, reason)
+                            /**Refresh card data*/
+                            await this.loadCardData(this.activeVisitDate as string)
+                            this.nextTask = await this.getNextTask(this.patientId)
+                            toastSuccess('Encounter has been voided!', 2000)
+                        } catch (e) {
+                            toastDanger(e)
+                        }
+                        loadingController.dismiss()
                     },
                     getRows: async () => {
                         const data = []
@@ -561,14 +573,7 @@ export default defineComponent({
             const labOrders = await OrderService.getOrders(this.patientId, {date})
             return labOrders.map((order: any) => ({
                 label: order.specimen.name,
-                value: this.toTime(order.order_date),
-                other: {
-                    tableRow: [
-                        order.accession_number, 
-                        order.specimen.name,
-                        this.toTime(order.order_date)
-                    ]
-                }
+                value: this.toTime(order.order_date)
             }))
         },
         async getPatientAlertCardInfo(){
@@ -623,7 +628,7 @@ export default defineComponent({
             const modal = await modalController.create({
                 component: CardDrilldown,
                 backdropDismiss: false,
-                cssClass: "custom-modal",
+                cssClass: "large-modal",
                 componentProps: {
                     columns,
                     rows,

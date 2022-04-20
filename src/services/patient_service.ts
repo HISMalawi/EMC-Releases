@@ -85,6 +85,10 @@ export class Patientservice extends Service {
        return Patientservice.assignNHID(this.getID()) 
     }
 
+    createArvNumber(arvNumber: string) {
+        return PatientIdentifierService.create(this.getID(), 4, arvNumber)
+    }
+
     updateARVNumber(newARVNumber: string) {
         const patientIdentifierId = this.getIdentifiers().find(i => i.type.name === "ARV Number")?.patient_identifier_id || ''
         return Patientservice.reassignARVNumber(patientIdentifierId, {
@@ -344,6 +348,11 @@ export class Patientservice extends Service {
     getCurrentTA() {
         return this.getAddresses().currentTA
     }
+
+    getClosestLandmark() {
+        return this.getAttribute(19)
+    }
+
     getPhoneNumber() {
         return this.getAttribute(12) //get phone number
     }

@@ -449,6 +449,7 @@ export default defineComponent({
                     id: 'location',
                     helpText: 'CD4 Location',
                     type: FieldType.TT_SELECT,
+                    defaultValue: () => StagingService.getLocationName(),
                     computedValue: ({ label }: Option) => ({
                         tag: 'staging',
                         obs: this.staging.buildValueText('Cd4 count location', label)

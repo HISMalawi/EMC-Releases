@@ -1,7 +1,7 @@
 <template>
   <view-port>
     <div class="view-port-content">
-      <table>
+      <table class="his-sm-text">
         <tr>
           <th>Accession #</th>
           <th>Test Name</th>
@@ -9,16 +9,22 @@
           <th>Ordered</th>
           <th>Result</th>
           <th>Released</th>
+          <th>Given</th>
         </tr>
         <tr v-for="(data, index) in rows" :key="index">
-          <td>{{ data.accession_number }}</td>
+          <td><ion-button color="light" fill="none" @click="printOrder(data)">{{ data.accession_number }}</ion-button></td>
           <td>{{ data.test_name }}</td>
           <td>{{ data.specimen }}</td>
-          <td>{{ HisDate.toStandardHisDisplayFormat(data.ordered) }}</td>
+          <td>{{ data.ordered }}</td>
           <td>
             <span v-for="(d, i) in data.result" :key="i"> {{ d }} <br /></span>
           </td>
-          <td>{{ HisDate.toStandardHisDisplayFormat(data.released) }}</td>
+          <td>{{ data.released }}</td>
+          <td> 
+            <span :style="`color: ${data.result_given === 'Yes' ? 'green;' : 'black;'}`"> 
+              {{ data.result_given }} 
+            </span>
+          </td>
         </tr>
       </table>
     </div>
@@ -32,21 +38,31 @@ import LabOrderModal from "@/components/DataViews/LabOrderModal.vue"
 import { isEmpty } from "lodash";
 import FieldMixinVue from "./FieldMixin.vue";
 import HisDate from "@/utils/Date"
-
+import { IonButton } from "@ionic/vue"
+import { alertConfirmation } from "@/utils/Alerts";
 export default defineComponent({
-  components: { ViewPort },
+  components: { ViewPort, IonButton },
   mixins: [FieldMixinVue],
   data: () => ({
     HisDate,
     rows: [] as Array<any>,
   }),
   methods: {
+    async printOrder(data: any) {
+      if (typeof this.config?.printOrder === 'function') {
+        const ok = await alertConfirmation(`Do you want to print order with accession number ${data.accession_number}?`)
+        if (ok) this.config.printOrder(data.id)
+      }
+    },
     formatOrders(rawOrders: Array<any>) {
       return rawOrders.map((d: any) => ({
+          'id': d.order_id,
+          'encounter_id': d.encounter_id,
+          'result_given': d.result_given,
           'accession_number': d.accession_number,
           'test_name': d.tests[0].name,
           'specimen': d.specimen.name,
-          'ordered': d.order_date,
+          'ordered': HisDate.toStandardHisDisplayFormat(d.order_date),
           'result': [],
           'release': ''
       }))
@@ -67,14 +83,22 @@ export default defineComponent({
       }
     }
   },
-  activated() {
+  async activated() {
     this.$emit('onFieldActivated', this)
-  },
-  async created() {
     const items = await this.options(this.fdata);
-    this.rows = items[0].other.values;
-  },
-});
+    const rows = items[0].other.values;
+    this.rows = rows.map((o: any) => {
+      o.id = o.order_id
+      if (o.ordered) {
+        o.ordered = HisDate.toStandardHisDisplayFormat(o.ordered)
+      }
+      if (o.released) {
+        o.released = HisDate.toStandardHisDisplayFormat(o.released)
+      }
+      return o
+    })
+  }
+})
 </script>
 <style scoped>
 table {

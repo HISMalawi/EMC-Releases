@@ -1,7 +1,7 @@
 <template>
     <ion-header> 
         <ion-toolbar> 
-            <ion-title> {{ title }} </ion-title>
+            <ion-title class="his-md-text"> {{ title }} </ion-title>
         </ion-toolbar>
     </ion-header>
 
@@ -11,7 +11,7 @@
     
     <ion-footer>
       <ion-toolbar>
-        <ion-button @click="closeModal" slot="end"> Close </ion-button>
+        <ion-button size="large" @click="closeModal" slot="end"> Close </ion-button>
       </ion-toolbar>
   </ion-footer>
 </template>

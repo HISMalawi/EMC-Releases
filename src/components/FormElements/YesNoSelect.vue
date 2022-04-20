@@ -8,6 +8,7 @@
           </ion-col>
           <ion-col size="6">
             <ion-segment
+              class="his-sm-text"  
               mode="ios"
               @ionChange="segmentChanged($event)"
               v-model="value"
