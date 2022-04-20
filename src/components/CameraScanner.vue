@@ -5,6 +5,7 @@ import { Patientservice } from "@/services/patient_service"
 import { AppInterface } from "@/apps/interfaces/AppInterface";
 import { BarcodeScanner } from "@ionic-native/barcode-scanner";
 import { toastSuccess, toastWarning } from "@/utils/Alerts";
+import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
 
 export default defineComponent({
   name: "Scanner",
@@ -32,30 +33,32 @@ export default defineComponent({
     async scanBarcodeQRcode(){
       await BarcodeScanner.scan().then( async (barcodeData)=> {
         if(barcodeData.text.length > 30) {
-          this.filterNationalID(barcodeData);
-          const data = await Patientservice.findByOtherID(28, this.clientID)
-          
-          if(data.length == 0) {
-            toastWarning('Client Malawi National ID not found');
-            this.searchPatientByNameGender();
-          }
-          else 
-          if (data.length == 1){
-            toastSuccess("Patient found");
-            const searchParam = `person_id=${data[0].patient_id}`
-            this.$router.push(`/patients/confirm?${searchParam}`)
+          if(!(await GLOBAL_PROP.malawiNationalIDScannerEnabled())){
+            toastWarning('Scanning of Malawi National ID is disabled');
+            this.goHome();
+          }else{
+            this.filterNationalID(barcodeData);
+            const data = await Patientservice.findByOtherID(28, this.clientID)
+            
+            if(data.length == 0) {
+              toastWarning('Client Malawi National ID not found');
+              this.searchPatientByNameGender();
+            }
+            else {
+              toastSuccess("Patient found");
+              const searchParam = `person_id=${data[0].patient_id}`
+              this.$router.push(`/patients/confirm?${searchParam}`)
+            }
           }
         } 
         else
         {
-          const data = await Patientservice.findByOtherID(3, barcodeData.text);
+          const data = await Patientservice.findByNpid(barcodeData.text);
           if(data.length == 0) {
             toastWarning('Patient not found');
             this.goHome();
           }
-          else
-          if(data.length == 1)
-          {
+          else{
             this.filterPatientData(data);
           }
         }
