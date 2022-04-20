@@ -127,6 +127,17 @@ export default {
           pathUrl: `/preferences?label=Activate DDE&property=${GLOBAL_PROP.DDE_ENABLED}`
         }
       ]
+    },
+    {
+      name: 'Malawi National ID Settings', 
+      icon: 'card.png',
+      condition: () => UserService.isAdmin(),
+      files: [
+        {
+          name: "Malawi National ID Scanner Activation",
+          pathUrl: `/preferences?label=Activate Scanning of Malawi National ID&property=${GLOBAL_PROP.MALAWI_NATIONAL_ID_SCANNER_ENABLED}`
+        }
+      ]
     }
   ],
   GlobalProgramActivities: [
