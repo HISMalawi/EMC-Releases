@@ -41,7 +41,6 @@ export default defineComponent({
             const data = await Patientservice.findByOtherID(28, this.clientID)
             
             if(data.length == 0) {
-              toastWarning('Client Malawi National ID not found');
               this.searchPatientByNameGender();
             }
             else {
