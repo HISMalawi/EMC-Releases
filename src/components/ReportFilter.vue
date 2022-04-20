@@ -108,7 +108,7 @@ export default defineComponent({
 </script>
 <style scoped>
     .input_display {
-        font-size: var(--his-lg-font-size);
+        font-size: var(--his-sm-font-size);
         width: 300px;
         margin-bottom: 2%;
         border: solid 1px #9d9b9b;
