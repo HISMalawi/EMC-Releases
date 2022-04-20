@@ -103,10 +103,12 @@ const ApiClient = (() => {
             EventBus.emit(ApiBusEvents.AFTER_API_REQUEST, response)            
             return response
         } catch (e) {
+            console.error(e)
             if (`${e}`.match(/NetworkError|Failed to fetch/i)) {
                 EventBus.emit(ApiBusEvents.ON_API_CRASH, e)
+            } else {
+                EventBus.emit(ApiBusEvents.AFTER_API_REQUEST, {})
             }
-            console.error(e)
         }
     }
     
