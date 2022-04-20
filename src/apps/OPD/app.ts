@@ -33,7 +33,7 @@ async function formatPatientProgramSummary(data: any) {
   const hivStatus = await ObservationService.getFirstValueText(patient.getID(), 'HIV Status')
 
   return [
-    { label: 'Malawi National ID', value: patient.getMWNationalID() || 'Unknown' },
+    { label: 'Malawi National ID', value: patient.getMWNationalID() },
     { label: 'HIV Status', value: hivStatus || 'Unknown' },
   ]
 }
