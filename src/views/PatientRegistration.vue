@@ -34,9 +34,6 @@ import { IonPage } from "@ionic/vue"
 import { infoActionSheet } from "@/utils/ActionSheets"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 
-import { PatientIdentifierService } from "@/services/patient_identifier_service";
-import { getFullName } from '../interfaces/name';
-
 export default defineComponent({
   components: { HisStandardForm, IonPage },
   data: () => ({
@@ -764,7 +761,7 @@ export default defineComponent({
     patientRegistrationSummary(): Field 
     {
         return{
-          id: "all_presenting_complaints",
+          id: "registration_summary",
           helpText: "Summary",
           type: FieldType.TT_SUMMARY,
           options: (f: any, c: any) => {  
