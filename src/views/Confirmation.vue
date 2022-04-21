@@ -82,7 +82,7 @@ import { UserService } from "@/services/user_service";
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import { Patientservice } from "@/services/patient_service";
 import { PatientProgramService } from "@/services/patient_program_service"
-import { alertConfirmation, toastDanger } from "@/utils/Alerts"
+import { alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts"
 import { Patient } from "@/interfaces/patient"
 import {
   IonContent,
@@ -470,17 +470,20 @@ export default defineComponent({
               type: 'button',
               name: 'Select',
               action: async () => {
-                await modalController.dismiss()
                 if (!p.patientIsComplete()) {
                   return this.$router.push(`/patient/registration?edit_person=${p.getID()}`)
-                } else if (p.patientIsComplete() && p.getNationalID().match(/unknown/i)) {
+                } else if (p.getNationalID().match(/unknown/i) || !p.getDocID()) {
                   try {
                     await p.assignNpid()
+                    await this.findAndSetPatient(p.getID(), undefined)
+                    return modalController.dismiss()
                   } catch (e) {
-                    console.error(e)
+                    toastWarning('Failed to assign npid to patient with unknown npid.')
+                    return console.error(e)
                   }
                 }
-                await this.findAndSetPatient(p.getID(), undefined)
+                await modalController.dismiss()
+                await this.findAndSetPatient(undefined, p.getNationalID())
               }
             }
           ]

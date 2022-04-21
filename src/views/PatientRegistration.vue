@@ -224,11 +224,15 @@ export default defineComponent({
                 try {
                     await this.patient.assignNpid()
                     await this.patient.printNationalID()
-                } catch (e) {
+               } catch (e) {
                     toastDanger(`${e}`)
                 }
         }
-        this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
+        if (this.patient.getNationalID().match(/unknown/i)) {
+            return this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
+        } else {
+            this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
+        }
     },
     resolvePersonAttributes(form: Record<string, Option> | Record<string, null>) {
         return Object.values(form)
