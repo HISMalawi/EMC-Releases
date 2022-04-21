@@ -161,7 +161,7 @@ export default defineComponent({
             }))
         },
         getDateDurationFields(useQuarter=false, setCustomQuarterPeriod=false, maxQuarter=5): Array<Field> {
-            const minDate = '2001-01-01'
+            const minDate = '2000-01-01'
             const maxDate = Service.getSessionDate()
             return [
                 {
