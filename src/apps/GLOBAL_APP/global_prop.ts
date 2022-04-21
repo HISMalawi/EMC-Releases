@@ -7,11 +7,16 @@ export enum GLOBAL_PROP {
     SITE_UUID = 'site_uuid',
     PORTAL_ENABLED = 'portal.enabled',
     PORTAL_PROPERTIES = 'portal.properties',
-    DDE_ENABLED = 'dde_enabled'
+    DDE_ENABLED = 'dde_enabled',
+    MALAWI_NATIONAL_ID_SCANNER_ENABLED = 'malawi.nationalID.scanner.enabled'
 }
 
 function ddeEnabled() {
     return GlobalPropertyService.isProp(`${GLOBAL_PROP.DDE_ENABLED}=true`)
+}
+
+function malawiNationalIDScannerEnabled() {
+    return GlobalPropertyService.isProp(`${GLOBAL_PROP.MALAWI_NATIONAL_ID_SCANNER_ENABLED}=true`)
 }
 
 function militarySiteEnabled() {
@@ -70,5 +75,6 @@ export default {
     portalEnabled,
     setSitePrefix,
     setPortalIP,
-    setPortalEnabled
+    setPortalEnabled,
+    malawiNationalIDScannerEnabled
 }
