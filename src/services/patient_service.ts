@@ -265,7 +265,7 @@ export class Patientservice extends Service {
     }
 
     async printNationalID() {
-        new PatientPrintoutService(this.getID()).printNidLbl()
+        return new PatientPrintoutService(this.getID()).printNidLbl()
     }
 
     getFullName() {

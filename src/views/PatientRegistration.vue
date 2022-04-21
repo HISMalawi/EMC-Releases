@@ -225,11 +225,11 @@ export default defineComponent({
                     await this.patient.assignNpid()
                     await this.patient.printNationalID()
                } catch (e) {
-                    toastDanger(`${e}`)
+                    toastDanger(`Failed to assign new NPID: ${e}`)
                 }
         }
         if (this.patient.getNationalID().match(/unknown/i)) {
-            return this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
+            this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
         } else {
             this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
         }
@@ -744,9 +744,9 @@ export default defineComponent({
                             try {
                                 await this.ddeInstance.reassignNpid(this.ddeDocID, this.editPerson)
                                 await this.ddeInstance.printNpid()
-                                this.confirmPatient()
+                                this.$router.push(`/patients/confirm?person_id=${this.editPerson}`)
                             } catch(e) {
-                                toastWarning(e)
+                                toastWarning(`${e}`)
                             }
                         }
                     },

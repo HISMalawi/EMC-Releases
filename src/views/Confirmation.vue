@@ -286,7 +286,7 @@ export default defineComponent({
             this.setInvalidParametersFacts(entities)
           }
         } else {
-          toastDanger(e, 300000)
+          toastDanger(`${e}`, 300000)
         }
       }
       this.facts.patientFound = !isEmpty(results)
@@ -597,7 +597,7 @@ export default defineComponent({
         try {
           return await states[state]()
         }catch(e) {
-          toastDanger(e)
+          toastDanger(`${e}`)
         }
       }
       return state
