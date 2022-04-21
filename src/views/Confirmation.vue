@@ -115,6 +115,7 @@ import  { GLOBAL_PROP } from "@/apps/GLOBAL_APP/global_prop"
 import { OrderService } from "@/services/order_service";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { ObservationService } from "@/services/observation_service";
+import { delayPromise } from "@/utils/Timers";
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -544,8 +545,9 @@ export default defineComponent({
           this.$router.push(`/patient/registration?edit_person=${this.patient.getID()}`)
           return FlowState.FORCE_EXIT
         },
-        'printNPID': () => {
-          this.ddeInstance.printNpid(this.patient.getID())
+        'printNPID': async () => {
+          await this.ddeInstance.printNpid(this.patient.getID())
+          await delayPromise(1800)
           return FlowState.CONTINUE
         },
         'createNpiDWithRemote': async () => {
