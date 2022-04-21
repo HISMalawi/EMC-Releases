@@ -10,6 +10,7 @@ import  { BMIService } from "@/services/bmi_service"
 import { find, isEmpty } from 'lodash';
 import { isValueEmpty } from '@/utils/Strs';
 import { PatientIdentifierService } from './patient_identifier_service';
+import { PatientPrintoutService } from './patient_printout_service';
 
 export class Patientservice extends Service {
     patient: Patient;
@@ -44,8 +45,8 @@ export class Patientservice extends Service {
     public static async findByID(patientId: number | string) {
         return super.getJson(`/patients/${patientId}`)
     }
-    public static async assignNHID(patientId: number | string) {
-        return super.postJson(`/patients/${patientId}/npid`, {});
+    public static async assignNHID(patientId: number | string, programID: number) {
+        return super.postJson(`/patients/${patientId}/npid`, { 'program_id': programID });
     }
     public static reassignARVNumber(patientIdentifierId: number | string, data: Record<string, any>) {
         return super.putJson("patient_identifiers/" + patientIdentifierId, data)
@@ -82,7 +83,7 @@ export class Patientservice extends Service {
     }
 
     assignNpid() {
-       return Patientservice.assignNHID(this.getID()) 
+       return Patientservice.assignNHID(this.getID(), Service.getProgramID()) 
     }
 
     createArvNumber(arvNumber: string) {
@@ -261,6 +262,10 @@ export class Patientservice extends Service {
 
     private normaliseName(name: string) {
         return name.replace(/n\/a|unknown|null|undefined/gi, '').trim()
+    }
+
+    async printNationalID() {
+        new PatientPrintoutService(this.getID()).printNidLbl()
     }
 
     getFullName() {

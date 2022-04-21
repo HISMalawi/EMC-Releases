@@ -199,9 +199,11 @@ export default defineComponent({
         }
         return true
     },
-    confirmPatient() {
-        if (!this.patient.getNationalID().match(/unknown/i)) {
-            return  this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
+    async confirmPatient() {
+        if (this.ddeInstance.isEnabled() && (!this.patient.getDocID() 
+            || (this.patient.getDocID() && this.patient.getNationalID().match(/unknown/i)))) {
+            await this.patient.assignNpid()
+            await this.patient.printNationalID()
         }
         this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
     },
@@ -719,7 +721,7 @@ export default defineComponent({
                                 onload: () => !this.ddeIsReassign && !this.hasIncompleteData
                             }
                         },
-                        onClick: () => this.confirmPatient()
+                        onClick: async () => this.confirmPatient()
                     }
                 ],
                 hiddenFooterBtns: ['Clear', 'Next']

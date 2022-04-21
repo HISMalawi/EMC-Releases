@@ -471,7 +471,12 @@ export default defineComponent({
               name: 'Select',
               action: async () => {
                 await modalController.dismiss()
-                await this.findAndSetPatient(undefined, p.getNationalID())
+                if (!p.patientIsComplete()) {
+                  return this.$router.push(`/patient/registration?edit_person=${p.getID()}`)
+                } else if (p.patientIsComplete() && p.getNationalID().match(/unknown/i)) {
+                  await p.assignNpid()
+                }
+                await this.findAndSetPatient(p.getID(), undefined)
               }
             }
           ]
