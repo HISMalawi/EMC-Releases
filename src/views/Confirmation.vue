@@ -474,7 +474,11 @@ export default defineComponent({
                 if (!p.patientIsComplete()) {
                   return this.$router.push(`/patient/registration?edit_person=${p.getID()}`)
                 } else if (p.patientIsComplete() && p.getNationalID().match(/unknown/i)) {
-                  await p.assignNpid()
+                  try {
+                    await p.assignNpid()
+                  } catch (e) {
+                    console.error(e)
+                  }
                 }
                 await this.findAndSetPatient(p.getID(), undefined)
               }

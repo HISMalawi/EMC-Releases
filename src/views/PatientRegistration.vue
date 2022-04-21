@@ -28,7 +28,7 @@ import { AppInterface } from "@/apps/interfaces/AppInterface"
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { isValueEmpty } from "@/utils/Strs"
 import { PatientDemographicsExchangeService } from "@/services/patient_demographics_exchange_service"
-import { toastWarning } from "@/utils/Alerts"
+import { toastDanger, toastWarning } from "@/utils/Alerts"
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { IonPage } from "@ionic/vue"
 import { infoActionSheet } from "@/utils/ActionSheets"
@@ -218,10 +218,15 @@ export default defineComponent({
         return true
     },
     async confirmPatient() {
+        // Attempt to assign or reassign a patient's NPID if they dont have a valid one
         if (this.ddeInstance.isEnabled() && (!this.patient.getDocID() 
             || (this.patient.getDocID() && this.patient.getNationalID().match(/unknown/i)))) {
-            await this.patient.assignNpid()
-            await this.patient.printNationalID()
+                try {
+                    await this.patient.assignNpid()
+                    await this.patient.printNationalID()
+                } catch (e) {
+                    toastDanger(`${e}`)
+                }
         }
         this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
     },
