@@ -15,6 +15,8 @@ export const WEIGHT_BAND = [
     '35 - 39.9 Kg',
     '4 - 4.9 Kg',
     '40 Kg +',
+    '40 - 49.9 Kg',
+    '50 Kg +',
     '6 - 9.9 Kg',
     'Unknown'
 ]
