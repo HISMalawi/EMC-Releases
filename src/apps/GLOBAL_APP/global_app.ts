@@ -149,7 +149,7 @@ export default {
         const lbl = new PatientPrintoutService(patient.patient_id)
         return lbl.printNidLbl()
       },
-      icon: "barcode.png"
+      icon: "barcode.svg"
     },
     {
       id: "lab activities",
