@@ -146,6 +146,7 @@ export default defineComponent({
             'current_district': currentDistrict,
             'current_traditional_authority': currentTA,
             'cell_phone_number': this.patient.getPhoneNumber(),
+            'landmark': this.patient.getClosestLandmark()
         }
         this.presets = this.editPersonData
         this.skipSummary = true
@@ -366,7 +367,7 @@ export default defineComponent({
     },
     landmarkFields(): Field[] {
         const landmarks: Field[] = PersonField.getLandmarkFields()
-        landmarks[0].condition = () => this.editConditionCheck(['landmark'])
+        landmarks[0].condition = () => this.editConditionCheck(['default_landmarks'])
         return landmarks
     },
     patientTypeField(): Field {
@@ -702,6 +703,7 @@ export default defineComponent({
                     ['Home Village', this.editPersonData.home_village,  editButton('home_region')],
                     ['Current district',this.editPersonData.current_district, editButton('current_region')],
                     ['Current T/A', this.editPersonData.current_traditional_authority, editButton('current_region')],
+                    ['Landmark', this.editPersonData.landmark, editButton('default_landmarks')],
                 ]
                 // Tag rows with empty values
                 const emptySets: any = {indexes: [], class: 'his-empty-set-color'}
