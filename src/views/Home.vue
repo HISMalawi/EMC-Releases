@@ -12,7 +12,7 @@
       <ion-toolbar class="full-component-view">
         <ion-row>
           <ion-col>
-            <div class="tool-bar-medium-card">
+            <div class="tool-bar-medium-card" @click="openCamera">
               <ion-row> 
                 <ion-col size-lg="5" size-sm="4"> 
                   <img 
@@ -23,7 +23,7 @@
                     }"
                     :src="barcodeLogo"/>
                 </ion-col>
-                <ion-col size-lg="7" size-sm="8"> 
+                <ion-col size-lg="7" size-sm="8"  v-if="!useVirtualInput"> 
                   <input 
                     :readonly="useVirtualInput" 
                     v-model="patientBarcode" 
@@ -31,18 +31,20 @@
                     ref="scanBarcode"
                   />
                 </ion-col>
+                 <ion-col v-if="useVirtualInput" size-lg="6" size-sm="6" style="text-align: center; margin: auto;line-height: 1.2;"> 
+                  <p>Click Here</p>
+                  <p>To Scan QR code Or Barcode</p>
+                  <p> using Camera</p>
+                </ion-col>
               </ion-row>
             </div>
           </ion-col>
           <ion-col size="5">
             <div class="tool-bar-medium-card">
-              <div class="tool-bar-medium-content"> 
-                <p>Facility name: <b>{{ facilityName }}</b></p>
-                <p>Location: <b> {{ userLocation }}</b></p>
-                <p>Date: <ion-label :color="isBDE ? 'danger' : 'success'">
-                  <b> {{ sessionDate }} </b> 
-                  </ion-label></p>
-                <p>User:<b> {{ userName }}</b></p>
+              <div class="his-sm-text tool-bar-medium-content"> 
+                <span>Facility name: <b>{{ facilityName }}</b></span> <br/>
+                <span>Location: <b> {{ userLocation }}</b></span><br/>
+                <span>User: <b>{{ userName }}</b> | Date: <ion-label :color="isBDE ? 'danger' : 'success'"><b>{{ sessionDate }} </b></ion-label></span><br/>
               </div>
             </div>
           </ion-col>
@@ -57,15 +59,15 @@
       <ion-segment scrollable :value="activeTab" class="ion-justify-content-center">
         <ion-segment-button :value="1" @click="activeTab = 1">
           <ion-icon :icon="statsChart"> </ion-icon>
-          <ion-label>Overview</ion-label>
+          <ion-label class="his-sm-text">Overview</ion-label>
         </ion-segment-button>
         <ion-segment-button v-if="canReport" :value="2" @click="activeTab = 2">
           <ion-icon :icon="pieChart"> </ion-icon>
-          <ion-label>Reports</ion-label>
+          <ion-label class="his-sm-text">Reports</ion-label>
         </ion-segment-button>
         <ion-segment-button :value="3" @click="activeTab = 3">
           <ion-icon :icon="settings"> </ion-icon>
-          <ion-label>Administration</ion-label>
+          <ion-label class="his-sm-text">Administration</ion-label>
         </ion-segment-button>
       </ion-segment>
     </ion-toolbar>
@@ -228,7 +230,7 @@ export default defineComponent({
       ready: false,
       patientBarcode: "",
       overviewComponent: {} as any,
-      isBDE: false
+      isBDE: false,
     };
   },
   computed: {
@@ -315,6 +317,10 @@ export default defineComponent({
         this.$router.push('/login')
       }
       auth.clearSession()
+    },
+    openCamera(){
+      if(this.useVirtualInput)
+      this.$router.push('/camera_scanner')
     }
   },
   created() {
@@ -361,7 +367,7 @@ ion-icon {
   padding: 0.2em;
 }
 .tool-bar-medium-content {
-  padding: 10px;
+  padding: 0.4em;
 }
 .tool-bar-medium-card {
   height: 100px;

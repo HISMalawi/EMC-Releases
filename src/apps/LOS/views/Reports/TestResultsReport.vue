@@ -101,7 +101,7 @@ export default defineComponent({
         },
         buildAvailableTests(results: any) {
             const tests: Record<string, any> = {}
-            results.forEach((result: any) => {
+            this.sortByArvNumber(results).forEach((result: any) => {
                 result.measures.forEach((measure: any) => {
                     if (!(measure.name in tests)) {
                         tests[measure.name] = []
@@ -160,7 +160,7 @@ export default defineComponent({
             results.forEach(({other}: Option)  => {
                 other.forEach((d: any) => {
                     this.rows.push([
-                        table.td(d.arv),
+                        this.tdARV(d.arv),
                         table.td(d.gender),
                         table.tdDate(d.birthdate),
                         table.tdDate(d.ordered),

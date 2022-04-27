@@ -311,15 +311,21 @@ export default [
       "categories": ["anc_surgical_history"],
       "concept_id": 9309,
       "name": "Macdonald suture"
-   }, {
+   }, 
+   {
       "categories": ["anc_surgical_history"],
       "concept_id": 9314,
-     "name": "Oophorectomy"
+      "name": "Oophorectomy"
    },
    {
       "categories": [],
       "concept_id": 7124,
       "name": "Tetanus toxoid vaccine"
+   },
+   {
+      "categories": [],
+      "name": "Result Given to Client",
+      "concept_id": 9764
    },
    {
       "categories": [],
@@ -2339,5 +2345,10 @@ export default [
       ],
       "concept_id": 5328,
       "name": "Persistent generalized lymphadenopathy"
+   },
+   {
+      "categories": [],
+      "concept_id": 10539,
+      "name": "History of COVID-19 contact"
    }
 ]

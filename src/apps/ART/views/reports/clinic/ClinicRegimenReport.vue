@@ -5,8 +5,6 @@
         :rows="rows" 
         :fields="fields"
         :columns="columns"
-        :reportReady="reportReady"
-        :isLoading="isLoading"
         :onReportConfiguration="onPeriod"
         :config="{
                 showIndex: false
@@ -28,8 +26,6 @@ export default defineComponent({
     data: () => ({
         title: 'Clinic Regimen Report',
         rows: [] as Array<any>,
-        reportReady: false as boolean,
-        isLoading: false as boolean,
         columns: [
             [
                 table.thTxt('ARV#'),
@@ -48,8 +44,6 @@ export default defineComponent({
     },
     methods: {
         async onPeriod(_: any, config: any) {
-            this.reportReady = true
-            this.isLoading = true
             this.rows = []
             this.report = new RegimenReportService()
             this.report.setReportType('moh')
@@ -57,10 +51,9 @@ export default defineComponent({
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()
             this.setRows((await this.report.getRegimenReport()))
-            this.isLoading = false
         },
         setRows(data: any) {
-            Object.values(data).map((d: any) => {
+            this.sortByArvNumber(Object.values(data)).map((d: any) => {
                 let lastDispenseDate = ''
                 const medications = d.medication.map((m: any) => {
                     lastDispenseDate = this.toDate(m.start_date)

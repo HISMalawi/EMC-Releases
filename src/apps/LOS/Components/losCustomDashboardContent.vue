@@ -2,9 +2,9 @@
     <p/>
     <ion-segment scrollable :value="activeTab" class="ion-justify-content-center">
         <ion-segment-button value="openOrders" @click="activeTab='openOrders'">
-            <ion-label>Open</ion-label>
+            <ion-label class="his-lg-text">Open</ion-label>
         </ion-segment-button>
-        <ion-segment-button value="drawnOrders" @click="activeTab='drawnOrders'">
+        <ion-segment-button class="his-lg-text" value="drawnOrders" @click="activeTab='drawnOrders'">
             <ion-label>Drawn</ion-label>
         </ion-segment-button>
     </ion-segment>

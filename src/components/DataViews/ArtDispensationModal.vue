@@ -26,7 +26,7 @@
                 </tr>
                 <tr v-for="(list, rIndex) in listData" :key="rIndex">
                     <td v-for="(amount, cIndex) in list" :key="cIndex" 
-                        :class="cIndex >= 2 ? 'input-field' : ''"> 
+                        :class="cIndex >= 2 ? 'input-field' : 'his-md-text'"> 
                         {{ amount }}
                     </td>
                     <td> 
@@ -126,10 +126,12 @@ export default defineComponent({
 
 <style scoped>
     table {
+        font-size: var(--his-md-font-size);
         width: 98%;
         margin: auto;
     }
     table, td, th {
+        font-size: var(--his-sm-font-size);
         border: solid 1px #ccc;
         text-align: center;
         vertical-align: middle;

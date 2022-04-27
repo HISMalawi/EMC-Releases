@@ -8,7 +8,7 @@
         <ion-list class='view-port-content'>
           <ion-item v-for="(entry, index) in filtered" :key="index" :color="entry.isChecked ? 'lightblue':''">
             <ion-label> 
-              <ion-text>
+              <ion-text class="his-md-text">
                 {{ entry.label }} 
               </ion-text>
               <ion-text

@@ -24,11 +24,13 @@ export enum FlowState {
     CREATE_NPID_WITH_REMOTE_DIFF = 'createNpiDWithRemote',
     REFRESH_DDE_DEMOGRAPHICS = 'refreshDemographicsDDE',
     UPDATE_LOCAL_DDE_DIFFS = 'updateLocalDiffs',
-    RESOLVE_DUPLICATE_NPIDS = 'resolveDuplicateNpids'
+    RESOLVE_DUPLICATE_NPIDS = 'resolveDuplicateNpids',
+    ADD_AS_DRUG_REFILL = 'addAsDrugRefill',
+    ADD_AS_EXTERNAL_CONSULTATION = 'addAsExternalConsultation'
 }
 export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = {
     "Do not proceed if patient is not found in the system" : {
-        priority: 2,
+        priority: 1,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -58,7 +60,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE] Show invalid attributes for a patient whose remote": {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async (facts: any) => {
@@ -117,7 +119,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE] Notify the user to proceed with Remote NPID if local NPID does not match remote": {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({dde}: any) => {
@@ -147,7 +149,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Warn if patient is missing National ID and assign them one": {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -173,7 +175,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Detect NPID duplicates and prompt the user to resolve them" : {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({ scannedNpid }: any) => {
@@ -200,7 +202,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Warn before proceeding if patient is deceased based on current Patient state": {
-        priority: 1,
+        priority: 3,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
             alert: async () => {
@@ -230,7 +232,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Warn before proceeding if patient stopped treatment based on current Patient state": {
-        priority: 1,
+        priority: 3,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
             alert: async () => {
@@ -256,37 +258,115 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         },
         conditions: {
-            currentOutcome: (outcome: string) => outcome === 'Treatment stopped' 
+            currentOutcome: (outcome: string) => outcome === 'Treatment stopped'
         }
     },
-    "Warn before proceeding if patient is transferred out based on current patient state": {
-        priority: 1,
+    "[ART Transferred out patient visit purpose] Select purpose of visit if patient was transferred out": {
+        priority: 3,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
             alert: async () => {
                 const action = await infoActionSheet(
-                    'Transferred out Patient',
-                    'Patient was transferred out',
-                    'Do you want to continue?',
+                    'Purpose of visit',
+                    'Transferred out client',
+                    'Please select purspose of the visit',
                     [
                         { 
-                            name: 'Yes', 
+                            name: 'Drug refill', 
                             slot: 'start', 
-                            color: 'danger'
+                            color: 'primary'
                         },
                         { 
-                            name: 'No',  
-                            slot: 'end', 
+                            name: 'Consultation', 
+                            slot: 'start', 
+                            color: 'primary'
+                        },
+                        { 
+                            name: 'Continue',
+                            slot: 'end',
                             color: 'success'
                         }
                     ],
                     'his-warning-color'
                 )
-                return action === 'Yes' ? FlowState.CONTINUE : FlowState.FORCE_EXIT
+                return action === 'Drug refill' 
+                    ? FlowState.ADD_AS_DRUG_REFILL 
+                    : action === 'Consultation' 
+                    ? FlowState.ADD_AS_EXTERNAL_CONSULTATION
+                    : FlowState.CONTINUE
             }
         },
         conditions: {
-            currentOutcome: (outcome: string) => outcome === 'Patient transferred out'
+            currentOutcome: (outcome: string) => outcome === 'Patient transferred out',
+            programName: (name: string) => name === 'HIV PROGRAM'
+        }
+    },
+    "[ART Drug refill visit purpose] Select purpose of visit for Drug Refill patients" : {
+        priority: 3,
+        targetEvent: TargetEvent.ON_CONTINUE,
+        actions: {
+            alert: async () => {
+                const action = await infoActionSheet(
+                    'Purpose of visit',
+                    'Drug refill client',
+                    'Please select purspose of the visit',
+                    [
+                        { 
+                            name: 'Consultation', 
+                            slot: 'start', 
+                            color: 'primary'
+                        },
+                        { 
+                            name: 'Drug Refill',
+                            slot: 'end',
+                            color: 'success'
+                        }
+                    ],
+                    'his-warning-color'
+                )
+                return action === 'Consultation'
+                    ? FlowState.ADD_AS_EXTERNAL_CONSULTATION
+                    : FlowState.CONTINUE
+            }
+        },
+        conditions: {
+            currentOutcome: (outcome: string) => outcome != 'Patient transferred out',
+            patientType: (pType: string) => pType === 'Drug Refill',
+            programName: (name: string) => name === 'HIV PROGRAM'
+        }
+    },
+    "[ART External consultation visit purpose] Select purpose of visit if patient is External Consultation": {
+        priority: 3,
+        targetEvent: TargetEvent.ON_CONTINUE,
+        actions: {
+            alert: async () => {
+                const action = await infoActionSheet(
+                    'Purpose of visit',
+                    'External consultation client',
+                    'Please select purspose of the visit',
+                    [
+                        { 
+                            name: 'Drug refill', 
+                            slot: 'start', 
+                            color: 'primary'
+                        },
+                        { 
+                            name: 'External consultation',
+                            slot: 'end',
+                            color: 'success'
+                        }
+                    ],
+                    'his-warning-color'
+                )
+                return action === 'Drug refill'
+                    ? FlowState.ADD_AS_DRUG_REFILL
+                    : FlowState.CONTINUE
+            }
+        },
+        conditions: {
+            currentOutcome: (outcome: string) => outcome != 'Patient transferred out',
+            patientType: (pType: string) => pType === 'External consultation',
+            programName: (name: string) => name === 'HIV PROGRAM'
         }
     },
     "Prompt patient enrollment in current programme if not enrolled" : {
@@ -319,7 +399,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "(ART Filing numbers) Prompt dormant filing number reactivation if patient has a dormant filing number": {
-        priority: 1,
+        priority: 3,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -357,13 +437,13 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE OFF] Prompt the user to update patient demographics when data is incomplete": {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
                 const action = await infoActionSheet(
                     'Demographics',
-                    'Patient data is incomplete data',
+                    'Patient data is incomplete',
                     'Do you want to review and update now?',
                     [
                         { 
@@ -459,7 +539,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE ON] Warn program managers when Patient has incomplete demographics. Dont force them to update though": {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -500,7 +580,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE ON] Force Users to update Incomplete Patient demographics": {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {

@@ -12,6 +12,7 @@ import { FieldType } from "@/components/Forms/BaseFormElements"
 import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import table from "@/components/DataViews/tables/ReportDataTable"
+import { isArray } from "lodash"
 
 export default defineComponent({
     data: () => ({
@@ -28,10 +29,29 @@ export default defineComponent({
         toDate(date: string) {
             return HisDate.toStandardHisDisplayFormat(date)
         },
+        sortByArvNumber(data: Array<any>, attr='arv_number') {
+            try {
+                return data.sort((a: any, b: any) => this.getArvInt(a[attr]) > this.getArvInt(b[attr]) ? 1 : -1)
+            } catch(e) {
+                console.error(e)
+                return data
+            }
+        },
+        getArvInt(arv: string) {
+            if (typeof arv === 'string') {
+                const [prfx, art, arvNumStr] = arv.split('-')
+                const arvNumInt = parseInt(arvNumStr)
+                return typeof arvNumInt === 'number' ? arvNumInt : 0 
+            }
+            return 0
+        },
+        tdARV(arv: string, params={}) {
+            return table.td(arv, { sortValue: this.getArvInt(arv), ...params})
+        },
         confirmPatient(patient: number) {
             return this.$router.push(`/patients/confirm?person_id=${patient}`)
         },
-        async drilldownAsyncRows(title: string, columns: Array<any>, asyncRows: Function) {
+        async drilldownAsyncRows(title: string, columns: Array<any>, asyncRows: Function, canExport=true) {
             const modal = await modalController.create({
                 component: DrilldownTable,
                 cssClass: 'large-modal',
@@ -39,6 +59,7 @@ export default defineComponent({
                     title, 
                     columns, 
                     asyncRows,
+                    canExport,
                     showFilters: true,
                     rowsPerPage: 50,
                     paginated: true,
@@ -77,29 +98,46 @@ export default defineComponent({
                     table.thTxt('Actions')
                 ]
             ]
-            const rowParser = (tableRows: Array<any[]>) => {
-                return tableRows.map(async (defaultRow: Array<any>) => {
-                    const [index, id ] = defaultRow
-                    if (id in this.drillDownCache) {
-                        const [oldIndex, ...rest] = this.drillDownCache[id]
-                        return [index, ...rest] // Assign new index number and maintain patient record
-                    } 
+            const rowParser = async (tableRows: Array<any[]>) => {
+                let ARV_NUM_INDEX = 0
+                const t = tableRows.map(async (defaultRow: Array<any>) => {
+                    let id: any = null
+                    let index: null | number = null
+                    if (isArray(defaultRow)) {
+                        const [num, key ] = defaultRow
+                        index = num
+                        if (key in this.drillDownCache) {
+                            const [oldIndex, ...rest] = this.drillDownCache[key]
+                            return [index, ...rest] // Assign new index number and maintain patient record
+                        }
+                    } else {
+                        id = defaultRow
+                        if (id in this.drillDownCache) {
+                            return this.drillDownCache[id]
+                        }
+                    }
     
                     const data = await Patientservice.findByID(id)
                     const patient = new Patientservice(data)
-                    const row = [
-                        index,
-                        table.td(patient.getArvNumber()), 
-                        table.td(patient.getGender()), 
-                        table.tdDate(patient.getBirthdate().toString()),
-                        table.tdBtn('Show', async () => {
-                            await modalController.dismiss({})
-                            this.$router.push({ path: `/patient/dashboard/${id}`})
-                        })
-                    ]
+                    const row = []
+                    if (index) {
+                        ARV_NUM_INDEX = 1
+                        row.push(index)
+                    } 
+                    row.push(this.tdARV(patient.getArvNumber()))
+                    row.push(table.td(patient.getGender()))
+                    row.push(table.tdDate(patient.getBirthdate().toString()))
+                    row.push(table.tdBtn('Show', async () => {
+                        await modalController.dismiss({})
+                        this.$router.push({ path: `/patient/dashboard/${id}`})
+                    }))
                     this.drillDownCache[id] = row
                     return row
                 })
+                const rows = await Promise.all(t)
+                return rows.sort((a: any, b: any) => 
+                        a[ARV_NUM_INDEX].sortValue > b[ARV_NUM_INDEX].sortValue 
+                        ? 1 : -1)
             }
             return { rowParser, columns }
         },
@@ -123,7 +161,7 @@ export default defineComponent({
             }))
         },
         getDateDurationFields(useQuarter=false, setCustomQuarterPeriod=false, maxQuarter=5): Array<Field> {
-            const minDate = '2001-01-01'
+            const minDate = '2000-01-01'
             const maxDate = Service.getSessionDate()
             return [
                 {

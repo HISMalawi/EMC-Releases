@@ -1,7 +1,6 @@
 <template>
-    <ion-row>
+    <ion-row style="border-top: solid 1px rgb(196 190 196);">
         <ion-col v-if="showPerPageFilter">
-            <br/>
             <select class="input_display" v-model="itemsPerPage" :disabled="disablePerPageFilter">
                 <option :selected="itemsPerPage === 5" :value="5">5 rows/page</option>
                 <option :selected="itemsPerPage === 10" :value="10">10 rows/page</option>
@@ -15,7 +14,7 @@
         <ion-col>
             <ion-input
                 :disabled="disableSearchFilter"
-                class="input_display"
+                class="input_display search_input"
                 :value="searchFilter"
                 @click="launchSearcher"
                 placeholder="Search here...">
@@ -107,3 +106,17 @@ export default defineComponent({
     },
 })
 </script>
+<style scoped>
+    .input_display {
+        font-size: var(--his-sm-font-size);
+        width: 300px;
+        margin-bottom: 2%;
+        border: solid 1px #9d9b9b;
+        border-radius: 5px;
+        padding: 9px;
+        margin-top: 2%;
+    }   
+    .search_input{
+        float: right;
+    }
+</style>

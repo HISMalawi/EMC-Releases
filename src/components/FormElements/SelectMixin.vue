@@ -15,6 +15,7 @@ import {
     IonRow, 
     IonCol
 } from "@ionic/vue"
+import { find } from 'lodash';
 
 export default defineComponent({
     components: { IonList, IonItem, IonLabel, HisTextInput, HisKeyboard, ViewPort, IonGrid, IonRow, IonCol },
@@ -29,9 +30,7 @@ export default defineComponent({
     }),
     created(){
         if (this.config) {
-            if (this.config.showKeyboard === true) {
-                this.showKeyboard = true
-            }
+            this.showKeyboard = this.config?.showKeyboard === true
         }
     },
     watch: {
@@ -42,11 +41,21 @@ export default defineComponent({
         },
         filter: {
             async handler(filter: string) {
+                // restore initial list data if filter used is empty
                 if (!filter) return this.filtered = this.listData
-
+                /** Filter data from an external source  if config is true*/
                 if (this.config?.isFilterDataViaApi) {
-                    return this.filtered = await this.options(this.fdata, filter)
+                    this.filtered = await this.options(this.fdata, filter)
+                    // Find and select data that matches selected value
+                    if (this.selected === this.filter) {
+                        const foundOption = find(this.filtered, { label: this.filter})
+                        if (foundOption) {
+                            this.$emit('onValue', foundOption)
+                        }
+                    }
+                    return
                 }
+                // Filter locallist
                 this.filtered = this.listData.filter(item => this.isMatch(item.label, this.filter))
             },
             immediate: true

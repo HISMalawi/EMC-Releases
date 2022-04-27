@@ -71,7 +71,6 @@
 import { toastWarning, toastDanger } from "@/utils/Alerts";
 import { defineComponent } from 'vue';
 import { AuthService, InvalidCredentialsError } from "@/services/auth_service"
-import { isPlatform } from "@ionic/vue"
 import { LOGIN_KEYBOARD } from "@/components/Keyboard/KbLayouts"
 
 export default defineComponent({
@@ -167,6 +166,12 @@ export default defineComponent({
       if (this.userInput.username && this.userInput.password) {
         this.auth.setUsername(this.userInput.username)
         try {
+          if (this.auth.versionLockingIsEnabled()) {
+            await this.auth.validateIfCorrectAPIVersion()
+          }
+          if (!(await this.auth.checkTimeIntegrity())) {
+            throw "Local date does not match API date. Please Update your device's date"
+          }
           await this.auth.login(this.userInput.password)
           this.auth.startSession()
           this.$router.push("/select_hc_location");
@@ -174,7 +179,7 @@ export default defineComponent({
           if (e instanceof InvalidCredentialsError ) {
             toastWarning("Invalid username or password");
           } else {
-            toastDanger(e)
+            toastDanger(e, 50000)
           }
         }
       } else {
