@@ -23,7 +23,7 @@
                                     <td>
                                         <ion-input
                                             readonly
-                                            @click="addDrug(drug)"
+                                            @click="editDrugName(drug)"
                                             :value="drug.drug_name"
                                             placeholder="Add drug"
                                             class="his-sm-text dosage-input"
@@ -47,18 +47,25 @@
                                             class="dosage-input his-sm-text"/> 
                                         </td>
                                     <td> 
-                                        <ion-button v-if="drugIndex + 1 >= activeDrugs.length"
-                                            style="width:100%"
-                                            @click="activeDrugs.push({})" class="his-md-text" color="success"> 
-                                            Add
-                                        </ion-button>
-                                        <ion-button v-if="drugIndex + 1 < activeDrugs.length"
-                                            style="width:100%"
-                                            class="his-md-text"
-                                            @click="activeDrugs.splice(drugIndex, 1)"
-                                            color="danger">
-                                            Remove
-                                        </ion-button> 
+                                        <ion-row> 
+                                            <ion-col size="6" v-if="drugIndex + 1 >= activeDrugs.length"> 
+                                                <ion-button
+                                                    :disabled="!(drug.id && drug.frequency && drug.duration)"
+                                                    @click="activeDrugs.push(defaultDrugObj())" 
+                                                    class="his-md-text" 
+                                                    color="success"> 
+                                                    <ion-icon :icon="add"/>
+                                                </ion-button>
+                                            </ion-col>
+                                            <ion-col size="6" v-if="drugIndex + 1 < activeDrugs.length || (drugIndex !=0 && drugIndex +1 >= activeDrugs.length)"> 
+                                                <ion-button
+                                                    @click="activeDrugs.splice(drugIndex, 1)"
+                                                    class="his-md-text"
+                                                    color="danger">
+                                                    <ion-icon :icon="remove"/>
+                                                </ion-button>
+                                            </ion-col>
+                                        </ion-row>
                                     </td>
                                 </tr>
                             </tbody>
@@ -70,7 +77,7 @@
                         <ion-list>
                             <ion-item class="his-md-text"
                                 detail
-                                @click="setDrugSetValues(dset)" 
+                                @click="appendDrugSetValues(dset)" 
                                 button v-for="(dset, dindex) in drugSets" 
                                 :key="dindex"> 
                                 <ion-label>{{dset.label}} ({{dset.value}})</ion-label>
@@ -88,7 +95,7 @@
                 <ion-button @click="clear" slot="end" size="large" color="warning"> 
                     Clear
                 </ion-button>
-                <ion-button slot="end" size="large" color="success"> 
+                <ion-button @click="onFinish" slot="end" size="large" color="success"> 
                     Finish
                 </ion-button>
             </ion-toolbar>
@@ -106,6 +113,7 @@ import {
     IonTitle,
     IonRow,
     IonGrid,
+    IonIcon,
     IonInput,
     IonCol,
     IonFooter,
@@ -120,20 +128,23 @@ import { AncTreatmentService } from '../../Services/anc_treatment_service'
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { DrugService } from '@/services/drug_service'
-import { alertConfirmation } from '@/utils/Alerts'
-import { isEmpty } from 'lodash'
-
+import { alertConfirmation, toastWarning } from '@/utils/Alerts'
+import {
+    add,
+    remove
+} from "ionicons/icons";
 interface ActiveDrug {
-    id: number;
+    'id': number;
     'drug_name': string;
-    dose: string;
-    duration: number;
-    frequency: string;
-    units: string;
+    'dose': string;
+    'duration': number;
+    'frequency': string;
+    'units': string;
 }
 export default defineComponent({
     components: {
         IonHeader,
+        IonIcon,
         IonRow,
         IonLabel,
         IonGrid,
@@ -147,8 +158,14 @@ export default defineComponent({
         IonToolbar
     },
     mixins: [EncounterMixinVue],
+    setup() {
+        return {
+            add,
+            remove
+        }
+    },
     data: () => ({
-        activeDrugs: [{}] as Array<ActiveDrug> | Array<{}>,
+        activeDrugs: [] as ActiveDrug[],
         drugSets: [] as any,
         defaultDrugs: [] as any,
         isSubmitting: false as boolean,
@@ -156,8 +173,7 @@ export default defineComponent({
     }),
     computed: {
         selectedDrugNames(): string[] {
-            const x: any = this.activeDrugs
-            return x.map((d: any) => d.drug_name || '')
+            return this.activeDrugs.map((d: any) => d.drug_name || '')
         }
     },
     watch: {
@@ -173,24 +189,45 @@ export default defineComponent({
                         }
                     }))
                     this.defaultDrugs = await DrugService.getDrugs({'page_size': 50})
+                    this.activeDrugs = [this.defaultDrugObj()]
                 }
             },
             immediate: true
         }
     },
     methods: {
-        setDrugSetValues(drugSet: any) {
+        async onFinish() {
+            if (!this.formIsComplete()) {
+                toastWarning('Please complete drug form')
+                return
+            }
+            this.isSubmitting = true
+            this.nextTask()
+        },
+        defaultDrugObj() {
+            return {
+                'id': 0,
+                'drug_name': '',
+                'dose': '',
+                'duration': 0,
+                'frequency': '',
+                'units': ''
+            }
+        },
+        formIsComplete() {
+            return this.activeDrugs.map(d => d.id && d.duration && d.frequency).every(Boolean)
+        },
+        appendDrugSetValues(drugSet: any) {
             const drugs = drugSet.other.drugs.reduce((a: any, c: any) => a.concat(c), [])
-            if (this.activeDrugs.length === 1 && isEmpty(this.activeDrugs[0])) {
+            if (this.activeDrugs.length === 1 && !this.activeDrugs[0].id){
                 this.activeDrugs = drugs
             } else {
-                
                 this.activeDrugs = this.activeDrugs.concat(
                     drugs.filter((d: any) => !this.selectedDrugNames.includes(d.drug_name))
                 )
             }
         },
-        addDrug(drugItem: any) {
+        editDrugName(drugItem: any) {
             this.launchEditor({
                 id: 'new_drug',
                 helpText: 'Add drug to prescribe',
@@ -312,7 +349,7 @@ export default defineComponent({
         async clear() {
             const ok = await alertConfirmation('Are you sure you want to clear all drugs?')
             if (ok) {
-                this.activeDrugs = [{}]
+                this.activeDrugs = [this.defaultDrugObj()]
             }
         },
         async launchEditor(field: Field, callback: Function) {
