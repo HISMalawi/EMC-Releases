@@ -2,7 +2,7 @@
     <ion-page> 
         <ion-header> 
             <ion-toolbar> 
-                <ion-title>Treatment</ion-title>
+                <ion-title class="his-lg-text">Treatment</ion-title>
             </ion-toolbar>
         </ion-header>
         <ion-content>
@@ -11,7 +11,7 @@
                     <ion-col> 
                         <table> 
                             <thead> 
-                                <tr> 
+                                <tr class="his-sm-text"> 
                                     <th>Drug</th>
                                     <th>Frequency</th>
                                     <th>Duration</th>
@@ -20,13 +20,21 @@
                             </thead>
                             <tbody> 
                                 <tr v-for="(drug, drugIndex) in activeDrugs" :key="drugIndex"> 
-                                    <td> <b>{{drug.drug_name}}</b> </td>
+                                    <td>
+                                        <ion-input
+                                            readonly
+                                            @click="addDrug(drug)"
+                                            :value="drug.drug_name"
+                                            placeholder="Add drug"
+                                            class="his-sm-text dosage-input"
+                                        />
+                                    </td>
                                     <td> 
                                         <ion-input 
                                             readonly
                                             @click="editDrugFrequency(drug)"
                                             :value="drug.frequency"
-                                            class="dosage-input"
+                                            class="his-md-text dosage-input"
                                             placeholder="Add frequency.."
                                         /> 
                                     </td>
@@ -36,10 +44,19 @@
                                             @click="editDrugDuration(drug)"
                                             :value="drug.duration"
                                             placeholder="Add duration.."
-                                            class="dosage-input"/> 
+                                            class="dosage-input his-sm-text"/> 
                                         </td>
                                     <td> 
-                                        <ion-button @click="removeDrug(drug)" color="danger">
+                                        <ion-button v-if="drugIndex + 1 >= activeDrugs.length"
+                                            style="width:100%"
+                                            @click="activeDrugs.push({})" class="his-md-text" color="success"> 
+                                            Add
+                                        </ion-button>
+                                        <ion-button v-if="drugIndex + 1 < activeDrugs.length"
+                                            style="width:100%"
+                                            class="his-md-text"
+                                            @click="activeDrugs.splice(drugIndex, 1)"
+                                            color="danger">
                                             Remove
                                         </ion-button> 
                                     </td>
@@ -48,20 +65,27 @@
                         </table>
                     </ion-col>
                 </ion-row>
+                <ion-row class="his-card section"> 
+                    <ion-col> 
+                        <ion-list>
+                            <ion-item class="his-md-text"
+                                detail
+                                @click="setDrugSetValues(dset)" 
+                                button v-for="(dset, dindex) in drugSets" 
+                                :key="dindex"> 
+                                <ion-label>{{dset.label}} ({{dset.value}})</ion-label>
+                            </ion-item>
+                        </ion-list>
+                    </ion-col>
+                </ion-row>
             </ion-grid>
         </ion-content>
         <ion-footer> 
             <ion-toolbar color="dark">
-                <ion-button slot="start" size="large" color="danger">
+                <ion-button :router-link="cancelDestination" slot="start" size="large" color="danger">
                     Cancel
                 </ion-button>
-                <ion-button @click="addDrugSet" slot="end" size="large"> 
-                    Add Set
-                </ion-button>
-                <ion-button @click="addDrug" slot="end" size="large"> 
-                    Add Drug
-                </ion-button>
-                <ion-button slot="end" size="large" color="warning"> 
+                <ion-button @click="clear" slot="end" size="large" color="warning"> 
                     Clear
                 </ion-button>
                 <ion-button slot="end" size="large" color="success"> 
@@ -96,6 +120,8 @@ import { AncTreatmentService } from '../../Services/anc_treatment_service'
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { DrugService } from '@/services/drug_service'
+import { alertConfirmation } from '@/utils/Alerts'
+import { isEmpty } from 'lodash'
 
 interface ActiveDrug {
     id: number;
@@ -109,6 +135,7 @@ export default defineComponent({
     components: {
         IonHeader,
         IonRow,
+        IonLabel,
         IonGrid,
         IonCol,
         IonPage,
@@ -121,7 +148,7 @@ export default defineComponent({
     },
     mixins: [EncounterMixinVue],
     data: () => ({
-        activeDrugs: [] as ActiveDrug[],
+        activeDrugs: [{}] as ActiveDrug[] | Array<{}>,
         drugSets: [] as any,
         defaultDrugs: [] as any,
         isSubmitting: false as boolean,
@@ -132,7 +159,13 @@ export default defineComponent({
             async handler(ready: boolean) {
                 if (ready) {
                     this.service = new AncTreatmentService(this.patientID, this.providerID)
-                    this.drugSets = await this.service.getDrugSets()
+                    this.drugSets = (await this.service.getDrugSets()).map((d: any) => ({
+                        label: d.name,
+                        value: d.description,
+                        other: {
+                            drugs: d.drugs
+                        }
+                    }))
                     this.defaultDrugs = await DrugService.getDrugs({'page_size': 50})
                 }
             },
@@ -140,34 +173,20 @@ export default defineComponent({
         }
     },
     methods: {
-        addDrugSet() {
-            this.launchEditor({
-                id: 'drug_set',
-                helpText: 'Select a drugset',
-                type: FieldType.TT_MULTIPLE_SELECT,
-                validation: (v: Option) => Validation.required(v),
-                options: () => {
-                    return this.drugSets.map((d: any) => ({
-                        label: d.name,
-                        value: d.description,
-                        other: {
-                            drugs: d.drugs
-                        }
-                    }))
-                }
-            }, 
-            (v: Option[]) => {
-                this.activeDrugs = [
-                    ...this.activeDrugs, 
-                    ...v.map(d => d.other.drugs).reduce((a: any, c: any) => a.concat(c), [])
-                ]
-            })
+        setDrugSetValues(drugSet: any) {
+            const drugs = drugSet.other.drugs.reduce((a: any, c: any) => a.concat(c), [])
+            if (this.activeDrugs.length === 1 && isEmpty(this.activeDrugs[0])) {
+                this.activeDrugs = drugs
+            } else {
+                this.activeDrugs = this.activeDrugs.concat(drugs)
+            }
         },
-        addDrug() {
+        addDrug(drugItem: any) {
             this.launchEditor({
                 id: 'new_drug',
                 helpText: 'Add drug to prescribe',
                 type: FieldType.TT_SELECT,
+                defaultValue: () => drugItem.drug_name,
                 validation: (v: Option) => Validation.required(v),
                 options: async (_: any, filter: string) => {
                     let drugs: any = []
@@ -200,7 +219,8 @@ export default defineComponent({
                 }
             }, 
             (data: Option) => {
-                this.activeDrugs = [...this.activeDrugs, data.other.activeDrugValue]
+                drugItem['id'] = data.other.activeDrugValue["id"]
+                drugItem['drug_name'] = data.other.activeDrugValue["drug_name"]
             })
         },
         editDrugFrequency(drug: ActiveDrug) {
@@ -264,17 +284,18 @@ export default defineComponent({
                 id: 'duration',
                 helpText: `Edit duration of ${drug.drug_name}`,
                 type: FieldType.TT_NUMBER,
+                defaultValue: () => drug.duration,
                 validation: (v: Option) => Validation.required(v)
             }, 
             (v: Option) => {
                 drug.duration = v.value as number
             })
         },
-        removeDrug(drug: ActiveDrug) {
-            this.activeDrugs = this.activeDrugs.filter(d => d.drug_name != drug.drug_name)
-        },
-        clear() {
-            //Clear all selected drugs
+        async clear() {
+            const ok = await alertConfirmation('Are you sure you want to clear all drugs?')
+            if (ok) {
+                this.activeDrugs = [{}]
+            }
         },
         async launchEditor(field: Field, callback: Function) {
             const modal = await modalController.create({
@@ -319,6 +340,7 @@ export default defineComponent({
     }
     .section {
         margin-top: 10px;
-        height: 80vh;
+        height: 40vh;
+        overflow-y: scroll;
     }
 </style>
