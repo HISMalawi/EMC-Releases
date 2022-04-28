@@ -64,7 +64,19 @@ export default defineComponent({
                 helpText: 'Last Normal Menstrual Period',
                 type: FieldType.TT_ANC_LMP_DATE_INPUT,
                 computedValue: (v: Option) => this.buildDelieveryDateObs(v.value as string),
-                validation: (v: Option) => Validation.required(v),
+                validation: (v: Option) => this.validateSeries([
+                  () => Validation.required(v),
+                  () => {
+                      if (v.value) {
+                        const lmpDate = new Date(v.value)
+                        const today = new Date()
+                        if (lmpDate > today) {
+                          return ['Last menstrual period cannot be in the future']
+                        }
+                      }
+                      return null
+                  }
+                ]),
                 config: {
                     calculateDelieveryDate: (d: string) => HisDate.toStandardHisDisplayFormat(
                         this.service.estimateDelieveryDate(d)
