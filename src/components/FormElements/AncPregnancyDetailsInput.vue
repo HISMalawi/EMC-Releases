@@ -5,7 +5,7 @@
                 <ion-col size="4">
                     <ion-list class="his-card"> 
                         <ion-radio-group v-model="selected">
-                            <ion-item detail v-for="(item, index) in listData" :key="index"> 
+                            <ion-item class="his-md-text" detail v-for="(item, index) in listData" :key="index"> 
                                 <ion-radio slot="start" :value="item.label"></ion-radio>
                                 <ion-label v-html="item.label"></ion-label>
                             </ion-item>
@@ -24,10 +24,10 @@
                                 <p/>
                                 <ion-row v-for="(rowItem, rowIndex) in rows" :key="rowIndex"> 
                                     <ion-col>
-                                        <ion-label><b>{{rowItem.label}}</b></ion-label>
+                                        <ion-label class="his-md-text"><b>{{rowItem.label}}</b></ion-label>
                                     </ion-col>
                                     <ion-col>
-                                        <b>{{rowItem?.value?.label || '?'}}</b>
+                                        <b class="his-md-text">{{rowItem?.value?.label || '?'}}</b>
                                     </ion-col>
                                     <ion-col>
                                         <ion-button 

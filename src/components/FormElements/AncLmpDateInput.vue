@@ -11,7 +11,7 @@
             @onValue="onNewValue"
             :defaultValue="defaultValue">  
                 <ion-list> 
-                    <ion-item lines="none">
+                    <ion-item class="his-md-text" lines="none">
                         <ion-label slot="start">
                             Expected Date Of Delivery:
                         </ion-label>
@@ -19,7 +19,7 @@
                             {{delieveryDate}}
                         </ion-label>
                     </ion-item>
-                    <ion-item lines="none">
+                    <ion-item class="his-md-text" lines="none">
                         <ion-label slot="start"> 
                             Gestation Weeks:
                         </ion-label>

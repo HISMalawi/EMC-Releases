@@ -7,10 +7,10 @@
                     v-if="typeof group?.other?.visible === 'boolean' 
                         ? group?.other?.visible
                         : true">
-                  <ion-title>{{ group.label }}</ion-title>
+                  <ion-title class="his-md-text">{{ group.label }}</ion-title>
                   <ion-list>
                       <ion-radio-group v-model="group.value">
-                        <ion-item v-for="(option, optionIndex) in (group?.other?.options || [])" :key="optionIndex">
+                        <ion-item class="his-md-text" v-for="(option, optionIndex) in (group?.other?.options || [])" :key="optionIndex">
                             <ion-radio 
                                 slot="start" 
                                 :value="option.value"
