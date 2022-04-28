@@ -14,7 +14,7 @@
                                 <tr class="his-sm-text"> 
                                     <th>Drug</th>
                                     <th>Frequency</th>
-                                    <th>Duration</th>
+                                    <th>Duration (Days)</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -148,12 +148,18 @@ export default defineComponent({
     },
     mixins: [EncounterMixinVue],
     data: () => ({
-        activeDrugs: [{}] as ActiveDrug[] | Array<{}>,
+        activeDrugs: [{}] as Array<ActiveDrug> | Array<{}>,
         drugSets: [] as any,
         defaultDrugs: [] as any,
         isSubmitting: false as boolean,
         service: {} as any
     }),
+    computed: {
+        selectedDrugNames(): string[] {
+            const x: any = this.activeDrugs
+            return x.map((d: any) => d.drug_name || '')
+        }
+    },
     watch: {
         ready: {
             async handler(ready: boolean) {
@@ -178,7 +184,10 @@ export default defineComponent({
             if (this.activeDrugs.length === 1 && isEmpty(this.activeDrugs[0])) {
                 this.activeDrugs = drugs
             } else {
-                this.activeDrugs = this.activeDrugs.concat(drugs)
+                
+                this.activeDrugs = this.activeDrugs.concat(
+                    drugs.filter((d: any) => !this.selectedDrugNames.includes(d.drug_name))
+                )
             }
         },
         addDrug(drugItem: any) {
@@ -187,7 +196,16 @@ export default defineComponent({
                 helpText: 'Add drug to prescribe',
                 type: FieldType.TT_SELECT,
                 defaultValue: () => drugItem.drug_name,
-                validation: (v: Option) => Validation.required(v),
+                validation: (v: Option) => this.validateSeries([
+                    () => Validation.required(v),
+                    () => {
+                        if (this.selectedDrugNames.includes(v.label)) {
+                            return ['Drug already added']
+                        } else {
+                            return null
+                        }
+                    }
+                ]),
                 options: async (_: any, filter: string) => {
                     let drugs: any = []
                     if (filter) {
@@ -226,7 +244,7 @@ export default defineComponent({
         editDrugFrequency(drug: ActiveDrug) {
             this.launchEditor({
                 id: 'frequency',
-                helpText: `Edit drug frequencpy for ${drug.drug_name}`,
+                helpText: `Edit drug frequency for ${drug.drug_name}`,
                 type: FieldType.TT_SELECT,
                 defaultValue: () => drug.frequency,
                 validation: (v: Option) => Validation.required(v),
@@ -282,7 +300,7 @@ export default defineComponent({
         editDrugDuration(drug: ActiveDrug) {
             this.launchEditor({
                 id: 'duration',
-                helpText: `Edit duration of ${drug.drug_name}`,
+                helpText: `Edit duration of ${drug.drug_name} in days`,
                 type: FieldType.TT_NUMBER,
                 defaultValue: () => drug.duration,
                 validation: (v: Option) => Validation.required(v)
