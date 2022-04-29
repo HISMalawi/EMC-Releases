@@ -7,7 +7,7 @@
         </ion-header>
         <ion-content>
             <ion-grid> 
-                <ion-row class="his-card section drug-section-style">
+                <ion-row style="height:50vh;" class="his-card section drug-section-style">
                     <ion-col> 
                         <table> 
                             <thead> 
@@ -73,8 +73,8 @@
                     </ion-col>
                 </ion-row>
             </ion-grid>
-            <ion-list class="his-card section">
-                <ion-item class="his-lg-text"
+            <ion-list style="height:29vh;" class="his-card section">
+                <ion-item class="his-md-text"
                     detail
                     @click="appendDrugSetValues(dset)" 
                     button v-for="(dset, dindex) in drugSets" 
@@ -334,18 +334,16 @@ export default defineComponent({
         background: #f6f2ca;
     }
     td, th {
-        border: solid 1px #3333;
+        border: solid 1px rgba(131, 131, 131, 0.2);
     }
     th {
-        padding: 0.8em;
+        padding: 0.2em;
     }
     td {
-        padding: 0.4em;
-        font-size: 0.9rem; 
+        padding: 0.2em;
     }
     .section {
         margin-top: 10px;
-        height: 40vh;
         overflow-y: scroll;
     }
 </style>
