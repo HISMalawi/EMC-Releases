@@ -6,7 +6,7 @@
                     <ion-col>
                         <ion-radio-group v-model="selected"> 
                             <ion-list class="his-card">
-                                <ion-item v-for="(item, index) in listData" :key="index"> 
+                                <ion-item class="his-md-text" v-for="(item, index) in listData" :key="index"> 
                                     <ion-radio slot="start" :value="item"> </ion-radio>
                                     <ion-label>{{ item.label }}</ion-label>
                                 </ion-item>
@@ -16,7 +16,7 @@
                     <ion-col v-if="selected?.other?.options">
                         <ion-radio-group v-model="selected.value">
                             <ion-list class="his-card">
-                                <ion-item v-for="(optionItem, optionIndex) in selected.other.options" :key="optionIndex"> 
+                                <ion-item class="his-md-text" v-for="(optionItem, optionIndex) in selected.other.options" :key="optionIndex"> 
                                     <ion-radio slot="start" :value="optionItem.label"> </ion-radio>
                                     <ion-label>{{ optionItem.label }}</ion-label>
                                 </ion-item>
@@ -33,7 +33,7 @@
                     <ion-col>
                         <ion-radio-group v-model="selected.other.subGroupOptionValue"> 
                             <ion-list class="his-card">
-                                <ion-item v-for="(subOption, subOptionIndex) in selected.other.subGroupOptions" :key="subOptionIndex"> 
+                                <ion-item class="his-md-text" v-for="(subOption, subOptionIndex) in selected.other.subGroupOptions" :key="subOptionIndex"> 
                                     <ion-radio slot="start" :value="subOption"> </ion-radio>
                                     <ion-label>{{ subOption.label }}</ion-label>
                                 </ion-item>
@@ -43,7 +43,7 @@
                     <ion-col v-if="selected?.other?.subGroupOptionValue?.other?.options">
                         <ion-radio-group v-model="selected.other.subGroupOptionValue.value">
                             <ion-list class="his-card">
-                                <ion-item v-for="(optionItem, optionValueIndex) in selected.other.subGroupOptionValue.other.options" :key="optionValueIndex"> 
+                                <ion-item class="his-md-text" v-for="(optionItem, optionValueIndex) in selected.other.subGroupOptionValue.other.options" :key="optionValueIndex"> 
                                     <ion-radio slot="start" :value="optionItem.label"> </ion-radio>
                                     <ion-label>{{ optionItem.label }}</ion-label>
                                 </ion-item>
@@ -123,7 +123,12 @@ export default defineComponent({
 })
 </script>
 <style scoped>
+    #view-port {
+        height: 81vh;
+    }
     .his-card {
-        padding: 2px;
+        padding: 0.1em;
+        height: 34vh;
+        overflow-y: scroll;
     }
 </style>
