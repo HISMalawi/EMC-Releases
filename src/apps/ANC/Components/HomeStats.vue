@@ -3,6 +3,7 @@
         :asyncRows="getRows"
         :columns="columns"
         :config="{
+            tableCssTheme: 'art-report-theme', 
             skeletonTextRows: 5,
             showIndex: false
         }"
