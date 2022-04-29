@@ -405,4 +405,27 @@ export class Patientservice extends Service {
         return addressOBJ;
     }
 
+    async  getPatientDataObj(arryObj: any, accompanyingData: any) {
+        const patientData = {
+        'patient_details': {
+          "patient_name": this.getFullName(),
+          "patientAge": this.getAge(),
+          "patientDOB": this.getBirthdate(),
+          "patientGender": this.getGender(),
+          "national_id": this.getNationalID(),
+          "person_id": this.getID(),
+          "encounter_id": accompanyingData.encounterId,
+          "date_created": accompanyingData.dateCreated,
+          "accession_number": accompanyingData.accessionNumber
+          },
+          'physician_details': {
+            "username": sessionStorage.getItem("username"),
+            "userID": sessionStorage.getItem("userID"),
+            "userRoles": sessionStorage.getItem("userRoles"),
+          },
+          'radiology_orders': arryObj,
+        }
+        return patientData
+    }
+
 }

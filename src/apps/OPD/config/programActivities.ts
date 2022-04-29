@@ -69,3 +69,11 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     availableOnActivitySelection: false
   },
 ]
+
+export const SECONDARY_ACTIVITIES: TaskInterface[] = [
+  {
+    id: 'radiology examination',
+    name: 'radiology examination',
+    icon: 'radiology_types.png'
+  },
+]

@@ -1,6 +1,6 @@
 import { AppInterface, GeneralDataInterface } from '@/apps/interfaces/AppInterface';
 import HomeOverview from "@/apps/OPD/components/HomeOverview.vue";
-import { PRIMARY_ACTIVITIES } from '@/apps/OPD/config/programActivities';
+import { PRIMARY_ACTIVITIES, SECONDARY_ACTIVITIES } from '@/apps/OPD/config/programActivities';
 import { REPORTS } from '@/apps/OPD/config/programReports';
 import opdRoutes from '@/apps/OPD/config/routes';
 import { PatientProgramService } from '@/services/patient_program_service';
@@ -10,6 +10,7 @@ import { Observation } from '@/interfaces/observation';
 import { OrderService } from '@/services/order_service';
 import { RelationshipService } from '@/services/relationship_service';
 import { Order } from '@/interfaces/order';
+import {PROPERTIES} from "@/apps/OPD/config/globalPropertySettings"
 import { selectActivities } from '@/utils/WorkflowTaskHelper';
 import Validation from '@/components/Forms/validations/StandardValidations';
 
@@ -114,8 +115,9 @@ const OPD: AppInterface = {
   appRoutes: opdRoutes,
   programReports: REPORTS,
   primaryPatientActivites: PRIMARY_ACTIVITIES,
-  secondaryPatientActivites: [],
+  secondaryPatientActivites: SECONDARY_ACTIVITIES,
   homeOverviewComponent: HomeOverview,
+  globalPropertySettings: PROPERTIES,
   onRegisterPatient,
   formatPatientProgramSummary,
   confirmationSummary,

@@ -10,20 +10,42 @@ export class PrintoutService extends Service {
         super()
     }
 
-    async printLbl(url: any) {
+    async execPrint(url: string) {
+        const preFetch = await Service.getText(url)
+        if (!preFetch) throw 'Unable to print Label. Try again later'
+        document.location = (await ApiClient.expandPath(url)) as any
+    }
+
+    async batchPrintLbls(urls: string[], showPrintImage = true) {
+        const { platformType } = usePlatform()
+        if (platformType.value === 'desktop') {
+            const errors: string[] = []
+            if(showPrintImage) EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')
+            for(const url in urls) {
+                try {
+                    await this.execPrint(url)
+                } catch (e) {
+                    errors.push(e as any)
+                }
+            }
+            if (errors.length > 0) {
+                // display unique errors only
+                await toastWarning(errors.filter((value, index, self) => self.indexOf(value) === index).join(), 3000)
+            }           
+        } else {
+            toastWarning('Sorry, your Platform does not support Label printing. Bye!')
+        }
+    }
+
+    async printLbl(url: any, showPrintImage = true) {
         const { platformType } = usePlatform()
         if (platformType.value === 'desktop') {
             try {
+                if(showPrintImage)
                 EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')                
-                // Do a preflight to make sure that we can print that label
-                // before changing document location
-                const preFetch = await Service.getText(url)
-
-                if (!preFetch) throw 'Unable to print Label. Try again later'
-
-                document.location = (await ApiClient.expandPath(url)) as any
+                await this.execPrint(url)
             } catch (e) {
-                toastWarning(e, 3000)
+                toastWarning(e as any, 3000)
             }
         } else {
             toastWarning('Sorry, your Platform does not support Label printing. Bye!')
