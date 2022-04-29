@@ -12,7 +12,7 @@
       <ion-toolbar class="full-component-view">
         <ion-row>
           <ion-col>
-            <div class="tool-bar-medium-card">
+            <div class="tool-bar-medium-card" @click="openCamera">
               <ion-row> 
                 <ion-col size-lg="5" size-sm="4"> 
                   <img 
@@ -23,13 +23,18 @@
                     }"
                     :src="barcodeLogo"/>
                 </ion-col>
-                <ion-col size-lg="7" size-sm="8"> 
+                <ion-col size-lg="7" size-sm="8"  v-if="!useVirtualInput"> 
                   <input 
                     :readonly="useVirtualInput" 
                     v-model="patientBarcode" 
                     class="barcode-input" 
                     ref="scanBarcode"
                   />
+                </ion-col>
+                 <ion-col v-if="useVirtualInput" size-lg="6" size-sm="6" style="text-align: center; margin: auto;line-height: 1.2;"> 
+                  <p>Click Here</p>
+                  <p>To Scan QR code Or Barcode</p>
+                  <p> using Camera</p>
                 </ion-col>
               </ion-row>
             </div>
@@ -225,7 +230,7 @@ export default defineComponent({
       ready: false,
       patientBarcode: "",
       overviewComponent: {} as any,
-      isBDE: false
+      isBDE: false,
     };
   },
   computed: {
@@ -312,6 +317,10 @@ export default defineComponent({
         this.$router.push('/login')
       }
       auth.clearSession()
+    },
+    openCamera(){
+      if(this.useVirtualInput)
+      this.$router.push('/camera_scanner')
     }
   },
   created() {

@@ -30,7 +30,7 @@ export enum FlowState {
 }
 export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = {
     "Do not proceed if patient is not found in the system" : {
-        priority: 2,
+        priority: 1,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -60,7 +60,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE] Show invalid attributes for a patient whose remote": {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async (facts: any) => {
@@ -119,7 +119,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE] Notify the user to proceed with Remote NPID if local NPID does not match remote": {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({dde}: any) => {
@@ -149,7 +149,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Warn if patient is missing National ID and assign them one": {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -175,7 +175,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Detect NPID duplicates and prompt the user to resolve them" : {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({ scannedNpid }: any) => {
@@ -202,7 +202,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Warn before proceeding if patient is deceased based on current Patient state": {
-        priority: 1,
+        priority: 3,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
             alert: async () => {
@@ -232,7 +232,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Warn before proceeding if patient stopped treatment based on current Patient state": {
-        priority: 1,
+        priority: 3,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
             alert: async () => {
@@ -262,7 +262,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[ART Transferred out patient visit purpose] Select purpose of visit if patient was transferred out": {
-        priority: 1,
+        priority: 3,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
             alert: async () => {
@@ -302,7 +302,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[ART Drug refill visit purpose] Select purpose of visit for Drug Refill patients" : {
-        priority: 2,
+        priority: 3,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
             alert: async () => {
@@ -336,7 +336,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[ART External consultation visit purpose] Select purpose of visit if patient is External Consultation": {
-        priority: 2,
+        priority: 3,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
             alert: async () => {
@@ -399,7 +399,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "(ART Filing numbers) Prompt dormant filing number reactivation if patient has a dormant filing number": {
-        priority: 1,
+        priority: 3,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -437,7 +437,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE OFF] Prompt the user to update patient demographics when data is incomplete": {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -539,7 +539,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE ON] Warn program managers when Patient has incomplete demographics. Dont force them to update though": {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -580,7 +580,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE ON] Force Users to update Incomplete Patient demographics": {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {

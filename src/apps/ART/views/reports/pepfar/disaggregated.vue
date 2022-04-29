@@ -134,46 +134,45 @@ export default defineComponent({
             return res
         },
         setTotalMalesRow(sortIndex: number) {
-            const totals = this.aggregations
-                .filter((a: any) => a.gender === 'Male')
-                .reduce((accum, cur) => {
-                    if (!accum[cur.col]) accum[cur.col] = []
-                    accum[cur.col] = accum[cur.col].concat(cur.data)
-                    return accum
-                },{})
+            const maleTD = (column: string, columnDescription: string) => {
+                const data = this.aggregations.filter(i => i.col === column && i.gender === 'Male')
+                    .reduce((accum: any, cur: any) => accum.concat(cur.data), [])
+                return this.drill(data, columnDescription)
+            }
             const row = [
                 table.td('All'),
                 table.td('Male'),
-                this.drill(totals.txNew, 'Tx New (new on ART) Males'),
-                this.drill(totals.txCurr, 'Total Curr (received ART) Males'),
-                this.drill(totals.txGivenIpt, 'Total Curr (received IPT) Males'),
-                this.drill(totals.txScreenTB, 'Total Curr (screened for TB) Males')
+                maleTD('txNew', 'Tx New (new on ART) Males'),
+                maleTD('txCurr', 'Total Curr (received ART) Males'),
+                maleTD('txGivenIpt', 'Total Curr (received IPT) Males'),
+                maleTD('txScreenTB', 'Total Curr (screened for TB) Males')
             ]
             this.sortIndexes[sortIndex] = [row]
         },
         setFemaleNotPregnantRows(sortIndex: number) {
-            const isPregnant = (patientID: number) => this.aggregations
-                .filter((a: any) => a.gender.match(/fp|fbf/i))
-                .reduce((accum, cur) => accum.concat(cur.data), [])
+            // Gets all pregnant females from a particular column and checks if given patient ID 
+            // Is in the list
+            const isPregnant = (patientID: number, column: string) => this.aggregations
+                .filter((a: any) => a.gender.match(/fp|fbf/i) && a.col === column)
+                .reduce((accum: any, cur: any) => accum.concat(cur.data || []), [])
                 .includes(patientID)
-            const totals = this.aggregations
-                .filter((a: any) => a.gender === 'Female')
-                .reduce((accum, cur) => {
-                    if (!accum[cur.col]){
-                        accum[cur.col] = []
-                    } 
-                    accum[cur.col] = accum[cur.col].concat(
-                        cur.data.filter((i: any) => !isPregnant(i))
+            // Get total sum of all females by a particular column
+            const fnpTD = (column: string, columnDescription: string) => {
+                const data = this.aggregations.filter((a: any) => 
+                        a.gender === 'Female' && a.col === column
                     )
-                    return accum
-                }, {})
+                    .reduce((accum: any, cur: any) =>
+                        accum.concat(cur.data.filter((i: any) => !isPregnant(i, column))), 
+                    [])
+                return this.drill(data, columnDescription)
+            }
             const row = [ 
                 table.td('All'), 
                 table.td('FNP'),
-                this.drill(totals.txNew, 'Tx New (new on ART) FNP'),
-                this.drill(totals.txCurr, 'Tx Curr (received ART) FNP'),
-                this.drill(totals.txGivenIpt, 'Tx Curr (received IPT) FNP'),
-                this.drill(totals.txScreenTB, 'Tx Curr (screened for TB) FNP')
+                fnpTD('txNew', 'Tx New (new on ART) FNP'),
+                fnpTD('txCurr', 'Tx Curr (received ART) FNP'),
+                fnpTD('txGivenIpt', 'Tx Curr (received IPT) FNP'),
+                fnpTD('txScreenTB', 'Tx Curr (screened for TB) FNP')
             ]
             this.sortIndexes[sortIndex] = [row]
         },

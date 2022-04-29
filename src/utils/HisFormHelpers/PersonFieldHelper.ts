@@ -16,6 +16,7 @@ import { Patientservice } from "@/services/patient_service"
 import { isPlainObject, isEmpty } from "lodash"
 import { alertConfirmation, toastWarning } from '../Alerts'
 import { LocationService } from '@/services/location_service'
+import { Service } from '@/services/service'
 
 function mapToOption(listOptions: Array<string>): Array<Option> {
     return listOptions.map((item: any) => ({ 
@@ -377,6 +378,13 @@ export default {
                         value: prop(patient, 'getNationalID')
                     },
                     {
+                        label: 'ARV Number',
+                        value: prop(patient, 'getArvNumber'),
+                        other: {
+                            show: () => Service.getProgramName() === "ART" 
+                        }
+                    },
+                    {
                         label: "Name",
                         value: prop(patient, 'getFullName'),
                     },
@@ -403,6 +411,10 @@ export default {
                     {
                         label: "Current T/A",
                         value: prop(patient, 'getCurrentTA'),
+                    },
+                    {
+                        label: 'Cellphone',
+                        value: prop(patient, 'getPhoneNumber')
                     }
                 ]
             }

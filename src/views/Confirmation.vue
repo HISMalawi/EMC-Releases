@@ -82,7 +82,7 @@ import { UserService } from "@/services/user_service";
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import { Patientservice } from "@/services/patient_service";
 import { PatientProgramService } from "@/services/patient_program_service"
-import { alertConfirmation, toastDanger } from "@/utils/Alerts"
+import { alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts"
 import { Patient } from "@/interfaces/patient"
 import {
   IonContent,
@@ -115,6 +115,7 @@ import  { GLOBAL_PROP } from "@/apps/GLOBAL_APP/global_prop"
 import { OrderService } from "@/services/order_service";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { ObservationService } from "@/services/observation_service";
+import { delayPromise } from "@/utils/Timers";
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -286,7 +287,7 @@ export default defineComponent({
             this.setInvalidParametersFacts(entities)
           }
         } else {
-          toastDanger(e, 300000)
+          toastDanger(`${e}`, 300000)
         }
       }
       this.facts.patientFound = !isEmpty(results)
@@ -470,6 +471,18 @@ export default defineComponent({
               type: 'button',
               name: 'Select',
               action: async () => {
+                if (!p.patientIsComplete()) {
+                  return this.$router.push(`/patient/registration?edit_person=${p.getID()}`)
+                } else if (p.getNationalID().match(/unknown/i) || !p.getDocID()) {
+                  try {
+                    await p.assignNpid()
+                    await this.findAndSetPatient(p.getID(), undefined)
+                    return modalController.dismiss()
+                  } catch (e) {
+                    toastWarning('Failed to assign npid to patient with unknown npid.')
+                    return console.error(e)
+                  }
+                }
                 await modalController.dismiss()
                 await this.findAndSetPatient(undefined, p.getNationalID())
               }
@@ -532,8 +545,9 @@ export default defineComponent({
           this.$router.push(`/patient/registration?edit_person=${this.patient.getID()}`)
           return FlowState.FORCE_EXIT
         },
-        'printNPID': () => {
-          this.ddeInstance.printNpid(this.patient.getID())
+        'printNPID': async () => {
+          await this.ddeInstance.printNpid(this.patient.getID())
+          await delayPromise(1800)
           return FlowState.CONTINUE
         },
         'createNpiDWithRemote': async () => {
@@ -585,7 +599,7 @@ export default defineComponent({
         try {
           return await states[state]()
         }catch(e) {
-          toastDanger(e)
+          toastDanger(`${e}`)
         }
       }
       return state
