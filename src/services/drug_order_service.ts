@@ -10,16 +10,14 @@ export class DrugOrderService extends Service {
         return this.postJson('drug_orders', orders)
     }
 
-    static updateDispensationOrder(orderID: number, quantity: number) {
+    static updateDispensationOrders(orders: any) {
         return this.postJson('dispensations', {
             'program_id': this.getProgramID(),
-            dispensations: [
-                {
-                    'date': this.getSessionDate(),
-                    'drug_order_id': orderID,
-                    'quantity': quantity,
-                }
-            ]
+            dispensations: orders.map((order: any) => ({
+                'date': this.getSessionDate(),
+                'drug_order_id': order['order_id'],
+                'quantity': order['quantity']
+            }))
         })
     }
 

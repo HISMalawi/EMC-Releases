@@ -34,7 +34,7 @@
                                             readonly
                                             @click="editDrugFrequency(drug)"
                                             :value="drug.frequency"
-                                            class="his-md-text dosage-input"
+                                            class="his-sm-text dosage-input"
                                             placeholder="Add frequency.."
                                         /> 
                                     </td>
@@ -52,7 +52,7 @@
                                                 <ion-button
                                                     :disabled="!(drug.id && drug.frequency && drug.duration)"
                                                     @click="activeDrugs.push(defaultDrugObj())" 
-                                                    class="his-md-text" 
+                                                    class="his-lg-text" 
                                                     color="success"> 
                                                     <ion-icon :icon="add"/>
                                                 </ion-button>
@@ -60,7 +60,7 @@
                                             <ion-col size="6" v-if="drugIndex + 1 < activeDrugs.length || (drugIndex !=0 && drugIndex +1 >= activeDrugs.length)"> 
                                                 <ion-button
                                                     @click="activeDrugs.splice(drugIndex, 1)"
-                                                    class="his-md-text"
+                                                    class="his-lg-text"
                                                     color="danger">
                                                     <ion-icon :icon="remove"/>
                                                 </ion-button>
@@ -95,7 +95,7 @@
                 <ion-button @click="clear" slot="end" size="large" color="warning"> 
                     Clear
                 </ion-button>
-                <ion-button @click="onFinish" slot="end" size="large" color="success"> 
+                <ion-button :disabled="isSubmitting" @click="onFinish" slot="end" size="large" color="success"> 
                     Finish
                 </ion-button>
             </ion-toolbar>
@@ -124,7 +124,7 @@ import {
 import { Field, Option } from '@/components/Forms/FieldInterface'
 import TouchField from "@/components/Forms/SIngleTouchField.vue"
 import EncounterMixinVue from '@/views/EncounterMixin.vue'
-import { AncTreatmentService } from '../../Services/anc_treatment_service'
+import { AncTreatmentService, AncTreatmentDrugObject, DRUG_FREQUENCIES } from '../../Services/anc_treatment_service'
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { DrugService } from '@/services/drug_service'
@@ -133,14 +133,7 @@ import {
     add,
     remove
 } from "ionicons/icons";
-interface ActiveDrug {
-    'id': number;
-    'drug_name': string;
-    'dose': string;
-    'duration': number;
-    'frequency': string;
-    'units': string;
-}
+
 export default defineComponent({
     components: {
         IonHeader,
@@ -165,7 +158,7 @@ export default defineComponent({
         }
     },
     data: () => ({
-        activeDrugs: [] as ActiveDrug[],
+        activeDrugs: [] as AncTreatmentDrugObject[],
         drugSets: [] as any,
         defaultDrugs: [] as any,
         isSubmitting: false as boolean,
@@ -179,6 +172,7 @@ export default defineComponent({
     watch: {
         ready: {
             async handler(ready: boolean) {
+                this.activeDrugs = [this.defaultDrugObj()]
                 if (ready) {
                     this.service = new AncTreatmentService(this.patientID, this.providerID)
                     this.drugSets = (await this.service.getDrugSets()).map((d: any) => ({
@@ -189,7 +183,6 @@ export default defineComponent({
                         }
                     }))
                     this.defaultDrugs = await DrugService.getDrugs({'page_size': 50})
-                    this.activeDrugs = [this.defaultDrugObj()]
                 }
             },
             immediate: true
@@ -198,11 +191,17 @@ export default defineComponent({
     methods: {
         async onFinish() {
             if (!this.formIsComplete()) {
-                toastWarning('Please complete drug form')
-                return
+                return toastWarning('Please complete drug form')
             }
             this.isSubmitting = true
-            this.nextTask()
+            try {
+                await this.service.submitTreatment(this.activeDrugs)
+                return this.nextTask()
+            } catch (e) {
+                toastWarning(`${e}`)
+                console.error(e)
+            }
+            this.isSubmitting = false
         },
         defaultDrugObj() {
             return {
@@ -257,14 +256,8 @@ export default defineComponent({
                         label: d.name,
                         value: d.drug_id,
                         other: {
-                            activeDrugValue: {
-                                id: d.drug_id,
-                                duration: '',
-                                frequency: '',
-                                units: d.units,
-                                'drug_name': d.name,
-                                dose: d.dose_strength
-                            }
+                            dose: d.dose,
+                            units: d.units
                         }
                     }))
                 },
@@ -274,67 +267,26 @@ export default defineComponent({
                 }
             }, 
             (data: Option) => {
-                drugItem['id'] = data.other.activeDrugValue["id"]
-                drugItem['drug_name'] = data.other.activeDrugValue["drug_name"]
+                drugItem['id'] = data.value
+                drugItem['drug_name'] = data.label
+                drugItem['dose'] = data.other.dose
+                drugItem['units'] = data.other.units
             })
         },
-        editDrugFrequency(drug: ActiveDrug) {
+        editDrugFrequency(drug: AncTreatmentDrugObject) {
             this.launchEditor({
                 id: 'frequency',
                 helpText: `Edit drug frequency for ${drug.drug_name}`,
                 type: FieldType.TT_SELECT,
                 defaultValue: () => drug.frequency,
                 validation: (v: Option) => Validation.required(v),
-                options: () => {
-                    return [
-                        { 
-                            label: 'Once a day (OD)',
-                            value: 1
-                        },
-                        {
-                            label: 'Twice a day (BD)',
-                            value: 2
-                        },
-                        {
-                            label: 'Three a day (TDS)',
-                            value: 3
-                        },
-                        {
-                            label: 'Four times a day (QID)',
-                            value: 4
-                        },
-                        {
-                            label: 'Five times a day (5X/D)',
-                            value: 5
-                        },
-                        {
-                            label: 'Six times a day (Q4HRS)',
-                            value: 6
-                        },
-                        {
-                            label: 'In the morning (QAM)',
-                            value: 0.5
-                        },
-                        {
-                            label: 'Once a week (QWK)',
-                            value: 0.14
-                        },
-                        {
-                            label: 'Once a month',
-                            value: 0.03
-                        },
-                        {
-                            label: 'Twice a month',
-                            value: 0.071
-                        }
-                    ]
-                }
+                options: () =>  this.mapStrToOptions(Object.keys(DRUG_FREQUENCIES))
             },
             (v: Option) => {
                 drug.frequency = v.label as string
             })
         },
-        editDrugDuration(drug: ActiveDrug) {
+        editDrugDuration(drug: AncTreatmentDrugObject) {
             this.launchEditor({
                 id: 'duration',
                 helpText: `Edit duration of ${drug.drug_name} in days`,
