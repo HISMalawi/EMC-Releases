@@ -72,20 +72,16 @@
                         </table>
                     </ion-col>
                 </ion-row>
-                <ion-row class="his-card section"> 
-                    <ion-col> 
-                        <ion-list>
-                            <ion-item class="his-md-text"
-                                detail
-                                @click="appendDrugSetValues(dset)" 
-                                button v-for="(dset, dindex) in drugSets" 
-                                :key="dindex"> 
-                                <ion-label>{{dset.label}} ({{dset.value}})</ion-label>
-                            </ion-item>
-                        </ion-list>
-                    </ion-col>
-                </ion-row>
             </ion-grid>
+            <ion-list class="his-card section">
+                <ion-item class="his-lg-text"
+                    detail
+                    @click="appendDrugSetValues(dset)" 
+                    button v-for="(dset, dindex) in drugSets" 
+                    :key="dindex"> 
+                    <ion-label>{{dset.label}} ({{dset.value}})</ion-label>
+                </ion-item>
+            </ion-list>
         </ion-content>
         <ion-footer> 
             <ion-toolbar color="dark">
@@ -133,6 +129,7 @@ import {
     add,
     remove
 } from "ionicons/icons";
+import { PatientPrintoutService } from '@/services/patient_printout_service'
 
 export default defineComponent({
     components: {
@@ -196,6 +193,7 @@ export default defineComponent({
             this.isSubmitting = true
             try {
                 await this.service.submitTreatment(this.activeDrugs)
+                await new PatientPrintoutService(this.patientID).printVisitSummaryLbl()
                 return this.nextTask()
             } catch (e) {
                 toastWarning(`${e}`)
