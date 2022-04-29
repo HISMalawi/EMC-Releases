@@ -92,6 +92,12 @@ export default {
           pathUrl: '/view_duplicates'
         },
         {
+          name: "Add drugset",
+          pathUrl: "/anc/drugset/add",
+          condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ANC'
+            : false
+        },
+        {
           name: "Data Cleaning",
           pathUrl: "/data_cleaning",
           condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ART'
