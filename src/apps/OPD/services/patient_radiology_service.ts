@@ -4,6 +4,7 @@ import { PrintoutService } from "@/services/printout_service";
 import OPD_GLOBAL_PROP from "@/apps/OPD/opd_global_props";
 import { Service } from "@/services/service";
 import moment from "dayjs";
+import { Patientservice } from "@/services/patient_service";
 
 export class PatientRadiologyService extends AppEncounterService {
   constructor(patientID: number, providerID: number) {
@@ -12,17 +13,6 @@ export class PatientRadiologyService extends AppEncounterService {
 
   static async getRadiolyList(radiologyType: string, filter = '') {
     return ConceptService.getConceptSet(radiologyType, filter) 
-  }
-
-  async print(order: any, showLbl: boolean, accompanyingData: any) {
-    let url = `/radiology/barcode`
-        url += `?accession_number=${accompanyingData.accesionNumber}`
-        url += `&patient_national_id=${accompanyingData.NationalID}`
-        url += `&patient_name=${accompanyingData.fullName}`
-        url += `&radio_order=${await ConceptService.getConceptNameFromApi(order.child.value_coded)}`
-        url += `&date_created=${moment(order.obs_datetime)}`
-    await  Service.delay(3000)
-    await new PrintoutService().printLbl(url,showLbl)
   }
 
   async submitToPacs(savedObsData: any, patient: any) {
@@ -65,29 +55,20 @@ export class PatientRadiologyService extends AppEncounterService {
     return (await Service.getJson(`sequences/next_accession_number`))['accession_number']
   }
 
-  async printOrders(orders: any, patient: any, gotoPatientDashboard: Function) {
-    let count = 0
-    let showLbl = true
-    const accompanyingData = {
-      'accesionNumber': await this.getAccesionNumber(),
-      'NationalID': patient.getNationalID(),
-      'fullName': patient.getFullName(),
-    }
-    const callPrint = async (order: any) => {
-      count++
-      await  Service.delay(3000 * count)
-      this.print(order,showLbl,accompanyingData)
-    }
-    let ordersCount = 0
-    await orders.forEach(async (order: any) => {
-      if (ordersCount == 0) {
-        this.print(order,showLbl,accompanyingData)
-      } else {
-        callPrint(order)
-        showLbl = false
-      }
-      ordersCount++
-    })
+  async printOrders(orders: any, patient: Patientservice, gotoPatientDashboard: Function) {
+    const printService = new PrintoutService()
+    const patientNationalId = patient.getNationalID()
+    const patientName = patient.getFullName()
+    const urls: string[] = await Promise.all(orders.map(async (order: any) => {
+      return `/radiology/barcode`
+        + `?accession_number=${await this.getAccesionNumber()}`
+        + `&patient_national_id=${patientNationalId}`
+        + `&patient_name=${patientName}`
+        + `&radio_order=${await ConceptService.getConceptName(order.child.value_coded)}`
+        + `&date_created=${moment(order.obs_datetime)}`
+    }))
+  
+    await printService.batchPrintLbls(urls, true)
     gotoPatientDashboard
   }
 }
