@@ -190,7 +190,12 @@ export default defineComponent({
     methods: {
         async onFinish() {
             if (!this.formIsComplete()) {
-                return toastWarning('Please complete drug form')
+                if ((await alertConfirmation('Do you want to continue without completing the form?'))) {
+                    await this.service.createEncounter()
+                    await this.service.saveValueCodedObs('Medication received at vist', 'No')
+                    this.nextTask()
+                }
+                return
             }
             this.isSubmitting = true
             try {
