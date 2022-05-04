@@ -21,13 +21,14 @@ export class PrintoutService extends Service {
         if (platformType.value === 'desktop') {
             const errors: string[] = []
             if(showPrintImage) EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')
-            for(const url in urls) {
+            for(const url of urls) {
                 try {
                     await this.execPrint(url)
                 } catch (e) {
                     errors.push(e as any)
                 }
             }
+            if(showPrintImage) await PrintoutService.delay(2000)
             if (errors.length > 0) {
                 // display unique errors only
                 await toastWarning(errors.filter((value, index, self) => self.indexOf(value) === index).join(), 3000)
