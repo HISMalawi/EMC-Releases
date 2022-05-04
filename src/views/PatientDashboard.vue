@@ -380,10 +380,10 @@ export default defineComponent({
             this.patient = await this.fetchPatient(this.patientId)
             try {
                 this.patientProgram = await ProgramService.getProgramInformation(this.patientId)
-                this.programCardInfo = await this.getProgramCardInfo(this.patientProgram) || []
             } catch (e) {
                 console.warn(e)
             }
+            this.programCardInfo = await this.getProgramCardInfo(this.patientProgram) || []
             this.patientCardInfo = this.getPatientCardInfo(this.patient)
             this.currentDate = HisDate.currentDisplayDate()
             this.sessionDate = this.toDate(ProgramService.getSessionDate())
@@ -504,7 +504,7 @@ export default defineComponent({
         },
         getProgramCardInfo(info: any) {
            if ('formatPatientProgramSummary' in this.app) {
-             return this.app.formatPatientProgramSummary(info)
+             return this.app.formatPatientProgramSummary(isEmpty(info) ? this.patient : info)
            }
         },
         getActivitiesCardInfo(encounters: Array<Encounter>) {

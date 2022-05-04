@@ -13,7 +13,8 @@ import { Order } from '@/interfaces/order';
 import {PROPERTIES} from "@/apps/OPD/config/globalPropertySettings"
 import { selectActivities } from '@/utils/WorkflowTaskHelper';
 import Validation from '@/components/Forms/validations/StandardValidations';
-
+import { Patientservice } from '@/services/patient_service';
+import { ObservationService } from '@/services/observation_service';
 
 async function onRegisterPatient(patientId: number) {
   const program = new PatientProgramService(patientId)
@@ -29,14 +30,12 @@ async function onRegisterPatient(patientId: number) {
 }
 
 async function formatPatientProgramSummary(data: any) {
-  // TODO: refactor core ProgramService to allow programs specify end-points for 
-  // getting program information summary
-  const nationalID = (data && data.national_id) ? data.national_id : ''
-  const hivStatus = (data && data.hiv_status) ? data.hiv_status : ''
+  const patient = new Patientservice(data.patient)
+  const hivStatus = await ObservationService.getFirstValueText(patient.getID(), 'HIV Status')
 
   return [
-    { label: 'Malawi National ID', value: nationalID },
-    { label: 'HIV Status', value: hivStatus }
+    { label: 'Malawi National ID', value: patient.getMWNationalID() },
+    { label: 'HIV Status', value: hivStatus || 'Unknown' },
   ]
 }
 
