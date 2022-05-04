@@ -1,5 +1,10 @@
 export default [
     {
+        name: 'art_followup',
+        path: '/anc/pmtct/:patient_id',
+        component: () => import("@/apps/ANC/Views/Encounters/Pmtct.vue")
+    },
+    {
         name: 'drugset management',
         path: '/anc/drugset',
         component: () => import("@/apps/ANC/Views/DataManagement/AncDrugsetManager.vue")
