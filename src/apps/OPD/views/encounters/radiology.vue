@@ -41,7 +41,11 @@ export default defineComponent({
       const savedObsData = await this.radiologyService.saveObservationList(data)
       await this.radiologyService.printOrders(data, this.patient)
       if(this.isPacsEnabled) {
-        await this.radiologyService.submitToPacs(savedObsData, this.patient)
+        try {
+          await this.radiologyService.submitToPacs(savedObsData, this.patient)
+        } catch (error) {
+          console.log(error)
+        }
       }
       this.gotoPatientDashboard()
     },
