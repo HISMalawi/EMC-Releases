@@ -3,6 +3,7 @@ import AncRoutes from "./Config/AncRoutes";
 import HomePageStats from "@/apps/ANC/Components/HomeStats.vue"
 import { PRIMARY_ACTIVITIES } from "./Config/AncProgramActivites";
 import { AppEncounterService } from "@/services/app_encounter_service";
+import { selectActivities } from '@/utils/WorkflowTaskHelper';
 
 const ANC: AppInterface = {
     programID: 12,
@@ -13,6 +14,7 @@ const ANC: AppInterface = {
     primaryPatientActivites: PRIMARY_ACTIVITIES,
     secondaryPatientActivites: [],
     homeOverviewComponent: HomePageStats,
+    init: async () => await selectActivities(PRIMARY_ACTIVITIES),
     async onRegisterPatient(patientID: number) {
         // Registration Encounter
         const registration = new AppEncounterService(patientID, 5, -1)
