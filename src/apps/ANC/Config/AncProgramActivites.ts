@@ -2,11 +2,6 @@ import { TaskInterface } from "@/apps/interfaces/TaskInterface";
 
 export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     {
-        id: 'art_followup',
-        name: 'ART FOLLOWUP',
-        icon: 'pmtct.png'
-    },
-    {
        id: 'anc dispensing',
        name: 'TTV VACCINATION',
        icon: 'prescription/medication.png'
@@ -53,7 +48,12 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     },
     {
         id: 'treatment',
-        name: 'Treatment',
+        name: 'Give Drugs',
         icon: 'dispensing.png'
+    },
+    {
+        id: 'art_followup',
+        name: 'ART FOLLOWUP',
+        icon: 'pmtct.png'
     }
 ]
