@@ -130,6 +130,7 @@ import {
     remove
 } from "ionicons/icons";
 import { PatientPrintoutService } from '@/services/patient_printout_service'
+import { AncDrugSetService } from '../../Services/anc_drug_set'
 
 export default defineComponent({
     components: {
@@ -172,7 +173,8 @@ export default defineComponent({
                 this.activeDrugs = [this.defaultDrugObj()]
                 if (ready) {
                     this.service = new AncTreatmentService(this.patientID, this.providerID)
-                    this.drugSets = (await this.service.getDrugSets()).map((d: any) => ({
+                    this.drugSets = (await AncDrugSetService.getDrugSets())
+					.map((d: any) => ({
                         label: d.name,
                         value: d.description,
                         other: {
