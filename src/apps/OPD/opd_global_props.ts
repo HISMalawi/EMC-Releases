@@ -10,7 +10,7 @@ function enablePACs(isTrue: boolean){
 }
 
 function isPACsEnabled(){
-    return GlobalPropertyService.get(OPD_GLOBAL_PROP.PACS_ENABLED)
+    return GlobalPropertyService.isProp(`${OPD_GLOBAL_PROP.PACS_ENABLED}=true`)
 }
 
 export default {

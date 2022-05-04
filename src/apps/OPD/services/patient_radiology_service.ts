@@ -1,7 +1,6 @@
 import { AppEncounterService } from "@/services/app_encounter_service"
 import { ConceptService } from '@/services/concept_service';
 import { PrintoutService } from "@/services/printout_service";
-import OPD_GLOBAL_PROP from "@/apps/OPD/opd_global_props";
 import { Service } from "@/services/service";
 import moment from "dayjs";
 import { Patientservice } from "@/services/patient_service";
@@ -16,59 +15,53 @@ export class PatientRadiologyService extends AppEncounterService {
   }
 
   async submitToPacs(savedObsData: any, patient: any) {
-    const isPACsEnabled = await OPD_GLOBAL_PROP.isPACsEnabled()
-    if (isPACsEnabled) {
-      await this.getOrdersObj(savedObsData).then(
-        async (data: any)=> {
-          const accompData = {
-            'encounterId': this.getEncounterID(),
-            'dateCreated': this.getDate(),
-            'accessionNumber': await this.getAccesionNumber()
-          }
-          await patient.getPatientDataObj(data, accompData).then(
-            async(dat: any) => {
-              await Service.delay(20000)        
-              await Service.postJson(`radiology/radiology_orders`,dat)
-            }
-          )
-        }
-
-      )
+    const orders = await Promise.all(savedObsData.map(async (order: any) => ({
+      "main_value_text": await ConceptService.getConceptName(order.value_coded),
+      "obs_id": order.obs_id,
+      "sub_value_text": await ConceptService.getConceptName(order.children[0].value_coded)
+    })))
+    const patientData = {
+      "patient_name": patient.getFullName(),
+      "patientAge": patient.getAge(),
+      "patientDOB": patient.getBirthdate(),
+      "patientGender": patient.getGender(),
+      "national_id": patient.getNationalID(),
+      "person_id": patient.getID(),
+      "encounter_id": this.getEncounterID(),
+      "date_created": this.getDate(),
+      "accession_number": await this.getAccesionNumber()
     }
-  }
-
-  async getOrdersObj(savedObsData: any){
-    const arryObj: any = []
-      savedObsData.forEach(async (order: any) => {
-        arryObj.push(
-          {
-            "main_value_text":await ConceptService.getConceptNameFromApi(order.value_coded),
-            "obs_id": order.obs_id,
-            "sub_value_text":await ConceptService.getConceptNameFromApi(order.children[0].value_coded)
-          }
-        )
-      })
-    return arryObj
+    const provider = {
+      "username": sessionStorage.getItem("username"),
+      "userID": sessionStorage.getItem("userID"),
+      "userRoles": sessionStorage.getItem("userRoles"),
+    }
+    return Service.postJson(`radiology/radiology_orders`, {
+      'patient_details': patientData,
+      'physician_details': provider,
+      'radiology_orders': orders
+    }) 
   }
 
   async getAccesionNumber() {
     return (await Service.getJson(`sequences/next_accession_number`))['accession_number']
   }
 
-  async printOrders(orders: any, patient: Patientservice, gotoPatientDashboard: Function) {
+  async printOrders(orders: any, patient: Patientservice) {
     const printService = new PrintoutService()
     const patientNationalId = patient.getNationalID()
     const patientName = patient.getFullName()
-    const urls: string[] = await Promise.all(orders.map(async (order: any) => {
-      return `/radiology/barcode`
+    const urls: string[] = [];
+    for(const order of orders) {
+      urls.push(`/radiology/barcode`
         + `?accession_number=${await this.getAccesionNumber()}`
         + `&patient_national_id=${patientNationalId}`
         + `&patient_name=${patientName}`
         + `&radio_order=${await ConceptService.getConceptName(order.child.value_coded)}`
         + `&date_created=${moment(order.obs_datetime)}`
-    }))
-  
+      )
+    }
+
     await printService.batchPrintLbls(urls, true)
-    gotoPatientDashboard
   }
 }
