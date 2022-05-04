@@ -92,8 +92,8 @@ export default {
           pathUrl: '/view_duplicates'
         },
         {
-          name: "Add drugset",
-          pathUrl: "/anc/drugset/add",
+          name: "Manage Drug Sets",
+          pathUrl: "/anc/drugset",
           condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ANC'
             : false
         },

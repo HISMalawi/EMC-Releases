@@ -1,5 +1,10 @@
 export default [
     {
+        name: 'drugset management',
+        path: '/anc/drugset',
+        component: () => import("@/apps/ANC/Views/DataManagement/AncDrugsetManager.vue")
+    },
+    {
         name: 'add anc drugset',
         path: '/anc/drugset/add',
         component: () => import("@/apps/ANC/Views/DataManagement/AncDrugSet.vue")
