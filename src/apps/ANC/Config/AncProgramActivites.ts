@@ -47,7 +47,8 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
         icon: 'current_preg.png'
     },
     {
-        id: 'treatment',
+        id: 'anc treatment',
+        workflowID: 'anc treatment',
         name: 'Give Drugs',
         icon: 'dispensing.png'
     },

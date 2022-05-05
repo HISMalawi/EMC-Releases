@@ -4,6 +4,7 @@
       :fields="formFields"
       :skipSummary="true"
       :onFinishAction="onFinish"
+      :cancelDestinationPath="cancelDestination" 
     />
   </ion-page>
 </template>
