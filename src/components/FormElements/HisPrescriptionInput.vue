@@ -164,9 +164,6 @@ export default defineComponent({
     },
     drugs: {
       async handler() {
-        if(this.onValue){
-          const isOk = await this.onValue(this.drugs);
-        }
         this.$emit("onValue", this.drugs);
       },
       immediate: true,
