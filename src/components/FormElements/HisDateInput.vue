@@ -61,7 +61,11 @@ export default defineComponent({
     }),
     async activated(){
         this.$emit('onFieldActivated', this)
-        this.date = new Date()
+        if (typeof this.config.initialDate === 'function') {
+            this.date = new Date(this.config.initialDate())
+        } else {
+            this.date = new Date()
+        }
         await this.setDefaultValue()
         this.isInit = false
     },

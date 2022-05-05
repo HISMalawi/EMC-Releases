@@ -79,6 +79,7 @@ export default defineComponent({
                   }
                 ]),
                 config: {
+                    initialDate: () => this.service.date,
                     calculateDelieveryDate: (d: string) => HisDate.toStandardHisDisplayFormat(
                         this.service.estimateDelieveryDate(d)
                     ),
