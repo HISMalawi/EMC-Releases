@@ -99,6 +99,12 @@ export default {
         },
         {
           name: "Data Cleaning",
+          pathUrl: "/anc/datacleaning",
+          condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ANC'
+            : false
+        },
+        {
+          name: "Data Cleaning",
           pathUrl: "/data_cleaning",
           condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ART'
             : false

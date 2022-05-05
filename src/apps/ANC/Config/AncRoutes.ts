@@ -5,6 +5,11 @@ export default [
         component: () => import("@/apps/ANC/Views/Encounters/Pmtct.vue")
     },
     {
+        name: 'anc data-cleaning tools',
+        path: '/anc/datacleaning',
+        component: () => import ("@/apps/ANC/Views/DataManagement/AncDataCleaningTools.vue")
+    },
+    {
         name: 'drugset management',
         path: '/anc/drugset',
         component: () => import("@/apps/ANC/Views/DataManagement/AncDrugsetManager.vue")
