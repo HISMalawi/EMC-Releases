@@ -26,8 +26,10 @@ export enum FlowState {
     UPDATE_LOCAL_DDE_DIFFS = 'updateLocalDiffs',
     RESOLVE_DUPLICATE_NPIDS = 'resolveDuplicateNpids',
     ADD_AS_DRUG_REFILL = 'addAsDrugRefill',
-    ADD_AS_EXTERNAL_CONSULTATION = 'addAsExternalConsultation'
+    ADD_AS_EXTERNAL_CONSULTATION = 'addAsExternalConsultation',
+    INITIATE_ANC_PREGNANCY = 'initiateNewAncPregnancy'
 }
+
 export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = {
     "Do not proceed if patient is not found in the system" : {
         priority: 1,
@@ -642,4 +644,37 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             hasHighViralLoad: (isHigh: boolean)  => isHigh === true
         }
     },
+    "[ANC] Warn last LMP is more than 8 months ago and ask to initiate new pregnancy": {
+        priority: 10,
+        targetEvent: TargetEvent.ON_CONTINUE,
+        actions: {
+            alert: async ({anc}: any) => {
+                const action = await infoActionSheet(
+                    'Pregancy overdue',
+                    `Last menstrual period was ${anc.lmpMonths} months ago!`,
+                    'Would you like to initiate new pregnancy?',
+                    [
+                        { 
+                            name: 'Yes',  
+                            slot: 'end', 
+                            color: 'success'
+                        },
+                        { 
+                            name: 'No',  
+                            slot: 'end', 
+                            color: 'danger'
+                        }
+                    ],
+                    'his-danger-color'
+                )
+                return action === 'Yes' 
+                    ? FlowState.INITIATE_ANC_PREGNANCY 
+                    : FlowState.CONTINUE
+            }
+        },
+        conditions: {
+            programName: (name: string) => name.match(/anc/i) ? true : false,
+            anc: (anc: any)  => anc.currentPregnancyIsOverdue === true
+        }        
+    }
 }
