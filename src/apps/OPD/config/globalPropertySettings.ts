@@ -16,7 +16,7 @@ export const PROPERTIES: FolderInterface[] = [
         condition: () => UserService.isAdmin(),
         files: [
             globalPropConfig(
-                "Activate PACs for Radiology Examination",
+                "Activate PACs",
                 OPD_GLOBAL_PROP.PACS_ENABLED
             )
         ]
