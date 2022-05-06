@@ -8,6 +8,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: "hiv clinic registration",
     name: "Hiv clinic registration",
     workflowID: "HIV first visits",
+    encounterTypeName: "REGISTRATION",
     icon: "registration.png"
   },
   {
@@ -29,7 +30,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   },
   {
     id: "hiv clinic consultation",
-    name: "HIV clinic consultations",
+    name: "HIV clinic consultation",
     icon: "consultation.png"
   },
   {
@@ -54,12 +55,14 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: "dispensing",
     name: "Drug Dispensations",
+    encounterTypeName: "DISPENSING",
     workflowID: "Drug Dispensations",
     icon: "dispensing.png"
   },
   {
     id: "appointment",
     name: "Manage Appointments",
+    encounterTypeName: "APPOINTMENT",
     workflowID: "Manage Appointments",
     icon: "appointment.png"
   },

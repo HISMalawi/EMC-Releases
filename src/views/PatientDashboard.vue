@@ -277,6 +277,7 @@ import {
 import { EncounterService } from '@/services/encounter_service'
 import { ConceptService } from "@/services/concept_service"
 import { PersonService } from "@/services/person_service"
+import { TaskInterface } from "@/apps/interfaces/TaskInterface"
 export default defineComponent({
     components: {
         IonSegment,
@@ -336,7 +337,8 @@ export default defineComponent({
         labOrderCardItems: [] as Array<Option>,
         alertCardItems: [] as Array<Option>,
         patientCards: [] as Array<any>,
-        appVersion: ProgramService.getFullVersion()
+        appVersion: ProgramService.getFullVersion(),
+        sessionEncounters: [] as Encounter[]
     }),
     computed: {
         patientIsset(): boolean {
@@ -415,6 +417,10 @@ export default defineComponent({
                 this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
                 this.medicationCardItems = this.getMedicationCardInfo(this.medications)
                 this.labOrderCardItems = await this.getLabOrderCardInfo(date)
+                // Track encounters recorded on system session date
+                if (date === ProgramService.getSessionDate()) { 
+                   this.sessionEncounters = this.encounters
+                }
                 this.updateCards()
             } catch(e) {
                 toastDanger(`${e}`)
@@ -530,9 +536,10 @@ export default defineComponent({
                     id: encounter.encounter_id,
                     columns: ['Observation', 'Value', 'Time'],
                     onVoid: async (reason: any) => {
-                        await this.showLoader()
                         try {
+                            await this.showLoader()
                             await EncounterService.voidEncounter(encounter.encounter_id, reason)
+                            loadingController.dismiss()
                             /**Refresh card data*/
                             await this.loadCardData(this.activeVisitDate as string)
                             this.nextTask = await this.getNextTask(this.patientId)
@@ -540,7 +547,6 @@ export default defineComponent({
                         } catch (e) {
                             toastDanger(e)
                         }
-                        loadingController.dismiss()
                     },
                     getRows: async () => {
                         const data = []
@@ -600,11 +606,24 @@ export default defineComponent({
                 await this.init()
             }
         },
+        /** 
+         * Loads all patient program tasks.
+         * Note: Existing encounters for that session date are disabled
+        */
         async showTasks() {
             if ('primaryPatientActivites' in this.app) {
-                const encounters = this.app.primaryPatientActivites
-                console.log(this.encounters)
-                this.openModal(encounters, 'Select Task', TaskSelector)
+                const sessionEncounterNames = this.sessionEncounters.map(
+                    e => e['type']['name'].toLowerCase()
+                )
+                const tasks = [...this.app.primaryPatientActivites].map(
+                    (task: TaskInterface) => {
+                        const taskName = task.encounterTypeName || task.name
+                        task.taskCompleted = sessionEncounterNames.includes(
+                            taskName.toLowerCase()
+                        )
+                        return task
+                    })
+                this.openModal(tasks, 'Select Task', TaskSelector)
             }
         },
         async showOptions() {

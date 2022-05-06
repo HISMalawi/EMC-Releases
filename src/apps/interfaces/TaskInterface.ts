@@ -6,7 +6,9 @@ export interface TaskInterface {
     description?: string;
     url?: string;
     workflowID?: string;
+    encounterTypeName?: string;
     action?: Function;
     icon: string;
+    taskCompleted?: boolean;
     condition?: (params: any) => boolean | Promise<boolean>;
 }
