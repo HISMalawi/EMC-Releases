@@ -12,14 +12,4 @@ export class PatientDiagnosisService extends AppEncounterService {
             id: conceptSetId
         })
     }
-
-    static async getMalariaTestResult(patientId: number) {
-        let malariaTestResult = await AppEncounterService.getFirstValueCoded(patientId, 'Malaria Test Result')   
-        if(malariaTestResult) return malariaTestResult
-
-        malariaTestResult = await AppEncounterService.getFirstValueText(patientId, 'Malaria Test Result')
-        if(malariaTestResult) return malariaTestResult
-
-        return null
-    }
 }
