@@ -112,7 +112,7 @@ export default defineComponent({
       if (typeof taskItem.taskCompleted === 'boolean' 
         && taskItem?.taskCompleted) {
         if (!(await alertConfirmation(
-          'This task was already completed. Do you want to redo it?'
+          'This task was already completed. Do you want to continue?'
           ))) { 
           return
         }
