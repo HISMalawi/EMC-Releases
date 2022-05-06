@@ -629,7 +629,7 @@ export default defineComponent({
                         )
                         return task
                     })
-                this.openModal(tasks, 'Select Task', TaskSelector)
+                this.openModal(tasks, 'Tasks for', TaskSelector, this.sessionDate)
             }
         },
         async showOptions() {
@@ -638,15 +638,15 @@ export default defineComponent({
                 this.openModal(other, 'Select Activity', TaskSelector)
             }
         },
-        async openModal(items: any, title: string, component: any) {
-            const date = this.toDate(this.activeVisitDate.toString())
+        async openModal(items: any, title: string, component: any, date='') {
+            const displayDate = date || this.toDate(this.activeVisitDate.toString())
             const modal = await modalController.create({
                 component: component,
                 backdropDismiss: false,
                 cssClass: "large-modal",
                 componentProps: {
                     items,
-                    title: `${title}: ${date}`,
+                    title: `${title}: ${displayDate}`,
                     taskParams: { 
                         patient: this.patient.getObj(), 
                         program: this.patientProgram,
