@@ -32,6 +32,7 @@ export default defineComponent({
       async handler(ready: boolean) {
         if (ready) {
             this.service = new AncObstericService(this.patientID, this.providerID)
+			await this.service.initData()
             this.fields = this.getFields()
         } 
       },
@@ -51,21 +52,21 @@ export default defineComponent({
                 id: 'gravida',
                 helpText: 'Gravida',
                 type: FieldType.TT_NUMBER,
+				defaultValue: () => this.service.nextGravida > 0 ? this.service.nextGravida : null,
                 beforeNext: async (v: Option) => {
                     if (parseInt(`${v.value}`) > 9) {
-                        const ok = await alertConfirmation(
-                            'The value is bigger than maximum 9. Are you sure about this value?'
-                        )
-                        if (!ok) {
+                        if (!(await alertConfirmation(
+							'The value is greater than maximum 9. Are you sure about this value?'
+							))) {
                             return false
-                        } 
+                        }
                     }
                     return true
                 },
                 computedValue: (v: Option) => this.service.buildValueNumber('Gravida', v.value),
                 validation: (v: Option) => this.validateSeries([
                     () => Validation.required(v),
-                    () => Validation.rangeOf(v, 1, 19)
+                    () => Validation.rangeOf(v, this.service.nextGravida, 19)
                 ])
             },
             {
@@ -76,7 +77,7 @@ export default defineComponent({
                 computedValue: (v: Option) => this.service.buildValueNumber('Parity', v.value), 
                 validation: (v: Option, f: any) => this.validateSeries([
                     () => Validation.required(v),
-                    () => Validation.rangeOf(v, 0, f.gravida.value - 1)
+                    () => Validation.rangeOf(v, this.service.para, f.gravida.value - 1)
                 ])
             },
             {

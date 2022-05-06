@@ -40,6 +40,10 @@ export class AppEncounterService extends ObservationService {
         return AppEncounterService.getFirstValueCoded(this.patientID, conceptName, this.date)
     }
 
+    getFirstValueNumber(conceptName: string) { 
+        return AppEncounterService.getFirstValueNumber(this.patientID, conceptName, this.date)
+    }
+
     async buildObs(conceptName: string, obj: Record<string, any>) {
         const obs: any = {
             ...obj,
