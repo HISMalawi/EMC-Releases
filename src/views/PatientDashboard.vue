@@ -394,6 +394,13 @@ export default defineComponent({
             this.programID = ProgramService.getProgramID()
             this.updateCards()
         },
+        async showLoader() {
+            const loading = await loadingController.create({
+                message: 'Please wait....',
+                backdropDismiss: false
+            })
+            await loading.present()
+        },
         toDate(date: string | Date) {
             return HisDate.toStandardHisDisplayFormat(date)
         },
@@ -401,12 +408,18 @@ export default defineComponent({
             return HisDate.toStandardHisTimeFormat(date)
         },
         async loadCardData(date: string) {
-            this.encounters = await EncounterService.getEncounters(this.patientId, {date})
-            this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
-            this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
-            this.medicationCardItems = this.getMedicationCardInfo(this.medications)
-            this.labOrderCardItems = await this.getLabOrderCardInfo(date)
-            this.updateCards()
+            try {
+                await this.showLoader()
+                this.encounters = await EncounterService.getEncounters(this.patientId, {date})
+                this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
+                this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
+                this.medicationCardItems = this.getMedicationCardInfo(this.medications)
+                this.labOrderCardItems = await this.getLabOrderCardInfo(date)
+                this.updateCards()
+            } catch(e) {
+                toastDanger(`${e}`)
+            }
+            loadingController.dismiss()
         },
         updateCards() {
             this.patientCards = [
@@ -517,12 +530,7 @@ export default defineComponent({
                     id: encounter.encounter_id,
                     columns: ['Observation', 'Value', 'Time'],
                     onVoid: async (reason: any) => {
-                        const loading = await loadingController
-                            .create({
-                            message: 'Please wait....',
-                            backdropDismiss: false
-                        })
-                        await loading.present()
+                        await this.showLoader()
                         try {
                             await EncounterService.voidEncounter(encounter.encounter_id, reason)
                             /**Refresh card data*/
@@ -595,6 +603,7 @@ export default defineComponent({
         async showTasks() {
             if ('primaryPatientActivites' in this.app) {
                 const encounters = this.app.primaryPatientActivites
+                console.log(this.encounters)
                 this.openModal(encounters, 'Select Task', TaskSelector)
             }
         },
