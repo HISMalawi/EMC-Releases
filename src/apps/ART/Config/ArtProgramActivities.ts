@@ -8,7 +8,6 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: "hiv clinic registration",
     name: "Hiv clinic registration",
     workflowID: "HIV first visits",
-    encounterTypeName: "REGISTRATION",
     icon: "registration.png"
   },
   {
@@ -69,6 +68,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: "patient type",
     name: "Patient Type",
+    encounterTypeName: "Registration",
     icon: "patient-type.png",
     availableOnActivitySelection: false
   },
@@ -76,6 +76,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: "bp_management",
     name: "bp_management",
     icon: "dispensing.png",
+    encounterTypeName: "Hypertension management",
     globalProperty: `${ART_GLOBAL_PROP.HTN_ENHANCEMENT}=true`,
     availableOnActivitySelection: false
   },
