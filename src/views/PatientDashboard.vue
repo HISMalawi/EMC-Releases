@@ -499,7 +499,13 @@ export default defineComponent({
             const d = this.visitDates.concat(dates)
                 .map(d => d.value as string)
                 .sort((a, b) => new Date(a) > new Date(b) ? 0 : 1)
-            this.visitDates = uniq(d).map(d => ({ label: this.toDate(d), value: d }))
+            this.visitDates = uniq(d).map(d => ({ 
+                label: this.toDate(d), 
+                value: d,
+                other: {
+                    isActive: d === ProgramService.getSessionDate()
+                }
+            }))
         },
         getNextTask(patientId: number) {
             return WorkflowService.getNextTaskParams(patientId)
