@@ -1,17 +1,19 @@
 <template>
 <layout>
   <ion-grid class="ion-no-margin ion-no-padding">
-    <ion-row>
-      <ion-col>
-        <information-header
-          :items="patientCardInfo"
-          :numberOfColumns="4"
-          @addGuardian="addGuardian"
-          @update="updateDemographics"
-          @updateARVNumber="updateARVNumber"
-        />
-      </ion-col>
-    </ion-row>
+    <multi-column-view :items="patientCardInfo" :numberOfColumns="4" v-slot="{entries}">
+      <ion-list class="his-card ion-margin-end">
+        <ion-item v-for="(option, i) in entries" :key="i" :lines="i === entries.length - 1 ? 'none': ''">
+          <div :style="{width: '100%', display: 'flex', justifyContent: 'space-between'}">
+            <span>{{ option.label }}: </span>
+            <span v-if="option.other && option.other.editable" @click="onClick(option)">
+              <a><b>{{ option.value }}</b></a>
+            </span>
+            <span v-else><b>{{ option.value || 'N/A'}}</b></span>
+          </div>
+        </ion-item>
+      </ion-list>
+    </multi-column-view>
     <ion-row>
       <ion-col>
         <visits-summary
@@ -44,14 +46,15 @@ import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { NavBtnInterface } from "@/components/HisDynamicNavFooterInterface";
 import Layout from "../Components/Layout.vue";
 import VisitsSummary from "../Components/tables/VisitsSummary.vue";
-import { OrderService } from "@/services/order_service";
 import { DrugOrderService } from "@/services/drug_order_service";
+import MultiColumnView from "@/components/containers/MultiColumnView.vue";
 
 export default defineComponent({
   components: {
-    InformationHeader,
+    // InformationHeader,
     Layout,
     VisitsSummary,
+    MultiColumnView,
   },
   data: () => ({
     isBDE: false as boolean,
@@ -413,3 +416,10 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+ion-list {
+  height: 100%;
+}
+
+</style>
