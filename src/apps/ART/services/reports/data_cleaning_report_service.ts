@@ -13,9 +13,18 @@ export enum CtIndicator {
     PreArtOrUnknownOutcomes ='PRE ART OR UNKNOWN OUTCOMES',
 }
 
+export interface DataCleaningVerificationData {
+    'data_cleaning_datetime': string;
+    'supervisors': string[];
+}
+
 export class DataCleaningReportService extends ArtReportService {
     constructor() {
         super()
+    }
+    
+    saveDataCleaningVerification(data: DataCleaningVerificationData) {
+        return ArtReportService.postJson('data_cleaning_confirmation', data)
     }
 
     getCleaningToolReport(indicator: CtIndicator) {

@@ -121,7 +121,9 @@ export default defineComponent({
                 this.report.setQuarter(form.quarter.label)
                 this.report.setStartDate(form.quarter.other.start)
                 this.report.setEndDate(form.quarter.other.end)
-                this.period = form.quarter.label
+                this.period = form.quarter.label === 'Custom'
+                    ? this.report.getDateIntervalPeriod()
+                    : form.quarter.label
             } else {
                 this.mohCohort.setStartDate(config.start_date)
                 this.mohCohort.setEndDate(config.end_date)
@@ -181,31 +183,33 @@ export default defineComponent({
             }
         },
         setTotalMalesRow(sortIndex: number) {
-            const totals = this.aggregations
-                .filter((a: any) => a.gender === 'Male')
-                .reduce((accum: any, cur: any) => {
-                    if (!accum[cur.col]) accum[cur.col] = []
-                    accum[cur.col] = accum[cur.col].concat(cur.data)
-                    return accum
-                },{})
-            const rows: any = this.rowDataRefs.map(r => this.drill(totals[r], `${this.getColumnLabel(r)} | All Male`))
-            this.sortIndexes[sortIndex] = [ [table.td('All'), table.td('Male'), ...rows] ]
+            const maleTD = (column: string, columnDescription: string) => {
+                const data = this.aggregations.filter((a: any) => a.gender === 'Male' && a.col === column)
+                    .reduce((accum: any, cur: any) => accum.concat(cur.data), []) 
+                return this.drill(data, columnDescription)
+            }
+            const rows: any = this.rowDataRefs.map(columnName => 
+                maleTD(columnName, `${this.getColumnLabel(columnName)} | All Male`)
+            )
+            this.sortIndexes[sortIndex] = [[table.td('All'), table.td('Male'), ...rows]]
         },
         setFemaleNotPregnantRows(sortIndex: number) {
-            const isPregnant = (patientID: number) => this.aggregations
-                .filter((a: any) => a.gender.match(/fp|fbf/i))
+            // Gets all pregnant females from a particular column and checks if given patient ID 
+            // Is in the list
+            const isPregnant = (patientID: number, column: string) => this.aggregations
+                .filter((a: any) => a.gender.match(/fp|fbf/i) && a.col === column)
                 .reduce((accum: any, cur: any) => accum.concat(cur.data || []), [])
                 .includes(patientID)
-
-            const totals = this.aggregations
-                .filter((a: any) => a.gender === 'Female')
-                .reduce((accum: any, cur: any) => {
-                    if (!accum[cur.col]) accum[cur.col] = []
-                    accum[cur.col] = accum[cur.col].concat( cur.data.filter((i: any) => !isPregnant(i)))
-                    return accum
-                }, {})
-            const rows: any = this.rowDataRefs.map(r => this.drill(totals[r], `${this.getColumnLabel(r)} | FNP`))
-            this.sortIndexes[sortIndex] = [ [ table.td('All'), table.td('FNP'), ...rows ] ]
+            // Get total sum of all females by a particular column
+            const fnpTD = (column: string, columnDescription: string) => {
+                const data = this.aggregations.filter((a: any) => a.gender === 'Female' && a.col === column)
+                    .reduce((accum: any, cur: any) => accum.concat(cur.data.filter((i: any) => !isPregnant(i, column))), [])
+                return this.drill(data, columnDescription)
+            }
+            const rows: any = this.rowDataRefs.map(column => 
+                fnpTD(column, `${this.getColumnLabel(column)} | FNP`)
+            )
+            this.sortIndexes[sortIndex] = [[table.td('All'), table.td('FNP'), ...rows]]
         },
         setFemaleRows(sortIndex: number) {
             this.report.setGender('female')

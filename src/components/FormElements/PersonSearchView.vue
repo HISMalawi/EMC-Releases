@@ -26,7 +26,7 @@
                 <ion-list>
                     <ion-item
                       class="his-md-text"
-                      v-for="(opt, index) in selectedResult?.other?.options || []"
+                      v-for="(opt, index) in patientAttributes"
                       :key="index"
                       inset="none"
                       >
@@ -55,6 +55,7 @@ import {
 } from "@ionic/vue";
 import FieldMixinVue from "./FieldMixin.vue";
 import { Option } from "@/components/Forms/FieldInterface"
+import { isArray, isEmpty } from "lodash";
 
 export default defineComponent({
   mixins:[FieldMixinVue],
@@ -72,6 +73,14 @@ export default defineComponent({
     selectedResult: {} as any
   }),
   computed: {
+    patientAttributes(): Option[] {
+      if (!isEmpty(this.selectedResult) && isArray(this.selectedResult?.other?.options)) {
+        return this.selectedResult?.other?.options.filter(
+          (i: any) => typeof i?.other?.show === 'function' ? i?.other?.show() : true
+        )
+      }
+      return []
+    },
     foundRecordsTitle(): string {
       return this.config?.foundRecordsTitle || 'Found People'
     },

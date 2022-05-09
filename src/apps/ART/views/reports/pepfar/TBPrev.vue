@@ -38,10 +38,6 @@ export default defineComponent({
                     sortable: false,
                     exportable: false 
                 }),
-                table.thTxt('', { 
-                    sortable: false,
-                    exportable: false  
-                }),
                 table.thTxt('Started new on ART', { 
                     colspan: 2, 
                     sortable: false,
@@ -92,8 +88,25 @@ export default defineComponent({
             this.setRows('M')
         },
         makeDrilldown(data: Array<any>, context: string) {
-            const values = data.map(p => p.patient_id)
-            return this.drill(values, context)
+            if (data.length) {
+                const columns = [
+                    [
+                        table.thTxt('ARV#'),
+                        table.thTxt('Birthdate'),
+                        table.thTxt('TPT Initiation Date')
+                    ]
+                ]
+                const asyncRows = () => {
+                    return this.sortByArvNumber(data, 'arv_number')
+                        .map((p: any) => ([
+                            table.td(p.arv_number),
+                            table.tdDate(p.birthdate),
+                            table.tdDate(p.tpt_initiation_date)
+                        ]))
+                }
+                return table.tdLink(data.length, () => this.drilldownAsyncRows(context, columns, asyncRows))
+            }
+            return table.td(0)
         },
         async setRows(gender: string) {
             for(const i in AGE_GROUPS) {

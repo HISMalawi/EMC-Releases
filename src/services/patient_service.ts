@@ -10,6 +10,7 @@ import  { BMIService } from "@/services/bmi_service"
 import { find, isEmpty } from 'lodash';
 import { isValueEmpty } from '@/utils/Strs';
 import { PatientIdentifierService } from './patient_identifier_service';
+import { PatientPrintoutService } from './patient_printout_service';
 
 export class Patientservice extends Service {
     patient: Patient;
@@ -44,8 +45,8 @@ export class Patientservice extends Service {
     public static async findByID(patientId: number | string) {
         return super.getJson(`/patients/${patientId}`)
     }
-    public static async assignNHID(patientId: number | string) {
-        return super.postJson(`/patients/${patientId}/npid`, {});
+    public static async assignNHID(patientId: number | string, programID: number) {
+        return super.postJson(`/patients/${patientId}/npid`, { 'program_id': programID });
     }
     public static reassignARVNumber(patientIdentifierId: number | string, data: Record<string, any>) {
         return super.putJson("patient_identifiers/" + patientIdentifierId, data)
@@ -82,7 +83,7 @@ export class Patientservice extends Service {
     }
 
     assignNpid() {
-       return Patientservice.assignNHID(this.getID()) 
+       return Patientservice.assignNHID(this.getID(), Service.getProgramID()) 
     }
 
     createArvNumber(arvNumber: string) {
@@ -94,6 +95,10 @@ export class Patientservice extends Service {
         return Patientservice.reassignARVNumber(patientIdentifierId, {
             identifier: newARVNumber
         })
+    }
+
+    updateMWNationalId(newId: string) {
+        return PatientIdentifierService.create(this.getID(), 28, newId)
     }
 
     isMale() {
@@ -259,6 +264,10 @@ export class Patientservice extends Service {
         return name.replace(/n\/a|unknown|null|undefined/gi, '').trim()
     }
 
+    async printNationalID() {
+        return new PatientPrintoutService(this.getID()).printNidLbl()
+    }
+
     getFullName() {
         try {
             const name = this.patient.person.names[0]
@@ -279,6 +288,10 @@ export class Patientservice extends Service {
 
     getNationalID() {
         return this.findIdentifierByType('National id')
+    }
+
+    getMWNationalID() {
+        return this.findIdentifierByType('Malawi National ID')
     }
     
     getArvNumber() {
@@ -340,6 +353,11 @@ export class Patientservice extends Service {
     getCurrentTA() {
         return this.getAddresses().currentTA
     }
+
+    getClosestLandmark() {
+        return this.getAttribute(19)
+    }
+
     getPhoneNumber() {
         return this.getAttribute(12) //get phone number
     }
@@ -386,5 +404,4 @@ export class Patientservice extends Service {
         }
         return addressOBJ;
     }
-
 }

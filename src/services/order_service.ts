@@ -2,6 +2,10 @@ import { Order } from '@/interfaces/order';
 import { Service } from '@/services/service'
 import HisDate from "@/utils/Date"
 import { ConceptService } from './concept_service';
+import { ObservationService } from './observation_service';
+import { isEmpty } from 'lodash';
+import dayjs from 'dayjs';
+
 export class OrderService extends Service {
     constructor() {
         super()
@@ -16,8 +20,32 @@ export class OrderService extends Service {
         });
     }
 
+    static async getOrdersIncludingGivenResultStatus(patientID: number, params={}) {
+        const data = (await this.getOrders(patientID, params)).map(async (order: Order) => {
+            const remappedOrder: any = { ...order, 'result_given': false }
+            const obsResultID = order.tests.filter(order => order.result != null)
+                .map((tests: any) => tests.result)
+                .reduce((results: any, result: any) => [...results, ...result], [])
+                .reduce((_: any, result: any) => result.id, null)
+            try {
+                remappedOrder['result_given'] = !obsResultID ? 'N/A'
+                    : await (await ObservationService.get(obsResultID as number))
+                        .children.reduce(async (status: string, obs: any) => {
+                            return (await ConceptService.getConceptID('Result Given to Client')) === obs.concept_id
+                            && (await ConceptService.getConceptName(obs.value_coded)) === 'Yes'
+                                ? 'Yes'
+                                : status
+                        }, 'No')
+            } catch (e) {
+                console.error(e)
+            }
+            return remappedOrder
+        })
+        return await Promise.all(data)
+    }
+
     static getTestTypes() {
-        return super.getJson('/lab/test_types');
+        return super.getJson('/lab/test_types')
     }
 
     static getTestTypesBySpecimen(specimenType='') {
@@ -41,6 +69,30 @@ export class OrderService extends Service {
             }
 
         });
+    }
+
+    static async getLatestMalariaTestResult(patientID: number, date = this.getSessionDate()) {
+        const orders: Order[] = await this.getOrders(patientID)
+        const minDate = dayjs(date).subtract(7, 'day')
+        const malariaOrders = orders.filter(order => {
+            for (const test of order.tests) {
+                if(
+                    !isEmpty(test.result) && 
+                    test.name.match(/Malaria/i) && 
+                    dayjs(order.order_date).isAfter(minDate)
+                ) return true
+            }
+            return false
+        });
+        if(malariaOrders.length > 0) {
+            const isPositive = malariaOrders[0].tests.some(test => {
+                return test.result.some(result => {
+                    return result.value.toString().match(/positive/i)
+                })
+            })
+            return isPositive ? 'Positive' : 'Negative'
+        } 
+        return "No"
     }
 
     static isDBSResult(specimen: string) {
@@ -71,7 +123,7 @@ export class OrderService extends Service {
         return false
     }
 
-    static formatLabs(orders: Order[]) {
+    static formatLabs(orders: any) {
         const formatted = [];
         for (let x = 0; x < orders.length; x++) {
             const accessionNumber = orders[x].accession_number;
@@ -82,6 +134,7 @@ export class OrderService extends Service {
             for (let i = 0; i < tests.length; i++) {
                 const results = (tests[i].result ? tests[i].result : []);
                 const resultsArr = [];
+                const resultIds = [];
                 let resultDate = '';
 
                 for (let r = 0; r < results.length; r++) {
@@ -90,14 +143,19 @@ export class OrderService extends Service {
                     const value = results[r].value;
                     const valueModifier = results[r].value_modifier.replace('&lt;', '<').replace('&gt;', '>');
                     resultsArr.push(name + "   " + valueModifier + value);
+                    resultIds.push(results[r].id)
                 }
                 formatted.push({
+                    'encounter_id': orders[x].encounter_id,
+                    'order_id': orders[x].order_id,
+                    'result_given': orders[x]['result_given'] || 'N/A',
                     'accession_number': accessionNumber,
                     'test_name': tests[i].name,
                     specimen: testStatus,
                     ordered: dateOrdered ? HisDate.toStandardHisFormat(dateOrdered) : '',
                     result: resultsArr,
-                    released: resultDate ? HisDate.toStandardHisFormat(resultDate) : ''
+                    resultIds,
+                    released: resultDate ? HisDate.toStandardHisFormat(resultDate) : '',
                 })
 
             }

@@ -6,7 +6,7 @@
         <ion-card-title>{{name}}</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <b>{{details}}</b>
+        <b class="his-md-text">{{details}}</b>
       </ion-card-content>
     </center>
   </ion-card> 
@@ -30,12 +30,16 @@ export default defineComponent({
 });
 </script>
 <style scoped>
+.his-md-text{
+  font-weight: bold;
+}
 .his-card {
-  height: 33vh;
+  padding: 0.6em;
+  height: 35vh;
   overflow: 'hidden';
 }
 ion-img {
-  width: 150px;
-  height: 120px;
+  width: 120px;
+  height: 90px;
 }
 </style>

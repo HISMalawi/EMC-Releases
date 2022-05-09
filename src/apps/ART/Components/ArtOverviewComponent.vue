@@ -21,7 +21,7 @@
             <th>Facility</th>
           </tr>
           <tr v-for="(data, index) in rows" :key="index">
-            <td class="encounter-td">{{ encounters[data.encounter] }}</td>
+            <td class="encounter-td">{{ getEncounterName(data.encounter) }}</td>
             <td class="other-td">{{ data.female }}</td>
             <td class="other-td">{{ data.male }}</td>
             <td class="other-td">{{ data.me }}</td>
@@ -66,17 +66,17 @@ export default defineComponent({
         },
       ],
       rows: [{}],
-      encounters: {
-        9: "HIV clinic registration",
-        51: "HIV reception",
-        6: "Vitals",
-        52: "HIV staging",
-        53: "HIV clinic consultation",
-        68: "ART adherence",
-        25: "Treatment",
-        54: "Dispensing",
-        7: "Appointments",
-      },
+      encounters: [
+        {"HIV clinic registration": 9},
+        {"HIV reception": 51},
+        {"Vitals": 6},
+        {"HIV staging": 52},
+        {"HIV clinic consultation": 53},
+        {"ART adherence": 68},
+        {"Treatment": 25},
+        {"Dispensing": 54},
+        {"Appointments": 7},
+      ],
     };
   },
   components: {
@@ -117,16 +117,24 @@ export default defineComponent({
         };
       }
     },
+    getEncounterName(encounterID: number) {
+      if (!encounterID) 
+        return ""
+      const vals = this.encounters.filter(enc => {
+        return Object.values(enc)[0] === encounterID
+      })
+      return Object.keys(vals[0])[0];
+    },
     getEncounters: async function () {
       const userStats = {
         'encounter_types': [
-          ...Object.keys(this.encounters).map((x) => parseInt(x)),
+          ...this.encounters.map((x) => Object.values(x)[0]),
         ],
       };
       const facilityStats = {
         all: true,
         'encounter_types': [
-          ...Object.keys(this.encounters).map((x) => parseInt(x)),
+          ...this.encounters.map((x) => Object.values(x)[0]),
         ],
       };
       const response = await ApiClient.post(
@@ -146,7 +154,9 @@ export default defineComponent({
         const data = await response.json();
         const allData = await response2.json(); 
         const rows: any = [];
-        Object.keys(data).forEach((element) => {
+        this.encounters.forEach((vals) => {
+          const element: any = Object.values(vals)[0];
+
           rows.push({
             encounter: element,
             female: allData[element]["F"],

@@ -10,7 +10,7 @@ import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { getFacilities } from '@/utils/HisFormHelpers/LocationFieldOptions';
-import { generateDateFields } from '@/utils/HisFormHelpers/MultiFieldDateHelper';
+import { EstimationFieldType, generateDateFields } from '@/utils/HisFormHelpers/MultiFieldDateHelper';
 import { toastWarning } from '@/utils/Alerts';
 import { HIVStatusService } from '../../services/hiv_status_service';
 
@@ -80,7 +80,8 @@ export default defineComponent({
                     condition: (fields: any) => fields.hiv_status.value !== 'Never tested',
                     summaryLabel: 'HIV test date',
                     estimation: {
-                        allowUnknown: true
+                        allowUnknown: true,
+                        estimationFieldType: EstimationFieldType.MONTH_ESTIMATE_FIELD
                     },
                     computeValue: (date: string, isEstimate: boolean) => this.buildDateObs('HIV test date', date, isEstimate)
                     

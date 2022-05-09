@@ -25,6 +25,7 @@ import LabResults from "@/views/LabResults.vue"
 import User from "@/views/NewUser.vue"
 import PatientMerging from "@/views/PatientMerging.vue"
 import NpidDuplicates from "@/views/NpidDuplicates.vue"
+import CameraScanner from "@/components/CameraScanner.vue"
 import { alertController, loadingController, modalController, toastController } from '@ionic/vue';
 
 const HIS_APP_ROUTES = (() => {
@@ -178,7 +179,12 @@ const routes: Array<RouteRecordRaw> = [
     name: "Portal settings",
     component: PortalSettings,
   },
-];
+  {
+    path: '/camera_scanner',
+    name: 'Camera scanner',
+    component: CameraScanner
+  }
+]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
