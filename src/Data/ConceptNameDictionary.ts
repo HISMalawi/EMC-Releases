@@ -65,6 +65,11 @@ export default [
    },
    {
       "categories": [],
+      "concept_id": 7459,
+      "name": "TB status"
+   },
+   {
+      "categories": [],
       "concept_id": 7458,
       "name": "Confirmed TB on treatment"
    },
