@@ -56,13 +56,13 @@ export default defineComponent({
     };
 
     onMounted(async () => {
-      const auth = new AuthService();
-      const appV = await auth.getHeadVersion();
-      auth.setActiveVersion(appV);
-      const apiV = await auth.getApiVersion();
-      version.value = `${appV} / ${apiV}`;
-    });
-
+      const auth = new AuthService()
+      await auth.loadConfig()
+      const appV = await auth.getHeadVersion()
+      auth.setActiveVersion(appV)
+      const apiV = await auth.getApiVersion()
+      version.value = `${appV} / ${apiV}`
+    })
     return {
       version,
       useVirtualInput,

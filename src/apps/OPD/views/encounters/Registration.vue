@@ -7,12 +7,13 @@ import { defineComponent} from 'vue'
 import HisStandardForm from "@/components/Forms/TouchScreenForm.vue";
 import EncounterMixinVue from '@/views/EncounterMixin.vue';
 import { PatientVisitRegistrationService } from "@/apps/OPD/services/patient_registration_service"
-import { PatientIdentifierService } from "@/services/patient_identifier_service";
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { getFacilities } from '@/utils/HisFormHelpers/LocationFieldOptions';
 import { toastWarning } from '@/utils/Alerts';
+import { Patientservice } from '@/services/patient_service';
+import { MALAWI_NATIONAL_ID_TYPE } from '@/constants';
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -47,11 +48,14 @@ export default defineComponent({
         async asignNID(formData: any) {
             const nidAvailable = formData['national_id_available']
             const nid = formData['national_id']
-
-            if(nidAvailable && nidAvailable['value'] === 'Yes') {
-                // 28 = Malawi National Identifier Type Id
-                await PatientIdentifierService.create(this.patient.getID(), 28, nid['value'])
+            if(nidAvailable && nidAvailable.value === 'Yes') {
+                await this.patient.updateMWNationalId(nid.value)
             }
+        },
+        async mwIdExists(nid: string) {
+            if(!nid) return false
+            const people = await Patientservice.findByOtherID(MALAWI_NATIONAL_ID_TYPE, nid)
+            return people.length > 0
         },
         getFields(): Array<Field>{
             return [
@@ -60,7 +64,7 @@ export default defineComponent({
                     helpText: 'Type of visit',
                     type: FieldType.TT_SELECT,
                     validation: (value: any) => Validation.required(value),
-                    computedValue: ({value}: Option) => ({ obs: this.registrationService.buildValueCoded('Type of visit', value)}),
+                    computedValue: (v: Option) => ({ obs: this.registrationService.buildValueCoded('Type of visit', v.value)}),
                     options: () => {
                         return [
                             { label: 'New', value: 'New patient' },
@@ -87,7 +91,7 @@ export default defineComponent({
                     helpText: 'National ID avalable',
                     type: FieldType.TT_SELECT,
                     validation: (value: any) => Validation.required(value),
-                    condition: () => this.patient.findIdentifierByType('Malawi National ID') === 'Unknown',
+                    condition: () => this.patient.getMWNationalID() === 'Unknown',
                     options: () => this.yesNoUnknownOptions(),
                     appearInSummary: () => false
                 },
@@ -95,12 +99,22 @@ export default defineComponent({
                     id: 'national_id',
                     helpText: 'Enter National ID',
                     type: FieldType.TT_TEXT,
-                    validation: (value: any) => Validation.required(value),
+                    validation: (value: Option) => Validation.isMWNationalID(value),
                     condition: (fields: any) => fields.national_id_available.value === 'Yes',
+                    beforeNext: async (field: Option) => {
+                        if(field.value && (await this.mwIdExists(field.value.toString()))){
+                            toastWarning('National ID already exists')
+                            return false
+                        }
+                        return true
+                    },
                     summaryMapValue: ({ value }: Option) => ({
                         value,
                         label: 'National ID'
-                    })
+                    }),
+                    config: {
+                        casing: 'uppercase'
+                    }
                 },
                 {
                     id: 'patient_pregnant',

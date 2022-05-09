@@ -10,6 +10,7 @@ export interface ObsValue {
     value_modifier?: string | null;
     value_boolean?: string;
     value_numeric?: number;
+    obs_group_id?: number;
     obs_datetime?: string;
 }
 
@@ -21,6 +22,10 @@ export interface Observation {
 export class ObservationService extends ConceptService {
     constructor() {
         super()
+    }
+
+    static get(obsID: number) {
+        return super.getJson(`/observations/${obsID}`)
     }
 
     static create(data: Observation) {
@@ -152,6 +157,11 @@ export class ObservationService extends ConceptService {
             'date': date,
         })
         if (!isEmpty(obs)) return obs
+    }
+
+    static async getAllValueCoded(patientID: number, conceptName: string, date=this.getSessionDate(), strictMode=true){
+        const obs = await this.getAll(patientID, conceptName, date, strictMode)
+        return Promise.all(obs.map((ob: any) => ConceptService.getConceptName(ob['value_coded'])))
     }
 
     static getFirstValueText(patientID: number, conceptName: string, date=this.getSessionDate(), strictMode=true) {

@@ -51,7 +51,7 @@ function isCondition(facts: Record<string, any>, conditions: Record<string, Func
  * @returns 
  */
 function sortByRelevance(findings: Array<GuideLineInterface>) {
-    return findings.sort((a, b) => a.priority < b.priority ? -1 : 0)
+    return findings.sort((a, b) => a.priority < b.priority ? -1 : 1)
 }
 
 /**

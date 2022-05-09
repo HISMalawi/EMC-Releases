@@ -3,57 +3,67 @@
     <report-template
       :title="title"
       :rows="rows" 
+      :fields="fields"
       :columns="columns"
-      :itemsPerPage="12"
-      paginated
+      :period="period"
+      :onReportConfiguration="init"
     ></report-template>
   </ion-page>
 </template>
 
 <script lang='ts'>
-import { defineComponent, onMounted, ref } from 'vue'
+import { defineComponent } from 'vue'
 import { OpdReportService } from "@/apps/OPD/services/opd_report_service"
 import ReportTemplate from "@/views/reports/BaseTableReport.vue"
-import table, { RowInterface } from "@/components/DataViews/tables/ReportDataTable"
+import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
+import ReportMixin from '@/apps/ART/views/reports/ReportMixin.vue'
 import HisDate from '@/utils/Date'
 import { IonPage } from "@ionic/vue";
 
 export default defineComponent({
   components: { ReportTemplate, IonPage },
-  setup() {
-    const title = ref('Clients / Patients with NIDs')
-    const rows = ref<RowInterface[][]>([])
-    const columns = ref([[
-      table.thTxt('NID'),
-      table.thTxt('First Name'),
-      table.thTxt('Last Name'),
-      table.thTxt('Gender'),
-      table.thTxt('DOB'),
-      table.thTxt('Date Reg.'),
-      table.thTxt('Address'),
-    ]])
-
-    onMounted(async () => {
-      const reportService = new OpdReportService();
-      const data = await reportService.getPatientsWithNIDs()
-      if(data) {
-        rows.value = data.map((record: any) => [
+  mixins: [ReportMixin],
+   data: () => ({
+    title: 'Clients / Patients with NIDs',
+    rows: [] as RowInterface[][],
+    reportService: {} as any,
+    columns : [
+      [
+        table.thTxt('NID'),
+        table.thTxt('First Name'),
+        table.thTxt('Last Name'),
+        table.thTxt('Gender'),
+        table.thTxt('DOB'),
+        table.thTxt('Date Reg.'),
+        table.thTxt('Address'),
+      ]
+    ]as ColumnInterface[][],
+  
+  }),
+  created(){
+    this.fields = this.getDateDurationFields()
+  },
+  methods: {
+    async init(_: any, config: any){
+      this.reportService = new OpdReportService()
+      this.reportService.setStartDate(config.start_date)
+      this.reportService.setEndDate(config.end_date)
+      this.period = this.reportService.getDateIntervalPeriod()
+      this.rows = this.buildRows((await this.reportService.getPatientsWithNIDs()))
+      
+    },
+     buildRows(data: any[]): RowInterface[][] {
+      if(!data.length) return []
+      return data.map((record: any) => [
           table.td(record.nid),
           table.td(record.given_name),
           table.td(record.family_name),
           table.td(record.gender),
           table.td(HisDate.toStandardHisDisplayFormat(record.birthdate)),
           table.td(HisDate.toStandardHisDisplayFormat(record.date)),
-          table.td('')
+          table.td(record.address)
         ])
-      }
-    })
-    
-    return{
-      title,
-      columns,
-      rows,
-    }
+    },
   },
 })
 </script>

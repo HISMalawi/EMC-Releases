@@ -260,7 +260,7 @@ export default defineComponent({
     showIndex() {
         return this.config && 'showIndex' in this.config
             ?  this.config.showIndex
-            : true
+            : false
     },
     addColumnIndexes(rows: Array<any>) {
         return this.showIndex()

@@ -12,6 +12,7 @@ import { FieldType } from "@/components/Forms/BaseFormElements"
 import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import table from "@/components/DataViews/tables/ReportDataTable"
+import { isArray } from "lodash"
 
 export default defineComponent({
     data: () => ({
@@ -98,30 +99,45 @@ export default defineComponent({
                 ]
             ]
             const rowParser = async (tableRows: Array<any[]>) => {
+                let ARV_NUM_INDEX = 0
                 const t = tableRows.map(async (defaultRow: Array<any>) => {
-                    const [index, id ] = defaultRow
-                    if (id in this.drillDownCache) {
-                        const [oldIndex, ...rest] = this.drillDownCache[id]
-                        return [index, ...rest] // Assign new index number and maintain patient record
-                    } 
+                    let id: any = null
+                    let index: null | number = null
+                    if (isArray(defaultRow)) {
+                        const [num, key ] = defaultRow
+                        index = num
+                        if (key in this.drillDownCache) {
+                            const [oldIndex, ...rest] = this.drillDownCache[key]
+                            return [index, ...rest] // Assign new index number and maintain patient record
+                        }
+                    } else {
+                        id = defaultRow
+                        if (id in this.drillDownCache) {
+                            return this.drillDownCache[id]
+                        }
+                    }
     
                     const data = await Patientservice.findByID(id)
                     const patient = new Patientservice(data)
-                    const row = [
-                        index,
-                        this.tdARV(patient.getArvNumber()), 
-                        table.td(patient.getGender()), 
-                        table.tdDate(patient.getBirthdate().toString()),
-                        table.tdBtn('Show', async () => {
-                            await modalController.dismiss({})
-                            this.$router.push({ path: `/patient/dashboard/${id}`})
-                        })
-                    ]
+                    const row = []
+                    if (index) {
+                        ARV_NUM_INDEX = 1
+                        row.push(index)
+                    } 
+                    row.push(this.tdARV(patient.getArvNumber()))
+                    row.push(table.td(patient.getGender()))
+                    row.push(table.tdDate(patient.getBirthdate().toString()))
+                    row.push(table.tdBtn('Show', async () => {
+                        await modalController.dismiss({})
+                        this.$router.push({ path: `/patient/dashboard/${id}`})
+                    }))
                     this.drillDownCache[id] = row
                     return row
                 })
                 const rows = await Promise.all(t)
-                return rows.sort((a: any, b: any) => a[1].sortValue > b[1].sortValue ? 1 : -1)
+                return rows.sort((a: any, b: any) => 
+                        a[ARV_NUM_INDEX].sortValue > b[ARV_NUM_INDEX].sortValue 
+                        ? 1 : -1)
             }
             return { rowParser, columns }
         },
@@ -145,7 +161,7 @@ export default defineComponent({
             }))
         },
         getDateDurationFields(useQuarter=false, setCustomQuarterPeriod=false, maxQuarter=5): Array<Field> {
-            const minDate = '2001-01-01'
+            const minDate = '2000-01-01'
             const maxDate = Service.getSessionDate()
             return [
                 {

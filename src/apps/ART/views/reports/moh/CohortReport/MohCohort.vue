@@ -58,7 +58,7 @@ export default defineComponent({
     reportID: -1 as any,
     clinicName: MohCohortReportService.getLocationName(),
     reportReady: false as boolean,
-    reportUrlParams: '' as string
+    disaggregatedReportParams: '' as string
   }),
   created() {
     this.btns = this.getBtns()
@@ -74,24 +74,35 @@ export default defineComponent({
       this.report = new MohCohortReportService()
       this.report.setRegenerate(regenerate)
       let data: any = {}
+      let startDate = ''
+      let endDate = ''
+      let quarter = ''
 
       if (form.quarter.value === 'custom_period') {
-        this.report.setStartDate(config.start_date)
-        this.report.setEndDate(config.end_date)
+        quarter = 'Custom'
+        startDate = config.start_date
+        endDate = config.end_date
+      } else {
+        quarter = form.quarter.label
+        startDate = HisDate.toStandardHisFormat(form.quarter.other.start)
+        endDate = HisDate.toStandardHisFormat(form.quarter.other.end)
+      }
+      this.report.setQuarter(quarter)
+      this.report.setStartDate(startDate)
+      this.report.setEndDate(endDate)
+
+      if (quarter === 'Custom') {
         this.period = `Custom ${this.report.getDateIntervalPeriod()}`
         data = this.report.datePeriodRequestParams()
       } else {
-        this.report.setQuarter(form.quarter.label)
-        this.report.setStartDate(HisDate.toStandardHisFormat(form.quarter.other.start))
-        this.report.setEndDate(HisDate.toStandardHisFormat(form.quarter.other.end))
+        this.period = quarter
         data = this.report.qaurterRequestParams()
-        this.period = form.quarter.label
-        this.reportUrlParams = Url.parameterizeObjToString({ 
-          'start_date': HisDate.toStandardHisFormat(form.quarter.other.start),
-          'end_date': HisDate.toStandardHisFormat(form.quarter.other.end),
-          'quarter': form.quarter.label
-        })
       }
+      this.disaggregatedReportParams = Url.parameterizeObjToString({ 
+        'start_date': startDate,
+        'end_date': endDate,
+        'quarter': quarter
+      })
       const request = await this.report.requestCohort(data)
       if (request.ok) {
         // Check the backend if background task is complete
@@ -147,7 +158,7 @@ export default defineComponent({
       const columns = [
         [
           table.thTxt('ARV number'),
-          table.thTxt('Name'),
+          table.thTxt('Name', { exportable: false }),
           table.thTxt('Gender'),
           table.thTxt('Birth Date'),
           table.thTxt('Outcome'),
@@ -168,7 +179,7 @@ export default defineComponent({
           })
         ]))
       }
-      await this.drilldownAsyncRows(indicator.description, columns, asyncRows, false)
+      await this.drilldownAsyncRows(indicator.description, columns, asyncRows)
     },
     exportToCsv() {
       const headers = ['Indicators', 'Value']
@@ -216,7 +227,7 @@ export default defineComponent({
           slot: "end",
           color: "primary",
           visible: true,
-          onClick: () => this.$router.push(`/art/moh_disaggregated_report?${this.reportUrlParams}`)
+          onClick: () => this.$router.push(`/art/moh_disaggregated_report?${this.disaggregatedReportParams}`)
         },
         {
           name: "Finish",

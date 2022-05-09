@@ -170,6 +170,14 @@ export class Service {
         return sessionStorage.siteUUID || ''
     }
 
+    static getProgramName() {
+        const app = this.getActiveApp()
+        
+        if ('applicationName' in app) return app.applicationName
+        
+        return '';
+    }
+
     static getProgramID() {
         const app = this.getActiveApp()
         
@@ -199,4 +207,6 @@ export class Service {
     static getFullVersion() {
         return `${this.getCoreVersion()} / ${this.getApiVersion()}`
     }
+
+    static delay = (ms: number) => new Promise(res => setTimeout(res, ms))
 }
