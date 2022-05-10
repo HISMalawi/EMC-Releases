@@ -3,6 +3,8 @@ import { Service } from '@/services/service'
 import HisDate from "@/utils/Date"
 import { ConceptService } from './concept_service';
 import { ObservationService } from './observation_service';
+import { isEmpty } from 'lodash';
+import dayjs from 'dayjs';
 
 export class OrderService extends Service {
     constructor() {
@@ -67,6 +69,30 @@ export class OrderService extends Service {
             }
 
         });
+    }
+
+    static async getLatestMalariaTestResult(patientID: number, date = this.getSessionDate()) {
+        const orders: Order[] = await this.getOrders(patientID)
+        const minDate = dayjs(date).subtract(7, 'day')
+        const malariaOrders = orders.filter(order => {
+            for (const test of order.tests) {
+                if(
+                    !isEmpty(test.result) && 
+                    test.name.match(/Malaria/i) && 
+                    dayjs(order.order_date).isAfter(minDate)
+                ) return true
+            }
+            return false
+        });
+        if(malariaOrders.length > 0) {
+            const isPositive = malariaOrders[0].tests.some(test => {
+                return test.result.some(result => {
+                    return result.value.toString().match(/positive/i)
+                })
+            })
+            return isPositive ? 'Positive' : 'Negative'
+        } 
+        return "No"
     }
 
     static isDBSResult(specimen: string) {

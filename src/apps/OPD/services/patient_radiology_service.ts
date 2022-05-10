@@ -32,9 +32,9 @@ export class PatientRadiologyService extends AppEncounterService {
       "accession_number": await this.getAccesionNumber()
     }
     const provider = {
-      "username": sessionStorage.getItem("username"),
-      "userID": sessionStorage.getItem("userID"),
-      "userRoles": sessionStorage.getItem("userRoles"),
+      "username": Service.getUserName(),
+      "userID": Service.getUserID(),
+      "userRoles": Service.getUserRoles(),
     }
     return Service.postJson(`radiology/radiology_orders`, {
       'patient_details': patientData,

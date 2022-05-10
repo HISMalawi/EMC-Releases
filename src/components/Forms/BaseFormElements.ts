@@ -39,6 +39,7 @@ import HisDataTable from "@/components/FormElements/HisDataTable.vue"
 import RadiologyPicker from "@/components/FormElements/HisRadiologyPicker.vue"
 import DrugTransferInQty from "@/components/FormElements/DrugTransferInput.vue"
 import HisGridSelector from "@/components/FormElements/HisGridSelector.vue"
+import PrescriptionInput from "@/components/FormElements/HisPrescriptionInput.vue"
 
 // Reference names for BaseFormComponents
 export enum FieldType {
@@ -83,7 +84,8 @@ export enum FieldType {
     TT_TEXT_BANNER = 'text-banner',
     TT_DRUG_DISPENSER = 'drug-dispenser',
     TT_CLINIC_HOLIDAY_PICKER = 'clinic-holiday-picker',
-    TT_DRUG_TRANSFER_IN = 'drug-transfer-in-qty'
+    TT_DRUG_TRANSFER_IN = 'drug-transfer-in-qty',
+    TT_PRESCRIPTION_INPUT = 'prescription-input'
 }
 
 // Components to be rendered
@@ -128,5 +130,6 @@ export const BaseFormComponents = {
     NoteInput,
     RadiologyPicker,
     DrugTransferInQty,
-    HisGridSelector
+    HisGridSelector,
+    PrescriptionInput
 }
