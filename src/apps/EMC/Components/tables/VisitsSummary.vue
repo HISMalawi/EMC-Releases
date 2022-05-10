@@ -96,7 +96,7 @@ export default defineComponent({
         const data =  await ProgramService.getCurrentProgramInformation(props.patientId,  date)
         return [
           table.td(formatVisitDate(date)),
-          table.td(data['giveb_to']),
+          table.td(data['visit_by'].match(/Unk/i) ? "" : data['visit_by']),
           table.td(data.weight),
           table.td(data.height),
           table.td(data.bmi),
