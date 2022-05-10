@@ -144,6 +144,7 @@ export default defineComponent({
           }
         },
       },
+      { label: "Date of starting first line ARV Regimen", value: props.artStartDate },
       { label: "Initial Weight (KG)", value: initWeight.value },
       { label: "Initial Height (CM)", value: initHeight.value },
       { label: "BMI", value: initBmi.value },
@@ -155,7 +156,6 @@ export default defineComponent({
       { label: "Reason for starting ART", value: reasonForStartingART.value },
       { label: "HIV test date", value: hivTestDate.value },
       { label: "HIV test place", value: hivTestPlace.value },
-      { label: "Date of starting first line ART", value: props.artStartDate },
       { label: "Staging codition", value: stagingCondition.value },
     ])
     
@@ -180,3 +180,9 @@ export default defineComponent({
   },
 })
 </script>
+
+<style scoped>
+ion-list {
+  height: 100%;
+}
+</style>
