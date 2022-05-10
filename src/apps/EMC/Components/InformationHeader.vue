@@ -5,7 +5,7 @@
         <div :style="{width: '100%', display: 'flex', justifyContent: 'space-between'}">
           <span>{{ option.label }}: </span>
           <span v-if="option.other && option.other.editable" @click="option.other.onClickHandler">
-            <a><b>{{ option.value }}</b></a>
+            <a><b>{{ option.value || 'N/A' }}</b></a>
           </span>
           <span v-else><b>{{ option.value || 'N/A'}}</b></span>
         </div>
@@ -162,7 +162,7 @@ export default defineComponent({
 
     const setHIVTestDate = async () => {
       const date = await props.patient.getHIVTestDate()
-      hivTestDate.value = date ? HisDate.toStandardHisDisplayFormat(date) : ''
+      if(date) hivTestDate.value = HisDate.toStandardHisDisplayFormat(date)
     }
 
     
@@ -176,8 +176,8 @@ export default defineComponent({
       receivedART.value = await props.patient.everReceivedART()
       agreesToFollowUp.value = await props.patient.agreesToFollowUp()
       reasonForStartingART.value = await props.patient.getReasonForStartingART()
-      hivTestPlace.value = await props.patient.getHIVTestLocation() || ''
-      stagingCondition.value = await props.patient.getStagingCondition() || ''
+      hivTestPlace.value = await props.patient.getHIVTestLocation()
+      stagingCondition.value = await props.patient.getStagingCondition()
       await setHIVTestDate()
     })
 
