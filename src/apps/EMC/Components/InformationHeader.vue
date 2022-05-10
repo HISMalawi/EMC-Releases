@@ -51,7 +51,6 @@ export default defineComponent({
     const hivTestDate = ref('')
     const hivTestPlace = ref('')
     const stagingCondition = ref('')
-    const TBStats = ref<any[]>([])
 
     const patientInfo = computed(() => [
       { 
@@ -157,8 +156,7 @@ export default defineComponent({
       { label: "HIV test date", value: hivTestDate.value },
       { label: "HIV test place", value: hivTestPlace.value },
       { label: "Date of starting first line ART", value: props.artStartDate },
-      { label: "Staging codition", value: stagingCondition },
-      ...TBStats.value,
+      { label: "Staging codition", value: stagingCondition.value },
     ])
     
     onMounted(async () => {
@@ -173,6 +171,7 @@ export default defineComponent({
       reasonForStartingART.value = await props.patient.getReasonForStartingART()
       hivTestDate.value = await props.patient.getHIVTestDate() || ''
       hivTestPlace.value = await props.patient.getHIVTestLocation() || ''
+      stagingCondition.value = await props.patient.getStagingCondition() || ''
     })
 
     return {

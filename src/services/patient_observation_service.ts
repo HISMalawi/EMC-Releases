@@ -99,5 +99,9 @@ export class PatientObservationService extends Patientservice {
       "Confirmatory HIV test location"
     )
   }
+
+  async getStagingCondition() {
+    return ObservationService.getFirstValueCoded(this.getID(), "Who stages criteria present")
+  }
     
 }
