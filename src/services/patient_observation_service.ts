@@ -4,6 +4,8 @@ import { Service } from "@/services/service"
 import HisDate from "@/utils/Date"
 import { Observation } from "@/interfaces/observation"
 import { Patientservice } from '@/services/patient_service';
+import { DrugOrderService } from './drug_order_service';
+import { isEmpty } from 'lodash';
 
 export class PatientObservationService extends Patientservice {
   constructor(patient: Patient) {
@@ -90,6 +92,17 @@ export class PatientObservationService extends Patientservice {
     const obs = await ObservationService.getFirstObs(this.getID(), "Confirmatory HIV test date")
     if (obs && obs.value_datetime) return obs.value_datetime
     if (obs && obs.value_text) return obs.value_text
+    return null
+  }
+
+  async getARTStartDate() {
+    const obs = await ObservationService.getFirstObs(this.getID(), "Date ART started")
+    if (obs && obs.value_datetime) return obs.value_datetime
+    if (obs && obs.value_text) return obs.value_text
+    const orders = await DrugOrderService.getAllDrugOrders(this.getID(), Number.MAX_SAFE_INTEGER);
+    if(!isEmpty(orders)){
+      return orders[0].order['start_date']
+    }
     return null
   }
 

@@ -18,6 +18,7 @@
 import { computed, defineComponent, onMounted, PropType, ref } from 'vue'
 import MultiColumnView from "@/components/containers/MultiColumnView.vue";
 import { PatientObservationService } from '@/services/patient_observation_service';
+import HisDate from "@/utils/Date";
 
 export default defineComponent({
   components: {
@@ -158,6 +159,12 @@ export default defineComponent({
       { label: "HIV test place", value: hivTestPlace.value },
       { label: "Staging codition", value: stagingCondition.value },
     ])
+
+    const setHIVTestDate = async () => {
+      const date = await props.patient.getHIVTestDate()
+      hivTestDate.value = date ? HisDate.toStandardHisDisplayFormat(date) : ''
+    }
+
     
     onMounted(async () => {
       initWeight.value = await props.patient.getInitialWeight()
@@ -169,9 +176,9 @@ export default defineComponent({
       receivedART.value = await props.patient.everReceivedART()
       agreesToFollowUp.value = await props.patient.agreesToFollowUp()
       reasonForStartingART.value = await props.patient.getReasonForStartingART()
-      hivTestDate.value = await props.patient.getHIVTestDate() || ''
       hivTestPlace.value = await props.patient.getHIVTestLocation() || ''
       stagingCondition.value = await props.patient.getStagingCondition() || ''
+      await setHIVTestDate()
     })
 
     return {
