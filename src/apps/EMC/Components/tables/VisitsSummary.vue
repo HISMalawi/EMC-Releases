@@ -21,12 +21,13 @@
 </template>
 
 <script lang="ts">
+import DrillTableModalVue from '@/components/DataViews/DrillTableModal.vue';
 import table, { ColumnInterface } from '@/components/DataViews/tables/ReportDataTable';
 import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import { Patientservice } from '@/services/patient_service';
 import { ProgramService } from '@/services/program_service';
 import HisDate from "@/utils/Date";
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle } from '@ionic/vue';
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, modalController } from '@ionic/vue';
 import dayjs from 'dayjs';
 import { defineComponent, reactive, ref } from 'vue';
 
@@ -77,6 +78,18 @@ export default defineComponent({
       return `${HisDate.toStandardHisDisplayFormat(date)} ${monthsElapsed}`
     }
 
+    const showDrugsDispensed = async (drugs = [] as any[], date: string) => {
+      (await modalController.create({
+        component: DrillTableModalVue,
+        cssClass: "custom-modal",
+        componentProps: {
+          title: `Drugs dispensed on ${HisDate.toStandardHisDisplayFormat(date)}`,
+          columns: ['DRUG NAME', 'QUANTITY', 'UNITS' ],
+          onRows: () => drugs.map((drug: any) => [drug[0], drug[1], 'tab(s)' ]),
+        },
+      })).present();
+    }
+
     const getPatientVisits = async () => {
       const dates = await Patientservice.getPatientVisits(props.patientId, true);
       const rows = dates.map(async (date: string) => {
@@ -91,7 +104,7 @@ export default defineComponent({
           table.td(data['breast_feeding'] ? data['breast_feeding'] : ''),
           table.td(data['tb_status'].match(/Unknown/i) ? '' : data['tb_status']),
           table.td(data['side_effects'] ? data['side_effects'] : ''),
-          table.td(data.regimen),
+          table.tdLink(data.regimen, () => showDrugsDispensed(data.pills_dispensed, date)),
           table.td(data['next_appointment'] ? data['next_appointment'] : ''),
           table.td(data.outcome.match(/Unk/i) ? "" : data.outcome),
           table.td(data['viral_load'])
