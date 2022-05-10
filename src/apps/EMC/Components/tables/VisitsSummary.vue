@@ -27,11 +27,11 @@ import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import { EncounterService } from '@/services/encounter_service';
 import { Patientservice } from '@/services/patient_service';
 import { ProgramService } from '@/services/program_service';
+import popVoidReason from '@/utils/ActionSheetHelpers/VoidReason';
 import { alertConfirmation } from '@/utils/Alerts';
 import HisDate from "@/utils/Date";
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, loadingController, modalController } from '@ionic/vue';
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, modalController } from '@ionic/vue';
 import dayjs from 'dayjs';
-import { findIndex } from 'lodash';
 import { defineComponent, reactive, ref } from 'vue';
 
 export default defineComponent({
@@ -94,16 +94,13 @@ export default defineComponent({
     }
 
     const removeEncounters = async (date: string, index: number, activeRows: any[]) => {
-      const confirm = await alertConfirmation(`Are you sure you want to remove all encounters on ${HisDate.toStandardHisDisplayFormat(date)}?`);
-      if (confirm) {
-        (await loadingController.create({ message: "Removing encounters..." })).present();
+      popVoidReason(async (reason: string) => {
         const encounters = await EncounterService.getEncounters(props.patientId, {date});
         encounters.forEach(async (encounter: any) => {
-          await EncounterService.voidEncounter(encounter.encounter_id);
+          await EncounterService.voidEncounter(encounter.encounter_id, reason);
         })
         activeRows.splice(index, 1);
-        loadingController.dismiss()
-      }
+      }, 'small-modal');
     }
         
 
