@@ -92,5 +92,12 @@ export class PatientObservationService extends Patientservice {
     if (obs && obs.value_text) return obs.value_text
     return null
   }
+
+  async getHIVTestLocation() {
+    return ObservationService.getFirstValueText(
+      this.getID(),
+      "Confirmatory HIV test location"
+    )
+  }
     
 }

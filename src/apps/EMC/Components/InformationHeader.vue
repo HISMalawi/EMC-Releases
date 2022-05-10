@@ -172,6 +172,7 @@ export default defineComponent({
       agreesToFollowUp.value = await props.patient.agreesToFollowUp()
       reasonForStartingART.value = await props.patient.getReasonForStartingART()
       hivTestDate.value = await props.patient.getHIVTestDate() || ''
+      hivTestPlace.value = await props.patient.getHIVTestLocation() || ''
     })
 
     return {
