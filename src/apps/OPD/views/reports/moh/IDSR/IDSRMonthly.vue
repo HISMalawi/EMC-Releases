@@ -129,6 +129,7 @@ export default defineComponent({
           table.thTxt('First name'),
           table.thTxt('Last name'),
           table.thTxt('Gender'),
+          table.thTxt('Age'),
           table.thTxt('Phone'),
           table.thTxt('Address'),
           table.thTxt('Action')
@@ -139,6 +140,7 @@ export default defineComponent({
           table.td(person.givenName),
           table.td(person.familyName),
           table.td(person.gender),
+          table.td(person.age),
           table.td(person.phone),
           table.td(person.address),
           table.tdBtn('Select', async () => {

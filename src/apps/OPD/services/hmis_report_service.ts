@@ -1,6 +1,7 @@
 import { OpdReportService } from "./opd_report_service";
 import moment from "dayjs"
 import { Service } from "@/services/service";
+import HisDate from "@/utils/Date"
 
 export interface CohortValidationInterface {
     param: number | string;
@@ -55,7 +56,7 @@ export class HMISReportService extends OpdReportService {
             'program_id': Service.getProgramID()
         }
     }
-
+//[1].value)
     async getPatientsDetails(patientIds: Array<[]>) {
         const patients = []
         for(const patientID of patientIds) {
@@ -64,23 +65,41 @@ export class HMISReportService extends OpdReportService {
               const person = res.person
               const addressesObj = person.addresses[0]
               const personObj = {
-                'givenName': '',
-                'familyName': '',
-                'gender': '',
-                'address': '',
-                'phone': '',
-                'personId': ''
+                'givenName': person.names[0].given_name,
+                'familyName': person.names[0].family_name,
+                'gender': person.gender,
+                'age': HisDate.getAgeInYears(person.birthdate),
+                'address': addressesObj.state_province +", "+ addressesObj.city_village +", "+ addressesObj.address1,
+                'phone': this.resolvePhone(person.person_attributes),
+                'personId': person.person_id
               }
-              personObj.givenName = person.names[0].given_name
-              personObj.familyName = person.names[0].family_name
-              personObj.gender = person.gender
-              personObj.phone = person.person_attributes[1].value
-              personObj.personId = person.person_id
-              personObj.address = addressesObj.state_province +", "+ addressesObj.city_village +", "+ addressesObj.address1
               patients.push(personObj)
               }
             }
         return patients
+    }
+
+    resolvePhone(attributes: any ) {
+        let number
+        let other
+        if (attributes.length > 0) {
+            for(const attribute of attributes) {
+                if (parseInt(attribute.value)) {
+                    if (this.isEmpty(number)) {
+                        number = attribute.value
+                    } else
+                    number+=' '+attribute.value
+                }
+                other = attribute.value
+            }
+            if(!this.isEmpty(number)) {
+                return number
+            } else return other
+        } else return 'N/A'
+    }
+
+    isEmpty(val: any){
+        return (val === undefined || val == null || val.length <= 0) ? true : false;
     }
 
     renderResults(params: any) {
