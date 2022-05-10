@@ -120,6 +120,16 @@ export class Patientservice extends Service {
         return date && HisDate.toStandardHisFormat(date) === Service.getSessionDate() && this.isFemale()
     }
 
+    async hasPregnancyAtARTInitiation() {
+        const obs = await ObservationService.getLastValueCoded(this.getID(), "Is patient pregnant")
+        return obs && await ObservationService.getConceptName(obs)
+    }
+
+    async breastFeedingAtARTInitiation() {
+        const obs = await ObservationService.getLastValueCoded(this.getID(), "Is patient breast feeding")
+        return obs && await ObservationService.getConceptName(obs)
+    }
+
     isChildBearing() {
         const age = this.getAge()
         return this.isFemale() && age >= 12 && age <= 50
