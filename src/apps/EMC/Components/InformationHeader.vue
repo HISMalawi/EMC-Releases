@@ -110,7 +110,7 @@ export default defineComponent({
         other: {
           editable: true,
           onClickHandler: () => {
-            emit('updatePatient', 'home_region')
+            emit('updatePatient', 'current_region')
           }
         },
       },
