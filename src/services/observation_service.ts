@@ -221,7 +221,7 @@ export class ObservationService extends ConceptService {
             value = obs.value_numeric
         }
 
-        if (obs.value_coded != null) {
+        if (typeof obs.value_coded === 'number') {
             value = await super.getConceptName(obs.value_coded)
         }
 
