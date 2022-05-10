@@ -1,19 +1,19 @@
 <template>
 <layout>
   <ion-grid class="ion-no-margin ion-no-padding">
-    <multi-column-view :items="patientCardInfo" :numberOfColumns="4" v-slot="{entries}">
-      <ion-list class="his-card ion-margin-end">
-        <ion-item v-for="(option, i) in entries" :key="i" :lines="i === entries.length - 1 ? 'none': ''">
-          <div :style="{width: '100%', display: 'flex', justifyContent: 'space-between'}">
-            <span>{{ option.label }}: </span>
-            <span v-if="option.other && option.other.editable" @click="onClick(option)">
-              <a><b>{{ option.value }}</b></a>
-            </span>
-            <span v-else><b>{{ option.value || 'N/A'}}</b></span>
-          </div>
-        </ion-item>
-      </ion-list>
-    </multi-column-view>
+    <ion-row>
+      <ion-col size="12">
+        <information-header
+          v-if="isReady"
+          :patient="patient"
+          :guardians="guardians"
+          :artStartDate="StartDate"
+          @updateARVNumber="updateARVNumber"
+          @addGuardian="addGuardian"
+          @updatePatient="updateDemographics"
+        />
+      </ion-col>
+    </ion-row>
     <ion-row>
       <ion-col>
         <visits-summary
@@ -34,27 +34,22 @@ import { Option } from "@/components/Forms/FieldInterface";
 import { Patient } from "@/interfaces/patient";
 import { Patientservice } from "@/services/patient_service";
 import { ObservationService } from "@/services/observation_service";
-import InformationHeader from "@/components/InformationHeader.vue";
-import MastercardDetails from "@/components/MastercardDetails.vue";
-import { isArray, isEmpty } from "lodash";
-import { modalController } from "@ionic/vue";
+import { isEmpty } from "lodash";
 import { EncounterService } from "@/services/encounter_service";
 import { RelationshipService } from "@/services/relationship_service";
 import { alertConfirmation } from "@/utils/Alerts";
 import { ProgramService } from "@/services/program_service";
-import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { NavBtnInterface } from "@/components/HisDynamicNavFooterInterface";
 import Layout from "../Components/Layout.vue";
 import VisitsSummary from "../Components/tables/VisitsSummary.vue";
 import { DrugOrderService } from "@/services/drug_order_service";
-import MultiColumnView from "@/components/containers/MultiColumnView.vue";
+import InformationHeader from "@/apps/EMC/Components/InformationHeader.vue";
 
 export default defineComponent({
   components: {
-    // InformationHeader,
     Layout,
     VisitsSummary,
-    MultiColumnView,
+    InformationHeader,
   },
   data: () => ({
     isBDE: false as boolean,
@@ -76,9 +71,9 @@ export default defineComponent({
     medicationCardItems: [] as Array<Option>,
     labOrderCardItems: [] as Array<Option>,
     alertCardItems: [] as Array<Option>,
-    btns: [] as Array<NavBtnInterface>,
     guardians: "",
-    startDate: ''
+    startDate: '',
+    isReady: false as boolean,
   }),
   computed: {
     visitDatesTitle(): string {
@@ -109,7 +104,7 @@ export default defineComponent({
       this.setARTStartDate()
       this.guardians = await this.getGuardian();
       this.patientCardInfo = await this.getPatientCardInfo(this.patient);
-      this.btns.push(this.getFinishBtn());
+      this.isReady = true;
     },
     async setARTStartDate() {
       let date = await ObservationService.getFirstValueDatetime(this.patientId, "Date ART started")
@@ -157,22 +152,6 @@ export default defineComponent({
     updateARVNumber() {
       this.$router.push({name: "Edit ARV Number"})
     },
-    getFinishBtn(): NavBtnInterface {
-      return {
-        name: "Finish",
-        color: "success",
-        size: "large",
-        slot: "end",
-        visible: true,
-        onClick: async () => {
-          const confirmation = await alertConfirmation(
-            "Are you sure you want to exit?"
-          );
-          if (confirmation)
-            return this.$router.push(`/patient/dashboard/${this.patientId}`);
-        },
-      };
-    },
     async fetchPatient(patientId: number | string) {
       const patient: Patient = await Patientservice.findByID(patientId);
       return patient ? new Patientservice(patient) : {};
@@ -203,15 +182,15 @@ export default defineComponent({
       this.activeVisitDate = data.value;
     },
 
-    async getPatientCardInfo(patient: Patientservice) {
-      const { toStandardHisDisplayFormat } = HisDate;
-      let dateOfTest = await ObservationService.getAll(
-        this.patientId,
-        "Confirmatory HIV test date"
-      );
-      if (dateOfTest) {
-        dateOfTest = toStandardHisDisplayFormat(dateOfTest[0].value_datetime);
+    async getHIVTestDate() {
+      let date = await ObservationService.getFirstValueDatetime(this.patientId, "Confirmatory HIV test date")
+      if(date === undefined){
+        date = await ObservationService.getFirstValueText(this.patientId, "Confirmatory HIV test date")
       }
+      return date ? HisDate.toStandardHisDisplayFormat(date) : "N/A";
+    },
+
+    async getPatientCardInfo(patient: Patientservice) {
       const placeOfTest = await ObservationService.getFirstValueText(
         this.patientId,
         "Confirmatory HIV test location"
@@ -228,6 +207,11 @@ export default defineComponent({
       const reasonForStarting = await ObservationService.getFirstValueCoded(
         this.patientId,
         "Reason for ART eligibility"
+      );
+
+      const Breastfeeding = await ObservationService.getLastValueText(
+        this.patientId,
+        "Is patient breast feeding"
       );
 
       return [
@@ -285,7 +269,8 @@ export default defineComponent({
             category: "demographics",
           },
         },
-        { label: "Landmark", value: patient.getAttribute(19) },
+        { label: "Landmark", value: patient.getClosestLandmark() },
+        { label: "Phone Number", value: patient.getPhoneNumber() },
         {
           label: "Guardian",
           value: this.guardians ? this.guardians : "add",
@@ -295,17 +280,19 @@ export default defineComponent({
             category: "guardian",
           },
         },
-        { label: "Init W(KG)", value: await patient.getInitialWeight() },
-        { label: "Init H(CM)", value: await patient.getInitialHeight() },
+        { label: "Initial Weight (KG)", value: await patient.getInitialWeight() },
+        { label: "Initial Height (CM)", value: await patient.getInitialHeight() },
         { label: "BMI", value: await patient.getInitialBMI() },
-        // { label: "Initial TB Status", value: await patient.getInitialTBStatus() },
+        { label: "Initial TB Status", value: await patient.getInitialTBStatus() },
         { label: "Pregnant at Initiation", value: "No" },
+        { label: "Breastfeeding at Initiation", value: Breastfeeding },
         { label: "TI", value: TI },
         { label: "Agrees to follow up", value: agreesToFollowUp },
         { label: "Reason for starting ART", value: reasonForStarting },
-        { label: "HIV test date", value: `${dateOfTest ? dateOfTest : ""}` },
+        { label: "HIV test date", value: await this.getHIVTestDate() },
         { label: "HIV test place", value: `${placeOfTest ? placeOfTest : ""}` },
         { label: "Date of starting first line ART", value: this.startDate },
+        { label: "Staging codition", value: this.startDate },
         ...(await this.getTBStats()),
       ] as Option[];
     },
@@ -329,89 +316,10 @@ export default defineComponent({
           value: stats && stats.match(/current/i) ? "Yes" : "N/A",
         },
         {
-          label: "Kaposi's sarcoma:",
+          label: "Kaposi's sarcoma",
           value: stats && stats.match(/kepos/i) ? "Yes" : "N/A",
         },
       ];
-    },
-
-    async openModal(items: any, title: string, component: any) {
-      const date = HisDate.toStandardHisDisplayFormat(
-        this.activeVisitDate.toString()
-      );
-      const modal = await modalController.create({
-        component: component,
-        backdropDismiss: false,
-        cssClass: "custom-modal",
-        componentProps: {
-          items,
-          title: `${title}: ${date}`,
-          taskParams: {
-            patient: this.patient.getObj(),
-            program: this.patientProgram,
-            visitDate: this.activeVisitDate,
-            patientID: this.patientId,
-          },
-        },
-      });
-      modal.present();
-    },
-    printLabel(date: any) {
-      new PatientPrintoutService(this.patientId).printVisitSummaryLbl(date);
-    },
-    FormData(data: any) {
-      return Object.keys(data).map((d) => {
-        const display: any =
-          d === "outcome_date"
-            ? HisDate.toStandardHisDisplayFormat(data[d])
-            : data[d];
-        if (d.match(/height/i)) d += " (cm)";
-        if (d.match(/weight/i)) d += " (Kg)";
-        return {
-          label: this.camelCase(d),
-          value: this.joinData(display),
-        };
-      });
-    },
-    joinData(vals: any) {
-      if (isArray(vals)) {
-        const f = [...vals];
-        if (isArray(f)) {
-          let j = "";
-          f.forEach((element) => {
-            j += `${element.join(":")}, `;
-          });
-          return j;
-        }
-        return f;
-      } else {
-        return vals;
-      }
-    },
-    camelCase(val: string) {
-      const label = val.split("_");
-      return `${this.capitalize(label[0])} ${this.capitalize(label[1])}`;
-    },
-    capitalize(val: string) {
-      try {
-        return val.charAt(0).toUpperCase() + val.slice(1);
-      } catch (error) {
-        return "";
-      }
-    },
-    async showMore(date: any) {
-      const title = "Visit details for";
-      const data = await this.getExtras(date);
-      const modal = await modalController.create({
-        component: MastercardDetails,
-        backdropDismiss: false,
-        cssClass: "large-modal",
-        componentProps: {
-          title: `${title}: ${HisDate.toStandardHisDisplayFormat(date)}`,
-          visitData: this.FormData(data),
-        },
-      });
-      modal.present();
     },
   },
 });
@@ -421,5 +329,4 @@ export default defineComponent({
 ion-list {
   height: 100%;
 }
-
 </style>
