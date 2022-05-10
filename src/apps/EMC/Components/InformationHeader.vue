@@ -170,6 +170,7 @@ export default defineComponent({
       breastFeedingAtInitiation.value = await props.patient.breastFeedingAtARTInitiation()
       receivedART.value = await props.patient.everReceivedART()
       agreesToFollowUp.value = await props.patient.agreesToFollowUp()
+      reasonForStartingART.value = await props.patient.getReasonForStartingART()
     })
 
     return {

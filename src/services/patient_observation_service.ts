@@ -81,4 +81,8 @@ export class PatientObservationService extends Patientservice {
   async agreesToFollowUp() {
     return ObservationService.getFirstValueCoded(this.getID(), "Agrees to followup")
   }
+
+  async getReasonForStartingART() {
+    return ObservationService.getFirstValueCoded(this.getID(), "Reason for ART eligibility")
+  }
 }
