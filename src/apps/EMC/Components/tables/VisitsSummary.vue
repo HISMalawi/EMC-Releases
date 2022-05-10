@@ -24,11 +24,14 @@
 import DrillTableModalVue from '@/components/DataViews/DrillTableModal.vue';
 import table, { ColumnInterface } from '@/components/DataViews/tables/ReportDataTable';
 import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
+import { EncounterService } from '@/services/encounter_service';
 import { Patientservice } from '@/services/patient_service';
 import { ProgramService } from '@/services/program_service';
+import { alertConfirmation } from '@/utils/Alerts';
 import HisDate from "@/utils/Date";
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, modalController } from '@ionic/vue';
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, loadingController, modalController } from '@ionic/vue';
 import dayjs from 'dayjs';
+import { findIndex } from 'lodash';
 import { defineComponent, reactive, ref } from 'vue';
 
 export default defineComponent({
@@ -90,8 +93,23 @@ export default defineComponent({
       })).present();
     }
 
+    const removeEncounters = async (date: string, index: number, activeRows: any[]) => {
+      const confirm = await alertConfirmation(`Are you sure you want to remove all encounters on ${HisDate.toStandardHisDisplayFormat(date)}?`);
+      if (confirm) {
+        (await loadingController.create({ message: "Removing encounters..." })).present();
+        const encounters = await EncounterService.getEncounters(props.patientId, {date});
+        encounters.forEach(async (encounter: any) => {
+          await EncounterService.voidEncounter(encounter.encounter_id);
+        })
+        activeRows.splice(index, 1);
+        loadingController.dismiss()
+      }
+    }
+        
+
     const getPatientVisits = async () => {
       const dates = await Patientservice.getPatientVisits(props.patientId, true);
+
       const rows = dates.map(async (date: string) => {
         const data =  await ProgramService.getCurrentProgramInformation(props.patientId,  date)
         return [
@@ -107,7 +125,8 @@ export default defineComponent({
           table.tdLink(data.regimen, () => showDrugsDispensed(data.pills_dispensed, date)),
           table.td(data['next_appointment'] ? data['next_appointment'] : ''),
           table.td(data.outcome.match(/Unk/i) ? "" : data.outcome),
-          table.td(data['viral_load'])
+          table.td(data['viral_load']),
+          table.tdBtn('X', (index: number, activeRows: any[]) => removeEncounters(date, index, activeRows), {}, 'danger')
         ]
       });
       return Promise.all(rows)
