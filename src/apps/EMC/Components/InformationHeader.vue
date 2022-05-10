@@ -17,7 +17,7 @@
 <script lang="ts">
 import { computed, defineComponent, onMounted, PropType, ref } from 'vue'
 import MultiColumnView from "@/components/containers/MultiColumnView.vue";
-import { Patientservice } from '@/services/patient_service';
+import { PatientObservationService } from '@/services/patient_observation_service';
 
 export default defineComponent({
   components: {
@@ -25,7 +25,7 @@ export default defineComponent({
   },
   props: {
     patient: {
-      type: Object as PropType<Patientservice>,
+      type: Object as PropType<PatientObservationService>,
       required: true,
     },
     artStartDate: {

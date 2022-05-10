@@ -120,16 +120,6 @@ export class Patientservice extends Service {
         return date && HisDate.toStandardHisFormat(date) === Service.getSessionDate() && this.isFemale()
     }
 
-    async hasPregnancyAtARTInitiation() {
-        const obs = await ObservationService.getLastValueCoded(this.getID(), "Is patient pregnant")
-        return obs && await ObservationService.getConceptName(obs)
-    }
-
-    async breastFeedingAtARTInitiation() {
-        const obs = await ObservationService.getLastValueCoded(this.getID(), "Is patient breast feeding")
-        return obs && await ObservationService.getConceptName(obs)
-    }
-
     isChildBearing() {
         const age = this.getAge()
         return this.isFemale() && age >= 12 && age <= 50
@@ -145,11 +135,6 @@ export class Patientservice extends Service {
     
     async getInitialHeight() {
         return ObservationService.getLastValueNumber(this.getID(), "Height")
-    }
-
-    async getInitialTBStatus() {
-        const obs = await ObservationService.getLastValueCoded(this.getID(), "TB status")
-        if(obs) return ObservationService.getConceptName(obs)
     }
 
     async getRecentHeight() {

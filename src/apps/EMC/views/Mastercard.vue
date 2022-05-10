@@ -44,6 +44,7 @@ import Layout from "../Components/Layout.vue";
 import VisitsSummary from "../Components/tables/VisitsSummary.vue";
 import { DrugOrderService } from "@/services/drug_order_service";
 import InformationHeader from "@/apps/EMC/Components/InformationHeader.vue";
+import { PatientObservationService } from "@/services/patient_observation_service";
 
 export default defineComponent({
   components: {
@@ -154,7 +155,7 @@ export default defineComponent({
     },
     async fetchPatient(patientId: number | string) {
       const patient: Patient = await Patientservice.findByID(patientId);
-      return patient ? new Patientservice(patient) : {};
+      return patient ? new PatientObservationService(patient) : {};
     },
     getProp(data: any, prop: string): string {
       return prop in data ? data[prop]() : "-";
@@ -190,7 +191,7 @@ export default defineComponent({
       return date ? HisDate.toStandardHisDisplayFormat(date) : "N/A";
     },
 
-    async getPatientCardInfo(patient: Patientservice) {
+    async getPatientCardInfo(patient: PatientObservationService) {
       const placeOfTest = await ObservationService.getFirstValueText(
         this.patientId,
         "Confirmatory HIV test location"
@@ -283,7 +284,6 @@ export default defineComponent({
         { label: "Initial Weight (KG)", value: await patient.getInitialWeight() },
         { label: "Initial Height (CM)", value: await patient.getInitialHeight() },
         { label: "BMI", value: await patient.getInitialBMI() },
-        { label: "Initial TB Status", value: await patient.getInitialTBStatus() },
         { label: "Pregnant at Initiation", value: "No" },
         { label: "Breastfeeding at Initiation", value: Breastfeeding },
         { label: "TI", value: TI },
