@@ -85,4 +85,12 @@ export class PatientObservationService extends Patientservice {
   async getReasonForStartingART() {
     return ObservationService.getFirstValueCoded(this.getID(), "Reason for ART eligibility")
   }
+
+  async getHIVTestDate() {
+    const obs = await ObservationService.getFirstObs(this.getID(), "Confirmatory HIV test date")
+    if (obs && obs.value_datetime) return obs.value_datetime
+    if (obs && obs.value_text) return obs.value_text
+    return null
+  }
+    
 }

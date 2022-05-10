@@ -171,6 +171,7 @@ export default defineComponent({
       receivedART.value = await props.patient.everReceivedART()
       agreesToFollowUp.value = await props.patient.agreesToFollowUp()
       reasonForStartingART.value = await props.patient.getReasonForStartingART()
+      hivTestDate.value = await props.patient.getHIVTestDate() || ''
     })
 
     return {
