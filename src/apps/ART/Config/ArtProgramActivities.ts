@@ -30,6 +30,9 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: "hiv clinic consultation",
     name: "HIV clinic consultation",
+    taskCompletionChecklist: [
+      'Medication orders'
+    ],
     icon: "consultation.png"
   },
   {

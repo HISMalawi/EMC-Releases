@@ -7,6 +7,7 @@ export interface TaskInterface {
     url?: string;
     workflowID?: string;
     encounterTypeName?: string;
+    taskCompletionChecklist?: string[];
     action?: Function;
     icon: string;
     taskCompleted?: boolean;

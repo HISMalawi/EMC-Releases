@@ -236,7 +236,7 @@ import EncounterView from "@/components/DataViews/DashboardEncounterModal.vue"
 import CardDrilldown from "@/components/DataViews/DashboardTableModal.vue"
 import { WorkflowService } from "@/services/workflow_service"
 import { toastSuccess, alertConfirmation, toastDanger } from "@/utils/Alerts";
-import _, { isEmpty, uniq } from "lodash"
+import _, { isArray, isEmpty, uniq } from "lodash"
 import MinimalToolbar from "@/components/PatientDashboard/Poc/MinimalToolbar.vue"
 import FullToolbar from "@/components/PatientDashboard/Poc/FullToolbar.vue"
 import {
@@ -613,20 +613,34 @@ export default defineComponent({
             }
         },
         /** 
-         * Loads all patient program tasks.
-         * Note: Existing encounters for that session date are disabled
+         * Loads all patient program tasks. Perfoms additional checks
+         * to ensure that tasks completed on current session date are marked
         */
         async showTasks() {
             if ('primaryPatientActivites' in this.app) {
-                const sessionEncounterNames = this.sessionEncounters.map(
-                    e => e['type']['name'].toLowerCase()
-                )
+                // Group encounters by encounter type name with the value being observation concept names.
+                // Observations concept names are later used to identify if key data was recorded for the task to be marked as done
+                const encounters = this.sessionEncounters.reduce((accum: any, encounter: Encounter) => {
+                    accum[encounter.type.name.toLowerCase()] = encounter.observations
+                        .reduce((concepts: any, obs: any) => concepts.concat(obs.concept.concept_names), [])
+                        .map((concept: any) => concept.name)
+                    return accum
+                }, {})
                 const tasks = [...this.app.primaryPatientActivites].map(
                     (task: TaskInterface) => {
-                        const taskName = task.encounterTypeName || task.name
-                        task.taskCompleted = sessionEncounterNames.includes(
-                            taskName.toLowerCase()
-                        )
+                        const taskName = (task.encounterTypeName || task.name).toLowerCase()
+                        // check if key concept names from a task are present in encounters
+                        // to mark it as completed
+                        if (typeof task.taskCompletionChecklist === 'object') {
+                            task.taskCompleted = task.taskCompletionChecklist.every(
+                                item => isArray(encounters[taskName]) 
+                                    && encounters[taskName].includes(item)
+                            )
+                        } else {
+                            // for tasks that dont have key concepts defined, just check presence of 
+                            // the encounter itself
+                            task.taskCompleted = encounters[taskName] ? true : false
+                        }
                         return task
                     })
                 this.openModal(tasks, 'Tasks for', TaskSelector, this.sessionDate)
