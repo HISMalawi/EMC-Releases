@@ -103,7 +103,7 @@ export default defineComponent({
           table.td(data.pregnant ? data.pregnant : ''),
           table.td(data['breast_feeding'] ? data['breast_feeding'] : ''),
           table.td(data['tb_status'].match(/Unknown/i) ? '' : data['tb_status']),
-          table.td(data['side_effects'] ? data['side_effects'] : ''),
+          table.td(data['side_effects'].length ? 'Yes' : 'No'),
           table.tdLink(data.regimen, () => showDrugsDispensed(data.pills_dispensed, date)),
           table.td(data['next_appointment'] ? data['next_appointment'] : ''),
           table.td(data.outcome.match(/Unk/i) ? "" : data.outcome),
