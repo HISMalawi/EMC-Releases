@@ -168,6 +168,8 @@ export default defineComponent({
       initTBStatus.value = await props.patient.getInitialTBStatus()
       pregnantAtInitiation.value = await props.patient.hasPregnancyAtARTInitiation()
       breastFeedingAtInitiation.value = await props.patient.breastFeedingAtARTInitiation()
+      receivedART.value = await props.patient.everReceivedART()
+      agreesToFollowUp.value = await props.patient.agreesToFollowUp()
     })
 
     return {
