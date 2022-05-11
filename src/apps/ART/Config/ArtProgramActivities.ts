@@ -19,7 +19,10 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: "vitals",
     name: "Vitals",
-    icon: "vitals.png"
+    icon: "vitals.png",
+    taskCompletionChecklist: [
+      'Weight'
+    ]
   },
   {
     id: "hiv staging",

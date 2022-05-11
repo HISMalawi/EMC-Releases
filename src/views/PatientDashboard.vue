@@ -623,7 +623,7 @@ export default defineComponent({
                 const encounters = this.sessionEncounters.reduce((accum: any, encounter: Encounter) => {
                     accum[encounter.type.name.toLowerCase()] = encounter.observations
                         .reduce((concepts: any, obs: any) => concepts.concat(obs.concept.concept_names), [])
-                        .map((concept: any) => concept.name)
+                        .map((concept: any) => concept.name.toLowerCase())
                     return accum
                 }, {})
                 const tasks = [...this.app.primaryPatientActivites].map(
@@ -633,8 +633,8 @@ export default defineComponent({
                         // to mark it as completed
                         if (typeof task.taskCompletionChecklist === 'object') {
                             task.taskCompleted = task.taskCompletionChecklist.every(
-                                item => isArray(encounters[taskName]) 
-                                    && encounters[taskName].includes(item)
+                                item => isArray(encounters[taskName])
+                                    && encounters[taskName].includes(item.toLowerCase())
                             )
                         } else {
                             // for tasks that dont have key concepts defined, just check presence of 
