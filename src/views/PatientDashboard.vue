@@ -639,7 +639,7 @@ export default defineComponent({
                         } else {
                             // for tasks that dont have key concepts defined, just check presence of 
                             // the encounter itself
-                            task.taskCompleted = encounters[taskName] ? true : false
+                            task.taskCompleted = !isEmpty(encounters[taskName])
                         }
                         return task
                     })
