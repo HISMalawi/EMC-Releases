@@ -125,46 +125,22 @@ export class Patientservice extends Service {
         return this.isFemale() && age >= 12 && age <= 50
     }
 
-    async getInitialObs(concept: string) {
-        try {
-            const initialObs = await ObservationService.getAll(
-              this.getID(),
-              concept
-            );
-            const lastIndex = initialObs.length - 1;
-            return initialObs[lastIndex].value_numeric;
-        } catch (e) {
-            console.error(e)
-        }
-    }
-
     async getInitialWeight() {
-        return this.getInitialObs('weight')
+        return ObservationService.getLastValueNumber(this.getID(), "weight")
     }
 
     async getRecentWeight() {
-        const concept = await ConceptService.getConceptID('weight', true)
-        const obs = await ObservationService.getObs({
-            'person_id': this.getID(),
-            'concept_id': concept,
-            'page_size': 1
-        })
-        return obs.length >= 1 ? obs[0].value_numeric: -1
+        return ObservationService.getFirstValueNumber(this.getID(), "weight") || -1
     }
     
     async getInitialHeight() {
-        return this.getInitialObs("Height")
+        return ObservationService.getLastValueNumber(this.getID(), "Height")
     }
 
     async getRecentHeight() {
-        const concept = await ConceptService.getConceptID('Height', true)
-        const obs = await ObservationService.getObs({
-            'person_id': this.getID(),
-            'concept_id': concept,
-            'page_size': 1
-        })
-        return obs.length >= 1 ? obs[0].value_numeric: -1
+        return ObservationService.getFirstValueNumber(this.getID(), "Height") || -1
     }
+
     async getWeightHistory() {
         try {
             const weights = await ObservationService.getAll(this.getID(), 'weight')
@@ -184,7 +160,7 @@ export class Patientservice extends Service {
     }
 
     async getInitialBMI() {
-        return this.getInitialObs('BMI')
+        return ObservationService.getLastValueNumber(this.getID(), "BMI")
     }
 
     async getBMI() {

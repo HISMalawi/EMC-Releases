@@ -55,6 +55,7 @@ import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import { toastWarning } from "@/utils/Alerts";
 import ReportDataTable from "@/components/DataViews/tables/ReportDataTable.vue";
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   components: {
@@ -69,6 +70,7 @@ export default defineComponent({
     ReportDataTable
   },
   setup() {
+    const router = useRouter()
     const searchText = ref("");
     const gender = ref("");
     const tableRows = ref<RowInterface[][]>([])
@@ -137,7 +139,11 @@ export default defineComponent({
               table.td(patient.getFamilyName()),
               table.td(patient.getGender()),
               table.tdDate(patient.getBirthdate().toString()),
-              table.tdBtn('Select', () => console.log(patient)),
+              table.tdBtn('Select', () => router.push({
+                name: "EMC Mastercard", params: {
+                  patientId: patient.getID()
+                }
+              })),
               table.tdBtn('Void', () => console.log(patient), {}, 'danger')
             ]
           })

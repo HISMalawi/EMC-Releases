@@ -46,7 +46,7 @@
                                 ? item.event.disabled === true
                                 : false"
                             v-if="item.event.obj === 'button'"
-                            @click="item.event.click()">
+                            @click="item.event.click(rowIndex, activeRows, tableRows)">
                             {{ item.td }}
                         </ion-button>
                     </div>
