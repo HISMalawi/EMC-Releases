@@ -110,9 +110,14 @@ export default defineComponent({
       const rows = dates.map(async (date: string) => {
         const data =  await ProgramService.getCurrentProgramInformation(props.patientId,  date)
         let nextAppointment = '';
+        let pregnant = '';
+        let breastfeeding = '';
+
         if (data.outcome !== 'Defaulted') {
           const nDate = await ObservationService.getFirstValueDatetime(props.patientId, 'appointment date', date);
           if(nDate) nextAppointment = HisDate.toStandardHisDisplayFormat(nDate)
+          pregnant = await ObservationService.getFirstValueCoded(props.patientId, 'Is patient pregnant', date);
+          breastfeeding = await ObservationService.getFirstValueCoded(props.patientId, 'Is patient breast feeding', date);
         }
         return [
           table.td(formatVisitDate(date)),
@@ -120,8 +125,8 @@ export default defineComponent({
           table.td(data.weight),
           table.td(data.height),
           table.td(data.bmi),
-          table.td(data.pregnant ? data.pregnant : ''),
-          table.td(data['breast_feeding'] ? data['breast_feeding'] : ''),
+          table.td(pregnant || ''),
+          table.td(breastfeeding ||''),
           table.td(data['tb_status'].match(/Unknown/i) ? '' : data['tb_status']),
           table.td(data['side_effects'].length ? 'Yes' : 'No'),
           table.tdLink(data.regimen, () => showDrugsDispensed(data.pills_dispensed, date)),
