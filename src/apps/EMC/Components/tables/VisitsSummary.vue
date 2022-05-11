@@ -122,17 +122,17 @@ export default defineComponent({
         return [
           table.td(formatVisitDate(date)),
           table.td(data['visit_by'].match(/Unk/i) ? "" : data['visit_by']),
-          table.td(data.weight),
-          table.td(data.height),
-          table.td(data.bmi),
+          table.td(data.outcome === 'Defaulted' ? '' : data.weight),
+          table.td(data.outcome === 'Defaulted' ? '' : data.height),
+          table.td(data.outcome === 'Defaulted' ? '' : data.bmi),
           table.td(pregnant || ''),
           table.td(breastfeeding ||''),
-          table.td(data['tb_status'].match(/Unknown/i) ? '' : data['tb_status']),
-          table.td(data['side_effects'].length ? 'Yes' : 'No'),
-          table.tdLink(data.regimen, () => showDrugsDispensed(data.pills_dispensed, date)),
+          table.td(data['tb_status'].match(/Unknown/i) || data.outcome === 'Defaulted' ? '' : data['tb_status']),
+          table.td(data['side_effects'].length ? 'Yes' : data.outcome !== 'Defaulted' ? 'No' : ''),
+          table.tdLink(data.outcome === 'Defaulted' ? '' : data.regimen, () => showDrugsDispensed(data.pills_dispensed, date)),
           table.td(nextAppointment || ''),
           table.td(data.outcome.match(/Unk/i) ? "" : data.outcome),
-          table.td(data['viral_load']),
+          table.td(data['viral_load'] === 'N/A' ? '' : data['viral_load']),
           table.tdBtn('X', (index: number, activeRows: any[]) => removeEncounters(date, index, activeRows), {}, 'danger')
         ]
       });
