@@ -10,7 +10,7 @@
         </span>
       </ion-card-title>
     </ion-card-header>
-    <ion-card-content class="ion-no-padding" style="min-height: 55vh;">
+    <ion-card-content class="ion-no-padding" style="min-height: 45vh;">
       <report-table
         :asyncRows="getPatientVisits"
         :columns="columns"
