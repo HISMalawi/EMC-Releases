@@ -2,7 +2,7 @@
   <ion-card class="his-card" style="padding: 0 !important">
     <ion-card-header>
       <ion-card-title>
-        Summary of Visits
+        <span class="title">Summary of Visits</span>
         <span class="ion-float-right ion-margin-end ion-margin-bottom">
           <ion-button>Add Visit</ion-button>
           <ion-button>Update Outcome</ion-button>
@@ -71,7 +71,8 @@ export default defineComponent({
       table.thTxt('ART Regimen'),
       table.thTxt('Next Appointment'),
       table.thTxt('Outcome'),
-      table.thTxt('Viral Load')
+      table.thTxt('Viral Load'),
+      table.thTxt('Void')
     ]])
 
     const formatVisitDate = (date: string) => {
@@ -146,3 +147,9 @@ export default defineComponent({
   },
 })
 </script>
+
+<style scoped>
+.title {
+  font-weight: bold;
+}
+</style>
