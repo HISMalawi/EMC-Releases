@@ -25,10 +25,10 @@ import DrillTableModalVue from '@/components/DataViews/DrillTableModal.vue';
 import table, { ColumnInterface } from '@/components/DataViews/tables/ReportDataTable';
 import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import { EncounterService } from '@/services/encounter_service';
+import { ObservationService } from '@/services/observation_service';
 import { Patientservice } from '@/services/patient_service';
 import { ProgramService } from '@/services/program_service';
 import popVoidReason from '@/utils/ActionSheetHelpers/VoidReason';
-import { alertConfirmation } from '@/utils/Alerts';
 import HisDate from "@/utils/Date";
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, modalController } from '@ionic/vue';
 import dayjs from 'dayjs';
@@ -109,6 +109,11 @@ export default defineComponent({
 
       const rows = dates.map(async (date: string) => {
         const data =  await ProgramService.getCurrentProgramInformation(props.patientId,  date)
+        let nextAppointment = '';
+        if (data.outcome !== 'Defaulted') {
+          const nDate = await ObservationService.getFirstValueDatetime(props.patientId, 'appointment date', date);
+          if(nDate) nextAppointment = HisDate.toStandardHisDisplayFormat(nDate)
+        }
         return [
           table.td(formatVisitDate(date)),
           table.td(data['visit_by'].match(/Unk/i) ? "" : data['visit_by']),
@@ -120,7 +125,7 @@ export default defineComponent({
           table.td(data['tb_status'].match(/Unknown/i) ? '' : data['tb_status']),
           table.td(data['side_effects'].length ? 'Yes' : 'No'),
           table.tdLink(data.regimen, () => showDrugsDispensed(data.pills_dispensed, date)),
-          table.td(data['next_appointment'] ? data['next_appointment'] : ''),
+          table.td(nextAppointment || ''),
           table.td(data.outcome.match(/Unk/i) ? "" : data.outcome),
           table.td(data['viral_load']),
           table.tdBtn('X', (index: number, activeRows: any[]) => removeEncounters(date, index, activeRows), {}, 'danger')
