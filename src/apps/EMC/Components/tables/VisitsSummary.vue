@@ -4,9 +4,10 @@
       <ion-card-title>
         <span class="title">Summary of Visits</span>
         <span class="ion-float-right ion-margin-end ion-margin-bottom">
-          <ion-button>Add Visit</ion-button>
-          <ion-button>Update Outcome</ion-button>
-          <ion-button>Viral Load</ion-button>
+          <ion-button v-for="btn in actionButtons" :key="btn.label" @click="btn.action" :color="btn.color || 'primary'">
+            <ion-icon v-if="btn.icon" :icon="btn.icon" class="ion-margin-right" />
+            {{ btn.label }}
+          </ion-button>
         </span>
       </ion-card-title>
     </ion-card-header>
@@ -15,6 +16,7 @@
         :asyncRows="getPatientVisits"
         :columns="columns"
         :config="tableConfig"
+        :key="refreshKey"
       />
     </ion-card-content>
   </ion-card>
@@ -22,7 +24,7 @@
 
 <script lang="ts">
 import DrillTableModalVue from '@/components/DataViews/DrillTableModal.vue';
-import table, { ColumnInterface } from '@/components/DataViews/tables/ReportDataTable';
+import table, { ColumnInterface, RowInterface } from '@/components/DataViews/tables/ReportDataTable';
 import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import { EncounterService } from '@/services/encounter_service';
 import { ObservationService } from '@/services/observation_service';
@@ -33,6 +35,18 @@ import HisDate from "@/utils/Date";
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, modalController } from '@ionic/vue';
 import dayjs from 'dayjs';
 import { defineComponent, reactive, ref } from 'vue';
+import ViralLoadInput from '@/apps/EMC/Components/modals/ViralLoadInput.vue';
+import { PatientLabResultService } from '@/services/patient_lab_result_service';
+import { ConceptService } from '@/services/concept_service';
+import { AppEncounterService } from '@/services/app_encounter_service';
+import { OrderService } from '@/services/order_service';
+
+interface ActionButtonInterface {
+  label: string;
+  icon?: string;
+  action: () => any;
+  color?: string;
+}
 
 export default defineComponent({
   props: {
@@ -43,7 +57,7 @@ export default defineComponent({
     startDate:{
       type: String,
       required: true
-    }
+    },
   },
   components: {
     ReportTable,
@@ -53,10 +67,41 @@ export default defineComponent({
     IonCardContent,
   },
   setup(props) {
+    const refreshKey = ref(Math.random());
     const tableConfig = reactive({
       showIndex: false,
       tableCssTheme: "emc-datatable-theme"
     })
+
+    const showModal = async (component: any, componentProps?: Record<string, any>) => {
+      const modal = await modalController.create({
+        component,
+        componentProps,
+      });
+      modal.present();
+      const { data } = await modal.onWillDismiss();
+      if(data) return data;
+    }
+
+    const actionButtons = ref<ActionButtonInterface[]>([
+      {
+        label: "Add Visit",
+        action: () => console.log("update outcome")
+      },
+      {
+        label: "Update Outcome",
+        action: () => console.log("update outcome")
+      },
+      {
+        label: "Enter VL Results",
+        action: async () => {
+          const result = await showModal(ViralLoadInput, {
+            patientId: props.patientId,
+          });
+          if(result) refreshKey.value++
+        }
+      }
+    ])
 
     const columns = ref<ColumnInterface[][]>([[
       table.thTxt('Visit Date'),
@@ -107,8 +152,9 @@ export default defineComponent({
 
     const getPatientVisits = async () => {
       const dates = await Patientservice.getPatientVisits(props.patientId, true);
+      const rows: RowInterface[][] = [];
 
-      const rows = dates.map(async (date: string) => {
+      for (const date of dates) {
         const data =  await ProgramService.getCurrentProgramInformation(props.patientId,  date)
         let nextAppointment = '';
         let pregnant = '';
@@ -120,7 +166,7 @@ export default defineComponent({
           pregnant = await ObservationService.getFirstValueCoded(props.patientId, 'Is patient pregnant', date);
           breastfeeding = await ObservationService.getFirstValueCoded(props.patientId, 'Is patient breast feeding', date);
         }
-        return [
+        data && rows.push([
           table.td(formatVisitDate(date)),
           table.td(data['visit_by'].match(/Unk/i) ? "" : data['visit_by']),
           table.td(data.outcome === 'Defaulted' ? '' : data.weight),
@@ -135,11 +181,14 @@ export default defineComponent({
           table.td(data.outcome.match(/Unk/i) ? "" : data.outcome),
           table.td(data['viral_load'] === 'N/A' ? '' : data['viral_load']),
           table.tdBtn('X', (index: number, activeRows: any[]) => removeEncounters(date, index, activeRows), {}, 'danger')
-        ]
-      });
-      return Promise.all(rows)
+        ])
+      }
+      return rows;
     }
+
     return {
+      refreshKey,
+      actionButtons,
       tableConfig,
       columns,
       getPatientVisits,

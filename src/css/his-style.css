@@ -49,6 +49,13 @@
     border-radius: 3px;
 }
 
+.box-input-error {
+    border-color: #ff0000;
+    border-width: thin;
+    border-style: solid;
+    border-radius: 3px;
+}
+
 .input_display {
     border-top: none;
     border-left: none;
