@@ -63,6 +63,7 @@ export default defineComponent({
             const sessionDate = HisDate.toStandardHisDisplayFormat(
                 Service.getSessionDate()
             )
+            await delayPromise(200)
             const action = await infoActionSheet(
                 'BDE Notice',
                 `The system is currently in Back Data Entry Mode(BDE). \

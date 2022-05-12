@@ -19,7 +19,10 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: "vitals",
     name: "Vitals",
-    icon: "vitals.png"
+    icon: "vitals.png",
+    taskCompletionChecklist: [
+      'Weight'
+    ]
   },
   {
     id: "hiv staging",
@@ -29,7 +32,10 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   },
   {
     id: "hiv clinic consultation",
-    name: "HIV clinic consultations",
+    name: "HIV clinic consultation",
+    taskCompletionChecklist: [
+      'Medication orders'
+    ],
     icon: "consultation.png"
   },
   {
@@ -54,18 +60,21 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: "dispensing",
     name: "Drug Dispensations",
+    encounterTypeName: "DISPENSING",
     workflowID: "Drug Dispensations",
     icon: "dispensing.png"
   },
   {
     id: "appointment",
     name: "Manage Appointments",
+    encounterTypeName: "APPOINTMENT",
     workflowID: "Manage Appointments",
     icon: "appointment.png"
   },
   {
     id: "patient type",
     name: "Patient Type",
+    encounterTypeName: "Registration",
     icon: "patient-type.png",
     availableOnActivitySelection: false
   },
@@ -73,6 +82,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: "bp_management",
     name: "bp_management",
     icon: "dispensing.png",
+    encounterTypeName: "Hypertension management",
     globalProperty: `${ART_GLOBAL_PROP.HTN_ENHANCEMENT}=true`,
     availableOnActivitySelection: false
   },
