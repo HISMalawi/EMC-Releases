@@ -114,7 +114,7 @@ export default defineComponent({
       table.thTxt('Next Appointment'),
       table.thTxt('Outcome'),
       table.thTxt('Viral Load'),
-      table.thTxt('Void')
+      table.thTxt('Void Visit')
     ]])
 
     const formatVisitDate = (date: string) => {
