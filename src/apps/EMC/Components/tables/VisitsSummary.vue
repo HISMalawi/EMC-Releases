@@ -32,14 +32,10 @@ import { Patientservice } from '@/services/patient_service';
 import { ProgramService } from '@/services/program_service';
 import popVoidReason from '@/utils/ActionSheetHelpers/VoidReason';
 import HisDate from "@/utils/Date";
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, modalController } from '@ionic/vue';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, modalController } from '@ionic/vue';
 import dayjs from 'dayjs';
 import { defineComponent, reactive, ref } from 'vue';
 import ViralLoadInput from '@/apps/EMC/Components/modals/ViralLoadInput.vue';
-import { PatientLabResultService } from '@/services/patient_lab_result_service';
-import { ConceptService } from '@/services/concept_service';
-import { AppEncounterService } from '@/services/app_encounter_service';
-import { OrderService } from '@/services/order_service';
 
 interface ActionButtonInterface {
   label: string;
@@ -65,6 +61,7 @@ export default defineComponent({
     IonCardHeader,
     IonCardTitle,
     IonCardContent,
+    IonButton,
   },
   setup(props) {
     const refreshKey = ref(Math.random());
