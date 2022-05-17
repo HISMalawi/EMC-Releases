@@ -33,8 +33,7 @@ export default defineComponent({
     ready: {
       async handler(isReady: boolean) {
         if(isReady){
-          this.prescriptionService = new DrugPrescriptionService(this.patientID, this.providerID)
-          await this.prescriptionService.loadDrugs()    
+          this.prescriptionService = new DrugPrescriptionService(this.patientID, this.providerID)  
           this.hasMalaria = await this.prescriptionService.hasMalaria()
           this.fields = this.getFields()
         }
@@ -100,8 +99,8 @@ export default defineComponent({
           helpText: 'Select drugs',
           type: FieldType.TT_MULTIPLE_SELECT,
           validation: (data: any) => Validation.required(data),
-          options: async (f: any) => {
-            const drugs: Option[] = await this.prescriptionService.getDrugOptions()
+          options: async (f: any, filter='') => {
+            const drugs: Option[] = await this.prescriptionService.loadDrugs(filter)
             if(isEmpty(f['malaria_drugs'])) return drugs
             const malariaDrug: Option = f['malaria_drugs']
             return drugs.map(drug => {
@@ -114,6 +113,11 @@ export default defineComponent({
           onload: () => this.activeField = '',
           config: {
             showKeyboard: true,
+            isFilterDataViaApi: true,
+            infiniteScroll: {
+              enabled: true,
+              handler: (filter='', page=1, limit=10) => this.prescriptionService.loadDrugs(filter, page, limit)
+            },
             hiddenFooterBtns: ["Back"],
             footerBtns: [
               {

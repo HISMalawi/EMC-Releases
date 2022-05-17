@@ -1,10 +1,11 @@
 <template>
-    <div>
-      <view-port :showFull="!showKeyboard">
-        <his-text-input  v-if="showKeyboard" :value="selected" @onValue="(value) => onKbValue(value, showKeyboard)" :disabled="false"/>
-        <span v-for="(item, index) in checkedItems" :key="index"> 
-          <ion-chip color="danger" @click="uncheck(item.label)">{{item.label}}</ion-chip>
-        </span>
+  <view-port :showFull="!showKeyboard">
+    <his-text-input  v-if="showKeyboard" :value="selected" @onValue="(value) => onKbValue(value, showKeyboard)" :disabled="false"/>
+    <span v-for="(item, index) in checkedItems" :key="index"> 
+      <ion-chip color="danger" @click="uncheck(item.label)">{{item.label}}</ion-chip>
+    </span>
+    <ion-content style="width: 100%;" class="ion-padding-bottom">
+      <div class="ion-content-scroll-host">
         <ion-list class='view-port-content'>
           <ion-item v-for="(entry, index) in filtered" :key="index" :color="entry.isChecked ? 'lightblue':''">
             <ion-label> 
@@ -22,20 +23,24 @@
               v-model="entry.isChecked"
               @ionChange="(e) => onselect(entry, e)"
               :disabled="entry?.disabled"/>
-         </ion-item>
+          </ion-item>
         </ion-list>
-      </view-port>
-      <his-keyboard v-if="showKeyboard" :kbConfig="keyboard" :onKeyPress="keypress"/>
-    </div>
+        <ion-infinite-scroll @ionInfinite="pushData($event)" :threshold="infiniteScroll.threshold" :disabled="!infiniteScroll.enabled" >
+          <ion-infinite-scroll-content loading-spinner="crescent" loading-text="Loading more data..." />
+        </ion-infinite-scroll>
+      </div>
+    </ion-content >
+  </view-port>
+  <his-keyboard v-if="showKeyboard" :kbConfig="keyboard" :onKeyPress="keypress"/>
 </template>
 <script lang="ts">
 import { FooterBtnEvent, Option, OptionDescriptionInterface } from "../Forms/FieldInterface";
 import { defineComponent } from "vue";
-import { IonCheckbox, IonText, IonChip,  } from "@ionic/vue";
+import { IonCheckbox, IonText, IonChip } from "@ionic/vue";
 import SelectMixin from "@/components/FormElements/SelectMixin.vue"
 
 export default defineComponent({
-  components: { IonCheckbox, IonText, IonChip },
+  components: { IonCheckbox, IonText, IonChip},
   name: "HisMultipleSelect",
   mixins: [SelectMixin],
   methods: {
