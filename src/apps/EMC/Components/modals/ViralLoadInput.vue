@@ -9,7 +9,7 @@
       <ion-row>
         <ion-col size="12">
           <ion-label class=" ion-padding-bottom">Result Modifier: </ion-label>
-          <ion-select class="box-input ion-margin-top" v-model="modifier" :disabled="isReadOnly">
+          <ion-select class="box-input ion-margin-top" v-model="modifier" :disabled="ldl">
             <ion-select-option value="=">&equals;</ion-select-option>
             <ion-select-option value=">">&gt;</ion-select-option>
             <ion-select-option value="<"> &lt; </ion-select-option>
@@ -21,7 +21,7 @@
       <ion-row>
         <ion-col size="12">
           <ion-label class=" ion-padding-bottom">Result: </ion-label>
-          <ion-input type="number" :min="1" class="box-input ion-margin-top" v-model="result" :disabled="isReadOnly" />
+          <ion-input type="number" :min="1" class="box-input ion-margin-top" v-model="result" :disabled="ldl" />
         </ion-col>
       </ion-row>
       <ion-row>
@@ -33,18 +33,10 @@
       <ion-row>
         <ion-col size="12" class=" ion-margin-top">
           <ion-label class=" ion-padding-bottom ion-margin-top">Other Results Options: </ion-label>
-          <ion-radio-group v-model="otherResults">
-            <ion-list>
-              <ion-item>
-                <ion-label>LDL</ion-label>
-                <ion-radio slot="start" value="LDL" />
-              </ion-item>
-              <ion-item>
-                <ion-label>Collect Another Sample</ion-label>
-                <ion-radio slot="start" value="Collect Another Sample" />
-              </ion-item>
-            </ion-list>
-          </ion-radio-group>
+          <ion-item>
+            <ion-label>LDL</ion-label>
+            <ion-checkbox slot="start" v-model="ldl" />
+          </ion-item>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -59,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import { 
   IonCol, 
   IonGrid, 
@@ -75,10 +67,8 @@ import {
   IonLabel, 
   IonSelectOption,
   IonSelect,
-IonRadioGroup,
-IonRadio,
-IonList,
-IonItem
+  IonCheckbox,
+  IonItem
 } from "@ionic/vue";
 import { ViralLoadResultsService } from "@/services/viral_load_results_service";
 import { toastWarning } from "@/utils/Alerts";
@@ -98,9 +88,7 @@ export default defineComponent({
     IonCol,
     IonSelect,
     IonSelectOption,
-    IonRadioGroup,
-    IonRadio,
-    IonList,
+    IonCheckbox,
     IonItem
   },
   props: {
@@ -112,22 +100,21 @@ export default defineComponent({
   setup(props) {
     const modifier = ref('');
     const result = ref<number>();
-    const otherResults = ref('');
+    const ldl = ref(false);
     const resultDate = ref('');
-    const isReadOnly = computed(() => !!otherResults.value);
 
     const closeModal = (data?: any) => {
       modalController.dismiss(data);
     };
 
     const isResultsValid = () => {
-      return resultDate.value && (isReadOnly.value || (modifier.value && result.value));
+      return resultDate.value && (ldl.value || (modifier.value && result.value));
     };
 
     const saveResults = async () => {
       if(isResultsValid()) {
-        const resultValue = isReadOnly.value ? 1 : result.value || 0 ;
-        const valueModifier = isReadOnly.value ? '=' : modifier.value;
+        const resultValue = ldl.value ? 1 : result.value || 0 ;
+        const valueModifier = ldl.value ? '=' : modifier.value;
         const vlService = new ViralLoadResultsService(props.patientId);
         await vlService.setConcept();
         await vlService.createEncounter();
@@ -142,10 +129,10 @@ export default defineComponent({
     const resetResults = () => {
       modifier.value = '';
       result.value = undefined;
-      otherResults.value = '';
+      ldl.value = false;
     };
 
-    watch(otherResults, (r) => {
+    watch(ldl, (r) => {
       if(r) {
         modifier.value = '';
         result.value = undefined;
@@ -156,8 +143,7 @@ export default defineComponent({
       result,
       modifier,
       resultDate,
-      otherResults,
-      isReadOnly,
+      ldl,
       closeModal,
       resetResults,
       saveResults,
