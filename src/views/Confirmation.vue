@@ -137,6 +137,7 @@ export default defineComponent({
     app: {} as AppInterface,
     program: {} as any,
     patient: {} as any,
+    localPatient: {} as any, // Patient found without dde
     cards: [] as any[],
     ddeInstance: {} as any,
     useDDE: false as boolean,
@@ -214,13 +215,9 @@ export default defineComponent({
   },
   watch: {
     $route: {
-      async handler({query}: any) {
-        if (!isEmpty(query) && (
-          query.person_id || query.patient_barcode
-        )) {      
-          await this.findAndSetPatient(
-            query.person_id, query.patient_barcode
-          )
+      handler({query}: any) {
+        if (!isEmpty(query) && (query.person_id || query.patient_barcode)) {
+          this.findAndSetPatient(query.person_id, query.patient_barcode)
         }
       },
       immediate: true
@@ -242,6 +239,7 @@ export default defineComponent({
      *  - DDE Service only supports NPID search.
     */
     async findAndSetPatient(id: number | undefined, npid: string | undefined) {
+      this.localPatient = {} // Patient found without using DDE
       await this.presentLoading()
 
       if (!this.facts.scannedNpid) this.facts.scannedNpid = npid || ''
@@ -253,11 +251,11 @@ export default defineComponent({
         // We need to maintain DDE workflow if an npid wasnt used to find the patient.
         // So find them locally first and then check with DDE if service is enabled
         if (this.useDDE) {
-          const res = await Patientservice.findByID(id)
-          if (res) {
-            const p = new Patientservice(res)
+          this.localPatient = await Patientservice.findByID(id)
+          if (this.localPatient) {
+            const p = new Patientservice(this.localPatient)
             this.facts.scannedNpid = p.getNationalID()
-            await this.handleSearchResults(this.ddeInstance.searchNpid(p.getNationalID()))
+            await this.handleSearchResults(this.ddeInstance.searchNpid(this.facts.scannedNpid))
           }
         } else {
           await this.handleSearchResults(Patientservice.findByID(id))
@@ -290,7 +288,12 @@ export default defineComponent({
           toastDanger(`${e}`, 300000)
         }
       }
-      this.facts.patientFound = !isEmpty(results)
+
+      this.facts.patientFound = !isEmpty(results) || !isEmpty(this.localPatient)
+      
+      // Use local patient if available if DDE never found them
+      if (isEmpty(results) && !isEmpty(this.localPatient)) results = this.localPatient
+
       if (this.facts.patientFound) {
         this.patient = new Patientservice(
           Array.isArray(results)
