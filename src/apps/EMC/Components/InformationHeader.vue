@@ -19,6 +19,7 @@ import { computed, defineComponent, onMounted, PropType, ref } from 'vue'
 import MultiColumnView from "@/components/containers/MultiColumnView.vue";
 import { PatientObservationService } from '@/services/patient_observation_service';
 import HisDate from "@/utils/Date";
+import dayjs from 'dayjs';
 
 export default defineComponent({
   components: {
@@ -53,6 +54,15 @@ export default defineComponent({
     const hivTestPlace = ref('')
     const stagingCondition = ref('')
 
+    const getDobAndAgeAtInitiation = () => {
+      const dob = props.patient.getBirthdate()
+      const ageAtInitiation = props.artStartDate !== "N/A" 
+        ? dayjs(props.artStartDate).diff(dob, "years")
+        : ''
+      
+      return `${HisDate.toStandardHisDisplayFormat(dob)} (${ageAtInitiation})`
+    }
+
     const patientInfo = computed(() => [
       { 
         label: "ARV Number", 
@@ -86,8 +96,8 @@ export default defineComponent({
         },
       },
       {
-        label: "Age",
-        value: props.patient.getAge(),
+        label: "DOB and Age at Initiation",
+        value: getDobAndAgeAtInitiation(),
         other: {
           editable: true,
           onClickHandler: () => {
