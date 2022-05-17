@@ -156,12 +156,21 @@ export default defineComponent({
         let nextAppointment = '';
         let pregnant = '';
         let breastfeeding = '';
+        let vlResult = ''
 
         if (data.outcome !== 'Defaulted') {
           const nDate = await ObservationService.getFirstValueDatetime(props.patientId, 'appointment date', date);
           if(nDate) nextAppointment = HisDate.toStandardHisDisplayFormat(nDate)
           pregnant = await ObservationService.getFirstValueCoded(props.patientId, 'Is patient pregnant', date);
           breastfeeding = await ObservationService.getFirstValueCoded(props.patientId, 'Is patient breast feeding', date);
+          if(data['viral_load'] === 'N/A') {
+            const vlObs = await ObservationService.getFirstObs(props.patientId, "HIV viral load", date)
+            if(vlObs && vlObs.value_text && vlObs.value_numeric) {
+              vlResult = vlObs.value_numeric === 1 ? "LDL" : vlObs.value_text + vlObs.value_numeric.toString()
+            }
+          } else {
+            vlResult = data['viral_load']
+          }
         }
         data && rows.push([
           table.td(formatVisitDate(date)),
@@ -176,7 +185,7 @@ export default defineComponent({
           table.tdLink(data.outcome === 'Defaulted' ? '' : data.regimen, () => showDrugsDispensed(data.pills_dispensed, date)),
           table.td(nextAppointment || ''),
           table.td(data.outcome.match(/Unk/i) ? "" : data.outcome),
-          table.td(data['viral_load'] === 'N/A' ? '' : data['viral_load']),
+          table.td(vlResult),
           table.tdBtn('X', (index: number, activeRows: any[]) => removeEncounters(date, index, activeRows), {}, 'danger')
         ])
       }
