@@ -89,13 +89,11 @@ export default defineComponent({
         title,
         this.getDrillDownColumns(),
         patients,
-        (tableRows: any[][]) => {
-          return tableRows.map( async (defaultRow: any[]) => {
-            const [index, patientId] = defaultRow
+        async (tableRows: number[]) => {
+          return await Promise.all(tableRows.map( async (patientId) => {
             const p = await Patientservice.findByID(patientId)
             const patient = new Patientservice(p)
             return [
-              index,
               table.td(patientId),
               table.td(patient.getGivenName()),
               table.td(patient.getFamilyName()),
@@ -103,7 +101,7 @@ export default defineComponent({
               table.td(patient.getPhoneNumber()),
               table.td(`${patient.getCurrentDistrict()}, ${patient.getCurrentVillage()}, ${patient.getClosestLandmark()}`)
             ]
-          })
+          }))
         }
       ))
     },
