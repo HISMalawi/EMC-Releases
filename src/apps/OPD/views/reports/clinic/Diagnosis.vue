@@ -81,7 +81,7 @@ export default defineComponent({
         table.thTxt("Address")
       ]]
     },
-    buildColumn(patients: Array<string>, title='') {
+    buildColumn(patients: Array<string>, title='Drilldown Data') {
       if(isEmpty(patients)) {
         return table.td(0)
       }
