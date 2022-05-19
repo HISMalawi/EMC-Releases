@@ -13,9 +13,9 @@
   <tr   v-for="(condition, index) in conditions" :key="index">
     <td class="td-text-align-right">{{condition.id}}</td>
     <td class="td-text-align-right" style="width: 30%;padding: revert;">{{condition.name}}</td>
-    <td id="ls-5yrs" class="td-text-align-right" @click="onDrillDown(condition.lessThanFiveYearsPatientIds);"> <a> {{condition.lessThanFiveYears}} </a> </td>
-    <td id="grt-5yrs" class="td-text-align-right" @click="onDrillDown(condition.greaterThanEqualFiveYearsPatientIds);"> <a> {{condition.greaterThanEqualFiveYears}} </a> </td>
-    <td id="total" class="td-text-align-right"  @click="onDrillDown(condition.totalPatientIds);"> <a> {{condition.total}} </a> </td>
+    <td id="ls-5yrs" class="td-text-align-right" @click="onDrillDown(condition.name+lessThanFiveYears, condition.lessThanFiveYearsPatientIds);"> <a> {{condition.lessThanFiveYears}} </a> </td>
+    <td id="grt-5yrs" class="td-text-align-right" @click="onDrillDown(condition.name+greaterAndEqualFiveYears, condition.greaterThanEqualFiveYearsPatientIds);"> <a> {{condition.greaterThanEqualFiveYears}} </a> </td>
+    <td id="total" class="td-text-align-right"  @click="onDrillDown(condition.name+total, condition.totalPatientIds);"> <a> {{condition.total}} </a> </td>
   </tr>
   </table>
 </template>
@@ -32,7 +32,10 @@ export default {
   data: function(){
     return {
       show: true,
-      conditions: []
+      conditions: [],
+      lessThanFiveYears: " < 5 yrs",
+      greaterAndEqualFiveYears: " >= 5 yrs",
+      total: ' Total'
     }
   },
   props: ["params", "onDrillDown","epiweek"],

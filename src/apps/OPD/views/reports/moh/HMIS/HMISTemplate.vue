@@ -8,7 +8,7 @@
   <tr   v-for="(condition, index) in conditions" :key="index">
     <td class="td-text-align-right td-wd">{{condition.id}}</td>
     <td class="td-text-align-right" style="width: 60%;padding: revert;">{{condition.name}}</td>
-    <td id="total" class="td-text-align-right"  @click="onDrillDown(condition.totalPatientIds);"> <a> {{condition.total}} </a> </td>
+    <td id="total" class="td-text-align-right"  @click="onDrillDown(condition.name, condition.totalPatientIds);"> <a> {{condition.total}} </a> </td>
   </tr>
   </table>
 </template>
