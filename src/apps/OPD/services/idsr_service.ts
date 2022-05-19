@@ -2,6 +2,7 @@ import { OpdReportService } from "./opd_report_service";
 import moment from "dayjs"
 import { Service } from "@/services/service";
 import HisDate from "@/utils/Date"
+import { Patientservice } from "@/services/patient_service";
 
 export interface CohortValidationInterface {
     param: number | string;
@@ -81,21 +82,18 @@ export class IDSRReportService extends OpdReportService {
     async getPatientsDetails(patientIds: Array<[]>) {
         const patients = []
         for(const patientID of patientIds) {
-            const res = await Service.getJson(`patients/${patientID}`)
-            if(res) {
-              const person = res.person
-              const addressesObj = person.addresses[0]
+            const potentialPatient = await Patientservice.findByID(patientID as any)
+            const patient = new Patientservice(potentialPatient)
               const personObj = {
-                'givenName': person.names[0].given_name,
-                'familyName': person.names[0].family_name,
-                'gender': person.gender,
-                'age': HisDate.getAgeInYears(person.birthdate),
-                'address': addressesObj.state_province +", "+ addressesObj.city_village +", "+ addressesObj.address1,
-                'phone': this.resolvePhone(person.person_attributes),
-                'personId': person.person_id
+                'givenName': patient.getGivenName(),
+                'familyName': patient.getFamilyName(),
+                'gender': patient.getGender(),
+                'age': HisDate.getAgeInYears(patient.getBirthdate()),
+                'address': patient.getCurrentDistrict()+", "+ patient.getCurrentVillage() +", "+ patient.getClosestLandmark(),
+                'phone': this.resolvePhone(potentialPatient.person.person_attributes),
+                'personId': patient.getID()
               }
               patients.push(personObj)
-              }
             }
         return patients
     }
