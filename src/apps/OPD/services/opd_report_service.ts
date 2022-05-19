@@ -170,9 +170,6 @@ export class OpdReportService extends Service {
         if (this.epiweek) {
             payload['epiweek'] = this.epiweek
         }
-        if (this.epiweek) {
-            payload['epiweek'] = this.epiweek
-        }
         return { ...payload, ...config }
     }
 
