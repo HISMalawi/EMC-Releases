@@ -19,7 +19,9 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: 'hiv status',
     name: 'HIV STatus',
-    icon: 'aids.png'
+    icon: 'aids.png',
+    encounterTypeName: 'update hiv status',
+    availableOnActivitySelection: false
   },
   {
     id: 'outpatient diagnosis',
@@ -29,12 +31,14 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: 'outcome status',
     name: 'Outcome status',
-    icon: 'outcomes.png'
+    icon: 'outcomes.png',
+    availableOnActivitySelection: false
   },
   {
     id: 'lab orders',
     name: 'Lab orders',
     icon: 'clinical-notes.png',
+    availableOnActivitySelection: false,
     action: ({patient}: any, router: any) => {
       router.push(`/los/forms/order/${patient.patient_id}?type=DRAW_SAMPLES`)
     }
@@ -43,6 +47,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: 'lab results',
     name: 'Lab results',
     icon: 'enter.png',
+    availableOnActivitySelection: false,
     action: ({ patient }: any, router: any) => {
       router.push({ path: `/lab/results/${patient.patient_id}`})
     },
@@ -50,16 +55,28 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: 'social history',
     name: 'Social history',
-    icon: 'medical-report.png'
+    icon: 'medical-report.png',
+    availableOnActivitySelection: false
   },
   {
     id: 'prescription',
     name: 'Prescription',
+    encounterTypeName: 'Treatment',
     icon: 'drugs-given.png'
   },
   {
     id: 'dispensation',
     name: 'Dispensation',
-    icon: 'dispensing.png'
+    encounterTypeName: 'dispensing',
+    icon: 'dispensing.png',
+    availableOnActivitySelection: false
+  },
+]
+
+export const SECONDARY_ACTIVITIES: TaskInterface[] = [
+  {
+    id: 'radiology examination',
+    name: 'radiology examination',
+    icon: 'radiology_types.png'
   },
 ]

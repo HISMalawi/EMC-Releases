@@ -11,6 +11,7 @@ import HisDate from "@/utils/Date"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { infoActionSheet } from "@/utils/ActionSheets"
 import { delayPromise } from "@/utils/Timers"
+import { nextTask } from "@/utils/WorkflowTaskHelper"
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -62,6 +63,7 @@ export default defineComponent({
             const sessionDate = HisDate.toStandardHisDisplayFormat(
                 Service.getSessionDate()
             )
+            await delayPromise(200)
             const action = await infoActionSheet(
                 'BDE Notice',
                 `The system is currently in Back Data Entry Mode(BDE). \
@@ -101,7 +103,12 @@ export default defineComponent({
             try {
                 await Service.setSessionDate(date)
                 toastSuccess(`Successfully Back dated to ${this.formatDate(date)}`)
-                this.redirect()
+                const patientID = this.$route?.query?.patient_id as any
+                if (patientID) {
+                    nextTask(patientID, this.$router)
+                } else {
+                    this.redirect()
+                }
             } catch(e) {
                 toastWarning(e)
             }

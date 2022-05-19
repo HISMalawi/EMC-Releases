@@ -202,10 +202,15 @@ export default [
       "concept_id": 174,
       "name": "STI"
    },
-    {
+   {
       "categories": [],
       "concept_id": 149,
       "name": "Cervicitis"
+   },
+   {
+      "categories": [],
+      "name": "Result Given to Client",
+      "concept_id": 9764
    },
    {
       "categories": [],
@@ -2175,5 +2180,33 @@ export default [
       ],
       "concept_id": 5328,
       "name": "Persistent generalized lymphadenopathy"
+   },
+   {
+      "categories": [],
+      "concept_id": 8426,
+      "name": 'Radiology Orders'
+   },
+   {
+      "name": 'Hand x-ray',
+      "concept_id": 10337
+   },
+   {
+      "name": 'Foot x-ray',
+      "concept_id": 10334
+   },
+   {
+      "name": 'Leg x-ray',
+      "concept_id": 10342
+   },
+   {
+      "name": 'Pelvis x-ray',
+      "concept_id": 10343
+   },
+   {
+      "name": 'Shoulder x-ray',
+      "concept_id": 10344
+   },
+   {"concept_id": 10539,
+   "name": "History of COVID-19 contact"
    }
 ]

@@ -1,6 +1,6 @@
 <template>
   <div class="card his-card">
-    <div class="header-section">
+    <div class="his-md-text header-section">
       {{ title }} 
     </div>
     
@@ -13,6 +13,7 @@
     <div :class="listAlignmentClass">
       <ion-list> 
         <ion-item
+          class="his-md-text"
           v-for="(item, index) in activeListItems" :key="index"
           @click="onselect(item)"
           :detail="true"
@@ -35,7 +36,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { Option } from "@/components/Forms/FieldInterface";
-import { chunk, isEmpty } from "lodash"
+import { chunk, findIndex, isEmpty } from "lodash"
 import {
   IonList,
   IonItem
@@ -83,12 +84,25 @@ export default defineComponent({
   watch: {
     items: {
       handler(items: Array<Option> | undefined) {
-        if (isEmpty(items)) return
-
+        if (isEmpty(items)) {
+          return
+        }
         this.index = 0
         this.paginatedListItems = chunk(items, this.perPage)
         this.activeListItems = this.paginatedListItems[0]
         this.active = this.activeListItems[0]
+        // Seek a date tagged as active and set it as active
+        for(const index in this.paginatedListItems) {
+          const indexOfActiveDate = findIndex(this.paginatedListItems[index], (e: Option) => {
+            return e.other.isActive === true
+          }, 0)
+          if (indexOfActiveDate != -1) {
+            this.index = parseInt(index)
+            this.activeListItems = this.paginatedListItems[index]
+            this.active = this.activeListItems[indexOfActiveDate]
+            break
+          }
+        }
       },
       deep: true,
       immediate: true,

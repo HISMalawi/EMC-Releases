@@ -3,6 +3,7 @@
         <his-text-input :readonly="!showKeyboard" :value="selected" @onValue="(value) => onKbValue(value, showKeyboard)" /> 
         <ion-list class='view-port-content'>
             <ion-item 
+                class="his-md-text"
                 button v-for="(item, index) in filtered" 
                 :color="item.label === selected ? 'lightblue': ''" 
                 :key="index"
@@ -23,6 +24,9 @@ import { find } from "lodash"
 export default defineComponent({
     name: "HisSelect",
     mixins: [SelectMixin],
+    data: () => ({
+        isInit: false as boolean
+    }),
     watch: {
         clear() { 
             this.clearSelection() 
@@ -31,7 +35,10 @@ export default defineComponent({
     async activated() {
         this.$emit('onFieldActivated', this)
         this.listData = await this.options(this.fdata)
-        await this.setDefaultValue()
+        if (!this.isInit) {
+            await this.setDefaultValue()
+        }
+        this.isInit = true
     },
     methods: {
         async setDefaultValue() {
@@ -42,6 +49,7 @@ export default defineComponent({
                     if (found) {
                         this.onselect(found)
                     } else {
+                        this.selected = defaults
                         this.filter = defaults
                     }
                 }
@@ -69,10 +77,6 @@ export default defineComponent({
     .view-port-content {
         height: 91%;
         padding-bottom: 0px;
-    }
-    ion-item {
-        --min-height: 40px;
-        font-size: 1.1em;
     }
     #view-port {
         height: 82vh;

@@ -5,23 +5,23 @@
         <ion-row> 
           <ion-col> 
             <div class="tool-bar-medium-card"> 
-              Patient Name: <b> {{demographics.patientName}}</b> <p/>
-              Birthdate: <b> {{birthdate}} </b> <p/>
-              Gender:  <b>{{demographics.gender}} </b>
+              <span class="his-sm-text">Patient Name: <b> {{demographics.patientName}}</b></span> <p/>
+              <span class="his-sm-text">Birthdate: <b> {{birthdate}} </b></span> <p/>
+              <span class="his-sm-text">Gender:  <b>{{demographics.gender}}</b></span>
             </div>
           </ion-col>
           <ion-col> 
             <div class="tool-bar-medium-card"> 
-              Ancestry district: <b>{{ demographics.ancestryDistrict }}</b> <p/>
-              Ancestry TA: <b>{{ demographics.ancestryTA }}</b> <p/>
-              Ancestry village: <b>{{ demographics.ancestryVillage }}</b> <p/>
+              <span class="his-sm-text">Ancestry district: <b>{{ demographics.ancestryDistrict }}</b></span><p/>
+              <span class="his-sm-text">Ancestry TA: <b>{{ demographics.ancestryTA }}</b></span><p/>
+              <span class="his-sm-text">Ancestry village: <b>{{ demographics.ancestryVillage }}</b></span><p/>
             </div>
           </ion-col>
           <ion-col> 
             <div class="tool-bar-medium-card"> 
-              Current District: <b> {{ demographics.currentDistrict }}</b><p/>
-              Current TA: <b> {{ demographics.currentTA }}</b><p/>
-              Current Village: <b> {{ demographics.currentVillage }}</b><p/>
+              <span class="his-sm-text">Current District:<b> {{ demographics.currentDistrict }}</b><p/></span>
+              <span class="his-sm-text">Current TA: <b> {{ demographics.currentTA }}</b><p/></span>
+              <span class="his-sm-text">Current Village: <b> {{ demographics.currentVillage }}</b><p/></span>
             </div>
           </ion-col>
         </ion-row>
@@ -29,14 +29,14 @@
     </ion-header>
     <ion-content>
       <ion-row>
-        <ion-col size="4" v-for="(card, index) in cards" :key="index">
+        <ion-col size-md="4" size-sm="12" v-for="(card, index) in cards" :key="index">
           <ion-card class="his-card">
             <ion-card-header style="background: #708090 !important;">
               <ion-card-title>{{ card.title.toUpperCase() }}</ion-card-title>
             </ion-card-header>
             <ion-card-content>
               <ul class="card-content"> 
-                <li class='li-item' v-for="(info, id) in card.data" :key="id" style="display: flex; justify-content: space-between;"> 
+                <li class='li-item his-sm-text' v-for="(info, id) in card.data" :key="id" style="display: flex; justify-content: space-between;"> 
                   <span v-if="info.label"> {{ info.label }} &nbsp;</span>
                   <strong v-html="info.value"></strong>
                 </li>
@@ -82,7 +82,7 @@ import { UserService } from "@/services/user_service";
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import { Patientservice } from "@/services/patient_service";
 import { PatientProgramService } from "@/services/patient_program_service"
-import { alertConfirmation, toastDanger } from "@/utils/Alerts"
+import { alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts"
 import { Patient } from "@/interfaces/patient"
 import {
   IonContent,
@@ -113,6 +113,9 @@ import { IncompleteEntityError, BadRequestError } from "@/services/service"
 import  { ART_GLOBAL_PROP } from "@/apps/ART/art_global_props"
 import  { GLOBAL_PROP } from "@/apps/GLOBAL_APP/global_prop"
 import { OrderService } from "@/services/order_service";
+import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
+import { ObservationService } from "@/services/observation_service";
+import { delayPromise } from "@/utils/Timers";
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -134,6 +137,7 @@ export default defineComponent({
     app: {} as AppInterface,
     program: {} as any,
     patient: {} as any,
+    localPatient: {} as any, // Patient found without dde
     cards: [] as any[],
     ddeInstance: {} as any,
     useDDE: false as boolean,
@@ -149,6 +153,7 @@ export default defineComponent({
       currentOutcome: '' as string,
       programs: [] as string[],
       identifiers: [] as string[],
+      patientType: '' as string,
       dde: {
         localNpidDiff: '',
         remoteNpidDiff: '',
@@ -210,13 +215,9 @@ export default defineComponent({
   },
   watch: {
     $route: {
-      async handler({query}: any) {
-        if (!isEmpty(query) && (
-          query.person_id || query.patient_barcode
-        )) {      
-          await this.findAndSetPatient(
-            query.person_id, query.patient_barcode
-          )
+      handler({query}: any) {
+        if (!isEmpty(query) && (query.person_id || query.patient_barcode)) {
+          this.findAndSetPatient(query.person_id, query.patient_barcode)
         }
       },
       immediate: true
@@ -238,6 +239,7 @@ export default defineComponent({
      *  - DDE Service only supports NPID search.
     */
     async findAndSetPatient(id: number | undefined, npid: string | undefined) {
+      this.localPatient = {} // Patient found without using DDE
       await this.presentLoading()
 
       if (!this.facts.scannedNpid) this.facts.scannedNpid = npid || ''
@@ -249,11 +251,11 @@ export default defineComponent({
         // We need to maintain DDE workflow if an npid wasnt used to find the patient.
         // So find them locally first and then check with DDE if service is enabled
         if (this.useDDE) {
-          const res = await Patientservice.findByID(id)
-          if (res) {
-            const p = new Patientservice(res)
+          this.localPatient = await Patientservice.findByID(id)
+          if (this.localPatient) {
+            const p = new Patientservice(this.localPatient)
             this.facts.scannedNpid = p.getNationalID()
-            await this.handleSearchResults(this.ddeInstance.searchNpid(p.getNationalID()))
+            await this.handleSearchResults(this.ddeInstance.searchNpid(this.facts.scannedNpid))
           }
         } else {
           await this.handleSearchResults(Patientservice.findByID(id))
@@ -283,10 +285,15 @@ export default defineComponent({
             this.setInvalidParametersFacts(entities)
           }
         } else {
-          toastDanger(e, 300000)
+          toastDanger(`${e}`, 300000)
         }
       }
-      this.facts.patientFound = !isEmpty(results)
+
+      this.facts.patientFound = !isEmpty(results) || !isEmpty(this.localPatient)
+      
+      // Use local patient if available if DDE never found them
+      if (isEmpty(results) && !isEmpty(this.localPatient)) results = this.localPatient
+
       if (this.facts.patientFound) {
         this.patient = new Patientservice(
           Array.isArray(results)
@@ -405,6 +412,8 @@ export default defineComponent({
       this.facts.currentOutcome = outcome
       this.facts.programName = program
       this.facts.userRoles = UserService.getUserRoles().map((r: any) => r.role)
+      this.facts.patientType = (await ObservationService.getFirstValueCoded(
+        this.patient.getID(), 'Type of patient'))
     },
     /**
      * Set dde facts if service is enabled.
@@ -465,6 +474,18 @@ export default defineComponent({
               type: 'button',
               name: 'Select',
               action: async () => {
+                if (!p.patientIsComplete()) {
+                  return this.$router.push(`/patient/registration?edit_person=${p.getID()}`)
+                } else if (p.getNationalID().match(/unknown/i) || !p.getDocID()) {
+                  try {
+                    await p.assignNpid()
+                    await this.findAndSetPatient(p.getID(), undefined)
+                    return modalController.dismiss()
+                  } catch (e) {
+                    toastWarning('Failed to assign npid to patient with unknown npid.')
+                    return console.error(e)
+                  }
+                }
                 await modalController.dismiss()
                 await this.findAndSetPatient(undefined, p.getNationalID())
               }
@@ -527,8 +548,9 @@ export default defineComponent({
           this.$router.push(`/patient/registration?edit_person=${this.patient.getID()}`)
           return FlowState.FORCE_EXIT
         },
-        'printNPID': () => {
-          this.ddeInstance.printNpid(this.patient.getID())
+        'printNPID': async () => {
+          await this.ddeInstance.printNpid(this.patient.getID())
+          await delayPromise(1800)
           return FlowState.CONTINUE
         },
         'createNpiDWithRemote': async () => {
@@ -560,6 +582,14 @@ export default defineComponent({
           await this.reloadPatient()
           return FlowState.FORCE_EXIT
         },
+        'addAsDrugRefill': async() => {
+          await this.createPatientType('Drug Refill')
+          return FlowState.CONTINUE
+        },
+        'addAsExternalConsultation': async () => {
+          await this.createPatientType('External consultation')
+          return FlowState.CONTINUE
+        },
         'updateLocalDiffs': async () => {
           await this.ddeInstance.updateLocalDifferences(
             this.facts.dde.localDiffs
@@ -572,10 +602,15 @@ export default defineComponent({
         try {
           return await states[state]()
         }catch(e) {
-          toastDanger(e)
+          toastDanger(`${e}`)
         }
       }
       return state
+    },
+    async createPatientType(patientType: 'Drug Refill' | 'External consultation') {
+      const type = new PatientTypeService(this.patient.getID(), -1)
+      await type.createEncounter()
+      await type.savePatientType(patientType)
     },
     async onVoid() {
       voidWithReason(async (reason: string) => {
@@ -593,21 +628,18 @@ export default defineComponent({
 </script>
 <style scoped>
 .card-content {
-  height: 200px;
+  padding: 0;
+  height: 300px;
   overflow: hidden;
 }
 .tool-bar-medium-card {
-  padding: 10px;
-  width: 94.7%;
-  margin: auto;
-  font-size: 0.9em;
+  padding: 0.3em;
 }
 ul {
   padding: 0;
 }
 .li-item {
   list-style: none;
-  font-size: 1.0em;
   margin: 0;
   padding: 0;
   line-height: 30px;
@@ -625,7 +657,7 @@ ion-col p {
   margin: 0;
 }
 ion-card {
-  height: 270px;
+  height: 35vh;
   padding: 0; 
   border-radius: 6px;
 }

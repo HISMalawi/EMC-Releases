@@ -1,58 +1,52 @@
 import { Service } from "./service";
-import { getPlatforms, modalController } from "@ionic/vue";
-import ZebraPrinterComponent from "@/components/ZebraPrinterImage.vue"
-import { delayPromise } from "@/utils/Timers";
 import ApiClient from "./api_client";
 import usePlatform from "@/composables/usePlatform";
 import { toastWarning } from "@/utils/Alerts";
-
-enum PrintOutVariable {
-    ZEBRA_MODAL = 'zebra-modal'
-}
+import { EventChannels } from "@/utils/EventBus";
+import EventBus from "@/utils/EventBus";
 
 export class PrintoutService extends Service {
     constructor() {
         super()
     }
 
-    static async zebraModalActive() {
-        const modal = await modalController.getTop()
-        return modal && modal.id === PrintOutVariable.ZEBRA_MODAL
+    async execPrint(url: string) {
+        const preFetch = await Service.getText(url)
+        if (!preFetch) throw 'Unable to print Label. Try again later'
+        document.location = (await ApiClient.expandPath(url)) as any
     }
 
-    static async showPrinterImage(timeout=1200) {
-        /** 
-         * Prevent showing multiple modals when printing.
-         * From experience when multiple modals appear, the modal becomes
-         * undismissable
-        */
-        if (!(await this.zebraModalActive())) {
-            const modalID = PrintOutVariable.ZEBRA_MODAL
-            const modal = await modalController.create({ 
-                id: modalID,
-                backdropDismiss: false,
-                component: ZebraPrinterComponent
-            })
-            modal.present()
-            await delayPromise(timeout)
-            modalController.dismiss({}, undefined, modalID)
+    async batchPrintLbls(urls: string[], showPrintImage = true) {
+        const { platformType } = usePlatform()
+        if (platformType.value === 'desktop') {
+            const errors: string[] = []
+            if(showPrintImage) EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')
+            for(const url of urls) {
+                try {
+                    await this.execPrint(url)
+                } catch (e) {
+                    errors.push(e as any)
+                }
+            }
+            if(showPrintImage) await PrintoutService.delay(2000)
+            if (errors.length > 0) {
+                // display unique errors only
+                await toastWarning(errors.filter((value, index, self) => self.indexOf(value) === index).join(), 3000)
+            }           
+        } else {
+            toastWarning('Sorry, your Platform does not support Label printing. Bye!')
         }
     }
 
-    async printLbl(url: any) {
+    async printLbl(url: any, showPrintImage = true) {
         const { platformType } = usePlatform()
         if (platformType.value === 'desktop') {
             try {
-                await PrintoutService.showPrinterImage()
-                // Do a preflight to make sure that we can print that label
-                // before changing document location
-                const preFetch = await Service.getText(url)
-
-                if (!preFetch) throw 'Unable to print Label. Try again later'
-
-                document.location = (await ApiClient.expandPath(url)) as any
+                if(showPrintImage)
+                EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')                
+                await this.execPrint(url)
             } catch (e) {
-                toastWarning(e, 3000)
+                toastWarning(e as any, 3000)
             }
         } else {
             toastWarning('Sorry, your Platform does not support Label printing. Bye!')

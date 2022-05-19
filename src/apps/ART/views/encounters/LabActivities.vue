@@ -14,6 +14,7 @@ import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import EncounterMixinVue from "../../../../views/EncounterMixin.vue";
 import { isEmpty } from "lodash";
 import { OrderService } from "@/services/order_service";
+import { PatientPrintoutService } from "@/services/patient_printout_service";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -45,7 +46,7 @@ export default defineComponent({
             this.fieldContext = fieldContext
           },
           options: async () => {
-            const orders = await OrderService.getOrders(this.patientID);
+            const orders: any = await OrderService.getOrdersIncludingGivenResultStatus(this.patientID);
             const VLOrders = OrderService.formatLabs(orders);
             return [
               {
@@ -58,6 +59,9 @@ export default defineComponent({
             ]
           },
           config: {
+            printOrder: (orderID: number) => {
+              return new PatientPrintoutService(this.patientID).printLabOrderLbl(orderID)
+            },
             hiddenFooterBtns: ["Clear"],
             footerBtns: [
               {

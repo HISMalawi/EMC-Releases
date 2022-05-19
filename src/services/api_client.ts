@@ -19,10 +19,11 @@ const ApiClient = (() => {
             throw 'Unable to retrieve configuration file/ Invalid config.json'
         }
         try {
-            const { apiURL, apiPort, apiProtocol } = await response.json()
+            const { apiURL, apiPort, apiProtocol, appConf } = await response.json()
             sessionStorage.setItem("apiURL", apiURL);
             sessionStorage.setItem("apiPort", apiPort);
             sessionStorage.setItem("apiProtocol", apiProtocol);
+            sessionStorage.setItem("appConf", JSON.stringify(appConf));
             return {
                 host: apiURL,
                 port: apiPort,
@@ -103,7 +104,11 @@ const ApiClient = (() => {
             return response
         } catch (e) {
             console.error(e)
-            EventBus.emit(ApiBusEvents.ON_API_CRASH, e)
+            if (`${e}`.match(/NetworkError|Failed to fetch/i)) {
+                EventBus.emit(ApiBusEvents.ON_API_CRASH, e)
+            } else {
+                EventBus.emit(ApiBusEvents.AFTER_API_REQUEST, {})
+            }
         }
     }
     
@@ -121,7 +126,7 @@ const ApiClient = (() => {
     const remove = (uri: string, data: object) => execFetch(uri, { method: 'DELETE', body: JSON.stringify(data)});
     const put = (uri: string, data: object) => execFetch(uri, { method: 'PUT', body: JSON.stringify(data) });
     const healthCheck = () => get('_health')
-    return { get, post, put, remove, getConfig, setLocalStorage, removeOnly, expandPath, healthCheck };
+    return { get, post, put, remove, getConfig, setLocalStorage, removeOnly, expandPath, healthCheck, getFileConfig };
 })();
 
 export default ApiClient;

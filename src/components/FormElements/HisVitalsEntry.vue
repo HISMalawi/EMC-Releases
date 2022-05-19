@@ -9,6 +9,7 @@
         <ion-row>
           <ion-col size="2">
             <option-button
+              class="his-sm-text"
               v-for="(key, bIndex) in keys"
               :key="bIndex"
               :label="key.label"
@@ -42,6 +43,7 @@
           <ion-col class="full-component-view" size="4">
             <ion-list> 
               <ion-item
+                class="his-sm-text"
                 v-for="(key, rIndex) in keys" 
                 :key="rIndex"
                 :color="activeField === rIndex ? 'secondary': ''">

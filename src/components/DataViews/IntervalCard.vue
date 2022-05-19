@@ -1,7 +1,7 @@
 <template>
     <div :class="`his-card ${state}`" @click="$emit('onclick')"> 
       <s v-if="!enabled">{{ label }}</s> 
-      <div v-if="enabled">{{label}}</div>
+      <div v-if="enabled" class="his-md-text">{{label}}</div>
     </div>
 </template>
 
@@ -31,8 +31,8 @@ export default defineComponent({
 </script>
 <style scoped>
  .his-card {
-    height: 50px;
-    margin: 1.4%;
+    height: 60px;
+    margin: 1.5%;
     text-align: center;
  }
 </style>

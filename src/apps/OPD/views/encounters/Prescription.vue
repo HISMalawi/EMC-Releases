@@ -1,5 +1,11 @@
 <template>
-  <his-standard-form :cancelDestinationPath="cancelDestination" :fields="fields" :activeField="activeField" :onFinishAction="onSubmit"/>
+  <his-standard-form 
+    :cancelDestinationPath="cancelDestination" 
+    :fields="fields" 
+    :activeField="activeField" 
+    :onFinishAction="onSubmit"
+    :skipSummary="true"
+  />
 </template>
 
 <script lang="ts">
@@ -10,9 +16,7 @@ import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { isEmpty } from 'lodash';
-import { ANTI_MALARIA_DRUGS, DrugPrescriptionService, DRUG_DOSE_FREQUENCIES } from '../../services/drug_prescription_service';
-import { modalController } from '@ionic/core';
-import PrescriptionModalVue from '@/apps/OPD/components/PrescriptionModal.vue';
+import { ANTI_MALARIA_DRUGS, DrugPrescriptionService, DRUG_FREQUENCIES } from '../../services/drug_prescription_service';
 import HisDate from "@/utils/Date"
 import { alertConfirmation, toastSuccess, toastWarning } from '@/utils/Alerts';
 
@@ -22,8 +26,8 @@ export default defineComponent({
   data: () => ({
     activeField: '',
     prescriptionService: {} as any,
+    showMalariaDrugs: false,
     hasMalaria: false,
-    drugOrders: [] as any
   }),
   watch: {
     ready: {
@@ -40,69 +44,77 @@ export default defineComponent({
     }
   },
   methods: {
-    async onSubmit(){   
+    async onSubmit(formData: any){   
+      const drugOrders = this.mapToOrders(formData['drugs_details'])
       const encounter = await this.prescriptionService.createEncounter()
       if (!encounter) return toastWarning('Unable to create treatment encounter')   
-      const drugOrder = await this.prescriptionService.createDrugOrder(this.drugOrders);
+      const drugOrder = await this.prescriptionService.createDrugOrder(drugOrders);
       if(!drugOrder) return toastWarning('Unable to create drug orders!')
       toastSuccess('Drug order has been created')
       this.nextTask()       
-    },
-    async getPrescriptionDetails(prescribedDrugs: Option[]) {
-      const modal = await modalController.create({
-        component: PrescriptionModalVue,
-        backdropDismiss: false,
-        cssClass: "large-modal",
-        componentProps: {
-          prescribedDrugs
-        }
-      });
-      modal.present();
-      const { data } = await modal.onDidDismiss();
-      return data
-    },
-    getFrequencyCount(frequency: Record<string, boolean>) {
-      return Object.values(frequency).filter(value => value).length
     },
     calculateExpireDate(startDate: string | Date, duration: number ) {
       const date = new Date(startDate)
       date.setDate(date.getDate() + duration)
       return HisDate.toStandardHisFormat(date)
     },
-    mapToOrders(prescriptions: any[]): any[] {
-      return prescriptions.map(drug => {
+    mapToOrders(drugs: Option[]): any[] {
+      return drugs.map(drug => {
         const startDate = DrugPrescriptionService.getSessionDate()
-        const frequencyCount = (typeof drug.frequency === 'number') ? drug.frequency :  this.getFrequencyCount(drug.frequency)
-        const frequency = DRUG_DOSE_FREQUENCIES[frequencyCount]
+        const frequency = DRUG_FREQUENCIES.find(f => f.label === drug.other.frequency)
         return {
-          'drug_inventory_id': drug.drug_id,
-          'equivalent_daily_dose': drug.dose_strength * frequencyCount,
+          'drug_inventory_id': drug.other.drug_id,
+          'equivalent_daily_dose': drug.other.dosage * frequency!.value,
           'start_date': startDate,
-          'auto_expire_date': this.calculateExpireDate(startDate, drug.duration), 
-          'units': drug.units,
-          'instructions': `${drug.name}: ${frequencyCount} ${frequency} for ${drug.duration}`,
-          'dose': drug.dose_strength,
-          'frequency': frequency
+          'auto_expire_date': this.calculateExpireDate(startDate, drug.other.duration), 
+          'units': drug.other.units,
+          'instructions': `${drug.label}: ${frequency!.value} ${frequency!.code} for ${drug.other.duration}`,
+          'dose': drug.other.dosage,
+          'frequency': frequency!.code,
         }
       })
     },
+    isOrderComplete(drugs: Option[]): boolean {
+      return drugs.every(drug => drug.other.frequency && drug.other.duration && drug.other.dosage)
+    },
     getFields(): Array<Field>{
       return [
+        {
+          id: 'malaria_drugs',
+          helpText: "select Malaria Drugs",
+          validation: (data: any) => Validation.required(data),
+          type: FieldType.TT_SELECT,
+          condition: () => this.activeField === 'malaria_drugs' && this.showMalariaDrugs,
+          unload: () => {
+            this.showMalariaDrugs = false
+            this.activeField = 'drugs'
+          },
+          options: () => ANTI_MALARIA_DRUGS.map(drug => ({
+            label: `${drug.name}, ${drug.frequency} time(s) a day, for ${drug.duration} days`,
+            value: drug.name,
+            other: drug
+          }))
+        },
         {
           id: 'drugs',
           helpText: 'Select drugs',
           type: FieldType.TT_MULTIPLE_SELECT,
           validation: (data: any) => Validation.required(data),
-          options: () => this.prescriptionService.getDrugOptions(),
-          onload: () => this.activeField = '',
-          beforeNext: async (data: Option[]) => {
-            const prescriptions = await this.getPrescriptionDetails(data)
-            if(isEmpty(prescriptions)) return false
-            this.drugOrders = this.mapToOrders(prescriptions)
-            return true
+          options: async (f: any) => {
+            const drugs: Option[] = await this.prescriptionService.getDrugOptions()
+            if(isEmpty(f['malaria_drugs'])) return drugs
+            const malariaDrug: Option = f['malaria_drugs']
+            return drugs.map(drug => {
+              if(drug.other.drug_id !== malariaDrug.other.drug_id) return drug
+              drug.other = {...malariaDrug.other}
+              drug.isChecked = true
+              return drug
+            })
           },
+          onload: () => this.activeField = '',
           config: {
             showKeyboard: true,
+            hiddenFooterBtns: ["Back"],
             footerBtns: [
               {
                 name: 'Predefined Malaria Drugs',
@@ -111,30 +123,51 @@ export default defineComponent({
                 visible: false,
                 slot: 'end',
                 onClick: async () => {
-                  if(this.hasMalaria) this.activeField = 'malaria_drugs'
-                  const ok = await alertConfirmation('Patient has no malaria. Do you still want to prescribe anti malaria drugs?')
-                  if(ok) this.activeField = 'malaria_drugs'
+                  if(!this.hasMalaria && !(await alertConfirmation('Patient has no malaria. Do you still want to prescribe anti malaria drugs?'))) {
+                    return;
+                  }
+                  this.activeField = 'malaria_drugs'
+                  this.showMalariaDrugs = true
                 }
               },
             ]
           }
         },
         {
-          id: 'malaria_drugs',
-          helpText: "select Malaria Drugs",
+          id: 'drugs_details',
+          helpText: 'Complete prescribed drug details',
+          type: FieldType.TT_PRESCRIPTION_INPUT,
           validation: (data: any) => Validation.required(data),
-          type: FieldType.TT_SELECT,
-          condition: () => this.activeField === 'malaria_drugs',
-          onValue: (data: Option) => {
+          options: (f: any) => [...f.drugs],
+          beforeNext: (data: Option[]) => {
             if(isEmpty(data)) return false
-            this.drugOrders = this.mapToOrders([data.other])
-            return true
+            if(this.isOrderComplete(data)) return true
+            toastWarning('Please complete all fields')
+            return false
+          }
+        },
+        {
+          id: 'summary',
+          helpText: 'Summary',
+          type: FieldType.TT_TABLE_VIEWER,
+          options: (f: any) => {
+            const drugs: Option[] = f['drugs_details']
+            const columns = [ 'Drug Name','Frequency','Dosage','Duration'];
+            const rows: any[] = drugs.map(drug => [
+              drug.other.name,
+              drug.other.frequency,
+              `${drug.other.dosage} ${drug.other.units}`,
+              `${drug.other.duration} days`
+            ])
+            return [
+              {
+                label: '',
+                value: '',
+                other: { columns, rows},
+              },
+            ];
           },
-          options: () => ANTI_MALARIA_DRUGS.map(drug => ({
-            label: `${drug.name}, ${drug.frequency} time(s) a day, for ${drug.duration} days`,
-            value: drug.name,
-            other: drug
-          }))
+
         }
       ]
     }

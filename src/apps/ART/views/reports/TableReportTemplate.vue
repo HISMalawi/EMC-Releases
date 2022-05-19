@@ -13,7 +13,7 @@
         </ion-title>
         <ion-item  v-if="!showtitleOnly"> 
           <ion-thumbnail slot="start"> 
-            <ion-img :src="reportLogo"/>
+            <ion-img :src="logo"/>
           </ion-thumbnail>
           <ion-label>
             <ul class="header-text-list"> 
@@ -48,7 +48,10 @@
           :rows="rows"
           :columns="columns"
           :showFilters="showFilters"
-          :config="config"
+          :config="{
+            ...config,
+            tableCssTheme: tableCssTheme
+          }"
           @onActiveColumns="onActiveColumns"
           @onActiveRows="onActiveRows"
           >
@@ -133,7 +136,6 @@ export default defineComponent({
     },
     reportLogo: {
       type: String,
-      default: Img('login-logos/Malawi-Coat_of_arms_of_arms.png')
     },
     showtitleOnly: {
       type: Boolean,
@@ -209,6 +211,7 @@ export default defineComponent({
     apiVersion: Service.getApiVersion(),
     coreVersion: Service.getCoreVersion(),
     artVersion: Service.getAppVersion(),
+    tableCssTheme: 'art-report-theme'
   }),
   watch: {
     validationErrors: {
@@ -232,6 +235,17 @@ export default defineComponent({
     }
   },
   computed: {
+    logo(): string {
+      if (!this.reportLogo && typeof this.reportPrefix === 'string') {
+        if (this.reportPrefix.match(/pepfar/i)) {
+          return Img('login-logos/PEPFAR.png')
+        }
+        if (this.reportPrefix.match(/moh/i)) {          
+          return Img('login-logos/Malawi-Coat_of_arms_of_arms.png')
+        }
+      }
+      return Img('reports.png')
+    },
     hasErrors(): boolean {
       return !isEmpty(this.validationErrors)
     },
@@ -343,7 +357,7 @@ export default defineComponent({
             ...rows,
             [],
             [`Date Created: ${this.date}`],
-            // TODO: Get actual HIS-CORE version from a file
+            [`Quarter: ${this.period}`],
             [`HIS-Core Version: ${this.coreVersion}`],
             [`API Version: ${this.apiVersion}`],
             [`Site UUID: ${this.siteUUID}`]

@@ -13,7 +13,7 @@ import { FieldType } from "@/components/Forms/BaseFormElements";
 import { FooterBtnEvent, Option } from "@/components/Forms/FieldInterface";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations";
-import { infoAlert, toastSuccess, toastWarning } from "@/utils/Alerts";
+import { alertConfirmation, infoAlert, toastSuccess, toastWarning } from "@/utils/Alerts";
 import HisDate from "@/utils/Date";
 import { findIndex, isEmpty, find } from "lodash";
 import { ConsultationService } from "@/apps/ART/services/consultation_service";
@@ -33,6 +33,8 @@ import table from "@/components/DataViews/tables/ReportDataTable"
 import { PatientTypeService } from "../../services/patient_type_service";
 import { PrescriptionService } from "../../services/prescription_service";
 import { DispensationService } from "../../services/dispensation_service";
+import { PatientPrintoutService } from "@/services/patient_printout_service";
+import { AppEncounterService } from "@/services/app_encounter_service";
 
 export default defineComponent({
   mixins: [AdherenceMixinVue],
@@ -42,6 +44,7 @@ export default defineComponent({
     currentWeight: -1 as any,
     weightTrail: [] as any,
     customRegimens: [] as any,
+    labOrders: [] as any,
     isDrugRefillPatient: false as boolean,
     weightLossPercentageNum: 0 as number,
     lostTenPercentBodyWeight: false as boolean,
@@ -88,6 +91,9 @@ export default defineComponent({
 
           // this.wasTransferredIn = await this.getTransferInStatus()
           this.wasTransferredIn = await this.getTransferInStatus()
+          this.currentWeight = Number((await this.patient.getRecentWeight()))
+
+          // this.wasTransferredIn = await this.getTransferInStatus()
 
           this.dateStartedArt = await this.getDateStartedArt()
 
@@ -104,6 +110,8 @@ export default defineComponent({
           this.weightLossPercentageNum = this.patient.getWeightLossPercentageFromTrail(this.weightTrail)
 
           this.lostTenPercentBodyWeight = this.weightLossPercentageNum >= 10
+
+          this.labOrders = await this.getVlLabData()
 
           if (this.CxCaEnabled) {
             const { start, end } = await ART_PROP.cervicalCancerScreeningAgeBounds()
@@ -611,6 +619,10 @@ export default defineComponent({
     isNonePatientClient() {
       return this.guardianVisit || this.isDrugRefillPatient
     },
+    async getVlLabData() {
+      const orders = await OrderService.getOrdersIncludingGivenResultStatus(this.patientID);
+      return OrderService.formatLabs(orders);
+    },
     getFields(): any {
       return [
         {
@@ -780,22 +792,43 @@ export default defineComponent({
           id: "patient_lab_orders",
           helpText: "Lab orders",
           type: FieldType.TT_LAB_ORDERS,
-          unload: () => this.checkVLReminder(),
+          unload: async () => {
+            await this.checkVLReminder()
+            // Check if released results were given to the patient
+            const noGivenResults = this.labOrders.filter((r: any) => r.result_given === 'No')
+            if (noGivenResults.length && (await alertConfirmation('Result(s) Given to Client?'))) {
+              const enc = new AppEncounterService(this.patientID, -1, this.providerID)
+              // flatten array and save observations for results given
+              const obs = noGivenResults.reduce((all: any, result: any) => [
+                ...all, ...(result.resultIds.map(async (resultID: number) =>{
+                  enc.encounterID = result.encounter_id
+                  return enc.saveObs((await enc.buildObs("Result Given to Client", {
+                      "value_coded": "Yes",
+                      "obs_group_id": resultID
+                    })))
+                })) 
+              ], [])
+              await Promise.all(obs)
+            }
+            // refresh data
+            this.labOrders = await this.getVlLabData()
+          },
           onload: (fieldContext: any) =>  this.labOrderFieldContext = fieldContext,
-          options: async () => {
-            const orders = await OrderService.getOrders(this.patientID);
-            const VLOrders = OrderService.formatLabs(orders);
+          options: () => {
             return [
               {
                 label: "Lab orders",
                 value: "order trail",
                 other: {
-                  values: VLOrders,
-                },
-              },
-            ];
+                  values: this.labOrders
+                }
+              }
+            ]
           },
           config: {
+            printOrder: (orderID: number) => {
+              return new PatientPrintoutService(this.patientID).printLabOrderLbl(orderID)
+            },
             hiddenFooterBtns: ["Clear"],
             footerBtns: [
               {
@@ -1125,10 +1158,11 @@ export default defineComponent({
           validation: (data: any) => Validation.required(data),
           computedValue: (data: any) => {
             this.TBSuspected = data.value === "Yes"
-            return ({
-              tag: 'consultation',
-              obs: this.consultation.buildValueCoded("TB treatment", data.value) 
-            })
+            const obs = [
+              this.consultation.buildValueCoded("TB treatment", data.value)
+            ]
+            if (this.TBSuspected) obs.push(this.consultation.buildValueCoded("TB Status", "Confirmed TB on treatment"))
+            return ({ tag: 'consultation', obs })
           },
           options: () => this.yesNoOptions()
         },
@@ -1170,11 +1204,11 @@ export default defineComponent({
             this.TBSuspected = data.value === "TB Suspected"
             return {
               tag: 'consultation',
-              obs: this.consultation.buildValueText("TB Status", data.value)
+              obs: this.consultation.buildValueCoded("TB Status", data.value)
             }
           },
           beforeNext: async (data: Option) => {
-            if (`${data.value}`.match(/suspected/i)) {
+            if (data.value === "TB Suspected") {
               const action = await infoActionSheet(
                 "Lab Order",
                 "The patient is a TB suspect. Do you want to take lab orders?",
@@ -1187,7 +1221,7 @@ export default defineComponent({
               if (action === 'Order now') this.labOrderFieldContext.launchOrderSelection([
                 'TB Microscopic Exam', 
                 'GeneXpert', 
-                'Culture & Sensitivity', 
+                'Culture & Sensitivity',
                 'TB Tests'
               ])
             }

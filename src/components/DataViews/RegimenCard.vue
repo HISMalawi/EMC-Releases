@@ -2,7 +2,7 @@
     <div :class="`his-card ${state}`"  @click="onclick"> 
         <table> 
             <td class='title'> {{ value }}&nbsp; </td>
-            <td :style="{textAlign: 'center'}">{{ label }} </td>
+            <td class="his-sm-text" :style="{textAlign: 'center'}">{{ label }} </td>
         </table>
     </div>
 </template>
@@ -46,7 +46,6 @@ export default defineComponent({
 <style scoped>
  table {
     width: 100%;
-    font-weight: 400;
  }
  .title {
     border-style: solid;
@@ -54,11 +53,11 @@ export default defineComponent({
     border-width: 0px 2px 0px 0px;
     text-align: center;
     width: 35px;
-    padding: 5px;
     font-weight: bold;
+    padding: 5px;
  }
  .his-card {
-    padding: 0.55em;
+    padding: 0.8em;
  }
 
 </style>
