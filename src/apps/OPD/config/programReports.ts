@@ -43,22 +43,6 @@ export const REPORTS: FolderInterface[] = [
         ]
     },
     {
-        name: 'PEPFAR',
-        icon: 'login-logos/PEPFAR.png',
-        defaultFilesIcon: 'reports.png',
-        condition: () => true,
-        files: [
-            {
-                name: 'IDSR report',
-                pathName: 'pepfar_idsr'
-            },
-            {
-                name: 'DHIS 2',
-                pathName: 'pepfar_dhis_2'
-            },
-        ]
-    },
-    {
         name: 'Clinic',
         icon: 'reports.png',
         defaultFilesIcon: 'reports.png',
