@@ -1,5 +1,4 @@
 import { OpdReportService } from "./opd_report_service";
-import moment from "dayjs"
 import { Service } from "@/services/service";
 import HisDate from "@/utils/Date"
 import { Patientservice } from "@/services/patient_service";
@@ -139,9 +138,9 @@ export class HMISReportService extends OpdReportService {
 
     Span(startDate: string, endDate: string) {
         const separator = "  -  "
-        return (moment(startDate).format('DD/MMM/YYYY') 
+        return (HisDate.toStandardHisDisplayFormat(startDate) 
         +separator+ 
-        moment(endDate).format('DD/MMM/YYYY'))
+        HisDate.toStandardHisDisplayFormat(endDate))
     }
 
     async getOPDVisits(params: any) {
