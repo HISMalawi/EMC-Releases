@@ -35,7 +35,7 @@ export default defineComponent({
     },
     columns: [
       [
-        table.thTxt('Age Groups', {colspan: 2, ...border}),
+        table.thTxt('Age Groups', border),
         table.thTxt('<6 months', {colspan: 2, ...border}),
         table.thTxt('6 months < 5 yrs', {colspan: 2, ...border}),
         table.thTxt('5 yrs < 14 yrs', {colspan: 2, ...border}),
@@ -81,7 +81,7 @@ export default defineComponent({
         table.thTxt("Address")
       ]]
     },
-    buildColumn(patients: Array<string>, title='') {
+    buildColumn(patients: Array<string>, title='Drilldown Data') {
       if(isEmpty(patients)) {
         return table.td(0)
       }
@@ -89,13 +89,11 @@ export default defineComponent({
         title,
         this.getDrillDownColumns(),
         patients,
-        (tableRows: any[][]) => {
-          return tableRows.map( async (defaultRow: any[]) => {
-            const [index, patientId] = defaultRow
+        async (tableRows: number[]) => {
+          return await Promise.all(tableRows.map( async (patientId) => {
             const p = await Patientservice.findByID(patientId)
             const patient = new Patientservice(p)
             return [
-              index,
               table.td(patientId),
               table.td(patient.getGivenName()),
               table.td(patient.getFamilyName()),
@@ -103,7 +101,7 @@ export default defineComponent({
               table.td(patient.getPhoneNumber()),
               table.td(`${patient.getCurrentDistrict()}, ${patient.getCurrentVillage()}, ${patient.getClosestLandmark()}`)
             ]
-          })
+          }))
         }
       ))
     },
