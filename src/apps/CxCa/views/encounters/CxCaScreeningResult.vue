@@ -82,13 +82,44 @@ export default defineComponent({
     getFields(): any {
       return [
         {
+          id: "results_available",
+          helpText: "Screening result available",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          options: () => this.yesNoOptions(),
+          computedValue: (value: any) => ({
+            obs: this.screeningResult.buildValueCoded('Screening results available', value.value)
+          })
+        },
+        {
           id: "screening_result",
           helpText: "Screening Result",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
           options: () => this.mapOptions([...this.getOptions(this.currentMethod)]),
+          condition(formData: any) {
+            return formData.results_available.value === "Yes";
+          },
           computedValue: (value: any) => ({
-            obs: this.screeningResult.buildValueCoded('Patient went for VIA?', value.value)
+            obs: this.screeningResult.buildValueCoded('Screening results', value.value)
+          })
+        },
+        {
+          id: "gynae_options",
+          helpText: "Other Gynae treatment",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          options: () => {
+            return this.mapOptions([
+              "STI",
+              "Cervicitis",
+            ]);
+          },
+          condition(formData: any) {
+            return formData.screening_result.value === "Other Gynae";
+          },
+          computedValue: (value: any) => ({
+            obs: this.screeningResult.buildValueCoded('Screening results', value.value)
           })
         },
         {
@@ -155,7 +186,7 @@ export default defineComponent({
             ]);
           },
           condition(formData: any) {
-            return formData.screening_result.value === "VIA Positive";
+            return formData.screening_result.value !== "VIA Negative";
           },
           computedValue: (value: any) => ({
             obs: this.screeningResult.buildValueCoded('Directly observed treatment option', value.value)
