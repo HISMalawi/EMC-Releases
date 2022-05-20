@@ -22,27 +22,50 @@
 
 <script lang="ts">
 /* eslint-disable @typescript-eslint/camelcase */
+import { defineComponent } from 'vue'
 import MonthlyDummy from '@/apps/OPD/views/reports/moh/IDSR/MonthlyDummy.vue'
 import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
 import { Service } from "@/services/service"
-import dayjs from 'dayjs';
+import dayjs from 'dayjs'
+// import { PropType } from "vue";
 
-export default {
+export default defineComponent({
   components: { MonthlyDummy },
   data: function(){
     return {
       show: true,
-      conditions: [],
+      conditions: [] as any,
       lessThanFiveYears: " < 5 yrs",
       greaterAndEqualFiveYears: " >= 5 yrs",
-      total: ' Total'
+      total: ' Total',
+      Quarter: '' as any,
+      Month: '' as any,
+      Params: '' as any,
     }
   },
-  props: ["params", "onDrillDown","month"],
+  mounted() {
+    this.Month = this.month
+    this.Params = this.params
+    this.Quarter = this.quarter
+  },
+  props: {
+    params: {
+      type: Object 
+    },
+    month: {
+      type: Object
+    },
+    quarter: {
+      type: Object
+    },
+    onDrillDown: {
+      type: Function
+    }
+  },
   methods: {
    renderResults() {
      const report = new IDSRReportService()
-     const Conditions = report.renderResults(this.params)
+     const Conditions = report.renderResults(this.Params)
      if(Conditions.length) {
        this.conditions = Conditions
        this.show = false
@@ -55,14 +78,14 @@ export default {
           Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}
           His-Core Version: ${Service.getCoreVersion()}
           API Version: ${Service.getApiVersion()}
-          Report Period: ${this.month}
+          Report Period: ${this.Month}
           Site: ${Service.getLocationName()}
           Site UUID: ${Service.getSiteUUID()}`
           ;
-      // }
+
       const csvData = new Blob([CSVString], { type: "text/csv;charset=utf-8;" });
       //IE11 & Edge
-      const reportTitle = `${Service.getLocationName()} MOnthly IDSR report ${this.quarter}`;
+      const reportTitle = `${Service.getLocationName()} MOnthly IDSR report ${this.Quarter}`;
       if (navigator.msSaveBlob) {
         navigator.msSaveBlob(csvData, 'exportFilename');
       } else {
@@ -84,7 +107,7 @@ export default {
       }
     }
   }
-}
+})
 </script>
 
 <style scoped>

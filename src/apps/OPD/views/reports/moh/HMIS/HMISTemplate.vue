@@ -15,24 +15,51 @@
 
 <script lang="ts">
 /* eslint-disable @typescript-eslint/camelcase */
+import { defineComponent } from 'vue'
 import HmisDummy from '@/apps/OPD/views/reports/moh/HMIS/HMISDummy.vue'
 import { HMISReportService } from "@/apps/OPD/services/hmis_report_service"
 import { Service } from "@/services/service"
 import dayjs from 'dayjs';
 
-export default {
+export default defineComponent({
   components: { HmisDummy },
   data: function(){
     return {
       show: true,
-      conditions: []
+      conditions: [] as any,
+      Quarter: '' as any,
+      PeriodDates: '' as any,
+      Params: '' as any,
+      ReportName: '' as any
     }
   },
-  props: ["params", "onDrillDown","periodDates", "reportName"],
+  mounted() {
+    this.PeriodDates = this.periodDates
+    this.Params = this.params
+    this.Quarter = this.quarter
+    this.ReportName = this.reportName
+  },
+  props: {
+    params: {
+      type: Object 
+    },
+    periodDates: {
+      type: Object
+    },
+    quarter: {
+      type: Object
+    },
+    onDrillDown: {
+      type: Function
+    },
+    reportName: {
+      type: String
+    }
+  },
   methods: {
    renderResults() {
      const report = new HMISReportService()
-     const Conditions = report.renderResults(this.params)
+     const Conditions = report.renderResults(this.Params)
      if(Conditions.length) {
        this.conditions = Conditions
        this.show = false
@@ -45,14 +72,15 @@ export default {
           Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}
           His-Core Version: ${Service.getCoreVersion()}
           API Version: ${Service.getApiVersion()}
-          Report Period: ${this.periodDates}
+          Report Period: ${this.PeriodDates}
           Site: ${Service.getLocationName()}
           Site UUID: ${Service.getSiteUUID()}`
           ;
       // }
       const csvData = new Blob([CSVString], { type: "text/csv;charset=utf-8;" });
       //IE11 & Edge
-      const reportTitle = `${Service.getLocationName()} ${this.reportName} ${this.quarter}`;
+      const reportTitle = `${Service.getLocationName()} ${this.ReportName} ${this.Quarter}`;
+      
       if (navigator.msSaveBlob) {
         navigator.msSaveBlob(csvData, 'exportFilename');
       } else {
@@ -74,7 +102,7 @@ export default {
       }
     }
   }
-}
+})
 </script>
 
 <style scoped>
