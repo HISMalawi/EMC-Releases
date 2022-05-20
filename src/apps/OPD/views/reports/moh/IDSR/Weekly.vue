@@ -20,7 +20,7 @@
   </table>
 </template>
 
-<script>
+<script lang="ts">
 /* eslint-disable @typescript-eslint/camelcase */
 import WeeklyDummy from '@/apps/OPD/views/reports/moh/IDSR/WeeklyDummy.vue'
 import { IDSRReportService } from "@/apps/OPD/services/idsr_service"

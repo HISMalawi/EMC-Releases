@@ -13,7 +13,7 @@
   </table>
 </template>
 
-<script>
+<script lang="ts">
 /* eslint-disable @typescript-eslint/camelcase */
 import HmisDummy from '@/apps/OPD/views/reports/moh/HMIS/HMISDummy.vue'
 import { HMISReportService } from "@/apps/OPD/services/hmis_report_service"
