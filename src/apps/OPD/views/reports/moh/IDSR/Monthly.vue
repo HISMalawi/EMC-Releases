@@ -37,35 +37,14 @@ export default defineComponent({
       conditions: [] as any,
       lessThanFiveYears: " < 5 yrs",
       greaterAndEqualFiveYears: " >= 5 yrs",
-      total: ' Total',
-      Quarter: '' as any,
-      Month: '' as any,
-      Params: '' as any,
+      total: ' Total'
     }
   },
-  mounted() {
-    this.Month = this.month
-    this.Params = this.params
-    this.Quarter = this.quarter
-  },
-  props: {
-    params: {
-      type: Object 
-    },
-    month: {
-      type: Object
-    },
-    quarter: {
-      type: Object
-    },
-    onDrillDown: {
-      type: Function
-    }
-  },
+  props: ['params', 'month', 'quarter', 'onDrillDown'],
   methods: {
    renderResults() {
      const report = new IDSRReportService()
-     const Conditions = report.renderResults(this.Params)
+     const Conditions = report.renderResults(this.params)
      if(Conditions.length) {
        this.conditions = Conditions
        this.show = false
@@ -78,14 +57,14 @@ export default defineComponent({
           Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}
           His-Core Version: ${Service.getCoreVersion()}
           API Version: ${Service.getApiVersion()}
-          Report Period: ${this.Month}
+          Report Period: ${this.month}
           Site: ${Service.getLocationName()}
           Site UUID: ${Service.getSiteUUID()}`
           ;
 
       const csvData = new Blob([CSVString], { type: "text/csv;charset=utf-8;" });
       //IE11 & Edge
-      const reportTitle = `${Service.getLocationName()} MOnthly IDSR report ${this.Quarter}`;
+      const reportTitle = `${Service.getLocationName()} MOnthly IDSR report ${this.quarter}`;
       if (navigator.msSaveBlob) {
         navigator.msSaveBlob(csvData, 'exportFilename');
       } else {

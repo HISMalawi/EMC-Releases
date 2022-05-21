@@ -118,7 +118,7 @@ export default defineComponent({
     async regenerate() {
       await this.onPeriod(this.formData, this.computedFormData, true)
     },
-    async onDrillDown(conditionName: string,patientIds: string) {
+    async onDrillDown(conditionName: string, patientIds: string) {
       patientIds = this.report.getIdsArrayObj(patientIds)
       const patients = await this.report.getPatientsDetails(patientIds)
       const columns = [

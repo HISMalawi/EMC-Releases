@@ -36,39 +36,19 @@ export default defineComponent({
       conditions: [] as any,
       lessThanFiveYears: " < 5 yrs",
       greaterAndEqualFiveYears: " >= 5 yrs",
-      total: ' Total',
-      Quarter: '' as any,
-      Epiweek: '' as any,
-      Params: '' as any,
+      total: ' Total'
     }
   },
-    mounted() {
-    this.Params = this.params
-    this.Epiweek = this.epiweek
-    this.Quarter = this.quarter
-  },
-  props: {
-    params: {
-      type: Array 
-    },
-    epiweek: {
-      type: String
-    },
-    onDrillDown: {
-      type: Function
-    },
-    quarter: {
-      type: String
-    },
-  },
+  props: ['params', 'epiweek', 'quarter','onDrillDown'],
   methods: {
    renderResults() {
      const report = new IDSRReportService()
-     const Conditions = report.renderResults(this.Params)
-     if(Conditions.length) {
-       this.conditions = Conditions
-       this.show = false
-     } 
+     console.log(this.params)
+     const Conditions = report.renderResults(this.params)
+     if(Conditions.length){
+      this.conditions = Conditions
+      this.show = false
+     }
    },
    onDownload() {
      const report = new IDSRReportService()
@@ -77,14 +57,13 @@ export default defineComponent({
           Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}
           His-Core Version: ${Service.getCoreVersion()}
           API Version: ${Service.getApiVersion()}
-          Report Period: ${this.Epiweek}
+          Report Period: ${this.epiweek}
           Site: ${Service.getLocationName()}
           Site UUID: ${Service.getSiteUUID()}`
           ;
-      // }
       const csvData = new Blob([CSVString], { type: "text/csv;charset=utf-8;" });
       //IE11 & Edge
-      const reportTitle = `${Service.getLocationName()} Weekly IDSR report ${this.Quarter}`;
+      const reportTitle = `${Service.getLocationName()} Weekly IDSR report ${this.quarter}`;
       if (navigator.msSaveBlob) {
         navigator.msSaveBlob(csvData, 'exportFilename');
       } else {

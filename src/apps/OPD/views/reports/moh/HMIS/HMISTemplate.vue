@@ -26,40 +26,14 @@ export default defineComponent({
   data: function(){
     return {
       show: true,
-      conditions: [] as any,
-      Quarter: '' as any,
-      PeriodDates: '' as any,
-      Params: '' as any,
-      ReportName: '' as any
+      conditions: [] as any
     }
   },
-  mounted() {
-    this.PeriodDates = this.periodDates
-    this.Params = this.params
-    this.Quarter = this.quarter
-    this.ReportName = this.reportName
-  },
-  props: {
-    params: {
-      type: Object 
-    },
-    periodDates: {
-      type: Object
-    },
-    quarter: {
-      type: Object
-    },
-    onDrillDown: {
-      type: Function
-    },
-    reportName: {
-      type: String
-    }
-  },
+  props: ['params', 'periodDates', 'quarter', 'onDrillDown', 'reportName'],
   methods: {
    renderResults() {
      const report = new HMISReportService()
-     const Conditions = report.renderResults(this.Params)
+     const Conditions = report.renderResults(this.params)
      if(Conditions.length) {
        this.conditions = Conditions
        this.show = false
@@ -72,14 +46,14 @@ export default defineComponent({
           Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}
           His-Core Version: ${Service.getCoreVersion()}
           API Version: ${Service.getApiVersion()}
-          Report Period: ${this.PeriodDates}
+          Report Period: ${this.periodDates}
           Site: ${Service.getLocationName()}
           Site UUID: ${Service.getSiteUUID()}`
           ;
       // }
       const csvData = new Blob([CSVString], { type: "text/csv;charset=utf-8;" });
       //IE11 & Edge
-      const reportTitle = `${Service.getLocationName()} ${this.ReportName} ${this.Quarter}`;
+      const reportTitle = `${Service.getLocationName()} ${this.reportName} ${this.quarter}`;
       
       if (navigator.msSaveBlob) {
         navigator.msSaveBlob(csvData, 'exportFilename');

@@ -57,7 +57,8 @@ export default defineComponent({
     TotalOPDVisits: 0 as number,
     clinicName: IDSRReportService.getLocationName(),
     reportReady: false as boolean,
-    reportUrlParams: '' as string
+    reportUrlParams: '' as string,
+    regenarate: '' as string
   }),
   created() {
     this.btns = this.getBtns()
@@ -87,7 +88,7 @@ export default defineComponent({
       const request = await this.report.requestIDSRWeekly(data)
       const OPDVisitsRequest = await this.report.getOPDVisits(this.report.registrationRequestParams())
       if (request.ok && OPDVisitsRequest.ok) {
-            data.regenerate = false
+            data.regenerate = true
             if(OPDVisitsRequest.status === 200) {
               const arrayOb =   await OPDVisitsRequest.json()
             this.TotalOPDVisits = arrayOb.length
