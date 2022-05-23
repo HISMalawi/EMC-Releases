@@ -36,6 +36,7 @@ import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, modalC
 import dayjs from 'dayjs';
 import { defineComponent, reactive, ref } from 'vue';
 import ViralLoadInput from '@/apps/EMC/Components/modals/ViralLoadInput.vue';
+import OutcomeStatus from '@/apps/EMC/Components/modals/OutcomeStatus.vue';
 
 interface ActionButtonInterface {
   label: string;
@@ -64,7 +65,7 @@ export default defineComponent({
     IonButton,
   },
   setup(props) {
-    const refreshKey = ref(Math.random());
+    const refreshKey = ref(1000);
     const tableConfig = reactive({
       showIndex: false,
       tableCssTheme: "emc-datatable-theme"
@@ -87,7 +88,12 @@ export default defineComponent({
       },
       {
         label: "Update Outcome",
-        action: () => console.log("update outcome")
+        action:async () => {
+          const refresh = await showModal(OutcomeStatus, {
+            patientId: props.patientId,
+          })
+          
+        }
       },
       {
         label: "Enter VL Results",
