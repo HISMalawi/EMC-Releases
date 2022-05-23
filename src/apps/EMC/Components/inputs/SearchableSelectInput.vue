@@ -53,7 +53,7 @@ export default defineComponent({
       const modal = await modalController.create({
         component: SearchableList,
         backdropDismiss: false,
-        cssClass: '',
+        cssClass: 'custom-modal-backdrop ',
         componentProps: {
           asyncOptions: props.asyncOptions,
           options: props.options,
