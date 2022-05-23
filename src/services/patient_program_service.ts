@@ -84,6 +84,11 @@ export class PatientProgramService extends ProgramService {
         return ProgramService.getPatientStates(this.patientId, this.programId)
     }
 
+    async getProgramOutcomes() {
+        const workflows: any[] = await ProgramService.getProgramWorkflows(this.programId)
+        return workflows.length > 0 ? workflows[0].states : []
+    }
+
     voidProgram(reason: string) {
         return ProgramService.voidProgram(this.patientProgramId, reason)
     }

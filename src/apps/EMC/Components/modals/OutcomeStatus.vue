@@ -30,19 +30,19 @@
           </ion-col>  
           <ion-col size="6">
             <ion-label class=" ion-padding-bottom">Select Outcome: </ion-label>
-            <ion-select class="box-input ion-margin-top" >
-              <ion-select-option value="=">&equals;</ion-select-option>
-              <ion-select-option value=">">&gt;</ion-select-option>
-              <ion-select-option value="<"> &lt; </ion-select-option>
-              <ion-select-option value=">=">&le;</ion-select-option>
-              <ion-select-option value="<=">&ge;</ion-select-option>
-            </ion-select>
+            <searchable-select-input
+              class="box-input ion-margin-top"
+              placeholder="Select Outcome"
+              :options="outcomes"
+              :value="outcome.label || ''"
+              @onSelect="updateOutcome"
+            />
           </ion-col>
           <ion-col size="6">
             <ion-label class=" ion-padding-bottom">Outcome Date: </ion-label>
             <ion-input type="date" class="box-input ion-margin-top" />
           </ion-col>
-          <ion-col size="12">
+          <ion-col size="12" v-if="isTransferredOut">
             <ion-label class=" ion-padding-bottom">Transfer-In Facility : </ion-label>
             <ion-input type="number" :min="1" class="box-input ion-margin-top" />
           </ion-col>
@@ -88,8 +88,6 @@ import {
   IonButton, 
   IonInput, 
   IonLabel, 
-  IonSelectOption,
-  IonSelect,
   IonBadge,
 } from "@ionic/vue";
 import { alertConfirmation, toastSuccess, toastWarning } from "@/utils/Alerts";
@@ -97,6 +95,8 @@ import table, { ColumnInterface, RowInterface } from '@/components/DataViews/tab
 import { PatientProgramService } from "@/services/patient_program_service";
 import { isEmpty } from "lodash";
 import HisDate from "@/utils/Date";
+import { Option } from "@/components/Forms/FieldInterface";
+import SearchableSelectInput from "../inputs/SearchableSelectInput.vue";
 
 export default defineComponent({
   components: {
@@ -111,10 +111,9 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    IonSelect,
-    IonSelectOption,
     ReportTable,
     IonBadge,
+    SearchableSelectInput,
   },
   props: {
     patientId: {
@@ -128,7 +127,9 @@ export default defineComponent({
     const program = ref<Record<string, any>>();
     const isEnrolled = computed(() => !isEmpty(program.value));
     const enrollDate = ref('');
-
+    const outcomes = ref<Option[]>([]);
+    const outcome = reactive<Option>({} as Option);
+    const isTransferredOut = computed(() => outcome.label === 'Patient transferred out');
     const enrollmentStatus = computed(() => isEnrolled.value && enrollDate.value 
       ? `Patient enrolled in this porgram on ${ toStandardHisDisplayFormat(enrollDate.value) }`
       : 'Patient is not enrolled in this program'
@@ -169,6 +170,10 @@ export default defineComponent({
       toastWarning('Please fill in all fields');
     }
 
+    const updateOutcome = (o: Option) => {
+      Object.assign(outcome, o);
+    }
+
     const enrollProgram = async () => {
       if(enrollDate.value) {
         patient.setProgramDate(enrollDate.value);
@@ -195,14 +200,22 @@ export default defineComponent({
       program.value = programs.find((l: any) => l.program.name === "HIV PROGRAM");
       if(program.value) {
         enrollDate.value = program.value.date_enrolled;
+        const states= await patient.getProgramOutcomes();
+        outcomes.value = states.map((state: any) => ({
+          label: state.name,
+          value: state.program_workflow_state_id,
+          other: state
+        }));
       }
-      console.log(program.value);
     });
 
     return {
       isEnrolled,
       enrollDate,
       enrollmentStatus,
+      isTransferredOut,
+      outcomes,
+      outcome,
       columns,
       rows,
       tableConfig,
@@ -212,6 +225,7 @@ export default defineComponent({
       saveResults,
       enrollProgram,
       voidProgram,
+      updateOutcome,
     };
   },
 })
