@@ -141,7 +141,7 @@ export default defineComponent({
       table.thTxt("Void"),
     ]]);
 
-    const rows = computed<RowInterface[][]>(() => program.value?.patient_states.map((state: any) => [
+    const rows = computed<RowInterface[][]>(() => program.value?.patient_states.map((state: any, index: number) => [
       table.td(state.name),
       table.td(toStandardHisDisplayFormat(state.start_date)),
       table.td(toStandardHisDisplayFormat(state.end_date)),
@@ -151,6 +151,7 @@ export default defineComponent({
           patient.setStateId(state.patient_state_id);
           await patient.voidState('duplicate / system error');
           toastSuccess('Outcome voided successfully');
+          program.value?.patient_states.splice(index, 1);
         }
       }, {}, 'danger')
     ]) || []);
