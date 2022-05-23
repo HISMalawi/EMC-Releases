@@ -74,6 +74,7 @@ export default defineComponent({
     const showModal = async (component: any, componentProps?: Record<string, any>) => {
       const modal = await modalController.create({
         component,
+        cssClass: 'custom-modal',
         componentProps,
       });
       modal.present();
@@ -92,7 +93,7 @@ export default defineComponent({
           const refresh = await showModal(OutcomeStatus, {
             patientId: props.patientId,
           })
-          
+
         }
       },
       {
