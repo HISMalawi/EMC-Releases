@@ -6,10 +6,7 @@
   </ion-header>
   <ion-content class="ion-padding">
     <ion-badge color="lightblue" class="ion-padding" style="width: 100%;" disabled>
-      Patient is <strong v-if="!isEnrolled">  not </strong> enrolled in porgram.
-      <span v-if="isEnrolled && enrollDate"
-        >Date enrolled is {{ enrollDate }}</span
-      >
+      {{ enrollmentStatus }}
     </ion-badge>
     <ion-grid style="width: 100%">
       <ion-row v-if="!isEnrolled">
@@ -92,10 +89,13 @@ import {
   IonSelect,
   IonCheckbox,
   IonItem,
+  IonBadge,
 } from "@ionic/vue";
 import { toastSuccess, toastWarning } from "@/utils/Alerts";
 import table, { ColumnInterface, RowInterface } from '@/components/DataViews/tables/ReportDataTable';
 import { PatientProgramService } from "@/services/patient_program_service";
+import { isEmpty } from "lodash";
+import HisDate from "@/utils/Date";
 
 export default defineComponent({
   components: {
@@ -115,6 +115,7 @@ export default defineComponent({
     IonCheckbox,
     IonItem,
     ReportTable,
+    IonBadge,
   },
   props: {
     patientId: {
@@ -123,15 +124,22 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const { toStandardHisDisplayFormat } = HisDate
     const patient = new PatientProgramService(props.patientId);
-    const programs = ref<any[]>([]);
-    const isEnrolled = computed(() => programs.value.some(l => l.program.name === "HIV PROGRAM"));
+    const program = ref<Record<string, any>>();
+    const isEnrolled = computed(() => !isEmpty(program.value));
+    const enrollDate = ref('');
+
+    const enrollmentStatus = computed(() => isEnrolled.value && enrollDate.value 
+      ? `Patient enrolled in this porgram on ${ toStandardHisDisplayFormat(enrollDate.value) }`
+      : 'Patient is not enrolled in this program'
+    );
+    
     const columns = ref<ColumnInterface[][]>([[
       table.thTxt("Outcome"),
       table.thTxt("Start Date"),
       table.thTxt("End Date"),
     ]]);
-    const enrollDate = ref('');
 
     const closeModal = (data?: any) => {
       modalController.dismiss(data);
@@ -152,13 +160,10 @@ export default defineComponent({
     }
 
     const voidProgram = async () => {
-      const program = programs.value.find(l => l.program.name === "HIV PROGRAM");
-      if(program) {
-        patient.setPatientProgramId(program.patient_program_id);
-        await patient.voidProgram('duplicate / system error');
-        toastSuccess('Patient voided from program successfully', 1000);
-        return closeModal({ data: "ok" });
-      }
+      patient.setPatientProgramId(program.value?.patient_program_id ||  -1);
+      await patient.voidProgram('duplicate / system error');
+      toastSuccess('Patient voided from program successfully', 1000);
+      return closeModal({ data: "ok" });
     }
 
     const resetResults = () => {
@@ -178,14 +183,19 @@ export default defineComponent({
 
 
     onMounted (async () => {
-      programs.value = await patient.getPrograms();
-      console.log(programs.value);
+      const programs = await patient.getPrograms();
+      program.value = programs.find((l: any) => l.program.name === "HIV PROGRAM");
+      if(program.value) {
+        enrollDate.value = program.value.date_enrolled;
+      }
     });
 
     return {
       isEnrolled,
       enrollDate,
+      enrollmentStatus,
       columns,
+      toStandardHisDisplayFormat,
       closeModal,
       resetResults,
       saveResults,
