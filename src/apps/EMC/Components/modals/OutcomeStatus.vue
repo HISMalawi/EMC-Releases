@@ -67,6 +67,7 @@
       <ion-button color="warning" @click="resetResults" slot="end">Reset</ion-button>
       <ion-button color="success" @click="saveResults" slot="end" v-if="isEnrolled">Save</ion-button>
       <ion-button color="success" @click="enrollProgram" slot="end" v-else>Enroll</ion-button>
+      <ion-button color="danger" @click="voidProgram" v-if="isEnrolled">Void Program</ion-button>
     </ion-toolbar>
   </ion-footer>
 </template>
@@ -91,10 +92,12 @@ import {
   IonSelect,
   IonCheckbox,
   IonItem,
+alertController,
 } from "@ionic/vue";
-import { toastSuccess, toastWarning } from "@/utils/Alerts";
+import { alertConfirmation, toastSuccess, toastWarning } from "@/utils/Alerts";
 import table, { ColumnInterface, RowInterface } from '@/components/DataViews/tables/ReportDataTable';
 import { PatientProgramService } from "@/services/patient_program_service";
+import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 
 export default defineComponent({
   components: {
@@ -150,6 +153,16 @@ export default defineComponent({
       toastWarning('Please select date of enrollment');
     }
 
+    const voidProgram = async () => {
+      const program = programs.value.find(l => l.program.name === "HIV PROGRAM");
+      if(program) {
+        patient.setPatientProgramId(program.patient_program_id);
+        await patient.voidProgram('duplicate / system error');
+        toastSuccess('Patient voided from program successfully', 1000);
+        return closeModal({ data: "ok" });
+      }
+    }
+
     const resetResults = () => {
       console.log('reset');
     };
@@ -180,6 +193,7 @@ export default defineComponent({
       saveResults,
       getPatientOutcomes,
       enrollProgram,
+      voidProgram,
     };
   },
 })
