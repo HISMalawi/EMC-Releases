@@ -93,7 +93,7 @@ export default defineComponent({
           const refresh = await showModal(OutcomeStatus, {
             patientId: props.patientId,
           })
-
+          if(refresh) refreshKey.value++;
         }
       },
       {

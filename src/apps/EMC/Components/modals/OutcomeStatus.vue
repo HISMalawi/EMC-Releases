@@ -34,21 +34,27 @@
               class="box-input ion-margin-top"
               placeholder="Select Outcome"
               :options="outcomes"
-              :value="outcome.label || ''"
-              @onSelect="updateOutcome"
+              :value="outcome?.label || ''"
+              @onSelect="(state) => outcome = state"
             />
           </ion-col>
           <ion-col size="6">
             <ion-label class=" ion-padding-bottom">Outcome Date: </ion-label>
-            <ion-input type="date" class="box-input ion-margin-top" />
+            <ion-input type="date" class="box-input ion-margin-top" v-model="outcomeDate" />
           </ion-col>
           <ion-col size="12" v-if="isTransferredOut">
-            <ion-label class=" ion-padding-bottom">Transfer-In Facility : </ion-label>
-            <ion-input type="number" :min="1" class="box-input ion-margin-top" />
+            <ion-label class=" ion-padding-bottom">Next Facility : </ion-label>
+            <searchable-select-input
+              class="box-input ion-margin-top"
+              placeholder="Select Next Facility"
+              :asyncOptions="getFacilities"
+              :value="nextFacility?.label || ''"
+              @onSelect="(facility) => nextFacility = facility"
+            />
           </ion-col>
-          <ion-col size="12">
-            <ion-button color="warning" @click="resetResults">Reset</ion-button>
-            <ion-button color="success" @click="saveResults">Save</ion-button>
+          <ion-col size="12" class="ion-margin-top">
+            <ion-button color="warning" @click="resetOutcome">Reset</ion-button>
+            <ion-button color="success" @click="saveOutcome">Save</ion-button>
           </ion-col>
         </ion-row>    
         <ion-row class="his-card" style="padding: 0 !important;" :style="{ minHeight: rows.length ? '0' : '30vh'}" >
@@ -97,6 +103,7 @@ import { isEmpty } from "lodash";
 import HisDate from "@/utils/Date";
 import { Option } from "@/components/Forms/FieldInterface";
 import SearchableSelectInput from "../inputs/SearchableSelectInput.vue";
+import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 
 export default defineComponent({
   components: {
@@ -127,9 +134,11 @@ export default defineComponent({
     const program = ref<Record<string, any>>();
     const isEnrolled = computed(() => !isEmpty(program.value));
     const enrollDate = ref('');
+    const outcomeDate = ref('');
     const outcomes = ref<Option[]>([]);
-    const outcome = reactive<Option>({} as Option);
-    const isTransferredOut = computed(() => outcome.label === 'Patient transferred out');
+    const outcome = ref<Option>();
+    const isTransferredOut = computed(() => outcome.value?.label === 'Patient transferred out');
+    const nextFacility = ref<Option>();
     const enrollmentStatus = computed(() => isEnrolled.value && enrollDate.value 
       ? `Patient enrolled in this porgram on ${ toStandardHisDisplayFormat(enrollDate.value) }`
       : 'Patient is not enrolled in this program'
@@ -166,12 +175,33 @@ export default defineComponent({
       modalController.dismiss(data);
     };
 
-    const saveResults = async () => {
-      toastWarning('Please fill in all fields');
+    const saveOutcome = async () => {
+      if(!outcomeDate.value) {
+        toastWarning('Please select an outcome date');
+        return;
+      }
+      if(!outcome.value) {
+        toastWarning('Please select an outcome');
+        return;
+      }
+      patient.setStateDate(outcomeDate.value);
+      patient.setStateId(parseInt(outcome.value.value.toString()));
+      if(isTransferredOut.value) {
+        if(!nextFacility.value) {
+          toastWarning('Please select a facility');
+          return;
+        }
+        await patient.transferOutEncounter(nextFacility.value.other);
+      }
+      await patient.updateState();
+      await toastSuccess('Outcome saved successfully', 1000);
+      closeModal({ data: 'refresh'});
     }
 
-    const updateOutcome = (o: Option) => {
-      Object.assign(outcome, o);
+    const resetOutcome = () => {
+      outcomeDate.value = '';
+      outcome.value = undefined;
+      nextFacility.value = undefined;
     }
 
     const enrollProgram = async () => {
@@ -179,7 +209,7 @@ export default defineComponent({
         patient.setProgramDate(enrollDate.value);
         await patient.enrollProgram();
         toastSuccess('Patient enrolled in program successfully', 1000);
-        return closeModal({ data: "ok" });
+        return closeModal();
       } 
       toastWarning('Please select date of enrollment');
     }
@@ -188,11 +218,7 @@ export default defineComponent({
       patient.setPatientProgramId(program.value?.patient_program_id ||  -1);
       await patient.voidProgram('duplicate / system error');
       toastSuccess('Patient voided from program successfully', 1000);
-      return closeModal({ data: "ok" });
-    }
-
-    const resetResults = () => {
-      console.log('reset');
+      return closeModal();
     }
 
     onMounted (async () => {
@@ -212,8 +238,10 @@ export default defineComponent({
     return {
       isEnrolled,
       enrollDate,
+      outcomeDate,
       enrollmentStatus,
       isTransferredOut,
+      nextFacility,
       outcomes,
       outcome,
       columns,
@@ -221,11 +249,11 @@ export default defineComponent({
       tableConfig,
       toStandardHisDisplayFormat,
       closeModal,
-      resetResults,
-      saveResults,
+      resetOutcome,
+      saveOutcome,
       enrollProgram,
       voidProgram,
-      updateOutcome,
+      getFacilities,
     };
   },
 })
