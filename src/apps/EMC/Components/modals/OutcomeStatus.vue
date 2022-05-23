@@ -92,12 +92,10 @@ import {
   IonSelect,
   IonCheckbox,
   IonItem,
-alertController,
 } from "@ionic/vue";
-import { alertConfirmation, toastSuccess, toastWarning } from "@/utils/Alerts";
+import { toastSuccess, toastWarning } from "@/utils/Alerts";
 import table, { ColumnInterface, RowInterface } from '@/components/DataViews/tables/ReportDataTable';
 import { PatientProgramService } from "@/services/patient_program_service";
-import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 
 export default defineComponent({
   components: {
