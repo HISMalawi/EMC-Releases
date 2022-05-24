@@ -182,7 +182,7 @@ export default defineComponent({
       await this.drilldownAsyncRows(indicator.description, columns, asyncRows)
     },
     exportToCsv() {
-      const headers = ['Indicators', 'Value']
+      const headers = ['Indicator', 'Value']
       const rows = Object.keys(this.indicators).map(k => [k, this.indicators[k]])
       const reportTitle = `${Service.getLocationName()} cohort report ${this.period}`
       toCsv([headers], [
