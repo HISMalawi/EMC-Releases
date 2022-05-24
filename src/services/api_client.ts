@@ -19,11 +19,12 @@ const ApiClient = (() => {
             throw 'Unable to retrieve configuration file/ Invalid config.json'
         }
         try {
-            const { apiURL, apiPort, apiProtocol, appConf } = await response.json()
+            const { apiURL, apiPort, apiProtocol, appConf, apps } = await response.json()
             sessionStorage.setItem("apiURL", apiURL);
             sessionStorage.setItem("apiPort", apiPort);
             sessionStorage.setItem("apiProtocol", apiProtocol);
             sessionStorage.setItem("appConf", JSON.stringify(appConf));
+            sessionStorage.setItem("apps", JSON.stringify(apps))
             return {
                 host: apiURL,
                 port: apiPort,
