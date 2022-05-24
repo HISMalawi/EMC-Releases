@@ -39,11 +39,18 @@
 import { defineComponent, onMounted, PropType, ref, watch } from "vue";
 import { Option } from "@/components/Forms/FieldInterface";
 import {
+  IonHeader,
+  IonContent,
+  IonFooter,
+  IonTitle,
+  IonToolbar,
+  IonButton,
+  IonSearchbar,
+  IonGrid,
   IonCol,
   IonRow,
   IonItem,
   IonLabel,
-  IonInput,
   IonList,
   IonRadioGroup,
   IonRadio,
@@ -81,6 +88,14 @@ export default defineComponent({
     IonList,
     IonRadio,
     IonRadioGroup,
+    IonHeader,
+    IonContent,
+    IonFooter,
+    IonTitle,
+    IonToolbar,
+    IonButton,
+    IonSearchbar,
+    IonGrid,
   },
   setup(props) {
     const filteredList = ref<Option[]>();
