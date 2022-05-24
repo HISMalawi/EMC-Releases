@@ -7,6 +7,9 @@
             :fields="fields"
             :columns="columns"
             reportPrefix="PEPFAR"
+            :config="{
+                showIndex: true
+            }"
             :onReportConfiguration="onPeriod"
             > 
         </report-template>
@@ -31,10 +34,7 @@ export default defineComponent({
         columns: [
             [
                 table.thTxt('', { 
-                    sortable: false,
-                    exportable: false 
-                }),
-                table.thTxt('', { 
+                    colspan: 3,
                     sortable: false,
                     exportable: false 
                 }),
