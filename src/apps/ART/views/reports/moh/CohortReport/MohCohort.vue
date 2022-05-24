@@ -187,7 +187,6 @@ export default defineComponent({
       const reportTitle = `${Service.getLocationName()} cohort report ${this.period}`
       toCsv([headers], [
         ...rows,
-        [],
         [`Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}`],
         [`HIS-Core Version: ${Service.getCoreVersion()}`],
         [`API Version: ${Service.getApiVersion()}`],
