@@ -1,39 +1,38 @@
 <template>
-  <ion-grid style="width: 100%; padding: 0">
-    <ion-row>
-      <ion-col>
-        <ion-title class="ion-text-center ion-margin-vertical">{{ title }}</ion-title>
-      </ion-col>
-    </ion-row>
-    <ion-row v-if="searchable">
-      <ion-col>
-        <ion-input
-          class="box-input"
-          v-model="searchText"
-          type="text"
-          placeholder="Search here"
-        ></ion-input>
-      </ion-col>
-    </ion-row>
-    <ion-row class="list">
-      <ion-col>
-        <ion-list>
-          <ion-radio-group v-model="selectedItem">
-            <ion-item v-for="(item, index) in filteredList" :key="index">
-              <ion-label>{{ item.label }}</ion-label>
-              <ion-radio :value="item"></ion-radio>
-            </ion-item>
-          </ion-radio-group>
-        </ion-list>
-      </ion-col>
-    </ion-row>
-    <ion-row style="border-top: 1px solid #a3a3a3; ">
-      <ion-col>
-        <ion-button class="ion-float-end ion-margin-end" :disabled="!selectedItem" @click="onConfirm">confirm</ion-button>
-        <ion-button  color="danger" @click="onCancel">Cancel</ion-button>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+  <ion-header>
+    <ion-title class="ion-text-center ion-margin-vertical">{{ title }}</ion-title>
+  </ion-header>
+  <ion-content>
+    <ion-grid style="width: 100%; padding: 0">
+      <ion-row v-if="searchable">
+        <ion-col>
+          <ion-searchbar 
+            class="box-input ion-no-margin ion-no-padding"
+            v-model="searchText"
+            placeholder="Search here"
+          />
+        </ion-col>
+      </ion-row>
+      <ion-row class="list">
+        <ion-col>
+          <ion-list>
+            <ion-radio-group v-model="selectedItem">
+              <ion-item v-for="(item, index) in filteredList" :key="index">
+                <ion-label>{{ item.label }}</ion-label>
+                <ion-radio :value="item" slot="start"></ion-radio>
+              </ion-item>
+            </ion-radio-group>
+          </ion-list>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-content>
+  <ion-footer class="ion-padding-horizontal">
+    <ion-toolbar>
+      <ion-button slot="end" :disabled="!selectedItem" @click="onConfirm">confirm</ion-button>
+      <ion-button  color="danger" @click="onCancel">Cancel</ion-button>
+    </ion-toolbar>
+  </ion-footer>
 </template>
 
 <script lang="ts">
@@ -79,13 +78,11 @@ export default defineComponent({
     IonRow,
     IonItem,
     IonLabel,
-    IonInput,
     IonList,
     IonRadio,
     IonRadioGroup,
   },
-  emits: ["onSelect"],
-  setup(props, { emit }) {
+  setup(props) {
     const filteredList = ref<Option[]>();
     const searchText = ref("");
     const selectedItem = ref<Option>();
