@@ -66,6 +66,7 @@ export default defineComponent({
           options: () => this.drugs,
           unload: (val: any) => (this.selectedDrugs = val),
           config: {
+            showKeyboard: true,
             footerBtns: [
               {
                 name: "Select all",
