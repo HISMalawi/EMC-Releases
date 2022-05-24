@@ -318,10 +318,14 @@ export default defineComponent({
                 computedValue: (val: Option[]) => val.map((i: Option) => i.value),
                 options: () => {
                     return this.programs.map((program: any) => {
+                        let isChecked = false
+                        if (this.activity === 'edit') {
+                            isChecked = this.userData.programs.includes(program.programID)
+                        }
                         return {
                             label: program.applicationName,
                             value: program.programID,
-                            isChecked: this.userData.programs.includes(program.programID)
+                            isChecked: isChecked
                         }
                     })
                 },
