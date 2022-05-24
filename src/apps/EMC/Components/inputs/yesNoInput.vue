@@ -1,5 +1,5 @@
 <template>
-  <ion-grid :class="{'ion-no-margin ion-no-padding': !inline}">
+  <ion-grid class="ion-no-margin ion-no-padding">
     <ion-row>
       <ion-col :size="12">
         <ion-label class="ion-margin-end"><b>{{ label }}:</b></ion-label>
