@@ -246,7 +246,7 @@ export default defineComponent({
           "For trainings",
         ]);
       } else {
-        return this.mapVal(["Expired", "Damaged", "For trainings"]);
+        return this.mapVal(["Expired", "Damaged", "Phased out", "Banned", "Missing"]);
       }
     },
     formatDrugs(f: any) {
