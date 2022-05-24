@@ -35,8 +35,8 @@
         color="danger" 
         size="large"
         @click="closeModal"
-        v-if="canClose"> 
-        Close 
+        v-if="noAppPriviledges || canClose"> 
+        Close
       </ion-button>
     </ion-toolbar>
   </ion-footer>
@@ -72,9 +72,18 @@ export default defineComponent({
       default: () => false
     }
   },
+  computed: {
+    noAppPriviledges() {
+      return this.apps.every(app => !app.hasPriviledge);
+    }
+  },
   methods: {
     closeModal() {
-      modalController.dismiss()
+      if (this.noAppPriviledges) {
+        this.$router.push('/login');
+      } else {
+        modalController.dismiss();
+      }
     },
     img(name) {
       return Img(name)
