@@ -4,7 +4,7 @@
     :value="value"
     @click="showOptions"
   >
-    <span style="" v-if="value">{{ value }}</span>
+    <span style="" v-if="value">{{ value.label }}</span>
     <span v-else style="color: #a3a3a3;">{{ placeholder }}</span>
     <ion-icon :icon="caretDown" style="color: #a3a3a3; float: right;"></ion-icon>
   </div>
@@ -24,7 +24,7 @@ export default defineComponent({
   },
   props: {
     value: {
-      type: String,
+      type: Object as PropType<Option>,
     },
     asyncOptions: {
       type: Function as PropType<(filter: string) => Promise<Option[]>>,
