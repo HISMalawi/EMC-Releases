@@ -13,7 +13,7 @@
           />
         </ion-col>
       </ion-row>
-      <ion-row class="list">
+      <ion-row >
         <ion-col>
           <ion-list>
             <ion-radio-group v-model="selectedItem">
@@ -135,10 +135,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped>
-.list {
-  height: 420px;
-  overflow-y: scroll;
-}
-</style>y
