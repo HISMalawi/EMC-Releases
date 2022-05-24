@@ -34,10 +34,11 @@ import popVoidReason from '@/utils/ActionSheetHelpers/VoidReason';
 import HisDate from "@/utils/Date";
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, modalController } from '@ionic/vue';
 import dayjs from 'dayjs';
-import { defineComponent, reactive, ref } from 'vue';
+import { computed, defineComponent, PropType, reactive, ref } from 'vue';
 import ViralLoadInput from '@/apps/EMC/Components/modals/ViralLoadInput.vue';
 import OutcomeStatus from '@/apps/EMC/Components/modals/OutcomeStatus.vue';
 import PatientVisit from '@/apps/EMC/Components/modals/PatientVisit.vue';
+import { PatientObservationService } from '@/services/patient_observation_service';
 
 interface ActionButtonInterface {
   label: string;
@@ -48,8 +49,8 @@ interface ActionButtonInterface {
 
 export default defineComponent({
   props: {
-    patientId: {
-      type: Number,
+    patient: {
+      type: Object as PropType<PatientObservationService>,
       required: true
     },
     startDate:{
@@ -67,6 +68,7 @@ export default defineComponent({
   },
   setup(props) {
     const refreshKey = ref(1000);
+    const patientId = computed(() => props.patient.getID());
     const tableConfig = reactive({
       showIndex: false,
       tableCssTheme: "emc-datatable-theme"
@@ -87,9 +89,7 @@ export default defineComponent({
       {
         label: "Add Visit",
         action: async () => {
-          const refresh = await showModal(PatientVisit, {
-            patientId: props.patientId,
-          })
+          const refresh = await showModal(PatientVisit, { patient: props.patient });
           if(refresh) refreshKey.value++;
         }
       },
@@ -97,7 +97,7 @@ export default defineComponent({
         label: "Update Outcome",
         action:async () => {
           const refresh = await showModal(OutcomeStatus, {
-            patientId: props.patientId,
+            patientId: patientId.value,
           })
           if(refresh) refreshKey.value++;
         }
@@ -106,7 +106,7 @@ export default defineComponent({
         label: "Enter VL Results",
         action: async () => {
           const result = await showModal(ViralLoadInput, {
-            patientId: props.patientId,
+            patientId: patientId.value,
           });
           if(result) refreshKey.value++
         }
@@ -151,7 +151,7 @@ export default defineComponent({
 
     const removeEncounters = async (date: string, index: number, activeRows: any[]) => {
       popVoidReason(async (reason: string) => {
-        const encounters = await EncounterService.getEncounters(props.patientId, {date});
+        const encounters = await EncounterService.getEncounters(patientId.value, {date});
         encounters.forEach(async (encounter: any) => {
           await EncounterService.voidEncounter(encounter.encounter_id, reason);
         })
@@ -161,23 +161,23 @@ export default defineComponent({
         
 
     const getPatientVisits = async () => {
-      const dates = await Patientservice.getPatientVisits(props.patientId, true);
+      const dates = await Patientservice.getPatientVisits(patientId.value, true);
       const rows: RowInterface[][] = [];
 
       for (const date of dates) {
-        const data =  await ProgramService.getCurrentProgramInformation(props.patientId,  date)
+        const data =  await ProgramService.getCurrentProgramInformation(patientId.value,  date)
         let nextAppointment = '';
         let pregnant = '';
         let breastfeeding = '';
         let vlResult = ''
 
         if (data.outcome !== 'Defaulted') {
-          const nDate = await ObservationService.getFirstValueDatetime(props.patientId, 'appointment date', date);
+          const nDate = await ObservationService.getFirstValueDatetime(patientId.value, 'appointment date', date);
           if(nDate) nextAppointment = HisDate.toStandardHisDisplayFormat(nDate)
-          pregnant = await ObservationService.getFirstValueCoded(props.patientId, 'Is patient pregnant', date);
-          breastfeeding = await ObservationService.getFirstValueCoded(props.patientId, 'Is patient breast feeding', date);
+          pregnant = await ObservationService.getFirstValueCoded(patientId.value, 'Is patient pregnant', date);
+          breastfeeding = await ObservationService.getFirstValueCoded(patientId.value, 'Is patient breast feeding', date);
           if(data['viral_load'] === 'N/A') {
-            const vlObs = await ObservationService.getFirstObs(props.patientId, "HIV viral load", date)
+            const vlObs = await ObservationService.getFirstObs(patientId.value, "HIV viral load", date)
             if(vlObs && vlObs.value_text && vlObs.value_numeric) {
               vlResult = vlObs.value_numeric === 1 ? "LDL" : vlObs.value_text + vlObs.value_numeric.toString()
             }

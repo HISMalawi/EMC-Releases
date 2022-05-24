@@ -116,7 +116,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue";
+import { computed, defineComponent, onMounted, PropType, reactive, ref } from "vue";
 import { 
   IonCol, 
   IonGrid, 
@@ -133,7 +133,6 @@ import {
   IonCheckbox, 
 } from "@ionic/vue";
 import { toastSuccess, toastWarning } from "@/utils/Alerts";
-import { PatientProgramService } from "@/services/patient_program_service";
 import { isEmpty } from "lodash";
 import HisDate from "@/utils/Date";
 import { Option } from "@/components/Forms/FieldInterface";
@@ -142,6 +141,7 @@ import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import YesNoInput from "../inputs/yesNoInput.vue";
 import { ConceptService } from "@/services/concept_service";
 import MultiColumnView from "@/components/containers/MultiColumnView.vue";
+import { PatientObservationService } from "@/services/patient_observation_service";
 
 export default defineComponent({
   components: {
@@ -162,14 +162,13 @@ export default defineComponent({
     MultiColumnView
 },
   props: {
-    patientId: {
-      type: Number,
+    patient: {
+      type: Object as PropType<PatientObservationService>,
       required: true
     },
   },
   setup(props) {
     const { toStandardHisDisplayFormat } = HisDate
-    const patient = new PatientProgramService(props.patientId);
     const contraIndications = ref<Option[]>([]);
     const sideEffects = ref<Option[]>([]);
     const closeModal = (data?: any) => {

@@ -18,7 +18,7 @@
       <ion-col>
         <visits-summary
           v-if="patientId !== 0 && startDate"
-          :patientId="patientId"
+          :patient="patient"
           :startDate="startDate"
         />
       </ion-col>
