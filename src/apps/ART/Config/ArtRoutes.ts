@@ -133,6 +133,11 @@ export default [
         component: () => import("@/apps/ART/views/ARTStock/movement.vue")
     },
     {
+        name: "Stock report",
+        path: "/art/stock/report",
+        component: () => import("@/apps/ART/views/ARTStock/StockReport.vue")
+    },
+    {
         name: "Print drug barcode",
         path: "/drug/print",
         component: () => import("@/views/PrintDrug.vue")
