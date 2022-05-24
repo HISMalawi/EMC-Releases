@@ -37,6 +37,7 @@ import dayjs from 'dayjs';
 import { defineComponent, reactive, ref } from 'vue';
 import ViralLoadInput from '@/apps/EMC/Components/modals/ViralLoadInput.vue';
 import OutcomeStatus from '@/apps/EMC/Components/modals/OutcomeStatus.vue';
+import PatientVisit from '@/apps/EMC/Components/modals/PatientVisit.vue';
 
 interface ActionButtonInterface {
   label: string;
@@ -85,7 +86,12 @@ export default defineComponent({
     const actionButtons = ref<ActionButtonInterface[]>([
       {
         label: "Add Visit",
-        action: () => console.log("update outcome")
+        action: async () => {
+          const refresh = await showModal(PatientVisit, {
+            patientId: props.patientId,
+          })
+          if(refresh) refreshKey.value++;
+        }
       },
       {
         label: "Update Outcome",
