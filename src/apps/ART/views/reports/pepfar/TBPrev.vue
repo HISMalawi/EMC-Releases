@@ -62,14 +62,14 @@ export default defineComponent({
             [
                 table.thTxt('Age group'),
                 table.thTxt('Gender'),
-                table.thNum('3HP', { value: '3HP (Started new on ART)'}),
-                table.thNum('6HP', { value: '6HP (Started new on ART)'}),
-                table.thNum('3HP', { value: '3HP (Started previously on ART)'}),
-                table.thNum('6HP', { value: '6HP (Started previously on ART)'}),
-                table.thNum('3HP', { value: '3HP (Completed New on ART)'}),
-                table.thNum('6HP', { value: '6HP (Completed New on ART)'}),
-                table.thNum('3HP', { value: '3HP (Completed previously on ART)'}),
-                table.thNum('6HP', { value: '6HP (Completed previously on ART)'})
+                table.thNum('3HP',{ value: '3HP(Started New on ART)'}),
+                table.thNum('6H', { value: '6H(Started New on ART)'}),
+                table.thNum('3HP',{ value: '3HP(Started Previously on ART)'}),
+                table.thNum('6H', { value: '6H(Started Previously on ART)'}),
+                table.thNum('3H', { value: '3HP(Completed New on ART)'}),
+                table.thNum('6H', { value: '6H(Completed New on ART)'}),
+                table.thNum('3H', { value: '3HP(Completed Previously on ART)'}),
+                table.thNum('6H', { value: '6H(Completed Previously on ART)'})
             ]
         ]
     }),
