@@ -278,7 +278,9 @@ export default defineComponent({
             drug.drug_id
           )}) Expiry date: ${HisDate.toStandardHisDisplayFormat(
             drug.expiry_date
-          )}`,
+          )} 
+          Batch (${drug.batch_number})
+          `,
           value: drug,
         };
       });
