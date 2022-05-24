@@ -5,7 +5,7 @@ import { AppInterface } from "@/apps/interfaces/AppInterface"
 import useSWRV from "swrv"
 import { AuthVariable } from "./auth_service"
 import HisApps from "@/apps/his_apps"
-import { find } from "lodash"
+import { find, isEmpty } from "lodash"
 
 export class IncompleteEntityError extends Error {
     entity: any
@@ -214,21 +214,16 @@ export class Service {
     static delay = (ms: number) => new Promise(res => setTimeout(res, ms))
 
     static getAvailableApps() {
+        const userPrograms = JSON.parse(sessionStorage.getItem('userPrograms') || '[]')
+            .map((app: any) => app['program_id'])
         const apps = []
         for(const app of JSON.parse(sessionStorage.getItem('apps') || '[]')) {
-            const appData = find(HisApps, { applicationName : app.name })
-            if (app.available && appData) {
-                apps.push(appData)
+            const appData: any = find(HisApps, { applicationName : app.name }) || {}
+            const userHasPriviledge = isEmpty(userPrograms) || userPrograms.includes(appData.programID)
+            if (app.available && !isEmpty(appData)) {
+                apps.push({...appData, hasPriviledge: userHasPriviledge})
             }
         }
         return apps
-    }
-
-    static getUserPrograms() {
-        const availableApps = this.getAvailableApps()
-        const userPrograms = JSON.parse(sessionStorage.getItem('userPrograms') || '[]')
-        return userPrograms.map((program: any) => {
-            return find(availableApps, { programID: program['program_id'] })
-        })
     }
 }

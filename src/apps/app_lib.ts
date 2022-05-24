@@ -35,19 +35,13 @@ function getActiveApp(): AppInterface | undefined {
 }
 
 async function selectApplication(context='', canClose=false) {
-    const userApps = Service.getUserPrograms()
-        .map((p: any) => p.applicationName)
-    const apps = Service.getAvailableApps().map((app: any) => {
-        app.disabled = !userApps.includes(app.applicationName)
-        return app
-    })
     const modal = await modalController.create({
         component: ApplicationModal,
         cssClass: "large-modal",
         backdropDismiss: false,
         componentProps: {
             appVersion: Service.getFullVersion(),
-            apps: apps,
+            apps: Service.getAvailableApps(),
             canClose
         }
     })

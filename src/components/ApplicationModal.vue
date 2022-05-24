@@ -16,8 +16,8 @@
           size-sm="12">
         <application-card 
           :class="{ 
-            'inactive' : app.disabled, 
-            'clickable': !app.disabled
+            'inactive' : !app.hasPriviledge, 
+            'clickable': app.hasPriviledge
           }"
           @click="setApplication(app)" 
           :disabled="app.disabled"
@@ -80,7 +80,7 @@ export default defineComponent({
       return Img(name)
     },
     setApplication(app) { 
-      if (!app.disabled) {
+      if (app.hasPriviledge) {
         modalController.dismiss(app) 
       }
     }
