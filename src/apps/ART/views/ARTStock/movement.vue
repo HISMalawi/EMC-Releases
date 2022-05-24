@@ -13,7 +13,9 @@ import { defineComponent } from "vue";
 import { Field, Option } from "@/components/Forms/FieldInterface";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
+import { CHARACTERS_AND_NUMBERS_LO } from "@/components/Keyboard/KbLayouts";
 import Validation from "@/components/Forms/validations/StandardValidations";
+import { DHAVerificationService } from "@/services/DHA_code_service"
 import HisDate from "@/utils/Date";
 import { StockService } from "./stock_service";
 import { toastWarning, toastDanger, toastSuccess } from "@/utils/Alerts";
@@ -42,7 +44,7 @@ export default defineComponent({
         const total = packSize * d.tins;
         const extras = {} as any;
         const res = {
-          'reallocation_code': d.authorization,
+          'reallocation_code': formData.authorization.value,
           quantity: total,
           reason: formData.reasons.value,
         };
@@ -145,7 +147,7 @@ export default defineComponent({
           beforeNext: (_: any, f: any, c: any, {currentFieldContext}: any) => {
             const drugsToStr = (drugs: any) => drugs.map((b: any, i: number) => `${b.label}`).join(' & ')
             const partialEntries = currentFieldContext.drugs.filter((drug: any) =>
-              drug.entries.map((d: any) => !(d.tins && d.authorization)).every(Boolean)
+              drug.entries.map((d: any) => !(d.tins)).every(Boolean)
             )
             if (!isEmpty(partialEntries)) {
               const partialDrugs = drugsToStr(partialEntries)
@@ -156,6 +158,24 @@ export default defineComponent({
           },
           options: () => this.selectedDrugs,
           validation: (val: any) => Validation.required(val),
+        },
+        {
+          id: "authorization",
+          helpText: "Enter authorization code",
+          type: FieldType.TT_TEXT,
+          config: {
+            customKeyboard: [CHARACTERS_AND_NUMBERS_LO, [['Delete']]]
+          },
+          validation: (v: Option) => {
+          if (!v || v && !v.value) {
+            return null
+          }
+          const value = v.value as string
+          const dha = new DHAVerificationService()
+          return !dha.isValidDHACode(value.toUpperCase())
+            ? ['Invalid authorization code']
+            : null  
+          }, 
         },
         {
           id: "reasons",
@@ -192,7 +212,7 @@ export default defineComponent({
           StockService.getShortName(d.drug_id),
           d.tins,
           HisDate.toStandardHisDisplayFormat(d.expiry),
-          d.authorization
+          formData.authorization.value.toUpperCase()
         ]
         if (isRelocation) data.push(formData.relocation_location.label)
         return data
