@@ -20,7 +20,6 @@
             'clickable': app.hasPriviledge
           }"
           @click="setApplication(app)" 
-          :disabled="app.disabled"
           :name="app.applicationName" 
           :details="app.applicationDescription" 
           :programID="app.programID" 
