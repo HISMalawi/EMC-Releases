@@ -596,6 +596,10 @@ export default defineComponent({
           )
           await this.reloadPatient()
           return FlowState.FORCE_EXIT
+        },
+        'viewMergeAuditForNpid': () => {
+          this.$router.push(`/merge/rollback/${this.facts.scannedNpid}`)
+          return FlowState.FORCE_EXIT
         }
       }
       if (state in states) {

@@ -27,7 +27,8 @@ export enum FlowState {
     UPDATE_LOCAL_DDE_DIFFS = 'updateLocalDiffs',
     RESOLVE_DUPLICATE_NPIDS = 'resolveDuplicateNpids',
     ADD_AS_DRUG_REFILL = 'addAsDrugRefill',
-    ADD_AS_EXTERNAL_CONSULTATION = 'addAsExternalConsultation'
+    ADD_AS_EXTERNAL_CONSULTATION = 'addAsExternalConsultation',
+    VIEW_MERGE_AUDIT_FOR_NPID = 'viewMergeAuditForNpid',
 }
 export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = {
     "Do not proceed if patient is not found in the system" : {
@@ -103,11 +104,16 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                             name: 'Close', 
                             slot: 'start', 
                             color: 'primary',
+                        },
+                        {
+                            name: 'NPID Merge history',
+                            slot: 'end',
+                            color: 'success'
                         }
                     ],
                     'his-danger-color'
                 )
-                return FlowState.GO_HOME
+                return action === 'NPID Merge history' ? FlowState.VIEW_MERGE_AUDIT_FOR_NPID : FlowState.GO_HOME
             }
         },
         conditions: {
