@@ -106,14 +106,14 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                             color: 'primary',
                         },
                         {
-                            name: 'NPID Merge history',
+                            name: 'Merge history',
                             slot: 'end',
-                            color: 'success'
+                            color: 'primary'
                         }
                     ],
                     'his-danger-color'
                 )
-                return action === 'NPID Merge history' ? FlowState.VIEW_MERGE_AUDIT_FOR_NPID : FlowState.GO_HOME
+                return action === 'Merge history' ? FlowState.VIEW_MERGE_AUDIT_FOR_NPID : FlowState.GO_HOME
             }
         },
         conditions: {
