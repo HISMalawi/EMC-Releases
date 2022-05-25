@@ -193,6 +193,7 @@ export default defineComponent({
                     docID: patient.getDocID(),
                     birthdate: patient.getBirthdate(),
                     arvNum: patient.getArvNumber(),
+                    npid: patient.getNationalID(),
                     gender: patient.getGender(),
                     homeDistrict: patient.getHomeDistrict(),
                     homeVillage: patient.getHomeVillage(),
