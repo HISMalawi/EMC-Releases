@@ -33,7 +33,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: "hiv clinic consultation",
     name: "HIV clinic consultation",
-    workflowID: 'HIV clinic consultations',
+    workflowID: "HIV clinic consultations",
     taskCompletionChecklist: [
       'Medication orders'
     ],
