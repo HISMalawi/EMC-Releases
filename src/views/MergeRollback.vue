@@ -21,6 +21,7 @@
         <ion-footer> 
             <ion-toolbar color="dark">
                 <ion-button 
+                    @click="cancel"
                     color="danger" 
                     size="large" 
                     slot="start"> 
@@ -127,6 +128,10 @@ export default defineComponent({
             })
         })
 
+        function cancel() {
+            router.back()
+        }
+
         async function rollback() {
             const ok = await MergingService.rollback(patientID.value)
             if (ok) {
@@ -137,6 +142,7 @@ export default defineComponent({
         }
 
         return {
+            cancel,
             isReversible,
             patientInfo,
             rollback,
