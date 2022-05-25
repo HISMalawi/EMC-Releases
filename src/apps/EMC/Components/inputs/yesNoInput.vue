@@ -6,9 +6,9 @@
         <br v-if="!inline"><br v-if="!inline">
         <ion-radio-group :value="value" @ionChange="onSelect">
           <span class="ion-margin-start">Yes</span>
-          <ion-radio class="ion-margin-start" slot="start" :value="1" />
+          <ion-radio class="ion-margin-start" slot="start" value="Yes" />
           <span class="ion-margin-start">No</span>
-          <ion-radio class="ion-margin-start" slot="start" :value="0" />
+          <ion-radio class="ion-margin-start" slot="start" value="No" />
         </ion-radio-group>
       </ion-col>
     </ion-row>
@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, PropType } from "vue";
 import { IonRadioGroup, IonRadio, IonGrid, IonRow, IonCol, IonItem, IonLabel } from "@ionic/vue";
 
 export default defineComponent({
@@ -27,8 +27,7 @@ export default defineComponent({
       required: true,
     },
     value: {
-      type: Number,
-      default: -1,
+      type: String as PropType<"Yes" | "No">,
     },
     inline: {
       type: Boolean,
@@ -46,7 +45,7 @@ export default defineComponent({
   emits: ["onSelect"],
   setup(_, { emit }) {
     const onSelect = (evt: Event) => {
-      emit("onSelect", parseInt((evt.target as HTMLInputElement).value));
+      emit("onSelect", (evt.target as HTMLInputElement).value);
     };
     return {
       onSelect,
