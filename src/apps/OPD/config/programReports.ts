@@ -1,4 +1,21 @@
 import { FolderInterface } from "@/apps/interfaces/AppInterface"
+import { Service } from "@/services/service"
+
+const centralHospitals = [
+    "Queen Elizabeth Central Hospital",
+    "Kamuzu Central Hospital",
+    "Mzuzu Central Hospital",
+    "Zomba Central Hospital"
+]
+
+function isFacilictyCentralHospital(): boolean {
+    for(const name of centralHospitals) {
+        if (name == Service.getLocationName()) {
+            return true
+        }
+    }
+    return false
+}
 
 export const REPORTS: FolderInterface[] = [
     {
@@ -38,6 +55,12 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'HMIS 15 Report',
                 pathName: 'hmis_15',
+                condition: () => !isFacilictyCentralHospital()
+            },
+            {
+                name: 'HMIS 17 Report',
+                pathName: 'hmis_17',
+                condition: () => isFacilictyCentralHospital()
             }
 
         ]

@@ -51,7 +51,7 @@ export default defineComponent({
     reportID: -1 as any,
     periodLabel: 'Period',
     periodDates: '' as string,
-    reportName: 'HMIS 15',
+    reportName: 'HMIS 17',
     TotalOPDVisits: 0 as number,
     clinicName: HMISReportService.getLocationName(),
     reportReady: false as boolean,
@@ -81,7 +81,7 @@ export default defineComponent({
         'end_date': HisDate.toStandardHisFormat(config.end_date)
       })
 
-      const request = await this.report.requestHMIS15(data)
+      const request = await this.report.requestHMIS17(data)
       const OPDVisitsRequest = await this.report.getOPDVisits(this.report.registrationRequestParams())
       if (request.ok && OPDVisitsRequest.ok) {
             data.regenerate = false

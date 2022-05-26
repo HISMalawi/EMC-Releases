@@ -26,6 +26,10 @@ export class HMISReportService extends OpdReportService {
         return `generate_hmis_15_report`
     }
 
+    private HMIS17Url() {
+        return `generate_hmis_17_report`
+    }
+
     private OPDVistisUrl() {
         return `registration`
     }
@@ -37,6 +41,13 @@ export class HMISReportService extends OpdReportService {
     requestHMIS15(params: any) {
         return OpdReportService.ajxGet(
             this.HMIS15Url(), params
+        )
+    }
+
+
+    requestHMIS17(params: any) {
+        return OpdReportService.ajxGet(
+            this.HMIS17Url(), params
         )
     }
 

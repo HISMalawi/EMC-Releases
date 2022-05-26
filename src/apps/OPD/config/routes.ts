@@ -120,6 +120,11 @@ export default [
         name: 'hmis_15',
         path: 'hmis_15',
         component: () => import('@/apps/OPD/views/reports/moh/HMIS/HMIS15.vue')
+      },
+      {
+        name: 'hmis_17',
+        path: 'hmis_17',
+        component: () => import('@/apps/OPD/views/reports/moh/HMIS/HMIS17.vue')
       }
     ]
   },
