@@ -205,6 +205,7 @@ export default defineComponent({
           helpText: "Recommended plan of care",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
+          condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
           options: () =>
             this.mapOptions([
               'Hysterectomy',
@@ -219,6 +220,8 @@ export default defineComponent({
           id: "patient_outcome",
           helpText: "Patient outcome",
           type: FieldType.TT_SELECT,
+          //get clarification on this.
+          // condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
           validation: (val: any) => Validation.required(val),
           options: () =>
             this.mapOptions([
