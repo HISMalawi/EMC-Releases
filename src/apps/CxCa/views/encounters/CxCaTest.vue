@@ -311,6 +311,18 @@ export default defineComponent({
               label: "Not applicable",
               value: "Not applicable",
             },
+            {
+              label: "Provider not available",
+              value: "Provider NOT available",
+            },
+            {
+              label: "Services not available",
+              value: "Services NOT available",
+            },
+            {
+              label: "Chemotherapy",
+              value: "Chemotherapy",
+            },
           ],
           computedValue: (value: any) => ({
             obs: this.assessment.buildValueCoded("Reason for NOT offering CxCa", value.value)
