@@ -65,7 +65,7 @@ export default defineComponent({
           flows[conceptName] = conceptID;
         });
       });
-      const stateValue = formData.patient_outcome.value;
+      const stateValue = formData.patient_outcome ? formData.patient_outcome.value : 'Continue follow-up';
       const state = {
         'location_id': ProgramService.getLocationName(),
         state: flows[stateValue],
@@ -220,8 +220,7 @@ export default defineComponent({
           id: "patient_outcome",
           helpText: "Patient outcome",
           type: FieldType.TT_SELECT,
-          //get clarification on this.
-          // condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
+          condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
           validation: (val: any) => Validation.required(val),
           options: () =>
             this.mapOptions([
