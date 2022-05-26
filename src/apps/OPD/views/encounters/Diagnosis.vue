@@ -13,6 +13,8 @@ import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { isEmpty } from 'lodash';
 import { ConceptName } from '@/interfaces/conceptName';
+import { OrderService } from '@/services/order_service';
+import { alertConfirmation } from '@/utils/Alerts';
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -22,13 +24,13 @@ export default defineComponent({
     notesService: {} as any,
     diagnosisList: [] as Array<any>,
     diagnosisService: {} as any,
-    malariaTestResult: null as null | string
+    malariaTestResult: 'No' as string
   }),
   watch: {
     ready: {
       async handler(isReady: boolean) {
         if(isReady){
-          this.malariaTestResult = await PatientDiagnosisService.getMalariaTestResult(this.patientID)  
+          this.malariaTestResult = await OrderService.getLatestMalariaTestResult(this.patientID)
           this.notesService = new ClinicalNotesService(this.patientID, this.providerID)
           this.diagnosisService = new PatientDiagnosisService(this.patientID, this.providerID)
           this.diagnosisList = await PatientDiagnosisService.getDiagnosis()
@@ -60,13 +62,13 @@ export default defineComponent({
         label: item.name, value: item.name, other: item.concept_id
       })).sort((a, b) => a.label < b.label ? -1 : a.label > b.label ? 1 : 0)
     },
-    checkMalariaResult(data: Array<any>){
+    async checkMalariaResult(data: Array<any>){
       const malaria = data.find(o => o.label === 'Malaria')      
       if(malaria) {
-        if(!this.malariaTestResult) return ['No malaria test result found']
-        if(this.malariaTestResult === 'Negative') return [`Negative malaria test results detected`]
+        if(this.malariaTestResult === "Positive") return true
+        return await alertConfirmation(`Patient has ${this.malariaTestResult} malaria test result. Do you want to continue?`)
       }
-      return null
+      return true
     },
     getFields(): Array<Field>{
       return [
@@ -74,11 +76,9 @@ export default defineComponent({
           id: 'primary_diagnosis',
           helpText: 'Select primary diagnosis',
           type: FieldType.TT_MULTIPLE_SELECT,
-          validation: (data: any) => this.validateSeries([
-            () => Validation.required(data),
-            () => this.checkMalariaResult(data)
-          ]),
+          validation: (data: any) => Validation.required(data),
           options: () => this.mapListToOptions(this.diagnosisList),
+          beforeNext: async (data: any) => await this.checkMalariaResult(data),
           computedValue: (options: Array<Option>) => ({
             tag: 'diagnosis',
             obs: options.map(({other}) => 
@@ -97,7 +97,7 @@ export default defineComponent({
           helpText: 'Select secondary diagnosis',
           type: FieldType.TT_MULTIPLE_SELECT,
           options: () => this.mapListToOptions(this.diagnosisList),
-          validation: (data: any) => this.checkMalariaResult(data),
+          beforeNext: async (data: any) => await this.checkMalariaResult(data),
           computedValue: (options: Array<Option>) => ({
             tag: 'diagnosis',
             obs: options.map(({other}) => 

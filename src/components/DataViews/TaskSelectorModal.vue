@@ -15,6 +15,7 @@
           @click="doTask(taskItem)"
           :title="taskItem.name.toUpperCase()"
           :description="taskItem.description"
+          :taskCompleted="taskItem.taskCompleted"
           :icon="img(taskItem.icon)">
         </task-card>
      </ion-col>
@@ -44,6 +45,7 @@ import {
   modalController 
 } from "@ionic/vue"; 
 import { isEmpty } from "lodash";
+import { alertConfirmation, toastWarning } from "@/utils/Alerts";
 
 export default defineComponent({
   components: { 
@@ -106,7 +108,15 @@ export default defineComponent({
     async closeModal() {
       await modalController.dismiss({})
     },
-    doTask(taskItem: TaskInterface) {
+    async doTask(taskItem: TaskInterface) {
+      if (typeof taskItem.taskCompleted === 'boolean' 
+        && taskItem?.taskCompleted) {
+        if (!(await alertConfirmation(
+          'This task was already completed. Do you want to continue?'
+          ))) { 
+          return
+        }
+      }
       if (taskItem.action) {
         taskItem.action(this.taskParams, this.$router)
       } else if (taskItem.url) {

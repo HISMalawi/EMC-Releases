@@ -29,6 +29,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: "appointment",
     name: "Manage Appointments",
     workflowID: "Manage Appointments",
+    encounterTypeName: 'appointment',
     icon: "appointment.png"
   },
 ]

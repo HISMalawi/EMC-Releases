@@ -295,16 +295,6 @@ export default defineComponent({
           computedValue: (value: any) => ({
             obs: this.assessment.buildValueCoded("CxCa screening method", value.value)
           }),
-          unload: async (value: any) => {
-            if (value.value === "VIA") {
-              this.obs.push(
-                this.assessment.buildValueCoded(
-                  "Waiting for test results",
-                  "No"
-                )
-              );
-            }
-          },
         },
         {
           id: "waiting_for_lab_tests",

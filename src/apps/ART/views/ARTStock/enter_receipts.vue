@@ -16,6 +16,7 @@ import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations";
 import HisDate from "@/utils/Date";
+import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { StockService } from "./stock_service";
 import { toastDanger, toastSuccess, toastWarning } from "@/utils/Alerts";
 import { isEmpty } from "lodash";
@@ -45,6 +46,34 @@ export default defineComponent({
     getFields(): Array<Field> {
       return [
         {
+          id: "transfer_origination",
+          helpText: "Select where stock came from",
+          type: FieldType.TT_SELECT,
+          options: () => [
+            {
+              label: "DHA",
+              value: "DHA",
+            },
+            {
+              label: "Other location",
+              value: "Other location",
+            },
+          ],
+        },
+        {
+          id: "transfer_location",
+          helpText: "Location",
+          type: FieldType.TT_SELECT,
+          validation: (val: Option) => Validation.required(val),
+          condition: (val: any) => val.transfer_origination.value === "Other location",
+          options: (_: any, filter = "") => getFacilities(filter),
+          computedValue: (val: Option) => val.label,
+          config: {
+            showKeyboard: true,
+            isFilterDataViaApi: true,
+          },
+        },
+        {
           id: "barcode",
           helpText: "Scan barcode",
           type: FieldType.TT_BARCODE,
@@ -66,6 +95,7 @@ export default defineComponent({
           options: () => this.drugs,
           unload: (val: any) => (this.selectedDrugs = val),
           config: {
+            showKeyboard: true,
             footerBtns: [
               {
                 name: "Select all",
@@ -156,10 +186,12 @@ export default defineComponent({
     prepDrugs(formdata: any) {
       const items: any[] = [];
       const barcode = this.barcode;
+      const location = formdata.transfer_origination.value === "DHA" ? null : formdata.transfer_location.value;
       formdata.enter_batches.forEach((el: any) => {
         const element = el.value;
         items.push({
           'batch_number': element.batchNumber,
+          'location_id': location,
           items: [
             {
               'barcode': barcode,

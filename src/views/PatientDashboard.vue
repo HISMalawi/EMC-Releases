@@ -236,7 +236,7 @@ import EncounterView from "@/components/DataViews/DashboardEncounterModal.vue"
 import CardDrilldown from "@/components/DataViews/DashboardTableModal.vue"
 import { WorkflowService } from "@/services/workflow_service"
 import { toastSuccess, alertConfirmation, toastDanger } from "@/utils/Alerts";
-import _, { isEmpty, uniq } from "lodash"
+import _, { isArray, isEmpty, uniq } from "lodash"
 import MinimalToolbar from "@/components/PatientDashboard/Poc/MinimalToolbar.vue"
 import FullToolbar from "@/components/PatientDashboard/Poc/FullToolbar.vue"
 import {
@@ -277,6 +277,7 @@ import {
 import { EncounterService } from '@/services/encounter_service'
 import { ConceptService } from "@/services/concept_service"
 import { PersonService } from "@/services/person_service"
+import { TaskInterface } from "@/apps/interfaces/TaskInterface"
 export default defineComponent({
     components: {
         IonSegment,
@@ -336,7 +337,8 @@ export default defineComponent({
         labOrderCardItems: [] as Array<Option>,
         alertCardItems: [] as Array<Option>,
         patientCards: [] as Array<any>,
-        appVersion: ProgramService.getFullVersion()
+        appVersion: ProgramService.getFullVersion(),
+        sessionEncounters: [] as Encounter[]
     }),
     computed: {
         patientIsset(): boolean {
@@ -380,10 +382,10 @@ export default defineComponent({
             this.patient = await this.fetchPatient(this.patientId)
             try {
                 this.patientProgram = await ProgramService.getProgramInformation(this.patientId)
-                this.programCardInfo = await this.getProgramCardInfo(this.patientProgram) || []
             } catch (e) {
                 console.warn(e)
             }
+            this.programCardInfo = await this.getProgramCardInfo(this.patientProgram) || []
             this.patientCardInfo = this.getPatientCardInfo(this.patient)
             this.currentDate = HisDate.currentDisplayDate()
             this.sessionDate = this.toDate(ProgramService.getSessionDate())
@@ -394,6 +396,13 @@ export default defineComponent({
             this.programID = ProgramService.getProgramID()
             this.updateCards()
         },
+        async showLoader() {
+            const loading = await loadingController.create({
+                message: 'Please wait....',
+                backdropDismiss: false
+            })
+            await loading.present()
+        },
         toDate(date: string | Date) {
             return HisDate.toStandardHisDisplayFormat(date)
         },
@@ -401,12 +410,22 @@ export default defineComponent({
             return HisDate.toStandardHisTimeFormat(date)
         },
         async loadCardData(date: string) {
-            this.encounters = await EncounterService.getEncounters(this.patientId, {date})
-            this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
-            this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
-            this.medicationCardItems = this.getMedicationCardInfo(this.medications)
-            this.labOrderCardItems = await this.getLabOrderCardInfo(date)
-            this.updateCards()
+            try {
+                await this.showLoader()
+                this.encounters = await EncounterService.getEncounters(this.patientId, {date})
+                this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
+                this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
+                this.medicationCardItems = this.getMedicationCardInfo(this.medications)
+                this.labOrderCardItems = await this.getLabOrderCardInfo(date)
+                // Track encounters recorded on system session date
+                if (date === ProgramService.getSessionDate()) { 
+                   this.sessionEncounters = this.encounters
+                }
+                this.updateCards()
+            } catch(e) {
+                toastDanger(`${e}`)
+            }
+            loadingController.dismiss()
         },
         updateCards() {
             this.patientCards = [
@@ -480,7 +499,13 @@ export default defineComponent({
             const d = this.visitDates.concat(dates)
                 .map(d => d.value as string)
                 .sort((a, b) => new Date(a) > new Date(b) ? 0 : 1)
-            this.visitDates = uniq(d).map(d => ({ label: this.toDate(d), value: d }))
+            this.visitDates = uniq(d).map(d => ({ 
+                label: this.toDate(d), 
+                value: d,
+                other: {
+                    isActive: d === ProgramService.getSessionDate()
+                }
+            }))
         },
         getNextTask(patientId: number) {
             return WorkflowService.getNextTaskParams(patientId)
@@ -504,7 +529,7 @@ export default defineComponent({
         },
         getProgramCardInfo(info: any) {
            if ('formatPatientProgramSummary' in this.app) {
-             return this.app.formatPatientProgramSummary(info)
+             return this.app.formatPatientProgramSummary(isEmpty(info) ? this.patient : info)
            }
         },
         getActivitiesCardInfo(encounters: Array<Encounter>) {
@@ -517,14 +542,10 @@ export default defineComponent({
                     id: encounter.encounter_id,
                     columns: ['Observation', 'Value', 'Time'],
                     onVoid: async (reason: any) => {
-                        const loading = await loadingController
-                            .create({
-                            message: 'Please wait....',
-                            backdropDismiss: false
-                        })
-                        await loading.present()
                         try {
+                            await this.showLoader()
                             await EncounterService.voidEncounter(encounter.encounter_id, reason)
+                            loadingController.dismiss()
                             /**Refresh card data*/
                             await this.loadCardData(this.activeVisitDate as string)
                             this.nextTask = await this.getNextTask(this.patientId)
@@ -532,7 +553,6 @@ export default defineComponent({
                         } catch (e) {
                             toastDanger(e)
                         }
-                        loadingController.dismiss()
                     },
                     getRows: async () => {
                         const data = []
@@ -592,10 +612,38 @@ export default defineComponent({
                 await this.init()
             }
         },
+        /** 
+         * Loads all patient program tasks. Perfoms additional checks
+         * to ensure that tasks completed on current session date are marked
+        */
         async showTasks() {
             if ('primaryPatientActivites' in this.app) {
-                const encounters = this.app.primaryPatientActivites
-                this.openModal(encounters, 'Select Task', TaskSelector)
+                // Group encounters by encounter type name with the value being observation concept names.
+                // Observations concept names are later used to identify if key data was recorded for the task to be marked as done
+                const encounters = this.sessionEncounters.reduce((accum: any, encounter: Encounter) => {
+                    accum[encounter.type.name.toLowerCase()] = encounter.observations
+                        .reduce((concepts: any, obs: any) => concepts.concat(obs.concept.concept_names), [])
+                        .map((concept: any) => concept.name.toLowerCase())
+                    return accum
+                }, {})
+                const tasks = [...this.app.primaryPatientActivites].map(
+                    (task: TaskInterface) => {
+                        const taskName = (task.encounterTypeName || task.name).toLowerCase()
+                        // check if key concept names from a task are present in encounters
+                        // to mark it as completed
+                        if (typeof task.taskCompletionChecklist === 'object') {
+                            task.taskCompleted = task.taskCompletionChecklist.every(
+                                item => isArray(encounters[taskName])
+                                    && encounters[taskName].includes(item.toLowerCase())
+                            )
+                        } else {
+                            // for tasks that dont have key concepts defined, just check presence of 
+                            // the encounter itself
+                            task.taskCompleted = !isEmpty(encounters[taskName])
+                        }
+                        return task
+                    })
+                this.openModal(tasks, 'Tasks for', TaskSelector, this.sessionDate)
             }
         },
         async showOptions() {
@@ -604,15 +652,15 @@ export default defineComponent({
                 this.openModal(other, 'Select Activity', TaskSelector)
             }
         },
-        async openModal(items: any, title: string, component: any) {
-            const date = this.toDate(this.activeVisitDate.toString())
+        async openModal(items: any, title: string, component: any, date='') {
+            const displayDate = date || this.toDate(this.activeVisitDate.toString())
             const modal = await modalController.create({
                 component: component,
                 backdropDismiss: false,
                 cssClass: "large-modal",
                 componentProps: {
                     items,
-                    title: `${title}: ${date}`,
+                    title: `${title}: ${displayDate}`,
                     taskParams: { 
                         patient: this.patient.getObj(), 
                         program: this.patientProgram,

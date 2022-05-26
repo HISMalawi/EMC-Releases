@@ -20,6 +20,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: 'hiv status',
     name: 'HIV STatus',
     icon: 'aids.png',
+    encounterTypeName: 'update hiv status',
     availableOnActivitySelection: false
   },
   {
@@ -60,12 +61,22 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: 'prescription',
     name: 'Prescription',
+    encounterTypeName: 'Treatment',
     icon: 'drugs-given.png'
   },
   {
     id: 'dispensation',
     name: 'Dispensation',
+    encounterTypeName: 'dispensing',
     icon: 'dispensing.png',
     availableOnActivitySelection: false
+  },
+]
+
+export const SECONDARY_ACTIVITIES: TaskInterface[] = [
+  {
+    id: 'radiology examination',
+    name: 'radiology examination',
+    icon: 'radiology_types.png'
   },
 ]

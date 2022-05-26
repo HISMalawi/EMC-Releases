@@ -45,6 +45,8 @@ import AncLmpDateInput from "@/components/FormElements/AncLmpDateInput.vue"
 import DrugTransferInQty from "@/components/FormElements/DrugTransferInput.vue"
 import HisGridSelector from "@/components/FormElements/HisGridSelector.vue"
 import AncDrugSetInput from "@/components/FormElements/AncDrugSetInput.vue"
+import RadiologyPicker from "@/components/FormElements/HisRadiologyPicker.vue"
+import PrescriptionInput from "@/components/FormElements/HisPrescriptionInput.vue"
 
 // Reference names for BaseFormComponents
 export enum FieldType {
@@ -87,6 +89,7 @@ export enum FieldType {
     TT_BATCH_VERIFICATION = 'batch-verification',
     TT_BATCH_MOVEMENT = 'batch-movement',
     TT_COMPLAINTS_PICKER = 'complaints-picker',
+    TT_RADIOLOGY_PICKER = 'radiology-picker',
     TT_IP_ADDRESS = 'IPAddressInput',
     TT_TEXT_BANNER = 'text-banner',
     TT_DRUG_DISPENSER = 'drug-dispenser',
@@ -94,8 +97,9 @@ export enum FieldType {
     TT_ANC_PREGNANCY_INPUT_CONFIG = 'anc-pregnancy-info-config',
     TT_ANC_PREGNANCY_DETAILS_INPUT = 'anc-pregnancy-details-input',
     TT_ANC_LMP_DATE_INPUT = 'anc-lmp-date-input',
+    TT_ANC_DRUGSET_INPUT = 'AncDrugSetInput',
     TT_DRUG_TRANSFER_IN = 'drug-transfer-in-qty',
-    TT_ANC_DRUGSET_INPUT = 'AncDrugSetInput'
+    TT_PRESCRIPTION_INPUT = 'prescription-input'
 }
 
 // Components to be rendered
@@ -146,5 +150,7 @@ export const BaseFormComponents = {
     AncLmpDateInput,
     DrugTransferInQty,
     HisGridSelector,
-    AncDrugSetInput
+    AncDrugSetInput,
+    RadiologyPicker,
+    PrescriptionInput
 }

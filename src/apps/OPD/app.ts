@@ -1,6 +1,6 @@
 import { AppInterface, GeneralDataInterface } from '@/apps/interfaces/AppInterface';
 import HomeOverview from "@/apps/OPD/components/HomeOverview.vue";
-import { PRIMARY_ACTIVITIES } from '@/apps/OPD/config/programActivities';
+import { PRIMARY_ACTIVITIES, SECONDARY_ACTIVITIES } from '@/apps/OPD/config/programActivities';
 import { REPORTS } from '@/apps/OPD/config/programReports';
 import opdRoutes from '@/apps/OPD/config/routes';
 import { PatientProgramService } from '@/services/patient_program_service';
@@ -10,9 +10,11 @@ import { Observation } from '@/interfaces/observation';
 import { OrderService } from '@/services/order_service';
 import { RelationshipService } from '@/services/relationship_service';
 import { Order } from '@/interfaces/order';
+import {PROPERTIES} from "@/apps/OPD/config/globalPropertySettings"
 import { selectActivities } from '@/utils/WorkflowTaskHelper';
 import Validation from '@/components/Forms/validations/StandardValidations';
-
+import { Patientservice } from '@/services/patient_service';
+import { ObservationService } from '@/services/observation_service';
 
 async function onRegisterPatient(patientId: number) {
   const program = new PatientProgramService(patientId)
@@ -28,14 +30,12 @@ async function onRegisterPatient(patientId: number) {
 }
 
 async function formatPatientProgramSummary(data: any) {
-  // TODO: refactor core ProgramService to allow programs specify end-points for 
-  // getting program information summary
-  const nationalID = (data && data.national_id) ? data.national_id : ''
-  const hivStatus = (data && data.hiv_status) ? data.hiv_status : ''
+  const patient = new Patientservice(data.patient)
+  const hivStatus = await ObservationService.getFirstValueText(patient.getID(), 'HIV Status')
 
   return [
-    { label: 'Malawi National ID', value: nationalID },
-    { label: 'HIV Status', value: hivStatus }
+    { label: 'Malawi National ID', value: patient.getMWNationalID() },
+    { label: 'HIV Status', value: hivStatus || 'Unknown' },
   ]
 }
 
@@ -114,8 +114,9 @@ const OPD: AppInterface = {
   appRoutes: opdRoutes,
   programReports: REPORTS,
   primaryPatientActivites: PRIMARY_ACTIVITIES,
-  secondaryPatientActivites: [],
+  secondaryPatientActivites: SECONDARY_ACTIVITIES,
   homeOverviewComponent: HomeOverview,
+  globalPropertySettings: PROPERTIES,
   onRegisterPatient,
   formatPatientProgramSummary,
   confirmationSummary,

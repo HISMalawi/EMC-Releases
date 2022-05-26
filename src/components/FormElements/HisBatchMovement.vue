@@ -28,17 +28,6 @@
                   </ion-input>
                 </ion-item>
               </ion-col>
-              <ion-col> 
-                <ion-item> 
-                  <ion-label position="floating">Authorisation code</ion-label>
-                  <ion-input 
-                    readonly 
-                    placeholder="***********" 
-                    :value="entry.authorization" 
-                    @click="enterAuth(ind)">
-                  </ion-input>
-                </ion-item>
-              </ion-col>
             </ion-row>
           </ion-grid>
         </ion-col>
@@ -60,7 +49,6 @@ import {
   modalController,
 } from "@ionic/vue";
 import { find, isEmpty } from "lodash";
-import { DHAVerificationService } from "@/services/DHA_code_service"
 import { FieldType } from "../Forms/BaseFormElements";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Field, Option } from "../Forms/FieldInterface";
@@ -95,8 +83,7 @@ export default defineComponent({
       )
       incomingDrugs.forEach((element: any) => {
         const val = {
-          tins: null,
-          authorization: null,
+          tins: null
         };
         const d = {
           label: element.label,
@@ -118,30 +105,6 @@ export default defineComponent({
     },
     setDrugValue(index: number, type: string, data: Option | null) {
       this.drugs[this.selectedDrug].entries[index][type] = data ? data.value : ''
-    },
-    enterAuth(index: number) {
-      this.launchKeyPad({
-        id: 'auth',
-        helpText: this.getModalTitle('Enter Authorization'),
-        type: FieldType.TT_TEXT,
-        defaultValue: () => this.getDrugValue(index, 'authorization'),
-        validation: (v: Option) => {
-          if (!v || v && !v.value) {
-            return null
-          }
-          const value = v.value as string
-          const dha = new DHAVerificationService()
-          return !dha.isValidDHACode(value.toUpperCase())
-            ? ['Invalid authorization code']
-            : null
-        }
-      }, 
-      (v: Option) => {
-        const auth = {...v}
-        auth.value = `${v.value}`.toUpperCase()
-        auth.label = `${v.label}`.toUpperCase()
-        this.setDrugValue(index, 'authorization', auth)
-      })
     },
     enterTins(index: number) {
       this.launchKeyPad({
@@ -179,8 +142,7 @@ export default defineComponent({
     },
     validateEntry(drug: any) {
       return (
-        !isEmpty(drug.tins) &&
-        !isEmpty(drug.authorization) 
+        !isEmpty(drug.tins)
       );
     },
   },
@@ -211,7 +173,6 @@ export default defineComponent({
       this.drugs = this.drugs.map((d: any) => {
         d.entries = d.entries.map((e: any) => {
           e.tins = null
-          e.authorization = null
           return e
         })
         return d

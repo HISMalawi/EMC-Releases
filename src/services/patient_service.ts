@@ -371,7 +371,6 @@ export class Patientservice extends Service {
 
     patientIsComplete() {
         const attributes = [
-            this.getNationalID(),
             this.getGender(),
             this.getBirthdate(),
             this.getGivenName(),
@@ -404,5 +403,4 @@ export class Patientservice extends Service {
         }
         return addressOBJ;
     }
-
 }
