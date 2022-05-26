@@ -186,7 +186,7 @@ export default defineComponent({
             ]);
           },
           condition(formData: any) {
-            return formData.screening_result.value !== "VIA Negative";
+            return !['VIA Negative', 'No visible Lesion'].includes(formData.screening_result.value);
           },
           computedValue: (value: any) => ({
             obs: this.screeningResult.buildValueCoded('Directly observed treatment option', value.value)
@@ -220,7 +220,6 @@ export default defineComponent({
             return this.mapOptions([
               "Further Investigation and Management",
               "Large Lesion (Greater than 75 percent)",
-              "Suspect cancer",
               "Unable to treaat client",
               "Treatment not available",
               "Other conditions",
