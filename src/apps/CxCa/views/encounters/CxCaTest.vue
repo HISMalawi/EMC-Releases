@@ -297,18 +297,6 @@ export default defineComponent({
           }),
         },
         {
-          id: "waiting_for_lab_tests",
-          helpText: "Waiting for lab results",
-          type: FieldType.TT_SELECT,
-          validation: (val: any) => Validation.required(val),
-          condition: (formData: any) =>
-            !formData.screening_method.value.match(/VIA|EXAM/i),
-          options: () => this.yesNoOptions(),
-          computedValue: (value: any) => ({
-            obs: this.assessment.buildValueCoded("Waiting for test results", value.value)
-          }),
-        },
-        {
           id: "reason_for_no_cxca",
           helpText: "Reason for NOT offering CxCa screening",
           type: FieldType.TT_SELECT,
