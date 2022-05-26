@@ -17,7 +17,6 @@
     "@ionic-native/barcode-scanner": "^5.36.0",
     "@ionic/vue": "^5.4.0",
     "@ionic/vue-router": "^5.4.0",
-    "@ionited/tooltip-vue": "^0.1.2",
     "@popperjs/core": "^2.10.1",
     "@types/lodash": "^4.14.170",
     "apexcharts": "^3.26.1",
