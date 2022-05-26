@@ -187,7 +187,7 @@ export default defineComponent({
           validation: (val: any) => Validation.required(val),
           
           condition: (formData: any) =>
-            formData.reason_for_visit.value !== "Initial screening",
+            formData.reason_for_visit.value !== "Initial screening" && formData.ever_had_cxca.value !== "No",
           options: () => this.yesNoOptions(),
           computedValue: (value: any) => ({
             obs: this.assessment.buildValueCoded("CxCa test results", value.value)
