@@ -6,9 +6,9 @@
         <br v-if="!inline"><br v-if="!inline">
         <ion-radio-group :value="value" @ionChange="onSelect">
           <span class="ion-margin-start">Yes</span>
-          <ion-radio class="ion-margin-start" slot="start" value="Yes" />
+          <ion-radio class="ion-margin-start" slot="start" :color="color" value="Yes" />
           <span class="ion-margin-start">No</span>
-          <ion-radio class="ion-margin-start" slot="start" value="No" />
+          <ion-radio class="ion-margin-start" slot="start" :color="color" value="No" />
         </ion-radio-group>
       </ion-col>
     </ion-row>
@@ -28,6 +28,10 @@ export default defineComponent({
     },
     value: {
       type: String as PropType<"Yes" | "No">,
+    },
+    color: {
+      type: String as PropType<"primary" | "secondary" | "tertiary" | "success" | "warning" | "danger" | "light" | "medium" | "dark">,
+      default: "primary",
     },
     inline: {
       type: Boolean,
