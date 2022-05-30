@@ -7,10 +7,6 @@ export class HMISReportService extends OpdReportService {
         this.regenerate = false
     }
 
-    private HMIS17Url() {
-        return `generate_hmis_17_report`
-    }
-
     setRegenerate(regenerate: boolean) {
         this.regenerate = regenerate
     }
@@ -21,10 +17,10 @@ export class HMISReportService extends OpdReportService {
         })
     }
 
-    requestHMIS17(params: any) {
-        return OpdReportService.ajxGet(
-            this.HMIS17Url(), params
-        )
+    requestHMIS17() {
+        return this.getReport('generate_hmis_17_report', {
+            request: 'true',
+        })
     }
 
     renderResults(params: any) {

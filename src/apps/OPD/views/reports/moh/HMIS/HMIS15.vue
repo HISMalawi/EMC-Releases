@@ -71,7 +71,6 @@ export default defineComponent({
       this.isLoading = true
       this.report = new HMISReportService()
       this.report.setRegenerate(regenerate)
-      this.report.setEpiWeek(config.end_date)
       this.report.setStartDate(HisDate.toStandardHisFormat(config.start_date))
       this.report.setEndDate(HisDate.toStandardHisFormat(config.end_date))
       this.periodDates = this.report.getReportPeriod()
