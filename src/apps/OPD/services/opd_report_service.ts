@@ -157,6 +157,12 @@ export class OpdReportService extends Service {
         this.epiweek = epiweek
     }
 
+    getReportPeriod() {
+        return this.startDate && this.endDate
+         ? `${HisDate.toStandardHisDisplayFormat(this.startDate)} - ${HisDate.toStandardHisDisplayFormat(this.endDate)}`
+         : '-'
+    }
+
     getReport(url: string, params={}) {
         return Service.getJson(url, this.buildRequest(params))
     }

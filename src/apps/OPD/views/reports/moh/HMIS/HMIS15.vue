@@ -13,8 +13,8 @@
   <ion-page v-if="reportReady">
     <ion-content>
       <div id="report-content">
-        <hmis-header :key="componentKey" :reportName="reportName" :rangeLabel="rangeLabel" :range="range" ref="header" :periodLabel="periodLabel" :periodDates="periodDates" :clinicName="clinicName" :totalOPDVisits="TotalOPDVisits" ></hmis-header>
-        <hmis-template :key="componentKey" :reportName="reportName" :onDrillDown="onDrillDown" :params="idsr" :periodDates="periodDates" ref="rep"></hmis-template>
+        <hmis-header :key="componentKey" :reportName="reportName" ref="header" :periodLabel="periodLabel" :periodDates="periodDates" :clinicName="clinicName" :totalOPDVisits="TotalOPDVisits" ></hmis-header>
+        <hmis-template :key="componentKey" :reportName="reportName" :onDrillDown="onDrillDown" :params="hmis15Data" :periodDates="periodDates" ref="rep"></hmis-template>
       </div>
     </ion-content>
     <his-footer :btns="btns"></his-footer>
@@ -33,10 +33,10 @@ import { HMISReportService } from "@/apps/OPD/services/hmis_report_service"
 import HmisHeader from "@/apps/OPD/views/reports/moh/HMIS/HMISHeader.vue"
 import HmisTemplate from "@/apps/OPD/views/reports/moh/HMIS/HMISTemplate.vue"
 import HisDate from "@/utils/Date"
-import Url from "@/utils/Url"
 import { modalController } from "@ionic/vue";
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { Patientservice } from "@/services/patient_service";
+import { NavBtnInterface } from "@/components/HisDynamicNavFooterInterface";
 
 export default defineComponent({
   mixins: [ReportMixinVue],
@@ -45,8 +45,8 @@ export default defineComponent({
     formData: {} as any,
     componentKey: 0 as number,
     computedFormData: {} as any,
-    idsr: {} as any,
-    btns: [] as Array<any>,
+    hmis15Data: {} as any,
+    btns: [] as Array<NavBtnInterface>,
     isLoading: false as boolean,
     fields: [] as Array<Field>,
     reportID: -1 as any,
@@ -56,7 +56,6 @@ export default defineComponent({
     TotalOPDVisits: 0 as number,
     clinicName: HMISReportService.getLocationName(),
     reportReady: false as boolean,
-    reportUrlParams: '' as string
   }),
   created() {
     this.btns = this.getBtns()
@@ -66,36 +65,26 @@ export default defineComponent({
     async onPeriod(form: any, config: any, regenerate=false) {
       this.componentKey += 1
       this.formData = form
-      let data: any = {}
       this.computedFormData = config
       this.reportReady = true 
       this.isLoading = true
       this.report = new HMISReportService()
-      this.periodDates = this.report.Span(config.start_date, config.end_date)
       this.report.setRegenerate(regenerate)
       this.report.setEpiWeek(config.end_date)
       this.report.setStartDate(HisDate.toStandardHisFormat(config.start_date))
       this.report.setEndDate(HisDate.toStandardHisFormat(config.end_date))
-      data = this.report.RequestParams()
-      this.reportUrlParams = Url.parameterizeObjToString({ 
-        'start_date': HisDate.toStandardHisFormat(config.start_date),
-        'end_date': HisDate.toStandardHisFormat(config.end_date)
-      })
-
-      const request = await this.report.requestHMIS15(data)
-      const OPDVisitsRequest = await this.report.getOPDVisits(this.report.registrationRequestParams())
-      if (request.ok && OPDVisitsRequest.ok) {
-            data.regenerate = false
-            if(OPDVisitsRequest.status === 200) {
-              const arrayOb =   await OPDVisitsRequest.json()
-            this.TotalOPDVisits = arrayOb.length
-            }
-            if (request.status === 200) {
-              const data = await request.json()
-              this.reportID = "data"
-              this.idsr = data
-              this.isLoading = false
-            }
+      this.periodDates = this.report.getReportPeriod()
+      try {
+        const hmis = await this.report.requestHMIS15()
+        const visits = await this.report.getOPDVisits()
+        if(hmis && visits) {
+          this.TotalOPDVisits = visits.length
+          this.hmis15Data = hmis
+        }
+      } catch (error) {
+        console.log(error)
+      } finally {
+        this.isLoading = false
       }
     },
     async printSpec() {
