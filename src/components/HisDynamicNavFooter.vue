@@ -36,7 +36,7 @@ export default defineComponent({
       type: Object as PropType<Record<string, any>>,
     },
     btns: {
-      type: Object as PropType<NavBtnInterface>,
+      type: Object as PropType<Array<NavBtnInterface>>,
       required: true
     }
   },
