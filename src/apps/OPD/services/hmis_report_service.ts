@@ -56,10 +56,6 @@ export class HMISReportService extends OpdReportService {
         return all
     }
 
-    async getOPDVisits() {
-        return this.getReport('registration')
-    }
-
     getCSVString(IDSRConditionsObj: any) {
         let CSVString = `Diseases/Events/Conditions, #,\n`
         for(const condition of IDSRConditionsObj) {

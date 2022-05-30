@@ -33,9 +33,6 @@ import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
 import IdsrH from "@/apps/OPD/views/reports/moh/IDSR/IDSRHeader.vue"
 import Weekly from "@/apps/OPD/views/reports/moh/IDSR/Weekly.vue"
 import HisDate from "@/utils/Date"
-import Url from "@/utils/Url"
-import { modalController } from "@ionic/vue";
-import table from "@/components/DataViews/tables/ReportDataTable"
 
 export default defineComponent({
   mixins: [ReportMixinVue],
@@ -68,89 +65,29 @@ export default defineComponent({
     async onPeriod(form: any, config: any, regenerate=false) {
       this.componentKey += 1
       this.formData = form
-      let data: any = {}
       this.computedFormData = config
       this.reportReady = true 
       this.isLoading = true
       this.report = new IDSRReportService()
-      this.periodDates = this.report.Span(form.epiweek.other.start, form.epiweek.other.end)
       this.report.setRegenerate(regenerate)
       this.report.setEpiWeek(form.epiweek.label)
       this.report.setStartDate(HisDate.toStandardHisFormat(form.epiweek.other.start))
       this.report.setEndDate(HisDate.toStandardHisFormat(form.epiweek.other.end))
-      data = this.report.epiWeeksRequestParams()
+      this.periodDates = this.report.getReportPeriod()
       this.range = form.epiweek.label.split(" ")[0]
-      this.reportUrlParams = Url.parameterizeObjToString({ 
-        'start_date': HisDate.toStandardHisFormat(form.epiweek.other.start),
-        'end_date': HisDate.toStandardHisFormat(form.epiweek.other.end)
-      })
-
-      const request = await this.report.requestIDSRWeekly(data)
-      const OPDVisitsRequest = await this.report.getOPDVisits(this.report.registrationRequestParams())
-      if (request.ok && OPDVisitsRequest.ok) {
-            data.regenerate = true
-            if(OPDVisitsRequest.status === 200) {
-              const arrayOb =   await OPDVisitsRequest.json()
-            this.TotalOPDVisits = arrayOb.length
-            }
-            if (request.status === 200) {
-              const data = await request.json()
-              this.reportID = "data"
-              this.idsr = data
-              this.isLoading = false
-            }
+      try {
+        const idsr = await this.report.requestIDSRWeekly()
+        const visits = await this.report.getClinicRegistrations()
+        if(idsr && visits) {
+          this.reportID = "data"
+          this.TotalOPDVisits = visits.length
+          this.idsr = idsr
+        }
+      } catch (error) {
+        console.log(error)
+      } finally {
+        this.isLoading = false
       }
-    },
-    async printSpec() {
-      const printW = open('', '', 'width:1024px, height:768px')
-      const content = document.getElementById('report-content')
-      if (content && printW) {
-        printW.document.write(`
-            <html>
-              <head>
-                <title>Print IDSR Weelky Report</title>
-                <link rel="stylesheet" media="print" href="/assets/css/cohort.css" />
-              </head>
-              <body>
-                ${content.innerHTML}
-              </body>
-            </html>
-          `)
-          setTimeout(() => { printW.print(); printW.close() }, 3500)
-      }
-    },
-    async regenerate() {
-      await this.onPeriod(this.formData, this.computedFormData, true)
-    },
-    async onDrillDown(conditionName: string, patientIds: string) {
-      patientIds = this.report.getIdsArrayObj(patientIds)
-      const patients = await this.report.getPatientsDetails(patientIds)
-      const columns = [
-        [
-          table.thTxt('First name'),
-          table.thTxt('Last name'),
-          table.thTxt('Gender'),
-          table.thTxt('Age'),
-          table.thTxt('Phone'),
-          table.thTxt('Address'),
-          table.thTxt('Action')
-        ]
-      ]
-      const asyncRows = async () => {
-        return patients.map((person: any) => ([
-          table.td(person.givenName),
-          table.td(person.familyName),
-          table.td(person.gender),
-          table.td(person.age),
-          table.td(person.phone),
-          table.td(person.address),
-          table.tdBtn('Select', async () => {
-            await modalController.dismiss({})
-            this.$router.push({ path: `/patient/dashboard/${person.personId}`})
-          })
-        ]))
-      }
-      await this.drilldownAsyncRows(conditionName, columns, asyncRows)
     },
     getBtns() {
       return  [
@@ -171,7 +108,7 @@ export default defineComponent({
           slot: "start",
           color: "primary",
           visible: true,
-          onClick: () => this.printSpec()
+          onClick: () => this.exportToCustomPDF('Print IDSR Weelky Report')
         },
         {
           name: "Back",
@@ -187,7 +124,7 @@ export default defineComponent({
           slot: "end",
           color: "warning",
           visible: true,
-          onClick: async () => this.regenerate()
+          onClick: async () => await this.onPeriod(this.formData, this.computedFormData, true)
         },
         {
           name: "Finish",

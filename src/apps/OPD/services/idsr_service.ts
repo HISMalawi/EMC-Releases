@@ -1,8 +1,6 @@
 import { OpdReportService } from "./opd_report_service";
 import moment from "dayjs"
 import { Service } from "@/services/service";
-import HisDate from "@/utils/Date"
-import { Patientservice } from "@/services/patient_service";
 
 export interface CohortValidationInterface {
     param: number | string;
@@ -23,102 +21,20 @@ export class IDSRReportService extends OpdReportService {
         this.regenerate = false
     }
 
-    private IDSRWeeklyUrl() {
-        return `generate_weekly_idsr_report`
-    }
-
-    private IDSRMonthlyUrl() {
-        return `generate_monthly_idsr_report`
-    }
-
-    private OPDVistisUrl() {
-        return `registration`
-    }
-
     setRegenerate(regenerate: boolean) {
         this.regenerate = regenerate
     }
 
-    requestIDSRWeekly(params: any) {
-        return OpdReportService.ajxGet(
-            this.IDSRWeeklyUrl(), params
-        )
+    requestIDSRWeekly() {
+        return this.getReport('generate_weekly_idsr_report', {
+            request: 'true',
+        })
     }
 
-    requestIDSRMonthly(params: any) {
-        return OpdReportService.ajxGet(
-            this.IDSRMonthlyUrl(), params
-        )
-    }
-
-    epiWeeksRequestParams() {
-        const { start, end} = this.getStartEndDates()        
-        return { 
-            'start_date': start,
-            'end_date': end,
-            request: 'true'
-        }
-    }
-
-    registrationRequestParams() {
-        const { start, end} = this.getStartEndDates()
-        return { 
-            'start_date': start,
-            'end_date': end,
-            'date': Service.getApiDate,
-            'program_id': Service.getProgramID()
-        }
-    }
-
-    getStartEndDates() {
-        const txt = this.epiweek.split(" ")
-        let start = txt[2].split("(")[1]
-        let end = txt[4].split(")")[0]
-        start = moment(start).toISOString().slice(0,10)
-        end = moment(end).toISOString().slice(0,10)
-        return { start, end}
-    }
-
-    async getPatientsDetails(patientIds: Array<[]>) {
-        const patients = []
-        for(const patientID of patientIds) {
-            const potentialPatient = await Patientservice.findByID(patientID as any)
-            const patient = new Patientservice(potentialPatient)
-              const personObj = {
-                'givenName': patient.getGivenName(),
-                'familyName': patient.getFamilyName(),
-                'gender': patient.getGender(),
-                'age': HisDate.getAgeInYears(patient.getBirthdate()),
-                'address': patient.getCurrentDistrict()+", "+ patient.getCurrentVillage() +", "+ patient.getClosestLandmark(),
-                'phone': this.resolvePhone(potentialPatient.person.person_attributes),
-                'personId': patient.getID()
-              }
-              patients.push(personObj)
-            }
-        return patients
-    }
-
-    resolvePhone(attributes: any ) {
-        let number
-        let other
-        if (attributes.length > 0) {
-            for(const attribute of attributes) {
-                if (parseInt(attribute.value)) {
-                    if (this.isEmpty(number)) {
-                        number = attribute.value
-                    } else
-                    number+=' '+attribute.value
-                }
-                other = attribute.value
-            }
-            if(!this.isEmpty(number)) {
-                return number
-            } else return other
-        } else return 'N/A'
-    }
-
-    isEmpty(val: any){
-        return (val === undefined || val == null || val.length <= 0) ? true : false;
+    requestIDSRMonthly() {
+        return this.getReport('generate_monthly_idsr_report', {
+            request: 'true',
+        })
     }
 
     renderResults(params: any) {
@@ -164,29 +80,11 @@ export class IDSRReportService extends OpdReportService {
         }
         return all
     }
-    getIdsArrayObj(patientIds: string) {
-        patientIds = patientIds + ''
-        return patientIds.split(',') as []
-    }
-
-    Span(startDate: string, endDate: string) {
-        const separator = "  -  "
-        return (moment(startDate).format('DD/MMM/YYYY') 
-        +separator+ 
-        moment(endDate).format('DD/MMM/YYYY'))
-    }
-
-    async getOPDVisits(params: any) {
-        return OpdReportService.ajxGet(
-            this.OPDVistisUrl(), params
-        )
-    }
 
     getCSVString(IDSRConditionsObj: any) {
         let CSVString = `Diseases/Events/Conditions, <5 yrs, >=5 yrs, Total,\n`
         for(const condition of IDSRConditionsObj) {
-          const row = `${condition.name},${condition.lessThanFiveYears},${condition.greaterThanEqualFiveYears},${condition.total},\n`
-          CSVString+=row
+            CSVString += `${condition.name},${condition.lessThanFiveYears},${condition.greaterThanEqualFiveYears},${condition.total},\n`  
         }
         return {CSVString}
     }

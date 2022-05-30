@@ -14,6 +14,7 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import moment from "dayjs"
 import { Service } from '@/services/service';
+import { isEmpty } from 'lodash'
 
 export default defineComponent({
     data: () => ({
@@ -32,6 +33,55 @@ export default defineComponent({
         },
         confirmPatient(patient: number) {
             return this.$router.push(`/patients/confirm?person_id=${patient}`)
+        },
+        async exportToCustomPDF(title: string) {
+            const printW = open('', '', 'width:1024px, height:768px')
+            const content = document.getElementById('report-content')
+            if (content && printW) {
+                printW.document.write(`
+                    <html>
+                    <head>
+                        <title>${title}</title>
+                        <link rel="stylesheet" media="print" href="/assets/css/cohort.css" />
+                    </head>
+                    <body>
+                        ${content.innerHTML}
+                    </body>
+                    </html>
+                `)
+                setTimeout(() => { printW.print(); printW.close() }, 3500)
+            }
+        },
+        async onDrillDown(conditionName: string, patientIds: number[]) {
+            if(isEmpty(patientIds)) return
+            const columns = [[
+                table.thTxt('First name'),
+                table.thTxt('Last name'),
+                table.thTxt('Gender'),
+                table.thTxt('Age'),
+                table.thTxt('Phone'),
+                table.thTxt('Address'),
+                table.thTxt('Action')
+            ]]
+            const rowParser = async (ids: number[]) => {
+                return await Promise.all(ids.map(async (id) => {
+                const personDetails = await Patientservice.findByID(id)
+                const patient = new Patientservice(personDetails)
+                return [
+                    table.td(patient.getGivenName()),
+                    table.td(patient.getFamilyName()),
+                    table.td(patient.getGender()),
+                    table.td(patient.getAge()),
+                    table.td(patient.getPhoneNumber()),
+                    table.td(`${patient.getCurrentDistrict()}, ${patient.getCurrentVillage()}, ${patient.getClosestLandmark()}`),
+                    table.tdBtn('Select', async () => {
+                    await modalController.dismiss({})
+                    this.$router.push({ path: `/patient/dashboard/${id}`})
+                    })
+                ]
+                })) 
+            }
+            return this.drilldownData(conditionName, columns, patientIds, rowParser)
         },
         async drilldownAsyncRows(title: string, columns: Array<any>, asyncRows: Function) {
             const modal = await modalController.create({

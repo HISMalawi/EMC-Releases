@@ -33,10 +33,6 @@ import { HMISReportService } from "@/apps/OPD/services/hmis_report_service"
 import HmisHeader from "@/apps/OPD/views/reports/moh/HMIS/HMISHeader.vue"
 import HmisTemplate from "@/apps/OPD/views/reports/moh/HMIS/HMISTemplate.vue"
 import HisDate from "@/utils/Date"
-import { modalController } from "@ionic/vue";
-import table from "@/components/DataViews/tables/ReportDataTable"
-import { Patientservice } from "@/services/patient_service";
-import { isEmpty } from "lodash";
 
 export default defineComponent({
   mixins: [ReportMixinVue],
@@ -75,8 +71,9 @@ export default defineComponent({
       this.periodDates = this.report.getReportPeriod()
       try {
         const hmis = await this.report.requestHMIS17()
-        const visits = await this.report.getOPDVisits()
+        const visits = await this.report.getClinicRegistrations()
         if(hmis && visits) {
+          this.reportID = "data"
           this.TotalOPDVisits = visits.length
           this.hmis15Data = hmis
         }
@@ -85,58 +82,6 @@ export default defineComponent({
       } finally {
         this.isLoading = false
       }
-    },
-    async printSpec() {
-      const printW = open('', '', 'width:1024px, height:768px')
-      const content = document.getElementById('report-content')
-      if (content && printW) {
-        printW.document.write(`
-            <html>
-              <head>
-                <title>Print ${this.reportName}</title>
-                <link rel="stylesheet" media="print" href="/assets/css/cohort.css" />
-              </head>
-              <body>
-                ${content.innerHTML}
-              </body>
-            </html>
-          `)
-          setTimeout(() => { printW.print(); printW.close() }, 3500)
-      }
-    },
-    async regenerate() {
-      await this.onPeriod(this.formData, this.computedFormData, true)
-    },
-    async onDrillDown(conditionName: string, patientIds: number[]) {
-      if(isEmpty(patientIds)) return
-      const columns = [[
-        table.thTxt('First name'),
-        table.thTxt('Last name'),
-        table.thTxt('Gender'),
-        table.thTxt('Age'),
-        table.thTxt('Phone'),
-        table.thTxt('Address'),
-        table.thTxt('Action')
-      ]]
-      const rowParser = async (ids: number[]) => {
-        return await Promise.all(ids.map(async (id) => {
-          const personDetails = await Patientservice.findByID(id)
-          const patient = new Patientservice(personDetails)
-          return [
-            table.td(patient.getGivenName()),
-            table.td(patient.getFamilyName()),
-            table.td(patient.getGender()),
-            table.td(patient.getAge()),
-            table.td(patient.getPhoneNumber()),
-            table.td(`${patient.getCurrentDistrict()}, ${patient.getCurrentVillage()}, ${patient.getClosestLandmark()}`),
-            table.tdBtn('Select', async () => {
-              await modalController.dismiss({})
-              this.$router.push({ path: `/patient/dashboard/${id}`})
-            })
-          ]
-        })) 
-      }
-      return this.drilldownData(conditionName, columns, patientIds, rowParser)
     },
     getBtns() {
       return  [
@@ -157,7 +102,7 @@ export default defineComponent({
           slot: "start",
           color: "primary",
           visible: true,
-          onClick: () => this.printSpec()
+          onClick: () => this.exportToCustomPDF(this.reportName)
         },
         {
           name: "Back",
@@ -173,7 +118,7 @@ export default defineComponent({
           slot: "end",
           color: "warning",
           visible: true,
-          onClick: async () => this.regenerate()
+          onClick: async () => await this.onPeriod(this.formData, this.computedFormData, true)
         },
         {
           name: "Finish",
