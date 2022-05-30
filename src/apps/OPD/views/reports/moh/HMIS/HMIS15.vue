@@ -36,6 +36,7 @@ import HisDate from "@/utils/Date"
 import Url from "@/utils/Url"
 import { modalController } from "@ionic/vue";
 import table from "@/components/DataViews/tables/ReportDataTable"
+import { Patientservice } from "@/services/patient_service";
 
 export default defineComponent({
   mixins: [ReportMixinVue],
@@ -118,35 +119,35 @@ export default defineComponent({
     async regenerate() {
       await this.onPeriod(this.formData, this.computedFormData, true)
     },
-    async onDrillDown(conditionName: string, patientIds: string) {
-      patientIds = this.report.getIdsArrayObj(patientIds)
-      const patients = await this.report.getPatientsDetails(patientIds)
-      const columns = [
-        [
-          table.thTxt('First name'),
-          table.thTxt('Last name'),
-          table.thTxt('Gender'),
-          table.thTxt('Age'),
-          table.thTxt('Phone'),
-          table.thTxt('Address'),
-          table.thTxt('Action')
-        ]
-      ]
-      const asyncRows = async () => {
-        return patients.map((person: any) => ([
-          table.td(person.givenName),
-          table.td(person.familyName),
-          table.td(person.gender),
-          table.td(person.age),
-          table.td(person.phone),
-          table.td(person.address),
-          table.tdBtn('Select', async () => {
-            await modalController.dismiss({})
-            this.$router.push({ path: `/patient/dashboard/${person.personId}`})
-          })
-        ]))
+    async onDrillDown(conditionName: string, patientIds: number[]) {
+      const columns = [[
+        table.thTxt('First name'),
+        table.thTxt('Last name'),
+        table.thTxt('Gender'),
+        table.thTxt('Age'),
+        table.thTxt('Phone'),
+        table.thTxt('Address'),
+        table.thTxt('Action')
+      ]]
+      const rowParser = async (ids: number[]) => {
+        return await Promise.all(ids.map(async (id) => {
+          const personDetails = await Patientservice.findByID(id)
+          const patient = new Patientservice(personDetails)
+          return [
+            table.td(patient.getGivenName()),
+            table.td(patient.getFamilyName()),
+            table.td(patient.getGender()),
+            table.td(patient.getAge()),
+            table.td(patient.getPhoneNumber()),
+            table.td(`${patient.getCurrentDistrict()}, ${patient.getCurrentVillage()}, ${patient.getClosestLandmark()}`),
+            table.tdBtn('Select', async () => {
+              await modalController.dismiss({})
+              this.$router.push({ path: `/patient/dashboard/${id}`})
+            })
+          ]
+        })) 
       }
-      await this.drilldownAsyncRows(conditionName, columns, asyncRows)
+      return this.drilldownData(conditionName, columns, patientIds, rowParser)
     },
     getBtns() {
       return  [
