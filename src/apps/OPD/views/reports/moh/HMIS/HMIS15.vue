@@ -37,6 +37,7 @@ import { modalController } from "@ionic/vue";
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { Patientservice } from "@/services/patient_service";
 import { NavBtnInterface } from "@/components/HisDynamicNavFooterInterface";
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   mixins: [ReportMixinVue],
@@ -109,6 +110,7 @@ export default defineComponent({
       await this.onPeriod(this.formData, this.computedFormData, true)
     },
     async onDrillDown(conditionName: string, patientIds: number[]) {
+      if(isEmpty(patientIds)) return
       const columns = [[
         table.thTxt('First name'),
         table.thTxt('Last name'),
