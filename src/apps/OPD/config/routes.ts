@@ -102,5 +102,31 @@ export default [
       }
     ]
   },
+  {
+    path: '/opd/reports/moh',
+    component: BaseReport,
+    children: [
+      {
+        name: 'idsr_weekly',
+        path: 'idsr_weekly',
+        component: () => import('@/apps/OPD/views/reports/moh/IDSR/IDSRWeekly.vue')
+      },
+      {
+        name: 'idsr_monthly',
+        path: 'idsr_monthly',
+        component: () => import('@/apps/OPD/views/reports/moh/IDSR/IDSRMonthly.vue')
+      },
+      {
+        name: 'hmis_15',
+        path: 'hmis_15',
+        component: () => import('@/apps/OPD/views/reports/moh/HMIS/HMIS15.vue')
+      },
+      {
+        name: 'hmis_17',
+        path: 'hmis_17',
+        component: () => import('@/apps/OPD/views/reports/moh/HMIS/HMIS17.vue')
+      }
+    ]
+  },
 ]
 

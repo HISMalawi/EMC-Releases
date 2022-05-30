@@ -82,7 +82,7 @@ export default defineComponent({
     },
     async getSpecificRadiologyOrders(category: string) {
       if (!(category in this.radiologyOrdersList)) {
-        const radiologyOrders = await PatientRadiologyService.getRadiolyList(category)
+        const radiologyOrders = await PatientRadiologyService.getRadiologyList(category)
         this.radiologyOrdersList[category] = this.mapListToOptions(radiologyOrders, category)
       }
       this.ActiveCategory = category
@@ -136,7 +136,7 @@ export default defineComponent({
   },
   async activated() {
     this.$emit('onFieldActivated', this)
-    const data = await PatientRadiologyService.getRadiolyList('Radiology Orders')
+    const data = await PatientRadiologyService.getRadiologyList('Radiology Orders')
     this.listData = this.mapListToOptions(data)
     this.$emit('onValue', this.getChecked(this.radiologyOrdersList))
   }
