@@ -17,16 +17,8 @@ import { IonCard, IonCardContent, IonCardTitle, IonCardHeader, IonImg } from '@i
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-    props: ['name', 'details', 'programID', 'iconURL'],
-  components: { IonCard, IonCardContent, IonCardTitle,  IonCardHeader, IonImg},
-  setup() {
-    return {  };
-  },
-  methods: {   
-    getImgUrl(url) {
-        return require(`@/assets ${url}`);
-    }
-  }
+  props: ['name', 'details', 'programID', 'iconURL'],
+  components: { IonCard, IonCardContent, IonCardTitle,  IonCardHeader, IonImg },
 });
 </script>
 <style scoped>

@@ -41,9 +41,10 @@ async function selectApplication(context='', canClose=false) {
         backdropDismiss: false,
         componentProps: {
             appVersion: Service.getFullVersion(),
+            apps: Service.getAvailableApps(),
             canClose
         }
-    });
+    })
 
     modal.present()
 

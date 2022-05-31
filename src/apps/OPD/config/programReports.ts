@@ -1,44 +1,68 @@
 import { FolderInterface } from "@/apps/interfaces/AppInterface"
+import { Service } from "@/services/service"
+
+const centralHospitals = [
+    "Queen Elizabeth Central Hospital",
+    "Kamuzu Central Hospital",
+    "Mzuzu Central Hospital",
+    "Zomba Central Hospital"
+]
+
+function isFacilictyCentralHospital(): boolean {
+    for(const name of centralHospitals) {
+        if (name == Service.getLocationName()) {
+            return true
+        }
+    }
+    return false
+}
 
 export const REPORTS: FolderInterface[] = [
     {
         name: 'MoH',
         icon: 'login-logos/Malawi-Coat_of_arms_of_arms.png',
         defaultFilesIcon: 'reports.png',
-        condition: () => false,
+        condition: () => true,
         files: [
             {
                 name: 'LA report',
-                pathName: 'moh_la'
+                pathName: 'moh_la',
+                condition: () => false
             },
             {
                 name: 'Drug report',
-                pathName: 'moh_drug'
+                pathName: 'moh_drug',
+                condition: () => false
             },
             {
                 name: 'Malaria report',
-                pathName: 'moh_malaria' 
+                pathName: 'moh_malaria',
+                condition: () => false 
             },
             {
                 name: 'IPT',
-                pathName: 'moh_ipt'
+                pathName: 'moh_ipt',
+                condition: () => false
+            },
+            {
+                name: 'IDSR Weekley Report',
+                pathName: 'idsr_weekly',
+            },
+            {
+                name: 'IDSR Monthly Report',
+                pathName: 'idsr_monthly',
+            },
+            {
+                name: 'HMIS 15 Report',
+                pathName: 'hmis_15',
+                condition: () => !isFacilictyCentralHospital()
+            },
+            {
+                name: 'HMIS 17 Report',
+                pathName: 'hmis_17',
+                condition: () => isFacilictyCentralHospital()
             }
-        ]
-    },
-    {
-        name: 'PEPFAR',
-        icon: 'login-logos/PEPFAR.png',
-        defaultFilesIcon: 'reports.png',
-        condition: () => false,
-        files: [
-            {
-                name: 'IDSR report',
-                pathName: 'pepfar_idsr'
-            },
-            {
-                name: 'DHIS 2',
-                pathName: 'pepfar_dhis_2'
-            },
+
         ]
     },
     {
