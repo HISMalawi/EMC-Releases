@@ -13,6 +13,14 @@ export class IncompleteEntityError extends Error {
     }
 }
 
+export class RecordConflictError extends Error {
+    errors: any
+    constructor(message: string, errors: any) {
+        super(message)
+        this.errors = errors
+    }
+}
+
 export class NotFoundError extends Error {
     constructor(message: string) {
         super(`RECORD NOT FOUND: ${message}`)
@@ -98,6 +106,10 @@ export class Service {
             if (response.status === 502) {
                 const {errors} = await response?.json()
                 throw new ApiServiceError(errors || 'Getway Error')
+            }
+            if (response.status === 409) {
+                const {errors} = await response?.json()
+                throw new RecordConflictError(response.statusText, errors)
             }
             if (response.status === 500) {
                 throw new ApiError('An internal server errror has occured')
