@@ -91,38 +91,21 @@ export class AuthService {
             password: password
         })
     }
-
+    /**
+     * Validates if the API version meets the minimum required version
+    */
     async validateIfCorrectAPIVersion() {
         const apiVersion = await this.getApiVersion()
-        const apiF = apiVersion.replace(/[^0-9.]/g, '')
-        if (!apiF) {
-            throw new InvalidAPIVersionError(apiVersion)
+        const toVersionArr = (version: string) => version.replace('v', '')
+            .split('-')[0] //sanitize versions which look like "v4.15.10-16-gd1ab74ff" to "4.15.10"
+            .split('.')
+            .map(v => parseInt(v || '0'))
+        const [curMajor, curMinor, curPatch] = toVersionArr(apiVersion)
+        const [minMajor, minMinor, minPatch] = toVersionArr(__MIN_API_VERSION__)
+        if (curMajor >= minMajor && curMinor >= minMinor && curPatch >= minPatch) { 
+            return true
         }
-        const comparator = __MIN_API_VERSION__.replace(/[^<>=]/g, '')
-        const minVersion = __MIN_API_VERSION__.replace(/[^0-9.]/g, '')
-        let versionOk = false
-        switch (comparator) {
-            case '>':
-                versionOk = apiF > minVersion;
-                break;
-            case '<':
-                versionOk = apiF < minVersion;
-                break;
-            case '>=':
-                versionOk = apiF >= minVersion;
-                break;
-            case '<=':
-                versionOk = apiF <= minVersion;
-                break;
-            case '=':
-                versionOk = apiF === minVersion;
-                break;
-            default:
-                versionOk = apiF === minVersion
-                break;
-        }
-
-        if (!versionOk) throw new InvalidAPIVersionError(apiVersion)
+        throw new InvalidAPIVersionError(apiVersion)
     }
 
     async checkTimeIntegrity() {
