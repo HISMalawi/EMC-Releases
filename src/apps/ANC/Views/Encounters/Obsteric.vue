@@ -221,7 +221,7 @@ export default defineComponent({
 												},
 												validation: (v: Option) => this.validateSeries([
 													() => Validation.required(v),
-													() => Validation.rangeOf(v, 0, 30)
+													() => Validation.rangeOf(v, 0, 28)
 												])
 											}
 										}
