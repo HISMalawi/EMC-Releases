@@ -64,8 +64,8 @@ export default defineComponent({
     async onFinish(_: any, computeValues: any) {
         switch(this.activity) {
             case 'add':
-                this.activity = 'edit'
                 await this.create(computeValues)
+                this.activity = 'edit'
                 break;
             case 'edit':
                 await this.update(computeValues)
