@@ -28,6 +28,7 @@ export class AuthService {
     userID: number
     roles: Role[]
     token: string
+    programs: any
     sessionDate: string
     systemVersion: string
     coreVersion: string
@@ -35,6 +36,7 @@ export class AuthService {
         this.token = ''
         this.username = ''
         this.roles = []
+        this.programs = []
         this.userID = -1
         this.sessionDate = ''
         this.systemVersion = ''
@@ -58,6 +60,7 @@ export class AuthService {
             } = response
             this.token = token
             this.roles = user.roles
+            this.programs = user.programs
             this.userID = user.user_id
             this.sessionDate = await this.getSystemDate()
             this.systemVersion = await this.getApiVersion()
@@ -72,6 +75,7 @@ export class AuthService {
         sessionStorage.setItem("username", this.username);
         sessionStorage.setItem("userID", this.userID.toString());
         sessionStorage.setItem("userRoles", JSON.stringify(this.roles));
+        sessionStorage.setItem("userPrograms", JSON.stringify(this.programs));
         sessionStorage.setItem("sessionDate", this.sessionDate)
         sessionStorage.setItem("APIVersion", this.systemVersion)
         localStorage.setItem(AuthVariable.CORE_VERSION, this.coreVersion)

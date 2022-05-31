@@ -4,6 +4,8 @@ import HisApp from "@/apps/app_lib"
 import { AppInterface } from "@/apps/interfaces/AppInterface"
 import useSWRV from "swrv"
 import { AuthVariable } from "./auth_service"
+import HisApps from "@/apps/his_apps"
+import { find, isEmpty } from "lodash"
 
 export class IncompleteEntityError extends Error {
     entity: any
@@ -210,4 +212,18 @@ export class Service {
     }
 
     static delay = (ms: number) => new Promise(res => setTimeout(res, ms))
+
+    static getAvailableApps() {
+        const userPrograms = JSON.parse(sessionStorage.getItem('userPrograms') || '[]')
+            .map((app: any) => app['program_id'])
+        const apps = []
+        for(const app of JSON.parse(sessionStorage.getItem('apps') || '[]')) {
+            const appData: any = find(HisApps, { applicationName : app.name }) || {}
+            const userHasPriviledge = isEmpty(userPrograms) || userPrograms.includes(appData.programID)
+            if (app.available && !isEmpty(appData)) {
+                apps.push({...appData, hasPriviledge: userHasPriviledge})
+            }
+        }
+        return apps
+    }
 }
