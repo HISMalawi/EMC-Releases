@@ -5,6 +5,7 @@ export enum AncCleaningIndicator {
     ENCOUNTERS_AFTER_DEATH = 'ENCOUNTERS AFTER DEATH',
     INCOMPLETE_VISITS = 'INCOMPLETE VISITS',
     DUPLICATE_ENCOUNTERS = 'DUPLICATE ENCOUNTERS',
+    MISSING_HIV_STATUS = 'NO HIV STATUS'
 }
 
 export class AncDataCleaningToolService extends AncReportService {

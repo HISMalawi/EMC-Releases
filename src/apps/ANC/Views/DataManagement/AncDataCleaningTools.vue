@@ -186,6 +186,26 @@ export default defineComponent({
                         this.showPatientBtn(d.patient_id)
                     ]
                 }
+            },
+            {
+                label: 'Missing HIV Status',
+                value: AncCleaningIndicator.MISSING_HIV_STATUS,
+                other: {
+                    columns: [
+                        [
+                            table.thTxt("National ID"),
+                            table.thTxt("Given name"),
+                            table.thTxt("Family name"),
+                            table.thTxt("Action")
+                        ]
+                    ],
+                    formatRow: (d: any) => [
+                        table.td(d.identifier),
+                        table.td(d.given_name),
+                        table.td(d.family_name),
+                        this.showPatientBtn(d.patient_id)
+                    ]
+                }
             }
         ]
     }
