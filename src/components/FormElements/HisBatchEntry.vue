@@ -69,6 +69,7 @@ import { FieldType } from "../Forms/BaseFormElements";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Service } from "@/services/service";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
+import { CHARACTERS_AND_NUMBERS_LO } from "../Keyboard/KbLayouts";
 
 export default defineComponent({
   components: { HisTextInput, ViewPort, IonInput, IonLabel, IonList, IonItem, IonGrid, IonCol, IonRow, IonButton },
@@ -140,6 +141,9 @@ export default defineComponent({
         id: 'batch',
         helpText: this.getModalTitle('Enter batch number'),
         type: FieldType.TT_TEXT,
+        config: {
+          customKeyboard: [CHARACTERS_AND_NUMBERS_LO, [['Delete']]]
+        },
         defaultValue: () => this.getDrugValue(index, 'batchNumber'),
       }, 
       (v: Option) => {

@@ -17,6 +17,7 @@
                     :preset="currentField.preset"
                     :clear="valueClearIndex"
                     :fdata="formData"
+                    :config="currentField.config"
                     :cdata="computedFormData"
                     :activationState="state"
                     :onValue="currentField.onValue"

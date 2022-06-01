@@ -36,6 +36,10 @@ export const PROPERTIES: FolderInterface[] = [
             {
                 name: "Audit Trail",
                 pathUrl: "/art/stock/trail",
+            },
+            {
+                name: "Stock report",
+                pathUrl: "/art/stock/report",
             }
         ]
     },

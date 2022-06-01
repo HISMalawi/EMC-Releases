@@ -16,6 +16,12 @@ import Validation from '@/components/Forms/validations/StandardValidations';
 import { Patientservice } from '@/services/patient_service';
 import { ObservationService } from '@/services/observation_service';
 
+declare global {
+  interface Navigator {
+     msSaveBlob: (blob: Blob,fileName: string) => boolean;
+    }
+}
+
 async function onRegisterPatient(patientId: number) {
   const program = new PatientProgramService(patientId)
   await program.enrollProgram()

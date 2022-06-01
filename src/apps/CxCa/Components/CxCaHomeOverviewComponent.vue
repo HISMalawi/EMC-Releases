@@ -7,7 +7,7 @@
                 <his-basic-table :columns="columns" :rows="rows"/>
                 </ion-col>
                 <ion-col size="6" style="border-left: 5px solid black;">
-
+                <h4>Today's clients booked from HIV/ART program</h4>
                 <his-basic-table :columns="screenedColumns" :rows="screenedRows"/>
                 </ion-col>
             </ion-row>
