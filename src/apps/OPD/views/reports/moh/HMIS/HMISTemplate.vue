@@ -1,14 +1,16 @@
 <template>
   <table class="my-table" style="margin: auto; width: 95%; margin-top: 3%; margin-bottom: 3%;">
   <tr>
-    <td  colspan="2" class="td-text-align-left" style="width: min-content;">Diseases/Events/Conditions</td>
-    <td  class="td-text-align-left" style="text-align: center;">#</td>
+    <td  colspan="2" class="td-text-align-left" style="width: min-content;padding: 1.5%;">Diseases/Events/Conditions</td>
+    <td  class="td-text-align-left" style="text-align: center;">UNVERIFIED</td>
+    <td  class="td-text-align-left" style="text-align: center;">VERIFIED</td>
   </tr>
   <hmis-dummy v-if="show"></hmis-dummy>
   <tr   v-for="(condition, index) in conditions" :key="index">
-    <td class="td-text-align-right td-wd">{{condition.id}}</td>
-    <td class="td-text-align-right" style="width: 60%;padding: revert;">{{condition.name}}</td>
-    <td id="total" class="td-text-align-right"  @click="onDrillDown(condition.name, condition.totalPatientIds);"> <a> {{condition.total}} </a> </td>
+    <td class="td-wd">{{condition.id}}</td>
+    <td class="td-text-align-left" style="width: 43.3%;padding: 1.5%;">{{condition.name}}</td>
+    <td id="total" @click="onDrillDown(condition.name, condition.totalPatientIds);"> <a> {{condition.total}} </a> </td>
+    <td></td>
   </tr>
   </table>
 </template>
@@ -143,7 +145,12 @@ td {
   border-right-style: dotted !important;
   border-right-width: 1px;
 }
-.td-text-align-right.td-wd {
+.td-wd {
     width: 10%;
+}
+.td-text-align-left {
+  text-align: left;
+  margin: auto;
+  margin-left: 20px;
 }
 </style>

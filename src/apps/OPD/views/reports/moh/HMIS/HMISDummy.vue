@@ -1,137 +1,47 @@
 <template>
-<tr id="_1">
-      <td class="td-text-align-right" style="width: 5%;">1</td>
-      <td class="td-text-align-right" style="width: 60%;">Sexually transmitted infections-new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_2">
-      <td class="td-text-align-right">2</td>
-      <td class="td-text-align-right" style="width: 60%;">Syphilis in pregnancy</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_3">
-      <td class="td-text-align-right">3</td>
-      <td class="td-text-align-right" style="width: 60%;">HIV confirmed positive (15-49 years) new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_4">
-      <td class="td-text-align-right">4</td>
-      <td class="td-text-align-right" style="width: 60%;">Opportunistic infection - new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_5">
-      <td class="td-text-align-right">5</td>
-      <td class="td-text-align-right" style="width: 60%;">Acute respiratory infections - new cases (U5)</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_6">
-      <td class="td-text-align-right">6</td>
-      <td class="td-text-align-right" style="width: 60%;">Diarrhoea non - bloody -new cases (under5)</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_7">
-      <td class="td-text-align-right">7</td>
-      <td class="td-text-align-right" style="width: 60%;">Malnutrition - new case (under 5)</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_8">
-      <td class="td-text-align-right">8</td>
-      <td class="td-text-align-right" style="width: 60%;">Malaria - new cases (under 5)</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-
-    <tr id="_9">
-      <td class="td-text-align-right">9</td>
-      <td class="td-text-align-right" style="width: 60%;">Malaria - new cases (5  over)</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_10">
-      <td class="td-text-align-right">10</td>
-      <td class="td-text-align-right" style="width: 60%;">Neonatal tetanus - confirmed new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_11">
-      <td class="td-text-align-right">11</td>
-      <td class="td-text-align-right" style="width: 60%;">Cholera - confirmed new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_12">
-      <td class="td-text-align-right">12</td>
-      <td class="td-text-align-right" style="width: 60%;">Measles - confirmed new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_13">
-      <td class="td-text-align-right">13</td>
-      <td class="td-text-align-right" style="width: 60%;">Acute Flaccid paralysis -confirmed new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_14">
-      <td class="td-text-align-right">14</td>
-      <td class="td-text-align-right" style="width: 60%;">Ebola - confirmed new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_15">
-      <td class="td-text-align-right">15</td>
-      <td class="td-text-align-right" style="width: 60%;">Meningococal meningitis - confimed new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_16">
-      <td class="td-text-align-right">16</td>
-      <td class="td-text-align-right" style="width: 60%;">Plague - confirmed new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-
-    <tr id="_17">
-      <td class="td-text-align-right">17</td>
-      <td class="td-text-align-right" style="width: 60%;">Rabies - confirmed new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_18">
-      <td class="td-text-align-right">18</td>
-      <td class="td-text-align-right" style="width: 60%;">Yellow fever - confirmed new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_19">
-      <td class="td-text-align-right">19</td>
-      <td class="td-text-align-right" style="width: 60%;">Dysentery - new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_20">
-      <td class="td-text-align-right">20</td>
-      <td class="td-text-align-right" style="width: 60%;">Eye infections - new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_21">
-      <td class="td-text-align-right">21</td>
-      <td class="td-text-align-right" style="width: 60%;">Ear infections - new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_22">
-      <td class="td-text-align-right">22</td>
-      <td class="td-text-align-right" style="width: 60%;">Skin infections - new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_23">
-      <td class="td-text-align-right">23</td>
-      <td class="td-text-align-right" style="width: 60%;">Oral conditions</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_24">
-      <td class="td-text-align-right">24</td>
-      <td class="td-text-align-right" style="width: 60%;">Schistosomiasis - new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_25">
-      <td class="td-text-align-right">25</td>
-      <td class="td-text-align-right" style="width: 60%;">Leprosy - new cases</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
-    <tr id="_26">
-      <td class="td-text-align-right">26</td>
-      <td class="td-text-align-right" style="width: 60%;">Common injuries and woulds (except RTA)</td>
-      <td id="ls-5yrs" class="td-text-align-right">0</td>
-    </tr>
+  <tr v-for="(condition, index) in conditions" :key="index">
+    <td>{{index}}</td>
+    <td class="td-text-align-left" style="width: 60.3%;padding: 1.5%;">{{condition}}</td>
+    <td>0</td>
+    <td></td>
+  </tr>
 </template>
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
+  data: function() {
+    return {
+      conditions: [
+        'Sexually transmitted infections-new cases',
+        'Syphilis in pregnancy',
+        'Opportunistic infection - new cases',
+        'Acute respiratory infections - new cases (U5)',
+        'Diarrhoea non - bloody -new cases (under5)',
+        'Malnutrition - new case (under 5)',
+        'Cholera - confirmed new cases',
+        'Malnutrition  U/5',
+        'Measles - confirmed new cases',
+        'Acute Flaccid paralysis -confirmed new cases',
+        'Ebola - confirmed new cases',
+        'Meningococal meningitis - confimed new cases',
+        'Plague - confirmed new cases',
+        'Rabies - confirmed new cases',
+        'Yellow fever - confirmed new cases',
+        'Dysentery - new cases',
+        'Eye infections - new cases',
+        'Ear infections - new cases',
+        'Skin infections - new cases',
+        'Oral conditions',
+        'Schistosomiasis - new cases',
+        'Leprosy - new cases',
+        'Common injuries and woulds (except RTA)',
+        'Number of road traffic accidents'
+      ]
+    }
+  }
+})
+</script>
 <style scoped>
 a {
     color: #337ab7;
@@ -198,5 +108,10 @@ td {
 }
 .td-text-align-right.td-wd {
     width: 10%;
+}
+.td-text-align-left {
+  text-align: left;
+  margin: auto;
+  margin-left: 20px;
 }
 </style>

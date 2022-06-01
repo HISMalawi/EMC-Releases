@@ -1,7 +1,7 @@
 <template>
   <table class="my-table" style="margin: auto; width: 95%; margin-top: 3%; margin-bottom: 3%;">
   <tr>
-    <td rowspan="2" colspan="2" class="td-text-align-left" style="width: min-content;">Diseases/Events/Conditions</td>
+    <td rowspan="2" colspan="2" class="td-text-align-left" style="width: min-content;padding: 1.5%;">Diseases/Events/Conditions</td>
     <td colspan="3" class="td-text-align-left" style="text-align: center;">Out-patient Cases</td>
   </tr>
   <tr>
@@ -10,12 +10,12 @@
     <td class="td-text-align-left td-span-width">Total</td>
   </tr>
   <weekly-dummy v-if="show"></weekly-dummy>
-  <tr   v-for="(condition, index) in conditions" :key="index">
-    <td class="td-text-align-right">{{condition.id}}</td>
-    <td class="td-text-align-right" style="width: 30%;padding: revert;">{{condition.name}}</td>
-    <td id="ls-5yrs" class="td-text-align-right" @click="onDrillDown(condition.name+lessThanFiveYears, condition.lessThanFiveYearsPatientIds);"> <a> {{condition.lessThanFiveYears}} </a> </td>
-    <td id="grt-5yrs" class="td-text-align-right" @click="onDrillDown(condition.name+greaterAndEqualFiveYears, condition.greaterThanEqualFiveYearsPatientIds);"> <a> {{condition.greaterThanEqualFiveYears}} </a> </td>
-    <td id="total" class="td-text-align-right"  @click="onDrillDown(condition.name+total, condition.totalPatientIds);"> <a> {{condition.total}} </a> </td>
+  <tr v-for="(condition, index) in conditions" :key="index">
+    <td>{{condition.id}}</td>
+    <td class="td-text-align-left" style="width: 43.3%;padding: 1.5%;">{{condition.name}}</td>
+    <td id="ls-5yrs" @click="onDrillDown(condition.name+lessThanFiveYears, condition.lessThanFiveYearsPatientIds);"> <a> {{condition.lessThanFiveYears}} </a> </td>
+    <td id="grt-5yrs" @click="onDrillDown(condition.name+greaterAndEqualFiveYears, condition.greaterThanEqualFiveYearsPatientIds);"> <a> {{condition.greaterThanEqualFiveYears}} </a> </td>
+    <td id="total" @click="onDrillDown(condition.name+total, condition.totalPatientIds);"> <a> {{condition.total}} </a> </td>
   </tr>
   </table>
 </template>
@@ -151,5 +151,10 @@ td {
 .granules-right-td {
   border-right-style: dotted !important;
   border-right-width: 1px;
+}
+.td-text-align-left {
+  text-align: left;
+  margin: auto;
+  margin-left: 20px;
 }
 </style>
