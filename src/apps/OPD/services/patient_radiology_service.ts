@@ -4,7 +4,8 @@ import { PrintoutService } from "@/services/printout_service";
 import { Service } from "@/services/service";
 import moment from "dayjs";
 import { Patientservice } from "@/services/patient_service";
-import table from "@/components/DataViews/tables/ReportDataTable"
+import ApiClient from "@/services/api_client";
+import { isEmpty } from "lodash";
 
 export class PatientRadiologyService extends AppEncounterService {
   constructor(patientID: number, providerID: number) {
@@ -28,8 +29,17 @@ export class PatientRadiologyService extends AppEncounterService {
     return false
   }
 
-
   async getPreviousRadiologyExaminations(patient: any): Promise<any>{
+    const thirdpartyapps  = JSON.parse((await ApiClient.getConfig()).thirdpartyapps)
+    let url = ''
+    for (const app of thirdpartyapps) {
+      if(app.name == 'pacs') {
+        url = app.url
+      }
+    }
+    if (isEmpty(url)) {
+      url = `opd/encounters/radiology/${this.patientID}`
+    }
     const data =  await this.getRadiologyObs(patient.getID())
     if(!(data.length > 0)) { 
       return false;
@@ -42,9 +52,9 @@ export class PatientRadiologyService extends AppEncounterService {
         data[order].value_text,
         data[order].children[0].value_text,
         moment(data[order].obs_datetime).format('DD/MMM/YYYY'),
-        table.tdBtn('Select', async () => {
-          ''
-        })
+        `<ion-button slot="end" size="large" href="${url}" color="success">
+          View
+        </ion-button>`
       ]
       rows.push(row)
     }
