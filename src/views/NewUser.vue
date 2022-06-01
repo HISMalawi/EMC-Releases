@@ -16,7 +16,9 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { UserService } from "@/services/user_service"
 import { PersonService } from "@/services/person_service"
 import HisDate from "@/utils/Date"
-import { toastWarning, toastSuccess } from "@/utils/Alerts"
+import { toastWarning, toastSuccess, toastDanger } from "@/utils/Alerts"
+import { RecordConflictError } from "@/services/service";
+import { isEmpty } from "lodash";
 import { find } from "lodash";
 
 export default defineComponent({
@@ -65,21 +67,29 @@ export default defineComponent({
   },
   methods: {
     async onFinish(_: any, computeValues: any) {
-        switch(this.activity) {
-            case 'add':
-                this.activity = 'edit'
-                await this.create(computeValues)
-                break;
-            case 'edit':
-                await this.update(computeValues)
-                if (this.isSessionPasswordChange) {
-                    this.$router.push('/')
-                }
-                break;
+        try {
+            switch(this.activity) {
+                case 'add':
+                    await this.create(computeValues)
+                    this.activity = 'edit'
+                    break;
+                case 'edit':
+                    await this.update(computeValues)
+                    if (this.isSessionPasswordChange) {
+                        this.$router.push('/')
+                    }
+                    break;
+            }
+            this.formKey += 1
+            this.activeField = 'user_info'
+            this.$nextTick(() => this.fieldComponent = this.activeField)
+        } catch (e) {
+            if (e instanceof RecordConflictError && !isEmpty(e.errors)) {
+                toastWarning(e.errors)
+            } else {
+                toastDanger(`${e}`)
+            }
         }
-        this.formKey += 1
-        this.activeField = 'user_info'
-        this.$nextTick(() => this.fieldComponent = this.activeField)
     },
     async create(data: any) {
         const { user } = await UserService.createUser(data)
