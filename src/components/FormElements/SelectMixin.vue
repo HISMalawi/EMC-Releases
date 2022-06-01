@@ -49,7 +49,7 @@ export default defineComponent({
             page: 1,
             limit: 10,
             threshold: '100px',
-            handler: async (filter: string, page: number, limit: number) => [] as any[]
+            handler: async (filter: string, page: number, limit: number) => [] as Option[]
         },
     }),
     created(){
@@ -120,7 +120,7 @@ export default defineComponent({
         async pushData(evt: any) {
             if(this.infiniteScroll.enabled && typeof this.infiniteScroll.handler === 'function') {
                 this.infiniteScroll.page++
-                const items: any[] = await this.infiniteScroll.handler(this.filter, this.infiniteScroll.page, this.infiniteScroll.limit)
+                const items: Option[] = await this.infiniteScroll.handler(this.filter, this.infiniteScroll.page, this.infiniteScroll.limit)
                 this.listData.push(...items)
             }
             evt.target.complete()
