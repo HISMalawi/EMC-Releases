@@ -777,6 +777,7 @@ export default defineComponent({
           id: "registration_summary",
           helpText: "Summary",
           type: FieldType.TT_SUMMARY,
+          condition: () => !this.skipSummary,
           options: (f: any, c: any) => {  
                 return this.buildRegistrationSummary(c)
           },

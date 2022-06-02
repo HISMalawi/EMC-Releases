@@ -78,12 +78,12 @@ export class OpdReportService extends Service {
     startDate: string;
     endDate: string;
     date: string;
-    quarter: string
+    epiweek: string;
     constructor() {
         super()
         this.endDate = ''
         this.startDate = ''
-        this.quarter = ''
+        this.epiweek = ''
         this.date = Service.getSessionDate()
         this.programID = Service.getProgramID()
     }
@@ -153,8 +153,14 @@ export class OpdReportService extends Service {
         this.endDate = endDate
     }
 
-    setQuarter(quarter: string) {
-        this.quarter = quarter
+    setEpiWeek(epiweek: string) {
+        this.epiweek = epiweek
+    }
+
+    getReportPeriod() {
+        return this.startDate && this.endDate
+         ? `${HisDate.toStandardHisDisplayFormat(this.startDate)} - ${HisDate.toStandardHisDisplayFormat(this.endDate)}`
+         : '-'
     }
 
     getReport(url: string, params={}) {
@@ -167,8 +173,8 @@ export class OpdReportService extends Service {
             payload['start_date'] = this.startDate
             payload['end_date'] = this.endDate
         }
-        if (this.quarter) {
-            payload['quarter'] = this.quarter
+        if (this.epiweek) {
+            payload['epiweek'] = this.epiweek
         }
         return { ...payload, ...config }
     }
@@ -185,4 +191,5 @@ export class OpdReportService extends Service {
         }
         return quarters
     }
+
 }

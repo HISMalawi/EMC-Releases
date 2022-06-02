@@ -65,7 +65,7 @@ export default defineComponent({
           flows[conceptName] = conceptID;
         });
       });
-      const stateValue = formData.patient_outcome.value;
+      const stateValue = formData.patient_outcome ? formData.patient_outcome.value : 'Continue follow-up';
       const state = {
         'location_id': ProgramService.getLocationName(),
         state: flows[stateValue],
@@ -205,6 +205,7 @@ export default defineComponent({
           helpText: "Recommended plan of care",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
+          condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
           options: () =>
             this.mapOptions([
               'Hysterectomy',
@@ -219,6 +220,7 @@ export default defineComponent({
           id: "patient_outcome",
           helpText: "Patient outcome",
           type: FieldType.TT_SELECT,
+          condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
           validation: (val: any) => Validation.required(val),
           options: () =>
             this.mapOptions([

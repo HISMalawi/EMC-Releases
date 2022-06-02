@@ -37,8 +37,9 @@ export default defineComponent({
   methods: {
     async onSubmit(_: any, computedData: any){
       const data = await Promise.all(computedData.radiology)
-      await this.radiologyService.createEncounter()    
-      const savedObsData = await this.radiologyService.saveObservationList(data)
+      await this.radiologyService.createEncounter()
+      const obsObj = await this.radiologyService.obsObj(data) 
+      const savedObsData = await this.radiologyService.saveObservationList(obsObj)
       await this.radiologyService.printOrders(data, this.patient)
       if(this.isPacsEnabled) {
         try {
@@ -51,6 +52,16 @@ export default defineComponent({
     },
     getFields(): Array<Field>{
       return [
+        {
+          id: 'radiology_results',
+          helpText: 'Previous Radiology Examinations',
+          condition: () => this.radiologyService.showPreviousRadiolgy(this.patient),
+          type: FieldType.TT_TABLE_VIEWER,
+          options: (d: any) => this.radiologyService.getPreviousRadiologyExaminations(this.patient),
+          config: {
+            hiddenFooterBtns: ["Clear"],
+          },
+        },
         {
           id: 'radiology',
           helpText: 'Radiology Examination',
