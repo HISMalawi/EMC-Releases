@@ -279,6 +279,7 @@ import { ConceptService } from "@/services/concept_service"
 import { PersonService } from "@/services/person_service"
 import { TaskInterface } from "@/apps/interfaces/TaskInterface"
 import { nextTask } from "@/utils/WorkflowTaskHelper"
+import App from "@/apps/app_lib"
 
 export default defineComponent({
     components: {
@@ -318,7 +319,7 @@ export default defineComponent({
     },
     data: () => ({
         activeTab: 1 as number,
-        app: ProgramService.getActiveApp() as any,
+        app: {} as any,
         dashboardComponent: {} as any,
         isBDE: false as boolean,
         currentDate: '',
@@ -381,6 +382,8 @@ export default defineComponent({
     },
     methods: {
         async init() {
+            await App.doAppManagementTasks()
+            this.app = App.getActiveApp()
             this.patient = await this.fetchPatient(this.patientId)
             try {
                 this.patientProgram = await ProgramService.getProgramInformation(this.patientId)

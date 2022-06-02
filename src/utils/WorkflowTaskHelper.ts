@@ -75,7 +75,8 @@ export async function nextTask(patientID: number, router: any, curRoute: any = {
                 const task = activeApp.primaryPatientActivites.filter(
                     (task) => task.name.toLowerCase() === taskName
                 )
-                // Check workflow task config for any default actions defined.
+                // Check workflow task config for any default actions defined
+                // and run them instead of default redirection action
                 if (task.length && typeof task[0].action === 'function') {
                     return task[0].action({ patientID, router })
                 }
