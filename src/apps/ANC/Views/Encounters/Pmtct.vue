@@ -17,6 +17,7 @@ import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { IonPage } from "@ionic/vue"
 import { AncArtFollowupService } from "@/apps/ANC/Services/anc_art_followup_service"
+import { PatientTypeService } from '@/apps/ART/services/patient_type_service'
 
 export default defineComponent({
   components: { IonPage },
@@ -37,9 +38,21 @@ export default defineComponent({
     }
   },
   methods: {
-    async onFinish(_: any, c: any) {
+    async onFinish(f: any, c: any) {
       await this.service.createEncounter()
       await this.service.saveObservationList((await this.resolveObs(c)))
+      if (f.pmct === 'true') {
+        // Switch to ART application if the next task is ART related
+        const nxtTask = await this.getNextTaskNameOnly()
+        const artTasks = ['hiv reception', 'hiv clinic registration']
+        if (artTasks.includes(nxtTask.toLowerCase())) {
+          return this.nextTask('ART', async () => {
+            const enc = new PatientTypeService(this.patientID, this.providerID)
+            await enc.createEncounter()
+            await enc.savePatientType('New patient')
+          })
+        }
+      }
       this.nextTask()
     },
     getFields() {
