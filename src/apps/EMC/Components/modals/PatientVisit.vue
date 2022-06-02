@@ -24,7 +24,7 @@
             :min="1" 
             class="ion-margin-top"
             :class="form.weight.error ? 'box-input-error'  : 'box-input'" 
-            v-model="form.weight.value" 
+            v-model="form.weight.value"
           />
           <ion-note v-if="form.weight.error" color="danger">{{ form.weight.error }}</ion-note>
         </ion-col>
@@ -52,12 +52,12 @@
           />
           <ion-note v-if="form.tbStatus.error" color="danger">{{ form.tbStatus.error }}</ion-note>
         </ion-col>
-        <template v-if="patient.isChildBearing()">
+        <template v-if="isFemale">
           <ion-col size="6" class="ion-margin-vertical ion-padding-top">
             <yes-no-input 
               label="Pregnant" 
               :value="form.isPregnant.value"  
-              @onSelect="(state) => form.isPregnant = state" 
+              @onSelect="(state) => form.isPregnant.value = state" 
               inline
             />
           <ion-note v-if="form.isPregnant.error" color="danger">{{ form.isPregnant.error }}</ion-note>
@@ -118,7 +118,7 @@
             :value="form.regimen.value"
             :options="regimens"
             :searchable="false"
-            @onSelect="(reg) => form.regimen = reg"
+            @onSelect="(reg) => form.regimen.value = reg"
           />
           <ion-note v-if="form.regimen.error" color="danger">{{ form.regimen.error }}</ion-note>
         </ion-col>
@@ -255,11 +255,11 @@ import {
   IonButton, 
   IonInput, 
   IonLabel,
-  IonCheckbox, 
+  IonCheckbox,
+IonNote, 
 } from "@ionic/vue";
 import { alertConfirmation, toastSuccess, toastWarning } from "@/utils/Alerts";
 import { differenceWith, isEmpty, isEqual, isEqualWith } from "lodash";
-import HisDate from "@/utils/Date";
 import { Option } from "@/components/Forms/FieldInterface";
 import SearchableSelectInput from "../inputs/SearchableSelectInput.vue";
 import YesNoInput from "../inputs/yesNoInput.vue";
@@ -271,6 +271,27 @@ import { ProgramService } from "@/services/program_service";
 import { DrugOrderService } from "@/services/drug_order_service";
 import { VitalsService } from "@/apps/ART/services/vitals_service";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
+import EncounterMixinVue from "@/views/EncounterMixin.vue";
+import { ConsultationService } from "@/apps/ART/services/consultation_service";
+import { ReceptionService } from "@/apps/ART/services/reception_service";
+import { AdherenceService } from "@/apps/ART/services/adherence_service";
+import { AppointmentService } from "@/apps/ART/services/appointment_service";
+import { PrescriptionService } from "@/apps/ART/services/prescription_service";
+import dayjs from "dayjs";
+import { ObsValue } from "@/services/observation_service";
+import { BMIService } from "@/services/bmi_service";
+import { RegimenInterface } from "@/interfaces/Regimen";
+import { DispensationService } from "@/apps/ART/services/dispensation_service";
+// import { HisDate } from "../../utils/HisDate";
+
+interface FormInterface {
+  [x: string]: {
+    value: any;
+    error: string;
+    validation?: Function;
+    computedValue?: Function;
+  };
+}
 
 export default defineComponent({
   components: {
@@ -282,6 +303,7 @@ export default defineComponent({
     IonButton,
     IonInput,
     IonLabel,
+    IonNote,
     IonGrid,
     IonRow,
     IonCol,
@@ -289,7 +311,7 @@ export default defineComponent({
     SearchableSelectInput,
     YesNoInput,
     MultiColumnView
-},
+  },
   props: {
     patient: {
       type: Object as PropType<PatientObservationService>,
@@ -297,47 +319,74 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const vitalsService = new VitalsService(props.patient.getID(), -1)
-    const { toStandardHisFormat } = HisDate
+    const patientId = computed(() => props.patient.getID())
+    const vitals = new VitalsService(patientId.value, -1)
+    const consultations = new ConsultationService(patientId.value, -1)
+    const prescription = new PrescriptionService(patientId.value, -1)
+    const dispensation = new DispensationService(patientId.value, -1)
+    const reception = new ReceptionService(patientId.value, -1)
+    const adherence = new AdherenceService(patientId.value, -1)
+    const appointment = new AppointmentService(patientId.value, -1)
     const prevHeight = ref<number>()
     const totalPrevDrugs = ref<number>()
     const regimens = ref<Option[]>([])
     const contraIndications = ref<Option[]>([]);
     const sideEffects = ref<Option[]>([]);
+    const showHeightField = computed(() => !(prevHeight.value && props.patient.getAge() > 18))
+    const isFemale = computed(() => props.patient.isFemale())
 
-    const form = reactive({
+    const form = reactive<FormInterface>({
+      visitDate: {
+        value: undefined as string | undefined,
+        error: '',
+        validation: (date: Option) => {
+          if (isEmpty(date.value)) {
+            return ['Visit date is required']
+          }
+          if(dayjs(date.value).isAfter(dayjs())) {
+            return ["Visit date cannot be after today's date"]
+          }
+          return null
+        }
+      },
       weight: {
         value: undefined as number | undefined,
         error: '',
+        computedValue: (weight: number) => ({
+          tag: 'vitals',
+          obs: vitals.buildValueNumber('Weight', weight)
+        }),
         validation: (weight: Option) => StandardValidations.validateSeries([
           () => StandardValidations.required(weight),
-          () => vitalsService.validator(weight)
+          () => vitals.validator(weight)
         ])
       },
       height: {
         value: undefined as number | undefined,
         error: '',
-        validation: (height: Option) => vitalsService.validator(height)
-      },
-      regimen: {
-        value: undefined as Option | undefined,
-        error: '',
-        validation: (regimen: Option) => StandardValidations.required(regimen)
+        computedValue: (height: number) => ({
+          tag: 'vitals',
+          obs: vitals.buildValueNumber('Height', height)
+        }),
+        validation: (height: Option) => showHeightField.value && vitals.validator(height)
       },
       isPregnant: {
         value: undefined as "Yes" | "No"  | undefined,
         error: '',
-        validation: (state: Option) => props.patient.isChildBearing() && StandardValidations.required(state)
+        computedValue: (isPregnant: "Yes" | "No") => ({
+          tag: 'consultation',
+          obs: consultations.buildValueCoded('Is patient pregnant', isPregnant)
+        }),
+        validation: (state: Option) => isFemale.value && StandardValidations.required(state)
       },
       isBreastfeeding: {
         value: undefined as "Yes" | "No"  | undefined,
         error: '',
-        validation: (state: Option) => props.patient.isChildBearing() && StandardValidations.required(state)
-      },
-      visitDate: {
-        value: undefined as string | undefined,
-        error: '',
-        validation: (date: Option) => StandardValidations.required(date)
+        computedValue: (isBreastfeeding: "Yes" | "No") => ({
+          tag: 'consultation',
+          obs: consultations.buildValueCoded('Is patient breast feeding', isBreastfeeding)
+        }),
+        validation: (state: Option) => isFemale.value && StandardValidations.required(state)
       },
       nextAppointmentDate: {
         value: undefined as string | undefined,
@@ -359,14 +408,30 @@ export default defineComponent({
         error: '',
         validation: (pills: Option) => StandardValidations.isNumber(pills)
       },
+      regimen: {
+        value: undefined as Option | undefined,
+        error: '',
+        computedValue: () => ({
+          tag: 'consultation',
+          obs: prescription.buildValueCoded("Medication orders", "Antiretroviral drugs")
+        }),
+        validation: (regimen: Option) => StandardValidations.required(regimen)
+      },
       totalCPTGiven: {
         value: undefined as number  | undefined,
         error: '',
-        validation: (drugs: Option) => StandardValidations.isNumber(drugs)
+        computedValue: () => ({
+          tag: 'consultation',
+          obs: prescription.buildValueCoded("Medication orders", "CPT")
+        }),
       },
       totalIPTGiven: {
         value: undefined as number  | undefined,
         error: '',
+        computedValue: () => ({
+          tag: 'consultation',
+          obs: prescription.buildValueCoded("Medication orders", "INH")
+        }),
         validation: (drugs: Option, form: any) => {
           return (form.tbMed.value?.label === '6H' || form.tbMed.value?.label === '3HP (RFP + INH)') && 
             StandardValidations.isNumber(drugs)
@@ -375,6 +440,10 @@ export default defineComponent({
       totalRFPGiven: {
         value: undefined as number  | undefined,
         error: '',
+        computedValue: () => ({
+          tag: 'consultation',
+          obs: prescription.buildValueCoded("Medication orders", "3HP (RFP + INH)")
+        }),
         validation: (drugs: Option, form: any) => {
           return form.tbMed.value?.label === '3HP (RFP + INH)' && 
             StandardValidations.isNumber(drugs)
@@ -383,6 +452,10 @@ export default defineComponent({
       total3HPGiven: {
         value: undefined as number  | undefined,
         error: '',
+        computedValue: () => ({
+          tag: 'consultation',
+          obs: prescription.buildValueCoded("Medication orders", "INH 300 / RFP 300 (3HP)")
+        }),
         validation: (drugs: Option, form: any) => {
           return form.tbMed.value?.label === '3HP (INH 300 / RFP 300)' && 
             StandardValidations.isNumber(drugs)
@@ -391,7 +464,7 @@ export default defineComponent({
       totalArvsGiven: {
         value: undefined as number  | undefined,
         error: '',
-        validation: (drugs: Option) => StandardValidations.isNumber(drugs)
+        validation: (drugs: Option, form: any) => form.regimen.value && StandardValidations.isNumber(drugs)
       },
       tbMed: {
         value: undefined as Option | undefined,
@@ -401,9 +474,9 @@ export default defineComponent({
       hasContraindications: {
         value: undefined as "Yes" | "No"  | undefined,
         error: '',
-        validation: (state: Option, form: any) => {
+        validation: (state: Option) => {
           if(state.value === "Yes" && contraIndications.value.some(x => !x.isChecked))
-            return ["Please select at least one"]
+            return ["Please select at least one side effect"]
           return StandardValidations.required(state)
         }
       },
@@ -411,12 +484,19 @@ export default defineComponent({
         value: undefined as "Yes" | "No"  | undefined,
         error: '',
         validation: (state: Option, form: any) => {
-          return form.hasContraindications.value === 'Yes' && StandardValidations.required(state)
+          if(form.hasContraindications.value === "No") return null
+          if(state.value === "Yes" && sideEffects.value.some(x => !x.isChecked))
+            return ["Please select at least one side effect"]
+          return StandardValidations.required(state)
         }
       },
       tbStatus: {
         value: undefined as Option | undefined,
         error: '',
+        computedValue: (status: Option) => ({
+          tag: 'consultation',
+          obs: consultations.buildValueCoded('TB Status', status.label)
+        }),
         validation: (state: Option) => StandardValidations.required(state)
       },
     })
@@ -424,7 +504,6 @@ export default defineComponent({
     const hasGiven3HP = computed(() => form.tbMed.value?.label === '3HP (INH 300 / RFP 300)')
     const hasGivenRFP = computed(() => form.tbMed.value?.label === '3HP (RFP + INH)')
     const hasGiven6H = computed(() => form.tbMed.value?.label === '6H')
-    const showHeightField = computed(() => !(prevHeight.value && props.patient.getAge() > 18))
     
     const tbStatuses = ref<Option[]>([
       { label: 'Confirmed TB Not on treatment', value: 'Confirmed TB Not on treatment' },
@@ -458,7 +537,7 @@ export default defineComponent({
     };
 
     const isValid = () => {
-      for (const key of Object.keys(form) as (keyof typeof form)[]) {
+      for (const key in form) {
         if(typeof form[key].validation !== 'function') {
           form[key].error = ''
           continue
@@ -467,9 +546,10 @@ export default defineComponent({
             ? form[key].value
             : { label: form[key].value, value: form[key].value }
 
-        const errs = form[key].validation(payload as Option, form)
+        const errs = form[key].validation!(payload as Option, form)
         if(errs && errs.length > 0) {
           form[key].error = errs.toString()
+          console.log(key, form[key].error)
         } else {
           form[key].error = ''
         }       
@@ -477,17 +557,172 @@ export default defineComponent({
       return Object.values(form).every(({ error }) => !error)
     }
 
+    const resolveObs = (obs: any, tag=''): Promise<ObsValue[]> => {
+      const values: any = Object.values(obs)
+        .filter((d: any) => d && (d.tag === tag || tag === ''))
+        .reduce((accum: any, cur: any) => { 
+            const data = cur.obs ? cur.obs : cur
+            if (Array.isArray(data)) {
+              accum = accum.concat(data)
+            } else {
+               accum.push(data)
+            }
+            return accum
+            }, [])
+      return Promise.all(values)
+    }
+
+    const resolveFormValues = () => {
+      const formData: any = {}
+      const computedFormData: any = {}
+      for (const key in form) {
+        if(!isEmpty(form[key].value)) {
+          formData[key] = typeof form[key].value === 'object' ? form[key].value.value : form[key].value
+          if(typeof form[key].computedValue === 'function') {
+            computedFormData[key] = form[key].computedValue!(form[key].value)
+          }
+        }
+      }
+      return { formData, computedFormData }
+    }
+
+    const getBmiObs = async (formData: any): Promise<ObsValue> => {
+      const height = formData.height || prevHeight.value
+      const bmi = BMIService.calculateBMI(formData.weight, height)
+      return vitals.buildValueNumber('BMI', bmi)
+    }
+
+    const getFpmObs = async () => {
+      const obs: ObsValue[] = [
+        await consultations.buildValueCoded('Patient using family planning', 'No')
+      ]
+      const methos = consultations.getFamilyPlanningMethods()
+      methos.forEach(async (method) => {
+        obs.push(await consultations.buildValueCoded(method, "No"))
+      })
+      return obs
+    }
+
+    const getTbSymptomsObs = async () => {
+      return await Promise.all(ConceptService.getConceptsByCategory("tb_symptom", true).map(async (concept) => {
+        return {
+          ...await consultations.buildValueCodedFromConceptId(concept.name, concept['concept_id']),
+          child: consultations.buildValueCoded(concept.name, "No")
+        }
+      }))
+    }
+
+    const buildGroupObs = async (conceptName: string, options: Option[]) => {
+      return await Promise.all(options.map(async (option) => {
+        return {
+          ...await consultations.buildValueCoded(conceptName, option.label),
+          child: await consultations.buildValueCoded(option.label, option.isChecked ? 'Yes' : 'No')
+        }
+      }))
+    }
+
+    const toDrugOrder = (drug: any, quantity: number, duration: number, startDate: string) => {
+      return {
+        "drug_inventory_id": drug.drug_id,
+        "equivalent_daily_dose": prescription.calculateEquivalentDosage(drug.am, drug.pm),
+        "dose": prescription.calculateDosage(drug.am, drug.pm),
+        start_date: startDate,
+        "auto_expire_date": dayjs(startDate).add(duration, 'days').format('YYYY-MM-DD'), 
+        "units": drug.units,
+        "qty": quantity,
+        "frequency": drug.frequency,
+        "instructions": prescription.getInstructions(drug.drug_name, drug.am, drug.pm, drug.units),
+      }
+    }
+
     const onSubmit = async () => {
+      console.log('submitting the form')
       if(!isValid()) return
       console.log("the form is valid")
+      const { formData, computedFormData } = resolveFormValues()
+      PatientObservationService.setSessionDate(formData.visitDate)
+
+      await vitals.createEncounter()
+      const vitalsObs = await resolveObs(computedFormData, 'vitals')
+      const bmiObs = await getBmiObs(formData)
+      await vitals.saveObservationList([...vitalsObs, bmiObs])
+
+      await consultations.createEncounter()
+      const consultationObs = await resolveObs(computedFormData, 'consultation')
+      if(isFemale.value) consultationObs.concat(await getFpmObs())
+      if(form.hasContraindications.value === 'Yes') 
+        consultationObs.concat(await buildGroupObs("Malawi ART side effects", contraIndications.value))
+      if(form.hasSideEffects.value === 'Yes') 
+        consultationObs.concat(await buildGroupObs("Other side effect", sideEffects.value))
+      consultationObs.concat(await getTbSymptomsObs())
+      await consultations.saveObservationList(consultationObs)
+
+      await prescription.createEncounter()
+      const drugOrders: any[] = []
+      let duration = 0
+      if(formData.regimen && formData.totalArvsGiven) {
+        const arvDrugs: any[] = form.regimen.value.other
+        duration = Math.min(...arvDrugs.map(drug =>(formData.totalArvsGiven / (drug.am + drug.pm)) + 2))
+        arvDrugs.forEach((drug: any) => drugOrders.push(
+          toDrugOrder(drug, formData.totalArvsGiven, duration, formData.visitDate)
+        ))
+      }
+
+      if(formData.totalCPTGiven) {
+        const cptRegimens = await RegimenService.getRegimenExtras('Cotrimoxazole', formData.weight)
+        cptRegimens.forEach((drug: any) => {
+          if(drug.drug_name !== "Cotrimoxazole (480mg tablet)") {
+            drugOrders.push(toDrugOrder(drug, formData.totalCPTGiven, duration, formData.visitDate))
+          }
+        })
+      }
+
+      if(formData.totalIPTGiven) {
+        const iptRegimens = await RegimenService.getRegimenExtras('INH', formData.weight)
+        iptRegimens.forEach((drug: any) => {
+          drugOrders.push(toDrugOrder(drug, formData.totalIPTGiven, duration, formData.visitDate))
+        })
+      }
+
+      if(formData.totalRFPGiven) {
+        const rfpRegimens = await RegimenService.getRegimenExtras('Rifapentine', formData.weight)
+        rfpRegimens.forEach((drug: any) => {
+          drugOrders.push(toDrugOrder(drug, formData.totalRFPGiven, duration, formData.visitDate))
+        })
+      }
+
+      if(formData.total3HPGiven) {
+        const threeHPRegimens = await RegimenService.getRegimenExtras('INH / RFP', formData.weight)
+        threeHPRegimens.forEach((drug: any) => {
+          drugOrders.push(toDrugOrder(drug, formData.total3HPGiven, duration, formData.visitDate))
+        })
+      }
+
+      const orders: any[] = await prescription.createDrugOrder(drugOrders)
+      const dispensations = orders.map(order => {
+        const drug = drugOrders.find(drug => drug.drug_inventory_id === order.drug_inventory_id)
+        return dispensation.buildDispensations(order.order_id, drug.qty, 1)
+      })
+      await dispensation.saveDispensations(dispensations)
+
+      // await appointment.createEncounter()
+      // const appointmentObs = await resolveObs(computedFormData, 'appointment')
+      // await appointment.saveObservationList(appointmentObs)
+
+      // await adherence.createEncounter()
+      // const adherenceObs = await resolveObs(computedFormData, 'adherence')
+      // await adherence.saveObservationList(adherenceObs)
+
+      // await reception.createEncounter()
+      // const receptionObs = await resolveObs(computedFormData, 'reception')
+      // await reception.saveObservationList(receptionObs)
     }
 
     const onClear = async () => {
       const confirm = await alertConfirmation('Are you sure you want to clear all fields?')
       if(confirm) {
-        type K = keyof typeof form
         for(const key in form) {
-          form[key as K].value = undefined
+          form[key].value = undefined
         }
       }
     }
@@ -499,6 +734,7 @@ export default defineComponent({
         totalPrevDrugs.value = prevPrescription[0].quantity
       }
       const regs: Record<string, any[]> = await RegimenService.getRegimens(props.patient.getID())
+      console.log(regs)
       if(!isEmpty(regs)) {
         regimens.value = Object.keys(regs).map(key => ({ label: key, value: key, other: regs[key] }))
       }
@@ -531,6 +767,7 @@ export default defineComponent({
       hasGiven6H,
       totalPrevDrugs,
       showHeightField,
+      isFemale,
       setPatientPresent,
       setGuardianPresent,
       closeModal,
