@@ -38,21 +38,9 @@ export default defineComponent({
     }
   },
   methods: {
-    async onFinish(f: any, c: any) {
+    async onFinish(_: any, c: any) {
       await this.service.createEncounter()
       await this.service.saveObservationList((await this.resolveObs(c)))
-      if (f.pmct === 'true') {
-        // Switch to ART application if the next task is ART related
-        const nxtTask = await this.getNextTaskNameOnly()
-        const artTasks = ['hiv reception', 'hiv clinic registration']
-        if (artTasks.includes(nxtTask.toLowerCase())) {
-          return this.nextTask('ART', async () => {
-            const enc = new PatientTypeService(this.patientID, this.providerID)
-            await enc.createEncounter()
-            await enc.savePatientType('New patient')
-          })
-        }
-      }
       this.nextTask()
     },
     getFields() {

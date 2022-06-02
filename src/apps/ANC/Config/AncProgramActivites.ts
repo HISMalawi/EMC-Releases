@@ -1,4 +1,25 @@
 import { TaskInterface } from "@/apps/interfaces/TaskInterface";
+import Apps from '@/apps/app_lib'
+import { alertConfirmation } from "@/utils/Alerts";
+import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
+
+/**
+ * Callback method for Encounters that integrate with ART system
+ * @param params 
+ * @param contextAction 
+ */
+async function onPMTCTworkflowTask(params: any) {
+    if ((await alertConfirmation(`Do you want switch to ART Application to proceed with PMTCT tasks?`))) {
+        Apps.switchAppWorkflow('ART', params.patientID, params.router, 
+        async () => {
+            const enc = new PatientTypeService(params.patientID, -1);
+            await enc.createEncounter()
+            await enc.savePatientType('New patient')
+        })
+    } else {
+        params.router.push('/patient/dashboard/'+params.patientID)
+    }
+}
 
 export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     {
@@ -82,6 +103,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
         name: "Hiv clinic registration",
         workflowID: "HIV first visits",
         icon: "registration.png",
+        action: (params: any) => onPMTCTworkflowTask(params),
         condition: () => false
     },
     {
@@ -89,6 +111,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
         name: "HIV reception",
         workflowID: "HIV reception visits",
         icon: "reception.png",
+        action: (params: any) => onPMTCTworkflowTask(params),
         condition: () => false
     }
 ]
