@@ -41,7 +41,7 @@
             <ion-button 
                 :style="{width: '100%'}" 
                 color="success"
-                @click="$router.push(nextTask)">
+                @click="goToNextTask">
                 <ion-label><b>Next Task: {{ nextTask.name.toUpperCase() }}</b></ion-label>
                 <ion-icon :icon="alertCircle"> </ion-icon>
             </ion-button>
@@ -135,7 +135,7 @@
                             </ion-col> 
                             <ion-col size-md="4" size-sm="6"> 
                                 <span v-if="nextTask.name"> 
-                                    <ion-chip class="next-task" color="success" @click="$router.push(nextTask)">Next Task: {{ nextTask.name.toUpperCase() }}</ion-chip>
+                                    <ion-chip class="next-task" color="success" @click="goToNextTask">Next Task: {{ nextTask.name.toUpperCase() }}</ion-chip>
                                 </span>
                                 <span v-else> 
                                     Next Task: <b>NONE</b>
@@ -278,6 +278,8 @@ import { EncounterService } from '@/services/encounter_service'
 import { ConceptService } from "@/services/concept_service"
 import { PersonService } from "@/services/person_service"
 import { TaskInterface } from "@/apps/interfaces/TaskInterface"
+import { nextTask } from "@/utils/WorkflowTaskHelper"
+
 export default defineComponent({
     components: {
         IonSegment,
@@ -509,6 +511,9 @@ export default defineComponent({
         },
         getNextTask(patientId: number) {
             return WorkflowService.getNextTaskParams(patientId)
+        },
+        goToNextTask() {
+            nextTask(this.patientId, this.$router)
         },
         onActiveVisitDate(data: Option) {
             this.activeVisitDate = data.value
