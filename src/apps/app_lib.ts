@@ -5,6 +5,8 @@ import { find, isEmpty } from 'lodash';
 import GlobalApp from "@/apps/GLOBAL_APP/global_app"
 import { AppInterface } from "./interfaces/AppInterface";
 import { Service } from "@/services/service";
+import { nextTask } from "@/utils/WorkflowTaskHelper"
+
 /**
 * Merge global configurations with app configurations
 */
@@ -34,6 +36,46 @@ function getActiveApp(): AppInterface | undefined {
     }
 }
 
+/**
+ * Updates global configuration with current running application
+ * @param app 
+ * @returns 
+ */
+async function startApplication(app: AppInterface) {
+    sessionStorage.setItem('applicationName', app.applicationName)
+    const configuredApp = applyGlobalConfig(app)
+    if (app.init) await app.init('')
+    return configuredApp
+}
+
+/**
+ * Perform a silent application switch and go directly to it's workflow
+ * @param appName
+ * @param patientID
+ * @param router
+ */
+async function switchAppWorkflow(
+    appName: string,
+    patientID: number,
+    router: any,
+    beforeNextTask=undefined as Function | undefined
+    ) {
+    const app: AppInterface | undefined = find(Apps, { applicationName: appName })
+    if (app) {
+        await startApplication(app)
+        if (typeof beforeNextTask === 'function') { 
+            await beforeNextTask()
+        }
+        nextTask(patientID, router)
+    }
+}
+
+/**
+ * Presents a modal to the user to select an application and switch to it
+ * @param context 
+ * @param canClose 
+ * @returns 
+ */
 async function selectApplication(context='', canClose=false) {
     const modal = await modalController.create({
         component: ApplicationModal,
@@ -51,15 +93,11 @@ async function selectApplication(context='', canClose=false) {
 
     if (!data || isEmpty(data)) return
 
-    const app: AppInterface = applyGlobalConfig(data)
-    
-    if (app.init) await app.init(context)
-    
-    sessionStorage.setItem('applicationName', app.applicationName)
-
-    return app
+    return startApplication(data)
 }
+
 export default {
+    switchAppWorkflow,
     selectApplication,
     getActiveApp
 }

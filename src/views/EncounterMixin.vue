@@ -11,6 +11,9 @@ import { ENCOUNTER_GUIDELINES, FlowState } from "@/guidelines/encounter_guidelin
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { delayPromise } from '@/utils/Timers'
+import Apps from '@/apps/app_lib'
+import { alertConfirmation } from '@/utils/Alerts'
+import { WorkflowService } from "@/services/workflow_service"
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -129,10 +132,26 @@ export default defineComponent({
             return `/patient/dashboard/${this.patientID}`
         },
         gotoPatientDashboard() {
-            return this.$router.push({path: this.patientDashboardUrl()}) 
+            return this.$router.push({path: this.patientDashboardUrl()})
         },
-        nextTask() {
-            return nextTask(this.patientID, this.$router)
+        async getNextTaskNameOnly() {
+            try {
+                const { name } = await WorkflowService.nextTask(this.patientID)
+                return name
+            } catch (e) {
+                console.warn(`${e}`)
+            }
+        },
+        async nextTask(appName='', beforeAppNextTask=undefined as Function | undefined) {
+            // Switch to currently running app's workflow
+            if (!appName || appName === ProgramService.getProgramName()) {
+                nextTask(this.patientID, this.$router)
+            } else {
+                // switch a task to another app but get verification from the user first
+                if ((await alertConfirmation(`Do you want to switch to ${appName} Application?`))) {
+                    Apps.switchAppWorkflow(appName, this.patientID, this.$router, beforeAppNextTask)
+                }
+            }
         },
         yesNoOptions(): Option[] {
             return [
