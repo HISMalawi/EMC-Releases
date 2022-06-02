@@ -1,6 +1,11 @@
 export default [
    {
       "categories": [],
+      "concept_id": 6408,
+      "name": "Other conditions"
+   },
+   {
+      "categories": [],
       "concept_id": 10546,
       "name": "Punch Biopsy"
    },    
