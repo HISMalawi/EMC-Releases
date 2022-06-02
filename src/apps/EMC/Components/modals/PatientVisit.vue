@@ -328,10 +328,11 @@ export default defineComponent({
     const adherence = new AdherenceService(patientId.value, -1)
     const appointment = new AppointmentService(patientId.value, -1)
     const prevHeight = ref<number>()
-    const totalPrevDrugs = ref<number>()
     const regimens = ref<Option[]>([])
     const contraIndications = ref<Option[]>([]);
     const sideEffects = ref<Option[]>([]);
+    const prevDrugs = ref<any[]>([]);
+    const totalPrevDrugs = computed(() => prevDrugs.value[0]?.quantity)
     const showHeightField = computed(() => !(prevHeight.value && props.patient.getAge() > 18))
     const isFemale = computed(() => props.patient.isFemale())
 
@@ -717,14 +718,19 @@ export default defineComponent({
       const receptionObs = await resolveObs(computedFormData, 'reception')
       await reception.saveObservationList(receptionObs)
 
+      await adherence.createEncounter()
+      const adherenceObs: any[] = []
+      prevDrugs.value.forEach(async (drug: any) => {
+        const expected = adherence.calculateExpected(drug.quantity, drug.equivalent_daily_dose, drug.order.start_date)
+        const adh = adherence.calculateAdherence(drug.quantity, formData.pillCount, expected)
+        adherenceObs.push(await adherence.buildAdherenceObs(drug.order_id, drug.drug_inventory_id, adh))
+        adherenceObs.push(await adherence.buildPillCountObs(drug.order_id, formData.pillCount))
+      })
+      await adherence.saveObservationList(adherenceObs)
+
       // await appointment.createEncounter()
       // const appointmentObs = await resolveObs(computedFormData, 'appointment')
       // await appointment.saveObservationList(appointmentObs)
-
-      // await adherence.createEncounter()
-      // const adherenceObs = await resolveObs(computedFormData, 'adherence')
-      // await adherence.saveObservationList(adherenceObs)
-
     }
 
     const onClear = async () => {
@@ -738,12 +744,9 @@ export default defineComponent({
 
     onMounted (async () => {
       prevHeight.value = await props.patient.getRecentHeight()
-      const prevPrescription: any[] = await DrugOrderService.getLastDrugsReceived(props.patient.getID())
-      if(prevPrescription.length > 0) {
-        totalPrevDrugs.value = prevPrescription[0].quantity
-      }
+      prevDrugs.value = await DrugOrderService.getLastDrugsReceived(props.patient.getID())
+      console.log(prevDrugs.value)
       const regs: Record<string, any[]> = await RegimenService.getRegimens(props.patient.getID())
-      console.log(regs)
       if(!isEmpty(regs)) {
         regimens.value = Object.keys(regs).map(key => ({ label: key, value: key, other: regs[key] }))
       }
