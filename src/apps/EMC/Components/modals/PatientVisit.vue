@@ -396,11 +396,19 @@ export default defineComponent({
       patientPresent: {
         value: undefined as "Yes" | "No"  | undefined,
         error: '',
+        computedValue: (patientPresent: "Yes" | "No") => ({
+          tag: 'reception',
+          obs: reception.buildValueCoded('Patient present', patientPresent)
+        }),
         validation: (state: Option) => StandardValidations.required(state)
       },
       guardianPresent: {
         value: undefined as "Yes" | "No"  | undefined,
         error: '',
+        computedValue: (guardianPresent: "Yes" | "No") => ({
+          tag: 'reception',
+          obs: reception.buildValueCoded('Guardian present', guardianPresent)
+        }),
         validation: (state: Option) => StandardValidations.required(state)
       },
       pillCount: {
@@ -705,6 +713,10 @@ export default defineComponent({
       })
       await dispensation.saveDispensations(dispensations)
 
+      await reception.createEncounter()
+      const receptionObs = await resolveObs(computedFormData, 'reception')
+      await reception.saveObservationList(receptionObs)
+
       // await appointment.createEncounter()
       // const appointmentObs = await resolveObs(computedFormData, 'appointment')
       // await appointment.saveObservationList(appointmentObs)
@@ -713,9 +725,6 @@ export default defineComponent({
       // const adherenceObs = await resolveObs(computedFormData, 'adherence')
       // await adherence.saveObservationList(adherenceObs)
 
-      // await reception.createEncounter()
-      // const receptionObs = await resolveObs(computedFormData, 'reception')
-      // await reception.saveObservationList(receptionObs)
     }
 
     const onClear = async () => {
