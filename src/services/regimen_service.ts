@@ -20,4 +20,8 @@ export class RegimenService extends Service {
     static getCurrentRegimen(patientId: number, date=this.getSessionDate()) {
         return this.getJson(`programs/${this.getProgramID()}/${patientId}`, {date})   
     }
+
+    static getRegimenExtras(name: string, weight: number) {
+        return this.getJson(`programs/${this.getProgramID()}/regimen_extras`, {name, weight})
+    }
 }
