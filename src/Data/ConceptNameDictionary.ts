@@ -1,6 +1,16 @@
 export default [
    {
       "categories": [],
+      "concept_id": 2137,
+      "name": "BMI",
+   },
+   {
+      "categories": [],
+      "concept_id": 1717,
+      "name": "Patient using family planning",
+   },
+   {
+      "categories": [],
       "concept_id": 856,
       "name": "HIV viral load",
    },
