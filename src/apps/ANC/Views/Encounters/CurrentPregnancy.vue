@@ -47,15 +47,17 @@ export default defineComponent({
       this.nextTask()
     },
     buildDelieveryDateObs(lmpDate: string) {
+      if (lmpDate != 'Unknown') {
         return [
-            this.service.buildValueDate('Last menstrual period', lmpDate),
-            this.service.buildValueDate('Estimated date of delivery', 
-                this.service.estimateDelieveryDate(lmpDate)
-            ),
-            this.service.buildValueNumber('Week of First Visit', 
-                this.service.calculateWeekOfFirstVisit(lmpDate)
-            )
+          this.service.buildValueDate('Last menstrual period', lmpDate),
+          this.service.buildValueDate('Estimated date of delivery', 
+            this.service.estimateDelieveryDate(lmpDate)
+          ),
+          this.service.buildValueNumber('Week of First Visit', 
+            this.service.calculateWeekOfFirstVisit(lmpDate)
+          )
         ]
+      }
     },
     getFields(): Field[] {
         return [
