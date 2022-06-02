@@ -141,6 +141,7 @@ export default defineComponent({
             } catch (e) {
                 console.warn(`${e}`)
             }
+            return ''
         },
         async nextTask(appName='', beforeAppNextTask=undefined as Function | undefined) {
             // Switch to currently running app's workflow
