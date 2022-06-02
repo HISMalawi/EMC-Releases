@@ -392,6 +392,10 @@ export default defineComponent({
       nextAppointmentDate: {
         value: undefined as string | undefined,
         error: '',
+        computedValue: (nextAppointmentDate: string) => ({
+          tag: 'appointment',
+          obs: appointment.buildValueDate('Appointment date', nextAppointmentDate)
+        }),
         validation: (date: Option) => StandardValidations.required(date)
       },
       patientPresent: {
@@ -728,9 +732,9 @@ export default defineComponent({
       })
       await adherence.saveObservationList(adherenceObs)
 
-      // await appointment.createEncounter()
-      // const appointmentObs = await resolveObs(computedFormData, 'appointment')
-      // await appointment.saveObservationList(appointmentObs)
+      await appointment.createEncounter()
+      const appointmentObs = await resolveObs(computedFormData, 'appointment')
+      await appointment.saveObservationList(appointmentObs)
     }
 
     const onClear = async () => {
