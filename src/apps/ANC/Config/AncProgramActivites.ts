@@ -90,44 +90,5 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
         workflowID: "HIV reception visits",
         icon: "reception.png",
         condition: () => false
-    },
-    {
-        id: "hiv staging",
-        name: "HIV staging",
-        workflowID: "HIV staging visits",
-        icon: "hiv-staging.png",
-        condition: () => false
-    },
-    {
-        id: "hiv clinic consultation",
-        name: "HIV clinic consultation",
-        workflowID: "HIV clinic consultations",
-        taskCompletionChecklist: [
-          'Medication orders'
-        ],
-        icon: "consultation.png",
-        condition: () => false
-    },
-    {
-        id: "art adherence",
-        name: "ART adherence",
-        workflowID: "ART adherence",
-        icon: "adherence.png",
-        condition: () => false
-    },
-    {
-        id: "treatment",
-        name: "Treatment",
-        workflowID: "Prescriptions",
-        icon: "prescription.png",
-        condition: () => false
-    },
-    {
-        id: "dispensing",
-        name: "Drug Dispensations",
-        encounterTypeName: "DISPENSING",
-        workflowID: "Drug Dispensations",
-        icon: "dispensing.png",
-        condition: () => false
     }
 ]
