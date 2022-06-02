@@ -35,6 +35,6 @@ export class AncCurrentPregnancyService extends AppEncounterService {
         const theDate: any = new Date(lnmpDate)
         theDate.setDate(theDate.getDate() + 7);
         theDate.setMonth(theDate.getMonth() + 9);
-        return `${theDate.getFullYear()}-${theDate.getMonth()}-${theDate.getDate()}`
+        return `${theDate.getFullYear()}-${theDate.getMonth()+1}-${theDate.getDate()}`
     }
 }
