@@ -262,6 +262,7 @@ export default defineComponent({
       return (this.pregnancyEligible()
         && !this.patientHitMenopause 
         && !this.isPregnant(formData))
+        && !this.isANCclient()
     },
     showNewContraceptionMethods(formData: any) {
       return (
@@ -269,6 +270,7 @@ export default defineComponent({
         !this.patientHitMenopause &&
         !this.isPregnant(formData) &&
         !this.isOnTubalLigation(formData)
+        && !this.isANCclient()
       )
     },
     isPregnant(formData: any) {
@@ -623,6 +625,9 @@ export default defineComponent({
       const orders = await OrderService.getOrdersIncludingGivenResultStatus(this.patientID);
       return OrderService.formatLabs(orders);
     },
+    isANCclient() {
+      return ProgramService.getSuspendedProgram() === 'ANC'
+    },
     getFields(): any {
       return [
         {
@@ -856,32 +861,39 @@ export default defineComponent({
               () => Validation.required(data),
               () => Validation.anyEmpty(data),
             ]),
-          computedValue: (v: Option[]) => ({
-            tag: 'consultation',
-            obs: v.map(d => this.consultation.buildValueCoded(d.other.concept, d.value)) 
-          }),
+          computedValue: (v: Option[]) => {
+            let obs = []
+            if (this.isANCclient()) obs.push(
+              this.consultation.buildValueCoded('Is patient pregnant', 'Yes')
+            )
+            obs = obs.concat(v.map(d => this.consultation.buildValueCoded(d.other.concept, d.value)))
+            return {
+              obs,
+              tag: 'consultation'
+            }
+          },
           options: (formData: any) => {
-            const options = [
-              {
-                label: "Pregnant",
-                value: "",
-                other: {
-                  values: this.yesNoOptions(),
-                  concept: "Is patient pregnant",
-                },
-              },
-              {
-                label: "Breastfeeding",
-                value: "",
-                other: {
-                  values: this.yesNoOptions(),
-                  concept: "Is patient breast feeding",
-                },
-              },
-            ]
-            return formData.pregnant_breastfeeding 
-              ? formData.pregnant_breastfeeding
-              : options
+            const options = []
+            // Because ANC clients are always Pregnant!
+            if (!this.isANCclient()) options.push({
+              label: "Pregnant",
+              value: "",
+              other: {
+                values: this.yesNoOptions(),
+                concept: "Is patient pregnant",
+              }
+            })
+
+            options.push({
+              label: "Breastfeeding",
+              value: "",
+              other: {
+                values: this.yesNoOptions(),
+                concept: "Is patient breast feeding",
+              }
+            })
+
+            return formData.pregnant_breastfeeding || options
           }
         },
         {

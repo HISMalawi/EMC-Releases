@@ -181,6 +181,10 @@ export class Service {
         return '';
     }
 
+    static getSuspendedProgram() {
+        return sessionStorage.getItem('suspendedApp') || ''
+    }
+
     static getProgramID() {
         const app = this.getActiveApp()
         
