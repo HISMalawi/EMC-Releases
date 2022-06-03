@@ -1,7 +1,7 @@
 import { AppEncounterService } from "@/services/app_encounter_service";
 import { PatientProgramService } from "@/services/patient_program_service"
 import dayjs from "dayjs";
-import HisDate from "@/utils/Date"
+import { AppendleadingZero } from "@/utils/Strs";
 
 export class AncCurrentPregnancyService extends AppEncounterService {
     constructor(patientID: number, providerID: number) {
@@ -35,6 +35,8 @@ export class AncCurrentPregnancyService extends AppEncounterService {
         const theDate: any = new Date(lnmpDate)
         theDate.setDate(theDate.getDate() + 7);
         theDate.setMonth(theDate.getMonth() + 9);
-        return `${theDate.getFullYear()}-${theDate.getMonth()+1}-${theDate.getDate()}`
+        const month = AppendleadingZero(theDate.getMonth()+1)
+        const day = AppendleadingZero(theDate.getDate())
+        return `${theDate.getFullYear()}-${month}-${day}`
     }
 }
