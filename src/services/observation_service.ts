@@ -56,6 +56,13 @@ export class ObservationService extends ConceptService {
         }
     }
 
+    static async buildGroupValueCoded(conceptName: string, parentValue: string, childValue: string, date=this.getSessionDate()) {
+        return {
+            ...await this.buildValueCoded(conceptName, parentValue, date),
+            child: await this.buildValueCoded(parentValue, childValue, date)
+        }
+    }
+
     static async buildValueCodedFromConceptId(conceptName: string, valueCoded: number, date=this.getSessionDate()) {
         const concept = await ConceptService.getConceptID(conceptName, true)
         return {

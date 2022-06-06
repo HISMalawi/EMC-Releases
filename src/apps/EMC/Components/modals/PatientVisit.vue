@@ -280,15 +280,8 @@ import dayjs from "dayjs";
 import { ObsValue } from "@/services/observation_service";
 import { BMIService } from "@/services/bmi_service";
 import { DispensationService } from "@/apps/ART/services/dispensation_service";
-
-interface FormInterface {
-  [x: string]: {
-    value: any;
-    error: string;
-    validation?: Function;
-    computedValue?: Function;
-  };
-}
+import { DTFormField } from "../../interfaces/dt_form_field";
+import { isValidForm, optionsToGroupObs, resolveFormValues, resolveObs } from "../../utils/form";
 
 export default defineComponent({
   components: {
@@ -333,7 +326,7 @@ export default defineComponent({
     const showHeightField = computed(() => !(prevHeight.value && props.patient.getAge() > 18))
     const isFemale = computed(() => props.patient.isFemale())
 
-    const form = reactive<FormInterface>({
+    const form = reactive<DTFormField>({
       visitDate: {
         value: undefined as string | undefined,
         error: '',
@@ -546,63 +539,13 @@ export default defineComponent({
       modalController.dismiss(data);
     };
 
-    const isValid = () => {
-      for (const key in form) {
-        if(typeof form[key].validation !== 'function') {
-          form[key].error = ''
-          continue
-        }
-        const payload = typeof form[key].value === 'object'
-            ? form[key].value
-            : { label: form[key].value, value: form[key].value }
-
-        const errs = form[key].validation!(payload as Option, form)
-        if(errs && errs.length > 0) {
-          form[key].error = errs.toString()
-          console.log(key, form[key].error)
-        } else {
-          form[key].error = ''
-        }       
-      }
-      return Object.values(form).every(({ error }) => !error)
-    }
-
-    const resolveObs = (obs: any, tag=''): Promise<ObsValue[]> => {
-      const values: any = Object.values(obs)
-        .filter((d: any) => d && (d.tag === tag || tag === ''))
-        .reduce((accum: any, cur: any) => { 
-            const data = cur.obs ? cur.obs : cur
-            if (Array.isArray(data)) {
-              accum = accum.concat(data)
-            } else {
-               accum.push(data)
-            }
-            return accum
-            }, [])
-      return Promise.all(values)
-    }
-
-    const resolveFormValues = () => {
-      const formData: any = {}
-      const computedFormData: any = {}
-      for (const key in form) {
-        if(!isEmpty(form[key].value)) {
-          formData[key] = typeof form[key].value === 'object' ? form[key].value.value : form[key].value
-          if(typeof form[key].computedValue === 'function') {
-            computedFormData[key] = form[key].computedValue!(form[key].value)
-          }
-        }
-      }
-      return { formData, computedFormData }
-    }
-
-    const getBmiObs = async (formData: any): Promise<ObsValue> => {
+    const buildBmiObs = async (formData: any): Promise<ObsValue> => {
       const height = formData.height || prevHeight.value
       const bmi = BMIService.calculateBMI(formData.weight, height)
       return vitals.buildValueNumber('BMI', bmi)
     }
 
-    const getFpmObs = async () => {
+    const buildFpmObs = async () => {
       const obs: ObsValue[] = [
         await consultations.buildValueCoded('Patient using family planning', 'No')
       ]
@@ -615,19 +558,7 @@ export default defineComponent({
 
     const getTbSymptomsObs = async () => {
       return await Promise.all(ConceptService.getConceptsByCategory("tb_symptom", true).map(async (concept) => {
-        return {
-          ...await consultations.buildValueCodedFromConceptId(concept.name, concept['concept_id']),
-          child: consultations.buildValueCoded(concept.name, "No")
-        }
-      }))
-    }
-
-    const buildGroupObs = async (conceptName: string, options: Option[]) => {
-      return await Promise.all(options.map(async (option) => {
-        return {
-          ...await consultations.buildValueCoded(conceptName, option.label),
-          child: await consultations.buildValueCoded(option.label, option.isChecked ? 'Yes' : 'No')
-        }
+        return await consultations.buildGroupValueCoded(concept.name, concept.name, "No")
       }))
     }
 
@@ -636,7 +567,7 @@ export default defineComponent({
         "drug_inventory_id": drug.drug_id,
         "equivalent_daily_dose": prescription.calculateEquivalentDosage(drug.am, drug.pm),
         "dose": prescription.calculateDosage(drug.am, drug.pm),
-        start_date: startDate,
+        'start_date': startDate,
         "auto_expire_date": dayjs(startDate).add(duration, 'days').format('YYYY-MM-DD'), 
         "units": drug.units,
         "qty": quantity,
@@ -650,23 +581,23 @@ export default defineComponent({
         message: 'Processing data...'
       });
       loader.present();
-      if(!isValid()) return loader.dismiss()
+      if(!isValidForm(form)) return loader.dismiss()
 
-      const { formData, computedFormData } = resolveFormValues()
-      PatientObservationService.setSessionDate(formData.visitDate)
+      const { formData, computedFormData } = resolveFormValues(form)
+      await PatientObservationService.setSessionDate(formData.visitDate)
 
       await vitals.createEncounter()
       const vitalsObs = await resolveObs(computedFormData, 'vitals')
-      const bmiObs = await getBmiObs(formData)
+      const bmiObs = await buildBmiObs(formData)
       await vitals.saveObservationList([...vitalsObs, bmiObs])
 
       await consultations.createEncounter()
       const consultationObs = await resolveObs(computedFormData, 'consultation')
-      if(isFemale.value) consultationObs.concat(await getFpmObs())
+      if(isFemale.value) consultationObs.concat(await buildFpmObs())
       if(form.hasContraindications.value === 'Yes') 
-        consultationObs.concat(await buildGroupObs("Malawi ART side effects", contraIndications.value))
+        consultationObs.concat(await optionsToGroupObs("Malawi ART side effects", contraIndications.value))
       if(form.hasSideEffects.value === 'Yes') 
-        consultationObs.concat(await buildGroupObs("Other side effect", sideEffects.value))
+        consultationObs.concat(await optionsToGroupObs("Other side effect", sideEffects.value))
       consultationObs.concat(await getTbSymptomsObs())
       await consultations.saveObservationList(consultationObs)
 
@@ -738,6 +669,7 @@ export default defineComponent({
       await appointment.saveObservationList(appointmentObs)
       await toastSuccess('Patient visit saved successfully')
       loader.dismiss()
+      await PatientObservationService.resetSessionDate()
       closeModal({ data: 'refresh' })
     }
 
