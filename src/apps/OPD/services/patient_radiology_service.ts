@@ -30,8 +30,8 @@ export class PatientRadiologyService extends AppEncounterService {
   }
 
   async getPreviousRadiologyExaminations(patient: any): Promise<any>{
-    const thirdpartyapps  = JSON.parse((await ApiClient.getConfig()).thirdpartyapps)
-    let url = ''
+    const thirdpartyapps  =  await Service.getThirdpartyApps()
+    let url = '' 
     for (const app of thirdpartyapps) {
       if(app.name == 'pacs') {
         url = app.url

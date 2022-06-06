@@ -76,6 +76,10 @@ export class Service {
         return this.jsonResponseHandler(ApiClient.remove(url, reason))
     }
 
+    static async getThirdpartyApps() {
+        return JSON.parse((await ApiClient.getConfig()).thirdpartyapps)
+    }
+
     private static async jsonResponseHandler(request: Promise<any>) {
         const response = await request
         if (response) {

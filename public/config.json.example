@@ -16,9 +16,7 @@
 	"thirdpartyApps": [
 		{
 			"name": "pacs",
-	        "programID": "",
 			"url": "",
-			"applicationIcon": "",
 			"applicationDescription": "Picture archieving system",
 			"comment": "redirecting to pacs image viewer; used in OPD"
 		}

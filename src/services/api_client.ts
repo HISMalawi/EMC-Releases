@@ -11,7 +11,7 @@ const ApiClient = (() => {
         host: string;
         port: string;
         protocol: string;
-        thirdpartyapps: any;
+        thirdpartyapps: string;
     }
 
     async function getFileConfig(): Promise<Config> {
