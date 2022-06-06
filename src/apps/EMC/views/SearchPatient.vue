@@ -32,9 +32,9 @@
           </ion-button>
         </ion-col>
       </ion-row>
-      <ion-row>
-        <ion-col size="12" style="min-height: 320px; margin-top: .5rem">
-          <h1>Patients Search Results Table</h1>
+      <ion-row class="his-card ion-margin-top" style="padding: 0 !important">
+        <ion-col size="12" style="min-height: 320px;" class="ion-no-padding">
+          <h1 class="ion-margin">Patients Search Results</h1>
           <report-data-table
             :rows="tableRows"
             :columns="tableColumns"
@@ -84,7 +84,7 @@ export default defineComponent({
     ]]
     const tableConfig = { 
       showIndex: false,
-      cssClasses: "table-bordered table-striped his-card"
+      tableCssTheme: "emc-datatable-theme"
     }
 
     const parseSearchText = async (nameOrArvNumber: string) => {
