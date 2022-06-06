@@ -8,7 +8,7 @@
   <hmis-dummy v-if="show"></hmis-dummy>
   <tr   v-for="(condition, index) in conditions" :key="index">
     <td class="td-wd">{{condition.id}}</td>
-    <td class="td-text-align-left" style="width: 43.3%;padding: 1.5%;">{{condition.name}}</td>
+    <td class="td-text-align-left" style="width: 60.3%;padding: 1.5%;">{{condition.name}}</td>
     <td id="total" @click="onDrillDown(condition.name, condition.totalPatientIds);"> <a> {{condition.total}} </a> </td>
     <td></td>
   </tr>
