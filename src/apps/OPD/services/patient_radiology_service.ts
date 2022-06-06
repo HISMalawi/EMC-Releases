@@ -4,7 +4,6 @@ import { PrintoutService } from "@/services/printout_service";
 import { Service } from "@/services/service";
 import moment from "dayjs";
 import { Patientservice } from "@/services/patient_service";
-import ApiClient from "@/services/api_client";
 import { isEmpty } from "lodash";
 
 export class PatientRadiologyService extends AppEncounterService {
@@ -43,28 +42,9 @@ export class PatientRadiologyService extends AppEncounterService {
     const data =  await this.getRadiologyObs(patient.getID())
     if(!(data.length > 0)) { 
       return false;
+    } else {
+      return { data: data, url: url}
     }
-    const columns = ['Accession#','Body Part', 'Order Type', 'Ordered', 'Result']
-    const rows = [] as Array<any>
-    for (const order in data) {
-      const row = [
-        data[order].children[0].accession_number,
-        data[order].value_text,
-        data[order].children[0].value_text,
-        moment(data[order].obs_datetime).format('DD/MMM/YYYY'),
-        `<ion-button slot="end" size="large" href="${url}" color="success">
-          View
-        </ion-button>`
-      ]
-      rows.push(row)
-    }
-    return [
-      {
-        label: '',
-        value: '',
-        other: { columns, rows},
-      },
-    ];
   }
 
   async submitToPacs(savedObsData: any, patient: any) {
