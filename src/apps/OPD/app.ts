@@ -35,10 +35,10 @@ async function onRegisterPatient(patientId: number) {
   )
 }
 
-async function formatPatientProgramSummary(data: any) {
-  const patient = new Patientservice(data.patient)
+async function formatPatientProgramSummary(_: any, patientId: number) {
+  const p = await Patientservice.findByID(patientId)
+  const patient = new Patientservice(p)
   const hivStatus = await ObservationService.getFirstValueText(patient.getID(), 'HIV Status')
-
   return [
     { label: 'Malawi National ID', value: patient.getMWNationalID() },
     { label: 'HIV Status', value: hivStatus || 'Unknown' },

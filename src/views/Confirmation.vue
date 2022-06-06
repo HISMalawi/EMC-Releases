@@ -76,7 +76,6 @@ import { isEmpty } from "lodash";
 import HisDate from "@/utils/Date"
 import HisApp from "@/apps/app_lib"
 import { defineComponent } from "vue";
-import { voidWithReason } from "@/utils/VoidHelper"
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { UserService } from "@/services/user_service";
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
@@ -116,6 +115,7 @@ import { OrderService } from "@/services/order_service";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { ObservationService } from "@/services/observation_service";
 import { delayPromise } from "@/utils/Timers";
+import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -613,10 +613,14 @@ export default defineComponent({
       await type.savePatientType(patientType)
     },
     async onVoid() {
-      voidWithReason(async (reason: string) => {
-        await Patientservice.voidPatient(this.patient.getID(), reason)
-        this.$router.push('/')
-      })
+      popVoidReason(async (reason: string) => {
+        try {
+          await Patientservice.voidPatient(this.patient.getID(), reason)
+          this.$router.push('/')
+        } catch (e) {
+          toastDanger(`${e}`)
+        }
+      }, 'void-modal')
     },
     async nextTask() {
       await this.onEvent(TargetEvent.ON_CONTINUE, () => {
