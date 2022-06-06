@@ -241,7 +241,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, PropType, reactive, ref, watch } from "vue";
+import { computed, defineComponent, onMounted, PropType, reactive, ref } from "vue";
 import { 
   IonCol, 
   IonGrid, 
@@ -256,10 +256,11 @@ import {
   IonInput, 
   IonLabel,
   IonCheckbox,
-IonNote, 
+IonNote,
+loadingController, 
 } from "@ionic/vue";
-import { alertConfirmation, toastSuccess, toastWarning } from "@/utils/Alerts";
-import { differenceWith, isEmpty, isEqual, isEqualWith } from "lodash";
+import { alertConfirmation, toastSuccess } from "@/utils/Alerts";
+import isEmpty from "lodash/isEmpty";
 import { Option } from "@/components/Forms/FieldInterface";
 import SearchableSelectInput from "../inputs/SearchableSelectInput.vue";
 import YesNoInput from "../inputs/yesNoInput.vue";
@@ -267,11 +268,9 @@ import { ConceptService } from "@/services/concept_service";
 import MultiColumnView from "@/components/containers/MultiColumnView.vue";
 import { PatientObservationService } from "@/services/patient_observation_service";
 import { RegimenService } from "@/services/regimen_service";
-import { ProgramService } from "@/services/program_service";
 import { DrugOrderService } from "@/services/drug_order_service";
 import { VitalsService } from "@/apps/ART/services/vitals_service";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
-import EncounterMixinVue from "@/views/EncounterMixin.vue";
 import { ConsultationService } from "@/apps/ART/services/consultation_service";
 import { ReceptionService } from "@/apps/ART/services/reception_service";
 import { AdherenceService } from "@/apps/ART/services/adherence_service";
@@ -280,9 +279,7 @@ import { PrescriptionService } from "@/apps/ART/services/prescription_service";
 import dayjs from "dayjs";
 import { ObsValue } from "@/services/observation_service";
 import { BMIService } from "@/services/bmi_service";
-import { RegimenInterface } from "@/interfaces/Regimen";
 import { DispensationService } from "@/apps/ART/services/dispensation_service";
-// import { HisDate } from "../../utils/HisDate";
 
 interface FormInterface {
   [x: string]: {
@@ -649,9 +646,12 @@ export default defineComponent({
     }
 
     const onSubmit = async () => {
-      console.log('submitting the form')
-      if(!isValid()) return
-      console.log("the form is valid")
+      const loader = await loadingController.create({
+        message: 'Processing data...'
+      });
+      loader.present();
+      if(!isValid()) return loader.dismiss()
+
       const { formData, computedFormData } = resolveFormValues()
       PatientObservationService.setSessionDate(formData.visitDate)
 
@@ -716,25 +716,29 @@ export default defineComponent({
         const drug = drugOrders.find(drug => drug.drug_inventory_id === order.drug_inventory_id)
         return dispensation.buildDispensations(order.order_id, drug.qty, 1)
       })
-      await dispensation.saveDispensations(dispensations)
+      await dispensation.saveDispensations(dispensations.flat(1))
 
       await reception.createEncounter()
       const receptionObs = await resolveObs(computedFormData, 'reception')
       await reception.saveObservationList(receptionObs)
 
       await adherence.createEncounter()
-      const adherenceObs: any[] = []
-      prevDrugs.value.forEach(async (drug: any) => {
+      const adherenceObs = await Promise.all(prevDrugs.value.map(async (drug: any) => {
         const expected = adherence.calculateExpected(drug.quantity, drug.equivalent_daily_dose, drug.order.start_date)
         const adh = adherence.calculateAdherence(drug.quantity, formData.pillCount, expected)
-        adherenceObs.push(await adherence.buildAdherenceObs(drug.order_id, drug.drug_inventory_id, adh))
-        adherenceObs.push(await adherence.buildPillCountObs(drug.order_id, formData.pillCount))
-      })
-      await adherence.saveObservationList(adherenceObs)
+        return [
+          await adherence.buildAdherenceObs(drug.order_id, drug.drug_inventory_id, adh),
+          await adherence.buildPillCountObs(drug.order_id, formData.pillCount)
+        ]
+      }))
+      await adherence.saveObservationList(adherenceObs.flat(1))
 
       await appointment.createEncounter()
       const appointmentObs = await resolveObs(computedFormData, 'appointment')
       await appointment.saveObservationList(appointmentObs)
+      await toastSuccess('Patient visit saved successfully')
+      loader.dismiss()
+      closeModal({ data: 'refresh' })
     }
 
     const onClear = async () => {
@@ -749,7 +753,6 @@ export default defineComponent({
     onMounted (async () => {
       prevHeight.value = await props.patient.getRecentHeight()
       prevDrugs.value = await DrugOrderService.getLastDrugsReceived(props.patient.getID())
-      console.log(prevDrugs.value)
       const regs: Record<string, any[]> = await RegimenService.getRegimens(props.patient.getID())
       if(!isEmpty(regs)) {
         regimens.value = Object.keys(regs).map(key => ({ label: key, value: key, other: regs[key] }))
