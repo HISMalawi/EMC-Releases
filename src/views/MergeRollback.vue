@@ -59,7 +59,7 @@ import table from "@/components/DataViews/tables/ReportDataTable"
 import { MergingService, MergeHistory } from "@/services/merging_service"
 import { Option } from '@/components/Forms/FieldInterface'
 import { useRoute, useRouter } from 'vue-router'
-import { toastDanger } from '@/utils/Alerts'
+import { alertConfirmation, toastDanger } from '@/utils/Alerts'
 
 export default defineComponent({
     components: {
@@ -133,11 +133,12 @@ export default defineComponent({
         }
 
         async function rollback() {
-            const ok = await MergingService.rollback(patientID.value)
-            if (ok) {
-                router.back()
-            } else {
-                toastDanger('Failed to rollback')
+            if ((await alertConfirmation('Are you sure you want to merge transactions'))) {
+                if ((await MergingService.rollback(patientID.value))) {
+                    router.back()
+                } else {
+                    toastDanger('Failed to rollback')
+                }
             }
         }
 
