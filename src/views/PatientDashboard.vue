@@ -399,6 +399,9 @@ export default defineComponent({
             this.onProgramVisitDates((await this.getPatientVisitDates(this.patientId)))
             this.alertCardItems = await this.getPatientAlertCardInfo() || []
             this.programID = ProgramService.getProgramID()
+            if (!this.visitDates.length) {
+                this.tasksDisabled = false
+            }
             this.updateCards()
         },
         async showLoader() {
@@ -514,9 +517,6 @@ export default defineComponent({
                     isActive: d === ProgramService.getSessionDate()
                 }
             }))
-            if (!this.visitDates.length) {
-                this.tasksDisabled = false
-            }
         },
         getNextTask(patientId: number) {
             return WorkflowService.getNextTaskParams(patientId)
