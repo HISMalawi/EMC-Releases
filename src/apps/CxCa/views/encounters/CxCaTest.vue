@@ -187,7 +187,7 @@ export default defineComponent({
           validation: (val: any) => Validation.required(val),
           
           condition: (formData: any) =>
-            formData.reason_for_visit.value !== "Initial screening",
+            formData.reason_for_visit.value !== "Initial screening" && formData.ever_had_cxca.value !== "No",
           options: () => this.yesNoOptions(),
           computedValue: (value: any) => ({
             obs: this.assessment.buildValueCoded("CxCa test results", value.value)
@@ -295,28 +295,6 @@ export default defineComponent({
           computedValue: (value: any) => ({
             obs: this.assessment.buildValueCoded("CxCa screening method", value.value)
           }),
-          unload: async (value: any) => {
-            if (value.value === "VIA") {
-              this.obs.push(
-                this.assessment.buildValueCoded(
-                  "Waiting for test results",
-                  "No"
-                )
-              );
-            }
-          },
-        },
-        {
-          id: "waiting_for_lab_tests",
-          helpText: "Waiting for lab results",
-          type: FieldType.TT_SELECT,
-          validation: (val: any) => Validation.required(val),
-          condition: (formData: any) =>
-            !formData.screening_method.value.match(/VIA|EXAM/i),
-          options: () => this.yesNoOptions(),
-          computedValue: (value: any) => ({
-            obs: this.assessment.buildValueCoded("Waiting for test results", value.value)
-          }),
         },
         {
           id: "reason_for_no_cxca",
@@ -332,6 +310,18 @@ export default defineComponent({
             {
               label: "Not applicable",
               value: "Not applicable",
+            },
+            {
+              label: "Provider not available",
+              value: "Provider NOT available",
+            },
+            {
+              label: "Services not available",
+              value: "Services NOT available",
+            },
+            {
+              label: "Chemotherapy",
+              value: "Chemotherapy",
             },
           ],
           computedValue: (value: any) => ({

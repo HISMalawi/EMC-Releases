@@ -99,9 +99,10 @@ export default defineComponent({
 
     },
     async enterAmount(index: number) {
+      const batchNumber = this.getDrugValue(index, 'batch_number');
       this.launchKeyPad({
         id: 'tins',
-        helpText: this.getModalTitle('Enter number of tins'),
+        helpText: this.getModalTitle(`Enter number of tins for Batch ${batchNumber}`),
         type: FieldType.TT_NUMBER,
         defaultValue: () => this.getDrugValue(index, 'current_quantity'),
         validation: (v: Option) => {

@@ -19,6 +19,12 @@ import Validation from '@/components/Forms/validations/StandardValidations';
 import { Patientservice } from '@/services/patient_service';
 import { ObservationService } from '@/services/observation_service';
 
+declare global {
+  interface Navigator {
+     msSaveBlob: (blob: Blob,fileName: string) => boolean;
+    }
+}
+
 async function onRegisterPatient(patientId: number) {
   const program = new PatientProgramService(patientId)
   await program.enrollProgram()
@@ -30,10 +36,10 @@ async function onRegisterPatient(patientId: number) {
   await encounter.saveValueCodedObs("Type of patient", "New Patient");
 }
 
-async function formatPatientProgramSummary(data: any) {
-  const patient = new Patientservice(data.patient)
+async function formatPatientProgramSummary(_: any, patientId: number) {
+  const p = await Patientservice.findByID(patientId)
+  const patient = new Patientservice(p)
   const hivStatus = await ObservationService.getFirstValueText(patient.getID(), 'HIV Status')
-
   return [
     { label: 'Malawi National ID', value: patient.getMWNationalID() },
     { label: 'HIV Status', value: hivStatus || 'Unknown' },

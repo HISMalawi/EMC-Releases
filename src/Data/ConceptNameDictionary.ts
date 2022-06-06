@@ -13,6 +13,214 @@ export default [
       "categories": [],
       "concept_id": 856,
       "name": "HIV viral load",
+   }, 
+   {
+      "categories": [],
+      "concept_id": 10546,
+      "name": "Punch Biopsy"
+   },    
+   {
+      "categories": [],
+      "concept_id": 10547,
+      "name": "LLETZ sample"
+   },    
+   {
+      "categories": [],
+      "concept_id": 1115,
+      "name": "Normal"
+   },    
+   {
+      "categories": [],
+      "concept_id": 10551,
+      "name": "CIN 1"
+   },    
+   {
+      "categories": [],
+      "concept_id": 10552,
+      "name": "CIN 2"
+   },    
+   {
+      "categories": [],
+      "concept_id": 10553,
+      "name": "CIN 3"
+   },    
+   {
+      "categories": [],
+      "concept_id": 10554,
+      "name": "Carcinoma in Situ"
+   },    
+   {
+      "categories": [],
+      "concept_id": 2588,
+      "name": "Invasive cancer of cervix"
+   },    
+   {
+      "categories": [],
+      "concept_id": 10550,
+      "name": "Benign cervical warts"
+   },    
+   {
+      "categories": [],
+      "concept_id": 1107,
+      "name": "Not available"
+   },    
+   {
+      "categories": [],
+      "concept_id": 7918,
+      "name": "Bleeding"
+   },    
+   {
+      "categories": [],
+      "concept_id": 5276,
+      "name": "Hysterectomy"
+   },    
+   {
+      "categories": [],
+      "concept_id": 10521,
+      "name": "Cryotherapy"
+   },    
+   {
+      "categories": [],
+      "concept_id": 10002,
+      "name": "Leep"
+   },    
+   {
+      "categories": [],
+      "concept_id": 9053,
+      "name": "Palliative Care"
+   },    
+   {
+      "categories": [],
+      "concept_id": 10560,
+      "name": "LLETZ"
+   },    
+   {
+      "categories": [],
+      "concept_id": 10557,
+      "name": "Conisation"
+   },    
+   {
+      "categories": [],
+      "concept_id": 9996,
+      "name": "Thermocoagulation"
+   },    
+   {
+      "categories": [],
+      "concept_id": 10549,
+      "name": "Chronic cervicitis"
+   },    
+   {
+      "categories": [],
+      "concept_id": 3580,
+      "name": "Patient refused"
+   },    
+   {
+      "categories": [],
+      "concept_id": 10556,
+      "name": "Hysyrectomy"
+   },    
+   {
+      "categories": [],
+      "concept_id": 10558,
+      "name": "Trachelectomy"
+   },    
+   {
+      "categories": [],
+      "concept_id": 3626,
+      "name": "Discharged"
+   },    
+   {
+      "categories": [],
+      "concept_id": 8882,
+      "name": "Continue follow-up"
+   },    
+   {
+      "categories": [],
+      "concept_id": 10559,
+      "name": "No Dysplasia/Cancer"
+   },    
+   {
+      "categories": [],
+      "concept_id": 1742,
+      "name": "Patient died"
+   },    
+   {
+      "categories": [],
+      "concept_id": 8739,
+      "name": "Cervical cancer stage 1"
+   },    
+    {
+      "categories": [],
+      "concept_id": 8787,
+      "name": "Cervical cancer stage 2"
+   },   {
+      "categories": [],
+      "concept_id": 8788,
+      "name": "Cervical cancer stage 3"
+   },   {
+      "categories": [],
+      "concept_id": 8740,
+      "name": "Cervical cancer stage 4"
+   },      
+   {
+      "categories": [],
+      "concept_id": 10041,
+      "name": "VIA Negative"
+   },
+    {
+      "categories": [],
+      "concept_id": 10032,
+      "name": "Suspect Cancer"
+   },
+    {
+      "categories": [],
+      "concept_id": 10023,
+      "name": "PAP Smear Normal"
+   },
+    {
+      "categories": [],
+      "concept_id": 10025,
+      "name": "HPV negative"
+   },
+    {
+      "categories": [],
+      "concept_id": 10028,
+      "name": "No visible Lesion"
+   },
+    {
+      "categories": [],
+      "concept_id": 6537,
+      "name": "Other Gynae"
+   },
+    {
+      "categories": [],
+      "concept_id": 10042,
+      "name": "VIA Positive"
+   },
+    {
+      "categories": [],
+      "concept_id": 10024,
+      "name": "PAP Smear Abnormal"
+   },
+    {
+      "categories": [],
+      "concept_id": 10026,
+      "name": "HPV Positive"
+   },
+    {
+      "categories": [],
+      "concept_id": 10027,
+      "name": "Visible Lesion"
+   },
+    {
+      "categories": [],
+      "concept_id": 174,
+      "name": "STI"
+   },
+   {
+      "categories": [],
+      "concept_id": 149,
+      "name": "Cervicitis"
    },
    {
       "categories": [],

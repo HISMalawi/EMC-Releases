@@ -16,7 +16,10 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { UserService } from "@/services/user_service"
 import { PersonService } from "@/services/person_service"
 import HisDate from "@/utils/Date"
-import { toastWarning, toastSuccess } from "@/utils/Alerts"
+import { toastWarning, toastSuccess, toastDanger } from "@/utils/Alerts"
+import { RecordConflictError } from "@/services/service";
+import { isEmpty } from "lodash";
+import { find } from "lodash";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -25,6 +28,7 @@ export default defineComponent({
     fields: [] as Array<Field>,
     activity: '' as 'edit' | 'add',
     presets: {} as any,
+    programs: {} as any,
     userData: {} as any,
     fieldComponent: '' as string,
     isSessionPasswordChange: false as boolean,
@@ -54,6 +58,7 @@ export default defineComponent({
                 this.activeField = 'new_password'
                 this.fieldComponent = this.activeField
             }
+            this.programs = UserService.getAvailableApps()
             this.fields = this.getFields()
         },
         immediate: true,
@@ -62,21 +67,29 @@ export default defineComponent({
   },
   methods: {
     async onFinish(_: any, computeValues: any) {
-        switch(this.activity) {
-            case 'add':
-                this.activity = 'edit'
-                await this.create(computeValues)
-                break;
-            case 'edit':
-                await this.update(computeValues)
-                if (this.isSessionPasswordChange) {
-                    this.$router.push('/')
-                }
-                break;
+        try {
+            switch(this.activity) {
+                case 'add':
+                    await this.create(computeValues)
+                    this.activity = 'edit'
+                    break;
+                case 'edit':
+                    await this.update(computeValues)
+                    if (this.isSessionPasswordChange) {
+                        this.$router.push('/')
+                    }
+                    break;
+            }
+            this.formKey += 1
+            this.activeField = 'user_info'
+            this.$nextTick(() => this.fieldComponent = this.activeField)
+        } catch (e) {
+            if (e instanceof RecordConflictError && !isEmpty(e.errors)) {
+                toastWarning(e.errors)
+            } else {
+                toastDanger(`${e}`)
+            }
         }
-        this.formKey += 1
-        this.activeField = 'user_info'
-        this.$nextTick(() => this.fieldComponent = this.activeField)
     },
     async create(data: any) {
         const { user } = await UserService.createUser(data)
@@ -91,6 +104,10 @@ export default defineComponent({
             return this.userData = this.toUserData(person)
         }
         throw 'Unable to update user, possibly server error or incorrect information entered'
+    },
+    getProgramName(id: number) {
+        const app = find(this.programs, { programID: id })
+        return app ? app.applicationName : ''
     },
     mapToOption(listOptions: Array<string>): Array<Option> {
         return listOptions.map((item: any) => ({ label: item, value: item })) 
@@ -117,7 +134,8 @@ export default defineComponent({
             'username': userObj.username,
             'role': userObj.roles.map((r: any) => r.role),
             'created': HisDate.toStandardHisDisplayFormat(userObj.date_created),
-            'status': userObj.deactivated_on ? 'Inactive' : 'Active'
+            'status': userObj.deactivated_on ? 'Inactive' : 'Active',
+            'programs': userObj.programs.map((p: any) => p['program_id'])
         }
     },
     editConditionCheck(attributes=[] as Array<string>): boolean {
@@ -206,6 +224,8 @@ export default defineComponent({
                         ['<b>Password</b>', '*******', navButton('Change password', 'new_password'), ''],
                         ['<b>Role</b>', this.userData.role.join('<br/>'), ...rowBtns],
                         ['<b>Status</b>', this.userData.status,  deactivateButton(this.userData.status), ''],
+                        ['<b>Programs</b>', this.userData.programs.map((p: number) => this.getProgramName(p)).join('<br/>'),  
+                            navButton('Edit Program', 'programs'), ''],
                     ]
                     return [{
                         label: '',
@@ -298,6 +318,27 @@ export default defineComponent({
                         label: 'No', value: 'false'
                     }
                 ]
+            },
+            {
+                id: 'programs',
+                helpText: "Select Apps",
+                type: FieldType.TT_MULTIPLE_SELECT,
+                condition: () => UserService.isAdmin() && this.editConditionCheck(['programs']),
+                validation: (val: Option[]) => Validation.required(val),
+                computedValue: (val: Option[]) => val.map((i: Option) => i.value),
+                options: () => {
+                    return this.programs.map((program: any) => {
+                        let isChecked = false
+                        if (this.activity === 'edit') {
+                            isChecked = this.userData.programs.includes(program.programID)
+                        }
+                        return {
+                            label: program.applicationName,
+                            value: program.programID,
+                            isChecked: isChecked
+                        }
+                    })
+                },
             },
             {
                 id: 'username',
