@@ -1,23 +1,18 @@
 <template>
   <Layout>
     <ion-grid>
-      <ion-row>
-        <ion-col>
-          
-        </ion-col>
-      </ion-row>
       <ion-row class="his-card">
         <ion-col size="10" style="display: flex; justify-content: flex-start">
+          <ion-searchbar 
+            style="width: 450px" 
+            class="box-input ion-no-padding ion-margin-end"
+            showBottomline="never"
+            placeholder="Search by Name or ARV Number"
+            v-model="searchText"
+            v-on:keyup.enter="searchPatient"
+          />
           <ion-item class="ion-margin-end box" lines="none">
-            <ion-input
-              style="min-width: 350px"
-              placeholder="Search by Name or ARV Number"
-              v-model="searchText"
-              v-on:keyup.enter="searchPatient"
-            />
-          </ion-item>
-          <ion-item class="ion-margin-end box" lines="none">
-            <label class="ion-padding-end">Select Gender </label>
+            <ion-label class="ion-padding-end">Select Gender </ion-label>
             <ion-select v-model="gender">
               <ion-select-option value="M">Male</ion-select-option>
               <ion-select-option value="F">Female</ion-select-option>
@@ -49,7 +44,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import { IonGrid, IonRow, IonCol, loadingController, IonItem, IonInput, IonSelect, IonSelectOption } from "@ionic/vue";
+import { IonGrid, IonRow, IonCol, loadingController, IonItem, IonInput, IonSelect, IonSelectOption, IonSearchbar, IonLabel, IonButton } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import { toastWarning } from "@/utils/Alerts";
@@ -64,7 +59,9 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonItem,
-    IonInput,
+    IonLabel,
+    IonButton,
+    IonSearchbar,
     IonSelect,
     IonSelectOption,
     ReportDataTable
