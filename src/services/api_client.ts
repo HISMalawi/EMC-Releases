@@ -11,10 +11,13 @@ const ApiClient = (() => {
         host: string;
         port: string;
         protocol: string;
+    }
+
+    interface ThirdPartyConfig {
         thirdpartyapps: string;
     }
 
-    async function getFileConfig(): Promise<Config> {
+    async function getFileConfig(): Promise<Config | ThirdPartyConfig> {
         const response = await fetch('/config.json')
         if (!response.ok) {
             throw 'Unable to retrieve configuration file/ Invalid config.json'
@@ -42,12 +45,11 @@ const ApiClient = (() => {
         const host = localStorage.apiURL;
         const port = localStorage.apiPort;
         const protocol = localStorage.apiProtocol;
-        const thirdpartyapps = localStorage.thirdpartyApps
         if ((host && port && protocol))
-            return { host, port, protocol, thirdpartyapps }
+            return { host, port, protocol }
     }
 
-    function getSessionConfig(): Config | undefined {
+    function getSessionConfig(): Config | ThirdPartyConfig | undefined {
         const host = sessionStorage.apiURL
         const port = sessionStorage.apiPort
         const protocol = sessionStorage.apiProtocol
@@ -56,9 +58,9 @@ const ApiClient = (() => {
             return { host, port, protocol, thirdpartyapps }
     }
 
-    function getConfig(): Promise<Config> | Config {
+    function getConfig(): Promise<Config | ThirdPartyConfig> | Config | ThirdPartyConfig{
         const localConfig: Config | undefined = getLocalConfig()
-        const sessionConfig: Config | undefined = getSessionConfig()
+        const sessionConfig: Config | ThirdPartyConfig | undefined = getSessionConfig()
 
         if (localStorage.useLocalStorage && localConfig)
             return localConfig
