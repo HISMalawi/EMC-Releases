@@ -22,7 +22,7 @@
                     <b>{{item.value}}</b>
                 </ion-item>
             </ion-list>
-            <ion-title class="his-md-text his-card">NPID Merging Transactions:</ion-title>
+            <ion-title class="his-md-text his-card">Transactions:</ion-title>
             <report-table :config="{ tableCssTheme: 'art-report-theme'}" :columns="columns" :rows="rows"></report-table>
         </ion-content>
         <ion-footer> 
@@ -98,12 +98,12 @@ export default defineComponent({
         ] as Option[])
         const columns = [
             [
+                table.thTxt('Merge type'),
+                table.thTxt('Merge date'),
                 table.thTxt('First Name'),
                 table.thTxt('Last name'),
                 table.thTxt('Birthdate'),
                 table.thTxt('Gender'),
-                table.thTxt('Merge date'),
-                table.thTxt('Merge type')
             ]
         ]
 
@@ -131,12 +131,12 @@ export default defineComponent({
                     ]
                 }
                 return [
+                    table.td(item['merge_type']),
+                    table.tdDate(item['merge_date']),
                     table.td(item['primary_first_name']),
                     table.td(item['primary_surname']),
                     table.tdDate(item['primary_birthdate']),
-                    table.td(item['primary_gender']),
-                    table.tdDate(item['merge_date']),
-                    table.td(item['merge_type'])
+                    table.td(item['primary_gender'])
                 ]
             })
         })
