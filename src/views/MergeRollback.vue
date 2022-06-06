@@ -3,20 +3,27 @@
         <ion-header>
             <ion-toolbar>
                 <ion-title class="his-lg-text">
-                    <ion-text color="danger">{{npid}}</ion-text> merge history
+                    <ion-text color="danger">{{npid}}</ion-text> Merge history
                 </ion-title>
             </ion-toolbar>
         </ion-header>
         <ion-content>
             <ion-list class="his-card">
-                <ion-item class="his-md-text" v-for="(item, index) in patientInfo" :key="index"> 
+                <ion-item class="his-md-text"> 
+                    <ion-label> 
+                        NPID Holder
+                    </ion-label>
+                    <b>{{holderName}}</b>
+                </ion-item>
+                <ion-item lines="none" class="his-md-text" v-for="(item, index) in patientInfo" :key="index"> 
                     <ion-label>
                         {{item.label}}:
                     </ion-label>
                     <b>{{item.value}}</b>
                 </ion-item>
             </ion-list>
-            <report-table :columns="columns" :rows="rows"></report-table>
+            <ion-title class="his-md-text his-card">NPID Merging Transactions:</ion-title>
+            <report-table :config="{ tableCssTheme: 'art-report-theme'}" :columns="columns" :rows="rows"></report-table>
         </ion-content>
         <ion-footer> 
             <ion-toolbar color="dark">
@@ -60,6 +67,7 @@ import { MergingService, MergeHistory } from "@/services/merging_service"
 import { Option } from '@/components/Forms/FieldInterface'
 import { useRoute, useRouter } from 'vue-router'
 import { alertConfirmation, toastDanger } from '@/utils/Alerts'
+import HisDate from "@/utils/Date"
 
 export default defineComponent({
     components: {
@@ -83,7 +91,11 @@ export default defineComponent({
         const rows = ref([] as any)
         const results = ref([] as MergeHistory[])
         const npid = `${route.params.id}`.toUpperCase() as string
-        const patientInfo = ref([] as Option[])
+        const holderName = ref('N/A' as string)
+        const patientInfo = ref([
+            { label: 'Birthdate', value: 'N/A'},
+            { label: 'Gender', value: 'N/A'},
+        ] as Option[])
         const columns = [
             [
                 table.thTxt('First Name'),
@@ -110,10 +122,11 @@ export default defineComponent({
             rows.value = results.value.map((item: MergeHistory) => {
                 if (patientID.value === -1) {
                     patientID.value = item['secondary_id']
+                    holderName.value =`${item['secondary_first_name']} ${item['secondary_surname']}`
                     patientInfo.value = [
-                        { label: 'First name', value: item['secondary_first_name']},
-                        { label: 'Last name', value: item['secondary_surname']}, 
-                        { label: 'Birthdate', value: item['secondary_birthdate']},
+                        { label: 'Birthdate', value: HisDate.toStandardHisDisplayFormat(
+                            item['secondary_birthdate']
+                        )},
                         { label: 'Gender', value: item['secondary_gender']},
                     ]
                 }
@@ -144,6 +157,7 @@ export default defineComponent({
 
         return {
             cancel,
+            holderName,
             isReversible,
             patientInfo,
             rollback,
@@ -157,5 +171,6 @@ export default defineComponent({
 <style scoped>
 .his-card {
     margin: auto !important;
+    padding: 0.6em;
 }
 </style>
