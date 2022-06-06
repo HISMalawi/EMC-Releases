@@ -8,10 +8,11 @@
             </ion-toolbar>
         </ion-header>
         <ion-content>
-            <ion-list class="his-card">
-                <ion-item class="his-md-text"> 
+            <ion-title class="his-md-text his-card">NPID Holder: </ion-title>
+            <ion-list>
+                <ion-item lines="none" class="his-md-text"> 
                     <ion-label> 
-                        NPID Holder
+                        Person name
                     </ion-label>
                     <b>{{holderName}}</b>
                 </ion-item>
