@@ -427,7 +427,6 @@ export default defineComponent({
         this.facts.dde.localDiffs = this.ddeInstance.formatDiffValuesByType(
           localAndRemoteDiffs, 'local'
         )
-        this.facts.dde.hasDemographicConflict = !isEmpty(localAndRemoteDiffs)
         const { comparisons, rowColors } = this.buildDDEDiffs(localAndRemoteDiffs)
         this.facts.dde.diffRows = comparisons
         this.facts.dde.diffRowColors = rowColors
@@ -435,7 +434,9 @@ export default defineComponent({
           const {local, remote} = localAndRemoteDiffs.npid
           this.facts.dde.localNpidDiff = local
           this.facts.dde.remoteNpidDiff = remote
+          delete localAndRemoteDiffs.npid
         }
+        this.facts.dde.hasDemographicConflict = !isEmpty(localAndRemoteDiffs)
       } catch (e) {
         console.warn(e)
       }
