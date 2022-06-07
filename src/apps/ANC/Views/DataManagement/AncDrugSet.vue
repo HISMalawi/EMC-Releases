@@ -81,6 +81,9 @@ export default defineComponent({
                     helpText: 'Select drugs to add',
                     type: FieldType.TT_MULTIPLE_SELECT,
                     validation: (v: Option[]) => Validation.required(v),
+                    config: {
+                        showKeyboard: true
+                    },
                     options: async () => {
                         if (isEmpty(this.allDrugs)) {
                             this.allDrugs = (await DrugService.getDrugs({
