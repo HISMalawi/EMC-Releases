@@ -21,6 +21,7 @@ import { ObsValue } from '@/services/observation_service'
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions"
 import HisDate from "@/utils/Date"
 import { alertConfirmation } from '@/utils/Alerts'
+import { RecordConflictError } from '@/services/service'
 
 export default defineComponent({
   components: { IonPage },
@@ -41,7 +42,15 @@ export default defineComponent({
   },
   methods: {
     async onFinish(_: any, computedData: any) {
-      await this.service.enrollPatient()
+      try {
+        await this.service.enrollPatient()
+      } catch (e) {
+       if(e instanceof RecordConflictError) {
+        console.warn(`${e}`)
+       } else {
+         throw e
+       }
+      }
       const obs = await this.resolveObs(computedData)
       await this.service.createEncounter()
       await this.service.saveObservationList(obs as ObsValue[])
