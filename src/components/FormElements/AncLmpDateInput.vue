@@ -23,8 +23,9 @@
                         <ion-label slot="start"> 
                             Gestation Weeks:
                         </ion-label>
-                        <ion-label :color="gestationWeeks < 0 ? 'danger' : ''" slot="end">
-                            {{gestationWeeks}}
+                        <ion-label :color="lmpIsAbnormal ? 'danger' : 'success'" slot="end">
+                           <ion-text  v-if="lmpIsAbnormal">(Abnormal)</ion-text> 
+                           {{gestationWeeks}}
                         </ion-label>
                     </ion-item>
                 </ion-list>
@@ -38,13 +39,15 @@ import HisDateInput from "@/components/FormElements/HisDateInput.vue"
 import { IonPage } from '@ionic/vue'
 import { Option } from "@/components/Forms/FieldInterface"
 import {
+    IonText,
     IonItem,
     IonLabel,
     IonList
 } from "@ionic/vue"
 export default defineComponent({
     components: { 
-        HisDateInput, 
+        HisDateInput,
+        IonText, 
         IonPage,
         IonItem,
         IonLabel,
@@ -53,12 +56,22 @@ export default defineComponent({
     mixins: [FieldMixinVue],
     data: () => ({
         delieveryDate: 'N/A' as string,
-        gestationWeeks: 'N/A' as string
+        gestationWeeks: 'N/A' as string,
+        minGestationWeeks: 0 as number,
+        maxGestationWeeks: 42 as number
     }),
+    mounted() {
+        this.minGestationWeeks = this.config?.minGestationWeeks || 0
+        this.maxGestationWeeks = this.config?.maxGestationWeeks || 42
+    },
+    computed: {
+        lmpIsAbnormal(): boolean {
+            const gestationWeeks = parseInt(this.gestationWeeks)
+            return gestationWeeks < this.minGestationWeeks || gestationWeeks > this.maxGestationWeeks
+        }
+    },
     methods: {
         onNewValue(v: Option | null) {
-            this.$emit('onValue', v)
-            
             if (v && v.label !='Unknown') {
                 if (typeof this.config.calculateDelieveryDate === 'function') {
                     this.delieveryDate =  this.config.calculateDelieveryDate(v.value)
@@ -70,8 +83,8 @@ export default defineComponent({
                 this.delieveryDate = 'N/A'
                 this.gestationWeeks = 'N/A'
             }
+            this.$emit('onValue', {...v, other: this.gestationWeeks})
         }
     }
 })
 </script>
-
