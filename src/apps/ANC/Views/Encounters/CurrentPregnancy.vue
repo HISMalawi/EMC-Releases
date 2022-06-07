@@ -20,6 +20,7 @@ import { IonPage } from "@ionic/vue"
 import { ObsValue } from '@/services/observation_service'
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions"
 import HisDate from "@/utils/Date"
+import { alertConfirmation } from '@/utils/Alerts'
 
 export default defineComponent({
   components: { IonPage },
@@ -67,6 +68,19 @@ export default defineComponent({
                 helpText: 'Last Normal Menstrual Period',
                 type: FieldType.TT_ANC_LMP_DATE_INPUT,
                 computedValue: (v: Option) => this.buildDelieveryDateObs(v.value as string),
+                beforeNext: async (v: Option) => {
+                  const gestationWeeks = parseInt(v.other)
+                  if (typeof gestationWeeks === 'number') {
+                    if (gestationWeeks <= 0 || gestationWeeks > 42) {
+                      if ((await alertConfirmation('Gestation weeks out of range of 0-42. Are you sure you want to continue?'))) {
+                        return true
+                      } else {
+                        return false
+                      }
+                    }
+                  }
+                  return true
+                },
                 validation: (v: Option) => this.validateSeries([
                   () => Validation.required(v),
                   () => {
@@ -83,7 +97,7 @@ export default defineComponent({
                 config: {
                     initialDate: () => this.service.date,
                     calculateDelieveryDate: (d: string) => HisDate.toStandardHisDisplayFormat(
-                        this.service.estimateDelieveryDate(d)
+                      this.service.estimateDelieveryDate(d)
                     ),
                     calculateGestationWeeks: (d: string) => this.service.calculateWeekOfFirstVisit(d),
                     allowUnknown: true
