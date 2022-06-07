@@ -1,8 +1,10 @@
 export interface DTFormField {
-  [x: string]: {
-    value: any;
-    error: string;
-    validation?: Function;
-    computedValue?: Function;
-  };
+  value: any;
+  error: string;
+  validation?: Function;
+  computedValue?: Function;
+}
+
+export interface DTForm {
+  [key: string]: DTFormField;
 }

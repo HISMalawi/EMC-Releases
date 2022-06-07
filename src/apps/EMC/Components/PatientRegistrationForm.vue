@@ -1,221 +1,117 @@
 <template>
   <ion-grid>
     <ion-row>
-        <ion-col size="12">
-          <ion-title class=" ion-text-center ion-margin-vertical"><b>Personal Details</b></ion-title>
-          <ion-row class="ion-margin-bottom">
-            <ion-col size="4">
-              <ion-label>First Name (*): </ion-label>
-              <ion-input 
-                v-model="patient.givenName.value"
-                placeholder="First Name" 
-                class="ion-margin-top"
-                :class="patient.givenName.hasErrors ? 'box-error' : 'box'" 
-              />
-            </ion-col>
-            <ion-col size="4">
-              <ion-label class="ion-padding-end">Middle Name: </ion-label>
-              <ion-input 
-                v-model="patient.middleName.value" 
-                class="ion-margin-top" 
-                placeholder="Middle Name"
-                :class="patient.middleName.hasErrors ? 'box-error' : 'box'"
-              />
-            </ion-col>
-            <ion-col size="4">
-              <ion-label class="ion-padding-end">Family Name (*): </ion-label>
-              <ion-input 
-                v-model="patient.familyName.value" 
-                class="ion-margin-top" 
-                placeholder="Family Name"
-                :class="patient.familyName.hasErrors ? 'box-error' : 'box'"
-              />
-            </ion-col>
-          </ion-row>
-          <ion-row class="ion-margin-bottom">
-            <ion-col size="4">
-              <ion-label>
-                <span v-if="estimateAge">Estimage Age (*):</span>
-                <span v-else>Date of Birth (*):</span>
-                <span class="ion-float-right ion-margin-end checkbox-label">
-                  Estimate Date of Birth
-                  <ion-checkbox v-model="estimateAge"></ion-checkbox>
-                </span>
-              </ion-label>
-              <ion-input
-                v-if="estimateAge"
-                v-model="patient.estimatedBirthdate.value"
-                class="ion-margin-top"
-                :class="patient.estimatedBirthdate.hasErrors ? 'box-error' : 'box'" 
-                :min="1" 
-                :max="120" 
-                type="number" 
-                placeholder="Enter age estimate" 
-              />
-              <ion-row v-else style="width: 100%; padding-top: .5rem;">
-                <ion-col size="4">
-                  <ion-input 
-                    v-model="patient.birthDay.value"
-                    :min="1"
-                    :max="31"
-                    :class="patient.birthDay.hasErrors ? 'box-error' : 'box'"
-                    type="number"
-                    placeholder="DD"
-                  />
-                </ion-col>
-                <ion-col size="4">
-                  <ion-input
-                    v-model="patient.birthMonth.value"
-                    :min="1"
-                    :max="12"
-                    :class="patient.birthMonth.hasErrors ? 'box-error' : 'box'"
-                    type="number"
-                    placeholder="MM"
-                  />
-                </ion-col>
-                <ion-col size="4">
-                  <ion-input 
-                    v-model="patient.birthYear.value"
-                    :min="1900"
-                    :class="patient.birthYear.hasErrors ? 'box-error' : 'box'"
-                    type="number"
-                    placeholder="YYYY"
-                  />
-                </ion-col>
-              </ion-row>
-            </ion-col>
-            <ion-col size="4">
-              <ion-label >Gender (*): </ion-label>
-              <searchable-select-input
-                class="ion-margin-top"
-                placeholder="Select Gender"
-                :value="patient.gender.value"
-                :class="patient.gender.hasErrors ? 'box-error' : 'box'"
-                :options="genderOptions"
-                :searchable="false"
-                @onSelect="setPatientGender"
-              />
-            </ion-col>
-            <ion-col size="4">
-              <ion-label>
-                Cellphone Number (*):
-                <span class="ion-float-right ion-margin-end checkbox-label">
-                  Cellphone Number Unknown? 
-                  <ion-checkbox v-model="patientPhoneUnknown"></ion-checkbox>
-                </span>
-              </ion-label>
-              <ion-input 
-                v-model="patient.cellPhoneNumber.value" 
-                :disabled="patient.cellPhoneNumber.disabled" 
-                placeholder="Cellphone Number" 
-                class="ion-margin-top"
-                :class="patient.cellPhoneNumber.hasErrors ? 'box-error' : 'box'"
-              />
-            </ion-col>
-          </ion-row>
-          <ion-title class=" ion-text-center ion-margin-vertical ion-padding-top"><b>Physical Address</b></ion-title>
-          <ion-row class="ion-margin-bottom">
-            <ion-col size="6">
-              <ion-label>
-                Home Village (*):
-                <span class="ion-float-right ion-margin-end checkbox-label">
-                  Village not listed? 
-                  <ion-checkbox v-model="addCustomVillage"></ion-checkbox>
-                </span>
-              </ion-label>
-              <ion-input 
-                v-if="addCustomVillage" 
-                v-model="patient.homeVillage.value" 
-                placeholder="enter village" 
-                class="ion-margin-top"
-                :class="patient.homeVillage.hasErrors ? 'box-error' : 'box'"
-              />
-              <searchable-select-input
-                v-else
-                class="ion-margin-top"
-                placeholder="Select Home Village"
-                :value="patient.homeVillage.value"
-                :class="patient.homeVillage.hasErrors ? 'box-error' : 'box'"
-                :asyncOptions="getVillagesByName"
-                @onSelect="setPatientVillage"
-              />
-            </ion-col>
-            <ion-col size="6">
-              <ion-label>
-                Closest Landmark or Plot Number (*):
-                <span class="ion-float-right ion-margin-end checkbox-label">
-                  Landark not listed? 
-                  <ion-checkbox v-model="addCustomLandmark"></ion-checkbox>
-                </span> 
-              </ion-label>
-              <ion-input 
-                v-if="addCustomLandmark" 
-                v-model="patient.landmark.value" 
-                placeholder="enter closest landmark or plot number" 
-                class="ion-margin-top"
-                :class="patient.landmark.hasErrors ? 'box-error' : 'box'"
-              />
-              <searchable-select-input
-                v-else
-                class="ion-margin-top"
-                placeholder="Select Closest Landmark"
-                :value="patient.landmark.value"
-                :class="patient.landmark.hasErrors ? 'box-error' : 'box'"
-                :options="landmarks"
-                @onSelect="setPatientLandmark"
-              />
-            </ion-col>
-          </ion-row>
-          <ion-title class=" ion-text-center ion-margin-vertical ion-padding-top">
-            <b>Guardian details</b>
-            <span class="ion-margin-start checkbox-label">
-              Guardian Details Unknown? 
-              <ion-checkbox v-model="guardianNotAvailable"></ion-checkbox>
-            </span>
-          </ion-title>
-          <ion-row class="ion-margin-bottom">
-            <ion-col size="4">
-              <ion-label>First Name (*): </ion-label>
-              <ion-input 
-                v-model="guardian.givenName.value" 
-                :disabled="guardian.givenName.disabled" 
-                placeholder="First Name" 
-                class="ion-margin-top" 
-                :class="guardian.givenName.hasErrors ? 'box-error' : 'box'"
-              />
-            </ion-col>
-            <ion-col size="4">
-              <ion-label>Family Name (*): </ion-label>
-              <ion-input 
-                v-model="guardian.familyName.value" 
-                :disabled="guardian.familyName.disabled" 
-                class="ion-margin-top" 
-                placeholder="Family Name" 
-                :class="guardian.familyName.hasErrors ? 'box-error' : 'box'"
-              />
-            </ion-col>
-            <ion-col size="4">
-              <ion-label>
-                Cellphone Number (*):
-                <span class="ion-float-right ion-margin-end checkbox-label">
-                  Cellphone Number Unknown? 
-                  <ion-checkbox v-model="guardianPhoneUnknown"></ion-checkbox>
-                </span>
-              </ion-label>
-              <ion-input 
-                v-model="guardian.cellPhoneNumber.value" 
-                :disabled="guardian.cellPhoneNumber.disabled" 
-                placeholder="Cellphone Number" 
-                class="ion-margin-top" 
-                :class="guardian.cellPhoneNumber.hasErrors ? 'box-error' : 'box'"
-              />
-            </ion-col>
-          </ion-row>
-          <ion-title class="ion-text-center ion-margin-top ion-padding-top errors" v-if="hasErrors">
-            <b>All required fields (*) must be completed before proceeding.</b>
-          </ion-title>
-        </ion-col>
-      </ion-row>
+      <ion-col size="12">
+        <ion-title class=" ion-text-center ion-margin-vertical"><b>Personal Details</b></ion-title>
+        <ion-row class="ion-margin-bottom">
+          <ion-col size="4">
+            <ion-label>First Name (*): </ion-label>
+            <ion-input v-model="patient.givenName.value" placeholder="First Name" class="ion-margin-top" :class="patient.givenName.hasErrors ? 'box-error' : 'box'" />
+          </ion-col>
+          <ion-col size="4">
+            <ion-label class="ion-padding-end">Middle Name: </ion-label>
+            <ion-input v-model="patient.middleName.value" class="ion-margin-top" placeholder="Middle Name" :class="patient.middleName.hasErrors ? 'box-error' : 'box'" />
+          </ion-col>
+          <ion-col size="4">
+            <ion-label class="ion-padding-end">Family Name (*): </ion-label>
+            <ion-input v-model="patient.familyName.value" class="ion-margin-top" placeholder="Family Name" :class="patient.familyName.hasErrors ? 'box-error' : 'box'" />
+          </ion-col>
+        </ion-row>
+        <ion-row class="ion-margin-bottom">
+          <ion-col size="4">
+            <ion-label>
+              <span v-if="estimateAge">Estimage Age (*):</span>
+              <span v-else>Date of Birth (*):</span>
+              <span class="ion-float-right ion-margin-end checkbox-label">
+                Estimate Date of Birth
+                <ion-checkbox v-model="estimateAge"></ion-checkbox>
+              </span>
+            </ion-label>
+            <ion-input v-if="estimateAge" v-model="patient.estimatedBirthdate.value" class="ion-margin-top" :class="patient.estimatedBirthdate.hasErrors ? 'box-error' : 'box'" :min="1" :max="120" type="number" placeholder="Enter age estimate" />
+            <ion-row v-else style="width: 100%; padding-top: .5rem;">
+              <ion-col size="4">
+                <ion-input v-model="patient.birthDay.value" :min="1" :max="31" :class="patient.birthDay.hasErrors ? 'box-error' : 'box'" type="number" placeholder="DD" />
+              </ion-col>
+              <ion-col size="4">
+                <ion-input v-model="patient.birthMonth.value" :min="1" :max="12" :class="patient.birthMonth.hasErrors ? 'box-error' : 'box'" type="number" placeholder="MM" />
+              </ion-col>
+              <ion-col size="4">
+                <ion-input v-model="patient.birthYear.value" :min="1900" :class="patient.birthYear.hasErrors ? 'box-error' : 'box'" type="number" placeholder="YYYY" />
+              </ion-col>
+            </ion-row>
+          </ion-col>
+          <ion-col size="4">
+            <ion-label>Gender (*): </ion-label>
+            <searchable-select-input class="ion-margin-top" placeholder="Select Gender" :value="patient.gender.value" :class="patient.gender.hasErrors ? 'box-error' : 'box'" :options="genderOptions" :searchable="false" @onSelect="setPatientGender" />
+          </ion-col>
+          <ion-col size="4">
+            <ion-label>
+              Cellphone Number (*):
+              <span class="ion-float-right ion-margin-end checkbox-label">
+                Cellphone Number Unknown?
+                <ion-checkbox v-model="patientPhoneUnknown"></ion-checkbox>
+              </span>
+            </ion-label>
+            <ion-input v-model="patient.cellPhoneNumber.value" :disabled="patient.cellPhoneNumber.disabled" placeholder="Cellphone Number" class="ion-margin-top" :class="patient.cellPhoneNumber.hasErrors ? 'box-error' : 'box'" />
+          </ion-col>
+        </ion-row>
+        <ion-title class=" ion-text-center ion-margin-vertical ion-padding-top"><b>Physical Address</b></ion-title>
+        <ion-row class="ion-margin-bottom">
+          <ion-col size="6">
+            <ion-label>
+              Home Village (*):
+              <span class="ion-float-right ion-margin-end checkbox-label">
+                Village not listed?
+                <ion-checkbox v-model="addCustomVillage"></ion-checkbox>
+              </span>
+            </ion-label>
+            <ion-input v-if="addCustomVillage" v-model="patient.homeVillage.value" placeholder="enter village" class="ion-margin-top" :class="patient.homeVillage.hasErrors ? 'box-error' : 'box'" />
+            <searchable-select-input v-else class="ion-margin-top" placeholder="Select Home Village" :value="patient.homeVillage.value" :class="patient.homeVillage.hasErrors ? 'box-error' : 'box'" :asyncOptions="getVillagesByName" @onSelect="setPatientVillage" />
+          </ion-col>
+          <ion-col size="6">
+            <ion-label>
+              Closest Landmark or Plot Number (*):
+              <span class="ion-float-right ion-margin-end checkbox-label">
+                Landark not listed?
+                <ion-checkbox v-model="addCustomLandmark"></ion-checkbox>
+              </span>
+            </ion-label>
+            <ion-input v-if="addCustomLandmark" v-model="patient.landmark.value" placeholder="enter closest landmark or plot number" class="ion-margin-top" :class="patient.landmark.hasErrors ? 'box-error' : 'box'" />
+            <searchable-select-input v-else class="ion-margin-top" placeholder="Select Closest Landmark" :value="patient.landmark.value" :class="patient.landmark.hasErrors ? 'box-error' : 'box'" :options="landmarks" @onSelect="setPatientLandmark" />
+          </ion-col>
+        </ion-row>
+        <ion-title class=" ion-text-center ion-margin-vertical ion-padding-top">
+          <b>Guardian details</b>
+          <span class="ion-margin-start checkbox-label">
+            Guardian Details Unknown?
+            <ion-checkbox v-model="guardianNotAvailable"></ion-checkbox>
+          </span>
+        </ion-title>
+        <ion-row class="ion-margin-bottom">
+          <ion-col size="4">
+            <ion-label>First Name (*): </ion-label>
+            <ion-input v-model="guardian.givenName.value" :disabled="guardian.givenName.disabled" placeholder="First Name" class="ion-margin-top" :class="guardian.givenName.hasErrors ? 'box-error' : 'box'" />
+          </ion-col>
+          <ion-col size="4">
+            <ion-label>Family Name (*): </ion-label>
+            <ion-input v-model="guardian.familyName.value" :disabled="guardian.familyName.disabled" class="ion-margin-top" placeholder="Family Name" :class="guardian.familyName.hasErrors ? 'box-error' : 'box'" />
+          </ion-col>
+          <ion-col size="4">
+            <ion-label>
+              Cellphone Number (*):
+              <span class="ion-float-right ion-margin-end checkbox-label">
+                Cellphone Number Unknown?
+                <ion-checkbox v-model="guardianPhoneUnknown"></ion-checkbox>
+              </span>
+            </ion-label>
+            <ion-input v-model="guardian.cellPhoneNumber.value" :disabled="guardian.cellPhoneNumber.disabled" placeholder="Cellphone Number" class="ion-margin-top" :class="guardian.cellPhoneNumber.hasErrors ? 'box-error' : 'box'" />
+          </ion-col>
+        </ion-row>
+        <ion-title class="ion-text-center ion-margin-top ion-padding-top errors" v-if="hasErrors">
+          <b>All required fields (*) must be completed before proceeding.</b>
+        </ion-title>
+      </ion-col>
+    </ion-row>
   </ion-grid>
 </template>
 
@@ -253,7 +149,7 @@ export default defineComponent({
     IonInput,
     IonCheckbox,
     SearchableSelectInput
-},
+  },
   emits: ["updatePatient", "updateGuardian", "estimateBirthdate"],
   setup(props, { emit }) {
     const estimateAge = computed({
@@ -262,7 +158,7 @@ export default defineComponent({
     })
     const genderOptions = [
       { label: "Male", value: "M" },
-      { label: "Female", value: "F"}
+      { label: "Female", value: "F" }
     ]
     const landmarks = getLandmarks()
     const guardianNotAvailable = ref(false)
@@ -288,9 +184,9 @@ export default defineComponent({
       patient.gender.other = option
     }
 
-    watch(guardianNotAvailable, (isNotAvailable) =>{
+    watch(guardianNotAvailable, (isNotAvailable) => {
       for (const key in guardian) {
-        guardian[key].value = isNotAvailable ? 'Unknown' : '' 
+        guardian[key].value = isNotAvailable ? 'Unknown' : ''
         guardian[key].disabled = isNotAvailable
       }
     })

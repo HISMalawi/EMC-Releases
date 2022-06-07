@@ -1,9 +1,9 @@
 import { ObsValue, ObservationService } from "@/services/observation_service"
 import { isEmpty } from "lodash"
-import { DTFormField } from "../interfaces/dt_form_field"
+import { DTForm } from "../interfaces/dt_form_field"
 import { Option } from "@/components/Forms/FieldInterface";
 
-export function isValidForm (form: DTFormField) {
+export function isValidForm (form: DTForm) {
   for (const key in form) {
     if(typeof form[key].validation !== 'function') {
       form[key].error = ''
@@ -24,7 +24,7 @@ export function isValidForm (form: DTFormField) {
   return Object.values(form).every(({ error }) => !error)
 }
 
-export function resolveFormValues(form: DTFormField){
+export function resolveFormValues(form: DTForm){
   const formData: any = {}
   const computedFormData: any = {}
   for (const key in form) {

@@ -280,7 +280,7 @@ import dayjs from "dayjs";
 import { ObsValue } from "@/services/observation_service";
 import { BMIService } from "@/services/bmi_service";
 import { DispensationService } from "@/apps/ART/services/dispensation_service";
-import { DTFormField } from "../../interfaces/dt_form_field";
+import { DTForm } from "../../interfaces/dt_form_field";
 import { isValidForm, optionsToGroupObs, resolveFormValues, resolveObs } from "../../utils/form";
 
 export default defineComponent({
@@ -326,7 +326,7 @@ export default defineComponent({
     const showHeightField = computed(() => !(prevHeight.value && props.patient.getAge() > 18))
     const isFemale = computed(() => props.patient.isFemale())
 
-    const form = reactive<DTFormField>({
+    const form = reactive<DTForm>({
       visitDate: {
         value: undefined as string | undefined,
         error: '',
