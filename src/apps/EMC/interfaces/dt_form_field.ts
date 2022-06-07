@@ -1,6 +1,12 @@
+import { Option } from '@/components/Forms/FieldInterface';
+
 export interface DTFormField {
   value: any;
-  error: string;
+  label?: string;
+  placeholder?: string;
+  error?: string;
+  required?: boolean;
+  disabled?: boolean;
   validation?: Function;
   computedValue?: Function;
 }

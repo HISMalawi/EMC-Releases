@@ -1,0 +1,169 @@
+<template>
+  <ion-label class="ion-padding-bottom bold" v-if="model.label">
+    <span v-if="isEstimated">{{ estimationLabel }}</span>
+    <span v-else>{{ model.label }}</span>
+    <span class="ion-float-right ion-margin-end checkbox-label" v-if="allowEstimation">
+      Estimate {{ model.label }}
+      <ion-checkbox v-model="isEstimated"></ion-checkbox>
+    </span>
+  </ion-label>
+  <ion-input
+    v-if="isEstimated"
+    type="number"
+    class="ion-margin-top"
+    :class="model.error ? 'box-input-error'  : 'box-input'"
+    v-model="age"
+    :placeholder="estimationLabel"
+    :disabled="model.disabled"
+    :min="1"
+    @ionFocus="() => model.error = ''"
+    @ionBlur="validate"
+  />
+  <div v-else style="display: flex; justify-content: flex-start;">
+    <ion-input 
+      v-model="day" 
+      :min="1" 
+      :max="31" 
+      class="ion-margin-top" 
+      :class="model.error ? 'box-input-error'  : 'box-input'"
+      style="width: 30%;"
+      type="number"
+      placeholder="DD"
+      @ionFocus="() => model.error = ''"
+      @ionBlur="validate"
+    />
+    <select 
+      v-model="month" 
+      class="ion-margin-top" 
+      :class="model.error ? 'box-input-error'  : 'box-input'"
+      style="background-color: #fff; width: 30%;"
+      :style="month ? {'color': '#000'} : {'color': '#a0a0a0'}"
+      @focus="() => model.error = ''"
+      @blur="validate"
+    >
+      <option :value="0" disabled selected hidden>MM</option>
+      <option v-for="(month, i) in months" :value="i + 1" :key="i">{{ month }}</option>
+    </select>
+    <ion-input 
+      v-model="year" 
+      :min="1900" 
+      class="ion-margin-top" 
+      :class="model.error ? 'box-input-error'  : 'box-input'" 
+      type="number" 
+      placeholder="YYYY" 
+      @ionFocus="() => model.error = ''"
+      @ionBlur="validate"
+    />
+  </div>
+  <ion-note v-if="model.error" color="danger">{{ model.error }}</ion-note>
+</template>
+<script lang="ts">
+import { IonCheckbox, IonInput, IonLabel, IonNote } from "@ionic/vue";
+import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
+import { DTFormField } from "../../interfaces/dt_form_field";
+import HisDate from "@/utils/Date";
+import dayjs from "dayjs";
+
+export default defineComponent({
+  name: "DateInput",
+  props: {
+    modelValue: {
+      type: Object as PropType<DTFormField>,
+      default: () => ({}),
+    },
+    minDate: {
+      type: String,
+      default: ''
+    },
+    maxDate: {
+      type: String,
+      default: ''
+    },
+    allowEstimation: {
+      type: Boolean,
+      default: false
+    },
+    estimationLabel: {
+      type: String,
+      default: "Estimate"
+    }
+  },
+  components: {
+    IonLabel,
+    IonInput,
+    IonNote,
+    IonCheckbox,
+  },
+  emits: ["update:modelValue", "isEstimated"],
+  setup(props, { emit}) {
+    const isEstimated = ref(false);
+    const age = ref<number>()
+    const day = ref<number>()
+    const month = ref<number>(0)
+    const year = ref<number>()
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    const date = computed(() => {
+      if (isEstimated.value && age.value) {
+        return  HisDate.toStandardHisFormat(HisDate.estimateDateFromAge(age.value));
+      }
+      if (day.value && month.value && year.value) {
+        return HisDate.toStandardHisFormat(`${year.value}-${month.value}-${day.value}`);
+      }
+      return ``;
+    });
+
+    const model = computed({
+      get: () => props.modelValue,
+      set: (value) => emit("update:modelValue", value)
+    })
+
+    const validate = () => {
+      if (model.value.required && !model.value.value) {
+        return model.value.error = "This field is required";
+      }
+      if (props.minDate && dayjs(model.value.value).isBefore(dayjs(props.minDate))) {
+        return model.value.error = isEstimated.value 
+          ? `Estimated period must be less than or equal to ${dayjs().diff(props.minDate, 'years')} years ago`
+          : `Date must be after ${props.minDate}`
+      }
+      if (props.maxDate && dayjs(model.value.value).isAfter(dayjs(props.maxDate))) {
+        return model.value.error = isEstimated.value
+          ? `Estimated period must be more than or equal to ${dayjs(model.value.value).diff(props.maxDate, 'years')} years ago`
+          : `Date must be before ${props.maxDate}`
+      }
+      if (model.value.validation) {
+        const errors = model.value.validation({label: model.value, value: model.value});
+        if (errors && errors.length) {
+          return model.value.error += errors.toString();
+        }
+      }
+      return model.value.error = "";
+    };
+
+    watch(date, newDate => {
+      model.value.value = newDate;
+      validate();
+    })
+    watch(isEstimated, newValue => {
+      age.value = undefined;
+      day.value = undefined;
+      month.value = 0;
+      year.value = undefined;
+      model.value.error = "";
+      emit("isEstimated", newValue);
+    })
+
+    return {
+      validate,
+      isEstimated,
+      model,
+      age,
+      day,
+      month,
+      year,
+      months,
+    };
+  }
+});
+</script>

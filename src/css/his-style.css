@@ -56,6 +56,19 @@
     border-radius: 3px;
 }
 
+.checkbox-label {
+    color: rgb(67, 149, 204);
+    font-weight: bold;
+}
+
+.checkbox-label > ion-checkbox {
+    --size: 14px!important;
+}
+
+.bold {
+    font-weight: bold;
+}
+
 .input_display {
     border-top: none;
     border-left: none;

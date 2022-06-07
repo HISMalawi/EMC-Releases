@@ -1,19 +1,18 @@
 <template>
   <div
     style="min-height: 40px; padding: 0.5rem"
-    :value="value"
     @click="showOptions"
   >
-    <span style="" v-if="value">{{ value.label }}</span>
+    <span style="" v-if="input && input.label">{{ input.label }}</span>
     <span v-else style="color: #a3a3a3;">{{ placeholder }}</span>
     <ion-icon :icon="caretDown" style="color: #a3a3a3; float: right;"></ion-icon>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { computed, defineComponent, PropType } from 'vue'
 import { Option } from "@/components/Forms/FieldInterface";
-import SearchableList from '@/apps/EMC/Components/SearchableList.vue'
+import SearchableList from '@/apps/EMC/Components/modals/SearchableList.vue'
 import { caretDown } from "ionicons/icons"
 import { IonIcon, modalController } from '@ionic/vue'
 
@@ -23,8 +22,9 @@ export default defineComponent({
     IonIcon,
   },
   props: {
-    value: {
+    modelValue: {
       type: Object as PropType<Option>,
+      default: () => ({})
     },
     asyncOptions: {
       type: Function as PropType<(filter: string) => Promise<Option[]>>,
@@ -47,8 +47,14 @@ export default defineComponent({
       default: true,
     }
   },
-  emits: ["onSelect"],
+  emits: ["update:modelValue"],
   setup(props, { emit }) {
+    const input = computed({
+      get: () => props.modelValue,
+      set: (value) => {
+        emit("update:modelValue", value);
+      }
+    })
     const showOptions = async () => {
       const modal = await modalController.create({
         component: SearchableList,
@@ -65,9 +71,10 @@ export default defineComponent({
 
       modal.present()
       const { data } = await modal.onDidDismiss()
-      if(data) emit("onSelect", data)
+      if(data) input.value = data
     }
     return {
+      input,
       caretDown,
       showOptions
     }
