@@ -5,6 +5,10 @@ import { Option } from "@/components/Forms/FieldInterface";
 
 export function isValidForm (form: DTForm) {
   for (const key in form) {
+    if (form[key].required && !form[key].value) {
+      form[key].error = "This field is required";
+      continue;
+    }
     if(typeof form[key].validation !== 'function') {
       form[key].error = ''
       continue
