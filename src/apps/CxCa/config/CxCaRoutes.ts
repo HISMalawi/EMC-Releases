@@ -44,6 +44,11 @@ export default [
                 name: 'cc_all_questions',
                 path: 'cc_all_questions',
                 component: () => import('@/apps/CxCa/views/reports/pepfar/CCAllQuestions.vue')
+            },
+            {
+                name: 'cc_type_of_screen',
+                path: 'cc_type_of_screen',
+                component: () => import('@/apps/CxCa/views/reports/pepfar/CCTypeOfScreen.vue')
             }
         ]
     }

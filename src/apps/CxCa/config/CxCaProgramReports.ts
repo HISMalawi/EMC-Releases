@@ -31,18 +31,15 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'CC All Questions',
                 pathName: 'cc_all_questions'
-            }
-        ]
-    },
-    {
-        name: 'PEPFAR',
-        icon: 'login-logos/PEPFAR.png',
-        defaultFilesIcon: 'reports.png',
-        files: [
+            },
             {
                 name: 'CC Basic Results',
                 pathName: 'cc_basic_results'
+            },
+            {
+                name: 'CC Type of Screen',
+                pathName: 'cc_type_of_screen'
             }
         ]
-    }
+    },
 ]
