@@ -5,7 +5,7 @@
                 <ion-col size="4">
                     <ion-list class="his-card"> 
                         <ion-radio-group v-model="selected">
-                            <ion-item class="his-md-text" detail v-for="(item, index) in listData" :key="index"> 
+                            <ion-item lines="none" class="his-md-text" detail v-for="(item, index) in listData" :key="index"> 
                                 <ion-radio slot="start" :value="item.label"></ion-radio>
                                 <ion-label v-html="item.label"></ion-label>
                             </ion-item>
@@ -16,26 +16,33 @@
                     <div v-for="(option, optionIndex) in listData" :key="optionIndex"> 
                         <div v-if="selected === option.label">
                             <ion-grid style="margin-bottom: 10px;" class="his-card" v-for="(rows, mainRowIndex) in option.other.data" :key="mainRowIndex">
-                                <ion-row v-if="option?.other?.rowTitles" style="background: #ccc;">
+                                <ion-row v-if="option?.other?.rowTitles" style="background:#D3D3D3;">
                                     <ion-col class="ion-text-center"> 
                                        <ion-title v-html="option?.other?.rowTitles ? option?.other?.rowTitles[mainRowIndex] || '' : ''"> </ion-title>
                                     </ion-col>
                                 </ion-row>
                                 <p/>
-                                <ion-row v-for="(rowItem, rowIndex) in rows" :key="rowIndex"> 
+                                <ion-row v-for="(rowItem, rowIndex) in rows" :key="rowIndex">
                                     <ion-col>
-                                        <ion-label class="his-md-text"><b>{{rowItem.label}}</b></ion-label>
-                                    </ion-col>
-                                    <ion-col>
-                                        <b class="his-md-text">{{rowItem?.value?.label || '?'}}</b>
-                                    </ion-col>
-                                    <ion-col>
-                                        <ion-button 
-                                            :disabled="rowItem.disabled" 
-                                            @click="editField(rowItem, listData[optionIndex].other.data[mainRowIndex])"
-                                            >
-                                            EDIT
-                                        </ion-button>
+                                        <ion-item  v-if="rowItem.disabled" 
+                                            @click="warn(`Cannot edit ${rowItem.label}`)" 
+                                            class="his-sm-text"> 
+                                            <ion-label>{{rowItem.label}}</ion-label>
+                                            <ion-input placeholder="N/A" slot="end"/>
+                                        </ion-item>
+                                        <ion-item v-if="!rowItem.disabled"
+                                            class="his-sm-text"
+                                            @click="editField(rowItem, listData[optionIndex].other.data[mainRowIndex])">
+                                            <ion-label :color="rowItem?.value?.label ? '' : 'danger'">
+                                                <b>{{rowItem.label}}</b>
+                                            </ion-label>
+                                            <ion-input
+                                             slot="end"
+                                             :readonly="true"
+                                             :value="rowItem?.value?.label"
+                                             placeholder="Click to edit"
+                                            />
+                                        </ion-item>
                                     </ion-col>
                                 </ion-row>
                             </ion-grid>
@@ -57,7 +64,7 @@ import {
     IonRadioGroup,
     IonRadio,
     IonGrid,
-    IonButton,
+    IonInput,
     IonCol,
     IonRow,
     modalController
@@ -66,6 +73,7 @@ import {
     arrowUp,
     arrowDown
 } from "ionicons/icons"
+import { toastWarning } from "@/utils/Alerts"
 import TouchField from "@/components/Forms/SIngleTouchField.vue"
 import { isEmpty } from 'lodash'
 
@@ -74,7 +82,7 @@ export default defineComponent({
     mixins: [FieldMixinVue],
     components: {
         IonTitle,
-        IonButton,
+        IonInput,
         IonRadioGroup,
         IonRadio,
         IonGrid,
@@ -98,6 +106,9 @@ export default defineComponent({
         if (this.listData.length) this.selected = this.listData[0].label
     },
     methods: {
+        warn(message: string) {
+           toastWarning(message)
+        },
        async editField(option: any, rowItems: any) {
             const modal = await modalController.create({
                 component: TouchField,
