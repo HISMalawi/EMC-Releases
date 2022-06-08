@@ -53,15 +53,34 @@ export default defineComponent({
             return v.map(i => AncMedicalHistoryService.buildValueCoded(i.label, `${i.value}`))
           },
           options: () => {
-            const history = AncMedicalHistoryService.medicalHistoryOptions()
-            return history.map(h =>({
+            return AncMedicalHistoryService.medicalHistoryOptions().map(h =>({
                label: h.name,
                value: '',
                other: {
-                    values: this.yesNoOptions()
+                  values: this.yesNoOptions()
                }
             }))
-          } 
+          },
+          config : {
+            footerBtns: [
+              {
+                name: "None",
+                slot: "end",
+                onClickComponentEvents:{
+                  refreshOptions: () => {
+                    return AncMedicalHistoryService.medicalHistoryOptions().map(h =>({
+                      label: h.name,
+                      value: 'No',
+                      other: {
+                        values: this.yesNoOptions()
+                      }
+                    }))
+                  }
+                },
+                onClick: () => 'None'
+              }
+            ]
+          }
         }
       ]
     }

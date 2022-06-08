@@ -45,7 +45,8 @@ import {
   IonSegment,
   IonSegmentButton,
 } from "@ionic/vue";
-import { Option } from "../Forms/FieldInterface";
+import { FooterBtnEvent, Option } from "../Forms/FieldInterface";
+import { isEmpty } from "lodash";
 export default defineComponent({
   components: {
     IonRow,
@@ -58,6 +59,18 @@ export default defineComponent({
   name: "HisMultiYesNo",
   mixins: [SelectMixin],
   watch: {
+    footerButtonEvent: {
+      handler(event: FooterBtnEvent) {
+        if (event && typeof event.onClickComponentEvents?.refreshOptions === 'function') {
+          this.listData = event.onClickComponentEvents?.refreshOptions(
+            event, this.listData, this.fdata, this.cdata
+          )
+          this.$emit('onValue', !isEmpty(this.listData) ? this.listData : null)
+        }
+      },
+      deep: true,
+      immediate: true
+    },
     clear() {
       this.listData = this.listData.map(i => {
         i.value = ''

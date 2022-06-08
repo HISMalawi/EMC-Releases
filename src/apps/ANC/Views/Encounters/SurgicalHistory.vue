@@ -14,7 +14,7 @@ import EncounterMixinVue from '@/views/EncounterMixin.vue'
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import { defineComponent } from 'vue'
 import { AncSurgicalHistoryService} from "@/apps/ANC/Services/anc_surgical_history_service"
-import { FooterBtnEvent, Option } from '@/components/Forms/FieldInterface'
+import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { IonPage } from "@ionic/vue"
 import { find, findIndex } from 'lodash'
