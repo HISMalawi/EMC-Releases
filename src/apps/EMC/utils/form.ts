@@ -1,5 +1,4 @@
 import { ObsValue, ObservationService } from "@/services/observation_service"
-import { isEmpty } from "lodash"
 import { DTForm } from "../interfaces/dt_form_field"
 import { Option } from "@/components/Forms/FieldInterface";
 
