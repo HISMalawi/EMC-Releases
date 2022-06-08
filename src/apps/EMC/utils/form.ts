@@ -32,7 +32,7 @@ export function resolveFormValues(form: DTForm){
   const formData: any = {}
   const computedFormData: any = {}
   for (const key in form) {
-    if(!isEmpty(form[key].value)) {
+    if(form[key].value) {
       formData[key] = typeof form[key].value === 'object' ? form[key].value.value : form[key].value
       if(typeof form[key].computedValue === 'function') {
         computedFormData[key] = form[key].computedValue!(form[key].value)
