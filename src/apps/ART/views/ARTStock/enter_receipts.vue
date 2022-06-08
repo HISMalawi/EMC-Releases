@@ -49,6 +49,7 @@ export default defineComponent({
           id: "transfer_origination",
           helpText: "Select where stock came from",
           type: FieldType.TT_SELECT,
+          validation: (val: Option) => Validation.required(val),
           options: () => [
             {
               label: "DHA",
