@@ -3,9 +3,13 @@
         <ion-grid class='view-port-content'> 
             <ion-row> 
                 <ion-col size="4">
-                    <ion-list class="his-card"> 
+                    <ion-list> 
                         <ion-radio-group v-model="selected">
-                            <ion-item lines="none" class="his-md-text" detail v-for="(item, index) in listData" :key="index"> 
+                            <ion-item 
+                                detail 
+                                lines="none" 
+                                class="his-md-text his-card ion-padding" 
+                                v-for="(item, index) in listData" :key="index"> 
                                 <ion-radio slot="start" :value="item.label"></ion-radio>
                                 <ion-label v-html="item.label"></ion-label>
                             </ion-item>
