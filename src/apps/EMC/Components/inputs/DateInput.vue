@@ -34,7 +34,7 @@
     />
     <select 
       v-model="month" 
-      class="ion-margin-top" 
+      class="ion-margin-top ion-margin-horizontal" 
       :class="model.error ? 'box-input-error'  : 'box-input'"
       style="background-color: #fff; width: 30%;"
       :style="month ? {'color': '#000'} : {'color': '#a0a0a0'}"
