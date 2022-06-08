@@ -47,8 +47,7 @@ export default defineComponent({
                     }
                 }
             },
-            deep: true,
-            immediate: true
+            deep: true
         },
         listData: {
             handler(data: any) { if (data) this.filtered = data },
