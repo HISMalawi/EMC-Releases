@@ -46,6 +46,12 @@ export default defineComponent({
       await this.service.saveObservationList((await this.resolveObs(computedData)))
       this.nextTask()
     },
+    diagnosisOptions(onMap: (item: Option) => Option) {
+        return [...ConceptService.getConceptsByCategory('anc_diagnosis'),{ name: 'None'}]
+            .map((c: any) => (onMap({
+                ...this.toOption(c.name), isChecked: false 
+            })))
+    },
     getFields() {
       return [
         {
@@ -365,10 +371,23 @@ export default defineComponent({
                     return l
                 })
             },
-            options: () => {
-                const options = ConceptService.getConceptsByCategory('anc_diagnosis')
-                    .map((c: any) => ({...this.toOption(c.name), isChecked: false }))
-                return [...options, this.toOption('None')]  as Option[]
+            options: () => this.diagnosisOptions(o => o),
+            config: {
+                footerBtns: [
+                    {
+                        name: "None",
+                        slot: "end",
+                        onClickComponentEvents: {
+                            refreshOptions: () => {
+                                return this.diagnosisOptions(o => {
+                                    o.isChecked = o.label === 'None'
+                                    return o
+                                })
+                            }
+                        },
+                        onClick: () => 'None'
+                    }
+                ]
             }
         }
       ]
