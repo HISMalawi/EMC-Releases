@@ -13,10 +13,9 @@
     <ion-col :size="prefix ? 8 : 12" style="background: #ffffff; height: 100%; padding: .5rem">
       <ion-input
         class="ion-no-margin ion-no-padding"
-        :value="model.value"
+        v-model="model.value"
         :placeholder="model.placeholder"
         :disabled="model.disabled || isUnknown"
-        @ionInput="(e) => model.value = prefix ? prefix + e.target.value : e.target.value"
         @ionFocus="model.error = ''"
         @ionBlur="validate"
       />
@@ -60,7 +59,7 @@ export default defineComponent({
       set: (value) => emit("update:modelValue", value)
     })
 
-    const validate = () => {
+    const validate = async () => {
       if (model.value.required && !model.value.value) {
         return model.value.error = "This field is required";
       }
@@ -68,7 +67,7 @@ export default defineComponent({
         return model.value.error = "Unknown is not allowed";
       }
       if (model.value.validation) {
-        const errors = model.value.validation({label: model.value, value: model.value});
+        const errors = await model.value.validation({label: model.value.value, value: model.value.value});
         if (errors && errors.length) {
           return model.value.error += errors.toString();
         }

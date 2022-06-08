@@ -47,12 +47,12 @@ export default defineComponent({
       set: (value) => emit("update:modelValue", value)
     })
 
-    const validate = () => {
+    const validate = async () => {
       if (model.value.required && !model.value.value) {
         return model.value.error = "This field is required";
       }
       if (model.value.validation) {
-        const errors = model.value.validation({label: model.value, value: model.value});
+        const errors = await model.value.validation({label: model.value.value, value: model.value.value});
         if (errors && errors.length) {
           return model.value.error += errors.toString();
         }
