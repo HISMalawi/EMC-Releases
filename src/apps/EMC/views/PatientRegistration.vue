@@ -8,16 +8,58 @@
       </ion-row>
       <ion-row class="his-card">
         <ion-col size="12">
-          <PatientRegistrationForm
-            :patientDetails="patient"
-            :guardianDetails="guardian"
-            :hasErrors="hasErrors"
-            :isBirthdateEstimated="isBirthdateEstimated"
-            @updatePatient="updatePatient"
-            @updateGuardian="updateGuardian"
-            @estimateBirthdate="updateBirthdateEstimated"
-          />
+          <ion-title class=" ion-text-center ion-margin-vertical"><b>Personal Details</b></ion-title>
+          <ion-row class="ion-margin-top ion-margin-bottom">
+            <ion-col size="4" class="ion-margin-top ion-margin-bottom">
+              <TextInput v-model="patient.givenName" />
+            </ion-col>
+            <ion-col size="4" class="ion-margin-top ion-margin-bottom">
+              <TextInput v-model="patient.middleName" />
+            </ion-col>
+            <ion-col size="4" class="ion-margin-top ion-margin-bottom">
+              <TextInput v-model="patient.familyName" />
+            </ion-col>
+            <ion-col size="8" class="ion-margin-top ion-margin-bottom">
+              <DateInput 
+                v-model="patient.birthdate" 
+                :allowEstimation="true"
+                :estimationLabel="'Estimate Age'"
+                minDate="1900-01-01"
+                @isEstimated="(estimate) => isBirthdateEstimated = estimate"/>
+            </ion-col>
+            <ion-col size="4" class="ion-margin-top ion-margin-bottom">
+              <SelectInput v-model="patient.gender" :options="genderOptions" />
+            </ion-col>
+            <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+              <TextInput v-model="patient.cellPhoneNumber" allowUnknown />
+            </ion-col>
+            <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+              <SelectInput v-model="patient.homeVillage" :asyncOptions="getVillagesByName" allowCustom searchable />
+            </ion-col>
+            <ion-col size="12" class="ion-margin-top ion-margin-bottom">
+              <SelectInput v-model="patient.landmark" :options="landmarks" allowCustom searchable />
+            </ion-col>
+          </ion-row>
+          <ion-title class="ion-text-center ion-margin-vertical ion-padding-top">
+            <b>Guardian details</b>
+            <span class="ion-margin-start checkbox-label">
+              Guardian Details Unknown?
+              <ion-checkbox v-model="guardianAbsent"></ion-checkbox>
+            </span>
+          </ion-title>
+          <ion-row class="ion-margin-top ion-margin-bottom">
+            <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+              <TextInput v-model="guardian.givenName" />
+            </ion-col>
+            <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+              <TextInput v-model="guardian.familyName" />
+            </ion-col>
+            <ion-col size="12" class="ion-margin-top ion-margin-bottom">
+              <TextInput v-model="guardian.cellPhoneNumber" allowUnknown />
+            </ion-col>
+          </ion-row>
           <ion-button class="ion-margin-top ion-float-end" @click="onFinish" size="large" color="success">Finish</ion-button>
+          <ion-button class="ion-margin-top ion-float-end" @click="onClear" size="large" color="warning">Clear</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -25,27 +67,24 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref } from "vue";
+import { defineComponent, reactive, ref, watch } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import { IonGrid, IonRow, IonCol } from "@ionic/vue";
-import { toastWarning } from "@/utils/Alerts";
-import PatientRegistrationForm from "../Components/PatientRegistrationForm.vue";
+import { IonGrid, IonRow, IonCol,IonCheckbox, loadingController } from "@ionic/vue";
+import { alertConfirmation } from "@/utils/Alerts";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Option } from "@/components/Forms/FieldInterface";
-import HisDate from "@/utils/Date";
 import { LocationService } from "@/services/location_service";
 import { isEmpty } from "lodash";
 import { PatientRegistrationService } from "@/services/patient_registration_service";
 import { useRouter } from "vue-router";
 import { RelationsService } from "@/services/relations_service";
-
-interface DTInputField {
-  value: string;
-  required?: boolean;
-  validation?: (option: Option, formData?: Record<string, DTInputField>) => string[] | null;
-  hasErrors?: boolean;
-  other?: any;
-}
+import { DTForm } from "../interfaces/dt_form_field";
+import TextInput from "../Components/inputs/TextInput.vue";
+import DateInput from "../Components/inputs/DateInput.vue";
+import SelectInput from "../Components/inputs/SelectInput.vue";
+import { getLandmarks, getVillagesByName } from "@/utils/HisFormHelpers/LocationFieldOptions";
+import { isValidForm, resolveFormValues } from "../utils/form";
+import { toUnderscores } from "@/utils/Strs";
 
 export default defineComponent({
   components: {
@@ -53,161 +92,143 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    PatientRegistrationForm
-},
+    TextInput,
+    DateInput,
+    SelectInput,
+    IonCheckbox,
+  },
   setup() {
-    const router = useRouter()
-    const hasErrors = ref(false)
-    const isBirthdateEstimated = ref(false)
-    const isInRange = (value: number | string, min: number, max: number) => {
-      if(!value) return false
-      if(typeof value === 'string') value = parseInt(value)
-      return (value >= min && value <= max)
-    }
-    const patient = reactive<Record<string, DTInputField>>({
+    const router = useRouter();
+    const isBirthdateEstimated = ref(false);
+    const guardianAbsent = ref(false);
+    const landmarks = getLandmarks();
+    const genderOptions = [
+      { label: "Male", value: "M" },
+      { label: "Female", value: "F" }
+    ]
+    const patient = reactive<DTForm>({
       givenName: {
-        value: '',
-        required: true
+        label: "First Name",
+        value: "",
+        placeholder: "First Name",
+        required: true,
+        error: "",
       },
       familyName: {
-        value: '',
+        label: "last Name",
+        value: "",
+        placeholder: "Last Name",
         required: true
       },
       middleName: {
-        value: '',
+        label: "middle Name",
+        value: "",
+        placeholder: "middle Name",
       },
       gender: {
         value: '',
-        required: true
+        required: true,
+        label: "Gender",
+        placeholder: 'select gender'
       },
-      birthDay: {
+      birthdate: {
         value: '',
-        validation: (day: Option, formData: any) => {
-          const maxDay = (
-            formData.birthYear.value >= HisDate.getCurrentYear() && 
-            formData.birthMonth.value >= (HisDate.getCurrentMonth() + 1)
-          ) ? HisDate.getCurrentDay() : 31
-          if(!day.other.estimated && isInRange(day.value, 1, maxDay)){
-            return null
-          }
-          return ['Invalid month']
-        }
-      },
-      birthMonth: {
-        value: '',
-        validation: (month: Option, formData: any) => {
-          const maxMonth = formData.birthYear.value >= HisDate.getCurrentYear() 
-            ? HisDate.getCurrentMonth() + 1 
-            : 12
-          if(!month.other.estimated && isInRange(month.value, 1, maxMonth)){
-            return null
-          }
-          return ['Invalid month']
-        }
-      },
-      birthYear: {
-        value: '',
-        validation: (year: Option) => {
-          const maxYear = (new Date).getFullYear()
-          if(!year.other.estimated && isInRange(year.value, 1, maxYear)){
-            return null
-          }
-          return ['Invalid month']
-        }
-      },
-      estimatedBirthdate: {
-        value: '',
-        validation: (age: Option) => {
-          if(age.other.estimated && (!age.value || isInRange(age.value, 1, 120))) {
-            return ['Invalid age estimate']
-          }
-          return null
-        }
+        label: 'Date of Birth',
+        placeholder: 'Date of Birth',
+        required: true,
       },
       cellPhoneNumber: {
         value: '',
         required: true,
-        validation: (phone: Option) => Validation.isMWPhoneNumber(phone)
+        label: "Cellphone Number",
+        placeholder: "cellphone number e.g. 0991234567",
+        validation: (phone: Option) => phone.value !== 'Unknown' && Validation.isMWPhoneNumber(phone)
       },
       homeVillage: {
         value: '',
+        label: "Home Village",
+        placeholder: "Home Village",
         required: true,
       },
       landmark: {
         value: '',
+        label: "Landmark",
+        placeholder: "Closest Landmark or Plot Number",
         required: true,
       }
     })
 
-    const guardian = reactive<Record<string, DTInputField>>({
+    const guardian = reactive<DTForm>({
       givenName: {
-        value: '',
+        label: "First Name",
+        value: "",
+        placeholder: "First Name",
         required: true,
       },
       familyName: {
-        value: '',
+        label: "Last Name",
+        value: "",
+        placeholder: "Last Name",
         required: true,
       },
       cellPhoneNumber: {
         value: '',
         required: true,
-        validation: (phone: Option) => Validation.isMWPhoneNumber(phone)
+        label: "Cellphone Number",
+        validation: (phone: Option) => phone.value !== 'Unknown' && Validation.isMWPhoneNumber(phone)
       },
     })
 
-    const updateGuardian = (newGauardian: Record<string, any>) => {
-      Object.assign(guardian, newGauardian)
-    }
-    
-    const updatePatient = (newPatient: Record<string, any>) => {
-      Object.assign(patient, newPatient)
-    }
-
-    const updateBirthdateEstimated = (value: boolean) => {
-      isBirthdateEstimated.value = value
-    }
-
-    const isClientDetailsInvalid = (client: Record<string, any>) => {
-      let isInvalid = false;
-      for (const key in client){
-        let errors: string[] | null = null
-        if(client[key].value !== 'Unknown' && typeof client[key].validation === 'function') {
-          const option = {
-            value: client[key].value, 
-            label: '',
-            other: { estimated: isBirthdateEstimated.value }
-          }
-          errors = client[key].validation(option, client)
-        } 
-        if ((client[key].required && !client[key].value) || errors) {
-          client[key].hasErrors = true,
-          isInvalid = true
-        } else {
-          client[key].hasErrors = false
-        }      
+    watch(guardianAbsent, (isAbsent) => {
+      if (isAbsent) {
+        guardian.givenName.value = "Unknown"
+        guardian.familyName.value = "Unknown"
+        guardian.cellPhoneNumber.value = "Unknown"
+        guardian.givenName.disabled = true
+        guardian.familyName.disabled = true
+        guardian.givenName.error = ""
+        guardian.familyName.error = ""
+        guardian.cellPhoneNumber.error = ""
+      } else {
+        guardian.givenName.value = ""
+        guardian.familyName.value = ""
+        guardian.cellPhoneNumber.value = ""
+        guardian.givenName.disabled = false
+        guardian.familyName.disabled = false
       }
-      return isInvalid
+    })
+
+    const onClear = async () => {
+      const confirm = await alertConfirmation('Are you sure you want to clear all fields?')
+      if(confirm) {
+        for(const key in patient) {
+          patient[key].value = undefined
+          patient[key].error = ""
+        }
+        for(const key in guardian) {
+          guardian[key].value = undefined
+          guardian[key].error = ""
+        }
+      }
     }
 
-    const convertToUnderscores = (str: string) => str.split(/(?=[A-Z])/).join('_').toLowerCase()
-
-    const resolvePerson = (client: Record<string, DTInputField>, other = {} as Record<string, any>) => {
+    const resolvePerson = (client: DTForm, other = {} as Record<string, any>) => {
       const person: Record<string, any> = {
         ...other,
         'facility_name': null,
         'occupation': null,
       }
       for (const key in client) {
-        if(key === 'birthDay' || key === 'birthMonth' || key === 'birthYear') continue
-        person[convertToUnderscores(key)] = client[key].value
+        person[toUnderscores(key)] = client[key]
       }
       return person
     }
 
-    const resolveAddress = async (village = {} as DTInputField) => {
-      const TA = village.value 
-        ? await LocationService.getTraditionalAuthorityById(village.other.traditional_authority_id)
-        : null
+    const resolveAddress = async (villageId?: number) => {
+      const village = villageId ? await LocationService.getVillage(villageId) : {}
+      const TA = isEmpty(village)
+        ? null
+        : await LocationService.getTraditionalAuthorityById(village.traditional_authority_id)
       
       const district = isEmpty(TA) 
         ? null
@@ -216,79 +237,73 @@ export default defineComponent({
       return {
         'home_district': isEmpty(district) ?  "N/A" : district[0].name,
         'home_traditional_authority': isEmpty(TA) ? "N/A" : TA[0].name ,
-        'home_village': village.value || "N/A",
+        'home_village': village.name || "N/A",
         'current_district': isEmpty(district) ? "N/A" : district[0].name,
         'current_traditional_authority': isEmpty(TA) ? "N/A" : TA[0].name,
         'current_village': village.value || "N/A" 
       }
     }
 
-    const registerPatient = async (registerGuardian: boolean) => {
-       const registrationService = new PatientRegistrationService()
-      const birthdate = isBirthdateEstimated.value 
-        ? HisDate.toStandardHisFormat(HisDate.estimateDateFromAge(parseFloat(`${patient.estimatedBirthdate.value}`)))
-        : HisDate.toStandardHisFormat(`${patient.birthYear.value}-${patient.birthMonth.value}-${patient.birthDay.value}`)
-
-      const address = await resolveAddress(patient.homeVillage)
-      const person = resolvePerson(patient, {
-        birthdate,
-        ...address,
-        'isPatient': true,
-        'patient_type': null,
-        'birthdate_estimated': isBirthdateEstimated.value ? "Yes" : "No",
-        'relationship': registerGuardian ? "Yes" : "No",
-      })
-      await registrationService.createPerson(person)
-      await registrationService.createPatient()
-      return registrationService.getPersonID()
-    }
-
-    const registerGuardian = async (patientId: string | number) => {
-       const registrationService = new PatientRegistrationService()
-      const address = await resolveAddress()
-      const person = resolvePerson(guardian, {
-        ...address,
-        'middle_name': "",
-        'gender': "N/A",
-        'birthdate': "N/A",
-        'birthdate_estimated': "N/A",
-        'landmark': "N/A",
-        'relationship': "N/A",
-        'patient_type': "",
-        'isPatient': false,
-        'patient_id': patientId
-      })
-      await registrationService.registerGuardian(person)
-      return registrationService.getPersonID()
-    }
-
     const onFinish = async () => {
-      // double negation to force execution of all conditions
-      hasErrors.value = !(!isClientDetailsInvalid(patient) || !isClientDetailsInvalid(guardian))
-      if(hasErrors.value) return
+      const loader = await loadingController.create({
+        message: 'Processing data...'
+      });
+      await loader.present();
+      if(!(isValidForm(patient) || (!guardianAbsent.value && isValidForm(guardian)))) {
+        return await loader.dismiss()
+      } 
       try {
-        const guardianAvailable = guardian.givenName.value !== 'Unknown' &&  guardian.familyName.value !== 'Unknown'
-        const patientId = await registerPatient(guardianAvailable)
-        if(guardianAvailable) {
-          const guardianId = await registerGuardian(patientId)
+        const { formData: patientData } = resolveFormValues(patient)
+        const registrationService = new PatientRegistrationService()
+        const address = await resolveAddress(patientData.homeVillage)
+        const person = resolvePerson(patientData, {
+          birthdate :patientData.birthdate,
+          ...address,
+          'isPatient': true,
+          'patient_type': null,
+          'birthdate_estimated': isBirthdateEstimated.value ? "Yes" : "No",
+          'relationship': guardianAbsent.value ? "No" : "Yes",
+        })
+        await registrationService.createPerson(person)
+        await registrationService.createPatient()
+        const patientId = registrationService.getPersonID()
+        if(!guardianAbsent.value) {
+          const { formData: guardianData } = resolveFormValues(guardian)
+          const address = await resolveAddress()
+          const person = resolvePerson(guardianData, {
+            ...address,
+            'middle_name': "",
+            'gender': "N/A",
+            'birthdate': "N/A",
+            'birthdate_estimated': "N/A",
+            'landmark': "N/A",
+            'relationship': "N/A",
+            'patient_type': "",
+            'isPatient': false,
+            'patient_id': patientId
+          })
+          await registrationService.registerGuardian(person)
+          const guardianId = registrationService.getPersonID()      
           await RelationsService.createRelation(patientId, guardianId, 13)
-         console.log(await RelationsService.getRelations())
         }
+        await loader.dismiss()
         router.push(`/emc/registration/${patientId}/true`)
       } catch (error) {
-        toastWarning(error)
+        console.log(error)
+        await loader.dismiss()
       }
     }
  
     return {
       patient,
       guardian,
-      hasErrors,
+      landmarks,
+      genderOptions,
+      guardianAbsent,
       isBirthdateEstimated,
-      updateBirthdateEstimated,
-      updatePatient,
-      updateGuardian,
-      onFinish,
+      onClear,
+      onFinish, 
+      getVillagesByName
     };
   },
 });
