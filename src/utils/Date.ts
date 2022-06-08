@@ -124,6 +124,19 @@ function getDateQuarter(date: string | Date) {
     }
   }
 
+function rangeOf(date: string, minDate?: string, maxDate?: string) {
+    const c = dayjs(date)
+    if(minDate && maxDate) {
+        return c.isSame(minDate) || (c.isAfter(minDate) && c.isBefore(maxDate))
+    } else if(maxDate) {
+        return c.isSame(maxDate) || c.isBefore(maxDate)
+    } else if (minDate){
+        return c.isSame(minDate) || c.isAfter(minDate)
+    } else {
+        return true
+    }
+}
+
 export default {
     currentDate,
     getYearOfAge,
@@ -147,4 +160,5 @@ export default {
     add,
     subtract,
     getDateQuarter,
+    rangeOf
 }
