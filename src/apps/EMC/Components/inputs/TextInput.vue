@@ -67,8 +67,10 @@ export default defineComponent({
 
     watch(isUnknown, (newValue) => model.value.value = newValue ? "Unknown" : "");
     watch(props.modelValue, newModel => {
-      if (newModel.value === "Unknown" && !isUnknown.value) {
-        isUnknown.value = true;
+      if (newModel.value === "Unknown") {
+        if(!isUnknown.value) {
+          isUnknown.value = true;
+        }
       } else {
         isUnknown.value = false;
       }
