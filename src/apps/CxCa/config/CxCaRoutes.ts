@@ -49,6 +49,16 @@ export default [
                 name: 'cc_type_of_screen',
                 path: 'cc_type_of_screen',
                 component: () => import('@/apps/CxCa/views/reports/pepfar/CCTypeOfScreen.vue')
+            },
+            {
+                name: 'cc_screen_result',
+                path: 'cc_screen_result',
+                component: () => import('@/apps/CxCa/views/reports/pepfar/CCScreenResult.vue')
+            },
+            {
+                name: 'cc_type_of_treatment',
+                path: 'cc_type_of_treatment',
+                component: () => import('@/apps/CxCa/views/reports/pepfar/CCTypeOfTreatment.vue')
             }
         ]
     }

@@ -39,6 +39,14 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'CC Type of Screen',
                 pathName: 'cc_type_of_screen'
+            },
+            {
+                name: 'CC Screen Result',
+                pathName: 'cc_screen_result'
+            },
+            {
+                name: 'CC Type of Treatment',
+                pathName: 'cc_type_of_treatment'
             }
         ]
     },
