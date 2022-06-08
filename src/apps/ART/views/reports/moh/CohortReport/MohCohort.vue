@@ -58,7 +58,10 @@ export default defineComponent({
     reportID: -1 as any,
     clinicName: MohCohortReportService.getLocationName(),
     reportReady: false as boolean,
-    disaggregatedReportParams: '' as string
+    disaggregatedReportParams: '' as string,
+    startDate: '' as string,
+    endDate: '' as string,
+    quarter: '' as string
   }),
   created() {
     this.btns = this.getBtns()
@@ -74,34 +77,30 @@ export default defineComponent({
       this.report = new MohCohortReportService()
       this.report.setRegenerate(regenerate)
       let data: any = {}
-      let startDate = ''
-      let endDate = ''
-      let quarter = ''
-
       if (form.quarter.value === 'custom_period') {
-        quarter = 'Custom'
-        startDate = config.start_date
-        endDate = config.end_date
+        this.quarter = 'Custom'
+        this.startDate = config.start_date
+        this.endDate = config.end_date
       } else {
-        quarter = form.quarter.label
-        startDate = HisDate.toStandardHisFormat(form.quarter.other.start)
-        endDate = HisDate.toStandardHisFormat(form.quarter.other.end)
+        this.quarter = form.quarter.label
+        this.startDate = HisDate.toStandardHisFormat(form.quarter.other.start)
+        this.endDate = HisDate.toStandardHisFormat(form.quarter.other.end)
       }
-      this.report.setQuarter(quarter)
-      this.report.setStartDate(startDate)
-      this.report.setEndDate(endDate)
+      this.report.setQuarter(this.quarter)
+      this.report.setStartDate(this.startDate)
+      this.report.setEndDate(this.endDate)
 
-      if (quarter === 'Custom') {
+      if (this.quarter === 'Custom') {
         this.period = `Custom ${this.report.getDateIntervalPeriod()}`
         data = this.report.datePeriodRequestParams()
       } else {
-        this.period = quarter
+        this.period = this.quarter
         data = this.report.qaurterRequestParams()
       }
       this.disaggregatedReportParams = Url.parameterizeObjToString({ 
-        'start_date': startDate,
-        'end_date': endDate,
-        'quarter': quarter
+        'start_date': this.startDate,
+        'end_date': this.endDate,
+        'quarter': this.quarter
       })
       const request = await this.report.requestCohort(data)
       if (request.ok) {
@@ -188,6 +187,10 @@ export default defineComponent({
       toCsv([headers], [
         ...rows,
         [`Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}`],
+        ['Quarter: ' + (this.quarter.match(/custom/i) 
+          ? `${this.startDate} - ${this.endDate}` 
+          : this.quarter)
+        ],
         [`HIS-Core Version: ${Service.getCoreVersion()}`],
         [`API Version: ${Service.getApiVersion()}`],
         [`Site: ${Service.getLocationName()}`],
