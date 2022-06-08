@@ -6,12 +6,13 @@
       <ion-checkbox v-model="isUnknown"></ion-checkbox>
     </span>
   </ion-label>
-  <ion-row class="ion-margin-top" :class="model.error ? 'box-input-error'  : 'box-input'" style="width: 100%; height: 2.5rem; margin-top: .8rem;">
+  <ion-row class="ion-margin-top" :class="model.error ? 'box-input-error'  : 'box-input'" style="width: 100%; height: 2.5rem;">
     <ion-col size="4" v-if="prefix" style="background: #f2f2f2; height: 100%; padding: .5rem">
       <ion-label class="checkbox-label bold">{{ prefix }}</ion-label>
     </ion-col>
-    <ion-col :size="prefix ? 8 : 12" class="ion-no-padding">
+    <ion-col :size="prefix ? 8 : 12" style="background: #ffffff; height: 100%; padding: .5rem">
       <ion-input
+        class="ion-no-margin ion-no-padding"
         :value="model.value"
         :placeholder="model.placeholder"
         :disabled="model.disabled || isUnknown"
