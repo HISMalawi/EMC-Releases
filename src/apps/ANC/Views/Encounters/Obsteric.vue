@@ -367,6 +367,21 @@ export default defineComponent({
 												: null,
 										]),
 										config: {
+											onUnknownEstimateField: () => { 
+												return {
+													id: 'birth_weight_estimate',
+													helpText: 'Birth weight estimate',
+													type: FieldType.TT_SELECT,
+													validation: (v: Option) => Validation.required(v),
+													options: () => {
+														return this.mapOptions([
+															'Normal',
+															'Big baby',
+															'Small baby'
+														])
+													}
+												}
+											},
 											noChars: false
 										}
 									}

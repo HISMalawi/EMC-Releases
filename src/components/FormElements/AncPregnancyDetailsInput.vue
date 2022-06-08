@@ -60,7 +60,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { Option } from '../Forms/FieldInterface'
+import { Field, Option } from '../Forms/FieldInterface'
 import FieldMixinVue from './FieldMixin.vue'
 import ViewPort from '../DataViews/ViewPort.vue'
 import {
@@ -113,26 +113,39 @@ export default defineComponent({
         warn(message: string) {
            toastWarning(message)
         },
-       async editField(option: any, rowItems: any) {
-            const modal = await modalController.create({
+        async launchModal(field: Field, onFinish: (value: Option | Option[]) => void) {
+            (await modalController.create({
                 component: TouchField,
                 backdropDismiss: false,
                 cssClass: "full-modal",
                 componentProps: {
                     dismissType: 'modal',
-                    currentField: option.field,
-                    onFinish: (v: any) => {
-                        option.value = v
-                        if (typeof option?.field?.computedValue === 'function') {
-                            option.computedValue = option?.field?.computedValue(v)
-                        }
-                        if (typeof option?.field?.onValueUpdate === 'function') {
-                            option.field.onValueUpdate(v, rowItems)
-                        }
+                    currentField: field,
+                    onFinish
+                }
+            })).present()
+        },
+        async editField(option: any, rowItems: any) {
+            const onValue = (v: Option | Option[]) => {
+                option.value = v
+                if (typeof option?.field?.computedValue === 'function') {
+                    option.computedValue = option?.field?.computedValue(v)
+                }
+                if (typeof option?.field?.onValueUpdate === 'function') {
+                    option.field.onValueUpdate(v, rowItems)
+                }
+            }
+            this.launchModal(option.field, (v: Option | Option[]) => {
+                if (!Array.isArray(v)) {
+                    // Launch alternative modal to estimate unknown values
+                    if (v.label.match(/unknown/i) && 
+                        typeof option.field?.config?.onUnknownEstimateField === 'function') {    
+                        return this.launchModal(option.field.config.onUnknownEstimateField(), 
+                        (v: Option | Option[]) => onValue(v))
                     }
                 }
+                onValue(v)
             })
-            modal.present()
        }
     },
     watch: {
