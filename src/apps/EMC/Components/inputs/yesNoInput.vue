@@ -2,36 +2,31 @@
   <ion-grid class="ion-no-margin ion-no-padding">
     <ion-row>
       <ion-col :size="12">
-        <ion-label class="ion-margin-end"><b>{{ label }}:</b></ion-label>
+        <ion-label class="ion-margin-end"><b>{{ model.label }}:</b></ion-label>
         <br v-if="!inline"><br v-if="!inline">
-        <ion-radio-group :value="value" @ionChange="onSelect">
+        <ion-radio-group v-model="model.value" @ionChange="() => model.error = ''">
           <span class="ion-margin-start">Yes</span>
-          <ion-radio class="ion-margin-start" slot="start" :color="color" value="Yes" />
+          <ion-radio class="ion-margin-start" slot="start" color="primary" value="Yes" />
           <span class="ion-margin-start">No</span>
-          <ion-radio class="ion-margin-start" slot="start" :color="color" value="No" />
+          <ion-radio class="ion-margin-start" slot="start" color="primary" value="No" />
         </ion-radio-group>
+        <ion-note v-if="model.error" color="danger">{{ model.error }}</ion-note>
       </ion-col>
     </ion-row>
   </ion-grid>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
+import { computed, defineComponent, PropType } from "vue";
 import { IonRadioGroup, IonRadio, IonGrid, IonRow, IonCol, IonItem, IonLabel } from "@ionic/vue";
+import { DTFormField } from "../../interfaces/dt_form_field";
 
 export default defineComponent({
   name: "YesNoInput",
   props: {
-    label: {
-      type: String,
-      required: true,
-    },
-    value: {
-      type: String as PropType<"Yes" | "No">,
-    },
-    color: {
-      type: String as PropType<"primary" | "secondary" | "tertiary" | "success" | "warning" | "danger" | "light" | "medium" | "dark">,
-      default: "primary",
+    modelValue: {
+      type: Object as PropType<DTFormField>,
+      default: () => ({}),
     },
     inline: {
       type: Boolean,
@@ -46,13 +41,15 @@ export default defineComponent({
     IonCol,
     IonLabel,
   },
-  emits: ["onSelect"],
-  setup(_, { emit }) {
-    const onSelect = (evt: Event) => {
-      emit("onSelect", (evt.target as HTMLInputElement).value);
-    };
+  emits: ["update:modelValue"],
+  setup(props, { emit }) {
+    const model = computed({
+      get: () => props.modelValue,
+      set: (value) => emit("update:modelValue", value)
+    })
+    
     return {
-      onSelect,
+      model,
     };
   },
 });

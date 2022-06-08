@@ -54,33 +54,14 @@
         </ion-col>
         <template v-if="isFemale">
           <ion-col size="6" class="ion-margin-vertical ion-padding-top">
-            <yes-no-input 
-              label="Pregnant" 
-              :value="form.isPregnant.value"  
-              @onSelect="(state) => form.isPregnant.value = state" 
-              inline
-            />
-          <ion-note v-if="form.isPregnant.error" color="danger">{{ form.isPregnant.error }}</ion-note>
+            <yes-no-input v-model="form.isPregnant" inline />
           </ion-col>
           <ion-col size="6" class="ion-margin-vertical ion-padding-top">
-            <yes-no-input 
-              label="Breast feeding" 
-              :value="form.isBreastfeeding.value" 
-              @onSelect="(state) => form.isBreastfeeding.value = state" 
-              inline
-            />
-          <ion-note v-if="form.isBreastfeeding.error" color="danger">{{ form.isBreastfeeding.error }}</ion-note>
+            <yes-no-input v-model="form.isBreastfeeding"  inline />
           </ion-col>
         </template>
         <ion-col size="12" class="ion-margin-top ion-padding-top" >
-          <yes-no-input 
-            label="Has Side Effects / Contraindications ?" 
-            :value="form.hasContraindications.value" 
-            @onSelect="(state) => form.hasContraindications.value = state" 
-            :color="form.hasContraindications.error ? 'danger' : 'primary'"
-            inline 
-          />
-          <ion-note v-if="form.hasContraindications.error" color="danger">{{ form.hasContraindications.error }}</ion-note>
+          <yes-no-input v-model="form.hasContraindications"  inline />
           <multi-column-view :items="contraIndications" :numberOfColumns="5" v-slot="{ entries }" v-if="form.hasContraindications.value === 'Yes'">
             <template v-for="entry in entries" :key="entry.value" >
              <ion-label style="font-weight: normal !important;">
@@ -92,14 +73,7 @@
           </multi-column-view>
         </ion-col>
         <ion-col class="ion-padding-start" size="12" v-if="form.hasContraindications.value === 'Yes'">
-          <yes-no-input 
-            label="Has other side effects ?" 
-            :value="form.hasSideEffects.value" 
-            @onSelect="(state) => form.hasSideEffects = state"
-            :color="form.hasSideEffects.error ? 'danger' : 'primary'"
-            inline 
-          />
-          <ion-note v-if="form.hasSideEffects.error" color="danger">{{ form.hasSideEffects.error }}</ion-note>
+          <yes-no-input v-model="form.hasSideEffects" inline />
           <multi-column-view :items="sideEffects" :numberOfColumns="5" v-slot="{ entries }" v-if="form.hasSideEffects.value === 'Yes'">
             <template v-for="entry in entries" :key="entry.value" >
               <ion-label style="font-weight: normal !important;">
@@ -190,22 +164,10 @@
           <ion-note v-if="form.total3HPGiven.error" color="danger">{{ form.total3HPGiven.error }}</ion-note>
         </ion-col>
         <ion-col size="6" class="ion-margin-vertical ion-padding-vertical">
-          <yes-no-input 
-            label="Drugs given to patient"
-            :value="form.patientPresent.value"
-            @onSelect="setPatientPresent"
-            inline
-          />
-          <ion-note v-if="form.patientPresent.error" color="danger">{{ form.patientPresent.error }}</ion-note>
+          <yes-no-input v-model="form.patientPresent" inline />
         </ion-col>
         <ion-col size="6" class="ion-margin-vertical ion-padding-vertical">
-          <yes-no-input 
-            label="Drugs given to guardian" 
-            :value="form.guardianPresent.value"
-            @onSelect="setGuardianPresent" 
-            inline
-          />
-          <ion-note v-if="form.guardianPresent.error" color="danger">{{ form.guardianPresent.error }}</ion-note>
+          <yes-no-input v-model="form.guardianPresent" inline />
         </ion-col>
         <ion-col size="6"> 
           <ion-label class="ion-padding-bottom">Pill Count: (Last dispensation: {{ totalPrevDrugs }}) </ion-label>
@@ -241,7 +203,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, PropType, reactive, ref } from "vue";
+import { computed, defineComponent, onMounted, PropType, reactive, ref, watch } from "vue";
 import { 
   IonCol, 
   IonGrid, 
@@ -363,6 +325,7 @@ export default defineComponent({
       },
       isPregnant: {
         value: undefined as "Yes" | "No"  | undefined,
+        label: 'Is the patient pregnant?',
         error: '',
         computedValue: (isPregnant: "Yes" | "No") => ({
           tag: 'consultation',
@@ -372,6 +335,7 @@ export default defineComponent({
       },
       isBreastfeeding: {
         value: undefined as "Yes" | "No"  | undefined,
+        label: 'Is the patient breastfeeding?',
         error: '',
         computedValue: (isBreastfeeding: "Yes" | "No") => ({
           tag: 'consultation',
@@ -390,6 +354,7 @@ export default defineComponent({
       },
       patientPresent: {
         value: undefined as "Yes" | "No"  | undefined,
+        label: 'Is the patient present?',
         error: '',
         computedValue: (patientPresent: "Yes" | "No") => ({
           tag: 'reception',
@@ -399,6 +364,7 @@ export default defineComponent({
       },
       guardianPresent: {
         value: undefined as "Yes" | "No"  | undefined,
+        label: 'Is the guardian present?',
         error: '',
         computedValue: (guardianPresent: "Yes" | "No") => ({
           tag: 'reception',
@@ -476,6 +442,7 @@ export default defineComponent({
       },
       hasContraindications: {
         value: undefined as "Yes" | "No"  | undefined,
+        label: "Has Side Effects / Contraindications ?",
         error: '',
         validation: (state: Option) => {
           if(state.value === "Yes" && contraIndications.value.some(x => !x.isChecked))
@@ -485,6 +452,7 @@ export default defineComponent({
       },
       hasSideEffects: {
         value: undefined as "Yes" | "No"  | undefined,
+        label: "Has Other Side Effects ?",
         error: '',
         validation: (state: Option, form: any) => {
           if(form.hasContraindications.value === "No") return null
@@ -502,6 +470,18 @@ export default defineComponent({
         }),
         validation: (state: Option) => StandardValidations.required(state)
       },
+    })
+
+    watch(form.patientPresent, isPresent => {
+      if(isPresent.value === "No") {
+        form.guardianPresent.value = "Yes"
+      }
+    })
+
+    watch(form.guardianPresent, isPresent => {
+      if(isPresent.value === "No") {
+        form.patientPresent.value = "Yes"
+      }
     })
     
     const hasGiven3HP = computed(() => form.tbMed.value?.label === '3HP (INH 300 / RFP 300)')
