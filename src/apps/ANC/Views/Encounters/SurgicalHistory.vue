@@ -14,7 +14,7 @@ import EncounterMixinVue from '@/views/EncounterMixin.vue'
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import { defineComponent } from 'vue'
 import { AncSurgicalHistoryService} from "@/apps/ANC/Services/anc_surgical_history_service"
-import { Option } from '@/components/Forms/FieldInterface'
+import { FooterBtnEvent, Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { IonPage } from "@ionic/vue"
 import { find, findIndex } from 'lodash'
@@ -64,18 +64,39 @@ export default defineComponent({
           },
           computedValue: (v: Option[]) => {
             if (find(v, { label: 'None' })) {
-                return AncSurgicalHistoryService.buildValueText('Procedure done', 'None')
+              return AncSurgicalHistoryService.buildValueText('Procedure done', 'None')
             }
             return v.map(i => AncSurgicalHistoryService.buildValueCoded(i.label, `${i.value}`))
           },
           options: () => {
-            const history = [...AncSurgicalHistoryService.surgicalHistoryOptions(), { name: 'None' }]
-            return [...history].map(h =>({
-               label: h.name,
-               value: 'Yes',
-               isChecked: false
+            return [
+              ...AncSurgicalHistoryService.surgicalHistoryOptions(), { name: 'None'}
+            ].map(h =>({
+              label: h.name,
+              value: 'Yes',
+              isChecked: false
             }))
-          } 
+          },
+          config: {
+            footerBtns: [
+              {
+                "name": "None",
+                "slot": "end",
+                onClickComponentEvents: {
+                  refreshOptions: () => {
+                    return [
+                      ...AncSurgicalHistoryService.surgicalHistoryOptions(), { name: 'None'}
+                      ].map(h => ({
+                        label: h.name,
+                        value: 'Yes',
+                        isChecked: h.name === 'None' || false
+                    }))
+                  }
+                },
+                onClick: () => "None"
+              }
+            ]
+          }
         }
       ]
     }
