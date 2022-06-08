@@ -6,15 +6,21 @@
       <ion-checkbox v-model="isUnknown"></ion-checkbox>
     </span>
   </ion-label>
-  <ion-input
-    class="ion-margin-top"
-    :class="model.error ? 'box-input-error'  : 'box-input'"
-    v-model="model.value"
-    :placeholder="model.placeholder"
-    :disabled="model.disabled || isUnknown"
-    @ionFocus="model.error = ''"
-    @ionBlur="validate"
-  />
+  <ion-row class="ion-margin-top" :class="model.error ? 'box-input-error'  : 'box-input'" style="width: 100%; height: 2.5rem; margin-top: .8rem;">
+    <ion-col size="4" v-if="prefix" style="background: #f2f2f2; height: 100%; padding: .5rem">
+      <ion-label class="checkbox-label bold">{{ prefix }}</ion-label>
+    </ion-col>
+    <ion-col :size="prefix ? 8 : 12" class="ion-no-padding">
+      <ion-input
+        :value="model.value"
+        :placeholder="model.placeholder"
+        :disabled="model.disabled || isUnknown"
+        @ionInput="(e) => model.value = prefix ? prefix + e.target.value : e.target.value"
+        @ionFocus="model.error = ''"
+        @ionBlur="validate"
+      />
+    </ion-col>
+  </ion-row>
   <ion-note v-if="model.error" color="danger">{{ model.error }}</ion-note>
 </template>
 <script lang="ts">
@@ -32,6 +38,10 @@ export default defineComponent({
     allowUnknown: {
       type: Boolean,
       default: false
+    },
+    prefix: {
+      type: String,
+      default: ""
     },
   },
   components: {
