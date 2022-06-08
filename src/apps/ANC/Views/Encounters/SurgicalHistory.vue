@@ -43,6 +43,16 @@ export default defineComponent({
       await anc.saveObservationList(obs as ObsValue[])
       this.nextTask()
     },
+    surgeryOptions(onMap: (v: Option) => Option) {
+      return [
+        ...AncSurgicalHistoryService.surgicalHistoryOptions(), 
+        { name: 'None'}
+      ].map(h =>(onMap({
+          label: h.name,
+          value: 'Yes',
+          isChecked: false
+      })))
+    },
     getFields() {
       return [
         {
@@ -68,30 +78,17 @@ export default defineComponent({
             }
             return v.map(i => AncSurgicalHistoryService.buildValueCoded(i.label, `${i.value}`))
           },
-          options: () => {
-            return [
-              ...AncSurgicalHistoryService.surgicalHistoryOptions(), { name: 'None'}
-            ].map(h =>({
-              label: h.name,
-              value: 'Yes',
-              isChecked: false
-            }))
-          },
+          options: () => this.surgeryOptions(i => i),
           config: {
             footerBtns: [
               {
                 "name": "None",
                 "slot": "end",
                 onClickComponentEvents: {
-                  refreshOptions: () => {
-                    return [
-                      ...AncSurgicalHistoryService.surgicalHistoryOptions(), { name: 'None'}
-                      ].map(h => ({
-                        label: h.name,
-                        value: 'Yes',
-                        isChecked: h.name === 'None' || false
-                    }))
-                  }
+                  refreshOptions: () => this.surgeryOptions(i => {
+                    i.isChecked = i.label === 'None'
+                    return i
+                  })
                 },
                 onClick: () => "None"
               }
