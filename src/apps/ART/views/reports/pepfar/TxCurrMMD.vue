@@ -45,7 +45,7 @@ export default defineComponent({
                 table.thTxt('Gender'),
                 table.thNum('# of clients on <3 months of ARVs'),
                 table.thNum('# of clients on 3 - 5 months of ARVs'),
-                table.thNum('# of clients on  >= 6 months of ARVs')
+                table.thNum('# of clients on >= 6 months of ARVs')
             ]
         ],
         headerInfoList: [] as Array<Option>,
