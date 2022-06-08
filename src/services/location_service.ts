@@ -39,6 +39,10 @@ export class LocationService extends Service {
         return super.getJson('/villages', {'traditional_authority_id': traditionalAuthorityID, name})
     }
 
+    static getVillage(id: number) {
+        return super.getJson('/villages', {'village_id': id})
+    }
+
     static getVillagesByName(name='') {
         return super.getJson('/villages', {
             name
