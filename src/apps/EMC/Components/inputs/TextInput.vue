@@ -19,7 +19,7 @@
 </template>
 <script lang="ts">
 import { IonCheckbox, IonInput, IonLabel, IonNote } from "@ionic/vue";
-import { computed, defineComponent, PropType, ref, watch } from "vue";
+import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
 import { DTFormField } from "../../interfaces/dt_form_field";
 
 export default defineComponent({
@@ -66,6 +66,17 @@ export default defineComponent({
     };
 
     watch(isUnknown, (newValue) => model.value.value = newValue ? "Unknown" : "");
+    watch(props.modelValue, newModel => {
+      if (newModel.value === "Unknown" && !isUnknown.value) {
+        isUnknown.value = true;
+      } 
+    });
+
+    onMounted(() => {
+      if(model.value.value === "Unknown" && !isUnknown.value) {
+        isUnknown.value = true;
+      }
+    })
 
     return {
       validate,
