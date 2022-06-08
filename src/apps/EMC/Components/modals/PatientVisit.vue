@@ -225,7 +225,7 @@ import { alertConfirmation, toastSuccess } from "@/utils/Alerts";
 import isEmpty from "lodash/isEmpty";
 import { Option } from "@/components/Forms/FieldInterface";
 import SearchableSelectInput from "../inputs/SearchableSelectInput.vue";
-import YesNoInput from "../inputs/yesNoInput.vue";
+import YesNoInput from "../inputs/YesNoInput.vue";
 import { ConceptService } from "@/services/concept_service";
 import MultiColumnView from "@/components/containers/MultiColumnView.vue";
 import { PatientObservationService } from "@/services/patient_observation_service";
@@ -483,7 +483,7 @@ export default defineComponent({
         form.patientPresent.value = "Yes"
       }
     })
-    
+
     const hasGiven3HP = computed(() => form.tbMed.value?.label === '3HP (INH 300 / RFP 300)')
     const hasGivenRFP = computed(() => form.tbMed.value?.label === '3HP (RFP + INH)')
     const hasGiven6H = computed(() => form.tbMed.value?.label === '6H')
