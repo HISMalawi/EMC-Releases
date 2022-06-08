@@ -14,7 +14,7 @@ import EncounterMixinVue from '@/views/EncounterMixin.vue'
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import { defineComponent } from 'vue'
 import { AncCurrentPregnancyService } from "@/apps/ANC/Services/anc_current_pregnancy"
-import { Field, Option } from '@/components/Forms/FieldInterface'
+import { Field, FooterBtnEvent, Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { IonPage } from "@ionic/vue"
 import { ObsValue } from '@/services/observation_service'
@@ -134,6 +134,18 @@ export default defineComponent({
                 validation: (v: Option) => Validation.required(v),
                 options: (_: any, filter='') => getFacilities(filter),
                 config: {
+                    footerBtns: [
+                      {
+                        name: "Here",
+                        slot: "end",
+                        onClickComponentEvents: {
+                          setValue: (btnEvent: FooterBtnEvent) => {
+                            return btnEvent.btnOutput
+                          }
+                        },
+                        onClick: () => AncCurrentPregnancyService.getLocationName()
+                      }
+                    ],
                     showKeyboard: true,
                     isFilterDataViaApi: true
                 }
