@@ -580,7 +580,7 @@ export default defineComponent({
       const loader = await loadingController.create({
         message: 'Processing data...'
       });
-      loader.present();
+      await loader.present();
       if(!isValidForm(form)) return loader.dismiss()
 
       const { formData, computedFormData } = resolveFormValues(form)
