@@ -5,3 +5,7 @@ export function isValueEmpty(value: string) {
         return true
     }
 }
+
+export function toUnderscores (str: string) {
+    return str.split(/(?=[A-Z])/).join('_').toLowerCase() 
+}
