@@ -69,7 +69,9 @@ export default defineComponent({
     watch(props.modelValue, newModel => {
       if (newModel.value === "Unknown" && !isUnknown.value) {
         isUnknown.value = true;
-      } 
+      } else {
+        isUnknown.value = false;
+      }
     });
 
     onMounted(() => {
