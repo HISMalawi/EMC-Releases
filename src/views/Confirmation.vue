@@ -81,7 +81,7 @@ import { UserService } from "@/services/user_service";
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import { Patientservice } from "@/services/patient_service";
 import { PatientProgramService } from "@/services/patient_program_service"
-import { alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts"
+import { alertConfirmation, toastDanger, toastSuccess, toastWarning } from "@/utils/Alerts"
 import { Patient } from "@/interfaces/patient"
 import {
   IonContent,
@@ -556,12 +556,31 @@ export default defineComponent({
         },
         'createNpiDWithRemote': async () => {
           const npid = this.facts.dde.remoteNpidDiff
-          if (npid && (await this.ddeInstance.createNPID(npid))) {
-            this.facts.scannedNpid = npid
-            this.facts.currentNpid = npid
-            this.facts.dde.localNpidDiff = npid
-            await this.findAndSetPatient(undefined, npid)
-            return FlowState.FORCE_EXIT
+          try {
+            if (npid && (await this.ddeInstance.createNPID(npid))) {
+              this.facts.scannedNpid = npid
+              this.facts.currentNpid = npid
+              this.facts.dde.localNpidDiff = npid
+              toastSuccess('Remote NPID successfully updated')
+              await delayPromise(300)
+              await this.ddeInstance.printNpid()
+              await this.findAndSetPatient(undefined, npid)
+              return FlowState.FORCE_EXIT
+            }
+          } catch (e) {
+            const alreadyAssigned = /Identifier already assigned to another patient/i
+            if (e instanceof BadRequestError && e.errors.join(',').match(alreadyAssigned)) {
+              const res = await this.ddeInstance.reassignNpid(this.patient.getDocID())
+              if (res) {
+                this.patient = new Patientservice(res)
+                toastSuccess('Patient has been reassigned NPID')
+                await delayPromise(300)
+                await this.ddeInstance.printNpid()
+                await this.findAndSetPatient(undefined, this.patient.getNationalID())
+                return FlowState.FORCE_EXIT
+              }
+            }
+            toastDanger(`Unable to assign NPID: ${e}`)
           }
         },
         'assignNpid': async () => {
