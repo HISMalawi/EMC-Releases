@@ -342,7 +342,8 @@ export default defineComponent({
         alertCardItems: [] as Array<Option>,
         patientCards: [] as Array<any>,
         appVersion: ProgramService.getFullVersion(),
-        sessionEncounters: [] as Encounter[]
+        sessionEncounters: [] as Encounter[],
+        savedEncounters: [] as string[]
     }),
     computed: {
         patientIsset(): boolean {
@@ -404,6 +405,7 @@ export default defineComponent({
             this.onProgramVisitDates((await this.getPatientVisitDates(this.patientId)))
             this.alertCardItems = await this.getPatientAlertCardInfo() || []
             this.programID = ProgramService.getProgramID()
+            await this.loadSavedEncounters()
             if (!this.visitDates.length) {
                 this.tasksDisabled = false
             }
@@ -421,6 +423,13 @@ export default defineComponent({
         },
         toTime(date: string | Date) {
             return HisDate.toStandardHisTimeFormat(date)
+        },
+        async loadSavedEncounters() {
+            try {
+                this.savedEncounters = await EncounterService.getSavedEncounters(this.patientId)
+            } catch (e) {
+                console.warn(`Program might not support saved encounters`, e)
+            }
         },
         async loadCardData(date: string) {
             try {
@@ -564,6 +573,7 @@ export default defineComponent({
                         try {
                             await this.showLoader()
                             await EncounterService.voidEncounter(encounter.encounter_id, reason)
+                            await this.loadSavedEncounters()
                             loadingController.dismiss()
                             /**Refresh card data*/
                             await this.loadCardData(this.activeVisitDate as string)
@@ -681,10 +691,11 @@ export default defineComponent({
                     items,
                     title: `${title}: ${displayDate}`,
                     taskParams: { 
-                        patient: this.patient.getObj(), 
+                        patient: this.patient.getObj(),
                         program: this.patientProgram,
                         visitDate: this.activeVisitDate,
-                        patientID: this.patientId
+                        patientID: this.patientId,
+                        savedEncounters: this.savedEncounters
                     }
                 }
             })
