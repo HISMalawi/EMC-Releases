@@ -56,8 +56,8 @@
             </ion-col>
           </template>
         </ion-row>
-          <ion-button class="ion-margin-top ion-float-end" size="large" color="success">Next</ion-button>
-          <ion-button class="ion-margin-top ion-float-end" size="large" color="warning">Clear</ion-button>
+          <ion-button class="ion-margin-top ion-float-end" size="large" @click="onSubmit" color="success">Next</ion-button>
+          <ion-button class="ion-margin-top ion-float-end" size="large" @click="onClear" color="warning">Clear</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -70,15 +70,12 @@ import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonGrid, IonRow, IonCol, IonButton, IonTitle } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
-import {  toastWarning } from "@/utils/Alerts";
-import Validation from "@/components/Forms/validations/StandardValidations"
+import {  alertConfirmation, toastSuccess, toastWarning } from "@/utils/Alerts";
 import { Option } from "@/components/Forms/FieldInterface";
-import HisDate, { STANDARD_DATE_FORMAT } from "@/utils/Date";
+import { STANDARD_DATE_FORMAT } from "@/utils/Date";
 import { LocationService } from "@/services/location_service";
 import { isEmpty } from "lodash";
-import { PatientRegistrationService } from "@/services/patient_registration_service";
 import { useRoute, useRouter } from "vue-router";
-import { RelationsService } from "@/services/relations_service";
 import { DTForm } from "../interfaces/dt_form_field";
 import TextInput from "../Components/inputs/TextInput.vue";
 import DateInput from "../Components/inputs/DateInput.vue"
@@ -90,6 +87,9 @@ import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import NumberInput from "../Components/inputs/NumberInput.vue";
 import { tbStatusOptions, HIVTestOptions } from '@/apps/EMC/utils/DTFormElements'
 import dayjs from "dayjs";
+import { VitalsService } from "@/apps/ART/services/vitals_service";
+import StandardValidations from "@/components/Forms/validations/StandardValidations";
+import { isValidForm } from "../utils/form";
 
 export default defineComponent({
   components: {
@@ -107,10 +107,12 @@ export default defineComponent({
 },
   setup() {
     const route = useRoute()
-    const patientId = ref(route.params.id.toString() || '')
+    const patientId = ref(parseInt(route.params.id.toString() || ''))
     const patient = ref<Patientservice>()
     const sitePrefix = ref("");
-    const registrationService = new ClinicRegistrationService(parseInt(patientId.value), -1)
+    const registrationService = new ClinicRegistrationService(patientId.value, -1)
+    const vitalsService = new VitalsService(patientId.value, -1)
+
     const today = dayjs().format(STANDARD_DATE_FORMAT)
     const patientDob = computed(() => {
       const date = patient.value?.getBirthdate() 
@@ -174,7 +176,8 @@ export default defineComponent({
           tag: 'registration',
           obs: buildDateObs('Date ART last taken', date)
         }),
-        required: true,
+        validation: async (date: Option, f: DTForm) => f.receivedArvTreatmentBefore.value === 'Yes' &&
+          StandardValidations.required(date),
       },
       everRegisteredAtClinic: {
         value: '',
@@ -182,7 +185,9 @@ export default defineComponent({
         computedValue: (everRegistered: string) => ({
           tag: 'registration',
           obs: registrationService.buildValueCoded('Ever registered at ART clinic', everRegistered)
-        })
+        }),
+        validation: async (everRegistered: Option, f: DTForm) => f.receivedArvTreatmentBefore.value === 'Yes' &&
+          StandardValidations.required(everRegistered),
       },
       artInitiationLocation: {
         value: '',
@@ -190,7 +195,11 @@ export default defineComponent({
         computedValue: (location: string) => ({
           tag:'registration',
           obs: registrationService.buildValueText('Location of ART initiation', location)
-        })
+        }),
+        validation: async (location: Option, f: DTForm) => {
+          return f.everRegisteredAtClinic.value === 'Yes' &&
+           StandardValidations.required(location)
+        }
       },
       artStartDate: {
         value: '',
@@ -199,7 +208,11 @@ export default defineComponent({
         computedValue: (date: string) => ({
           tag: 'registration',
           obs: buildDateObs('Date ART started', date)
-        })
+        }),
+        validation: async (date: Option, f: DTForm) => {
+          return f.everRegisteredAtClinic.value === 'Yes' &&
+           StandardValidations.required(date)
+        }
       },
       initialWeight: {
         value: '',
@@ -207,8 +220,14 @@ export default defineComponent({
         placeholder: 'Enter weight',
         computedValue: (weight: number) => ({
           tag: 'vitals',
-          obs: registrationService.buildValueNumber('weight', weight)
-        })
+          obs: vitalsService.buildValueNumber('weight', weight)
+        }),
+        validation: async (weight: Option, f: DTForm) => {
+          return f.everRegisteredAtClinic.value === 'Yes' && StandardValidations.validateSeries([
+            () => StandardValidations.required(weight),
+            () => vitalsService.validator({...weight, label: 'Weight'})
+          ])
+        }
       },
       initialHeight: {
         value: '',
@@ -217,23 +236,31 @@ export default defineComponent({
         computedValue: (height: number) => ({
           tag: 'vitals',
           obs: registrationService.buildValueNumber('Height', height)
-        })
+        }),
+        validation: async (height: Option, f: DTForm) => {
+          return f.everRegisteredAtClinic.value === 'Yes' && StandardValidations.validateSeries([
+            () => StandardValidations.required(height),
+            () => vitalsService.validator({...height, label: 'Height'})
+          ])
+        }
       },
       initialTBStatus: {
         value: '',
         label: 'Initial TB Status',
         placeholder: 'select TB status',
-        computedValue(status: string) {
-          return {
-            tag: 'vitals',
-            obs: registrationService.buildValueText("TB Status", status)
-          }
+        computedValue: (status: string) => ({
+          tag: 'vitals',
+          obs: registrationService.buildValueText("TB Status", status)
+        }),
+        validation: async (status: Option, f: DTForm) => {
+          return f.everRegisteredAtClinic.value === 'Yes' && StandardValidations.required(status)
         }
       },
       confirmatoryTest: {
         value: '',
         label: 'Confirmatory Test',
         placeholder: 'Select confirmatory test',
+        required: true,
         computedValue(test: string){
           return {
             tag: 'registration',
@@ -245,6 +272,9 @@ export default defineComponent({
         value: '',
         label: 'Location of Confirmatory',
         placeholder: 'Select location',
+        validation: async (location: Option, f: DTForm) => {
+          return f.confirmatoryTest.value !== 'Not Done' && StandardValidations.required(location)
+        },
         computedValue(location: string){
           return {
             tag: 'registration',
@@ -257,14 +287,30 @@ export default defineComponent({
       confirmatoryTestDate: {
         value: '',
         label: 'Confirmatory HIV Test Date',
-        computedValue(date: string){
-          return {
-            tag: 'reg',
-            obs: buildDateObs('Confirmatory HIV test date', date)
-          }
-        }
+        validation: async (date: Option, f: DTForm) => {
+          return f.confirmatoryTest.value !== 'Not Done' && StandardValidations.required(date)
+        },
+        computedValue: (date: string) => ({
+          tag: 'reg',
+          obs: buildDateObs('Confirmatory HIV test date', date)
+        }),
       }
     })
+
+    const onClear = async () => {
+      const confirm = await alertConfirmation('Are you sure you want to clear all fields?')
+      if(confirm) {
+        for(const key in form) {
+          form[key].value = undefined
+          form[key].error = ""
+        }
+      }
+    }
+
+    const onSubmit = async () => {
+      if(!(await isValidForm(form))) return
+      toastSuccess('Form is valid')
+    }
 
     onMounted(async () => {
       const data = await Patientservice.findByID(patientId.value)
@@ -283,6 +329,8 @@ export default defineComponent({
       tbStatusOptions,
       HIVTestOptions,
       getFacilities,
+      onClear,
+      onSubmit,
     };
   },
 });

@@ -59,8 +59,8 @@
 </template>
 <script lang="ts">
 import { IonCheckbox, IonInput, IonLabel, IonNote } from "@ionic/vue";
-import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
-import { DTFormField } from "../../interfaces/dt_form_field";
+import { computed, defineComponent, PropType, ref, watch } from "vue";
+import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 import HisDate from "@/utils/Date";
 import dayjs from "dayjs";
 
@@ -69,6 +69,10 @@ export default defineComponent({
   props: {
     modelValue: {
       type: Object as PropType<DTFormField>,
+      default: () => ({}),
+    },
+    form: {
+      type: Object as PropType<DTForm>,
       default: () => ({}),
     },
     minDate: {
@@ -133,7 +137,7 @@ export default defineComponent({
           : `Date must be before ${props.maxDate}`
       }
       if (model.value.validation) {
-        const errors = await model.value.validation({label: model.value.value, value: model.value.value});
+        const errors = await model.value.validation({label: model.value.value, value: model.value.value}, props.form);
         if (errors && errors.length) {
           return model.value.error += errors.toString();
         }

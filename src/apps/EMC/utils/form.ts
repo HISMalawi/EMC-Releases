@@ -2,7 +2,7 @@ import { ObsValue, ObservationService } from "@/services/observation_service"
 import { DTForm } from "../interfaces/dt_form_field"
 import { Option } from "@/components/Forms/FieldInterface";
 
-export function isValidForm (form: DTForm) {
+export async function isValidForm (form: DTForm) {
   for (const key in form) {
     if (form[key].required && !form[key].value) {
       form[key].error = "This field is required";
@@ -16,7 +16,7 @@ export function isValidForm (form: DTForm) {
         ? form[key].value
         : { label: form[key].value, value: form[key].value }
 
-    const errs = form[key].validation!(payload as Option, form)
+    const errs = await form[key].validation!(payload as Option, form)
     if(errs && errs.length > 0) {
       form[key].error = errs.toString()
       console.log(key, form[key].error)

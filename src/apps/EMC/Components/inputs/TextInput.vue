@@ -29,7 +29,7 @@
 <script lang="ts">
 import { IonCheckbox, IonCol, IonInput, IonLabel, IonNote, IonRow } from "@ionic/vue";
 import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
-import { DTFormField } from "../../interfaces/dt_form_field";
+import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 
 export default defineComponent({
   name: "TextInput",
@@ -41,6 +41,10 @@ export default defineComponent({
     allowUnknown: {
       type: Boolean,
       default: false
+    },
+    form: {
+      type: Object as PropType<DTForm>,
+      default: () => ({}),
     },
     prefix: {
       type: String,
@@ -74,7 +78,7 @@ export default defineComponent({
         return model.value.error = "Unknown is not allowed";
       }
       if (model.value.validation) {
-        const errors = await model.value.validation({label: model.value.value, value: model.value.value});
+        const errors = await model.value.validation({label: model.value.value, value: model.value.value}, props.form);
         if (errors && errors.length) {
           return model.value.error += errors.toString();
         }

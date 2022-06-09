@@ -142,7 +142,7 @@ export default defineComponent({
         required: true,
         label: "Cellphone Number",
         placeholder: "cellphone number e.g. 0991234567",
-        validation: (phone: Option) => phone.value !== 'Unknown' && Validation.isMWPhoneNumber(phone)
+        validation: async (phone: Option) => phone.value !== 'Unknown' && Validation.isMWPhoneNumber(phone)
       },
       homeVillage: {
         value: '',
@@ -175,7 +175,7 @@ export default defineComponent({
         value: '',
         required: true,
         label: "Cellphone Number",
-        validation: (phone: Option) => phone.value !== 'Unknown' && Validation.isMWPhoneNumber(phone)
+        validation: async (phone: Option) => phone.value !== 'Unknown' && Validation.isMWPhoneNumber(phone)
       },
     })
 
@@ -249,7 +249,7 @@ export default defineComponent({
         message: 'Processing data...'
       });
       await loader.present();
-      if(!(isValidForm(patient) || (!guardianAbsent.value && isValidForm(guardian)))) {
+      if(!(await isValidForm(patient) || (!guardianAbsent.value && await isValidForm(guardian)))) {
         return await loader.dismiss()
       } 
       try {

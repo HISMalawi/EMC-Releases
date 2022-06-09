@@ -17,13 +17,17 @@
 <script lang="ts">
 import { IonInput, IonLabel, IonNote } from "@ionic/vue";
 import { computed, defineComponent, PropType } from "vue";
-import { DTFormField } from "../../interfaces/dt_form_field";
+import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 
 export default defineComponent({
   name: "NumberInput",
   props: {
     modelValue: {
       type: Object as PropType<DTFormField>,
+      default: () => ({}),
+    },
+    form: {
+      type: Object as PropType<DTForm>,
       default: () => ({}),
     },
     min: {
@@ -52,7 +56,7 @@ export default defineComponent({
         return model.value.error = "This field is required";
       }
       if (model.value.validation) {
-        const errors = await model.value.validation({label: model.value.value, value: model.value.value});
+        const errors = await model.value.validation({label: model.value.value, value: model.value.value}, props.form);
         if (errors && errors.length) {
           return model.value.error += errors.toString();
         }

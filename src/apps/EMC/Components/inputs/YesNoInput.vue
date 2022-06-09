@@ -9,7 +9,7 @@
           <ion-radio class="ion-margin-start" slot="start" color="primary" value="Yes" />
           <span class="ion-margin-start">No</span>
           <ion-radio class="ion-margin-start" slot="start" color="primary" value="No" />
-        </ion-radio-group>
+        </ion-radio-group><br>
         <ion-note v-if="model.error" color="danger">{{ model.error }}</ion-note>
       </ion-col>
     </ion-row>

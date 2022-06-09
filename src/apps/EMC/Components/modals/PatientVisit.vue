@@ -292,7 +292,7 @@ export default defineComponent({
       visitDate: {
         value: undefined as string | undefined,
         error: '',
-        validation: (date: Option) => {
+        validation: async (date: Option) => {
           if (isEmpty(date.value)) {
             return ['Visit date is required']
           }
@@ -311,7 +311,7 @@ export default defineComponent({
         }),
         validation: (weight: Option) => StandardValidations.validateSeries([
           () => StandardValidations.required(weight),
-          () => vitals.validator(weight)
+          () => vitals.validator({...weight, label: 'Weight'})
         ])
       },
       height: {
@@ -321,7 +321,7 @@ export default defineComponent({
           tag: 'vitals',
           obs: vitals.buildValueNumber('Height', height)
         }),
-        validation: (height: Option) => showHeightField.value && vitals.validator(height)
+        validation: (height: Option) => showHeightField.value && vitals.validator({...height, label: 'Height'})
       },
       isPregnant: {
         value: undefined as "Yes" | "No"  | undefined,
@@ -331,7 +331,7 @@ export default defineComponent({
           tag: 'consultation',
           obs: consultations.buildValueCoded('Is patient pregnant', isPregnant)
         }),
-        validation: (state: Option) => isFemale.value && StandardValidations.required(state)
+        validation: async (state: Option) => isFemale.value && StandardValidations.required(state)
       },
       isBreastfeeding: {
         value: undefined as "Yes" | "No"  | undefined,
@@ -341,50 +341,50 @@ export default defineComponent({
           tag: 'consultation',
           obs: consultations.buildValueCoded('Is patient breast feeding', isBreastfeeding)
         }),
-        validation: (state: Option) => isFemale.value && StandardValidations.required(state)
+        validation: async (state: Option) => isFemale.value && StandardValidations.required(state)
       },
       nextAppointmentDate: {
         value: undefined as string | undefined,
         error: '',
+        required: true,
         computedValue: (nextAppointmentDate: string) => ({
           tag: 'appointment',
           obs: appointment.buildValueDate('Appointment date', nextAppointmentDate)
         }),
-        validation: (date: Option) => StandardValidations.required(date)
       },
       patientPresent: {
         value: undefined as "Yes" | "No"  | undefined,
         label: 'Is the patient present?',
         error: '',
+        required: true,
         computedValue: (patientPresent: "Yes" | "No") => ({
           tag: 'reception',
           obs: reception.buildValueCoded('Patient present', patientPresent)
         }),
-        validation: (state: Option) => StandardValidations.required(state)
       },
       guardianPresent: {
         value: undefined as "Yes" | "No"  | undefined,
         label: 'Is the guardian present?',
         error: '',
+        required: true,
         computedValue: (guardianPresent: "Yes" | "No") => ({
           tag: 'reception',
           obs: reception.buildValueCoded('Guardian present', guardianPresent)
         }),
-        validation: (state: Option) => StandardValidations.required(state)
       },
       pillCount: {
         value: undefined as number  | undefined,
         error: '',
-        validation: (pills: Option) => StandardValidations.isNumber(pills)
+        validation: async (pills: Option) => StandardValidations.isNumber(pills)
       },
       regimen: {
         value: undefined as Option | undefined,
         error: '',
+        required: true,
         computedValue: () => ({
           tag: 'consultation',
           obs: prescription.buildValueCoded("Medication orders", "Antiretroviral drugs")
         }),
-        validation: (regimen: Option) => StandardValidations.required(regimen)
       },
       totalCPTGiven: {
         value: undefined as number  | undefined,
@@ -401,7 +401,7 @@ export default defineComponent({
           tag: 'consultation',
           obs: prescription.buildValueCoded("Medication orders", "INH")
         }),
-        validation: (drugs: Option, form: any) => {
+        validation: async (drugs: Option, form: any) => {
           return (form.tbMed.value?.label === '6H' || form.tbMed.value?.label === '3HP (RFP + INH)') && 
             StandardValidations.isNumber(drugs)
         }
@@ -413,7 +413,7 @@ export default defineComponent({
           tag: 'consultation',
           obs: prescription.buildValueCoded("Medication orders", "3HP (RFP + INH)")
         }),
-        validation: (drugs: Option, form: any) => {
+        validation: async (drugs: Option, form: any) => {
           return form.tbMed.value?.label === '3HP (RFP + INH)' && 
             StandardValidations.isNumber(drugs)
         }
@@ -425,7 +425,7 @@ export default defineComponent({
           tag: 'consultation',
           obs: prescription.buildValueCoded("Medication orders", "INH 300 / RFP 300 (3HP)")
         }),
-        validation: (drugs: Option, form: any) => {
+        validation: async (drugs: Option, form: any) => {
           return form.tbMed.value?.label === '3HP (INH 300 / RFP 300)' && 
             StandardValidations.isNumber(drugs)
         }
@@ -433,18 +433,18 @@ export default defineComponent({
       totalArvsGiven: {
         value: undefined as number  | undefined,
         error: '',
-        validation: (drugs: Option, form: any) => form.regimen.value && StandardValidations.isNumber(drugs)
+        validation: async (drugs: Option, form: any) => form.regimen.value && StandardValidations.isNumber(drugs)
       },
       tbMed: {
         value: undefined as Option | undefined,
         error: '',
-        validation: (med: Option) => StandardValidations.required(med)
+        validation: async (med: Option) => StandardValidations.required(med)
       },
       hasContraindications: {
         value: undefined as "Yes" | "No"  | undefined,
         label: "Has Side Effects / Contraindications ?",
         error: '',
-        validation: (state: Option) => {
+        validation: async (state: Option) => {
           if(state.value === "Yes" && contraIndications.value.some(x => !x.isChecked))
             return ["Please select at least one side effect"]
           return StandardValidations.required(state)
@@ -454,7 +454,7 @@ export default defineComponent({
         value: undefined as "Yes" | "No"  | undefined,
         label: "Has Other Side Effects ?",
         error: '',
-        validation: (state: Option, form: any) => {
+        validation: async (state: Option, form: any) => {
           if(form.hasContraindications.value === "No") return null
           if(state.value === "Yes" && sideEffects.value.some(x => !x.isChecked))
             return ["Please select at least one side effect"]
@@ -468,7 +468,7 @@ export default defineComponent({
           tag: 'consultation',
           obs: consultations.buildValueCoded('TB Status', status.label)
         }),
-        validation: (state: Option) => StandardValidations.required(state)
+        validation: async (state: Option) => StandardValidations.required(state)
       },
     })
 
@@ -561,7 +561,7 @@ export default defineComponent({
         message: 'Processing data...'
       });
       await loader.present();
-      if(!isValidForm(form)) return loader.dismiss()
+      if(!(await isValidForm(form))) return loader.dismiss()
 
       const { formData, computedFormData } = resolveFormValues(form)
       await PatientObservationService.setSessionDate(formData.visitDate)

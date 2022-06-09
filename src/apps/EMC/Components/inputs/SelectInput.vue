@@ -48,7 +48,7 @@
 <script lang="ts">
 import { IonCheckbox, IonIcon, IonInput, IonLabel, IonNote, modalController } from "@ionic/vue";
 import { computed, defineComponent, onMounted, PropType, ref } from "vue";
-import { DTFormField } from "../../interfaces/dt_form_field";
+import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 import { Option } from '@/components/Forms/FieldInterface';
 import { caretDown, arrowDownOutline } from "ionicons/icons"
 import SearchableList from '@/apps/EMC/Components/modals/SearchableList.vue'
@@ -58,6 +58,10 @@ export default defineComponent({
   props: {
     modelValue: {
       type: Object as PropType<DTFormField>,
+      default: () => ({}),
+    },
+    form: {
+      type: Object as PropType<DTForm>,
       default: () => ({}),
     },
     options: {
@@ -98,7 +102,7 @@ export default defineComponent({
         return model.value.error = "This field is required";
       }
       if (model.value.validation) {
-        const errors = await  model.value.validation({label: model.value.value, value: model.value.value});
+        const errors = await model.value.validation({label: model.value.value, value: model.value.value}, props.form);
         if (errors && errors.length) {
           return model.value.error += errors.toString();
         }

@@ -5,10 +5,10 @@ export interface DTFormField {
   label?: string;
   placeholder?: string;
   error?: string;
-  required?: boolean;
   disabled?: boolean;
-  validation?: Function;
-  computedValue?: Function;
+  required?: boolean;
+  validation?: (value: Option, form: DTForm) => Promise<string[] | false | null | undefined>;
+  computedValue?: (value: any) => any;
 }
 
 export interface DTForm {
