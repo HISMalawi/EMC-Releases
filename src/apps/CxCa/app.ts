@@ -5,6 +5,7 @@ import Routes from "@/apps/CxCa/config/CxCaRoutes"
 import HisDate from "@/utils/Date"
 import { WorkflowService } from "@/services/workflow_service";
 import { ObservationService } from "@/services/observation_service";
+import { REPORTS } from "@/apps/CxCa/config/CxCaProgramReports"
 import { 
     onRegisterPatient,
 } from "@/apps/CxCa/config/CxCaAppScripts"
@@ -53,16 +54,6 @@ const CXCA: AppInterface = {
             return data
         },
     }),
-    programReports: [
-        {
-            name: 'Clinical',
-            icon: 'reports.png',
-            defaultFilesIcon: 'reports.png',
-            files: [
-               //placeholder for reports to be integrated 
-                
-            ]
-        }
-    ]
+    programReports: REPORTS
 }
 export default CXCA
