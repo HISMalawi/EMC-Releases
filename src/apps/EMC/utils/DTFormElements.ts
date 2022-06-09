@@ -27,9 +27,7 @@ export const tbStatusOptions: Option[] = [
 ]
 
 export const HIVTestOptions = [
-  ...strToOptions([
-    "Rapid Antibody Test",
-    "DNA PCR",
-    "Not Done",
-  ])
+  { label: 'Rapid antibody test', value: 'HIV rapid test'},
+  { label: 'DNA PCR', value: 'HIV DNA polymerase chain reaction'},
+  { label: 'Not done', value: 'Not done' }
 ]
