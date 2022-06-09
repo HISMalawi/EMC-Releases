@@ -11,7 +11,7 @@ export class VitalsService extends AppEncounterService{
   isNotEmptyandFloat(vital: Option) {
     return `${vital.value}`.match(/^\d{1,3}\.\d{1,5}$/) 
       ? null 
-      : [`Invalid entry for ${vital.label}. Don't forget to add a decimal. e.g. 56.2 ${vital.other.modifier}`]
+      : [`Invalid entry for ${vital.label}. Don't forget to add a decimal. e.g. 56.2 ${vital.other?.modifier || ''}`]
   }
   checkMinMax(val: Option, min: number, max: number) {
     const p = [];
@@ -75,7 +75,7 @@ export class VitalsService extends AppEncounterService{
         name: "Height",
         validator: (val: Option) => {
           const errors = []
-          if(val.other.recentHeight && parseInt(val.value.toString()) < val.other.recentHeight) {
+          if(val.other?.recentHeight && parseInt(val.value.toString()) < val.other.recentHeight) {
             errors.push([`The entered height is less that previous height ${val.other.recentHeight}cm`])
           }
           errors.push(this.isNotEmptyandNumber(val))
