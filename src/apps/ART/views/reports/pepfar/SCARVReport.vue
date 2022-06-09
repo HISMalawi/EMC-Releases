@@ -5,6 +5,9 @@
         :rows="rows" 
         :fields="fields"
         :columns="columns"
+        :config="{
+            showIndex: true
+        }"
         :reportReady="reportReady"
         :isLoading="isLoading"
         reportPrefix="PEPFAR"
@@ -31,7 +34,7 @@ export default defineComponent({
         columns: [
             [
                 table.thTxt('ARV drug category'), 
-                table.thTxt('# of bottles (units dispensed)')
+                table.thTxt('# of bottles (units) dispensed')
             ]
         ]
     }),
