@@ -16,6 +16,7 @@ async function toast(message: string, color="primary", duration=2000, title='') 
         animated: true,
         duration: duration,
         color: color,
+        cssClass: 'his-md-text',
         keyboardClose: true,
         buttons: [
             {
@@ -29,7 +30,7 @@ async function toast(message: string, color="primary", duration=2000, title='') 
 }
 
 export function toastNotification(title: string, message: string, duration=4000) {
-  return toast(message, 'primary', duration, title)
+  return toast(message, 'light', duration, title)
 }
 
 export function toastWarning(message: string, duration=2000) {
