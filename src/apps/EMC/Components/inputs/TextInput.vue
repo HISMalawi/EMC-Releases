@@ -6,11 +6,11 @@
       <ion-checkbox v-model="isUnknown"></ion-checkbox>
     </span>
   </ion-label>
-  <ion-row class="ion-margin-top" :class="model.error ? 'box-input-error'  : 'box-input'" style="width: 100%; height: 2.5rem;">
-    <ion-col size="4" v-if="prefix" style="background: #f2f2f2; height: 100%; padding: .5rem">
+  <div class="ion-margin-top" :class="model.error ? 'box-input-error' : 'box-input'" style="width: 100%; height: 2.5rem; display: flex; justify-content: space-between;">
+    <div v-if="prefix" style="background: #f2f2f2; height: 100%; padding: .5rem; flex-grow: 1;">
       <ion-label class="checkbox-label bold">{{ prefix }}</ion-label>
-    </ion-col>
-    <ion-col :size="prefix ? 8 : 12" style="background: #ffffff; height: 100%; padding: .5rem">
+    </div>
+    <div style="background: #ffffff; height: 100%; padding: .5rem;  flex-grow: 8;">
       <ion-input
         class="ion-no-margin ion-no-padding"
         v-model="model.value"
@@ -19,12 +19,15 @@
         @ionFocus="model.error = ''"
         @ionBlur="validate"
       />
-    </ion-col>
-  </ion-row>
+    </div>
+    <div v-if="suffix" style="background: #f2f2f2; height: 100%; padding: .5rem; flex-grow: 1;">
+      <ion-label class="checkbox-label bold ion-float-end">{{ suffix }}</ion-label>
+    </div>
+  </div>
   <ion-note v-if="model.error" color="danger">{{ model.error }}</ion-note>
 </template>
 <script lang="ts">
-import { IonCheckbox, IonInput, IonLabel, IonNote } from "@ionic/vue";
+import { IonCheckbox, IonCol, IonInput, IonLabel, IonNote, IonRow } from "@ionic/vue";
 import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
 import { DTFormField } from "../../interfaces/dt_form_field";
 
@@ -40,6 +43,10 @@ export default defineComponent({
       default: false
     },
     prefix: {
+      type: String,
+      default: ""
+    },
+    suffix: {
       type: String,
       default: ""
     },
