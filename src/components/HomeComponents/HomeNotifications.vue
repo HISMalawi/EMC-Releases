@@ -4,7 +4,7 @@
         No notifications in this area..
     </div>
     <ul v-if="hasNotifications"> 
-        <li style="margin-bottom: 2%;" v-for="(item, index) in notificationData" 
+        <li style="margin-bottom: 2%;" v-for="(item, index) in sortedNotifications" 
             :key="index" class="ion-text-center his-card his-md-text">
             <ul> 
                 <li><b>{{item.title}}</b></li>
@@ -39,8 +39,9 @@ export default defineComponent({
         IonButton
     },
     setup() {
-        const { notificationData, hasNotifications } = Notification()
+        const { sortedNotifications, notificationData, hasNotifications } = Notification()
         return {
+            sortedNotifications,
             hasNotifications,
             notificationData
         }

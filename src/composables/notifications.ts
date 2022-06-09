@@ -25,6 +25,13 @@ export function Notification() {
     const notificationCount = computed((): number => {
         return unReadNotifications.value.length
     })
+
+    const sortedNotifications = computed((): NotificationInterface[] => {
+        return notificationData.value.sort((a, b) => {
+            return new Date(a.date as string) > new Date(b.date as string) ? -1 : 1
+        })
+    })
+
     function pushNotification(notification: NotificationInterface) {
         const notice = {...notification}
         notice.read = false
@@ -34,6 +41,7 @@ export function Notification() {
     }
     return {
         pushNotification,
+        sortedNotifications,
         hasUnreadNotifications,
         notificationCount,
         hasNotifications,
