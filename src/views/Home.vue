@@ -69,10 +69,10 @@
           <ion-icon :icon="settings"> </ion-icon>
           <ion-label class="his-sm-text">Administration</ion-label>
         </ion-segment-button>
-        <ion-segment-button :value="3" @click="activeTab = 3">
-          <ion-icon :color="hasNotifications ? 'danger' : ''" :icon="notifications"/>
-          <ion-label :color="hasNotifications ? 'danger' : ''" class="his-sm-text">
-            Alerts <b v-if="hasNotifications">({{notificationCount}})</b>
+        <ion-segment-button :value="4" @click="activeTab = 4">
+          <ion-icon :color="hasUnreadNotifications ? 'danger' : ''" :icon="notifications"/>
+          <ion-label :color="hasUnreadNotifications ? 'danger' : ''" class="his-sm-text">
+            Alerts <b v-if="hasUnreadNotifications">({{notificationCount}})</b>
           </ion-label>
         </ion-segment-button>
       </ion-segment>
@@ -95,6 +95,7 @@
           :items="app.globalPropertySettings" 
           >
         </home-folder>
+        <home-notification v-if="activeTab == 4"/>
       </div>
     </ion-content>
 
@@ -189,6 +190,8 @@ import {
 } from "@ionic/vue";
 import usePlatform from "@/composables/usePlatform";
 import { alertConfirmation } from "@/utils/Alerts";
+import HomeNotification from "@/components/HomeComponents/HomeNotifications.vue"
+
 export default defineComponent({
   name: "Home",
   components: {
@@ -208,14 +211,28 @@ export default defineComponent({
     IonFooter,
     IonSegment,
     IonSegmentButton,
-    IonLabel
+    IonLabel,
+    HomeNotification
   },
   setup() {
     const { useVirtualInput } = usePlatform()
-    const { pushNotification, notificationData, notificationCount, hasNotifications }  = Notification()
+    const { 
+      pushNotification, 
+      notificationData, 
+      notificationCount, 
+      hasUnreadNotifications
+    }  = Notification()
+    setInterval(() => {
+      pushNotification({
+        title: 'Hellow World',
+        message: 'I am a banana',
+        date: '20/10/2020',
+        handler: () => alert('Hello!')
+      })
+    }, 18000)
     return {
       pushNotification,
-      hasNotifications,
+      hasUnreadNotifications,
       notificationData,
       notificationCount,
       notifications,
