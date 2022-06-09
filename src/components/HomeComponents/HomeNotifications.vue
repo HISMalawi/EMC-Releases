@@ -13,7 +13,7 @@
                 <li>
                     <ion-button
                         v-if="typeof item.handler==='function'"
-                        @click="item.handler(item)"
+                        @click="openNotification(item)"
                         size="large"
                     >
                         Open
@@ -39,8 +39,14 @@ export default defineComponent({
         IonButton
     },
     setup() {
-        const { sortedNotifications, notificationData, hasNotifications } = Notification()
+        const { 
+            openNotification, 
+            sortedNotifications, 
+            notificationData, 
+            hasNotifications 
+        } = Notification()
         return {
+            openNotification,
             sortedNotifications,
             hasNotifications,
             notificationData

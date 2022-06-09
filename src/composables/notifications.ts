@@ -39,8 +39,17 @@ export function Notification() {
         notificationData.value.push(notice)
         toastNotification(notification.title, notification.message)
     }
+
+    function openNotification(notification: NotificationInterface) {
+        if (typeof notification.handler === 'function') {
+            notification.read = true
+            notification.handler()
+        }
+    }
+
     return {
         pushNotification,
+        openNotification,
         sortedNotifications,
         hasUnreadNotifications,
         notificationCount,
