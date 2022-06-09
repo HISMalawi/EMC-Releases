@@ -90,6 +90,7 @@ import dayjs from "dayjs";
 import { VitalsService } from "@/apps/ART/services/vitals_service";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
 import { isValidForm } from "../utils/form";
+import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 
 export default defineComponent({
   components: {
@@ -112,6 +113,8 @@ export default defineComponent({
     const sitePrefix = ref("");
     const registrationService = new ClinicRegistrationService(patientId.value, -1)
     const vitalsService = new VitalsService(patientId.value, -1)
+    const patientTypeService = new PatientTypeService(patientId.value, -1);
+
 
     const today = dayjs().format(STANDARD_DATE_FORMAT)
     const patientDob = computed(() => {
@@ -155,7 +158,10 @@ export default defineComponent({
         label: 'Agrees to follow up ?',
         computedValue: (agrees: string) => ({
           tag: 'registration',
-          obs: registrationService.buildValueCoded('Agrees to followup', agrees)
+          obs: [
+            registrationService.buildGroupValueCoded('Agrees to followup', 'Home visit', agrees),
+            registrationService.buildGroupValueCoded('Agrees to followup', 'Phone', agrees),
+          ]
         }),
         required: true,
       },
@@ -294,6 +300,13 @@ export default defineComponent({
           tag: 'reg',
           obs: buildDateObs('Confirmatory HIV test date', date)
         }),
+      },
+      patientType: {
+        value: "New patient",
+        computedValue: (patientType: string) => ({
+          tag: 'patient type',
+          obs: patientTypeService.buildValueCoded('Type of patient', patientType)
+        }),
       }
     });
 
@@ -307,6 +320,7 @@ export default defineComponent({
       const confirm = await alertConfirmation('Are you sure you want to clear all fields?')
       if(confirm) {
         for(const key in form) {
+          if(key === 'patientType') continue;
           form[key].value = undefined
           form[key].error = ""
         }
