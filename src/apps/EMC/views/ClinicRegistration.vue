@@ -295,7 +295,13 @@ export default defineComponent({
           obs: buildDateObs('Confirmatory HIV test date', date)
         }),
       }
-    })
+    });
+
+    watch(form.receivedArvTreatmentBefore, state => {
+      if (state.value === 'No') {
+        form.everRegisteredAtClinic.value = ''
+      }
+    });
 
     const onClear = async () => {
       const confirm = await alertConfirmation('Are you sure you want to clear all fields?')
