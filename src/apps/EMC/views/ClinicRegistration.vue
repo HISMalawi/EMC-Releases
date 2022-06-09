@@ -123,16 +123,6 @@ export default defineComponent({
       return date ? dayjs(date).format(STANDARD_DATE_FORMAT) : ''
     })
 
-    const  buildDateObs = (conceptName: string, date: string, isEstimate = false) => {
-      if (date.match(/unknown/i)) {
-        return registrationService.buildValueText(conceptName, 'Unknown')
-      } else if (isEstimate) {
-        return registrationService.buildValueDateEstimated(conceptName, date)
-      } else {
-        return registrationService.buildValueDate(conceptName, date)
-      }
-    }
-
     const form = reactive<DTForm>({
       arvNumber: {
         value: '',
@@ -177,7 +167,7 @@ export default defineComponent({
         placeholder: "Enter Date last taken ARVs",
         computedValue: (date: string) => ({
           tag: 'registration',
-          obs: buildDateObs('Date ART last taken', date)
+          obs: registrationService.buildValueDate('Date ART last taken', date)
         }),
         validation: async (date: Option, f: DTForm) => f.receivedArvTreatmentBefore.value === 'Yes' &&
           StandardValidations.required(date),
@@ -213,7 +203,7 @@ export default defineComponent({
         placeholder: 'Date started ART',
         computedValue: (date: string) => ({
           tag: 'registration',
-          obs: buildDateObs('Date ART started', date)
+          obs: registrationService.buildValueDate('Date ART started', date)
         }),
         validation: async (date: Option, f: DTForm) => {
           return f.everRegisteredAtClinic.value === 'Yes' &&
@@ -299,7 +289,7 @@ export default defineComponent({
         },
         computedValue: (date: string) => ({
           tag: 'registration',
-          obs: buildDateObs('Confirmatory HIV test date', date)
+          obs: registrationService.buildValueDate('Confirmatory HIV test date', date)
         }),
       },
       patientType: {
