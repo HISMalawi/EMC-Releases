@@ -16,7 +16,6 @@ import { defineComponent } from 'vue'
 import ReportTemplate from "@/views/reports/BaseTableReport.vue"
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 import ReportMixin from '@/apps/ART/views/reports/ReportMixin.vue'
-import { border } from '@/apps/OPD/utils/table'
 import { IonPage } from "@ionic/vue";
 import { CxCaReportService } from '@/apps/CxCa/services/reports/cxca_report_service'
 export default defineComponent({
@@ -46,36 +45,16 @@ export default defineComponent({
       this.reportService.setStartDate(config.start_date)
       this.reportService.setEndDate(config.end_date)
       const data = await this.reportService.getPepfarReport('CC Basic Result');
-      console.log(data);
       this.rows = this.buildRows(data)
       
     },
- drilldown(patients: Array<any>, context: string) {
-            const columns = [
-                [
-                    table.thTxt('ARV #'),
-                    table.thTxt('DOB'),
-                    // table.thTxt('Dispensed date')
-                ]
-            ]
-            const asyncRows = () => this.sortByArvNumber(patients).map(
-                (p: any) => ([
-                   table.td(p.arv_number),
-                   table.tdDate(p.birthdate),
-                  //  table.tdDate(p.prescription_date)
-               ])
-            )
-            if (patients.length <= 0) return table.td(0)
-
-            return table.tdLink(patients.length, () => this.drilldownAsyncRows(context, columns, asyncRows))
-        },
     buildRows(data: any): RowInterface[] {
       return data.map((d: any) => ([
         table.td(d.age_group),
-        this.drilldown(d['CXCA_SCRN_D'], 'CXCA_SCRN_D'),
-        this.drilldown(d['CXCA_SCRN_N'], ''),
-        this.drilldown(d['CXCA_SCRN_POS'], ''),
-        this.drilldown(d['CXCA_SCRN_TX'], ''),
+        table.td(d['CXCA_SCRN_D']),
+        table.td(d['CXCA_SCRN_N']),
+        table.td(d['CXCA_SCRN_POS']),
+        table.td(d['CXCA_SCRN_TX']),
 
       ]))
     },

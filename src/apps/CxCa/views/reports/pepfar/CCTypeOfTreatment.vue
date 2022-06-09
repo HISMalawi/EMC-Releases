@@ -48,31 +48,12 @@ export default defineComponent({
       this.rows = this.buildRows(data)
       
     },
- drilldown(patients: Array<any>, context: string) {
-            const columns = [
-                [
-                    table.thTxt('ARV #'),
-                    table.thTxt('DOB'),
-                    // table.thTxt('Dispensed date')
-                ]
-            ]
-            const asyncRows = () => this.sortByArvNumber(patients).map(
-                (p: any) => ([
-                   table.td(p.arv_number),
-                   table.tdDate(p.birthdate),
-                  //  table.tdDate(p.prescription_date)
-               ])
-            )
-            if (patients.length <= 0) return table.td(0)
-
-            return table.tdLink(patients.length, () => this.drilldownAsyncRows(context, columns, asyncRows))
-        },
     buildRows(data: any): RowInterface[] {
       return data.map((d: any) => ([
         table.td(d.age_group),
-        this.drilldown(d['cryotherapy'], 'frst_screen'),
-        this.drilldown(d['thermocoagulation'], 'Thermocoagulation'),
-        this.drilldown(d['leep'], 'Leep'), 
+        table.td(d['cryotherapy']),
+        table.td(d['thermocoagulation']),
+        table.td(d['leep']), 
 
       ]))
     },
