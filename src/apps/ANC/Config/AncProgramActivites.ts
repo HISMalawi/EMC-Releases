@@ -21,6 +21,13 @@ async function onPMTCTworkflowTask(params: any) {
     }
 }
 
+function encounterWasSaved(savedEncounters: string[] | undefined, encounterName: string) {
+    if (Array.isArray(savedEncounters)) {
+        return savedEncounters.includes(encounterName)
+    }
+    return false
+}
+
 export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     {
        id: 'anc dispensing',
@@ -36,12 +43,24 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     {
         id: 'surgical history',
         name: 'SURGICAL HISTORY',
-        icon: 'surgical_history.png'
+        icon: 'surgical_history.png',
+        disabled: (params: any) => {
+            return encounterWasSaved(
+                params.savedEncounters, 
+                'SURGICAL HISTORY'
+            )
+        }
     },
     {
         id: 'medical history',
         name: 'Medical History',
-        icon: 'medical_history.png'
+        icon: 'medical_history.png',
+        disabled: (params: any) => {
+            return encounterWasSaved(
+                params.savedEncounters, 
+                'MEDICAL HISTORY'
+            )
+        }
     },
     {
         id: 'anc examination',
@@ -53,7 +72,13 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     {
         id: 'social history',
         name: 'Social History',
-        icon: 'social_history.png'
+        icon: 'social_history.png',
+        disabled: (params: any) => {
+            return encounterWasSaved(
+                params.savedEncounters, 
+                'SOCIAL HISTORY'
+            )
+        }
     },
     {
         id: 'lab results',
@@ -63,12 +88,24 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     {
         id: 'obstetric history',
         name: 'Obstetric history',
-        icon: 'obstetric_history.png'
+        icon: 'obstetric_history.png',
+        disabled: (params: any) => {
+            return encounterWasSaved(
+                params.savedEncounters, 
+                'OBSTETRIC HISTORY'
+            )
+        }
     },
     {
         id: 'current pregnancy',
         name: 'Current Pregnancy',
-        icon: 'current_preg.png'
+        icon: 'current_preg.png',
+        disabled: (params: any) => {
+            return encounterWasSaved(
+                params.savedEncounters, 
+                'CURRENT PREGNANCY'
+            )
+        }
     },
     {
         id: 'anc treatment',
