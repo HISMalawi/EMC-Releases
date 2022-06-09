@@ -69,12 +69,17 @@
           <ion-icon :icon="settings"> </ion-icon>
           <ion-label class="his-sm-text">Administration</ion-label>
         </ion-segment-button>
+        <ion-segment-button :value="3" @click="activeTab = 3">
+          <ion-icon :color="hasNotifications ? 'danger' : ''" :icon="notifications"/>
+          <ion-label :color="hasNotifications ? 'danger' : ''" class="his-sm-text">
+            Alerts <b v-if="hasNotifications">({{notificationCount}})</b>
+          </ion-label>
+        </ion-segment-button>
       </ion-segment>
     </ion-toolbar>
     
     <ion-content :fullscreen="true">
       <div id="container" class="his-card overview" v-if="ready">
-        
         <component 
           v-if ="activeTab == 1" 
           v-bind:is="appOverview"
@@ -153,10 +158,11 @@ import ProgramIcon from "@/components/DataViews/DashboardAppIcon.vue"
 import HomeFolder from "@/components/HomeComponents/HomeFolders.vue"
 import { AuthService } from "@/services/auth_service"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
-
+import { Notification } from "@/composables/notifications" 
 import Img from "@/utils/Img"
 import { 
   apps, 
+  notifications,
   person, 
   search, 
   logOut,
@@ -206,11 +212,17 @@ export default defineComponent({
   },
   setup() {
     const { useVirtualInput } = usePlatform()
+    const { pushNotification, notificationData, notificationCount, hasNotifications }  = Notification()
     return {
+      pushNotification,
+      hasNotifications,
+      notificationData,
+      notificationCount,
+      notifications,
       barcode,
-      apps, 
+      apps,
       person, 
-      search, 
+      search,
       logOut,
       statsChart,
       pieChart,

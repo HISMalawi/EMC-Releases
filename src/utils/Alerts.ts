@@ -8,8 +8,9 @@ interface AlertConfirmationOtions {
   cancelBtnLabel?: string;
 }
 
-async function toast(message: string, color="primary", duration=2000) {
+async function toast(message: string, color="primary", duration=2000, title='') {
     const toast = await toastController.create({
+        header: title,
         message: message,
         position: "top",
         animated: true,
@@ -27,8 +28,12 @@ async function toast(message: string, color="primary", duration=2000) {
     return toast.present();
 }
 
+export function toastNotification(title: string, message: string, duration=4000) {
+  return toast(message, 'primary', duration, title)
+}
+
 export function toastWarning(message: string, duration=2000) {
-    return toast(message, 'warning', duration)
+  return toast(message, 'warning', duration)
 }
 
 export function toastSuccess(message: string, duration=1000) {
