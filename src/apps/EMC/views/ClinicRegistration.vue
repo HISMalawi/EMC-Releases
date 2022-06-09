@@ -8,10 +8,10 @@
           </ion-title>
           <ion-row class="ion-margin-top ion-margin-bottom">
           <ion-col size="5" class="ion-margin-top ion-margin-bottom">
-            <text-input v-model="form.arvNumber" :prefix="`${sitePrefix}-ARV-`" />
+            <text-input v-model="form.arvNumber" :form="form" :prefix="`${sitePrefix}-ARV-`" />
           </ion-col>
           <ion-col size="7" class="ion-margin-top ion-margin-bottom">
-            <DateInput v-model="form.initialVisitDate" />
+            <DateInput v-model="form.initialVisitDate" :min-date="patientDob" :max-date="today" :form="form" />
           </ion-col>
           <ion-col size="5" class="ion-margin-top ion-margin-bottom">
             <yes-no-input v-model="form.shouldFollowUp" inline />
@@ -21,7 +21,7 @@
           </ion-col>
           <template v-if="form.receivedArvTreatmentBefore.value === 'Yes'">
             <ion-col size="12" class="ion-margin-top ion-margin-bottom">
-              <DateInput v-model="form.dateLastTakenArvs" />
+              <DateInput v-model="form.dateLastTakenArvs" :form="form" :min-date="patientDob" :max-date="today" />
             </ion-col>
             <ion-col size="12" class="ion-margin-top ion-margin-bottom">
               <yes-no-input v-model="form.everRegisteredAtClinic" inline />
@@ -29,30 +29,30 @@
           </template>
           <template v-if="form.everRegisteredAtClinic.value === 'Yes'">
             <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <SelectInput v-model="form.artInitiationLocation" :asyncOptions="getFacilities" allowCustom searchable />
+              <SelectInput v-model="form.artInitiationLocation" :form="form" :asyncOptions="getFacilities" allowCustom searchable />
             </ion-col>
             <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <DateInput v-model="form.artStartDate" />
+              <DateInput v-model="form.artStartDate" :form="form" :min-date="patientDob" :max-date="today" />
             </ion-col>
             <ion-col size="3" class="ion-margin-top ion-margin-bottom">
-              <NumberInput v-model="form.initialWeight" :min="1" allowUnknown />
+              <NumberInput v-model="form.initialWeight" :form="form" :min="1" allowUnknown />
             </ion-col>
             <ion-col size="3" class="ion-margin-top ion-margin-bottom">
-              <NumberInput v-model="form.initialHeight" :min="1" allowUnknown />
+              <NumberInput v-model="form.initialHeight" :form="form" :min="1" allowUnknown />
             </ion-col>
             <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <SelectInput v-model="form.initialTBStatus" :options="tbStatusOptions" />
+              <SelectInput v-model="form.initialTBStatus" :form="form" :options="tbStatusOptions" />
             </ion-col>
           </template>
           <ion-col size="12" class="ion-margin-top ion-margin-bottom">
-            <SelectInput v-model="form.confirmatoryTest" :options="HIVTestOptions" />
+            <SelectInput v-model="form.confirmatoryTest" :form="form" :options="HIVTestOptions" />
           </ion-col>
-          <template v-if="form.confirmatoryTest.value !== 'Not Done'">
+          <template v-if="form.confirmatoryTest.value !== 'Not done'">
             <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <SelectInput v-model="form.confirmatoryTestLocation" :asyncOptions="getFacilities" allowCustom searchable />
+              <SelectInput v-model="form.confirmatoryTestLocation" :form="form" :asyncOptions="getFacilities" allowCustom searchable />
             </ion-col>
             <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <DateInput v-model="form.confirmatoryTestDate" :min-date="patientDob" :max-date="today" />
+              <DateInput v-model="form.confirmatoryTestDate" :form="form" :min-date="patientDob" :max-date="today" />
             </ion-col>
           </template>
         </ion-row>
@@ -67,7 +67,7 @@
 <script lang="ts">
 import {  computed, defineComponent, onMounted, reactive, ref, watch } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import { IonGrid, IonRow, IonCol, IonButton, IonTitle } from "@ionic/vue";
+import { IonGrid, IonRow, IonCol, IonButton, IonTitle, loadingController } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import {  alertConfirmation, toastSuccess, toastWarning } from "@/utils/Alerts";
@@ -89,7 +89,7 @@ import { tbStatusOptions, HIVTestOptions } from '@/apps/EMC/utils/DTFormElements
 import dayjs from "dayjs";
 import { VitalsService } from "@/apps/ART/services/vitals_service";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
-import { isValidForm } from "../utils/form";
+import { isValidForm, resolveFormValues, resolveObs } from "../utils/form";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 
 export default defineComponent({
@@ -108,6 +108,7 @@ export default defineComponent({
 },
   setup() {
     const route = useRoute()
+    const router = useRouter()
     const patientId = ref(parseInt(route.params.id.toString() || ''))
     const patient = ref<Patientservice>()
     const sitePrefix = ref("");
@@ -147,10 +148,6 @@ export default defineComponent({
         value: '',
         label: 'Initial Visit Date',
         placeholder: "Enter Initial Visit Date",
-        computedValue: (date: string) => ({
-          tag: 'registration',
-          obs: buildDateObs('Initial Visit Date', date)
-        }),
         required: true,
       },
       shouldFollowUp: {
@@ -198,10 +195,13 @@ export default defineComponent({
       artInitiationLocation: {
         value: '',
         label: 'Location of ART Initiation',
-        computedValue: (location: string) => ({
-          tag:'registration',
-          obs: registrationService.buildValueText('Location of ART initiation', location)
-        }),
+        computedValue: async (location: string) => {
+          const facility = await LocationService.getFacilities({'location_id': location})
+          return {
+            tag:'registration',
+            obs: registrationService.buildValueText('Location of ART initiation', facility.name)
+          }
+        },
         validation: async (location: Option, f: DTForm) => {
           return f.everRegisteredAtClinic.value === 'Yes' &&
            StandardValidations.required(location)
@@ -246,7 +246,7 @@ export default defineComponent({
         validation: async (height: Option, f: DTForm) => {
           return f.everRegisteredAtClinic.value === 'Yes' && StandardValidations.validateSeries([
             () => StandardValidations.required(height),
-            () => vitalsService.validator({...height, label: 'Height'})
+            () => vitalsService.validator({ ...height, label: 'Height' })
           ])
         }
       },
@@ -255,8 +255,8 @@ export default defineComponent({
         label: 'Initial TB Status',
         placeholder: 'select TB status',
         computedValue: (status: string) => ({
-          tag: 'vitals',
-          obs: registrationService.buildValueText("TB Status", status)
+          tag: 'registration',
+          obs: registrationService.buildValueCoded("TB Status", status)
         }),
         validation: async (status: Option, f: DTForm) => {
           return f.everRegisteredAtClinic.value === 'Yes' && StandardValidations.required(status)
@@ -279,13 +279,14 @@ export default defineComponent({
         label: 'Location of Confirmatory',
         placeholder: 'Select location',
         validation: async (location: Option, f: DTForm) => {
-          return f.confirmatoryTest.value !== 'Not Done' && StandardValidations.required(location)
+          return f.confirmatoryTest.value !== 'Not done' && StandardValidations.required(location)
         },
-        computedValue(location: string){
+        computedValue: async (location: string) => {
+          const facility = await LocationService.getFacilities({'location_id': location})
           return {
             tag: 'registration',
             obs: registrationService.buildValueText(
-              'Confirmatory HIV test location', location
+              'Confirmatory HIV test location', facility.name
             )
           }
         }
@@ -294,10 +295,10 @@ export default defineComponent({
         value: '',
         label: 'Confirmatory HIV Test Date',
         validation: async (date: Option, f: DTForm) => {
-          return f.confirmatoryTest.value !== 'Not Done' && StandardValidations.required(date)
+          return f.confirmatoryTest.value !== 'Not done' && StandardValidations.required(date)
         },
         computedValue: (date: string) => ({
-          tag: 'reg',
+          tag: 'registration',
           obs: buildDateObs('Confirmatory HIV test date', date)
         }),
       },
@@ -328,8 +329,31 @@ export default defineComponent({
     }
 
     const onSubmit = async () => {
+      const loader = await loadingController.create({ message: 'Saving...' })
+      await loader.present()
       if(!(await isValidForm(form))) return
-      toastSuccess('Form is valid')
+      const {formData, computedFormData} = resolveFormValues(form)
+      await ClinicRegistrationService.setSessionDate(formData.initialVisitDate)
+      await patient.value?.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`)
+
+      await patientTypeService.createEncounter()
+      const pTypeObs = await resolveObs(computedFormData, 'patient type')
+      await patientTypeService.saveObservationList(pTypeObs)
+
+      await registrationService.createEncounter()
+      const regObs = await resolveObs(computedFormData, 'registration')
+      await registrationService.saveObservationList(regObs)
+
+      if(formData.everRegisteredAtClinic === 'Yes') {
+        await vitalsService.createEncounter()
+        const vitalsObs = await resolveObs(computedFormData, 'vitals')
+        await vitalsService.saveObservationList(vitalsObs)
+      }
+
+      await loader.dismiss()
+      await toastSuccess('Saved successfully')
+      await ClinicRegistrationService.resetSessionDate()
+      router.push(`/emc/staging/${patientId.value}`)
     }
 
     onMounted(async () => {
