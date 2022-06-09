@@ -11,5 +11,6 @@ export interface TaskInterface {
     action?: Function;
     icon: string;
     taskCompleted?: boolean;
+    disabled?: (params: any) => boolean;
     condition?: (params: any) => boolean | Promise<boolean>;
 }
