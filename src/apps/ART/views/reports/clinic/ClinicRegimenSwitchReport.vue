@@ -33,7 +33,7 @@ export default defineComponent({
                 table.thTxt('Prev.Reg'),
                 table.thTxt('Curr.Reg'),
                 table.thTxt('ARVs'), 
-                table.thTxt('Curr.reg dispensed date')
+                table.thTxt('Curr.reg dispensed')
             ]
         ]
     }),

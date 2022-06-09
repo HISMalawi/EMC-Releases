@@ -109,8 +109,8 @@ export default defineComponent({
           id: "relocation_location",
           helpText: "Destination",
           type: FieldType.TT_SELECT,
-          validation: (val: Option) => Validation.required(val),
-          condition: (val: any) => val.task.value === "Relocations",
+          validation: (val: Option) => Validation.required(val) || Validation.notTheSame(val.label, `${StockService.getLocationName()}`),
+          condition: (val: any) => val.task.value === "Relocations" ,
           options: (_: any, filter = "") => getFacilities(filter),
           computedValue: (val: Option) => val.label,
           config: {

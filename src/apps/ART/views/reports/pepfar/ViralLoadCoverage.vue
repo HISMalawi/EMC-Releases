@@ -6,6 +6,9 @@
       :rows="rows"
       :fields="fields"
       :columns="columns"
+      :config="{
+        showIndex: true
+      }"
       reportPrefix="PEPFAR"
       :onReportConfiguration="onPeriod"
     >
@@ -46,12 +49,12 @@ export default defineComponent({
         table.thTxt("Gender"),
         table.thTxt("TX CURR"),
         table.thTxt("Due for VL"),
-        table.thTxt("Routine", { value: 'Routine (Sample Drawn)'}),
-        table.thTxt("Targeted", { value:'Targeted (Sample Drawn)'}),
-        table.thTxt("Routine", { value: 'Routine (High VL (>=1000 copies))'}),
-        table.thTxt("Targeted", { value:'Targeted High VL (>=1000 copies)'}),
-        table.thTxt("Routine", { value: 'Routine (Low VL (<1000 copies))'}),
-        table.thTxt("Targeted", { value:'Targeted (Low VL (<1000 copies))'}),
+        table.thTxt("Routine"),// { value: 'Routine (Sample Drawn)'}),
+        table.thTxt("Targeted"),//, { value:'Targeted (Sample Drawn)'}),
+        table.thTxt("Routine"),//, { value: 'Routine (High VL (>=1000 copies))'}),
+        table.thTxt("Targeted"),//, { value:'Targeted High VL (>=1000 copies)'}),
+        table.thTxt("Routine"),//, { value: 'Routine (Low VL (<1000 copies))'}),
+        table.thTxt("Targeted")//, { value:'Targeted (Low VL (<1000 copies))'}),
       ],
     ],
 
@@ -146,7 +149,7 @@ export default defineComponent({
   
       this.rows.push([
         table.td('All'),
-        table.td('FBF'),
+        table.td('FBf'),
         this.drillDown(fp('FBf', totals.tx_curr), 'TX CURR FBf'),
         this.drillDown(fp('FBf', totals.due_for_vl), 'Due for VL FBf'),
         this.drillDown(fp('FBf', totals.drawn_routine), 'Routine (Sample Drawn) FBf'),
@@ -184,7 +187,7 @@ export default defineComponent({
           }
           this.rows.push([
             table.td(group),
-            table.td(gender),
+            table.td(gender === 'M' ? 'Male' : 'Female'),
             td(
               'tx_curr', cohortData.tx_curr, `${group} TX CURR (${gender})`
             ),

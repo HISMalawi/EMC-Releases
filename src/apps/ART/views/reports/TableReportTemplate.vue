@@ -355,7 +355,6 @@ export default defineComponent({
           columns, 
           [
             ...rows,
-            [],
             [`Date Created: ${this.date}`],
             [`Quarter: ${this.period}`],
             [`HIS-Core Version: ${this.coreVersion}`],

@@ -7,6 +7,9 @@
             :rows="rows" 
             :fields="fields"
             :columns="columns"
+            :config="{
+                showIndex: true
+            }"
             :validationErrors="errors"
             :showValidationStatus="showStatus"
             :headerInfoList="headerList"
