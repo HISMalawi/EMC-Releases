@@ -50,9 +50,9 @@ export default defineComponent({
     buildRows(data: any): RowInterface[] {
       return data.map((d: any) => ([
         table.td(d.age_group),
-        table.td(d['first_screen']),
-        table.td(d['rescreen']),
-        table.td(d['follow_up_screen']),
+        table.td(d['first_screen'].length),
+        table.td(d['rescreen'].length),
+        table.td(d['follow_up_screen'].length),
       ]))
     },
   },

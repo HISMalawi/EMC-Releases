@@ -49,9 +49,9 @@ export default defineComponent({
     buildRows(data: any): RowInterface[] {
       return data.map((d: any) => ([
         table.td(d.age_group),
-        table.td(d['result_negative']),
-        table.td(d['result_positive']),
-        table.td(d['result_suspected_cancer']),
+        table.td(d['result_negative'].length),
+        table.td(d['result_positive'].length),
+        table.td(d['result_suspected_cancer'].length),
       ]))
     },
   },

@@ -51,9 +51,9 @@ export default defineComponent({
     buildRows(data: any): RowInterface[] {
       return data.map((d: any) => ([
         table.td(d.age_group),
-        table.td(d['cryotherapy']),
-        table.td(d['thermocoagulation']),
-        table.td(d['leep']), 
+        table.td(d['cryotherapy'].length),
+        table.td(d['thermocoagulation'].length),
+        table.td(d['leep'].length), 
 
       ]))
     },
