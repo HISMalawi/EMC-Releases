@@ -1,5 +1,10 @@
 export default [
     {
+        name: 'anc_moh_monthly_report',
+        path: '/anc/report/moh_monthly_report',
+        component: () => import('@/apps/ANC/Views/Reports/MohMonthlyReport/AncMohMonthlyReportIndex.vue')
+    },
+    {
         name: 'anc_cohort_report',
         path: '/anc/report/moh/cohort',
         component: () => import('@/apps/ANC/Views/Reports/Cohort/ANCohortIndex.vue')

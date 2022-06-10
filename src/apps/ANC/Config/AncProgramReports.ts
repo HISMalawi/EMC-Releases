@@ -7,8 +7,12 @@ export const REPORTS: FolderInterface[] = [
         defaultFilesIcon: 'reports.png',
         files: [
            {
-            name: 'Cohort',
-            pathName: 'anc_cohort_report'
+                name: 'Cohort',
+                pathName: 'anc_cohort_report'
+           },
+           {
+               name: 'Monthly',
+               pathName: 'anc_moh_monthly_report'
            }
         ]
     },
