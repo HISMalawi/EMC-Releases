@@ -21,7 +21,10 @@ export const REPORTS: FolderInterface[] = [
         icon: 'reports.png',
         defaultFilesIcon: 'reports.png',
         files: [
-            
+            {
+                name: "Appointments",
+                pathName: 'anc_clinic_appointment'
+            }
         ]
     },
     {

@@ -1,5 +1,10 @@
 export default [
     {
+        name: 'anc_clinic_appointment',
+        path: '/anc/clinic_appointments',
+        component: () => import('@/apps/ANC/Views/Reports/Clinic/AncAppointments.vue')
+    },
+    {
         name: 'anc_moh_report',
         path: '/anc/moh_report/:template_id',
         component: () => import('@/apps/ANC/Views/Reports/Moh/AncMohReportIndex.vue')
