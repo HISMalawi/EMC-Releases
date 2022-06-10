@@ -7,7 +7,7 @@
                 ANC C<span style="font-size: 0.8em">LINIC</span> -
                 F<span style="font-size: 0.8em">ACILITY</span> M<span style="font-size: 0.8em">ONTHLY</span>
                 R<span style="font-size: 0.8em">EPORT</span>
-                - VERSION 5, <span id="date">{{indicators.date}}</span>
+                - VERSION 5, <span id="date">{{date}}</span>
                 </th>
             </tr>
         <tr>
@@ -20,7 +20,7 @@
                     </td>
                     <td colspan="3" style="border-left: 1px solid #999;
                         border-bottom: 1px solid #999; font-style: italic;">
-                        <span id="site-name">{{indicators.siteName}}</span>
+                        <span id="site-name">{{siteName}}</span>
                     </td>
                 </tr>
             <tr>
@@ -29,14 +29,14 @@
                 </td>
                 <td style="border-left: 1px solid #999; border-bottom: 1px solid #999;
                     font-style: italic;">
-                    <span id="r-year">{{indicators.reportingYear}}</span>
+                    <span id="r-year">{{reportingYear}}</span>
                 </td>
                 <td style="width: 25%; border-left: 1px solid #999; border-bottom: 1px solid #999;" align="right">
                     Reporting Month
                 </td>
                 <td style="border-left: 1px solid #999; border-bottom: 1px solid #999;
                     font-style: italic;">
-                    <span id="r-month">{{indicators.reportingMonth}}</span>
+                    <span id="r-month">{{reportingMonth}}</span>
                 </td>
             </tr>
             <tr>
@@ -1104,6 +1104,22 @@ import { defineComponent } from 'vue'
 export default defineComponent({
     emits: ['onindicatorsSelected'],
     props: {
+        siteName: {
+            type: String,
+            default: 'N/A'
+        },
+        date: {
+            type: String,
+            default: 'N/A'
+        },
+        reportingMonth: {
+            type: String,
+            default: 'N/A'
+        },
+        reportingYear: {
+            type: String,
+            default: 'N/A'
+        },
         indicators: {
             type: Object,
             required: true

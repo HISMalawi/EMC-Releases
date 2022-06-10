@@ -11,6 +11,7 @@ import HisDate from "@/utils/Date";
 import { WorkflowService } from "@/services/workflow_service"
 import { ProgramService } from "@/services/program_service";
 import { RelationshipService } from "@/services/relationship_service";
+import { REPORTS } from "./Config/AncProgramReports";
 
 const ANC: AppInterface = {
     programID: 12,
@@ -20,6 +21,7 @@ const ANC: AppInterface = {
     appRoutes: AncRoutes,
     primaryPatientActivites: PRIMARY_ACTIVITIES,
     secondaryPatientActivites: [],
+    programReports: REPORTS,
     homeOverviewComponent: HomePageStats,
     init: async () => await selectActivities(PRIMARY_ACTIVITIES),
     formatPatientProgramSummary(data) {

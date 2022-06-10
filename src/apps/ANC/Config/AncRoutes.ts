@@ -1,5 +1,10 @@
 export default [
     {
+        name: 'anc_cohort_report',
+        path: '/anc/report/moh/cohort',
+        component: () => import('@/apps/ANC/Views/Reports/Cohort/ANCohortIndex.vue')
+    },
+    {
         name: 'art_followup',
         path: '/anc/pmtct/:patient_id',
         component: () => import("@/apps/ANC/Views/Encounters/Pmtct.vue")
