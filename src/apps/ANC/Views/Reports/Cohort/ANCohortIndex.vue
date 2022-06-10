@@ -61,6 +61,7 @@ import { isPlainObject } from 'lodash'
 import { toastDanger } from '@/utils/Alerts'
 import { AncCohortReportService } from "@/apps/ANC/Services/anc_cohort_report_service"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
+import { toCsv } from "@/utils/Export"
 
 export default defineComponent({
     components: {
@@ -157,7 +158,15 @@ export default defineComponent({
         }
 
         function exportCSV() {
-            //TODO: some cool stuff here
+            const headers = ['Indicator', 'Value']
+            const rows = Object.keys(reportData.value['values'])
+                .map((k: string) => {
+                    return [
+                        reportData.value['values'][k]['table']['indicator_name'],
+                        reportData.value['values'][k]['table']['contents'].length
+                    ]
+                })
+            toCsv([headers], rows, `${siteName} cohort report ${reportDate.value}`)
         }
 
         function onBack() {
@@ -174,8 +183,7 @@ export default defineComponent({
                 reportData.value = await report.generate()
                 indicators.value = Object.keys(reportData.value['values'])
                     .reduce((a: any, k: string) => {
-                        const value = reportData.value['values'][k]['table']['contents']
-                        a[k] = Array.isArray(value) ? value.length : value
+                        a[k] = reportData.value['values'][k]['table']['contents'].length
                         return a
                     }, {})
             } catch (e) {
