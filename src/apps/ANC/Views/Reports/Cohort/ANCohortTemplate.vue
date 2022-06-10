@@ -1161,7 +1161,7 @@ table td {
     display: none;
 }
 #main {
-    height: 600px;
+    height: 100vh;
 }
 a:link {
     color: #000;

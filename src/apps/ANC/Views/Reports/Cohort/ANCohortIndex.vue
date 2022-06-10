@@ -6,15 +6,17 @@
         @onFinish="onPeriod"
     />
     <ion-page v-if="isReportReady"> 
-        <ion-content> 
-            <cohort-report 
-                :indicators="indicators"
-                :siteName="siteName"
-                :date="reportDate"
-                :reportingYear="reportingYear"
-                :reportingMonth="reportingMonth"
-                @onindicatorsSelected="onIndicatorSelected"
-            />
+        <ion-content>
+            <div id="report-content">
+                <cohort-report 
+                    :indicators="indicators"
+                    :siteName="siteName"
+                    :date="reportDate"
+                    :reportingYear="reportingYear"
+                    :reportingMonth="reportingMonth"
+                    @onindicatorsSelected="onIndicatorSelected"
+                />
+            </div>
         </ion-content>
         <ion-footer> 
             <ion-toolbar color="dark"> 
@@ -136,7 +138,22 @@ export default defineComponent({
         }
 
         function exportPDF() {
-            //TODO: some cool stuff here
+            const printW = open('', '', 'width:1024px, height:768px')
+            const content = document.getElementById('report-content')
+            if (content && printW) {
+                printW.document.write(`
+                    <html>
+                    <head>
+                        <title>Print Cohort</title>
+                        <link rel="stylesheet" media="print"  href="/assets/css/anc-cohort.css"/>
+                    </head>
+                    <body>
+                        ${content.innerHTML}
+                    </body>
+                    </html>
+                `)
+                setTimeout(() => { printW.print(); printW.close() }, 3500)
+            }
         }
 
         function exportCSV() {
@@ -154,7 +171,6 @@ export default defineComponent({
             reportingMonth.value = c.month as string
             report.setStartDate(reportDate.value)
             try {
-                //TODO: run cohort report here and set report indicators
                 reportData.value = await report.generate()
                 indicators.value = Object.keys(reportData.value['values'])
                     .reduce((a: any, k: string) => {
