@@ -16,6 +16,9 @@
           :categories="accumulativeVisits.days"
         ></opd-stat-chart>
       </ion-col>
+      <ion-col>
+        <syndromic-stat-chart/>
+      </ion-col>
     </ion-row>
   </ion-grid>
 </template>
@@ -25,6 +28,7 @@ import { computed, defineComponent } from 'vue'
 import { IonGrid, IonRow, IonCol} from "@ionic/vue";
 import OpdStatCard from '@/apps/OPD/components/OpdStatCard.vue'
 import OpdStatChart from '@/apps/OPD/components/OpdStatChart.vue'
+import SyndromicStatChart from  '@/apps/OPD/components/SyndromicStatChart.vue'
 import PatientVisitsService from '@/apps/OPD/services/patient_visits_service'
 
 export default defineComponent({
@@ -33,7 +37,8 @@ export default defineComponent({
     OpdStatChart,
     IonGrid, 
     IonRow, 
-    IonCol
+    IonCol,
+    SyndromicStatChart
   },
   setup() {
     const data = PatientVisitsService.getStatistics()
