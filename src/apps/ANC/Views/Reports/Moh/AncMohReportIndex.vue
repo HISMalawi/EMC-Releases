@@ -90,7 +90,12 @@ export default defineComponent({
         const route = useRoute()
         const router = useRouter()
         const activeTemplateName = route.params['template_id'] as string
-        const { getMonthlyReportFields, showPrintWindow, fd } = AncReportComposable()
+        const { 
+            drillPatientByIDs,
+            getMonthlyReportFields, 
+            showPrintWindow, 
+            fd 
+        } = AncReportComposable()
         const siteName = Service.getLocationName()
         const report = new AncMohReportService()
         const reportData = ref({} as any)
@@ -127,8 +132,9 @@ export default defineComponent({
 
         const fields: Field[] = getMonthlyReportFields()
 
-        function onIndicatorSelected() {
-            //TODO: do somthing here
+        function onIndicatorSelected(indicator: string) {
+            const data = reportData.value['values'][indicator]['table']
+            drillPatientByIDs(data['indicator_name'], data['contents'])
         }
 
         function exportPDF() {

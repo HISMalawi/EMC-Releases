@@ -53,7 +53,7 @@
                     TOTAL NUMBER OF ANTENATAL VISITS
                 </td>
                 <td style="border: 1px solid #999; width: 25%; text-align: center;">
-                    <a id="a-total-anc-visits" href="#" @click="drill('total_number_of_anc_visits')">
+                    <a id="a-total-anc-visits" href="#" @click.prevent="drill('total_number_of_anc_visits')">
                     <span id="total-anc-visits">{{indicators.total_number_of_anc_visits}}</span> 
                     </a>
                 </td>
@@ -63,7 +63,7 @@
                     NEW VISITS
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-new-visits" href="#" @click="drill('new_visits')">
+                    <a id="a-new-visits" href="#" @click.prevent="drill('new_visits')">
                     <span id="new-visits">{{indicators.new_visits}}</span>
                     </a>
                 </td>
@@ -73,7 +73,7 @@
                     SUBSEQUENT VISITS
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-subsequent-visits" href="#" @click="drill('subsequent_visits')">
+                    <a id="a-subsequent-visits" href="#" @click.prevent="drill('subsequent_visits')">
                     <span id="subsequent-visits">{{indicators.subsequent_visits}}</span>
                     </a>
                 </td>
@@ -88,7 +88,7 @@
                     1<sup>ST</sup> TRIMESTER
                 </td>
                 <td style="border: 1px solid #999; width: 25%; text-align: center;">
-                    <a id="a-first-trimester" href="#" @click="drill('first_trimester')">
+                    <a id="a-first-trimester" href="#" @click.prevent="drill('first_trimester')">
                     <span id="first-trimester">{{indicators.first_trimester}}</span> 
                     </a>
                 </td>
@@ -98,7 +98,7 @@
                     2<sup>ND</sup> TRIMESTER
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-second-trimester" href="#" @click="drill('second_trimester')">
+                    <a id="a-second-trimester" href="#" @click.prevent="drill('second_trimester')">
                     <span id="second-trimester">{{indicators.second_trimester}}</span>
                     </a>
                 </td>
@@ -108,7 +108,7 @@
                     3<sup>RD</sup> TRIMESTER
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-third-trimester" href="#" @click="drill('third_trimester')">
+                    <a id="a-third-trimester" href="#" @click.prevent="drill('third_trimester')">
                     <span id="third-trimester">{{indicators.third_trimester}}</span>
                     </a>
                 </td>
@@ -118,7 +118,7 @@
                     TEENEGE PREGNANCIES
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-teeneger-pregnancies" href="#" @click="drill('teeneger_pregnancies')">
+                    <a id="a-teeneger-pregnancies" href="#" @click.prevent="drill('teeneger_pregnancies')">
                     <span id="teeneger-pregnancies">{{indicators.teeneger_pregnancies}}</span> 
                     </a>
                 </td>
@@ -128,7 +128,7 @@
                     WOMEN ATTENDING ALL 4 FANC VISITS
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-women-attending-all-visits" href="#" @click="drill('women_attending_all_anc_visits')">
+                    <a id="a-women-attending-all-visits" href="#" @click.prevent="drill('women_attending_all_anc_visits')">
                     <span id="women-attending-all-visits">{{indicators.women_attending_all_anc_visits}}</span>
                     </a>
                 </td>
@@ -138,7 +138,7 @@
                     WOMEN SCREENED FOR SYPHILIS
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-women-screened-syphilis" href="#" @click="drill('women_screened_for_syphilis')">
+                    <a id="a-women-screened-syphilis" href="#" @click.prevent="drill('women_screened_for_syphilis')">
                     <span id="women-screened-syphilis">{{indicators.women_screened_for_syphilis}}</span>
                     </a>
                 </td>
@@ -148,7 +148,7 @@
                     WOMEN CHECKED Hb
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-women-screened-hb" href="#" @click="drill('women_checked_hb')">
+                    <a id="a-women-screened-hb" href="#" @click.prevent="drill('women_checked_hb')">
                     <span id="women-screened-hb">{{indicators.women_checked_hb}}</span>
                     </a>
                 </td>
@@ -158,7 +158,7 @@
                     WOMEN RECEIVED SP1
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-women-received-sp1" href="#" @click="drill('women_received_sp_one')">
+                    <a id="a-women-received-sp1" href="#" @click.prevent="drill('women_received_sp_one')">
                     <span id="women-received-sp1">{{indicators.women_received_sp_one}}</span>
                     </a>
                 </td>
@@ -168,7 +168,7 @@
                     WOMEN RECEIVED SP2
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-women-received-sp2" href="#" @click="drill('women_received_sp_two')">
+                    <a id="a-women-received-sp2" href="#" @click.prevent="drill('women_received_sp_two')">
                     <span id="women-received-sp2">{{indicators.women_received_sp_two}}</span>
                     </a>
                 </td>
@@ -188,7 +188,7 @@
                     WOMEN RECEIVED  DOSES OF TTV OR HAS ADEQUETE TTV (5 doses)
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-women-received-ttv" href="#" @click="drill('women_received_ttv')">
+                    <a id="a-women-received-ttv" href="#" @click.prevent="drill('women_received_ttv')">
                     <span id="women-received-ttv">{{indicators.women_received_ttv}}</span> 
                     </a>
                 </td>
@@ -198,7 +198,7 @@
                     WOMEN RECEIVED 120 TABLETS OF IRON/F/S4
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-women-received-iron" href="#" @click="drill('women_received_one_twenty_iron_tabs')">
+                    <a id="a-women-received-iron" href="#" @click.prevent="drill('women_received_one_twenty_iron_tabs')">
                     <span id="women-received-iron">{{indicators.women_received_one_twenty_iron_tabs}}</span>
                     </a>
                 </td>
@@ -208,7 +208,7 @@
                     WOMEN RECEIVED ALBENDAZOLE
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-women-received-albendazole" href="#" @click="drill('women_received_albendazole')">
+                    <a id="a-women-received-albendazole" href="#" @click.prevent="drill('women_received_albendazole')">
                     <span id="women-received-albendazole">{{indicators.women_received_albendazole}}</span>
                     </a>
                 </td>
@@ -218,7 +218,7 @@
                     WOMEN RECEIVED ITN
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-women-received-itn" href="#" @click="drill('women_received_itn')">
+                    <a id="a-women-received-itn" href="#" @click.prevent="drill('women_received_itn')">
                     <span id="women-received-itn">{{indicators.women_received_itn}}</span>
                     </a>
                 </td>
@@ -228,7 +228,7 @@
                     WOMEN TESTED HIV POSITIVE
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-women-tested-hiv-positive" href="#" @click="drill('women_tested_hiv_positive')">
+                    <a id="a-women-tested-hiv-positive" href="#" @click.prevent="drill('women_tested_hiv_positive')">
                     <span id="women-tested-hiv-positive">{{indicators.women_tested_hiv_positive}}</span>
                     </a>
                 </td>
@@ -238,7 +238,7 @@
                     WOMEN PREVIOUSLY HIV POSITIVE 
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-women-prev-hiv-positive" href="#" @click="drill('women_prev_hiv_positive')">
+                    <a id="a-women-prev-hiv-positive" href="#" @click.prevent="drill('women_prev_hiv_positive')">
                     <span id="women-prev-hiv-positive">{{indicators.women_prev_hiv_positive}}</span>
                     </a>
                 </td>
@@ -248,7 +248,7 @@
                     WOMEN ON CPT
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-women-on-cpt" href="#" @click="drill('women_on_cpt')">
+                    <a id="a-women-on-cpt" href="#" @click.prevent="drill('women_on_cpt')">
                     <span id="women-on-cpt">{{indicators.women_on_cpt}}</span>
                     </a>
                 </td>
@@ -258,7 +258,7 @@
                     WOMEN ON ART
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-women-on-art" href="#" @click="drill('women_on_art')">
+                    <a id="a-women-on-art" href="#" @click.prevent="drill('women_on_art')">
                     <span id="women-on-art">{{indicators.women_on_art}}</span> 
                     </a>
                 </td>

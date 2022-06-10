@@ -85,7 +85,7 @@
                             New women registered
                             </td>
                             <td class="valueCell">
-                                <a id="a-new-reg" href="#" @click="drill('monthly_patient')">
+                                <a id="a-new-reg" href="#" @click.prevent="drill('monthly_patient')">
                                     <span id="new-reg">{{indicators.monthly_patient}}</span>
                                 </a>
                             </td>
@@ -108,7 +108,7 @@
                             Yes
                             </td>
                             <td class="valueCell">
-                            <a id="a-preg-test-yes" href="#" @click="drill('pregnancy_test_done')">
+                            <a id="a-preg-test-yes" href="#" @click.prevent="drill('pregnancy_test_done')">
                                 <span id="preg-test-yes">{{indicators.pregnancy_test_done}}</span>
                             </a>
                             </td>
@@ -122,7 +122,7 @@
                             <span style="color:gray">No</span>
                             </td>
                             <td style="border: 1px solid #999; border-bottom: 1px solid #999;">
-                            <a id="a-preg-test-no" href="#" @click="drill('pregnancy_test_not_done')">
+                            <a id="a-preg-test-no" href="#" @click.prevent="drill('pregnancy_test_not_done')">
                                 <span style="color:gray" id="preg-test-no">{{indicators.pregnancy_test_not_done}}</span>
                             </a>
                             </td>
@@ -145,7 +145,7 @@
                             Yes
                             </td>
                             <td class="valueCell">
-                            <a id="a-preg-test-done-first-trim" href="#" @click="drill('pregnancy_test_done_in_first_trimester')">
+                            <a id="a-preg-test-done-first-trim" href="#" @click.prevent="drill('pregnancy_test_done_in_first_trimester')">
                                 <span id="preg-test-done-first-trim">{{indicators.pregnancy_test_done_in_first_trimester}}</span>
                             </a>
                             </td>
@@ -159,7 +159,7 @@
                             <span style="color:gray">No</span>
                             </td>
                             <td style="border: 1px solid #999; border-bottom: 1px solid #999;">
-                            <a id="a-preg-test-not-done-first-trim" href="#" @click="drill('pregnancy_test_not_done_in_first_trimester')">
+                            <a id="a-preg-test-not-done-first-trim" href="#" @click.prevent="drill('pregnancy_test_not_done_in_first_trimester')">
                                 <span style="color:gray" id="preg-test-not-done-first-trim">
                                     {{indicators.pregnancy_test_not_done_in_first_trimester}}
                                 </span>
@@ -185,7 +185,7 @@
                             Week 0-12
                             </td>
                             <td class="valueCell">
-                            <a id="a-week-0-12-of-visit" href="#" @click="drill('week_of_first_visit_zero_to_twelve')">
+                            <a id="a-week-0-12-of-visit" href="#" @click.prevent="drill('week_of_first_visit_zero_to_twelve')">
                                 <span id="week-0-12-of-visit">{{indicators.week_of_first_visit_zero_to_twelve}}</span>
                             </a>
                             </td>
@@ -198,7 +198,7 @@
                                 <span style="color:gray">Week 13+</span>
                             </td>
                             <td style="border: 1px solid #999; border-bottom: 1px solid #999;">
-                                <a id="a-week-13-of-visit" href="#" @click="drill('week_of_first_visit_plus_thirteen')">
+                                <a id="a-week-13-of-visit" href="#" @click.prevent="drill('week_of_first_visit_plus_thirteen')">
                                     <span style="color:gray" id="week-13-of-visit">
                                         {{indicators.week_of_first_visit_plus_thirteen}}
                                     </span>
@@ -222,7 +222,7 @@
                             Prev. Negative
                             </td>
                             <td class="valueCell">
-                            <a id="a-m-prev-negative" href="#" @click="drill('pre_hiv_negative_first_visit')">
+                            <a id="a-m-prev-negative" href="#" @click.prevent="drill('pre_hiv_negative_first_visit')">
                                 <span id="m-prev-negative">{{indicators.pre_hiv_negative_first_visit}}</span>
                             </a>
                             </td>
@@ -235,7 +235,7 @@
                             Prev. Positive
                             </td>
                             <td class="valueCell" style="border-top: 0px">
-                            <a id="a-m-prev-positive" href="#" @click="drill('prev_hiv_positive_first_visit')">
+                            <a id="a-m-prev-positive" href="#" @click.prevent="drill('prev_hiv_positive_first_visit')">
                                 <span id="m-prev-positive">{{indicators.prev_hiv_positive_first_visit}}</span>
                             </a>
                             </td>
@@ -248,7 +248,7 @@
                             New Negative
                             </td>
                             <td class="valueCell" style="border-top: 0px">
-                            <a id="a-m-new-negative" href="#" @click="drill('new_hiv_negative_first_visit')">
+                            <a id="a-m-new-negative" href="#" @click.prevent="drill('new_hiv_negative_first_visit')">
                                 <span id="m-new-negative">{{indicators.new_hiv_negative_first_visit}}</span>
                             </a>
                             </td>
@@ -261,7 +261,7 @@
                             New Positive
                             </td>
                             <td class="valueCell" style="border-top: 0px">
-                            <a id="a-m-new-positive" href="#" @click="drill('new_hiv_positive_first_visit')">
+                            <a id="a-m-new-positive" href="#" @click.prevent="drill('new_hiv_positive_first_visit')">
                                 <span id="m-new-positive">
                                     {{indicators.new_hiv_positive_first_visit}}
                                 </span>
@@ -276,7 +276,7 @@
                             Not Done
                             </td>
                             <td class="valueCell" style="border-top: 0px; border-bottom: 0px;">
-                            <a id="a-m-hiv-test-not-done" href="#" @click="drill('not_done_hiv_test_first_visit')">
+                            <a id="a-m-hiv-test-not-done" href="#" @click.prevent="drill('not_done_hiv_test_first_visit')">
                                 <span id="m-hiv-test-not-done">{{indicators.not_done_hiv_test_first_visit}}</span>
                             </a>
                             </td>
@@ -287,7 +287,7 @@
                             TotalHIV+ (24+26)
                             </td>
                             <td class="valueCell">
-                            <a id="a-m-total-hiv-positive" href="#" @click="drill('total_hiv_positive_first_visit')">
+                            <a id="a-m-total-hiv-positive" href="#" @click.prevent="drill('total_hiv_positive_first_visit')">
                                 <span id="m-total-hiv-positive">
                                     {{indicators.total_hiv_positive_first_visit}}
                                 </span>
@@ -310,7 +310,7 @@
                             Not on ART
                             </td>
                             <td class="valueCell">
-                            <a id="a-m-not-on-art" href="#" @click="drill('not_on_art_first_visit')">
+                            <a id="a-m-not-on-art" href="#" @click.prevent="drill('not_on_art_first_visit')">
                                 <span id="m-not-on-art">
                                     {{indicators.not_on_art_first_visit}}
                                 </span>
@@ -325,7 +325,7 @@
                             On ART before ANC
                             </td>
                             <td class="valueCell" style="border-top: 0px">
-                            <a id="a-m-on-art-before-visit" href="#" @click="drill('on_art_before_anc_first_visit')">
+                            <a id="a-m-on-art-before-visit" href="#" @click.prevent="drill('on_art_before_anc_first_visit')">
                                 <span id="m-on-art-before-visit">{{indicators.on_art_before_anc_first_visit}}</span>
                             </a>
                             </td>
@@ -338,7 +338,7 @@
                             Start ART 0-27 weeks
                             </td>
                             <td class="valueCell" style="border-top: 0px; border-bottom: 0px;">
-                                <a id="a-m-art-0-27-weeks" href="#" @click="drill('start_art_zero_to_twenty_seven_for_first_visit')">
+                                <a id="a-m-art-0-27-weeks" href="#" @click.prevent="drill('start_art_zero_to_twenty_seven_for_first_visit')">
                                     <span id="m-art-0-27-weeks">{{indicators.start_art_zero_to_twenty_seven_for_first_visit}}</span>
                                 </a>
                             </td>
@@ -351,7 +351,7 @@
                             Start ART 28+ weeks
                             </td>
                             <td class="valueCell">
-                            <a id="a-m-art-28-weeks" href="#" @click="drill('start_art_plus_twenty_eight_for_first_visit')">
+                            <a id="a-m-art-28-weeks" href="#" @click.prevent="drill('start_art_plus_twenty_eight_for_first_visit')">
                                 <span id="m-art-28-weeks">{{indicators.start_art_plus_twenty_eight_for_first_visit}}</span>
                             </a>
                             </td>
@@ -385,7 +385,7 @@
                             Tot. with 1 Visit
                             </td>
                             <td class="valueCell">
-                            <a id="a-total-1-visit" href="#" @click="drill('patients_with_total_of_one_visit')">
+                            <a id="a-total-1-visit" href="#" @click.prevent="drill('patients_with_total_of_one_visit')">
                                 <span id="total-1-visit">{{indicators.patients_with_total_of_one_visit}}</span>
                             </a>
                             </td>
@@ -398,7 +398,7 @@
                             Tot. with 2 Visits
                             </td>
                             <td class="valueCell" style="border-top: 0px">
-                            <a id="a-total-2-visits" href="#" @click="drill('patients_with_total_of_two_visits')">
+                            <a id="a-total-2-visits" href="#" @click.prevent="drill('patients_with_total_of_two_visits')">
                                 <span id="total-2-visits">{{indicators.patients_with_total_of_two_visits}}</span>
                             </a>
                             </td>
@@ -411,7 +411,7 @@
                             Tot. with 3 Visits
                             </td>
                             <td class="valueCell" style="border-top: 0px">
-                            <a id="a-total-3-visits" href="#" @click="drill('patients_with_total_of_three_visits')">
+                            <a id="a-total-3-visits" href="#" @click.prevent="drill('patients_with_total_of_three_visits')">
                                 <span id="total-3-visits">{{indicators.patients_with_total_of_three_visits}}</span>
                             </a>
                             </td>
@@ -424,7 +424,7 @@
                             Tot. with 4 Visits
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-total-4-visits" href="#" @click="drill('patients_with_total_of_four_visits')">
+                            <a id="a-total-4-visits" href="#" @click.prevent="drill('patients_with_total_of_four_visits')">
                                 <span id="total-4-visits">{{indicators.patients_with_total_of_four_visits}}</span>
                             </a>
                             </td>
@@ -437,7 +437,7 @@
                             Tot. with 5+ Visits
                             </td>
                             <td class="valueCell" style="border-top: 0px; border-bottom:0px;">
-                            <a id="a-total-5-visits" href="#" @click="drill('patients_with_total_of_five_plus_visits')">
+                            <a id="a-total-5-visits" href="#" @click.prevent="drill('patients_with_total_of_five_plus_visits')">
                                 <span id="total-5-visits">{{indicators.patients_with_total_of_five_plus_visits}}</span>
                             </a>
                             </td>
@@ -450,7 +450,7 @@
                             Total women in cohort
                             </td>
                             <td class="valueCell">
-                            <a id="a-total-women-in-cohort" href="#" @click="drill('total_women_in_cohort')">
+                            <a id="a-total-women-in-cohort" href="#" @click.prevent="drill('total_women_in_cohort')">
                                 <span id="total-women-in-cohort">{{indicators.total_women_in_cohort}}</span>
                             </a>
                             </td>
@@ -477,7 +477,7 @@
                             </td>
                             <td style="border-left: 1px solid #999; border-top: 1px solid #999;
                                 border-bottom: 0px solid #999; border-right: 1px solid #999;">
-                            <a id="a-patients-without-pre-eclampsia" href="#" @click="drill('patients_without_pre_eclampsia')">
+                            <a id="a-patients-without-pre-eclampsia" href="#" @click.prevent="drill('patients_without_pre_eclampsia')">
                                 <span style="color: gray" id="patients-without-pre-eclampsia">
                                     {{indicators.patients_without_pre_eclampsia}}
                                 </span>
@@ -492,7 +492,7 @@
                             Yes
                             </td>
                             <td class="valueCell">
-                            <a id="a-patients-with-pre-eclampsia" href="#" @click="drill('patients_with_pre_eclampsia')">
+                            <a id="a-patients-with-pre-eclampsia" href="#" @click.prevent="drill('patients_with_pre_eclampsia')">
                                 <span id="patients-with-pre-eclampsia">
                                     {{indicators.patients_with_pre_eclampsia}}
                                 </span>
@@ -515,7 +515,7 @@
                             <span style="color:gray;">&lt; 2 doses</span>
                             </td>
                             <td style="border: 1px solid #999;border-bottom: 0px;">
-                            <a id="a-patients-given-less-than-2-ttv-doses" href="#" @click="drill('patients_given_ttv_less_than_two_doses')">
+                            <a id="a-patients-given-less-than-2-ttv-doses" href="#" @click.prevent="drill('patients_given_ttv_less_than_two_doses')">
                                 <span style="color:gray;" id="patients-given-less-than-2-ttv-doses">
                                     {{indicators.patients_given_ttv_less_than_two_doses}}
                                 </span>
@@ -530,7 +530,7 @@
                             2+ doses
                             </td>
                             <td class="valueCell">
-                            <a id="a-patients-given-more-than-1-ttv-doses" href="#" @click="drill('patients_given_ttv_at_least_two_doses')">
+                            <a id="a-patients-given-more-than-1-ttv-doses" href="#" @click.prevent="drill('patients_given_ttv_at_least_two_doses')">
                                 <span id="patients-given-more-than-1-ttv-doses">
                                     {{indicators.patients_given_ttv_at_least_two_doses}}
                                 </span> 
@@ -553,7 +553,7 @@
                             0-2 doses
                             </td>
                             <td class="valueCell">
-                            <a id="a-patients-given-0-2-sp-doses" href="#" @click="drill('patients_given_zero_to_two_sp_doses')">
+                            <a id="a-patients-given-0-2-sp-doses" href="#" @click.prevent="drill('patients_given_zero_to_two_sp_doses')">
                                 <span id="patients-given-0-2-sp-doses">
                                     {{indicators.patients_given_zero_to_two_sp_doses}}
                                 </span>
@@ -568,7 +568,7 @@
                             &#8805;3 doses
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-patients-given-3-sp-doses" href="#" @click="drill('patients_given_at_least_three_sp_doses')">
+                            <a id="a-patients-given-3-sp-doses" href="#" @click.prevent="drill('patients_given_at_least_three_sp_doses')">
                                 <span id="patients-given-3-sp-doses">
                                     {{indicators.patients_given_at_least_three_sp_doses}}
                                 </span>
@@ -593,7 +593,7 @@
                             <span style="color: gray"> &lt; 120 tabs </span>
                             </td>
                             <td style="border: 1px solid #999; border-top: 1px solid #999; border-bottom: 0px;">
-                            <a id="a-patients-given-less-than-120-fefol-tabs" href="#" @click="drill('patients_given_less_than_one_twenty_fefol_tablets')">
+                            <a id="a-patients-given-less-than-120-fefol-tabs" href="#" @click.prevent="drill('patients_given_less_than_one_twenty_fefol_tablets')">
                                 <span style="color: gray" id="patients-given-less-than-120-fefol-tabs">
                                     {{indicators.patients_given_less_than_one_twenty_fefol_tablets}}
                                 </span>
@@ -610,7 +610,7 @@
                             120+ tabs
                             </td>
                             <td class="valueCell">
-                            <a id="a-patients-given-at-least-120-fefol-tabs" href="#" @click="drill('patients_given_one_twenty_plus_fefol_tablets')">
+                            <a id="a-patients-given-at-least-120-fefol-tabs" href="#" @click.prevent="drill('patients_given_one_twenty_plus_fefol_tablets')">
                                 <span id="patients-given-at-least-120-fefol-tabs">
                                     {{indicators.patients_given_one_twenty_plus_fefol_tablets}}
                                 </span>
@@ -636,7 +636,7 @@
                             <span style="color: gray">None</span>
                             </td>
                             <td style="border: 1px solid #999; border-top: 1px solid #999; border-bottom: 0px;">
-                            <a id="a-patients-not-given-albendazole" href="#" @click="drill('patients_not_given_albendazole_doses')">
+                            <a id="a-patients-not-given-albendazole" href="#" @click.prevent="drill('patients_not_given_albendazole_doses')">
                                 <span style="color: gray" id="patients-not-given-albendazole">
                                     {{indicators.patients_not_given_albendazole_doses}}
                                 </span>
@@ -653,7 +653,7 @@
                             1 dose
                             </td>
                             <td class="valueCell">
-                            <a id="a-patients-given-one-albendazole-dose" href="#" @click="drill('patients_given_one_albendazole_dose')">
+                            <a id="a-patients-given-one-albendazole-dose" href="#" @click.prevent="drill('patients_given_one_albendazole_dose')">
                                 <span id="patients-given-one-albendazole-dose">
                                     {{indicators.patients_given_one_albendazole_dose}}
                                 </span>
@@ -679,7 +679,7 @@
                             <span style="color: gray">None</span>
                             </td>
                             <td style="border: 1px solid #999; border-top: 1px solid #999; border-bottom: 0px;">
-                            <a id="a-patients-not-given-bed-net" href="#" @click="drill('patients_not_given_bed_net')">
+                            <a id="a-patients-not-given-bed-net" href="#" @click.prevent="drill('patients_not_given_bed_net')">
                                 <span style="color: gray" id="patients-not-given-bed-net">
                                     {{indicators.patients_not_given_bed_net}}
                                 </span>
@@ -696,7 +696,7 @@
                             Received ITN
                             </td>
                             <td class="valueCell">
-                            <a id="a-patients-given-bed-net" href="#" @click="drill('patients_given_bed_net')">
+                            <a id="a-patients-given-bed-net" href="#" @click.prevent="drill('patients_given_bed_net')">
                                 <span id="patients-given-bed-net">{{indicators.patients_given_bed_net}}</span>
                             </a>
                             </td>
@@ -718,7 +718,7 @@
                             &lt;7
                             </td>
                             <td class="valueCell">
-                            <a id="a-patients-with-hb-less-than-7" href="#" @click="drill('patients_have_hb_less_than_7_g_dl')">
+                            <a id="a-patients-with-hb-less-than-7" href="#" @click.prevent="drill('patients_have_hb_less_than_7_g_dl')">
                                 <span id="patients-with-hb-less-than-7">{{indicators.patients_have_hb_less_than_7_g_dl}}</span>
                             </a>
                             </td>
@@ -731,7 +731,7 @@
                             &#8805;7
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-patients-with-hb-at-least-7" href="#" @click="drill('patients_have_hb_greater_than_6_g_dl')">
+                            <a id="a-patients-with-hb-at-least-7" href="#" @click.prevent="drill('patients_have_hb_greater_than_6_g_dl')">
                                 <span id="patients-with-hb-at-least-7">{{indicators.patients_have_hb_greater_than_6_g_dl}}</span>
                             </a>
                             </td>
@@ -744,7 +744,7 @@
                                 ND
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-patients-with-hb-not-done" href="#" @click="drill('patients_hb_test_not_done')">
+                            <a id="a-patients-with-hb-not-done" href="#" @click.prevent="drill('patients_hb_test_not_done')">
                                 <span id="patients-with-hb-not-done">{{indicators.patients_hb_test_not_done}}</span>
                             </a>
                             </td>
@@ -766,7 +766,7 @@
                             Negative
                             </td>
                             <td class="valueCell">
-                            <a id="a-patients-with-syphilis-negative" href="#" @click="drill('patients_with_negative_syphilis_status')">
+                            <a id="a-patients-with-syphilis-negative" href="#" @click.prevent="drill('patients_with_negative_syphilis_status')">
                                 <span id="patients-with-syphilis-negative">{{indicators.patients_with_negative_syphilis_status}}</span>
                             </a>
                             </td>
@@ -779,7 +779,7 @@
                             Positive
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-patients-with-syphilis-positive" href="#" @click="drill('patients_with_positive_syphilis_status')">
+                            <a id="a-patients-with-syphilis-positive" href="#" @click.prevent="drill('patients_with_positive_syphilis_status')">
                                 <span id="patients-with-syphilis-positive">{{indicators.patients_with_positive_syphilis_status}}</span>
                             </a>
                             </td>
@@ -792,7 +792,7 @@
                             Unknown
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-patients-with-syphilis-unknown" href="#" @click="drill('patients_with_unknown_syphilis_status')">
+                            <a id="a-patients-with-syphilis-unknown" href="#" @click.prevent="drill('patients_with_unknown_syphilis_status')">
                                 <span id="patients-with-syphilis-unknown">{{indicators.patients_with_unknown_syphilis_status}}</span>
                             </a>
                             </td>
@@ -818,7 +818,7 @@
                             Prev. Negative
                             </td>
                             <td class="valueCell">
-                            <a id="a-c-prev-negative" href="#" @click="drill('pre_hiv_negative_final_visit')">
+                            <a id="a-c-prev-negative" href="#" @click.prevent="drill('pre_hiv_negative_final_visit')">
                                 <span id="c-prev-negative">{{indicators.pre_hiv_negative_final_visit}}</span>
                             </a>
                             </td>
@@ -831,7 +831,7 @@
                             Prev. Positive
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-c-prev-positive" href="#" @click="drill('prev_hiv_positive_final_visit')">
+                            <a id="a-c-prev-positive" href="#" @click.prevent="drill('prev_hiv_positive_final_visit')">
                                 <span id="c-prev-positive">{{indicators.prev_hiv_positive_final_visit}}</span>
                             </a>
                             </td>
@@ -844,7 +844,7 @@
                             New Negative
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-c-new-negative" href="#" @click="drill('new_hiv_negative_final_visit')">
+                            <a id="a-c-new-negative" href="#" @click.prevent="drill('new_hiv_negative_final_visit')">
                                 <span id="c-new-negative">{{indicators.new_hiv_negative_final_visit}}</span>
                             </a>
                             </td>
@@ -857,7 +857,7 @@
                             New Positive
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-c-new-positive" href="#" @click="drill('new_hiv_positive_final_visit')">
+                            <a id="a-c-new-positive" href="#" @click.prevent="drill('new_hiv_positive_final_visit')">
                                 <span id="c-new-positive">{{indicators.new_hiv_positive_final_visit}}</span>
                             </a>
                             </td>
@@ -871,7 +871,7 @@
                                 Not Done
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-c-hiv-test-not-done" href="#" @click="drill('not_done_hiv_test_final_visit')">
+                            <a id="a-c-hiv-test-not-done" href="#" @click.prevent="drill('not_done_hiv_test_final_visit')">
                                 <span id="c-hiv-test-not-done">{{indicators.not_done_hiv_test_final_visit}}</span>
                             </a>
                             </td>
@@ -882,7 +882,7 @@
                             TotalHIV+ (24+26)
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-c-total-hiv-positive" href="#" @click="drill('c_total_hiv_positive')">
+                            <a id="a-c-total-hiv-positive" href="#" @click.prevent="drill('c_total_hiv_positive')">
                                 <span id="c-total-hiv-positive">{{indicators.c_total_hiv_positive}}</span>
                             </a>
                             </td>
@@ -905,7 +905,7 @@
                             <span style="color: gray">Not On CPT</span>
                             </td>
                             <td style="border: 1px solid #999; border-top: 1px solid #999; border-bottom: 0px;">
-                            <a id="a-not-on-cpt" href="#" @click="drill('not_on_cpt')">
+                            <a id="a-not-on-cpt" href="#" @click.prevent="drill('not_on_cpt')">
                                 <span id="not-on-cpt">{{indicators.not_on_cpt}}</span>
                             </a>
                             </td>
@@ -920,7 +920,7 @@
                             On CPT
                             </td>
                             <td class="valueCell">
-                            <a id="a-on-cpt" href="#" @click="drill('on_cpt')">
+                            <a id="a-on-cpt" href="#" @click.prevent="drill('on_cpt')">
                                 <span id="on-cpt">{{indicators.on_cpt}}</span>
                             </a>
                             </td>
@@ -943,7 +943,7 @@
                             <span style="color: gray">No</span>
                             </td>
                             <td style="border: 1px solid #999; border-top: 1px solid #999; border-bottom: 0px;">
-                            <a id="a-nvp-not-given" href="#" @click="drill('nvp_not_given')">
+                            <a id="a-nvp-not-given" href="#" @click.prevent="drill('nvp_not_given')">
                                 <span id="nvp-not-given">{{indicators.nvp_not_given}}</span>
                             </a>
                             </td>
@@ -958,7 +958,7 @@
                             Received NVP
                             </td>
                             <td class="valueCell">
-                            <a id="a-nvp-given" href="#" @click="drill('nvp_given')">
+                            <a id="a-nvp-given" href="#" @click.prevent="drill('nvp_given')">
                                 <span id="nvp-given">{{indicators.nvp_given}}</span>
                             </a>
                             </td>
@@ -980,7 +980,7 @@
                             Not on ART
                             </td>
                             <td class="valueCell">
-                            <a id="a-c-not-on-art" href="#" @click="drill('not_on_art_final_visit')">
+                            <a id="a-c-not-on-art" href="#" @click.prevent="drill('not_on_art_final_visit')">
                                 <span id="c-not-on-art">{{indicators.not_on_art_final_visit}}</span>
                             </a>
                             </td>
@@ -993,7 +993,7 @@
                             On ART before ANC
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-c-on-art-before-visit" href="#" @click="drill('on_art_before_anc_final_visit')">
+                            <a id="a-c-on-art-before-visit" href="#" @click.prevent="drill('on_art_before_anc_final_visit')">
                                 <span id="c-on-art-before-visit">
                                     {{indicators.on_art_before_anc_final_visit}}
                                 </span>
@@ -1008,7 +1008,7 @@
                             Start ART 0-27 weeks
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-c-art-0-27-weeks" href="#" @click="drill('start_art_zero_to_twenty_seven_for_final_visit')">
+                            <a id="a-c-art-0-27-weeks" href="#" @click.prevent="drill('start_art_zero_to_twenty_seven_for_final_visit')">
                                 <span id="c-art-0-27-weeks">{{indicators.start_art_zero_to_twenty_seven_for_final_visit}}</span>
                             </a>
                             </td>
@@ -1021,7 +1021,7 @@
                             Start ART 28+ weeks
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-c-art-28-weeks" href="#" @click="drill('start_art_plus_twenty_eight_for_final_visit')">
+                            <a id="a-c-art-28-weeks" href="#" @click.prevent="drill('start_art_plus_twenty_eight_for_final_visit')">
                                 <span id="c-art-28-weeks">{{indicators.start_art_plus_twenty_eight_for_final_visit}}</span>
                             </a>
                             </td>
