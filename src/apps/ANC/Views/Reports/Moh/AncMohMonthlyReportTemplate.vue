@@ -15,7 +15,7 @@
             </td>
             <td style="border-left: 1px solid #999; border-bottom: 1px solid #999;
                     font-style: italic;width: 25%;">
-                <span id="site-name">{{indicators.siteName}}</span>
+                <span id="site-name">{{siteName}}</span>
             </td>
             <td style="width: 25%; border-left: 1px solid #999; border-bottom: 1px solid #999;">
                 DISTRICT
@@ -31,14 +31,14 @@
             </td>
             <td style="border-left: 1px solid #999; border-bottom: 1px solid #999;
                     font-style: italic;width: 25%;">
-                <span id="r-month">{{indicators.reportingMonth}}</span>
+                <span id="r-month">{{reportingMonth}}</span>
             </td>
             <td style="width: 25%; border-left: 1px solid #999; border-bottom: 1px solid #999;">
                 YEAR
             </td>
             <td style="border-left: 1px solid #999; border-bottom: 1px solid #999;
                     font-style: italic;width: 25%;">
-                <span id="r-year">{{indicators.reportingYear}}</span>
+                <span id="r-year">{{reportingYear}}</span>
             </td>
             </tr>
             </tbody></table>

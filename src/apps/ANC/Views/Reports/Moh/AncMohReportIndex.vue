@@ -8,28 +8,39 @@
     <ion-page v-if="isReportReady"> 
         <ion-content>
             <div id="report-content">
-                <monthly-report 
-                    :indicators="indicators"
-                    :siteName="siteName"
-                    :date="fd(reportDate)"
-                    :reportingYear="reportingYear"
-                    :reportingMonth="reportingMonth"
-                    @onindicatorsSelected="onIndicatorSelected"
-                />
+                <keep-alive> 
+                    <component
+                        v-bind:is="activeTemplateName"
+                        :indicators="indicators"
+                        :siteName="siteName"
+                        :date="fd(reportDate)"
+                        :reportingYear="reportingYear"
+                        :reportingMonth="reportingMonth"
+                        @onindicatorsSelected="onIndicatorSelected"
+                    />
+                </keep-alive>
             </div>
         </ion-content>
         <ion-footer> 
             <ion-toolbar color="dark"> 
-                <ion-button @click="exportCSV" size="large"> 
+                <ion-button 
+                    @click="exportCSV" 
+                    size="large"> 
                     CSV
                 </ion-button>
-                <ion-button @click="exportPDF" size="large"> 
+                <ion-button 
+                    @click="exportPDF" 
+                    size="large"> 
                     PDF
                 </ion-button>
-                <ion-button @click="onBack" size="large" slot="end"> 
+                <ion-button 
+                    @click="onBack" 
+                    size="large" 
+                    slot="end"> 
                     Back
                 </ion-button>
-                <ion-button 
+                <ion-button
+                    router-link="/"
                     slot="end" 
                     size="large" 
                     color="success"> 
@@ -42,7 +53,7 @@
 </template>
 <script lang="ts">
 import { computed, defineComponent, ref } from 'vue'
-import MonthlyReport from "@/apps/ANC/Views/Reports/MohMonthlyReport/AncMohMonthlyReportTemplate.vue"
+import MonthlyReport from "@/apps/ANC/Views/Reports/Moh/AncMohMonthlyReportTemplate.vue"
 import { 
     IonPage, 
     IonContent, 
@@ -54,10 +65,13 @@ import {
 import { Field } from '@/components/Forms/FieldInterface'
 import { Service } from "@/services/service"
 import { toastDanger } from '@/utils/Alerts'
-import { AncMohMonthlyReportService } from "@/apps/ANC/Services/anc_monthly_report_service"
+import { AncMohReportService } from "@/apps/ANC/Services/anc_moh_report_service"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { toCsv } from "@/utils/Export"
 import  { AncReportComposable } from '@/apps/ANC/Views/Reports/AncReportComposable'
+import CohortTemplate from "@/apps/ANC/Views/Reports/Moh/ANCohortTemplate.vue"
+import MonthlyTemplate from "@/apps/ANC/Views/Reports/Moh/AncMohMonthlyReportTemplate.vue"
+import { useRoute, useRouter } from 'vue-router'
 
 export default defineComponent({
     components: {
@@ -68,12 +82,17 @@ export default defineComponent({
         IonLoading,
         IonFooter,
         IonButton,
-        IonToolbar
+        IonToolbar,
+        CohortTemplate,
+        MonthlyTemplate
     },
     setup() {
+        const route = useRoute()
+        const router = useRouter()
+        const activeTemplateName = route.params['template_id'] as string
         const { getMonthlyReportFields, showPrintWindow, fd } = AncReportComposable()
         const siteName = Service.getLocationName()
-        const report = new AncMohMonthlyReportService()
+        const report = new AncMohReportService()
         const reportData = ref({} as any)
         const reportingYear = ref(0 as number)
         const reportingMonth = ref('' as string)
@@ -86,6 +105,25 @@ export default defineComponent({
             }
             return ''
         })
+        const reportTemplates: Record<string, {
+            title: string;
+            cssFile: string; 
+            generate: Function;
+        }> = {
+            'CohortTemplate': {
+                title: 'Cohort',
+                cssFile: 'anc-cohort',
+                generate: () => report.generateCohort()
+            },
+            'MonthlyTemplate': {
+                title: 'Monthly',
+                cssFile: 'anc-moh-monthly-report',
+                generate: () => report.genertateMonthly()
+            }
+        }
+
+        const activeReport = reportTemplates[activeTemplateName]
+
         const fields: Field[] = getMonthlyReportFields()
 
         function onIndicatorSelected() {
@@ -93,10 +131,12 @@ export default defineComponent({
         }
 
         function exportPDF() {
-            showPrintWindow({
-                containerID: 'report-content',
-                cssFile: '/assets/css/anc-moh-monthly-report.css',
-            })
+            if (activeReport) {
+                showPrintWindow({
+                    containerID: 'report-content',
+                    cssFile: `/assets/css/${activeReport?.cssFile}.css`,
+                })
+            }
         }
 
         function exportCSV() {
@@ -108,7 +148,9 @@ export default defineComponent({
                         reportData.value['values'][k]['table']['contents'].length
                     ]
                 })
-            toCsv([headers], rows, `${siteName} cohort report ${reportDate.value}`)
+            if (activeReport) {
+                toCsv([headers], rows, `${siteName} ${activeReport.title} report ${reportDate.value}`)
+            }
         }
 
         function onBack() {
@@ -116,13 +158,18 @@ export default defineComponent({
         }
 
         async function onPeriod(_: any, c: Record<string, string | number>) {
+            if (!activeReport) {
+                toastDanger('Unable to initiate report')
+                setTimeout(() => router.push('/'), 3000)
+                return
+            }
             isLoading.value = true
             isReportReady.value = true
             reportingYear.value = c.year as number
             reportingMonth.value = c.month as string
             report.setStartDate(reportDate.value)
             try {
-                reportData.value = await report.generate()
+                reportData.value = await activeReport.generate()
                 indicators.value = Object.keys(reportData.value['values'])
                     .reduce((a: any, k: string) => {
                         a[k] = reportData.value['values'][k]['table']['contents'].length
@@ -139,6 +186,7 @@ export default defineComponent({
             fd,
             siteName,
             isLoading,
+            activeTemplateName,
             onIndicatorSelected,
             fields,
             indicators,

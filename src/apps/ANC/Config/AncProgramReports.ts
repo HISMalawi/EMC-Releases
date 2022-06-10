@@ -8,11 +8,11 @@ export const REPORTS: FolderInterface[] = [
         files: [
            {
                 name: 'Cohort',
-                pathName: 'anc_cohort_report'
+                pathUrl: '/anc/moh_report/CohortTemplate'
            },
            {
                name: 'Monthly',
-               pathName: 'anc_moh_monthly_report'
+               pathUrl: '/anc/moh_report/MonthlyTemplate'
            }
         ]
     },
