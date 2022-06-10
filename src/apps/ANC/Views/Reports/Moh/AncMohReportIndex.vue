@@ -15,7 +15,7 @@
                         :siteName="siteName"
                         :date="fd(reportDate)"
                         :reportingYear="reportingYear"
-                        :reportingMonth="reportingMonth"
+                        :reportingMonth="reportingMonthName"
                         @onindicatorsSelected="onIndicatorSelected"
                     />
                 </keep-alive>
@@ -96,6 +96,7 @@ export default defineComponent({
         const reportData = ref({} as any)
         const reportingYear = ref(0 as number)
         const reportingMonth = ref('' as string)
+        const reportingMonthName = ref('' as string)
         const isLoading = ref(false)
         const indicators = ref({} as Record<string, any>)
         const isReportReady = ref(false)
@@ -157,7 +158,7 @@ export default defineComponent({
             isReportReady.value = false
         }
 
-        async function onPeriod(_: any, c: Record<string, string | number>) {
+        async function onPeriod(f: any, c: Record<string, string | number>) {
             if (!activeReport) {
                 toastDanger('Unable to initiate report')
                 setTimeout(() => router.push('/'), 3000)
@@ -167,6 +168,7 @@ export default defineComponent({
             isReportReady.value = true
             reportingYear.value = c.year as number
             reportingMonth.value = c.month as string
+            reportingMonthName.value = f.month.label
             report.setStartDate(reportDate.value)
             try {
                 reportData.value = await activeReport.generate()
@@ -192,7 +194,7 @@ export default defineComponent({
             indicators,
             reportDate,
             reportingYear,
-            reportingMonth,
+            reportingMonthName,
             isReportReady,
             exportPDF,
             exportCSV,
