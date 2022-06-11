@@ -94,7 +94,12 @@ export default defineComponent({
 				id: 'pregnancy_details',
 				helpText: 'Pregnancy details',
 				type: FieldType.TT_ANC_PREGNANCY_DETAILS_INPUT,
-				condition: (f: any) => f.gravida.value > 1,
+				condition: (f: any) => {
+					const abortionCount = (parseInt(`${f.gravida.value}`) - parseInt(`${f.para.value}`)) - 1
+					return f.gravida.value > 1 && (abortionCount >= 1 || f.known_pregnancies.some(
+						(p: Option) => p.isChecked
+					))
+				},
 				validation: (v: Option[]) => this.validateSeries([
 					() => Validation.required(v),
 					() => this.inArray(v, (i: Option) => i.label === '_INCOMPLETE_RECORD_ERROR_')
