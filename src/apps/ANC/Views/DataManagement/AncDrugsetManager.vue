@@ -152,7 +152,9 @@ export default defineComponent({
                     drugSets.value = drugSets.value.filter(d => d.id != selectedDrugSet.value.id)
                     if (!isEmpty(drugSets.value)) {
                         selectedDrugSet.value = drugSets.value[0]
-                    } 
+                    } else {
+                        selectedDrugSet.value = {} as any
+                    }
                 } catch (e) {
                     toastWarning(`e`)
                 }
