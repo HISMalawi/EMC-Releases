@@ -29,6 +29,7 @@ import { IonPage } from "@ionic/vue";
 import { Service } from "@/services/service";
 import { generateDateFields } from "@/utils/HisFormHelpers/MultiFieldDateHelper"
 import HisDate from "@/utils/Date"
+import { find } from "lodash";
 
 export default defineComponent({
   mixins: [ReportMixin],
@@ -36,7 +37,8 @@ export default defineComponent({
   data: () => ({
     title: "Data cleaning report",
     rows: [] as Array<any>,
-    columns: [] as Array<any>
+    columns: [] as Array<any>,
+    defaultIndicator: {} as Option | null
   }),
   created() {
     this.fields = [
@@ -45,6 +47,8 @@ export default defineComponent({
             helpText: "Select indicator",
             type: FieldType.TT_SELECT,
             requireNext: false,
+            condition: () => !this.defaultIndicator,
+            defaultOutput: () =>  this.defaultIndicator as Option,
             validation: (val: Option) => Validation.required(val),
             options: () => this.getIndicatorOptions()
         },
@@ -71,6 +75,9 @@ export default defineComponent({
             computeValue: (date: string) => date
         })
     ]
+    this.defaultIndicator = find(this.getIndicatorOptions(), {
+        value: this.$route.query['cleaning_tool'] as string
+    }) as Option || null
   },
   methods: {
     async onPeriod(form: any, config: any) {
@@ -157,7 +164,7 @@ export default defineComponent({
                     formatRow: (d: any) => [
                         table.td(d.n_id),
                         table.td(d.name),
-                        table.tdDate(d.visit_date),
+                        table.td(d.visit_date),
                         table.td(d.visit_no),
                         this.showPatientBtn(d.patient_id)
                     ]
