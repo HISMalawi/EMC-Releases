@@ -66,7 +66,7 @@ export default defineComponent({
                 computedValue: (v: Option) => this.service.buildValueNumber('Gravida', v.value),
                 validation: (v: Option) => this.validateSeries([
                     () => Validation.required(v),
-                    () => Validation.rangeOf(v, this.service.nextGravida, 19)
+                    () => Validation.rangeOf(v, this.service.nextGravida || 1, 19)
                 ])
             },
             {
