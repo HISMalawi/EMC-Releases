@@ -1,5 +1,7 @@
 import { FolderInterface } from "@/apps/interfaces/AppInterface"
-
+import {
+    AncCleaningIndicator
+} from "@/apps/ANC/Services/anc_datacleaning_service";
 export const REPORTS: FolderInterface[] = [
     {
         name: 'MoH',
@@ -24,6 +26,10 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: "Appointments",
                 pathName: 'anc_clinic_appointment'
+            },
+            {
+                name: 'Incomplete visits',
+                pathUrl: `/anc/datacleaning?cleaning_tool=${AncCleaningIndicator.INCOMPLETE_VISITS}`
             }
         ]
     },
