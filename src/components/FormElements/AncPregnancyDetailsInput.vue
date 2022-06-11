@@ -20,9 +20,9 @@
                     <div v-for="(option, optionIndex) in listData" :key="optionIndex"> 
                         <div v-if="selected === option.label">
                             <ion-grid style="margin-bottom: 10px;" class="his-card" v-for="(rows, mainRowIndex) in option.other.data" :key="mainRowIndex">
-                                <ion-row v-if="option?.other?.rowTitles" style="background:#D3D3D3;">
+                                <ion-row v-if="option?.other?.rowTitles" style="background:#F8F8F8;">
                                     <ion-col class="ion-text-center"> 
-                                       <ion-title v-html="option?.other?.rowTitles ? option?.other?.rowTitles[mainRowIndex] || '' : ''"> </ion-title>
+                                       <ion-title class="his-md-text" v-html="option?.other?.rowTitles ? option?.other?.rowTitles[mainRowIndex] || '' : ''"> </ion-title>
                                     </ion-col>
                                 </ion-row>
                                 <p/>
@@ -41,6 +41,7 @@
                                                 <b>{{rowItem.label}}</b>
                                             </ion-label>
                                             <ion-input
+                                             class="his-md-text"
                                              slot="end"
                                              :readonly="true"
                                              :value="rowItem?.value?.label"
