@@ -55,7 +55,8 @@ export default defineComponent({
                 defaultValue: () => AncClinicReportService.getSessionDate(),
                 validation: (val: any) => Validation.required(val),
                 onValue: async (date: string, context: any) => {
-                    const data = await this.report.generateBookedAppointments(date)
+                    this.report.setStartDate(date)
+                    const data = await this.report.generateBookedAppointments()
                     if (data.length > 0) {
                         this.appointments = data
                         context.appointmentCounter = this.appointments.length
