@@ -38,7 +38,10 @@ export const REPORTS: FolderInterface[] = [
         icon: 'login-logos/PEPFAR.png',
         defaultFilesIcon: 'reports.png',
         files: [
-           
+           {
+               name: "Disaggregated",
+               pathName: 'anc_pepfar_disaggregated'
+           }
         ]
     }
 ]

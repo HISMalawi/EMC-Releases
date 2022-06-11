@@ -1,5 +1,10 @@
 export default [
     {
+        name: 'anc_pepfar_disaggregated',
+        path: '/anc/pepfar_disaggregated',
+        component: () => import('@/apps/ANC/Views/Reports/Pepfar/AncPepfarDisaggregated.vue')
+    },
+    {
         name: 'anc_clinic_appointment',
         path: '/anc/clinic_appointments',
         component: () => import('@/apps/ANC/Views/Reports/Clinic/AncAppointments.vue')
