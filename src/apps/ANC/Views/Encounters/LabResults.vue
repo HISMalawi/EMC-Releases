@@ -156,7 +156,8 @@ export default defineComponent({
                 type: FieldType.TT_MULTIPLE_YES_NO,
                 condition: (f: any) => f.prev_hiv_test_result.value === 'Positive' && this.recencyEssayActivated,
                 computedValue: (v: Option[]) => v ? v.map(d => this.service.buildValueCoded(d.label, d.value)) : null,
-                options: () => {
+                options: (f: any) => {
+                    if (f.recency_essay) return f.recency_essay
                     return [
                         this.toYesNoOption('Line 1. Control Line Present'),
                         this.toYesNoOption('Line 2. Positive Verification Line Present'),
@@ -171,8 +172,9 @@ export default defineComponent({
                 validation: (v: Option) => Validation.required(v),
                 options: async (f: any) => {
                     const options: Option[] = []
-                    if (f.prev_hiv_test_result && f.prev_hiv_test_result.value != 'Positive' 
-                        || !this.service.getHivStatus().match(/positive/i)) {
+                    let hasHiv = this.service.getHivStatus().match(/positive/i)
+                    hasHiv = !hasHiv ? f.prev_hiv_test_result && f.prev_hiv_test_result.value === 'Positive' : false
+                    if (!hasHiv){
                         options.push(this.toOption('HIV'))
                     }
                     options.push(this.toOption('HB'))
@@ -197,9 +199,6 @@ export default defineComponent({
                         }
                     }
                     return [...options, urine]
-                },
-                config: {
-                    buildOptionsOnce: true
                 }
             },
             {
