@@ -342,7 +342,6 @@ export default defineComponent({
 
       await loader.dismiss()
       await toastSuccess('Saved successfully')
-      await ClinicRegistrationService.resetSessionDate()
       router.push(`/emc/staging/${patientId.value}`)
     }
 
