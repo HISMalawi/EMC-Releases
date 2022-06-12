@@ -34,6 +34,10 @@ export class AncLabResultService extends AppEncounterService {
         return this.arvStartDate
     }
 
+    isHivPositive() {
+        return this.hivStatus.match(/positive/i) ? true : false
+    }
+
     async isAtRiskOfPreEclampsia() {
         const sys = await AppEncounterService.getFirstValueNumber(this.patientID, 'Systolic blood pressure')
         const ds = await AppEncounterService.getFirstValueNumber(this.patientID, 'Diastolic blood pressure')

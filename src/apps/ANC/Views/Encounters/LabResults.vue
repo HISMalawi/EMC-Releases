@@ -63,13 +63,13 @@ export default defineComponent({
                 id: 'art_summary',
                 helpText: 'ART Summary',
                 type: FieldType.TT_SUMMARY,
-                condition: () => this.service.getHivStatus().match(/positive/i),
+                condition: () => this.service.isHivPositive(),
                 options: () => {
                     return [
                         {
                             label: 'HIV Status', 
                             value: `
-                                <b style="color:${this.service.getHivStatus().match(/positive/i) ? 'red': 'green'}">
+                                <b style="color:${this.service.isHivPositive() ? 'red': 'green'}">
                                     ${this.service.getHivStatus()}
                                 </b>
                             `
@@ -96,7 +96,7 @@ export default defineComponent({
                     const options: Option[] = [
                         this.toYesNoOption('Pregnancy test done', { concept: 'B-HCG'})
                     ]
-                    if (!this.service.getHivStatus().match(/positive/i)) {
+                    if (!this.service.isHivPositive()) {
                         options.push(this.toYesNoOption('Previous HIV test done', { concept: 'Previous HIV test done'}))
                     }
                     return options
@@ -172,9 +172,7 @@ export default defineComponent({
                 validation: (v: Option) => Validation.required(v),
                 options: async (f: any) => {
                     const options: Option[] = []
-                    let hasHiv = this.service.getHivStatus().match(/positive/i)
-                    hasHiv = !hasHiv ? f.prev_hiv_test_result && f.prev_hiv_test_result.value === 'Positive' : false
-                    if (!hasHiv){
+                    if (!this.service.isHivPositive() ? f.prev_hiv_test_result?.value === 'Positive' : false){
                         options.push(this.toOption('HIV'))
                     }
                     options.push(this.toOption('HB'))
