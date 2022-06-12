@@ -17,7 +17,10 @@
         ></opd-stat-chart>
       </ion-col>
       <ion-col>
-        <syndromic-stat-chart/>
+        <syndromic-stat-chart
+         :categories="AccumulativePatietRespiratoryComplaints.categories"
+         :series="AccumulativePatietRespiratoryComplaints.series"
+        />
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -51,9 +54,18 @@ export default defineComponent({
         visits: [] as Array<any>
       }
     })
+    const SyndromicStatData = PatientVisitsService.getRespiratory()
+    const AccumulativePatietRespiratoryComplaints = computed(() => {
+      return SyndromicStatData.value ? PatientVisitsService.getAccumulativePatietRespiratoryComplaints(
+        SyndromicStatData.value?.down) : {
+          categories: [] as Array<any>,
+          series: [] as Array<any>
+        }
+    })
     return {
       patientSummaryStats,
       accumulativeVisits,
+      AccumulativePatietRespiratoryComplaints
     }
   },
 })
