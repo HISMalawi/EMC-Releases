@@ -8,5 +8,6 @@ export class AncSurgicalHistoryService extends AppEncounterService {
 
     static surgicalHistoryOptions() {
         return ConceptService.getConceptsByCategory('anc_surgical_history')
+            .sort((a, b) => a.name > b.name ? 1 : -1)
     }
 }
