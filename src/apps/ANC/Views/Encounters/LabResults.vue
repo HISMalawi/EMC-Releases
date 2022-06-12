@@ -172,7 +172,8 @@ export default defineComponent({
                 validation: (v: Option) => Validation.required(v),
                 options: async (f: any) => {
                     const options: Option[] = []
-                    if (!this.service.isHivPositive() ? f.prev_hiv_test_result?.value === 'Positive' : false){
+                    const hivPos = !this.service.isHivPositive() ? f.prev_hiv_test_result?.value === 'Positive' : true
+                    if (!hivPos) {
                         options.push(this.toOption('HIV'))
                     }
                     options.push(this.toOption('HB'))
