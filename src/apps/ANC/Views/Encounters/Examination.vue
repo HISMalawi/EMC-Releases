@@ -332,7 +332,7 @@ export default defineComponent({
             validation: (v: Option) => Validation.required(v),
             condition: (f: any) => !['Ball', 'Nil palpable'].includes(f.presentation.label),
             computedValue: (v: Option) => this.service.buildValueCoded('Fetal movement felt', `${v.value}`),
-            options: () => this.yesNoUnknownOptions()
+            options: () => this.yesNoOptions()
         },
         {
             id: 'last_fmf',
