@@ -75,7 +75,7 @@ export default defineComponent({
                             `
                         },
                         {
-                            label: 'On Art', value: this.service.getArtStatus() || 'Unknown'
+                            label: 'On Art', value: this.service.getArtStatus() || 'N/A'
                         },
                         {
                             label: 'Art Start date', value: HisDate.toStandardHisDisplayFormat(this.service.getArvStartDate()) || 'N/A'
