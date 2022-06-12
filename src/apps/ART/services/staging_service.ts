@@ -74,6 +74,14 @@ export class StagingService extends AppEncounterService {
         return AppEncounterService.getConceptsByCategory(category)
     }
 
+    getAllWhoStages() {
+        return AppEncounterService.getConceptsByCategory('whole_staging_numbers')
+    }
+
+    getAllReasonsForART() {
+        return AppEncounterService.getConceptsByCategory('reason_for_art')
+    }
+
     buildWhoStageObs(stage: string) {
         return this.buildValueCoded('Who stage', stage)
     }
