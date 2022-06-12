@@ -79,10 +79,10 @@ export default class PatientVisitsService extends Service {
 
       let chartKeys: Array<any> = []
       const chartData = stats
-      const dates: Array<any> = []
+      const dates: Array<string> = []
       const ILI: number[] = [];
       const Respiratory: number[] = [];
-      const categories: Array<any> = []
+      let categories: any = []
   
       const series: any = [
         {
@@ -135,7 +135,7 @@ export default class PatientVisitsService extends Service {
       }
       series[0].data = [...ILI];
       series[1].data = [...Respiratory];
-      categories.push(dates)
+      categories = [...dates]
     }
 
     return { 

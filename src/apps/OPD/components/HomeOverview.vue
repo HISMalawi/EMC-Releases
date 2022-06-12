@@ -58,7 +58,7 @@ export default defineComponent({
     const AccumulativePatietRespiratoryComplaints = computed(() => {
       return SyndromicStatData.value ? PatientVisitsService.getAccumulativePatietRespiratoryComplaints(
         SyndromicStatData.value?.down) : {
-          categories: [] as Array<any>,
+          categories: [] as Array<string>,
           series: [] as Array<any>
         }
     })
