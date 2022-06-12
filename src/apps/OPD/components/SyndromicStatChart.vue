@@ -1,6 +1,7 @@
 <template>
     <apexchart
-    width="100%"
+    width="99%"
+    height="350px"
     type="area" 
     :options="options" 
     :series="series"
@@ -33,7 +34,7 @@ export default defineComponent({
         }
       },
       title: {
-        text: 'New registered , Returning and Referred clients',
+        text: 'Influenza Like Illness , Respiratory',
         margin: 20,
         align: 'center',
         style: {
