@@ -5,7 +5,10 @@ import Routes from "@/apps/CxCa/config/CxCaRoutes";
 import HisDate from "@/utils/Date";
 import { WorkflowService } from "@/services/workflow_service";
 import { ObservationService } from "@/services/observation_service";
-import { onRegisterPatient } from "@/apps/CxCa/config/CxCaAppScripts";
+import { REPORTS } from "@/apps/CxCa/config/CxCaProgramReports"
+import { 
+    onRegisterPatient,
+} from "@/apps/CxCa/config/CxCaAppScripts"
 const CXCA: AppInterface = {
   programID: 24,
   applicationName: "CxCa",
@@ -25,47 +28,9 @@ const CXCA: AppInterface = {
           label: "NPID",
           value: patient.getNationalID(),
         },
-      ];
-    },
-    OUTCOME: () => {
-      return [
-        {
-          label: "Current Outcome",
-          value: program.outcome || "N/A",
-        },
-      ];
-    },
-    "PROGRAM INFORMATION": async () => {
-      const patientID = patient.getID();
-      const data: any = [];
-      const params = await WorkflowService.getNextTaskParams(patientID);
-      data.push({
-        label: "Next Task",
-        value: params.name ? `${params.name}` : "NONE",
-      });
-      const appointMentObs: any[] = await ObservationService.getAll(
-        patientID,
-        "appointment date"
-      );
-      const nextAPPT = appointMentObs
-        ? HisDate.toStandardHisDisplayFormat(appointMentObs[0].value_datetime)
-        : "Not Available";
-      data.push({
-        label: "Next Appointment",
-        value: nextAPPT,
-      });
-      return data;
-    },
+      ]
+    }
   }),
-  programReports: [
-    {
-      name: "Clinical",
-      icon: "reports.png",
-      defaultFilesIcon: "reports.png",
-      files: [
-        //placeholder for reports to be integrated
-      ],
-    },
-  ],
-};
-export default CXCA;
+  programReports: REPORTS
+}
+export default CXCA

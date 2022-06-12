@@ -1,5 +1,6 @@
 import HisDate from "@/utils/Date"
 import { sort } from 'fast-sort';
+import { isEmpty } from "lodash";
 
 export interface TableInterface {
     showIndex?: boolean;
@@ -58,7 +59,9 @@ export function toExportableFormat(columns: Array<ColumnInterface[]>, rows: Arra
                 exportableColumns.push(c.value ? prepareCSVValue(c.value) : prepareCSVValue(c.th))
             } 
         })
-        strCols.push(exportableColumns)
+        if (!isEmpty(exportableColumns)) {
+            strCols.push(exportableColumns)
+        }
     }
     return {columns: strCols, rows: strRows}
 }

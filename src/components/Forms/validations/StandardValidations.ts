@@ -71,7 +71,7 @@ function anyEmpty(val: any): null | Array<string> {
     return allNo.length > 0 ? error : null
 }
 function notTheSame(val: any, comparison: string): null | Array<string> {
-    return val.value === comparison ? ['Values can not be the same'] : null;
+    return val === comparison ? ['Values can not be the same'] : null;
 }
 export default {
     validateSeries,

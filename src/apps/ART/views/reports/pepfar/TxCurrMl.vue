@@ -6,6 +6,9 @@
             :rows="rows" 
             :fields="fields"
             :columns="columns"
+            :config="{
+                showIndex: true
+            }"
             reportPrefix="PEPFAR"
             :onReportConfiguration="onPeriod"
             > 
@@ -37,7 +40,7 @@ export default defineComponent({
                 table.thTxt('IIT <3 mo'),
                 table.thTxt('IIT 3-5 mo'),
                 table.thTxt('IIT 6+ mo'),
-                table.thTxt('Tranferred out'),
+                table.thTxt('Transferred out'),
                 table.thTxt('Refused (Stopped)')
             ]
         ],
