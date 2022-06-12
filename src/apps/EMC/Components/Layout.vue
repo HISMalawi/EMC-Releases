@@ -32,11 +32,14 @@
           <ion-button @click="selectApp" >
             <ion-icon :icon="apps"></ion-icon>
           </ion-button>
-          <ion-button @click="showAuthUserMenu" >
-            <ion-icon :icon="person"></ion-icon>
-          </ion-button>
         </ion-buttons>
         <ion-title>{{ facility }}</ion-title>
+        <ion-buttons slot="end" size="large">
+          <ion-button @click="showAuthUserMenu" style="text-transform:none" >
+            <span style="font-size: 20px;">{{ user }}</span> 
+            <ion-icon :icon="caretDown" class="ion-margin-start"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
@@ -65,7 +68,7 @@ import {
   popoverController
 } from "@ionic/vue";
 import { appPages } from "../Config/appPages";
-import { apps, person } from "ionicons/icons";
+import { apps, caretDown } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import AuthUserMenuVue from "./AuthUserMenu.vue";
 import { Service } from "@/services/service";
@@ -89,6 +92,7 @@ export default defineComponent({
   },
   setup() {
     const facility = ref('')
+    const user = ref('')
     const router = useRouter()
     const app = ref(HisApp.getActiveApp())
     const logo = computed(() => Img(app.value?.applicationIcon || '' ))
@@ -114,7 +118,6 @@ export default defineComponent({
 
       authMenu.present();
       const { data } = await authMenu.onDidDismiss();
-      console.log(data)
     }
 
     const getFacility = async () => {
@@ -129,15 +132,17 @@ export default defineComponent({
     onMounted(async () => {
       menuController.open('start')
       facility.value = await getFacility()
+      user.value = await Service.getUserName();
     })
     return {
       appPages,
       logo,
       apps,
-      person,
+      caretDown,
       selectApp,
       showAuthUserMenu,
       facility,
+      user,
     }
   },
 });
