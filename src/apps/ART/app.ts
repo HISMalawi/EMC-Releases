@@ -10,7 +10,8 @@ import {
     onRegisterPatient,
     formatPatientProgramSummary,
     getPatientDashboardAlerts,
-    getPatientDashboardLabOrderCardItems
+    getPatientDashboardLabOrderCardItems,
+    notificationSockets
 } from "@/apps/ART/Config/ArtAppScripts"
 import { ART_GLOBAL_PROP } from "./art_global_props";
 import ART_PROP from "./art_global_props";
@@ -28,6 +29,7 @@ const ART: AppInterface = {
     globalPropertySettings: PROPERTIES,
     programReports: REPORTS,
     homeOverviewComponent,
+    notificationSockets,
     confirmationSummary,
     formatPatientProgramSummary,
     getPatientDashboardAlerts,

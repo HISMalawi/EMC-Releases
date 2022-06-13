@@ -312,7 +312,6 @@ export default defineComponent({
       this.initAppWebsocketNotifications()
     },
     async initAppWebsocketNotifications() {
-      // Init Websocket notifications for active application
       const { initNotificationSocket } = Notification()
       if (typeof this.app.notificationSockets === 'function') {
         const channels = await this.app.notificationSockets()
