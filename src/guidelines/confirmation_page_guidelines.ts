@@ -28,7 +28,8 @@ export enum FlowState {
     RESOLVE_DUPLICATE_NPIDS = 'resolveDuplicateNpids',
     ADD_AS_DRUG_REFILL = 'addAsDrugRefill',
     ADD_AS_EXTERNAL_CONSULTATION = 'addAsExternalConsultation',
-    INITIATE_ANC_PREGNANCY = 'initiateNewAncPregnancy'
+    INITIATE_ANC_PREGNANCY = 'initiateNewAncPregnancy',
+    SEARCH_BY_NAME = 'searchByName'
 }
 
 export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = {
@@ -46,11 +47,18 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                             name: 'Close', 
                             slot: 'start', 
                             color: 'primary',
+                        },
+                        {
+                            name: 'Search by name',
+                            slot: 'end',
+                            color: 'success'
                         }
                     ],
                     'his-danger-color'
                 )
-                return FlowState.GO_HOME
+                return action === 'Search by name' 
+                    ? FlowState.SEARCH_BY_NAME
+                    : FlowState.GO_HOME
             }
         },
         conditions: {
@@ -105,11 +113,19 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                             name: 'Close', 
                             slot: 'start', 
                             color: 'primary',
+                        },
+                        {
+                            name: 'Search by name',
+                            slot: 'end',
+                            color: 'success'
                         }
+                        
                     ],
                     'his-danger-color'
                 )
-                return FlowState.GO_HOME
+                return action === 'Search by name' 
+                    ? FlowState.SEARCH_BY_NAME
+                    : FlowState.GO_HOME
             }
         },
         conditions: {
