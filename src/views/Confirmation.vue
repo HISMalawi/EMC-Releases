@@ -89,7 +89,7 @@ import { UserService } from "@/services/user_service";
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import { Patientservice } from "@/services/patient_service";
 import { PatientProgramService } from "@/services/patient_program_service"
-import { alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts"
+import { alertConfirmation, toastDanger, toastSuccess, toastWarning } from "@/utils/Alerts"
 import { Patient } from "@/interfaces/patient"
 import {
   IonContent,
@@ -452,7 +452,6 @@ export default defineComponent({
         this.facts.dde.localDiffs = this.ddeInstance.formatDiffValuesByType(
           localAndRemoteDiffs, 'local'
         )
-        this.facts.dde.hasDemographicConflict = !isEmpty(localAndRemoteDiffs)
         const { comparisons, rowColors } = this.buildDDEDiffs(localAndRemoteDiffs)
         this.facts.dde.diffRows = comparisons
         this.facts.dde.diffRowColors = rowColors
@@ -460,7 +459,9 @@ export default defineComponent({
           const {local, remote} = localAndRemoteDiffs.npid
           this.facts.dde.localNpidDiff = local
           this.facts.dde.remoteNpidDiff = remote
+          delete localAndRemoteDiffs.npid
         }
+        this.facts.dde.hasDemographicConflict = !isEmpty(localAndRemoteDiffs)
       } catch (e) {
         console.warn(e)
       }
@@ -567,72 +568,65 @@ export default defineComponent({
      * Functions definitions that are executed.
      */
     async runFlowState(state: FlowState) {
-      const states: Record<string, Function> = {
-        'gotoHome': () => {
+      const states: Record<string, Function> = {}
+      states[FlowState.GO_HOME] = () => {
           this.$router.push('/')
           return FlowState.FORCE_EXIT
-        },
-        'goBack': () => {
-          this.$router.back()
-          return FlowState.FORCE_EXIT
-        },
-        'enroll': () => {
-          return this.program.enrollProgram()
-        },
-        'activateFn': () => {
-          this.$router.push(`/art/filing_numbers/${this.patient.getID()}?assign=true`)
-          return FlowState.FORCE_EXIT
-        },
-        'updateDemographics': () => {
-          this.$router.push(`/patient/registration?edit_person=${this.patient.getID()}`)
-          return FlowState.FORCE_EXIT
-        },
-        'printNPID': async () => {
-          await this.ddeInstance.printNpid(this.patient.getID())
-          await delayPromise(1800)
-          return FlowState.CONTINUE
-        },
-        'createNpiDWithRemote': async () => {
-          const npid = this.facts.dde.remoteNpidDiff
+      }
+      states[FlowState.GO_BACK] = () => {
+        this.$router.back()
+        return FlowState.FORCE_EXIT
+      }
+      states[FlowState.ENROLL] = () => {
+        return this.program.enrollProgram()
+      }
+      states[FlowState.ACTIVATE_FN] = () => {
+        this.$router.push(`/art/filing_numbers/${this.patient.getID()}?assign=true`)
+        return FlowState.FORCE_EXIT
+      }
+      states[FlowState.UPDATE_DMG] = () => {
+        this.$router.push(`/patient/registration?edit_person=${this.patient.getID()}`)
+        return FlowState.FORCE_EXIT
+      }
+      states[FlowState.PRINT_NPID] = async () => {
+        await this.ddeInstance.printNpid(this.patient.getID())
+        await delayPromise(1800)
+        return FlowState.CONTINUE
+      }
+      states[FlowState.CREATE_NPID_WITH_REMOTE_DIFF] = async () => {
+        const npid = this.facts.dde.remoteNpidDiff
+        try {
           if (npid && (await this.ddeInstance.createNPID(npid))) {
             this.facts.scannedNpid = npid
             this.facts.currentNpid = npid
             this.facts.dde.localNpidDiff = npid
+            toastSuccess('Remote NPID successfully updated')
+            await delayPromise(300)
+            await this.ddeInstance.printNpid()
             await this.findAndSetPatient(undefined, npid)
             return FlowState.FORCE_EXIT
           }
-        },
-        'assignNpid': async () => {
-          const req =  await this.patient.assignNpid()
-
-          if (req && (await alertConfirmation('Do you want to print National ID?'))) {
-            const print = new PatientPrintoutService(this.patient.getID())
-            await print.printNidLbl()
-            await this.reloadPatient()
-            return FlowState.FORCE_EXIT
+        } catch (e) {
+          const alreadyAssigned = /Identifier already assigned to another patient/i
+          if (e instanceof BadRequestError && e.errors.join(',').match(alreadyAssigned)) {
+            const res = await this.ddeInstance.reassignNpid(this.patient.getDocID())
+            if (res) {
+              this.patient = new Patientservice(res)
+              toastSuccess('Patient has been reassigned NPID')
+              await delayPromise(300)
+              await this.ddeInstance.printNpid()
+              await this.findAndSetPatient(undefined, this.patient.getNationalID())
+              return FlowState.FORCE_EXIT
+            }
           }
-        },
-        'resolveDuplicateNpids': () => {
-          this.$router.push(`/npid/duplicates/${this.facts.scannedNpid}`)
-          return FlowState.FORCE_EXIT
-        },
-        'refreshDemographicsDDE': async () => {
-          await this.ddeInstance.refreshDemographics()
-          await this.reloadPatient()
-          return FlowState.FORCE_EXIT
-        },
-        'addAsDrugRefill': async() => {
-          await this.createPatientType('Drug Refill')
-          return FlowState.CONTINUE
-        },
-        'addAsExternalConsultation': async () => {
-          await this.createPatientType('External consultation')
-          return FlowState.CONTINUE
-        },
-        'updateLocalDiffs': async () => {
-          await this.ddeInstance.updateLocalDifferences(
-            this.facts.dde.localDiffs
-          )
+          toastDanger(`Unable to assign NPID: ${e}`)
+        }
+      }
+      states[FlowState.ASSIGN_NPID] = async () => {
+        const req =  await this.patient.assignNpid()
+        if (req && (await alertConfirmation('Do you want to print National ID?'))) {
+          const print = new PatientPrintoutService(this.patient.getID())
+          await print.printNidLbl()
           await this.reloadPatient()
           return FlowState.FORCE_EXIT
         },
@@ -640,6 +634,30 @@ export default defineComponent({
           await this.initiateNewAncPregnancy()
           return FlowState.CONTINUE
         }
+      }
+      states[FlowState.RESOLVE_DUPLICATE_NPIDS] = () => {
+        this.$router.push(`/npid/duplicates/${this.facts.scannedNpid}`)
+        return FlowState.FORCE_EXIT
+      }
+      states[FlowState.REFRESH_DDE_DEMOGRAPHICS] = async () => {
+        await this.ddeInstance.refreshDemographics()
+        await this.reloadPatient()
+        return FlowState.FORCE_EXIT
+      }
+      states[FlowState.ADD_AS_DRUG_REFILL] = async () => {
+        await this.createPatientType('Drug Refill')
+        return FlowState.CONTINUE
+      }
+      states[FlowState.ADD_AS_EXTERNAL_CONSULTATION] = async () => {
+        await this.createPatientType('External consultation')
+        return FlowState.CONTINUE
+      }
+      states[FlowState.UPDATE_LOCAL_DDE_DIFFS] = async () => {
+        await this.ddeInstance.updateLocalDifferences(
+          this.facts.dde.localDiffs
+        )
+        await this.reloadPatient()
+        return FlowState.FORCE_EXIT
       }
       if (state in states) {
         try {

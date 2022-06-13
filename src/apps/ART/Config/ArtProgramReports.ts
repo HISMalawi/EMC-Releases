@@ -31,6 +31,10 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'TX CURR MMD',
                 pathName: 'moh_tx_curr_mmd'
+            },
+            {
+                name: 'Regimen Report',
+                pathName: 'moh_regimen_report'
             }
         ]
     },

@@ -122,7 +122,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE] Notify the user to proceed with Remote NPID if local NPID does not match remote": {
-        priority: 2,
+        priority: 1,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({dde}: any) => {
