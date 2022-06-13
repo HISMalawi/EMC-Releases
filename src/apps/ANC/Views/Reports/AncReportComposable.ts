@@ -51,8 +51,8 @@ export function AncReportComposable() {
                 columns: [
                     [
                         table.thTxt('National ID'),
-                        table.thTxt('First name'),
-                        table.thTxt('Last name'),
+                        table.thTxt('First name', {exportable: false}),
+                        table.thTxt('Last name', {exportable: false}),
                         table.thTxt('Birth date'),
                         table.thTxt('Action')
                     ]
