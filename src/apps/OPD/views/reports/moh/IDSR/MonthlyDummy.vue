@@ -1,118 +1,40 @@
 <template>
-    <tr id="_1">
-    <td class="td-text-align-right">1</td>
-    <td class="td-text-align-right" style="width: 30%;">Diarrhoea SD U/5</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-  <tr id="_2">
-    <td class="td-text-align-right" style="width: 5%;">2</td>
-    <td class="td-text-align-right" style="width: 30%;">Food borne illness</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-  <tr id="_3">
-    <td class="td-text-align-right">3</td>
-    <td class="td-text-align-right" style="width: 30%;">HIV/AIDS (New Cases)</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-  <tr id="_4">
-    <td class="td-text-align-right">4</td>
-    <td class="td-text-align-right" style="width: 30%;">Injuries (RTA)</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-  <tr id="_5">
-    <td class="td-text-align-right">5</td>
-    <td class="td-text-align-right" style="width: 30%;">Lymphatic Filariasis</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-  <tr id="_6">
-    <td class="td-text-align-right">6</td>
-    <td class="td-text-align-right" style="width: 30%;">Malaria in pregnancy</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-  <tr id="_7">
-    <td class="td-text-align-right">7</td>
-    <td class="td-text-align-right" style="width: 30%;">Malnutrition  U/5</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-  <tr id="_8">
-    <td class="td-text-align-right">8</td>
-    <td class="td-text-align-right" style="width: 30%;">Onchocerciasis</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-  <tr id="_9">
-    <td class="td-text-align-right">9</td>
-    <td class="td-text-align-right" style="width: 30%;">Perinatal deaths</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-
-  <tr id="_10">
-    <td class="td-text-align-right">10</td>
-    <td class="td-text-align-right" style="width: 30%;">Schistosomiasis</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-  <tr id="_11">
-    <td class="td-text-align-right">11</td>
-    <td class="td-text-align-right" style="width: 30%;">Severe Pneumonia U/5</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-  <tr id="_12">
-    <td class="td-text-align-right">12</td>
-    <td class="td-text-align-right" style="width: 30%;">STI</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-  <tr id="_13">
-    <td class="td-text-align-right">13</td>
-    <td class="td-text-align-right" style="width: 30%;">Trachoma</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-  <tr id="_14">
-    <td class="td-text-align-right">14</td>
-    <td class="td-text-align-right" style="width: 30%;">Trypanosomiasis</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-  <tr id="_15">
-    <td class="td-text-align-right">15</td>
-    <td class="td-text-align-right" style="width: 30%;">Underweight Newborns  2500 g</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
-  </tr>
-  <tr id="_16">
-    <td class="td-text-align-right">16</td>
-    <td class="td-text-align-right" style="width: 30%;">Viral Hepatitis</td>
-    <td id="ls-5ys" class="td-text-align-right">0</td>
-    <td id="grt-5yrs" class="td-text-align-right">0</td>
-    <td id="total" class="td-text-align-right">0</td>
+  <tr v-for="(condition, index) in conditions" :key="index">
+    <td>{{index}}</td>
+    <td class="td-text-align-left" style="width: 43.3%;padding: 1.5%;">{{condition}}</td>
+    <td id="ls-5ys">0</td>
+    <td id="grt-5yrs">0</td>
+    <td id="total">0</td>
   </tr>
 </template>
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
+  data: function() {
+    return {
+      conditions: [
+        'Diarrhoea SD U/5',
+        'Food borne illness',
+        'HIV/AIDS (New Cases)',
+        'Injuries (RTA)',
+        'Lymphatic Filariasis',
+        'Malaria in pregnancy',
+        'Onchocerciasis',
+        'Malnutrition  U/5',
+        'Viral Hepatitis',
+        'Underweight Newborns  2500 g',
+        'Trypanosomiasis',
+        'Trachoma',
+        'STI',
+        'Severe Pneumonia U/5',
+        'Schistosomiasis',
+        'Perinatal deaths'
+      ]
+    }
+  }
+})
+</script>
 <style scoped>
 a {
     color: #337ab7;
@@ -176,5 +98,10 @@ td {
 .granules-right-td {
   border-right-style: dotted !important;
   border-right-width: 1px;
+}
+.td-text-align-left {
+  text-align: left;
+  margin: auto;
+  margin-left: 20px;
 }
 </style>
