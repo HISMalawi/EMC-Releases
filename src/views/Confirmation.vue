@@ -592,6 +592,11 @@ export default defineComponent({
           return FlowState.FORCE_EXIT
         }
       }
+
+      states[FlowState.VIEW_MERGE_AUDIT_FOR_NPID] = () => {
+        this.$router.push(`/merge/rollback/${this.facts.scannedNpid}`)
+        return FlowState.FORCE_EXIT
+      }
       states[FlowState.RESOLVE_DUPLICATE_NPIDS] = () => {
         this.$router.push(`/npid/duplicates/${this.facts.scannedNpid}`)
         return FlowState.FORCE_EXIT
