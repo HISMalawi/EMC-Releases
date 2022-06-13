@@ -327,7 +327,8 @@ export default defineComponent({
       }
     }, 1500)
   },
-  mounted(){
+  async mounted(){
+    await HisApp.doAppManagementTasks()
     const app = HisApp.getActiveApp()
     if (!app) {
       this.openModal();

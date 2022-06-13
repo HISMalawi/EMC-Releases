@@ -3,7 +3,7 @@ import { defineComponent } from 'vue'
 import HisKeyboard from "@/components/Keyboard/HisKeyboard.vue"
 import handleVirtualInput from "@/components/Keyboard/KbHandler"
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
-import { Option } from '../Forms/FieldInterface'
+import { FooterBtnEvent, Option } from '../Forms/FieldInterface'
 import { QWERTY } from "@/components/Keyboard/HisKbConfigurations"
 import ViewPort from "@/components/DataViews/ViewPort.vue"
 import FieldMixinVue from './FieldMixin.vue';
@@ -18,8 +18,7 @@ import {
     IonInfiniteScrollContent, 
     IonContent
 } from "@ionic/vue"
-import { find } from 'lodash';
-import { Service } from '@/services/service';
+import { find, isPlainObject } from 'lodash';
 
 export default defineComponent({
     components: { 
@@ -61,6 +60,21 @@ export default defineComponent({
         this.infiniteScroll.handler = this.config?.infiniteScroll?.handler 
     },
     watch: {
+        footerButtonEvent : {
+            handler(event: FooterBtnEvent) {
+                if (isPlainObject(event.onClickComponentEvents)) {
+                    const e: any = event?.onClickComponentEvents || {}
+                    if (e  && typeof e.setValue === 'function') {
+                        const value = e.setValue(event)
+                        if (typeof value === 'string') {
+                            this.filter = value
+                            this.selected = value
+                        }
+                    }
+                }
+            },
+            deep: true
+        },
         listData: {
             handler(data: any) { if (data) this.filtered = data },
             deep: true,

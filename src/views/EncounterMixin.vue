@@ -129,7 +129,7 @@ export default defineComponent({
             return `/patient/dashboard/${this.patientID}`
         },
         gotoPatientDashboard() {
-            return this.$router.push({path: this.patientDashboardUrl()}) 
+            return this.$router.push({path: this.patientDashboardUrl()})
         },
         nextTask() {
             return nextTask(this.patientID, this.$router)
@@ -139,6 +139,16 @@ export default defineComponent({
                 { label: "Yes", value: "Yes" },
                 { label: "No", value: "No" }
             ]
+        },
+        toYesNoOption(label: string, other: any={}): Option {
+            return {
+                label,
+                value: '',
+                other: {
+                    ...other,
+                    values: this.yesNoOptions()
+                }
+            } 
         },
         mapOptions(options: Array<string>) {
             return options.map((option) => {
@@ -162,7 +172,7 @@ export default defineComponent({
                     } else {
                         accum.push(data)
                     }
-                    return accum
+                        return accum
                     }, [])
             return Promise.all(values)
         },

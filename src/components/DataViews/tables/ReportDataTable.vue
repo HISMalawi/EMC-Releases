@@ -347,7 +347,10 @@ export default defineComponent({
     },
     skeletonRows(): Array<number> {
         const rows = []
-        for(let i=0; i < 10; ++i) {
+        const totalRows = this.config.skeletonTextRows 
+            ? this.config.skeletonTextRows
+            : 10
+        for(let i=0; i < totalRows; ++i) {
             rows.push(i)
         }
         return rows

@@ -58,6 +58,14 @@
           @click="onVoid"
           >Void Client</ion-button
         >
+        <ion-button
+          v-if="facts.anc.canInitiateNewPregnancy"
+          slot="end"
+          size="large"
+          @click="onInitiateNewAncPregnancy"
+          >
+          New Pregnancy
+        </ion-button>
         <ion-button 
           v-if="facts.patientFound"
           slot="end" 
@@ -115,6 +123,7 @@ import { OrderService } from "@/services/order_service";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { ObservationService } from "@/services/observation_service";
 import { delayPromise } from "@/utils/Timers";
+import { AncPregnancyStatusService } from "@/apps/ANC/Services/anc_pregnancy_status_service"
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 
 export default defineComponent({
@@ -154,6 +163,11 @@ export default defineComponent({
       programs: [] as string[],
       identifiers: [] as string[],
       patientType: '' as string,
+      anc: {
+        lmpMonths: -1,
+        canInitiateNewPregnancy: false,
+        currentPregnancyIsOverdue: false
+      },
       dde: {
         localNpidDiff: '',
         remoteNpidDiff: '',
@@ -302,7 +316,12 @@ export default defineComponent({
           )
         this.setPatientFacts()
         await this.setProgramFacts()
-        if (this.useDDE) await this.setDDEFacts()
+        if (this.useDDE) {
+          await this.setDDEFacts()
+        } 
+        if (this.facts.programName.match(/ANC/i)) {
+          await this.setAncFacts()
+        } 
         await this.drawPatientCards()
         await this.setViralLoadStatus()
         this.facts.currentNpid = this.patient.getNationalID()
@@ -358,6 +377,12 @@ export default defineComponent({
       this.facts.demographics.currentVillage = this.patient.getCurrentVillage()
       this.facts.identifiers = this.patient.getIdentifiers()
         .map((id: any) => id.type.name)
+    },
+    async setAncFacts() {
+      const anc = new AncPregnancyStatusService(this.patient.getID(), -1)
+      this.facts.anc.canInitiateNewPregnancy = await anc.canInitiateNewPregnancy()
+      this.facts.anc.currentPregnancyIsOverdue = await anc.pregnancyIsOverdue()
+      this.facts.anc.lmpMonths = await anc.getLmpInMonths()
     },
     buildDDEDiffs(diffs: any) {
       const comparisons: Array<string[]> = []
@@ -524,6 +549,20 @@ export default defineComponent({
       }
       if (typeof callback === 'function') callback()
     },
+    async onInitiateNewAncPregnancy() {
+      if ((await alertConfirmation('Are you sure you want to initiate new pregnancy?'))) {
+        if ((await this.initiateNewAncPregnancy())) {
+          this.facts.anc.canInitiateNewPregnancy = false
+          this.facts.anc.currentPregnancyIsOverdue = false
+          await this.nextTask()
+        } else {
+          toastWarning('Unable to initiate new pregnancy')
+        }
+      }
+    },
+    async initiateNewAncPregnancy() {
+      return new AncPregnancyStatusService(this.patient.getID(), -1).createNewPregnancyStatus()
+    },
     /**
      * Maps FlowStates defined in the Guideline to
      * Functions definitions that are executed.
@@ -591,8 +630,11 @@ export default defineComponent({
           await this.reloadPatient()
           return FlowState.FORCE_EXIT
         }
+      },
+      states[FlowState.INITIATE_ANC_PREGNANCY] = async () => {
+        await this.initiateNewAncPregnancy()
+        return FlowState.CONTINUE
       }
-
       states[FlowState.VIEW_MERGE_AUDIT_FOR_NPID] = () => {
         this.$router.push(`/merge/rollback/${this.facts.scannedNpid}`)
         return FlowState.FORCE_EXIT

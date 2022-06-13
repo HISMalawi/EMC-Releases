@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-const STANDARD_DATE_FORMAT = 'YYYY-MM-DD'
+export const STANDARD_DATE_FORMAT = 'YYYY-MM-DD'
 const DISPLAY_DATE_FORMAT = 'DD/MMM/YYYY'
 
 

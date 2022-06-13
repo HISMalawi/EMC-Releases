@@ -16,6 +16,7 @@
           :title="taskItem.name.toUpperCase()"
           :description="taskItem.description"
           :taskCompleted="taskItem.taskCompleted"
+          :taskDisabled="isDisabled(taskItem.disabled)"
           :icon="img(taskItem.icon)">
         </task-card>
      </ion-col>
@@ -105,10 +106,19 @@ export default defineComponent({
     img(name: string) {
       return Img(name)
     },
-    async closeModal() {
-      await modalController.dismiss({})
+    isDisabled(disabled: Function | undefined) {
+      if (typeof disabled === 'function') {
+        return disabled(this.taskParams)
+      }
+      return false
+    },
+    closeModal() {
+      modalController.dismiss({})
     },
     async doTask(taskItem: TaskInterface) {
+      if (this.isDisabled(taskItem.disabled)) {
+        return toastWarning('This task is disabled')
+      }
       if (typeof taskItem.taskCompleted === 'boolean' 
         && taskItem?.taskCompleted) {
         if (!(await alertConfirmation(

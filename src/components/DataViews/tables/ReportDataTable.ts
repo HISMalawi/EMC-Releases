@@ -4,6 +4,7 @@ import { isEmpty } from "lodash";
 
 export interface TableInterface {
     showIndex?: boolean;
+    skeletonTextRows?: number;
     tableCssTheme?: string;
 }
 export interface ColumnInterface {
