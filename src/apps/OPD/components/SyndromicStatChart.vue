@@ -1,16 +1,15 @@
 <template>
-  <apexchart 
-    width="100%"
+    <apexchart
+    width="99%"
     height="350px"
-    type="bar"
-    :options="options"
+    type="area" 
+    :options="options" 
     :series="series"
-  />
+    ></apexchart>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
-
+import { defineComponent, ref } from "vue";
 export default defineComponent({
   props: {
     categories: Array,
@@ -38,7 +37,7 @@ export default defineComponent({
         }
       },
       title: {
-        text: 'New registered , Returning and Referred clients',
+        text: 'Influenza Like Illness , Respiratory',
         margin: 20,
         align: 'center',
         style: {
@@ -78,5 +77,5 @@ export default defineComponent({
       options,
     }
   }
-})
+});
 </script>
