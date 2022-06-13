@@ -29,6 +29,7 @@ export enum FlowState {
     ADD_AS_DRUG_REFILL = 'addAsDrugRefill',
     ADD_AS_EXTERNAL_CONSULTATION = 'addAsExternalConsultation',
     INITIATE_ANC_PREGNANCY = 'initiateNewAncPregnancy',
+    VIEW_MERGE_AUDIT_FOR_NPID = 'viewMergeAuditForNpid',
     SEARCH_BY_NAME = 'searchByName'
 }
 
@@ -115,6 +116,11 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                             color: 'primary',
                         },
                         {
+                            name: 'Merge history',
+                            slot: 'end',
+                            color: 'primary'
+                        },
+                        {
                             name: 'Search by name',
                             slot: 'end',
                             color: 'success'
@@ -123,7 +129,9 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                     ],
                     'his-danger-color'
                 )
-                return action === 'Search by name' 
+                return action === 'Merge history' 
+                    ?  FlowState.VIEW_MERGE_AUDIT_FOR_NPID 
+                    : action === 'Search by name' 
                     ? FlowState.SEARCH_BY_NAME
                     : FlowState.GO_HOME
             }

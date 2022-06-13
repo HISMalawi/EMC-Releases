@@ -2,12 +2,13 @@
     <ion-page>
         <ion-header>
             <ion-toolbar>
-                <ion-title> {{ title }} </ion-title>
+                <ion-title class="his-lg-text"> {{ title }} </ion-title>
             </ion-toolbar>
         </ion-header>
         <ion-content> 
             <ion-list> 
                 <ion-item
+                    class="his-md-text"
                     @click="item.isChecked = item.isChecked ? false : true"
                     button v-for="(item, index) in items" :key="index"
                     >
@@ -61,14 +62,6 @@
                     slot="end"
                     >
                     Merge ({{itemsChecked.length}})
-                </ion-button>
-                <ion-button 
-                    v-if="items.length <= 1"
-                    color="success"
-                    size="large"
-                    slot="end"
-                    >
-                    Next
                 </ion-button>
             </ion-toolbar>
         </ion-footer>
@@ -209,12 +202,16 @@ export default defineComponent({
             })
         },
         async init(npid: string) {
-            this.dde = new PatientDemographicsExchangeService()
-            const {locals, remotes} = await this.dde.findNpid(npid)
-            this.items = [
-                ...this.buildItems(locals), 
-                ...this.buildItems(remotes)
-            ]
+            try {
+                this.dde = new PatientDemographicsExchangeService()
+                const {locals, remotes} = await this.dde.findNpid(npid)
+                this.items = [
+                    ...this.buildItems(locals), 
+                    ...this.buildItems(remotes)
+                ]
+            } catch (e) {
+                toastDanger(`${e}`, 5000)
+            }
         }
     }
 })
