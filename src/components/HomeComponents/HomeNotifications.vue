@@ -1,7 +1,7 @@
 <template>
     <div v-if="!hasNotifications"
         class="his-card ion-text-center his-lg-text"> 
-        No notifications in this area..
+        No notifications
     </div>
     <ul v-if="hasNotifications"> 
         <li style="margin-bottom: 2%;" v-for="(item, index) in sortedNotifications" 
