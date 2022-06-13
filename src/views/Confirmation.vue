@@ -609,6 +609,10 @@ export default defineComponent({
         await this.createPatientType('External consultation')
         return FlowState.CONTINUE
       }
+      states[FlowState.SEARCH_BY_NAME] = () => {
+        this.$router.push('/patient/registration')
+        return FlowState.FORCE_EXIT
+      }
       states[FlowState.UPDATE_LOCAL_DDE_DIFFS] = async () => {
         await this.ddeInstance.updateLocalDifferences(
           this.facts.dde.localDiffs
