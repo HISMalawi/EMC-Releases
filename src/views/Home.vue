@@ -159,7 +159,7 @@ import ProgramIcon from "@/components/DataViews/DashboardAppIcon.vue"
 import HomeFolder from "@/components/HomeComponents/HomeFolders.vue"
 import { AuthService } from "@/services/auth_service"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
-import { Notification } from "@/composables/notifications" 
+import { Notification, WebsocketNotificationInterface } from "@/composables/notifications" 
 import Img from "@/utils/Img"
 import { 
   apps, 
@@ -217,21 +217,11 @@ export default defineComponent({
   setup() {
     const { useVirtualInput } = usePlatform()
     const { 
-      pushNotification, 
       notificationData, 
       notificationCount, 
       hasUnreadNotifications
     }  = Notification()
-    setInterval(() => {
-      pushNotification({
-        title: 'Hellow World',
-        message: 'I am a banana',
-        date: '20/10/2020',
-        handler: () => alert('Hello!')
-      })
-    }, 18000)
     return {
-      pushNotification,
       hasUnreadNotifications,
       notificationData,
       notificationCount,
@@ -319,6 +309,15 @@ export default defineComponent({
         Service.getSessionDate()
       )
       this.appVersion = Service.getFullVersion()
+      this.initAppWebsocketNotifications()
+    },
+    async initAppWebsocketNotifications() {
+      // Init Websocket notifications for active application
+      const { initNotificationSocket } = Notification()
+      if (typeof this.app.notificationSockets === 'function') {
+        const channels = await this.app.notificationSockets()
+        channels.forEach((c: WebsocketNotificationInterface) => initNotificationSocket(c))
+      }
     },
     async openModal() {
       const data = await HisApp.selectApplication('HomePage') 

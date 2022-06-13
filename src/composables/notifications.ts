@@ -1,6 +1,15 @@
-import { computed, ref } from "vue"
+import { computed, ref } from "vue";
 import { toastNotification } from "@/utils/Alerts";
 import dayjs from "dayjs";
+import { Service } from "@/services/service";
+
+export interface WebsocketNotificationInterface {
+    channelConf: {
+        channel: string;
+        room: string;
+    };
+    notificationBuilder: (data: any) => NotificationInterface;
+}
 
 export interface NotificationInterface {
     title: string;
@@ -9,6 +18,8 @@ export interface NotificationInterface {
     date?: string;
     handler?: () => void;
 }
+
+let wbConsumer = null as any
 
 const notificationData = ref([] as NotificationInterface[])
 
@@ -47,7 +58,30 @@ export function Notification() {
         }
     }
 
+    async function initNotificationSocket(params: WebsocketNotificationInterface) {
+        if (!wbConsumer) {
+            wbConsumer = await Service.createWebsocketConsumer()
+        }
+        const ID = `${params.channelConf.channel} ${params.channelConf.room}`
+        wbConsumer.subscriptions.create(params.channelConf,
+        {
+            connected: function(){
+                console.log("connected to " + ID)
+            },
+            disconnected: function(){
+                console.log("disconnected " + ID)
+            },
+            rejected: function(){
+                console.log("rejected " + ID)
+            },
+            received: function (data: any) {
+                pushNotification(params.notificationBuilder(data))
+            }
+        })
+    }
+
     return {
+        initNotificationSocket,
         pushNotification,
         openNotification,
         sortedNotifications,

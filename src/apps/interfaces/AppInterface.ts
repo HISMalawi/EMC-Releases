@@ -1,6 +1,7 @@
 import { Option } from '@/components/Forms/FieldInterface';
 import { RouteRecordRaw } from 'vue-router';
 import { TaskInterface } from './TaskInterface';
+import { WebsocketNotificationInterface } from '@/composables/notifications';
 
 export interface ActivityInterface {
     value: string;
@@ -122,4 +123,8 @@ export interface AppInterface {
      * Summary data that is rendered on patient confirmation page
     */
     readonly confirmationSummary?: (patient: any, program: any) => Record<string, Function>;
+    /**
+     * Define program's notification sockets
+    */
+   readonly notificationSockets?: () => WebsocketNotificationInterface[];
 }
