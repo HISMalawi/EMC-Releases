@@ -3,7 +3,7 @@
         <base-input :value="value" @onValue="onKbValue"/>
         <ion-list class="view-port-content">
             <ion-radio-group v-model="selectedTimeUnit">
-                <ion-item v-for="(timeUnit, index) in timeUnits" :key="index"> 
+                <ion-item class="his-md-text" v-for="(timeUnit, index) in timeUnits" :key="index"> 
                     <ion-radio slot="start" :value="timeUnit"></ion-radio>
                     <ion-label>{{timeUnit}}</ion-label>
                 </ion-item>
