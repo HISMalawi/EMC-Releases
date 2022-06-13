@@ -33,8 +33,7 @@ export default defineComponent({
     ready: {
       async handler(isReady: boolean) {
         if(isReady){
-          this.prescriptionService = new DrugPrescriptionService(this.patientID, this.providerID)
-          await this.prescriptionService.loadDrugs()    
+          this.prescriptionService = new DrugPrescriptionService(this.patientID, this.providerID)  
           this.hasMalaria = await this.prescriptionService.hasMalaria()
           this.fields = this.getFields()
         }
@@ -87,7 +86,7 @@ export default defineComponent({
           condition: () => this.activeField === 'malaria_drugs' && this.showMalariaDrugs,
           unload: () => {
             this.showMalariaDrugs = false
-            this.activeField = 'drugs'
+            this.activeField = 'drugs_details'
           },
           options: () => ANTI_MALARIA_DRUGS.map(drug => ({
             label: `${drug.name}, ${drug.frequency} time(s) a day, for ${drug.duration} days`,
@@ -100,20 +99,32 @@ export default defineComponent({
           helpText: 'Select drugs',
           type: FieldType.TT_MULTIPLE_SELECT,
           validation: (data: any) => Validation.required(data),
-          options: async (f: any) => {
-            const drugs: Option[] = await this.prescriptionService.getDrugOptions()
-            if(isEmpty(f['malaria_drugs'])) return drugs
-            const malariaDrug: Option = f['malaria_drugs']
-            return drugs.map(drug => {
-              if(drug.other.drug_id !== malariaDrug.other.drug_id) return drug
-              drug.other = {...malariaDrug.other}
-              drug.isChecked = true
-              return drug
+          options: async (_: any, filter: string | Option[]) => {
+            if(typeof filter === 'string' || isEmpty(filter)){
+              return await this.prescriptionService.loadDrugs(filter)
+            }
+            const drugs: Option[] = await this.prescriptionService.loadDrugs('')
+            const preCheckedDrugs: Option[] = filter
+            preCheckedDrugs.forEach(drug => {
+              const drugOption = drugs.findIndex(d => d.other.drug_id === drug.other.drug_id)
+              if(drugOption !== -1){
+                drugs[drugOption].isChecked = true
+              } else{
+                drugs.push(drug)
+              }
             })
+            return drugs
           },
           onload: () => this.activeField = '',
           config: {
             showKeyboard: true,
+            isFilterDataViaApi: true,
+            infiniteScroll: {
+              enabled: true,
+              handler: (filter: string, page: number, limit: number) => {
+                return this.prescriptionService.loadDrugs(filter, page, limit)
+              }
+            },
             hiddenFooterBtns: ["Back"],
             footerBtns: [
               {
@@ -138,7 +149,7 @@ export default defineComponent({
           helpText: 'Complete prescribed drug details',
           type: FieldType.TT_PRESCRIPTION_INPUT,
           validation: (data: any) => Validation.required(data),
-          options: (f: any) => [...f.drugs],
+          options: (f: any) => [...f.drugs, ...(f.malaria_drugs ? [f.malaria_drugs] : [])],
           beforeNext: (data: Option[]) => {
             if(isEmpty(data)) return false
             if(this.isOrderComplete(data)) return true
