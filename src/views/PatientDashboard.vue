@@ -185,7 +185,7 @@
         </ion-content>
         <ion-footer> 
             <ion-toolbar color="dark">
-                <ion-button class="full-component-view" color="primary" size="large" slot="end" @click="showTasks"> 
+                <ion-button :disabled="tasksDisabled" class="full-component-view" color="primary" size="large" slot="end" @click="showTasks"> 
                     <ion-icon :icon="clipboardOutline"> </ion-icon>
                     Tasks
                 </ion-button>
@@ -317,6 +317,7 @@ export default defineComponent({
     data: () => ({
         activeTab: 1 as number,
         app: ProgramService.getActiveApp() as any,
+        tasksDisabled: true as boolean,
         dashboardComponent: {} as any,
         isBDE: false as boolean,
         currentDate: '',
@@ -377,6 +378,10 @@ export default defineComponent({
             if (!(this.appHasCustomContent)) this.loadCardData(date)
         }
     },
+    mounted() {
+        // initialise empty cards on dashboard
+        this.updateCards()
+    },
     methods: {
         async init() {
             this.patient = await this.fetchPatient(this.patientId)
@@ -394,6 +399,9 @@ export default defineComponent({
             this.onProgramVisitDates((await this.getPatientVisitDates(this.patientId)))
             this.alertCardItems = await this.getPatientAlertCardInfo() || []
             this.programID = ProgramService.getProgramID()
+            if (!this.visitDates.length) {
+                this.tasksDisabled = false
+            }
             this.updateCards()
         },
         async showLoader() {
@@ -415,6 +423,8 @@ export default defineComponent({
                 this.encounters = await EncounterService.getEncounters(this.patientId, {date})
                 this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
                 this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
+                this.tasksDisabled = false
+                loadingController.dismiss()
                 this.medicationCardItems = this.getMedicationCardInfo(this.medications)
                 this.labOrderCardItems = await this.getLabOrderCardInfo(date)
                 // Track encounters recorded on system session date
@@ -424,8 +434,9 @@ export default defineComponent({
                 this.updateCards()
             } catch(e) {
                 toastDanger(`${e}`)
+                this.tasksDisabled = false
+                loadingController.getTop().then(v => v ? loadingController.dismiss() : null)
             }
-            loadingController.dismiss()
         },
         updateCards() {
             this.patientCards = [
@@ -529,7 +540,7 @@ export default defineComponent({
         },
         getProgramCardInfo(info: any) {
            if ('formatPatientProgramSummary' in this.app) {
-             return this.app.formatPatientProgramSummary(isEmpty(info) ? this.patient : info)
+             return this.app.formatPatientProgramSummary(info, this.patientId)
            }
         },
         getActivitiesCardInfo(encounters: Array<Encounter>) {

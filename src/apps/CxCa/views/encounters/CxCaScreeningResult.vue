@@ -129,7 +129,7 @@ export default defineComponent({
           validation: (val: any) => Validation.required(val),
           options: () => this.yesNoOptions(),
           condition(formData: any) {
-            return formData.screening_result.value === "HPV Positive";
+            return formData.screening_result.value === "HPV positive";
           },
           computedValue: (value: any) => ({
             obs: this.screeningResult.buildValueCoded('Patient went for VIA?', value.value)
@@ -186,7 +186,7 @@ export default defineComponent({
             ]);
           },
           condition(formData: any) {
-            return formData.screening_result.value !== "VIA Negative";
+            return !['VIA Negative', 'No visible Lesion', 'PAP Smear Abnormal', 'HPV negative'].includes(formData.screening_result.value);
           },
           computedValue: (value: any) => ({
             obs: this.screeningResult.buildValueCoded('Directly observed treatment option', value.value)
@@ -220,8 +220,7 @@ export default defineComponent({
             return this.mapOptions([
               "Further Investigation and Management",
               "Large Lesion (Greater than 75 percent)",
-              "Suspect cancer",
-              "Unable to treaat client",
+              "Unable to treat client",
               "Treatment not available",
               "Other conditions",
             ]);

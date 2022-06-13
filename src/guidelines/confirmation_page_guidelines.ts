@@ -29,6 +29,7 @@ export enum FlowState {
     ADD_AS_DRUG_REFILL = 'addAsDrugRefill',
     ADD_AS_EXTERNAL_CONSULTATION = 'addAsExternalConsultation',
     VIEW_MERGE_AUDIT_FOR_NPID = 'viewMergeAuditForNpid',
+    SEARCH_BY_NAME = 'searchByName'
 }
 export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = {
     "Do not proceed if patient is not found in the system" : {
@@ -45,11 +46,18 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                             name: 'Close', 
                             slot: 'start', 
                             color: 'primary',
+                        },
+                        {
+                            name: 'Search by name',
+                            slot: 'end',
+                            color: 'success'
                         }
                     ],
                     'his-danger-color'
                 )
-                return FlowState.GO_HOME
+                return action === 'Search by name' 
+                    ? FlowState.SEARCH_BY_NAME
+                    : FlowState.GO_HOME
             }
         },
         conditions: {
@@ -109,11 +117,21 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                             name: 'Merge history',
                             slot: 'end',
                             color: 'primary'
+                        },
+                        {
+                            name: 'Search by name',
+                            slot: 'end',
+                            color: 'success'
                         }
+                        
                     ],
                     'his-danger-color'
                 )
-                return action === 'Merge history' ? FlowState.VIEW_MERGE_AUDIT_FOR_NPID : FlowState.GO_HOME
+                return action === 'Merge history' 
+                    ?  FlowState.VIEW_MERGE_AUDIT_FOR_NPID 
+                    : action === 'Search by name' 
+                    ? FlowState.SEARCH_BY_NAME
+                    : FlowState.GO_HOME
             }
         },
         conditions: {
@@ -126,7 +144,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE] Notify the user to proceed with Remote NPID if local NPID does not match remote": {
-        priority: 2,
+        priority: 1,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({dde}: any) => {

@@ -31,6 +31,10 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'TX CURR MMD',
                 pathName: 'moh_tx_curr_mmd'
+            },
+            {
+                name: 'Regimen Report',
+                pathName: 'moh_regimen_report'
             }
         ]
     },
@@ -48,7 +52,7 @@ export const REPORTS: FolderInterface[] = [
                 pathName: 'clinic_defaulters_report'
             },
             {
-                name: 'Regimen report',
+                name: 'Regimen Dispensation',
                 pathName: 'clinic_regimen_report'
             },
             {

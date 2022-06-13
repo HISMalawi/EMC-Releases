@@ -4,12 +4,22 @@ import HisApp from "@/apps/app_lib"
 import { AppInterface } from "@/apps/interfaces/AppInterface"
 import useSWRV from "swrv"
 import { AuthVariable } from "./auth_service"
+import HisApps from "@/apps/his_apps"
+import { find, isEmpty } from "lodash"
 
 export class IncompleteEntityError extends Error {
     entity: any
     constructor(message: string, entity: any) {
         super(`ENTITY Error: ${message}`)
         this.entity = entity
+    }
+}
+
+export class RecordConflictError extends Error {
+    errors: any
+    constructor(message: string, errors: any) {
+        super(message)
+        this.errors = errors
     }
 }
 
@@ -74,6 +84,10 @@ export class Service {
         return this.jsonResponseHandler(ApiClient.remove(url, reason))
     }
 
+    static async getThirdpartyApps() {
+        return JSON.parse((await ApiClient.getConfig()).thirdpartyapps)
+    }
+
     private static async jsonResponseHandler(request: Promise<any>) {
         const response = await request
         if (response) {
@@ -98,6 +112,10 @@ export class Service {
             if (response.status === 502) {
                 const {errors} = await response?.json()
                 throw new ApiServiceError(errors || 'Getway Error')
+            }
+            if (response.status === 409) {
+                const {errors} = await response?.json()
+                throw new RecordConflictError(response.statusText, errors)
             }
             if (response.status === 500) {
                 throw new ApiError('An internal server errror has occured')
@@ -210,4 +228,18 @@ export class Service {
     }
 
     static delay = (ms: number) => new Promise(res => setTimeout(res, ms))
+
+    static getAvailableApps() {
+        const userPrograms = JSON.parse(sessionStorage.getItem('userPrograms') || '[]')
+            .map((app: any) => app['program_id'])
+        const apps = []
+        for(const app of JSON.parse(sessionStorage.getItem('apps') || '[]')) {
+            const appData: any = find(HisApps, { applicationName : app.name }) || {}
+            const userHasPriviledge = isEmpty(userPrograms) || userPrograms.includes(appData.programID)
+            if (app.available && !isEmpty(appData)) {
+                apps.push({...appData, hasPriviledge: userHasPriviledge})
+            }
+        }
+        return apps
+    }
 }

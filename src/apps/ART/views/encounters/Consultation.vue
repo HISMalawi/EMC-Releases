@@ -602,7 +602,7 @@ export default defineComponent({
 
             if (this.TBSuspected) return disableOption('TB Suspect')
 
-            if (this.currentWeight < 25) return disableOption('Weight below regulation') 
+            if (this.currentWeight < 30) return disableOption('Weight below regulation') 
 
             return { isChecked: autoSelect3HP }
           }

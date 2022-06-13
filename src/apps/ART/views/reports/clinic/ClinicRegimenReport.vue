@@ -32,10 +32,10 @@ export default defineComponent({
                 table.thTxt('Gender'),
                 table.thTxt('DOB'),
                 table.thTxt('ART start date'),
-                table.thTxt('Weight (KG)'),
+                table.thTxt('Weight(Kg)'),
                 table.thTxt('Curr.Reg'),
                 table.thTxt('ARVs'), 
-                table.thTxt('Dispensed date')
+                table.thTxt('Curr.reg dispensed')
             ]
         ]
     }),

@@ -4,21 +4,58 @@ import { PrintoutService } from "@/services/printout_service";
 import { Service } from "@/services/service";
 import moment from "dayjs";
 import { Patientservice } from "@/services/patient_service";
+import { isEmpty } from "lodash";
 
 export class PatientRadiologyService extends AppEncounterService {
   constructor(patientID: number, providerID: number) {
     super(patientID, 121, providerID) 
   }
 
-  static async getRadiolyList(radiologyType: string, filter = '') {
+  static async getRadiologyList(radiologyType: string, filter = '') {
     return ConceptService.getConceptSet(radiologyType, filter) 
   }
 
+  async getRadiologyObs(patientId: number) {
+    const path = 'radiology/radiology_orders?patient_id='+patientId
+    const data = await Service.getJson(path)
+    return data
+  }
+
+  async showPreviousRadiolgy(patient: any): Promise<boolean> {
+    if ( (await this.getRadiologyObs(patient.getID())).length > 0) {
+      return true
+    }
+    return false
+  }
+
+  async getPreviousRadiologyExaminations(patient: any): Promise<any>{
+    const thirdpartyapps  =  await Service.getThirdpartyApps()
+    let url = '' 
+    for (const app of thirdpartyapps) {
+      if(app.name == 'pacs') {
+        url = app.url
+      }
+    }
+    if (isEmpty(url)) {
+      url = `opd/encounters/radiology/${this.patientID}`
+    }
+    const data =  await this.getRadiologyObs(patient.getID())
+    if(!(data.length > 0)) { 
+      return false;
+    } else {
+      return { data: data, url: url}
+    }
+  }
+
   async submitToPacs(savedObsData: any, patient: any) {
+    let accessionNumber
+    for(const order of savedObsData) {
+      accessionNumber = order.children[0].accession_number
+    }
     const orders = await Promise.all(savedObsData.map(async (order: any) => ({
-      "main_value_text": await ConceptService.getConceptName(order.value_coded),
+      "main_value_text": order.value_text,
       "obs_id": order.obs_id,
-      "sub_value_text": await ConceptService.getConceptName(order.children[0].value_coded)
+      "sub_value_text": order.children[0].value_text
     })))
     const patientData = {
       "patient_name": patient.getFullName(),
@@ -29,7 +66,7 @@ export class PatientRadiologyService extends AppEncounterService {
       "person_id": patient.getID(),
       "encounter_id": this.getEncounterID(),
       "date_created": this.getDate(),
-      "accession_number": await this.getAccesionNumber()
+      "accession_number": accessionNumber
     }
     const provider = {
       "username": Service.getUserName(),
@@ -46,6 +83,25 @@ export class PatientRadiologyService extends AppEncounterService {
   async getAccesionNumber() {
     return (await Service.getJson(`sequences/next_accession_number`))['accession_number']
   }
+
+  async obsObj(data: Array<any>) {
+    const lastAccessionNumber = await this.getAccesionNumber()
+    const observations = [] as Array<any>
+    for (const order of data) {
+      observations.push(
+        {
+          'concept_id': order.concept_id, 
+          'value_text':  await ConceptService.getConceptName(order.child.concept_id),
+          child: {
+            'concept_id': order.child.concept_id,
+            'accession_number': lastAccessionNumber,
+            'value_text': await ConceptService.getConceptName(order.child.value_coded)
+          }
+        }
+      )
+    }
+    return observations
+  } 
 
   async printOrders(orders: any, patient: Patientservice) {
     const printService = new PrintoutService()

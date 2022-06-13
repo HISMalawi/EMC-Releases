@@ -13,6 +13,7 @@ import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import OPD_GLOBAL_PROP from "@/apps/OPD/opd_global_props";
+import moment from "dayjs";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -37,8 +38,9 @@ export default defineComponent({
   methods: {
     async onSubmit(_: any, computedData: any){
       const data = await Promise.all(computedData.radiology)
-      await this.radiologyService.createEncounter()    
-      const savedObsData = await this.radiologyService.saveObservationList(data)
+      await this.radiologyService.createEncounter()
+      const obsObj = await this.radiologyService.obsObj(data) 
+      const savedObsData = await this.radiologyService.saveObservationList(obsObj)
       await this.radiologyService.printOrders(data, this.patient)
       if(this.isPacsEnabled) {
         try {
@@ -49,8 +51,44 @@ export default defineComponent({
       }
       this.gotoPatientDashboard()
     },
+    async getTableData() {
+      const params = await this.radiologyService.getPreviousRadiologyExaminations(this.patient)
+      const data = params.data
+      const url = params.url
+      const columns = ['Accession#','Body Part', 'Order Type', 'Ordered', 'Result']
+      const rows = [] as Array<any>
+      for (const order in data) {
+        const row = [
+          data[order].children[0].accession_number,
+          data[order].value_text,
+          data[order].children[0].value_text,
+          moment(data[order].obs_datetime).format('DD/MMM/YYYY'),
+          `<ion-button slot="end" size="large" href="${url}" color="success">
+            View
+          </ion-button>`
+        ]
+        rows.push(row)
+      }
+      return [
+        {
+          label: '',
+          value: '',
+          other: { columns, rows},
+        },
+      ];
+    },
     getFields(): Array<Field>{
       return [
+        {
+          id: 'radiology_results',
+          helpText: 'Previous Radiology Examinations',
+          condition: () => this.radiologyService.showPreviousRadiolgy(this.patient),
+          type: FieldType.TT_TABLE_VIEWER,
+          options: (d: any) => this.getTableData(),
+          config: {
+            hiddenFooterBtns: ["Clear"],
+          },
+        },
         {
           id: 'radiology',
           helpText: 'Radiology Examination',

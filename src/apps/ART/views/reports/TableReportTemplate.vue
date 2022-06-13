@@ -25,9 +25,7 @@
                   @click.prevent="info.other.onclick()">
                   {{ info.value }}
                 </a>
-                <ion-label v-if="info && !info?.other?.onclick">
-                  <b><span v-html="info.value"></span></b> 
-                </ion-label>
+                <b v-if="info && !info?.other?.onclick"><span v-html="info.value"></span></b> 
               </li>
               <li v-if="showValidationStatus">
                 <ion-chip @click="showErrors" color="danger" v-if="hasErrors"> 
@@ -355,7 +353,6 @@ export default defineComponent({
           columns, 
           [
             ...rows,
-            [],
             [`Date Created: ${this.date}`],
             [`Quarter: ${this.period}`],
             [`HIS-Core Version: ${this.coreVersion}`],
