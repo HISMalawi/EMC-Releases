@@ -65,7 +65,8 @@ export function notificationSockets() {
                 channel: 'NlimsChannel',
                 room: Service.getUserName()
             },
-            notificationBuilder: (data: any) => { 
+            notificationBuilder: (res: string) => {
+                const data = JSON.parse(res)
                 return {
                     title: `Results for ${data['Type']}`,
                     message: `Test results available for Accession# ${data['Accession number']}`,
