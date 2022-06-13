@@ -629,12 +629,12 @@ export default defineComponent({
           await print.printNidLbl()
           await this.reloadPatient()
           return FlowState.FORCE_EXIT
-        },
-        'initiateNewAncPregnancy': async () => {
-          await this.initiateNewAncPregnancy()
-          return FlowState.CONTINUE
         }
-      }
+      },
+      states[FlowState.INITIATE_ANC_PREGNANCY] = async () => {
+        await this.initiateNewAncPregnancy()
+        return FlowState.CONTINUE
+      },
       states[FlowState.RESOLVE_DUPLICATE_NPIDS] = () => {
         this.$router.push(`/npid/duplicates/${this.facts.scannedNpid}`)
         return FlowState.FORCE_EXIT
