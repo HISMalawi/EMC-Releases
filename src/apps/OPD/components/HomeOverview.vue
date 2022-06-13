@@ -46,7 +46,12 @@ export default defineComponent({
   setup() {
     const data = PatientVisitsService.getStatistics()
     const patientSummaryStats = computed(() => {
-      return data.value ? PatientVisitsService.getTodaysPatientVisits(data.value?.top) : []
+      return data.value ? PatientVisitsService.getTodaysPatientVisits(data.value?.top) : [
+        { label: 'Registered today', value: -1, color: 'lightyellow' },
+        { label: 'Returning today', value: -1, color: 'lightyellow' },
+        { label: 'Referred today', value: -1, color: 'lightyellow' },
+        { label: 'Total', value: -1, color: 'yellowgreen' },
+      ]
     })
     const accumulativeVisits = computed(() => {
       return data.value ? PatientVisitsService.getAccumulativePatientVisits(data.value?.down) : {
