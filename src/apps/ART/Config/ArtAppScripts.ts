@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 import { Service } from "@/services/service";
 import { Patientservice } from '@/services/patient_service';
 import ART_PROP from '@/apps/ART/art_global_props';
+import router from "@/router/index"
 
 async function enrollInArtProgram(patientID: number, patientType: string, clinic: string) {
     const program = new PatientProgramService(patientID)
@@ -55,6 +56,24 @@ function orderToString(order: Order, showDate = true) {
     const date = showDate ? `<br> Result date: &nbsp; ${HisDate.toStandardHisDisplayFormat(result.date)}` : ''
     const status = OrderService.isHighViralLoadResult(result) ? '(<b style="color: #eb445a;">High</b>)' : ''
     return `${test.name} &nbsp; ${result.value_modifier}${result.value} ${status} ${date}`;
+}
+
+export function notificationSockets() {
+    return [
+        {
+            channelConf: {
+                channel: 'NlimsChannel',
+                room: Service.getUserName()
+            },
+            notificationBuilder: (data: any) => { 
+                return {
+                    title: `Results for ${data['Type']}`,
+                    message: `Test results available for Accession# ${data['Accession number']}`,
+                    handler: () => router.push(`/art/encounters/lab/${data['patientID']}`)         
+                }
+            }
+        }
+    ]
 }
 
 export async function init(context='') {
