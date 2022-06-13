@@ -20,10 +20,9 @@
                     </ion-button>
                     <ion-button 
                         size="large"
-                        @click="item.read=true" 
-                        :disabled="item.read">
+                        @click="item.read=item.read ? false : true">
                         <span v-if="!item.read">Mark as read</span>
-                        <span v-if="item.read">Read</span>
+                        <span v-if="item.read">Mark as unread</span>
                     </ion-button>
                 </li>
             </ul>
