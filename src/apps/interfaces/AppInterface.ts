@@ -123,8 +123,4 @@ export interface AppInterface {
      * Summary data that is rendered on patient confirmation page
     */
     readonly confirmationSummary?: (patient: any, program: any) => Record<string, Function>;
-    /**
-     * Define program's notification sockets
-    */
-   readonly notificationSockets?: () => WebsocketNotificationInterface[];
 }

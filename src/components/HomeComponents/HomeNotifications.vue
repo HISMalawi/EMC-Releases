@@ -3,39 +3,35 @@
         class="his-card ion-text-center his-lg-text"> 
         No notifications
     </div>
-    <ul v-if="hasNotifications"> 
-        <li style="margin-bottom: 2%;" v-for="(item, index) in sortedNotifications" 
-            :key="index" class="ion-text-center his-card his-md-text">
-            <ul> 
-                <li><b>{{item.title}}</b></li>
-                <li>{{item.message}}</li>
-                <li>{{item.date || 'N/A'}}</li>
-                <li>
-                    <ion-button
-                        v-if="typeof item.handler==='function'"
-                        @click="openNotification(item)"
-                        size="large"
-                    >
-                        Open
-                    </ion-button>
-                    <ion-button 
-                        size="large"
-                        @click="item.read=item.read ? false : true">
-                        <span v-if="!item.read">Mark as read</span>
-                        <span v-if="item.read">Mark as unread</span>
-                    </ion-button>
-                </li>
-            </ul>
-        </li>
-    </ul>
+    <ion-list v-if="hasNotifications"> 
+        <ion-item class="his-md-text"
+            button
+            detail
+            @click="openNotification(item)"
+            v-for="(item, index) in sortedNotifications"
+            :key="index">
+            <ion-label>
+                <b>{{item.title}}</b> {{item.message}}
+            </ion-label>
+            <ion-chip color="success" class="his-md-text">{{item.date}}</ion-chip>
+        </ion-item>
+    </ion-list>
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { Notification } from "@/composables/notifications"
-import { IonButton } from "@ionic/vue";
+import { 
+    IonItem,
+    IonList,
+    IonLabel,
+    IonChip
+} from "@ionic/vue";
 export default defineComponent({
     components: {
-        IonButton
+        IonLabel,
+        IonItem,
+        IonList,
+        IonChip
     },
     setup() {
         const { 

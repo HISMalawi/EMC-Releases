@@ -6,7 +6,6 @@ import useSWRV from "swrv"
 import { AuthVariable } from "./auth_service"
 import HisApps from "@/apps/his_apps"
 import { find, isEmpty } from "lodash"
-import { createConsumer } from "@rails/actioncable"
 
 export class IncompleteEntityError extends Error {
     entity: any
@@ -53,11 +52,6 @@ class ApiError extends Error {
 export class Service {
     static ajxGet(url: string, params={}) {
         return ApiClient.get(`${url}?${Url.parameterizeObjToString(params)}`)
-    }
-
-    static async createWebsocketConsumer() {
-        const config = await ApiClient.getConfig()
-        return createConsumer(`ws://${config.host}:${config.port}/cable`)
     }
 
     static async getText(url: string) {

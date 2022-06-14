@@ -58,25 +58,6 @@ function orderToString(order: Order, showDate = true) {
     return `${test.name} &nbsp; ${result.value_modifier}${result.value} ${status} ${date}`;
 }
 
-export function notificationSockets() {
-    return [
-        {
-            channelConf: {
-                channel: 'NlimsChannel',
-                room: Service.getUserName()
-            },
-            notificationBuilder: (res: string) => {
-                const data = JSON.parse(res)
-                return {
-                    title: `Results for ${data['Type']}`,
-                    message: `Test results available for Accession# ${data['Accession number']}`,
-                    handler: () => router.push(`/art/encounters/lab/${data['patientID']}`)         
-                }
-            }
-        }
-    ]
-}
-
 export async function init(context='') {
     await selectActivities(PRIMARY_ACTIVITIES)
     if (context === 'HomePage') {

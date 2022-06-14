@@ -8,29 +8,24 @@ interface AlertConfirmationOtions {
   cancelBtnLabel?: string;
 }
 
-async function toast(message: string, color="primary", duration=2000, title='') {
+async function toast(message: string, color="primary", duration=2000) {
     const toast = await toastController.create({
-        header: title,
-        message: message,
-        position: "top",
-        animated: true,
-        duration: duration,
-        color: color,
-        cssClass: 'his-md-text',
-        keyboardClose: true,
-        buttons: [
-            {
-                side: 'end',
-                icon: 'close',
-                role: 'cancel'
-            }
-        ]
+      message: message,
+      position: "top",
+      animated: true,
+      duration: duration,
+      color: color,
+      cssClass: 'his-md-text',
+      keyboardClose: true,
+      buttons: [
+        {
+          side: 'end',
+          icon: 'close',
+          role: 'cancel'
+        }
+      ]
     });
     return toast.present();
-}
-
-export function toastNotification(title: string, message: string, duration=4000) {
-  return toast(message, 'light', duration, title)
 }
 
 export function toastWarning(message: string, duration=2000) {
@@ -38,11 +33,11 @@ export function toastWarning(message: string, duration=2000) {
 }
 
 export function toastSuccess(message: string, duration=1000) {
-    return toast(message, 'success', duration)
+  return toast(message, 'success', duration)
 }
 
 export function toastDanger(message: string, duration=2000) {
-    return toast(message, 'danger', duration)
+  return toast(message, 'danger', duration)
 }
 
 export function createAlert(message: string, header= '' as string, btns = [] as Array<NavBtnInterface>) {
@@ -95,7 +90,7 @@ export async function infoAlert(message: string, header="Information")
       visible: true,
       role: 'Confirm',
       onClick: () => modalController.dismiss()
-  }
+    }
   ]) 
   alert.present() 
 }

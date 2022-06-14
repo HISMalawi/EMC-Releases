@@ -159,7 +159,7 @@ import ProgramIcon from "@/components/DataViews/DashboardAppIcon.vue"
 import HomeFolder from "@/components/HomeComponents/HomeFolders.vue"
 import { AuthService } from "@/services/auth_service"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
-import { Notification, WebsocketNotificationInterface } from "@/composables/notifications" 
+import { Notification } from "@/composables/notifications" 
 import Img from "@/utils/Img"
 import { 
   apps, 
@@ -216,7 +216,7 @@ export default defineComponent({
   },
   setup() {
     const { useVirtualInput } = usePlatform()
-    const { 
+    const {
       notificationData, 
       notificationCount, 
       hasUnreadNotifications
@@ -309,14 +309,6 @@ export default defineComponent({
         Service.getSessionDate()
       )
       this.appVersion = Service.getFullVersion()
-      this.initAppWebsocketNotifications()
-    },
-    async initAppWebsocketNotifications() {
-      const { initNotificationSocket } = Notification()
-      if (typeof this.app.notificationSockets === 'function') {
-        const channels = await this.app.notificationSockets()
-        channels.forEach((c: WebsocketNotificationInterface) => initNotificationSocket(c))
-      }
     },
     async openModal() {
       const data = await HisApp.selectApplication('HomePage') 
@@ -350,7 +342,9 @@ export default defineComponent({
       this.$router.push('/camera_scanner')
     }
   },
-  created() {
+  async created() {
+    const { loadNotifications } = Notification()
+    await loadNotifications()
     setInterval(() => {
       const barcodeElement = this.$refs.scanBarcode as HTMLInputElement
       if (barcodeElement) {

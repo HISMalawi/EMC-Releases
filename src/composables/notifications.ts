@@ -1,17 +1,12 @@
 import { computed, ref } from "vue";
-import { toastNotification } from "@/utils/Alerts";
-import dayjs from "dayjs";
-import { Service } from "@/services/service";
-
-export interface WebsocketNotificationInterface {
-    channelConf: {
-        channel: string;
-        room: string;
-    };
-    notificationBuilder: (data: any) => NotificationInterface;
-}
+import { NotificationService } from "@/services/notification_service"
+import HisDate from "@/utils/Date";
+import router from "@/router/index";
+import { isEmpty } from "lodash";
+import { toastWarning } from "@/utils/Alerts";
 
 export interface NotificationInterface {
+    id: number;
     title: string;
     message: string;
     read?: boolean;
@@ -19,20 +14,21 @@ export interface NotificationInterface {
     handler?: () => void;
 }
 
-let wbConsumer = null as any
-
 const notificationData = ref([] as NotificationInterface[])
 
 export function Notification() {
     const unReadNotifications = computed((): NotificationInterface[] => {
         return notificationData.value.filter(n => !n.read)
     })
+
     const hasNotifications = computed((): boolean =>  {
         return notificationData.value.length > 0
     })
+
     const hasUnreadNotifications = computed((): boolean =>  {
         return unReadNotifications.value.length > 0
     })
+
     const notificationCount = computed((): number => {
         return unReadNotifications.value.length
     })
@@ -43,47 +39,47 @@ export function Notification() {
         })
     })
 
-    function pushNotification(notification: NotificationInterface) {
-        const notice = {...notification}
-        notice.read = false
-        notice.date = dayjs().format('DD/MMM/YYYY HH:mm:ss')
-        notificationData.value.push(notice)
-        toastNotification(notification.title, notification.message)
-    }
-
-    function openNotification(notification: NotificationInterface) {
-        if (typeof notification.handler === 'function') {
-            notification.read = true
-            notification.handler()
+    async function loadNotifications() {
+        const notifications = await NotificationService.unread()
+        if (!isEmpty(notifications)) {
+            notificationData.value = notifications.map((n: any) => {
+                let type = 'General'
+                let message = n.text
+                let handler = null
+                try {
+                    const t = JSON.parse(n.text)
+                    type = t['Type']
+                    if (type.match(/lims/i)) {
+                        message = `Accession# ${t['Accession number']} result for ${t['Test type']} available`
+                        handler = () => router.push(`/patient/dashboard/${t['patientID']}`)
+                    }
+                } catch (e) {
+                    console.warn(e)
+                }
+                return {
+                    message,
+                    handler,
+                    title: type,
+                    id: n.alert_id,
+                    date: HisDate.toStandardHisDisplayFormat(n.date_created)
+                }
+            })
+            toastWarning(`You have ${notifications.length} unread notifications`)
         }
     }
 
-    async function initNotificationSocket(params: WebsocketNotificationInterface) {
-        if (!wbConsumer) {
-            wbConsumer = await Service.createWebsocketConsumer()
-        }
-        const ID = `${params.channelConf.channel} ${params.channelConf.room}`
-        wbConsumer.subscriptions.create(params.channelConf,
-        {
-            connected: function(){
-                console.log("connected to " + ID)
-            },
-            disconnected: function(){
-                console.log("disconnected " + ID)
-            },
-            rejected: function(){
-                console.log("rejected " + ID)
-            },
-            received: function (data: any) {
-                pushNotification(params.notificationBuilder(data))
+    async function openNotification(notification: NotificationInterface) {
+        notification.read = true
+        if ((await NotificationService.read([notification.id]))) {
+            if (typeof notification.handler === 'function') {
+                notification.handler()
             }
-        })
+        }
     }
 
     return {
-        initNotificationSocket,
-        pushNotification,
         openNotification,
+        loadNotifications,
         sortedNotifications,
         hasUnreadNotifications,
         notificationCount,
