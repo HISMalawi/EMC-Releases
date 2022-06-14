@@ -1,8 +1,13 @@
 <template>
-    <ion-card class="his-card task-card clickable">
+    <ion-card class="his-card task-card"
+        :class="{
+            'clickable': !isDisabled,
+            'disabled': isDisabled,
+        }"
+        >
         <ion-item lines="none">
             <ion-thumbnail slot="start">
-                <img :src="isCompleted ? checkIcon : icon"/>
+                <img :src="activeIcon"/>
             </ion-thumbnail>
             <ion-label
                 class="his-sm-text ion-text-wrap"
@@ -19,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { computed, defineComponent } from 'vue'
 import {
     IonCard,
     IonThumbnail,
@@ -48,18 +53,37 @@ export default defineComponent({
             type: String,
             required: false
         },
+        taskDisabled: {
+            type: Boolean,
+            required: false
+        },
         taskCompleted: {
             type: Boolean,
             required: false
         }
     },
     setup(props) {
-        const checkIcon = img('Checkmark.svg')
         const isCompleted: boolean = typeof props.taskCompleted === 'boolean' 
             ? props.taskCompleted 
             : false;
+
+        const isDisabled: boolean = typeof props.taskDisabled === 'boolean'
+            ? props.taskDisabled
+            : false;
+
+        const activeIcon = computed(() => {
+            if (isDisabled) {
+                return img('Disabled.svg')
+            } else if (isCompleted) {
+                return img('Checkmark.svg')
+            } else {
+                return props.icon
+            }
+        }) 
+
         return {
-            checkIcon,
+            activeIcon,
+            isDisabled,
             isCompleted
         }
     }
@@ -71,6 +95,9 @@ export default defineComponent({
     }
     ion-item {
         padding: 0;
+    }
+    .disabled {
+        opacity: 0.5!important;
     }
     .task-card {
         padding: 0;

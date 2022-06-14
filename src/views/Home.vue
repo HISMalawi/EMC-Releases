@@ -281,11 +281,6 @@ export default defineComponent({
 
       if (centerID) this.fetchLocationName(centerID);
     },
-    fetchLocationUUID: async function () {
-      const uuid = await GLOBAL_PROP.siteUUID()
-
-      if (uuid) sessionStorage.siteUUID = uuid
-    },
     async fetchLocationName(locationID: string) {
       const response = await ApiClient.get("locations/" + locationID);
 
@@ -298,6 +293,7 @@ export default defineComponent({
     createSessionLocationName(data: any) {
       sessionStorage.location = data.name;
       sessionStorage.locationName = data.name;
+      sessionStorage.siteUUID = data.uuid;
     },
     loadApplicationData() {
       this.ready = true;
@@ -352,7 +348,8 @@ export default defineComponent({
       }
     }, 1500)
   },
-  mounted(){
+  async mounted(){
+    await HisApp.doAppManagementTasks()
     const app = HisApp.getActiveApp()
     if (!app) {
       this.openModal();

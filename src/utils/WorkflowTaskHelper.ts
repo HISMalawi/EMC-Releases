@@ -3,6 +3,7 @@ import ActivitiesModal  from '@/components/ActivitiesSelection.vue'
 import { WorkflowService } from "@/services/workflow_service"
 import { modalController } from "@ionic/vue";
 import { isEmpty } from "lodash"
+import Apps from "@/apps/app_lib"
 
 export enum WorkflowSessionKeys {
     NextTask = 'next-task'
@@ -58,22 +59,37 @@ function goToNextSessionTask(patientID: number, router: any, curRoute: any) {
 
 export async function nextTask(patientID: number, router: any, curRoute: any = {}) {
    try {
+        // Run a custom workflow if curRoute information is provided
         if (!isEmpty(curRoute)) {
             const sessionTask = goToNextSessionTask(patientID, router, curRoute)
+            // Exit when the next task is defined in session storage
             if (sessionTask != -1) return
         }
+        // Next task from workflow Engine
         const { name } = await WorkflowService.nextTask(patientID)
         if (name) {
-            router.push({
-                name: name.toLowerCase(),
-                params: { 'patient_id': patientID }
-            })
+            const taskName = name.toLowerCase()
+            // Get reference configuration for current workflow task name
+            const activeApp = Apps.getActiveApp()
+            if (activeApp) {
+                const task = activeApp.primaryPatientActivites.filter(
+                    (task) => task.name.toLowerCase() === taskName
+                )
+                // Check workflow task config for any default actions defined
+                // and run them instead of default redirection action
+                if (task.length && typeof task[0].action === 'function') {
+                    return task[0].action({ patientID, router })
+                }
+            }
+            // Default workflow task action
+            router.push({ name: taskName, params: {'patient_id': patientID } })
             return
         }
-   } catch (e) { 
-       console.log(e) 
+    } catch (e) { 
+       console.warn(e)
     }
-   router.push(`/patient/dashboard/${patientID}`)
+    // Fallback redirection if workflow has no tasks/ if a funny error happens
+    router.push(`/patient/dashboard/${patientID}`)
 }
 
 export async function selectActivities(programActivities: TaskInterface[], property = 'activities') {

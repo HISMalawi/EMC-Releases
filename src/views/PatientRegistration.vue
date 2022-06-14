@@ -19,6 +19,7 @@ import { generateDateFields } from "@/utils/HisFormHelpers/MultiFieldDateHelper"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Patientservice } from "@/services/patient_service"
 import HisDate from "@/utils/Date"
+import { STANDARD_DATE_FORMAT } from "@/utils/Date"
 import { WorkflowService } from "@/services/workflow_service"
 import { isPlainObject, isEmpty } from "lodash"
 import PersonField from "@/utils/HisFormHelpers/PersonFieldHelper"
@@ -33,6 +34,7 @@ import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { IonPage } from "@ionic/vue"
 import { infoActionSheet } from "@/utils/ActionSheets"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
+import dayjs from "dayjs";
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
@@ -256,18 +258,18 @@ export default defineComponent({
         return name
     },
     genderField(): Field {
+        const IS_ANC_APP = this.app.applicationName === 'ANC'
         const IS_CXCA = this.app.applicationName === 'CxCa'
         const gender: Field = PersonField.getGenderField()
         gender.requireNext = this.isEditMode()
         gender.defaultValue = () => this.presets.gender
         gender.condition = () => {
-            if (!this.isEditMode() && IS_CXCA) {
+            if (!this.isEditMode() && (IS_ANC_APP || IS_CXCA)) {
                 return false
             }
             return this.editConditionCheck(['gender']) && this.presets.nationalIDStatus != "true"
         }
-
-        if (IS_CXCA && !this.isEditMode()) {
+        if ((IS_ANC_APP || IS_CXCA) && !this.isEditMode()) {
             gender.defaultOutput = () => ({ label: 'Female', value: 'F' })
             gender.defaultComputedOutput = () => ({ person: 'F' })
         } 
@@ -303,8 +305,16 @@ export default defineComponent({
         dobConfig.defaultValue = () => this.presets.birthdate
         dobConfig.condition = () => this.editConditionCheck([
             'year_birth_date', 'month_birth_date', 'day_birth_date'
-        ]) 
-        
+        ])
+        // ANC validation to ensure that we are not registering
+        // Non child bearing youngsters
+        if (this.app.applicationName === 'ANC') {
+            const sdate = Patientservice.getSessionDate()
+            const childBearingAgeInYrs = 12
+            dobConfig.maxDate = () => dayjs(sdate)
+                .subtract(childBearingAgeInYrs, 'years')
+                .format(STANDARD_DATE_FORMAT)
+        }
         return generateDateFields(dobConfig)
     },
     homeRegionField(): Field {
