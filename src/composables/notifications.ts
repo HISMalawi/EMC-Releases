@@ -48,9 +48,9 @@ export function Notification() {
                 let handler = null
                 try {
                     const t = JSON.parse(n.text)
-                    type = `${t['Test Type']} results for ${t['ARV-Number'] || t['Accession number']}`
-                    if (type.match(/lims/i)) {
-                        message = `Ordered by <b>${t['Ordered By']}</b>`
+                    if (t['Type'].match(/lims/i)) {
+                        type = `${t['Test type']} results for ${t['ARV-Number'] || t['Accession number']}`
+                        message = `Ordered by <b>${t['Ordered By'] || 'N/A'}</b>`
                         handler = () => router.push(`/art/encounters/lab/${t['PatientID']}`)
                     }
                 } catch (e) {

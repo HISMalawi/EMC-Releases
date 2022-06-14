@@ -42,11 +42,11 @@ export default defineComponent({
             notificationData,
             hasNotifications
         } = Notification()
-        watch(notificationData, () => {
-            if (notificationData) {
+        watch(notificationData, (d) => {
+            if (d) {
                 markAllAsRead()
             }
-        })
+        },{ deep : true, immediate: true})
         return {
             openNotification,
             sortedNotifications,
