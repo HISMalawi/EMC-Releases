@@ -19,7 +19,7 @@
     </ion-list>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, watch } from 'vue'
 import { Notification } from "@/composables/notifications"
 import { 
     IonItem,
@@ -36,16 +36,21 @@ export default defineComponent({
     },
     setup() {
         const { 
-            openNotification, 
-            sortedNotifications, 
-            notificationData, 
-            hasNotifications 
+            openNotification,
+            markAllAsRead,
+            sortedNotifications,
+            notificationData,
+            hasNotifications
         } = Notification()
+        watch(notificationData, () => {
+            if (notificationData) {
+                markAllAsRead()
+            }
+        })
         return {
             openNotification,
             sortedNotifications,
             hasNotifications,
-            notificationData
         }
     }
 })

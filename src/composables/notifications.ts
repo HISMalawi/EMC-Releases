@@ -61,24 +61,35 @@ export function Notification() {
                     message,
                     title: type,
                     id: n.alert_id,
-                    read: true,
                     date: HisDate.toStandardHisDisplayFormat(n.date_created)
                 }
             })
-            toastWarning(`You have ${notifications.length} unread notifications`)
+            toastWarning(`You have ${notifications.length} unread notification(s)`)
         }
     }
 
-    async function openNotification(notification: NotificationInterface) {
-        notification.read = true
-        if ((await NotificationService.read([notification.id]))) {
-            if (typeof notification.handler === 'function') {
-                notification.handler()
+    async function markAllAsRead() {
+        const data = notificationData.value.filter(n => !n.read)
+        if (!isEmpty(data)) {
+            if ((await NotificationService.read(data.map(n => n.id)))) {
+                notificationData.value = notificationData.value.map(n => {
+                    return {
+                        ...n,
+                        read: true
+                    }
+                })
             }
         }
     }
 
+    function openNotification(notification: NotificationInterface) {
+        if (typeof notification.handler === 'function') {
+            notification.handler()
+        }
+    }
+
     return {
+        markAllAsRead,
         openNotification,
         loadNotifications,
         sortedNotifications,
