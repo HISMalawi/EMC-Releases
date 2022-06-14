@@ -10,8 +10,9 @@
             @click="openNotification(item)"
             v-for="(item, index) in sortedNotifications"
             :key="index">
-            <ion-label>
-                <b>{{item.title}}</b> {{item.message}}
+            <ion-label class="his-lg-text">
+                <h1>{{item.title}}</h1>
+                <p class="his-lg-text" v-html="item.message"></p>
             </ion-label>
             <ion-chip color="success" class="his-md-text">{{item.date}}</ion-chip>
         </ion-item>

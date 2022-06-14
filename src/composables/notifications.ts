@@ -50,8 +50,8 @@ export function Notification() {
                     const t = JSON.parse(n.text)
                     type = t['Type']
                     if (type.match(/lims/i)) {
-                        message = `Accession# ${t['Accession number']} result for ${t['Test type']} available`
-                        handler = () => router.push(`/patient/dashboard/${t['patientID']}`)
+                        message = `Accession# <b>${t['Accession number']}</b> result for <b>${t['Test type']}</b> available`
+                        handler = () => router.push(`/art/encounters/lab/${t['PatientID']}`)
                     }
                 } catch (e) {
                     console.warn(e)
