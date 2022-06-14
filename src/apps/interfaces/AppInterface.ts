@@ -1,7 +1,6 @@
 import { Option } from '@/components/Forms/FieldInterface';
 import { RouteRecordRaw } from 'vue-router';
 import { TaskInterface } from './TaskInterface';
-import { WebsocketNotificationInterface } from '@/composables/notifications';
 
 export interface ActivityInterface {
     value: string;
