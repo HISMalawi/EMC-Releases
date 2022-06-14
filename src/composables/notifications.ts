@@ -48,19 +48,20 @@ export function Notification() {
                 let handler = null
                 try {
                     const t = JSON.parse(n.text)
-                    type = t['Type']
+                    type = `${t['Test Type']} results for ${t['ARV-Number'] || t['Accession number']}`
                     if (type.match(/lims/i)) {
-                        message = `Accession# <b>${t['Accession number']}</b> result for <b>${t['Test type']}</b> available`
+                        message = `Ordered by <b>${t['Ordered By']}</b>`
                         handler = () => router.push(`/art/encounters/lab/${t['PatientID']}`)
                     }
                 } catch (e) {
                     console.warn(e)
                 }
                 return {
-                    message,
                     handler,
+                    message,
                     title: type,
                     id: n.alert_id,
+                    read: true,
                     date: HisDate.toStandardHisDisplayFormat(n.date_created)
                 }
             })
