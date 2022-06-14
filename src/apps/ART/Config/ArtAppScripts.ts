@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 import { Service } from "@/services/service";
 import { Patientservice } from '@/services/patient_service';
 import ART_PROP from '@/apps/ART/art_global_props';
+import router from "@/router/index"
 
 async function enrollInArtProgram(patientID: number, patientType: string, clinic: string) {
     const program = new PatientProgramService(patientID)

@@ -69,12 +69,17 @@
           <ion-icon :icon="settings"> </ion-icon>
           <ion-label class="his-sm-text">Administration</ion-label>
         </ion-segment-button>
+        <ion-segment-button :value="4" @click="activeTab = 4">
+          <ion-icon :color="hasUnreadNotifications ? 'danger' : ''" :icon="notifications"/>
+          <ion-label :color="hasUnreadNotifications ? 'danger' : ''" class="his-sm-text">
+            Alerts <b v-if="hasUnreadNotifications">({{notificationCount}})</b>
+          </ion-label>
+        </ion-segment-button>
       </ion-segment>
     </ion-toolbar>
     
     <ion-content :fullscreen="true">
       <div id="container" class="his-card overview" v-if="ready">
-        
         <component 
           v-if ="activeTab == 1" 
           v-bind:is="appOverview"
@@ -90,6 +95,7 @@
           :items="app.globalPropertySettings" 
           >
         </home-folder>
+        <home-notification v-if="activeTab == 4"/>
       </div>
     </ion-content>
 
@@ -153,10 +159,11 @@ import ProgramIcon from "@/components/DataViews/DashboardAppIcon.vue"
 import HomeFolder from "@/components/HomeComponents/HomeFolders.vue"
 import { AuthService } from "@/services/auth_service"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
-
+import { Notification } from "@/composables/notifications" 
 import Img from "@/utils/Img"
 import { 
   apps, 
+  notifications,
   person, 
   search, 
   logOut,
@@ -183,6 +190,8 @@ import {
 } from "@ionic/vue";
 import usePlatform from "@/composables/usePlatform";
 import { alertConfirmation } from "@/utils/Alerts";
+import HomeNotification from "@/components/HomeComponents/HomeNotifications.vue"
+
 export default defineComponent({
   name: "Home",
   components: {
@@ -202,15 +211,25 @@ export default defineComponent({
     IonFooter,
     IonSegment,
     IonSegmentButton,
-    IonLabel
+    IonLabel,
+    HomeNotification
   },
   setup() {
     const { useVirtualInput } = usePlatform()
+    const {
+      notificationData, 
+      notificationCount, 
+      hasUnreadNotifications
+    }  = Notification()
     return {
+      hasUnreadNotifications,
+      notificationData,
+      notificationCount,
+      notifications,
       barcode,
-      apps, 
+      apps,
       person, 
-      search, 
+      search,
       logOut,
       statsChart,
       pieChart,
@@ -319,7 +338,9 @@ export default defineComponent({
       this.$router.push('/camera_scanner')
     }
   },
-  created() {
+  async created() {
+    const { loadNotifications } = Notification()
+    await loadNotifications()
     setInterval(() => {
       const barcodeElement = this.$refs.scanBarcode as HTMLInputElement
       if (barcodeElement) {
