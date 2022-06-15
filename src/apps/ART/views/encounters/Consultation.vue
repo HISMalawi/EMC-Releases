@@ -62,7 +62,7 @@ export default defineComponent({
     dispensation: {} as any,
     completed3HP: false as boolean,
     hasTbHistoryObs: false,
-    allergicToSulphur: false,
+    allergicToSulphur: false as boolean | null,
     TBSuspected: false,
     presentedTBSymptoms: false,
     askAdherence: false as boolean,
@@ -1270,10 +1270,21 @@ export default defineComponent({
           type: FieldType.TT_SELECT,
           validation: (data: any) => Validation.required(data),
           computedValue: (data: any) => {
-            this.allergicToSulphur = data.value.match(/yes/i)
+            this.allergicToSulphur = data.value.match(/unknown/i) 
+              ? null 
+              : data.value.match(/yes/i) 
+              ? true 
+              : false  
             return {
               tag: 'consultation',
-              obs: this.consultation.buildValueCoded("Allergic to sulphur", data.value)
+              obs: () => {
+                return this.consultation.buildValueCoded("Allergic to sulphur", 
+                  this.allergicToSulphur === null 
+                  ? data.value 
+                  : this.allergicToSulphur 
+                  ? 'Yes' 
+                  : 'No')
+              }
             }
           },
           options: () => this.yesNoUnknownOptions()
