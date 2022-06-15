@@ -361,17 +361,34 @@ export default defineComponent({
 									field: {
 										id: 'birth_weight',
 										helpText: 'Birth weight',
-										type: FieldType.TT_NUMBER,
+										type: FieldType.TT_TEXT,
 										computedValue: (v: Option) => {
 											return this.service.buildValueText('Birth weight', v.value)
 										},
 										validation: (v: Option) => this.validateSeries([
 											() => Validation.required(v),
+											() => {
+												if (v.value != 'Unknown' && !(`${v.value}`.match(/^\d{1,3}\.\d{1,5}$/))) {
+													return [`Invalid weight ${v.value}. Don't forget decimal point`]
+												}
+												return null
+											},
 											() => !['N/A', 'Unknown'].includes(`${v.value}`) 
 												? Validation.rangeOf(v, 1, 5) 
 												: null,
 										]),
 										config: {
+											customKeyboard: [
+												[
+													['1', '2', '3'],
+													['4', '5', '6'],
+													['7', '8', '9'],
+													['', '0', '.']
+												],
+												[
+													['Unknown', 'Delete']
+												]
+											],
 											onUnknownEstimateField: () => { 
 												return {
 													id: 'birth_weight_estimate',
