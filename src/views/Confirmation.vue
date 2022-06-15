@@ -431,14 +431,18 @@ export default defineComponent({
       }
     },
     async setProgramFacts() {
-      this.program = new PatientProgramService(this.patient.getID())
-      this.programInfo = await this.program.getProgram()
-      const { program, outcome }: any =  this.programInfo
-      this.facts.currentOutcome = outcome
-      this.facts.programName = program
-      this.facts.userRoles = UserService.getUserRoles().map((r: any) => r.role)
-      this.facts.patientType = (await ObservationService.getFirstValueCoded(
-        this.patient.getID(), 'Type of patient'))
+      try {
+        this.program = new PatientProgramService(this.patient.getID())
+        this.programInfo = await this.program.getProgram()
+        const { program, outcome }: any =  this.programInfo
+        this.facts.currentOutcome = outcome
+        this.facts.programName = program
+        this.facts.userRoles = UserService.getUserRoles().map((r: any) => r.role)
+        this.facts.patientType = (await ObservationService.getFirstValueCoded(
+          this.patient.getID(), 'Type of patient'))
+      } catch (e) {
+        console.error(`${e}`)
+      }
     },
     /**
      * Set dde facts if service is enabled.
