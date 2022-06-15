@@ -325,11 +325,15 @@ export default defineComponent({
       const ok = await alertConfirmation('Are you sure you want to logout ?')
       if (!ok) return
       const auth = new AuthService()
-      if((await GLOBAL_PROP.portalEnabled())) {
-        const portalLocation = await GLOBAL_PROP.portalProperties();
-        window.location = portalLocation;
-      }else {
-        this.$router.push('/login')
+      try {
+        if((await GLOBAL_PROP.portalEnabled())) {
+          const portalLocation = await GLOBAL_PROP.portalProperties();
+          window.location = portalLocation;
+        }else {
+          this.$router.push('/login')
+        }
+      } catch (e) {
+        console.warn(`${e}`)
       }
       auth.clearSession()
     },
