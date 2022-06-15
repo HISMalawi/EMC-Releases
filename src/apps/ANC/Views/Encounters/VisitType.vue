@@ -22,7 +22,8 @@ export default defineComponent({
   components: { IonPage },
   mixins: [EncounterMixinVue],
   data: () => ({
-    service: {} as any
+    service: {} as any,
+    helpText: 'ANC Visit Number' as string
   }),
   watch: {
     ready: {
@@ -47,8 +48,13 @@ export default defineComponent({
       return [
         {
           id: 'visit_number',
-          helpText: 'ANC Visit Number',
-          
+          helpText: this.helpText,
+          dynamicHelpText: () => {
+            if (this.service.lastVisitNumber) {
+              return `${this.helpText} (Last visit number: ${this.service.lastVisitNumber})`
+            }
+            return this.helpText
+          },
           type: FieldType.TT_NUMBER,
           computedValue: (v: Option) => v.value,
           validation: (v: Option) => this.validateSeries([
