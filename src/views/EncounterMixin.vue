@@ -169,10 +169,12 @@ export default defineComponent({
                     const data = cur.obs ? cur.obs : cur
                     if (Array.isArray(data)) {
                         accum = accum.concat(data)
+                    } else if (typeof data === 'function') {
+                        accum.push(data())
                     } else {
                         accum.push(data)
                     }
-                        return accum
+                    return accum
                     }, [])
             return Promise.all(values)
         },
