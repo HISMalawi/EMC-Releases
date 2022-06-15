@@ -52,7 +52,8 @@
                                                 <ion-button
                                                     :disabled="!(drug.id && drug.frequency && drug.duration)"
                                                     @click="activeDrugs.push(defaultDrugObj())" 
-                                                    class="his-lg-text" 
+                                                    class="his-lg-text"
+                                                    style="width:100%"
                                                     color="success"> 
                                                     <ion-icon :icon="add"/>
                                                 </ion-button>
@@ -61,8 +62,9 @@
                                                 <ion-button
                                                     @click="activeDrugs.splice(drugIndex, 1)"
                                                     class="his-lg-text"
+                                                    style="width:100%"
                                                     color="danger">
-                                                    <ion-icon :icon="remove"/>
+                                                    <ion-icon :icon="trashBin"/>
                                                 </ion-button>
                                             </ion-col>
                                         </ion-row>
@@ -127,7 +129,7 @@ import { DrugService } from '@/services/drug_service'
 import { alertConfirmation, toastWarning } from '@/utils/Alerts'
 import {
     add,
-    remove
+    trashBin
 } from "ionicons/icons";
 import { PatientPrintoutService } from '@/services/patient_printout_service'
 import { AncDrugSetService } from '../../Services/anc_drug_set'
@@ -152,7 +154,7 @@ export default defineComponent({
     setup() {
         return {
             add,
-            remove
+            trashBin
         }
     },
     data: () => ({
@@ -189,13 +191,16 @@ export default defineComponent({
     },
     methods: {
         async onFinish() {
-            if (!this.formIsComplete()) {
+            if (this.formIsEmpty()) {
                 if ((await alertConfirmation('Do you want to continue without completing the form?'))) {
                     await this.service.createEncounter()
                     await this.service.saveValueCodedObs('Medication received at vist', 'No')
                     this.nextTask()
                 }
                 return
+            }
+            if (!this.formIsComplete()) {
+                return toastWarning('Please complete the form')
             }
             this.isSubmitting = true
             try {
@@ -219,7 +224,11 @@ export default defineComponent({
             }
         },
         formIsComplete() {
-            return this.activeDrugs.map(d => d.id && d.duration && d.frequency).every(Boolean)
+            return this.activeDrugs.every(d => d.id && d.duration && d.frequency)
+        },
+        formIsEmpty() {
+            return this.activeDrugs.length === 1 && this.activeDrugs[0].drug_name === ''
+                && this.activeDrugs[0].duration === 0 && this.activeDrugs[0].frequency === '' 
         },
         appendDrugSetValues(drugSet: any) {
             const drugs = drugSet.other.drugs.reduce((a: any, c: any) => a.concat(c), [])
