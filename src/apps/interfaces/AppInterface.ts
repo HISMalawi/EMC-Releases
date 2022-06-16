@@ -12,6 +12,7 @@ export interface FolderInterface {
     icon?: string;
     defaultFilesIcon?: string;
     condition?: () => boolean | Promise<boolean>;
+    action?: () => void;
     files: Array<
         {
             name: string;
