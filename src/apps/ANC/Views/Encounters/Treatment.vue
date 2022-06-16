@@ -52,10 +52,11 @@
                                                 <ion-button
                                                     :disabled="!(drug.id && drug.frequency && drug.duration)"
                                                     @click="activeDrugs.push(defaultDrugObj())" 
-                                                    class="his-lg-text"
+                                                    class="his-md-text"
                                                     style="width:100%"
                                                     color="success"> 
                                                     <ion-icon :icon="add"/>
+                                                    Add
                                                 </ion-button>
                                             </ion-col>
                                             <ion-col size="6" v-if="drugIndex + 1 < activeDrugs.length || (drugIndex !=0 && drugIndex +1 >= activeDrugs.length)"> 
@@ -192,7 +193,7 @@ export default defineComponent({
     methods: {
         async onFinish() {
             if (this.formIsEmpty()) {
-                if ((await alertConfirmation('Do you want to continue without completing the form?'))) {
+                if ((await alertConfirmation('Do you want to proceed without prescribing drugs?'))) {
                     await this.service.createEncounter()
                     await this.service.saveValueCodedObs('Medication received at vist', 'No')
                     this.nextTask()
