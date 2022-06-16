@@ -247,16 +247,16 @@ export default defineComponent({
             dynamicHelpText: () => {
                 const title = 'Fundal height (cm)'
                 if (this.service.gestationWeeks) {
-                    return `${title} (Gestation weeks: ${this.service.gestationWeeks})`
+                    return `${title} (${this.service.gestationWeeks}wks/${this.service.getEquivalentFundalHeight(this.service.gestationWeeks)} cm)`
                 }
                 return title
             },
             beforeNext: async (v: Option) => {
-                const max = this.service.getMaxFundalHeight() || 45
+                const expectedFundalHeight = this.service.expectedFundalHeightForGestationWeeks()
                 const val: string | number = v ? parseInt(v.value as string) : -1
-                if (v && typeof val === 'number' && val > max) {
+                if (v && typeof val === 'number' && (val < expectedFundalHeight || val > expectedFundalHeight)) {
                     const ok = await alertConfirmation(`
-                        Fundal height is greater than expected value of ${max} from gestation weeks of ${this.service.gestationWeeks}.
+                        Fundal height is not equal to expected ${expectedFundalHeight} cm from gestation weeks of ${this.service.gestationWeeks} .
                         Are you sure about this value?`
                     )
                     return ok ? true : false
