@@ -660,13 +660,16 @@ export default defineComponent({
           condition: () => this.wasTransferredIn,
           minDate: () => this.dateStartedArt,
           maxDate: () => this.consultation.getDate(),
-          computeValue: (date: string) => ({
-            tag: 'consultation',
-            date,
-            obs: this.consultation.buildValueDate(
-              'Date drug received from previous facility', date
-            )
-          }),
+          computeValue: (date: string) => {
+            this.prescription.setDate(date)
+            return {
+              tag: 'consultation',
+              date,
+              obs: this.consultation.buildValueDate(
+                'Date drug received from previous facility', date
+              )
+            }
+          },
           estimation: {
             allowUnknown: false
           }
