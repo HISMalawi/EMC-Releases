@@ -254,7 +254,8 @@ export default defineComponent({
             beforeNext: async (v: Option) => {
                 const expectedFundalHeight = this.service.expectedFundalHeightForGestationWeeks()
                 const val: string | number = v ? parseInt(v.value as string) : -1
-                if (v && typeof val === 'number' && (val < expectedFundalHeight || val > expectedFundalHeight)) {
+                if (this.service.gestationWeeks && (v && typeof val === 'number') 
+                    && (val < expectedFundalHeight || val > expectedFundalHeight)) {
                     const ok = await alertConfirmation(`
                         Fundal height is not equal to expected ${expectedFundalHeight} cm from gestation weeks of ${this.service.gestationWeeks} .
                         Are you sure about this value?`

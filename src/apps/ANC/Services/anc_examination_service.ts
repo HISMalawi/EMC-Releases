@@ -44,8 +44,11 @@ export class AncExaminationService extends AppEncounterService {
   async loadPregnancyStatus() {
     const res = await AppEncounterService.getJson(`programs/${this.programID}/patients/${this.patientID}`)
     if (res) {
-      const p = new AncCurrentPregnancyService(this.patientID, this.providerID)
-      this.gestationWeeks = parseInt(p.calculateWeekOfFirstVisit(res['date_of_lnmp']))
+      const dateofLmp = res['date_of_lnmp']
+      if (dateofLmp) {
+        const p = new AncCurrentPregnancyService(this.patientID, this.providerID)
+        this.gestationWeeks = parseInt(p.calculateWeekOfFirstVisit(res['date_of_lnmp']))
+      }
     }
   }
 
