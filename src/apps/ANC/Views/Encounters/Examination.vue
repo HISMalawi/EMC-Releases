@@ -266,7 +266,9 @@ export default defineComponent({
             },
             validation: (v: Option) => this.validateSeries([
                 () => Validation.required(v),
-                () => Validation.rangeOf(v, 10, 45)
+                () => v && !`${v.value}`.match(/unknown/i) 
+                    ? Validation.rangeOf(v, 10, 45) 
+                    : null
             ]),
             computedValue: (v: Option) => {
                 return v.value != 'Unknown' 
