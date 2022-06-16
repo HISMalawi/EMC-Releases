@@ -42,6 +42,7 @@
           :paginated="paginated"
           :asyncRows="asyncRows"
           :rowParser="rowParser"
+          :config="config"
           :columns="columns"
           :showFilters="showFilters"
           :newPage="currentPage"
@@ -123,6 +124,9 @@ export default defineComponent({
     period: {
       type: String,
       default: '',
+    },
+    config: {
+      type: Object
     },
     fields: {
       type: Object as PropType<Field[]>,
