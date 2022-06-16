@@ -19,7 +19,6 @@ import ReportTemplate from "@/views/reports/BaseTableReport.vue"
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 import ReportMixin from '@/apps/ART/views/reports/ReportMixin.vue'
 import { isEmpty } from 'lodash'
-import { border } from '@/apps/OPD/utils/table'
 import { IonPage } from "@ionic/vue";
 import { Patientservice } from '@/services/patient_service'
 
@@ -35,24 +34,46 @@ export default defineComponent({
     },
     columns: [
       [
-        table.thTxt('Age Groups', border),
-        table.thTxt('<6 months', {colspan: 2, ...border}),
-        table.thTxt('6 months < 5 yrs', {colspan: 2, ...border}),
-        table.thTxt('5 yrs < 14 yrs', {colspan: 2, ...border}),
-        table.thTxt('> 14 yrs', {colspan: 2, ...border}),
-        table.thTxt(''),
+        table.thTxt('Age Groups', {
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('<6 months', {
+          colspan: 2,
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('6 months < 5 yrs', {
+          colspan: 2,
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('5 yrs < 14 yrs', {
+          colspan: 2,
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('> 14 yrs', {
+          colspan: 2,
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('', {
+          sortable: false,
+          exportable: false 
+        }),
       ],
       [
-        table.thTxt('Diagnosis', border),
-        table.thTxt('F', border),
-        table.thTxt('M', border),
-        table.thTxt('F', border),
-        table.thTxt('M', border),
-        table.thTxt('F', border),
-        table.thTxt('M', border),
-        table.thTxt('F', border),
-        table.thTxt('M', border),
-        table.thTxt('Total', border),
+        table.thTxt('Diagnosis'),
+        table.thTxt('F', { value: 'Females <6 months' }),
+        table.thTxt('M', { value: 'Males <6 months' }),
+        table.thTxt('F', { value: 'Females 6 months < 5 yrs'}),
+        table.thTxt('M', { value: 'Males 6 months < 5 yrs' }),
+        table.thTxt('F', { value: 'Females 5 yrs < 14 yrs' }),
+        table.thTxt('M', { value: 'Males 5 yrs < 14 yrs' }),
+        table.thTxt('F', { value: 'Females > 14 yrs' }),
+        table.thTxt('M', { value: 'Males > 14 yrs' }),
+        table.thTxt('Total'),
       ]
     ] as ColumnInterface[][],
   }),
