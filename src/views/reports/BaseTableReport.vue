@@ -42,7 +42,7 @@
           :paginated="paginated"
           :asyncRows="asyncRows"
           :rowParser="rowParser"
-          :config="config"
+          :config="{...config, tableCssTheme}"
           :columns="columns"
           :showFilters="showFilters"
           :newPage="currentPage"
@@ -209,6 +209,7 @@ export default defineComponent({
     apiVersion: Service.getApiVersion(),
     coreVersion: Service.getCoreVersion(),
     siteUUID: Service.getSiteUUID() as string,
+    tableCssTheme: 'opd-report-theme',
   }),
   methods: {
     getFileName() {

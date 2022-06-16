@@ -29,9 +29,6 @@ export default defineComponent({
     title: 'OPD Diagnosis',
     rows: [] as RowInterface[][],
     reportService: {} as any,
-    tableConfig: {
-      showIndex: false,
-    },
     columns: [
       [
         table.thTxt('Age Groups', {
