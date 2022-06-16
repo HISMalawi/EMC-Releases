@@ -247,25 +247,30 @@ export default defineComponent({
             dynamicHelpText: () => {
                 const title = 'Fundal height (cm)'
                 if (this.service.gestationWeeks) {
-                    return `${title} (Gestation weeks: ${this.service.gestationWeeks})`
+                    return `${title} (${this.service.gestationWeeks}wks/${this.service.getEquivalentFundalHeight(this.service.gestationWeeks)} cm)`
                 }
                 return title
             },
-            beforeNext: async (v: Option) => {
-                const max = this.service.getMaxFundalHeight() || 45
+            beforeNext: async (v: Option, f: any) => {
+                if (v && `${v.value}`.match(/unknown/i) && !['Nil palpable', 'Ball'].includes(f.presentation.value)) {
+                    return (await alertConfirmation(`Do you want to proceed with Unknown Fundal height?`)) ? true : false
+                }
+                const expectedFundalHeight = this.service.expectedFundalHeightForGestationWeeks()
                 const val: string | number = v ? parseInt(v.value as string) : -1
-                if (v && typeof val === 'number' && val > max) {
-                    const ok = await alertConfirmation(`
-                        Fundal height is greater than expected value of ${max} from gestation weeks of ${this.service.gestationWeeks}.
+                if (this.service.gestationWeeks && (v && typeof val === 'number') 
+                    && (val < expectedFundalHeight || val > expectedFundalHeight)) {
+                    return (await alertConfirmation(`
+                        Fundal height is not equal to expected ${expectedFundalHeight} cm from gestation weeks of ${this.service.gestationWeeks} .
                         Are you sure about this value?`
-                    )
-                    return ok ? true : false
+                    )) ? true : false
                 }
                 return true
             },
             validation: (v: Option) => this.validateSeries([
                 () => Validation.required(v),
-                () => Validation.rangeOf(v, 10, 45)
+                () => v && !`${v.value}`.match(/unknown/i) 
+                    ? Validation.rangeOf(v, 10, 45) 
+                    : null
             ]),
             computedValue: (v: Option) => {
                 return v.value != 'Unknown' 
