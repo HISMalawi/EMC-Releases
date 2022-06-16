@@ -6,7 +6,6 @@
       :fields="fields"
       :columns="columns"
       :period="period"
-      :config="tableConfig"
       :onReportConfiguration="init"
     ></report-template>
   </ion-page>
