@@ -99,7 +99,7 @@ export default defineComponent({
                     if (!this.service.isPrengnacyTestDone) {
                         options.push(this.toYesNoOption('Pregnancy test done', { concept: 'B-HCG'}))
                     }
-                    if (!this.hivStatus) {
+                    if (!this.service.hivStatus) {
                         options.push(this.toYesNoOption('Previous HIV test done', { concept: 'Previous HIV test done'}))
                     }
                     return options
