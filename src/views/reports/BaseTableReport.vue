@@ -10,15 +10,15 @@
       <ion-toolbar>
         <ion-row> 
           <ion-col size="2">
-            <img class="logo" :src="logo" />
+            <img class="logo ion-margin-start" :src="logo" />
           </ion-col>
           <ion-col>
             <ion-row>
-              <ion-col size="2">Title</ion-col> 
+              <ion-col size="2"><b>Title</b></ion-col> 
               <ion-col> <b>{{ title }}</b> </ion-col>
             </ion-row>
             <ion-row v-if="period"> 
-              <ion-col size="2">Period</ion-col> 
+              <ion-col size="2"><b>Period</b></ion-col> 
               <ion-col> <b>{{ period }}</b> </ion-col>
             </ion-row>
           </ion-col>
@@ -42,6 +42,7 @@
           :paginated="paginated"
           :asyncRows="asyncRows"
           :rowParser="rowParser"
+          :config="{...config, tableCssTheme}"
           :columns="columns"
           :showFilters="showFilters"
           :newPage="currentPage"
@@ -56,14 +57,18 @@
       </div>
     </ion-content>
     <ion-footer>
-      <ion-toolbar>
+      <ion-toolbar v-if="!searchFilter && paginated || !searchFilter && totalPages > 0 && paginated">
         <pagination
-          v-if="!searchFilter && paginated || !searchFilter && totalPages > 0 && paginated"
           :perPage="itemsPerPage"
           :maxVisibleButtons="10"
           :totalPages="totalPages"
           @onChangePage="(p) => currentPage=p"
           />
+      </ion-toolbar>
+      <ion-toolbar v-if="showReportStamp"> 
+        <ion-chip color="primary">Date Created: <b>{{ date }}</b></ion-chip>
+        <ion-chip color="primary">His-Core Version: <b>{{ coreVersion }}</b></ion-chip>
+        <ion-chip color="primary">API Version: <b>{{ apiVersion }}</b></ion-chip>
       </ion-toolbar>
     </ion-footer>
     <his-footer :color="footerColor" :btns="btns"></his-footer>
@@ -86,6 +91,7 @@ import {
   IonRow,
   IonCol,
   loadingController,
+  IonChip, 
   IonFooter
 } from "@ionic/vue"
 import { Service } from "@/services/service"
@@ -107,7 +113,8 @@ export default defineComponent({
     IonCol,
     Pagination, 
     ReportFilter,  
-    IonFooter 
+    IonFooter,
+    IonChip, 
   },
   props: {
        title: {
@@ -117,6 +124,9 @@ export default defineComponent({
     period: {
       type: String,
       default: '',
+    },
+    config: {
+      type: Object
     },
     fields: {
       type: Object as PropType<Field[]>,
@@ -174,7 +184,11 @@ export default defineComponent({
     canExport: {
       type: Boolean,
       default: true
-    }
+    },
+    showReportStamp: {
+      type: Boolean,
+      default: true
+    },
   },
   data: () => ({
     formData: {} as any,
@@ -193,6 +207,9 @@ export default defineComponent({
     activeRows: [] as any,
     date: HisDate.toStandardHisDisplayFormat(Service.getSessionDate()),
     apiVersion: Service.getApiVersion(),
+    coreVersion: Service.getCoreVersion(),
+    siteUUID: Service.getSiteUUID() as string,
+    tableCssTheme: 'opd-report-theme',
   }),
   methods: {
     getFileName() {
@@ -208,7 +225,7 @@ export default defineComponent({
         loadingController.dismiss ()
       }catch(e) {
         console.error(e)
-        toastDanger(e)
+        toastDanger(`${e}`)
         loadingController.dismiss()
       }
     },
@@ -227,56 +244,61 @@ export default defineComponent({
   created() {
     this.showForm = !!this.fields.length
     this.btns = this.customBtns
-    if (this.canExportCsv) {
-      this.btns.push({
+    this.btns.push(
+      {
         name: "CSV",
         size: "large",
         slot: "start",
         color: "primary",
-        visible: true,
+        visible: this.canExportCsv,
         onClick: async () => {
           const {columns, rows} = toExportableFormat(this.columns, this.rows)
-          toCsv(columns, rows, this.getFileName())
+          toCsv(columns, [
+            ...rows,
+            [`Date Created: ${this.date}`],
+            [`Period: ${this.period}`],
+            [`HIS-Core Version: ${this.coreVersion}`],
+            [`API Version: ${this.apiVersion}`],
+            [`Site UUID: ${this.siteUUID}`]
+          ], this.getFileName())
         }
-      })
-    }
-    if (this.canExportPDf) {
-      this.btns.push({
+      },
+      {
         name: "PDF",
         size: "large",
         slot: "start",
         color: "primary",
-        visible: true,
+        visible: this.canExportPDf,
         onClick: async () => {
           const {columns, rows} = toExportableFormat(this.columns, this.rows)
           toTablePDF(columns, rows, this.getFileName())
         }
-      })
-    }
-    this.btns.push({
-      name: "Back",
-      size: "large",
-      slot: "end",
-      color: "warning",
-      visible: true,
-      onClick: () => this.showForm = true
-    })
-    this.btns.push({
-      name: "Refresh",
-      size: "large",
-      slot: "end",
-      color: "warning",
-      visible: true,
-      onClick: async () => this.reloadReport()
-    })
-    this.btns.push({
-      name: "Finish",
-      size: "large",
-      slot: "end",
-      color: "success",
-      visible: true,
-      onClick: async () => this.$router.push({ path:'/' })
-    })
+      },
+      {
+        name: "Back",
+        size: "large",
+        slot: "end",
+        color: "warning",
+        visible: true,
+        onClick: () => this.showForm = true
+      },
+      {
+        name: "Refresh",
+        size: "large",
+        slot: "end",
+        color: "warning",
+        visible: true,
+        onClick: async () => this.reloadReport()
+      },
+      {
+        name: "Finish",
+        size: "large",
+        slot: "end",
+        color: "success",
+        visible: true,
+        onClick: async () => this.$router.push({ path:'/' })
+      }
+    )
   }
 })
 </script>
