@@ -4,28 +4,32 @@
     <span v-for="(item, index) in checkedItems" :key="index"> 
       <ion-chip color="danger" @click="uncheck(item.label)">{{item.label}}</ion-chip>
     </span>
-    <ion-list class='view-port-content'>
-      <ion-item v-for="(entry, index) in filtered" :key="index" :color="entry.isChecked ? 'lightblue':''">
-        <ion-label> 
-          <ion-text class="his-md-text">
-            {{ entry.label }} 
-          </ion-text>
-          <ion-text
-            :color="entry.description.color" 
-            v-if="isDescription(entry.description, entry.isChecked)"> 
-            <p><i>{{ entry.description.text }}</i></p>
-          </ion-text>
-        </ion-label>
-        <ion-checkbox
-          slot="start"
-          v-model="entry.isChecked"
-          @ionChange="(e) => onselect(entry, e)"
-          :disabled="entry?.disabled"/>
-      </ion-item>
-    </ion-list>
-    <ion-infinite-scroll @ionInfinite="pushData($event)" :threshold="infiniteScroll.threshold" :disabled="!infiniteScroll.enabled" >
-      <ion-infinite-scroll-content loading-spinner="crescent" loading-text="Loading more data..." />
-    </ion-infinite-scroll>
+    <ion-content style="width: 100%;" class="ion-padding-bottom">
+      <div class="ion-content-scroll-host">
+        <ion-list class='view-port-content'>
+          <ion-item v-for="(entry, index) in filtered" :key="index" :color="entry.isChecked ? 'lightblue':''">
+            <ion-label> 
+              <ion-text class="his-md-text">
+                {{ entry.label }} 
+              </ion-text>
+              <ion-text
+                :color="entry.description.color" 
+                v-if="isDescription(entry.description, entry.isChecked)"> 
+                <p><i>{{ entry.description.text }}</i></p>
+              </ion-text>
+            </ion-label>
+            <ion-checkbox
+              slot="start"
+              v-model="entry.isChecked"
+              @ionChange="(e) => onselect(entry, e)"
+              :disabled="entry?.disabled"/>
+          </ion-item>
+        </ion-list>
+        <ion-infinite-scroll @ionInfinite="pushData($event)" :threshold="infiniteScroll.threshold" :disabled="!infiniteScroll.enabled" >
+          <ion-infinite-scroll-content loading-spinner="crescent" loading-text="Loading more data..." />
+        </ion-infinite-scroll>
+      </div>
+    </ion-content >
   </view-port>
   <his-keyboard v-if="showKeyboard" :kbConfig="keyboard" :onKeyPress="keypress"/>
 </template>
