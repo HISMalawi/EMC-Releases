@@ -56,14 +56,17 @@
       </div>
     </ion-content>
     <ion-footer>
-      <ion-toolbar>
+      <ion-toolbar v-if="!searchFilter && paginated || !searchFilter && totalPages > 0 && paginated">
         <pagination
-          v-if="!searchFilter && paginated || !searchFilter && totalPages > 0 && paginated"
           :perPage="itemsPerPage"
           :maxVisibleButtons="10"
           :totalPages="totalPages"
           @onChangePage="(p) => currentPage=p"
           />
+      </ion-toolbar>
+      <ion-toolbar v-if="showReportStamp"> 
+        <ion-chip color="primary">Date Generated: <b>{{ date }}</b></ion-chip>
+        <ion-chip color="primary">API version: <b>{{ apiVersion }}</b></ion-chip>
       </ion-toolbar>
     </ion-footer>
     <his-footer :color="footerColor" :btns="btns"></his-footer>
@@ -86,6 +89,7 @@ import {
   IonRow,
   IonCol,
   loadingController,
+  IonChip, 
   IonFooter
 } from "@ionic/vue"
 import { Service } from "@/services/service"
@@ -107,7 +111,8 @@ export default defineComponent({
     IonCol,
     Pagination, 
     ReportFilter,  
-    IonFooter 
+    IonFooter,
+    IonChip, 
   },
   props: {
        title: {
@@ -174,7 +179,11 @@ export default defineComponent({
     canExport: {
       type: Boolean,
       default: true
-    }
+    },
+    showReportStamp: {
+      type: Boolean,
+      default: true
+    },
   },
   data: () => ({
     formData: {} as any,
