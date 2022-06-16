@@ -137,6 +137,12 @@ export default {
         {
           name: "DDE Activation",
           pathUrl: `/preferences?label=Activate DDE&property=${GLOBAL_PROP.DDE_ENABLED}`
+        },
+        {
+          name: 'NPID Status',
+          action: () => {
+            alert('Ariba!')
+          }
         }
       ]
     },
