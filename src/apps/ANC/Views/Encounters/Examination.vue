@@ -251,16 +251,18 @@ export default defineComponent({
                 }
                 return title
             },
-            beforeNext: async (v: Option) => {
+            beforeNext: async (v: Option, f: any) => {
+                if (v && `${v.value}`.match(/unknown/i) && !['Nil palpable', 'Ball'].includes(f.presentation.value)) {
+                    return (await alertConfirmation(`Do you want to proceed with Unknown Fundal height?`)) ? true : false
+                }
                 const expectedFundalHeight = this.service.expectedFundalHeightForGestationWeeks()
                 const val: string | number = v ? parseInt(v.value as string) : -1
                 if (this.service.gestationWeeks && (v && typeof val === 'number') 
                     && (val < expectedFundalHeight || val > expectedFundalHeight)) {
-                    const ok = await alertConfirmation(`
+                    return (await alertConfirmation(`
                         Fundal height is not equal to expected ${expectedFundalHeight} cm from gestation weeks of ${this.service.gestationWeeks} .
                         Are you sure about this value?`
-                    )
-                    return ok ? true : false
+                    )) ? true : false
                 }
                 return true
             },
