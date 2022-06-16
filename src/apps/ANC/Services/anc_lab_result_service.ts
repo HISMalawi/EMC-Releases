@@ -47,7 +47,15 @@ export class AncLabResultService extends AppEncounterService {
     async loadSubsequentVisit() {
         const res: any = await Service.getJson(`programs/${this.programID}/patients/${this.patientID}/subsequent_visit`)
         if (res) {
-            this.hivStatus = res['hiv_status'] || this.hivStatus
+            this.hivStatus = res['hiv_status']
+            /**
+             * On new pregnancies for existing patients, HIV status is empty even if the patient is positive!! 
+             * So we need to check concepts if the patient is really positive
+             */
+            if (!this.hivStatus) {
+                const res = await this.getFirstValueCoded('HIV status')
+                this.hivStatus = `${res}`.match(/positive/i) ? 'Positive' : ''
+            }
             this.isSubsequentVisit = res['subsequent_visit']
             this.isPregnancyTestDone = res['pregnancy_test']
         }
