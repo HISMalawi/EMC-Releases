@@ -42,6 +42,7 @@
           :paginated="paginated"
           :asyncRows="asyncRows"
           :rowParser="rowParser"
+          :config="config"
           :columns="columns"
           :showFilters="showFilters"
           :newPage="currentPage"
@@ -123,6 +124,9 @@ export default defineComponent({
     period: {
       type: String,
       default: '',
+    },
+    config: {
+      type: Object
     },
     fields: {
       type: Object as PropType<Field[]>,
@@ -239,7 +243,7 @@ export default defineComponent({
   created() {
     this.showForm = !!this.fields.length
     this.btns = this.customBtns
-    this.btns.concat([
+    this.btns.push(
       {
         name: "CSV",
         size: "large",
@@ -293,7 +297,7 @@ export default defineComponent({
         visible: true,
         onClick: async () => this.$router.push({ path:'/' })
       }
-    ])
+    )
   }
 })
 </script>
