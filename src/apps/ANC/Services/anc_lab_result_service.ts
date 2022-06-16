@@ -44,30 +44,22 @@ export class AncLabResultService extends AppEncounterService {
         return sys && ds && sys >= 140 && ds >= 90
     }
 
-    async loadHivStatus() {
-        const res = await this.requestHivStatus()
+    async loadSubsequentVisit() {
+        const res: any = await Service.getJson(`programs/${this.programID}/patients/${this.patientID}/subsequent_visit`)
         if (res) {
-            this.hivStatus = res['hiv_status'] || ''
+            this.hivStatus = res['hiv_status'] || this.hivStatus
+            this.isSubsequentVisit = res['subsequent_visit']
+            this.isPregnancyTestDone = res['pregnancy_test']
+        }
+    }
+
+    async loadArtStatus() {
+        const res = await Service.getJson(`programs/${this.programID}/patients/${this.patientID}/art_hiv_status`)
+        if (res) {
+            this.hivStatus = res['hiv_status'] || this.hivStatus
             this.artStatus = res['art_status'] || ''
             this.arvNumber = res['arv_number'] || ''
             this.arvStartDate = res['arv_start_date'] || ''
         }
     }
-
-    async loadPregnancyStatus() {
-        const res = await this.requestSubsequentVisit()
-        if (res) {
-            this.isSubsequentVisit = res['subsequent_visit'] || false
-            this.isPregnancyTestDone = res['pregnancy_test'] || false
-        }
-    }
-
-    requestHivStatus() {
-        return Service.getJson(`programs/${this.programID}/patients/${this.patientID}/art_hiv_status`)
-    }
-
-    requestSubsequentVisit() {
-        return Service.getJson(`programs/${this.programID}/patients/${this.patientID}/subsequent_visit`)
-    }
-
 }

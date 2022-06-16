@@ -41,8 +41,8 @@ export default defineComponent({
       async handler(ready: boolean) {
         if (ready) {
             this.service = new AncLabResultService(this.patientID, this.providerID)
-            await this.service.loadPregnancyStatus()
-            await this.service.loadHivStatus()
+            await this.service.loadSubsequentVisit()
+            await this.service.loadArtStatus()
             this.recencyEssayActivated = await ANC_PROP.recencyEssayActivated()
             this.formFields = this.getFields()
         } 
@@ -90,13 +90,16 @@ export default defineComponent({
                 id: 'lab_results',
                 helpText: 'Lab Results',
                 type: FieldType.TT_MULTIPLE_YES_NO,
-                condition: () => !this.service.isSubsequentVisit,
+                condition: () => !this.service.isPregnancyTestDone && !this.hivStatus,
                 options: (f: any) => {
-                    if (f.lab_results) return f.lab_results
-                    const options: Option[] = [
-                        this.toYesNoOption('Pregnancy test done', { concept: 'B-HCG'})
-                    ]
-                    if (!this.service.isHivPositive()) {
+                    if (f.lab_results) {
+                        return f.lab_results
+                    }
+                    const options: Option[] = []
+                    if (!this.service.isPrengnacyTestDone) {
+                        options.push(this.toYesNoOption('Pregnancy test done', { concept: 'B-HCG'}))
+                    }
+                    if (!this.hivStatus) {
                         options.push(this.toYesNoOption('Previous HIV test done', { concept: 'Previous HIV test done'}))
                     }
                     return options
