@@ -17,7 +17,6 @@ import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { IonPage } from "@ionic/vue"
 import { AncArtFollowupService } from "@/apps/ANC/Services/anc_art_followup_service"
-import { PatientTypeService } from '@/apps/ART/services/patient_type_service'
 
 export default defineComponent({
   components: { IonPage },

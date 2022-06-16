@@ -22,12 +22,15 @@ export default defineComponent({
   components: { IonPage },
   mixins: [EncounterMixinVue],
   data: () => ({
-    service: {} as any
+    service: {} as any,
+    helpText: 'ANC Visit Number' as string
   }),
   watch: {
     ready: {
-      handler(ready: boolean) {
+      async handler(ready: boolean) {
         if (ready) {
+          this.service = new AncVisitTypeService(this.patientID, this.providerID)
+          await this.service.loadLastVisitNumber()
           this.fields = this.getFields()
         }
       },
@@ -35,7 +38,7 @@ export default defineComponent({
     }
   },
   methods: {
-    async onFinish(f: any, c: any) {
+    async onFinish(_: any, c: any) {
       const visit = new AncVisitTypeService(this.patientID, this.providerID)
       await visit.createEncounter()
       await visit.saveVisitNumber(c['visit_number'])
@@ -45,12 +48,18 @@ export default defineComponent({
       return [
         {
           id: 'visit_number',
-          helpText: 'ANC Visit Number',
+          helpText: this.helpText,
+          dynamicHelpText: () => {
+            if (this.service.lastVisitNumber) {
+              return `${this.helpText} (Last visit number: ${this.service.lastVisitNumber})`
+            }
+            return this.helpText
+          },
           type: FieldType.TT_NUMBER,
           computedValue: (v: Option) => v.value,
           validation: (v: Option) => this.validateSeries([
             () => Validation.required(v),
-            () => !(v.value > 0 && v.value <= 500) ? ['Value not within range of 1 and 500'] : null
+            () => Validation.rangeOf(v, this.service.lastVisitNumber+1, 40)
           ])
         }
       ]

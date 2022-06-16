@@ -1164,7 +1164,7 @@ table td {
     height: 100vh;
 }
 a:link {
-    color: #000;
+    color: #337ab7;
     text-decoration: none;
 }
 
@@ -1174,7 +1174,7 @@ a:hover {
 }
 
 a:visited {
-    color: #000;
+    color: #337ab7;
     text-decoration: none;
 }
 .valueCell {

@@ -379,7 +379,7 @@ a[href]:after {
     height: 520px;
 }
 a:link {
-    color: #000;
+    color: #337ab7;
     text-decoration: none;
 }
 a:hover {
@@ -388,7 +388,7 @@ a:hover {
 }
 
 a:visited {
-    color: #000;
+    color: #337ab7;
     text-decoration: none;
 }
 .valueCell {
