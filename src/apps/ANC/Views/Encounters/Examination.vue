@@ -33,7 +33,7 @@ export default defineComponent({
       async handler(ready: boolean) {
         if (ready) {
             this.service = new AncExaminationService(this.patientID, this.providerID)
-            await this.service.loadFundusByLMP()
+            await this.service.loadPregnancyStatus()
             this.fields = this.getFields() as Field[]
         } 
       },
@@ -244,12 +244,19 @@ export default defineComponent({
             id: 'enter_fundal_height',
             helpText: 'Fundal height (cm)',
             type: FieldType.TT_NUMBER,
+            dynamicHelpText: () => {
+                const title = 'Fundal height (cm)'
+                if (this.service.gestationWeeks) {
+                    return `${title} (Gestation weeks: ${this.service.gestationWeeks})`
+                }
+                return title
+            },
             beforeNext: async (v: Option) => {
                 const max = this.service.getMaxFundalHeight() || 45
                 const val: string | number = v ? parseInt(v.value as string) : -1
                 if (v && typeof val === 'number' && val > max) {
                     const ok = await alertConfirmation(`
-                        The value is bigger than maximum ${max}.
+                        Fundal height is greater than expected value of ${max} from gestation weeks of ${this.service.gestationWeeks}.
                         Are you sure about this value?`
                     )
                     return ok ? true : false
