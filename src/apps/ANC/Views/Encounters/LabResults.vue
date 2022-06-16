@@ -22,6 +22,7 @@ import { generateDateFields } from '@/utils/HisFormHelpers/MultiFieldDateHelper'
 import HisDate from "@/utils/Date"
 import ANC_PROP from "@/apps/ANC/anc_global_props"
 import { alertConfirmation } from '@/utils/Alerts'
+import { find } from 'lodash'
 
 export default defineComponent({
   components: { IonPage },
@@ -173,6 +174,23 @@ export default defineComponent({
                 helpText: 'Available Lab Tests',
                 type: FieldType.TT_MULTIPLE_SELECT,
                 validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option[]) => {
+                    if (find(v, { label: 'None'})) {
+                        return this.service.buildValueCoded('Lab test done', 'No')
+                    }
+                    return null
+                },
+                onValueUpdate(listData: Option[], value: Option) {
+                    return listData.map(l => {
+                        if (value.value === 'None' && l.value !='None') {
+                            l.isChecked = false
+                        }
+                        if (value.value != 'None' && value.isChecked && l.value === 'None') {
+                            l.isChecked = false
+                        }
+                        return l
+                    })
+                },
                 options: async (f: any) => {
                     const options: Option[] = []
                     const hivPos = !this.service.isHivPositive() ? f.prev_hiv_test_result?.value === 'Positive' : true
@@ -200,8 +218,26 @@ export default defineComponent({
                             urine.isChecked = ok
                         }
                     }
-                    return [...options, urine]
-                }
+                    return [...options, urine, this.toOption('None')]
+                },
+                config: {
+                    footerBtns: [
+                        {
+                            name: "None",
+                            slot: "end",
+                            onClickComponentEvents: {
+                                refreshOptions: (_: any, listData: Option[]) => {
+                                    return listData.map(o => {
+                                        o.isChecked = o.label === 'None'
+                                        return o
+                                    })
+                                }
+                            },
+                            onClick: () => 'None'
+                        }
+                    ]
+                },
+                exitsForm: (f: any) => find(f.available_test_results, {label: 'None'}),
             },
             {
                 id: 'hiv_status',
