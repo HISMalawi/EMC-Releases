@@ -377,6 +377,11 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
         if (isNaN(parseInt(v.value.toString()))) {
             return ['Please enter a valid number']
         }
+        const ageEstimateRegex = /^(12[0-7]|1[01][0-9]|[1-9]?[0-9])$/
+        if(!v.value.toString().match(ageEstimateRegex) ){
+            return ['Not a valid age estimate'] 
+        }
+        
         return validateMinMax(fullDate, field, f, c)
     }
 
