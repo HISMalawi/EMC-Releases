@@ -19,6 +19,7 @@ import { isEmpty } from 'lodash';
 import { ANTI_MALARIA_DRUGS, DrugPrescriptionService, DRUG_FREQUENCIES } from '../../services/drug_prescription_service';
 import HisDate from "@/utils/Date"
 import { alertConfirmation, toastSuccess, toastWarning } from '@/utils/Alerts';
+import { loadingController } from '@ionic/core';
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -99,32 +100,18 @@ export default defineComponent({
           helpText: 'Select drugs',
           type: FieldType.TT_MULTIPLE_SELECT,
           validation: (data: any) => Validation.required(data),
-          options: async (_: any, filter: string | Option[]) => {
-            if(typeof filter === 'string' || isEmpty(filter)){
-              return await this.prescriptionService.loadDrugs(filter)
-            }
-            const drugs: Option[] = await this.prescriptionService.loadDrugs('')
-            const preCheckedDrugs: Option[] = filter
-            preCheckedDrugs.forEach(drug => {
-              const drugOption = drugs.findIndex(d => d.other.drug_id === drug.other.drug_id)
-              if(drugOption !== -1){
-                drugs[drugOption].isChecked = true
-              } else{
-                drugs.push(drug)
-              }
-            })
+          options: async (_: any, filter = '') => {
+            const loader = await loadingController.create({
+              message: 'Loading drugs...',
+              translucent: true,
+            });
+            await loader.present();
+            const drugs = await this.prescriptionService.loadDrugs(filter)
             return drugs
           },
           onload: () => this.activeField = '',
           config: {
             showKeyboard: true,
-            isFilterDataViaApi: true,
-            infiniteScroll: {
-              enabled: true,
-              handler: (filter: string, page: number, limit: number) => {
-                return this.prescriptionService.loadDrugs(filter, page, limit)
-              }
-            },
             hiddenFooterBtns: ["Back"],
             footerBtns: [
               {
