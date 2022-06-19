@@ -20,7 +20,7 @@
 <script lang='ts'>
 import { defineComponent } from 'vue'
 import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
-import { RegimenReportService, WEIGHT_BAND, REGIMENS } from "@/apps/ART/services/reports/regimen_report_service"
+import { RegimenReportService, WEIGHT_BAND, REGIMEN_WEIGHT_DISTRIBUTION } from "@/apps/ART/services/reports/regimen_report_service"
 import { isEmpty } from "lodash"
 import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
@@ -39,7 +39,7 @@ export default defineComponent({
             [
                 table.thTxt('Weight band'),
                 table.thTxt('Gender'),
-                ...REGIMENS.map(r => table.thNum(r)),
+                ...REGIMEN_WEIGHT_DISTRIBUTION.map(r => table.thNum(r)),
                 table.thNum('Unknown'),
                 table.thNum('Total (regimen)')
             ]
@@ -58,7 +58,7 @@ export default defineComponent({
         },
         async setRows(data: any) {
             const mapRegimenRow = (items: any) => 
-                [...REGIMENS, 'N/A'].map((regimen: any) => {
+                [...REGIMEN_WEIGHT_DISTRIBUTION, 'N/A'].map((regimen: any) => {
                     const i = items.filter((d: any) => d[regimen] ? true : false)
                         .map((v: any) => Object.values(v)[0])
                     return table.td(isEmpty(i) ? 0 : i[0])

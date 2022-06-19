@@ -65,7 +65,7 @@ export default defineComponent({
           type: FieldType.TT_SELECT,
           validation: (val: any) =>
             Validation.required(val) ||
-            Validation.notTheSame(val, this.patientType.getType()),
+            Validation.notTheSame(val.value, this.patientType.getType()),
           options: () => PatientTypeService.getPatientTypes()
         },
         this.facilityLocationField()

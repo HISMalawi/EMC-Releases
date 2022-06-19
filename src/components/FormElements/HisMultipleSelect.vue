@@ -5,7 +5,7 @@
       <ion-chip color="danger" @click="uncheck(item.label)">{{item.label}}</ion-chip>
     </span>
     <ion-list class='view-port-content'>
-      <ion-item v-for="(entry, index) in filtered" :key="index" :color="entry.isChecked ? 'lightblue':''">
+      <ion-item v-for="(entry, index) in filtered" :key="index" :color="entry.isChecked ? 'lightblue':''" :lines="entry.isChecked ? 'none':''">
         <ion-label> 
           <ion-text class="his-md-text">
             {{ entry.label }} 
@@ -39,6 +39,7 @@ import { FooterBtnEvent, Option, OptionDescriptionInterface } from "../Forms/Fie
 import { defineComponent } from "vue";
 import { IonCheckbox, IonText, IonChip } from "@ionic/vue";
 import SelectMixin from "@/components/FormElements/SelectMixin.vue"
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   components: { IonCheckbox, IonText, IonChip},
@@ -49,7 +50,6 @@ export default defineComponent({
       this.$nextTick(async ()=> {
         const option = {...entry}
         option.isChecked = event.target.checked
-
         if (typeof option?.other?.onEvent === 'function') {
           await option.other.onEvent(option.isChecked)
         } 
@@ -111,6 +111,10 @@ export default defineComponent({
   },
   async activated() {
     this.$emit('onFieldActivated', this)
+    // Optionally Prevent from rebuilding options everytime the component is activated
+    if (!isEmpty(this.listData) && this.config.buildOptionsOnce) {
+      return
+    }
     this.listData = await this.options(this.fdata, this.getChecked(this.listData), this.cdata, this.listData)
     this.$emit('onValue', this.getChecked(this.listData))
   }

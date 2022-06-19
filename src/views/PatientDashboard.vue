@@ -41,7 +41,7 @@
             <ion-button 
                 :style="{width: '100%'}" 
                 color="success"
-                @click="$router.push(nextTask)">
+                @click="goToNextTask">
                 <ion-label><b>Next Task: {{ nextTask.name.toUpperCase() }}</b></ion-label>
                 <ion-icon :icon="alertCircle"> </ion-icon>
             </ion-button>
@@ -135,7 +135,7 @@
                             </ion-col> 
                             <ion-col size-md="4" size-sm="6"> 
                                 <span v-if="nextTask.name"> 
-                                    <ion-chip class="next-task" color="success" @click="$router.push(nextTask)">Next Task: {{ nextTask.name.toUpperCase() }}</ion-chip>
+                                    <ion-chip class="next-task" color="success" @click="goToNextTask">Next Task: {{ nextTask.name.toUpperCase() }}</ion-chip>
                                 </span>
                                 <span v-else> 
                                     Next Task: <b>NONE</b>
@@ -185,7 +185,7 @@
         </ion-content>
         <ion-footer> 
             <ion-toolbar color="dark">
-                <ion-button class="full-component-view" color="primary" size="large" slot="end" @click="showTasks"> 
+                <ion-button :disabled="tasksDisabled" class="full-component-view" color="primary" size="large" slot="end" @click="showTasks"> 
                     <ion-icon :icon="clipboardOutline"> </ion-icon>
                     Tasks
                 </ion-button>
@@ -278,6 +278,9 @@ import { EncounterService } from '@/services/encounter_service'
 import { ConceptService } from "@/services/concept_service"
 import { PersonService } from "@/services/person_service"
 import { TaskInterface } from "@/apps/interfaces/TaskInterface"
+import { nextTask } from "@/utils/WorkflowTaskHelper"
+import App from "@/apps/app_lib"
+
 export default defineComponent({
     components: {
         IonSegment,
@@ -316,7 +319,8 @@ export default defineComponent({
     },
     data: () => ({
         activeTab: 1 as number,
-        app: ProgramService.getActiveApp() as any,
+        app: {} as any,
+        tasksDisabled: true as boolean,
         dashboardComponent: {} as any,
         isBDE: false as boolean,
         currentDate: '',
@@ -338,7 +342,8 @@ export default defineComponent({
         alertCardItems: [] as Array<Option>,
         patientCards: [] as Array<any>,
         appVersion: ProgramService.getFullVersion(),
-        sessionEncounters: [] as Encounter[]
+        sessionEncounters: [] as Encounter[],
+        savedEncounters: [] as string[]
     }),
     computed: {
         patientIsset(): boolean {
@@ -377,8 +382,14 @@ export default defineComponent({
             if (!(this.appHasCustomContent)) this.loadCardData(date)
         }
     },
+    mounted() {
+        // initialise empty cards on dashboard
+        this.updateCards()
+    },
     methods: {
         async init() {
+            await App.doAppManagementTasks()
+            this.app = App.getActiveApp()
             this.patient = await this.fetchPatient(this.patientId)
             try {
                 this.patientProgram = await ProgramService.getProgramInformation(this.patientId)
@@ -394,6 +405,10 @@ export default defineComponent({
             this.onProgramVisitDates((await this.getPatientVisitDates(this.patientId)))
             this.alertCardItems = await this.getPatientAlertCardInfo() || []
             this.programID = ProgramService.getProgramID()
+            await this.loadSavedEncounters()
+            if (!this.visitDates.length) {
+                this.tasksDisabled = false
+            }
             this.updateCards()
         },
         async showLoader() {
@@ -409,12 +424,21 @@ export default defineComponent({
         toTime(date: string | Date) {
             return HisDate.toStandardHisTimeFormat(date)
         },
+        async loadSavedEncounters() {
+            try {
+                this.savedEncounters = await EncounterService.getSavedEncounters(this.patientId)
+            } catch (e) {
+                console.warn(`Program might not support saved encounters`, e)
+            }
+        },
         async loadCardData(date: string) {
             try {
                 await this.showLoader()
                 this.encounters = await EncounterService.getEncounters(this.patientId, {date})
                 this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
                 this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
+                this.tasksDisabled = false
+                loadingController.dismiss()
                 this.medicationCardItems = this.getMedicationCardInfo(this.medications)
                 this.labOrderCardItems = await this.getLabOrderCardInfo(date)
                 // Track encounters recorded on system session date
@@ -424,8 +448,9 @@ export default defineComponent({
                 this.updateCards()
             } catch(e) {
                 toastDanger(`${e}`)
+                this.tasksDisabled = false
+                loadingController.getTop().then(v => v ? loadingController.dismiss() : null)
             }
-            loadingController.dismiss()
         },
         updateCards() {
             this.patientCards = [
@@ -510,6 +535,9 @@ export default defineComponent({
         getNextTask(patientId: number) {
             return WorkflowService.getNextTaskParams(patientId)
         },
+        goToNextTask() {
+            nextTask(this.patientId, this.$router)
+        },
         onActiveVisitDate(data: Option) {
             this.activeVisitDate = data.value
         },
@@ -529,7 +557,7 @@ export default defineComponent({
         },
         getProgramCardInfo(info: any) {
            if ('formatPatientProgramSummary' in this.app) {
-             return this.app.formatPatientProgramSummary(isEmpty(info) ? this.patient : info)
+             return this.app.formatPatientProgramSummary(info, this.patientId)
            }
         },
         getActivitiesCardInfo(encounters: Array<Encounter>) {
@@ -545,6 +573,7 @@ export default defineComponent({
                         try {
                             await this.showLoader()
                             await EncounterService.voidEncounter(encounter.encounter_id, reason)
+                            await this.loadSavedEncounters()
                             loadingController.dismiss()
                             /**Refresh card data*/
                             await this.loadCardData(this.activeVisitDate as string)
@@ -662,10 +691,11 @@ export default defineComponent({
                     items,
                     title: `${title}: ${displayDate}`,
                     taskParams: { 
-                        patient: this.patient.getObj(), 
+                        patient: this.patient.getObj(),
                         program: this.patientProgram,
                         visitDate: this.activeVisitDate,
-                        patientID: this.patientId
+                        patientID: this.patientId,
+                        savedEncounters: this.savedEncounters
                     }
                 }
             })

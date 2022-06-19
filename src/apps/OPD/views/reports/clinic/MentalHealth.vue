@@ -17,7 +17,6 @@ import { MENTAL_HEALTH_DIAGNOSIS, OpdReportService } from "@/apps/OPD/services/o
 import ReportTemplate from "@/views/reports/BaseTableReport.vue"
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 import ReportMixin from '@/apps/ART/views/reports/ReportMixin.vue'
-import { border } from '@/apps/OPD/utils/table'
 import { IonPage } from "@ionic/vue";
 
 export default defineComponent({
@@ -29,20 +28,32 @@ export default defineComponent({
     reportService: {} as any,
     columns: [
       [
-        table.thTxt('', {colspan: 2, ...border}),
-        table.thTxt('New cases', {colspan: 4, ...border}),
-        table.thTxt('Subsequent cases', {colspan: 4, ...border}),
+        table.thTxt('', {
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('New cases', {
+          colspan: 4,
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('Subsequent cases', {
+          colspan: 4,
+          sortable: false,
+          exportable: false 
+        }),
       ],
       [
-        table.thTxt('Diagnosis', border),
-        table.thTxt('M (0-15 years)', border),
-        table.thTxt('M (>=16 years)', border),
-        table.thTxt('F (0-15 years)', border),
-        table.thTxt('F (>=16 years)', border),
-        table.thTxt('M (0-15 years)', border),
-        table.thTxt('M (>=16 years)', border),
-        table.thTxt('F (0-15 years)', border),
-        table.thTxt('F (>=16 years)', border),
+        table.thTxt('Diagnosis'),
+        table.thTxt('M (0-15 years)', { value: 'Males (0-15 years New Cases)' }),
+        table.thTxt('M (>=16 years)', { value: 'Males (>=16 years New Cases)' }),
+        table.thTxt('F (0-15 years)', { value: 'Females (0-15 years New Cases)' }),
+        table.thTxt('F (>=16 years)', { value: 'Females (>=16 years New Cases)' }),
+
+        table.thTxt('M (0-15 years)', { value: 'Males (0-15 years Subsequent Cases)' }),
+        table.thTxt('M (>=16 years)', { value: 'Males (>=16 years Subsequent Cases)' }),
+        table.thTxt('F (0-15 years)', { value: 'Females (0-15 years Subsequent Cases)' }),
+        table.thTxt('F (>=16 years)', { value: 'Females (>=16 years Subsequent Cases)' }),
       ]
     ] as ColumnInterface[][],
   }),

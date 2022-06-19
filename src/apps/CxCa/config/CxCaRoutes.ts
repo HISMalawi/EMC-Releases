@@ -1,3 +1,5 @@
+
+import ReportTemplate from "@/apps/ART/views/reports/pepfar/PepfarIndex.vue"
 export default [
     {
         name: "cxca test",
@@ -29,4 +31,35 @@ export default [
         path: "/cxca/encounters/cancer_result/:patient_id",
         component: () => import('@/apps/CxCa/views/encounters/CxCaResult.vue')
     },
+    {
+        path: '/cxca/report/pepfar',
+        component: ReportTemplate,
+        children: [
+            {
+                name: 'cc_basic_results',
+                path: 'cc_basic_results',
+                component: () => import('@/apps/CxCa/views/reports/pepfar/CCBasicResult.vue')
+            },
+            {
+                name: 'cc_all_questions',
+                path: 'cc_all_questions',
+                component: () => import('@/apps/CxCa/views/reports/pepfar/CCAllQuestions.vue')
+            },
+            {
+                name: 'cc_type_of_screen',
+                path: 'cc_type_of_screen',
+                component: () => import('@/apps/CxCa/views/reports/pepfar/CCTypeOfScreen.vue')
+            },
+            {
+                name: 'cc_screen_result',
+                path: 'cc_screen_result',
+                component: () => import('@/apps/CxCa/views/reports/pepfar/CCScreenResult.vue')
+            },
+            {
+                name: 'cc_type_of_treatment',
+                path: 'cc_type_of_treatment',
+                component: () => import('@/apps/CxCa/views/reports/pepfar/CCTypeOfTreatment.vue')
+            }
+        ]
+    }
 ]

@@ -12,11 +12,13 @@ export interface FolderInterface {
     icon?: string;
     defaultFilesIcon?: string;
     condition?: () => boolean | Promise<boolean>;
+    action?: () => void;
     files: Array<
         {
             name: string;
             icon?: string;
             condition?: () => boolean | Promise<boolean>;
+            action?: () => void;
             pathName?: string;
             pathUrl?: string;
         }
@@ -113,7 +115,7 @@ export interface AppInterface {
      * Parse summary data object based on program specific definition and
      * return generic object to be displayed on patient dashboard
      */
-    readonly formatPatientProgramSummary?: (programInfo: any) => Promise<GeneralDataInterface[]> | GeneralDataInterface[];
+    readonly formatPatientProgramSummary?: (programInfo: any, patientId: number) => Promise<GeneralDataInterface[]> | GeneralDataInterface[];
     /**
      * Callback which retrieves and formats Lab order card on the patient dashboard
      */

@@ -7,6 +7,9 @@
             :columns="columns"
             :headerInfoList="headerList"
             reportPrefix="MoH"
+            :config="{
+                showIndex: true
+            }"
             :validationErrors="errors"
             :showValidationStatus="canValidate"
             :hasServerSideCaching="true"
@@ -42,7 +45,7 @@ export default defineComponent({
                 table.thTxt('Age group'),
                 table.thTxt('Gender'),
                 table.thNum('Tx new (new on ART)'),
-                table.thNum('Tx curr (receiving ART)'),
+                table.thNum('TX curr (receiving ART)'),
                 table.thNum('TX curr (received IPT)'),
                 table.thNum('TX curr (screened for TB)'),
                 ...(REGIMENS.map(r => table.thNum(r))),

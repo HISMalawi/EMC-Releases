@@ -7,6 +7,9 @@
             :fields="fields"
             :columns="columns"
             reportPrefix="PEPFAR"
+            :config="{
+                showIndex: true
+            }"
             :validationErrors="errors"
             :showValidationStatus="showStatus"
             :headerInfoList="headerInfoList"
@@ -40,9 +43,9 @@ export default defineComponent({
             [
                 table.thTxt('Age group'),
                 table.thTxt('Gender'),
-                table.thNum('# of clients on < 3 months of ARVs'),
+                table.thNum('# of clients on <3 months of ARVs'),
                 table.thNum('# of clients on 3 - 5 months of ARVs'),
-                table.thNum('# of clients on  >= 6 months of ARVs')
+                table.thNum('# of clients on >= 6 months of ARVs')
             ]
         ],
         headerInfoList: [] as Array<Option>,

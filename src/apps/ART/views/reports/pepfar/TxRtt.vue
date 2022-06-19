@@ -6,6 +6,9 @@
             :rows="rows" 
             :fields="fields"
             :columns="columns"
+            :config="{
+                showIndex: true
+            }"
             reportPrefix="PEPFAR"
             :onReportConfiguration="onPeriod"
             > 

@@ -11,6 +11,7 @@ import { ENCOUNTER_GUIDELINES, FlowState } from "@/guidelines/encounter_guidelin
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { delayPromise } from '@/utils/Timers'
+import { toastDanger } from '@/utils/Alerts'
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -94,13 +95,18 @@ export default defineComponent({
             }
         },
         async setEncounterFacts() {
-            const program = await new PatientProgramService(this.patientID).getProgram()
+            try {
+                const program = await new PatientProgramService(this.patientID).getProgram()
+                this.facts.outcome = program.outcome
+                this.facts.outcomeStartDate = program.startDate
+            } catch (e) {
+                console.error(e)
+                toastDanger(`${e}`)
+            }
             this.facts.sessionDate = ProgramService.getSessionDate()
             this.facts.apiDate = ProgramService.getCachedApiDate() as string
             this.facts.isBdeMode = ProgramService.isBDE() as boolean
             this.facts.birthDate = this.patient.getBirthdate()
-            this.facts.outcome = program.outcome
-            this.facts.outcomeStartDate = program.startDate
             this.facts.encounterName = this.$route.name 
                 ? this.$route.name.toString().toUpperCase()
                 : 'N/A'
@@ -129,7 +135,7 @@ export default defineComponent({
             return `/patient/dashboard/${this.patientID}`
         },
         gotoPatientDashboard() {
-            return this.$router.push({path: this.patientDashboardUrl()}) 
+            return this.$router.push({path: this.patientDashboardUrl()})
         },
         nextTask() {
             return nextTask(this.patientID, this.$router)
@@ -139,6 +145,16 @@ export default defineComponent({
                 { label: "Yes", value: "Yes" },
                 { label: "No", value: "No" }
             ]
+        },
+        toYesNoOption(label: string, other: any={}): Option {
+            return {
+                label,
+                value: '',
+                other: {
+                    ...other,
+                    values: this.yesNoOptions()
+                }
+            } 
         },
         mapOptions(options: Array<string>) {
             return options.map((option) => {
@@ -159,6 +175,8 @@ export default defineComponent({
                     const data = cur.obs ? cur.obs : cur
                     if (Array.isArray(data)) {
                         accum = accum.concat(data)
+                    } else if (typeof data === 'function') {
+                        accum.push(data())
                     } else {
                         accum.push(data)
                     }

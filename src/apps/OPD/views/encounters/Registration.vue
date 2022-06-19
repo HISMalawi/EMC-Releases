@@ -88,7 +88,7 @@ export default defineComponent({
                 },
                 {
                     id: 'national_id_available',
-                    helpText: 'National ID avalable',
+                    helpText: 'National ID Available',
                     type: FieldType.TT_SELECT,
                     validation: (value: any) => Validation.required(value),
                     condition: () => this.patient.getMWNationalID() === 'Unknown',

@@ -38,6 +38,7 @@ import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { defineComponent } from "vue";
 import ApiClient from "@/services/api_client";
 import dayjs from "dayjs";
+import { Service } from "@/services/service"
 
 export default defineComponent({
   data: function () {
@@ -138,11 +139,11 @@ export default defineComponent({
         ],
       };
       const response = await ApiClient.post(
-        `reports/encounters?date=${this.dayjs().format("YYYY-MM-DD")}`,
+        `reports/encounters?date=${Service.getSessionDate()}&program_id=${Service.getProgramID()}`,
         userStats
       );
       const response2 = await ApiClient.post(
-        `reports/encounters?date=${this.dayjs().format("YYYY-MM-DD")}`,
+        `reports/encounters?date=${Service.getSessionDate()}&program_id=${Service.getProgramID()}`,
         facilityStats
       );
       if (

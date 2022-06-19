@@ -258,6 +258,11 @@ export default [
         component: MohDisaggregatedReport
     },
     {
+        name: 'moh_regimen_report',
+        path: '/art/moh_regimen_report',
+        component: () => import('@/apps/ART/views/reports/moh/MohRegimenReport.vue')
+    },
+    {
         path: '/art/report/moh',
         component: ReportTemplate,
         children: [
