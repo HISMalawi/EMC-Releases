@@ -17,6 +17,7 @@ import { AssessmentService } from "@/apps/CxCa/services/CxCaAssessmentService";
 import { toastSuccess, toastWarning } from "@/utils/Alerts";
 import { generateDateFields } from "@/utils/HisFormHelpers/MultiFieldDateHelper";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
+import { ConceptService } from "@/services/concept_service";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -34,6 +35,10 @@ export default defineComponent({
           this.patientID,
           this.providerID
         );
+        await this.assessment.loadArtStatus();
+        if (this.assessment.getHivStatus() !== '') {
+          this.showHIVQuestions = false;
+        }
         await this.setOfferCxCa();
         this.fields = await this.getFields();
       },
@@ -68,6 +73,9 @@ export default defineComponent({
       }
       return true;
     },
+    hasHIVStatus() {
+      return this.assessment.getHivStatus !== ""
+    },
     enterPreviousCxCaData(formData: any) {
       const everHadCxCa = formData.ever_had_cxca.value === "Yes";
       const resultsAvailable = formData.results_available.value === "Yes";
@@ -75,6 +83,16 @@ export default defineComponent({
     },
     getFacilities(filter = "") {
       return getFacilities(filter);
+    },
+    getReasonsForNoCxcaOptions() {
+      return ConceptService.getConceptsByCategory("reason_for_no_cxca")
+        .map((c: any) => ({
+          label: c.name,
+          value: c.name,
+          other: {
+            c
+          }
+        }))
     },
     getFields(): any {
       return [
@@ -302,28 +320,7 @@ export default defineComponent({
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
           condition: (formData: any) => formData.offer_CxCa.value === "No",
-          options: () => [
-            {
-              label: "Client preferred counselling",
-              value: "Preferred counseling",
-            },
-            {
-              label: "Not applicable",
-              value: "Not applicable",
-            },
-            {
-              label: "Provider not available",
-              value: "Provider NOT available",
-            },
-            {
-              label: "Services not available",
-              value: "Services NOT available",
-            },
-            {
-              label: "Chemotherapy",
-              value: "Chemotherapy",
-            },
-          ],
+          options: () => this.getReasonsForNoCxcaOptions(),
           computedValue: (value: any) => ({
             obs: this.assessment.buildValueCoded("Reason for NOT offering CxCa", value.value)
           }),

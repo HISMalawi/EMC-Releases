@@ -196,7 +196,7 @@ export default [
       "concept_id": 3593,
      "name": "Biopsy"
    }, {
-      "categories": ["anc_surgical_history"],
+      "categories": ["anc_surgical_history", "reason_for_no_cxca"],
       "concept_id": 5276,
      "name": "Hysterectomy"
    }, {
@@ -663,6 +663,21 @@ export default [
       "categories": ["reason_for_no_cxca"],
       "concept_id": 3580,
       "name": "Patient refused"
+   },
+   {
+      "categories": ["reason_for_no_cxca"],
+      "concept_id": 10001,
+      "name": "Chemotherapy"
+   },
+   {
+      "categories": ["reason_for_no_cxca"],
+      "concept_id": 10543,
+      "name": "Services not available"
+   },
+   {
+      "categories": ["reason_for_no_cxca"],
+      "concept_id": 10544,
+      "name": "Provider not available"
    },
    {
       "categories": [],

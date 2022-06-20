@@ -229,10 +229,17 @@ export function confirmationSummary(patient: Patientservice, program: any) {
                     patient.getID()
                 )
             if (req) {
-                return req.map((r: any) => ({
-                    label: r.name,
-                    value: r.relationshipType,
-                }))
+                const data = [
+                    {
+                        label: req[0].name,
+                        value: req[0].relationshipType
+                    },
+                    {
+                        label: "Phone",
+                        value: req[0].phoneNumber
+                    }
+                ]
+                return data
             } 
             return []
         }
