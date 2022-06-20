@@ -1,6 +1,7 @@
 import { Service } from '@/services/service'
 import { getFullName } from '@/interfaces/name'
 import { Relationship } from '@/interfaces/relationship'
+import { getPersonAttribute } from '@/interfaces/personAttribute';
 export class RelationshipService extends Service {
 	constructor() {
 		super()
@@ -15,7 +16,8 @@ export class RelationshipService extends Service {
 			return relation.map((element: Relationship) => {
 				return {
 					name: getFullName(element.relation.names[0]),
-					relationshipType: element.type.b_is_to_a
+					relationshipType: element.type.b_is_to_a,
+					phoneNumber: getPersonAttribute(element.relation.person_attributes, 12)
 				}
 			});
 		});
