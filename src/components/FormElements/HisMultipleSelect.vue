@@ -23,9 +23,14 @@
           :disabled="entry?.disabled"/>
       </ion-item>
     </ion-list>
-    <ion-infinite-scroll @ionInfinite="pushData($event)" :threshold="infiniteScroll.threshold" :disabled="!infiniteScroll.enabled" >
-      <ion-infinite-scroll-content loading-spinner="crescent" loading-text="Loading more data..." />
-    </ion-infinite-scroll>
+    <!-- <ion-content style="width: 100%;" class="ion-padding-bottom">
+      <div class="ion-content-scroll-host">
+        
+        <ion-infinite-scroll @ionInfinite="pushData($event)" :threshold="infiniteScroll.threshold" :disabled="!infiniteScroll.enabled" >
+          <ion-infinite-scroll-content loading-spinner="crescent" loading-text="Loading more data..." />
+        </ion-infinite-scroll>
+      </div>
+    </ion-content > -->
   </view-port>
   <his-keyboard v-if="showKeyboard" :kbConfig="keyboard" :onKeyPress="keypress"/>
 </template>

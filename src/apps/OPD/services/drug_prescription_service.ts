@@ -67,12 +67,8 @@ export class DrugPrescriptionService extends AppEncounterService {
     super(patientID, 25, providerID) 
   }
 
-  async loadDrugs(filter = '', page =  1, limit = 10): Promise<Option[]> {
-    const drugs: ConceptName[] = await DrugService.getDrugs({
-      "name": filter,
-      "page": page,
-      "page_size": limit
-    })
+  async loadDrugs(filter = ''): Promise<Option[]> {
+    const drugs: ConceptName[] = await DrugService.getDrugs({ "name": filter, "page_size": 100000 })
     return drugs.map(drug => ({
       label: drug.name, value: drug.name, other: drug
     }))
