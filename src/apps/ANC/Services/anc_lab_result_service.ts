@@ -1,5 +1,6 @@
 import { AppEncounterService } from "@/services/app_encounter_service";
 import { Service } from "@/services/service";
+import { PrintoutService } from "@/services/printout_service";
 
 export class AncLabResultService extends AppEncounterService {
     hivStatus: string;
@@ -59,6 +60,10 @@ export class AncLabResultService extends AppEncounterService {
             this.isSubsequentVisit = res['subsequent_visit']
             this.isPregnancyTestDone = res['pregnancy_test']
         }
+    }
+
+    printLabResults() {
+        return new PrintoutService().printLbl(`/programs/${this.programID}/patients/${this.patientID}/labels/lab_results?date=${this.date}`)
     }
 
     async loadArtStatus() {

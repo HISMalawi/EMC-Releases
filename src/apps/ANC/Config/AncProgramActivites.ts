@@ -2,6 +2,7 @@ import { TaskInterface } from "@/apps/interfaces/TaskInterface";
 import Apps from '@/apps/app_lib'
 import { alertConfirmation } from "@/utils/Alerts";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
+import router from "@/router";
 
 /**
  * Callback method for Encounters that integrate with ART system
@@ -124,6 +125,9 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
         id: "vitals",
         name: "Vitals",
         icon: "vitals.png",
+        action: (params: any) => {
+            router.push(`/anc/encounters/vitals/${params.patientID}`)
+        },
         taskCompletionChecklist: [
           'Weight'
         ]

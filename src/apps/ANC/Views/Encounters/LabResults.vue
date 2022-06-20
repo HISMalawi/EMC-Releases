@@ -56,6 +56,7 @@ export default defineComponent({
       const obs = await this.resolveObs(computedData)
       await this.service.createEncounter()
       await this.service.saveObservationList(obs as ObsValue[])
+      await this.service.printLabResults()
       this.nextTask()
     },
     getFields(): Field[] {
