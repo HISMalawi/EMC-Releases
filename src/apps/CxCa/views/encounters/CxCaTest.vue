@@ -34,6 +34,10 @@ export default defineComponent({
           this.patientID,
           this.providerID
         );
+        await this.assessment.loadArtStatus();
+        if (this.assessment.getHivStatus() !== '') {
+          this.showHIVQuestions = false;
+        }
         await this.setOfferCxCa();
         this.fields = await this.getFields();
       },
@@ -67,6 +71,9 @@ export default defineComponent({
         this.obs.push(this.assessment.buildValueCoded("Ever had CxCa", "No"));
       }
       return true;
+    },
+    hasHIVStatus() {
+      return this.assessment.getHivStatus !== ""
     },
     enterPreviousCxCaData(formData: any) {
       const everHadCxCa = formData.ever_had_cxca.value === "Yes";
