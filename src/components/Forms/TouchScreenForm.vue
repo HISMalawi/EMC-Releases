@@ -60,8 +60,8 @@
   </ion-page>
 </template>
 <script lang='ts'>
-import { defineComponent, PropType } from "vue";
-import { BaseFormComponents } from "@/components/Forms/BaseFormElements";
+import { defineComponent, PropType, defineAsyncComponent } from "vue";
+import { COMPONENT_REFS } from "@/components/Forms/BaseFormElements";
 import { findIndex, isEmpty } from "lodash";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import { 
@@ -90,6 +90,16 @@ import { alertConfirmation, toastWarning } from "@/utils/Alerts";
 import InfoCard from "@/components/DataViews/HisFormInfoCard.vue"
 import {toastDanger} from "@/utils/Alerts"
 
+function buildAsyncComponents() {
+  const components: any = {}
+  COMPONENT_REFS.forEach((componentName: string) => {
+    components[componentName] = defineAsyncComponent({
+      loader: () => import(`@/components/FormElements/${componentName}.vue`)
+    })
+  })
+  return components
+}
+
 export default defineComponent({
   name: "TouchscreenForm",
   components: {
@@ -104,7 +114,7 @@ export default defineComponent({
     IonTitle,
     IonCol,
     IonRow,
-    ...BaseFormComponents,
+    ...buildAsyncComponents(),
   },
   emits: [
     'onFinish',
