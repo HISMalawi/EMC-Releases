@@ -125,8 +125,7 @@ export default defineComponent({
                         this.$router.push(`/npid/duplicates/${i.identifier}`)
                     }, {
                         event: {
-                            disabled: !(this.dde.isEnabled() 
-                                && this.service.getIdentifierType() === 3)
+                            disabled: this.service.getIdentifierType() != 3
                         }
                     }, 'danger')
                 ]))

@@ -9,10 +9,11 @@
             <ion-list> 
                 <ion-item
                     class="his-md-text"
-                    @click="item.isChecked = item.isChecked ? false : true"
+                    @click="item.isChecked = item.isChecked && ddeEnabled"
                     button v-for="(item, index) in items" :key="index"
                     >
                     <ion-checkbox
+                        v-if="ddeEnabled"
                         slot="start"
                         v-model="item.isChecked"
                         >
@@ -102,6 +103,8 @@ export default defineComponent({
     },
     data: () => ({
         dde: {} as any,
+        ddeEnabled: false as boolean,
+        patient: {} as any,
         items: [] as any,
         title: '' as string
     }),
@@ -143,7 +146,7 @@ export default defineComponent({
             }
         },
         async reassignIdentifier(item: any) {
-            if (!item.isComplete) {
+            if (!item.isComplete && this.ddeEnabled) {
                 const ok = await alertConfirmation('Do you want to update missing information?', {
                     header: 'Incomplete Demographics'
                 })
@@ -155,10 +158,19 @@ export default defineComponent({
                 }
             } else {
                 this.onAction(async () => {
-                    const reassign = await this.dde.reassignNpid(item.docID, item.patientID)
-                    if (reassign) {
-                        await this.dde.printNpid(item.patientID)
+                    try {
+                        if (this.ddeEnabled) {
+                            if ((await this.dde.reassignNpid(item.docID, item.patientID))) {
+                                await this.dde.printNpid(item.patientID)
+                            }
+                        } else {
+                            if (typeof item.assignLocalNpidAndPrint === 'function') {
+                                await item.assignLocalNpidAndPrint()
+                            }
+                        }
                         await nextTask(item.patientID, this.$router)
+                    } catch (e) {
+                        toastDanger(`${e}`)
                     }
                 }, 'Reassign')
             }
@@ -176,7 +188,11 @@ export default defineComponent({
                         curDistrict: p.getCurrentDistrict(),
                         homeVillage: p.getHomeVillage(),
                         docID: p.getPatientIdentifier(27),
-                        isComplete: p.patientIsComplete()
+                        isComplete: p.patientIsComplete(),
+                        assignLocalNpidAndPrint: async () => {
+                            await p.assignNpid()
+                            await p.printNationalID()
+                        }
                     }
                 } catch (e) {
                     toastDanger(`An error has occured while building data`)
@@ -204,11 +220,20 @@ export default defineComponent({
         async init(npid: string) {
             try {
                 this.dde = new PatientDemographicsExchangeService()
-                const {locals, remotes} = await this.dde.findNpid(npid)
-                this.items = [
-                    ...this.buildItems(locals), 
-                    ...this.buildItems(remotes)
-                ]
+                await this.dde.loadDDEStatus()
+                this.ddeEnabled = this.dde.isEnabled()
+                if (this.ddeEnabled) {
+                    const {locals, remotes} = await this.dde.findNpid(npid)
+                    this.items = [
+                        ...this.buildItems(locals), 
+                        ...this.buildItems(remotes)
+                    ]
+                } else {
+                    const duplicates = await Patientservice.findByNpid(npid)
+                    if (duplicates) {
+                        this.items = this.buildItems(duplicates)
+                    }
+                }
             } catch (e) {
                 toastDanger(`${e}`, 5000)
             }
