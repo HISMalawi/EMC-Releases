@@ -37,6 +37,7 @@ export default defineComponent({
             const obs = await this.resolveObs(c)
             await this.service.createEncounter()
             await this.service.saveObservationList(obs)
+            await this.service.printSocialHistory()
             this.nextTask()
         },
         getFields(): Field[] {
