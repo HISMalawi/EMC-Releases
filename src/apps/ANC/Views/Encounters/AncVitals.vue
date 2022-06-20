@@ -1,7 +1,6 @@
 <template>
   <his-standard-form
     :fields="fields"
-    :activeField="activeField"
     :onFinishAction="onFinish"
     :skipSummary="true"
     :cancelDestinationPath="cancelDestination"
@@ -16,6 +15,7 @@ import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { VitalsService } from "@/apps/ART/services/vitals_service";
 import EncounterMixinVue from "../../../../views/EncounterMixin.vue";
 import { ProgramService } from "@/services/program_service";
+import { find } from "lodash";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -48,57 +48,6 @@ export default defineComponent({
             this.weightForHeight = await ProgramService.getWeightForHeightValues();
         }
         this.fields = this.getFields();
-    },
-    getOptions() {
-      const recentHeight = this.recentHeight && this.age > 18? this.recentHeight : "";
-      const showHeight = !(recentHeight && this.age > 18);
-      const options = [
-        {
-          label: "Weight",
-          value: "",
-          other: {
-            modifier: "KG",
-            icon: "weight",
-            required: true,
-          },
-        },
-        {
-          label: "Height",
-          value: `${recentHeight}`,
-          other: {
-            modifier: "CM",
-            icon: "height",
-            recentHeight: this.recentHeight,
-            visible: showHeight
-          }
-        },
-        { 
-            label: "BP", 
-            value: "", 
-            other: {
-                computed: (bp: string) => {
-                    const  [sys, dia] = bp.split("/");
-                    return [
-                        this.vitals.buildValueNumber("Systolic", sys),
-                        this.vitals.buildValueNumber("Diastolic", dia)
-                    ]
-                },
-                modifier: "mmHG", 
-                icon: "bp"
-            } 
-        },
-        {
-            label: "Age",
-            value: this.age,
-            other: {
-                doNotSave: true,
-                modifier: "Years old", 
-                icon: "", 
-                visible: false 
-            }
-        }
-      ]
-      return options
     },
     async onFinish(_: any, computedData: any) {
       await this.vitals.createEncounter()
@@ -157,7 +106,35 @@ export default defineComponent({
               'Clear'
             ],
             onUpdateAlertStatus: (params: Option[]) => {
-                return {}
+                const bp = find(params, { label: 'BP' })
+                if (bp && bp.value != '') {
+                    const [sys, dis] = `${bp.value}`.split('/').map(v => parseInt(v))
+                    if (sys >= 140 && dis >= 90) {
+                        return {
+                            status: 'Client is at risk of pre-eclampsia, refer for urine protein test.',
+                            color: 'brown'
+                        }
+                    }
+                    if (sys < 120 || sys > 140) {
+                        return {
+                            status: 'Systolic reading is out of normal range',
+                            color: 'brown'
+                        }
+                    }
+                    if (dis < 80 || dis > 90) {
+                        return {
+                            status: 'Diastolic reading is out of normal range',
+                            color: 'brown'
+                        }
+                    }
+                    if ((sys >= 130 && sys <= 139) && (dis >= 80 && dis <= 89)) {
+                        return {
+                            status: 'Prehypertension',
+                            color: 'brown'
+                        }
+                    }
+                }
+                return { status: '', color: ''}
             },
             onChangeOption: (activeItem: any) => {
               if (!activeItem.value && activeItem.other.required) {
@@ -168,10 +145,59 @@ export default defineComponent({
               }
             }
           },
-          options: () => this.getOptions(),
-        },
-      ];
-    },
-  },
-});
+          options: () => {
+            const recentHeight = this.recentHeight && this.age > 18? this.recentHeight : "";
+            const showHeight = !(recentHeight && this.age > 18);
+            return [
+                {
+                    label: "Weight",
+                    value: "",
+                    other: {
+                        modifier: "KG",
+                        icon: "weight",
+                        required: true,
+                    },
+                },
+                {
+                    label: "Height",
+                    value: `${recentHeight}`,
+                    other: {
+                        modifier: "CM",
+                        icon: "height",
+                        recentHeight: this.recentHeight,
+                        visible: showHeight
+                    }
+                },
+                { 
+                    label: "BP", 
+                    value: "", 
+                    other: {
+                        computed: (bp: string) => {
+                            const  [sys, dia] = bp.split("/");
+                            return [
+                                this.vitals.buildValueNumber("Systolic", sys),
+                                this.vitals.buildValueNumber("Diastolic", dia)
+                            ]
+                        },
+                        modifier: "mmHG", 
+                        icon: "bp"
+                    } 
+                },
+                {
+                    label: "Age",
+                    value: this.age,
+                    other: {
+                        doNotSave: true,
+                        modifier: "Years old", 
+                        icon: "", 
+                        visible: false 
+                    }
+                }
+            ]
+          }
+        }
+      ]
+    }
+  }
+})
 </script>
