@@ -7,12 +7,11 @@
         </ion-header>
         <ion-content> 
             <ion-list> 
-                <ion-item
-                    class="his-md-text"
-                    @click="item.isChecked = item.isChecked ? false : true"
-                    button v-for="(item, index) in items" :key="index"
+                <ion-item class="his-md-text"
+                    v-for="(item, index) in items" :key="index"
                     >
                     <ion-checkbox
+                        v-if="ddeEnabled"
                         slot="start"
                         v-model="item.isChecked"
                         >
@@ -102,15 +101,16 @@ export default defineComponent({
     },
     data: () => ({
         dde: {} as any,
+        ddeEnabled: false as boolean,
         items: [] as any,
         title: '' as string
     }),
     watch: {
         $route: {
-            async handler({params}: any) {
+            handler({params}: any) {
                 if (params){
                     this.title = `Duplicates for NPID (${params.npid})`
-                    await this.init(params.npid)
+                    this.init(params.npid)
                 }
             },
             deep: true,
@@ -123,27 +123,34 @@ export default defineComponent({
         }
     },
     methods: {
-        check(e: any, i: any) {
-            i.isChecked = e.detail.checked
-        },
-        toDate(date: string | Date) {
-            return HisDate.toStandardHisDisplayFormat(date)
-        },
         async onAction(action: Function, context='proceed') {
             const ok = await alertConfirmation(`
                 Are you sure you want to ${context}?
             `)
-            if (ok) try { await action() } catch(e) { toastWarning(e) }
+            if (ok) {
+                try {
+                    await action()
+                } catch(e) {
+                    toastWarning(`${e}`)
+                    console.error(e)
+                }
+            }
         },
         async mergeSelected() {
-            const req = await this.dde.postMerge(this.itemsChecked)
-            if (req) {
+            if (!this.itemsChecked.every((i: any) => i.isComplete)) {
+                return toastWarning('One or more patients have missing data. Please update them before merging.', 5000) 
+            }
+            if ((await this.dde.postMerge(this.itemsChecked))) {
                 await this.dde.printNpid(this.dde.patientID)
                 nextTask(this.dde.patientID, this.$router)
             }
         },
         async reassignIdentifier(item: any) {
-            if (!item.isComplete) {
+            /**
+             * DDE requires that patients should have complete data. Redirect the user
+             * immediately to update this information
+             */
+            if (!item.isComplete && this.ddeEnabled) {
                 const ok = await alertConfirmation('Do you want to update missing information?', {
                     header: 'Incomplete Demographics'
                 })
@@ -155,11 +162,16 @@ export default defineComponent({
                 }
             } else {
                 this.onAction(async () => {
-                    const reassign = await this.dde.reassignNpid(item.docID, item.patientID)
-                    if (reassign) {
-                        await this.dde.printNpid(item.patientID)
-                        await nextTask(item.patientID, this.$router)
+                    if (this.ddeEnabled) {
+                        if ((await this.dde.reassignNpid(item.docID, item.patientID))) {
+                            await this.dde.printNpid(item.patientID)
+                        }
+                    } else {
+                        if (typeof item.assignLocalNpidAndPrint === 'function') {
+                            await item.assignLocalNpidAndPrint()
+                        }
                     }
+                    nextTask(item.patientID, this.$router)
                 }, 'Reassign')
             }
         },
@@ -172,11 +184,15 @@ export default defineComponent({
                         patientID: p.getID(),
                         name: p.getFullName(),
                         gender: p.getGender(),
-                        birthdate: this.toDate(p.getBirthdate()),
+                        birthdate: HisDate.toStandardHisDisplayFormat(p.getBirthdate()),
                         curDistrict: p.getCurrentDistrict(),
                         homeVillage: p.getHomeVillage(),
                         docID: p.getPatientIdentifier(27),
-                        isComplete: p.patientIsComplete()
+                        isComplete: p.patientIsComplete(),
+                        assignLocalNpidAndPrint: async () => {
+                            await p.assignNpid()
+                            await p.printNationalID()
+                        }
                     }
                 } catch (e) {
                     toastDanger(`An error has occured while building data`)
@@ -203,12 +219,27 @@ export default defineComponent({
         },
         async init(npid: string) {
             try {
+                /**
+                 * Load DDE identifier data if service is enabled
+                 */
                 this.dde = new PatientDemographicsExchangeService()
-                const {locals, remotes} = await this.dde.findNpid(npid)
-                this.items = [
-                    ...this.buildItems(locals), 
-                    ...this.buildItems(remotes)
-                ]
+                await this.dde.loadDDEStatus()
+                this.ddeEnabled = this.dde.isEnabled()
+                if (this.ddeEnabled) {
+                    const {locals, remotes} = await this.dde.findNpid(npid)
+                    this.items = [
+                        ...this.buildItems(locals), 
+                        ...this.buildItems(remotes)
+                    ]
+                } else {
+                    /**
+                     * Load Local patient identifier data without DDE Enabled
+                     */
+                    const duplicates = await Patientservice.findByNpid(npid)
+                    if (duplicates) {
+                        this.items = this.buildItems(duplicates)
+                    }
+                }
             } catch (e) {
                 toastDanger(`${e}`, 5000)
             }
