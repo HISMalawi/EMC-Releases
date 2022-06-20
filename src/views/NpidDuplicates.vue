@@ -7,10 +7,8 @@
         </ion-header>
         <ion-content> 
             <ion-list> 
-                <ion-item
-                    class="his-md-text"
-                    @click="item.isChecked = item.isChecked && ddeEnabled"
-                    button v-for="(item, index) in items" :key="index"
+                <ion-item class="his-md-text"
+                    v-for="(item, index) in items" :key="index"
                     >
                     <ion-checkbox
                         v-if="ddeEnabled"
