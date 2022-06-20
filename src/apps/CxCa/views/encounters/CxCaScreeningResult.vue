@@ -221,7 +221,7 @@ export default defineComponent({
               "Further Investigation and Management",
               "Large Lesion (Greater than 75 percent)",
               "Unable to treat client",
-              "Suspsect cancer",
+              "Suspect Cancer",
               "Treatment not available",
               "Other conditions",
             ]);
