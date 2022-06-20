@@ -107,6 +107,7 @@ export default defineComponent({
             });
             await loader.present();
             const drugs = await this.prescriptionService.loadDrugs(filter)
+            await loader.dismiss();
             return drugs
           },
           onload: () => this.activeField = '',
