@@ -137,6 +137,9 @@ export default defineComponent({
             }
         },
         async mergeSelected() {
+            if (!this.itemsChecked.every((i: any) => i.isComplete)) {
+                return toastWarning('One or more patients have missing data. Please update them before merging.', 5000) 
+            }
             if ((await this.dde.postMerge(this.itemsChecked))) {
                 await this.dde.printNpid(this.dde.patientID)
                 nextTask(this.dde.patientID, this.$router)
