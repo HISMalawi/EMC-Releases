@@ -1,5 +1,10 @@
 export default [
     {
+        name: 'ANC Vitals',
+        path: '/anc/encounters/vitals/:patient_id',
+        component: () => import('@/apps/ANC/Views/Encounters/AncVitals.vue'),
+    },
+    {
         name: 'anc_pepfar_disaggregated',
         path: '/anc/pepfar_disaggregated',
         component: () => import('@/apps/ANC/Views/Reports/Pepfar/AncPepfarDisaggregated.vue')
