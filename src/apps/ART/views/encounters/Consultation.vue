@@ -74,7 +74,8 @@ export default defineComponent({
     malawiSideEffectReasonObs: [] as any,
     otherSideEffectReasonObs: [] as any,
     wasTransferredIn: false as boolean,
-    dateStartedArt: '' as string
+    dateStartedArt: '' as string,
+    clientHadAHysterectomy: false as any,
   }),
   watch: {
     ready: {
@@ -118,6 +119,7 @@ export default defineComponent({
             this.CxCaMaxAge = end
             this.CxCaStartAge = start
             this.DueForCxCa = await this.consultation.clientDueForCxCa()
+            this.clientHadAHysterectomy =  await this.consultation.clientHasHadAHysterectomy();
           }
 
           if (this.patient.isChildBearing()) {
@@ -254,6 +256,7 @@ export default defineComponent({
         && this.CxCaEnabled 
         && age >= this.CxCaStartAge 
         && age <= this.CxCaMaxAge
+        && !this.clientHadAHysterectomy
     },
     pregnancyEligible() {
       return this.patient.isChildBearing() && !this.onPermanentFPMethods

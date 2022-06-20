@@ -83,7 +83,17 @@ export class ConsultationService extends AppEncounterService {
     }
     return true
   }
-
+async clientHasHadAHysterectomy() {
+    const req: any = await AppEncounterService.getFirstValueCoded(this.patientID, 'Reason for NOT offering CxCa'); 
+    if(req === "Hysterectomy") {
+      return true
+    }
+    const secondCheck: any = await AppEncounterService.getFirstValueText(this.patientID, 'Treatment'); 
+    if(secondCheck === "Hysterectomy") {
+      return true
+    }
+    return false
+  }
   async getTLObs() {
     const isTL = ((obs: any) => obs && obs.value_coded === 'Tubal ligation' && AppEncounterService.obsInValidPeriod(obs))
     const tlObs = await AppEncounterService.getFirstObs(this.patientID, 'Family planning')
