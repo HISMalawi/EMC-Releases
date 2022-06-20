@@ -102,16 +102,15 @@ export default defineComponent({
     data: () => ({
         dde: {} as any,
         ddeEnabled: false as boolean,
-        patient: {} as any,
         items: [] as any,
         title: '' as string
     }),
     watch: {
         $route: {
-            async handler({params}: any) {
+            handler({params}: any) {
                 if (params){
                     this.title = `Duplicates for NPID (${params.npid})`
-                    await this.init(params.npid)
+                    this.init(params.npid)
                 }
             },
             deep: true,
@@ -124,26 +123,30 @@ export default defineComponent({
         }
     },
     methods: {
-        check(e: any, i: any) {
-            i.isChecked = e.detail.checked
-        },
-        toDate(date: string | Date) {
-            return HisDate.toStandardHisDisplayFormat(date)
-        },
         async onAction(action: Function, context='proceed') {
             const ok = await alertConfirmation(`
                 Are you sure you want to ${context}?
             `)
-            if (ok) try { await action() } catch(e) { toastWarning(e) }
+            if (ok) {
+                try {
+                    await action()
+                } catch(e) {
+                    toastWarning(`${e}`)
+                    console.error(e)
+                }
+            }
         },
         async mergeSelected() {
-            const req = await this.dde.postMerge(this.itemsChecked)
-            if (req) {
+            if ((await this.dde.postMerge(this.itemsChecked))) {
                 await this.dde.printNpid(this.dde.patientID)
                 nextTask(this.dde.patientID, this.$router)
             }
         },
         async reassignIdentifier(item: any) {
+            /**
+             * DDE requires that patients should have complete data. Redirect the user
+             * immediately to update this information
+             */
             if (!item.isComplete && this.ddeEnabled) {
                 const ok = await alertConfirmation('Do you want to update missing information?', {
                     header: 'Incomplete Demographics'
@@ -156,20 +159,16 @@ export default defineComponent({
                 }
             } else {
                 this.onAction(async () => {
-                    try {
-                        if (this.ddeEnabled) {
-                            if ((await this.dde.reassignNpid(item.docID, item.patientID))) {
-                                await this.dde.printNpid(item.patientID)
-                            }
-                        } else {
-                            if (typeof item.assignLocalNpidAndPrint === 'function') {
-                                await item.assignLocalNpidAndPrint()
-                            }
+                    if (this.ddeEnabled) {
+                        if ((await this.dde.reassignNpid(item.docID, item.patientID))) {
+                            await this.dde.printNpid(item.patientID)
                         }
-                        nextTask(item.patientID, this.$router)
-                    } catch (e) {
-                        toastDanger(`${e}`)
+                    } else {
+                        if (typeof item.assignLocalNpidAndPrint === 'function') {
+                            await item.assignLocalNpidAndPrint()
+                        }
                     }
+                    nextTask(item.patientID, this.$router)
                 }, 'Reassign')
             }
         },
@@ -182,7 +181,7 @@ export default defineComponent({
                         patientID: p.getID(),
                         name: p.getFullName(),
                         gender: p.getGender(),
-                        birthdate: this.toDate(p.getBirthdate()),
+                        birthdate: HisDate.toStandardHisDisplayFormat(p.getBirthdate()),
                         curDistrict: p.getCurrentDistrict(),
                         homeVillage: p.getHomeVillage(),
                         docID: p.getPatientIdentifier(27),
@@ -217,6 +216,9 @@ export default defineComponent({
         },
         async init(npid: string) {
             try {
+                /**
+                 * Load DDE identifier data if service is enabled
+                 */
                 this.dde = new PatientDemographicsExchangeService()
                 await this.dde.loadDDEStatus()
                 this.ddeEnabled = this.dde.isEnabled()
@@ -227,6 +229,9 @@ export default defineComponent({
                         ...this.buildItems(remotes)
                     ]
                 } else {
+                    /**
+                     * Load Local patient identifier data without DDE Enabled
+                     */
                     const duplicates = await Patientservice.findByNpid(npid)
                     if (duplicates) {
                         this.items = this.buildItems(duplicates)
