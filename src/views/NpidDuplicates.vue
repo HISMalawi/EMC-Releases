@@ -166,7 +166,7 @@ export default defineComponent({
                                 await item.assignLocalNpidAndPrint()
                             }
                         }
-                        await nextTask(item.patientID, this.$router)
+                        nextTask(item.patientID, this.$router)
                     } catch (e) {
                         toastDanger(`${e}`)
                     }
