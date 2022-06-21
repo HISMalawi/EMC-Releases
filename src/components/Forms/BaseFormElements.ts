@@ -1,3 +1,10 @@
+/**
+ * Map all formElements/components defined in "@/components/FormElements" 
+ * in the Enum below by their file name.
+ * 
+ * Next step is to add FieldType entry in COMPONENT_REFS in the 
+ * Array below the FieldType Enum
+ */
 export enum FieldType {
     TT_MULTI_SELECT_GRID= 'HisMultiSelectGrid',
     TT_AGE_INPUT='HisAgeInput',
@@ -51,6 +58,7 @@ export enum FieldType {
     TT_PRESCRIPTION_INPUT = 'HisPrescriptionInput'
 }
 
+// Register FieldTypes here that will be registered at runtime
 export const COMPONENT_REFS: FieldType[] = [
     FieldType.TT_MULTI_SELECT_GRID,
     FieldType.TT_AGE_INPUT,
