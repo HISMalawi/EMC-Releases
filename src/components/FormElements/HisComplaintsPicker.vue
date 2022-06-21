@@ -63,6 +63,12 @@ export default defineComponent({
     ActiveCategory: '',
   }),
   methods: {
+    async init() {
+      this.$emit('onFieldActivated', this)
+      const data = await PatientComplaintsService.getComplaintsList('Presenting complaint group')
+      this.listData = this.mapListToOptions(data)
+      this.$emit('onValue', this.getChecked(this.complaintsList))
+    },
     async onselect(option: Option, event: any){
       this.$nextTick(async ()=> {
         const opt = {...option}
@@ -134,11 +140,11 @@ export default defineComponent({
       }
     }
   },
-  async activated() {
-    this.$emit('onFieldActivated', this)
-    const data = await PatientComplaintsService.getComplaintsList('Presenting complaint group')
-    this.listData = this.mapListToOptions(data)
-    this.$emit('onValue', this.getChecked(this.complaintsList))
+  mounted() {
+    this.init()
+  },
+  activated() {
+    this.init()
   }
 });
 </script>

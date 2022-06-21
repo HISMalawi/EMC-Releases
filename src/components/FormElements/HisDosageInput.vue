@@ -74,12 +74,18 @@ export default defineComponent({
         immediate: true
     }
   },
-  async activated() {
-    this.$emit('onFieldActivated', this)
-    const data = await this.options(this.fdata)
-    this.updateListData(data)
+  mounted() {
+    this.init()
+  },
+  activated() {
+    this.init()
   },
   methods: {
+    async init() {
+        this.$emit('onFieldActivated', this)
+        const data = await this.options(this.fdata)
+        this.updateListData(data)
+    },
     img(name: string) {
         return `assets/images/prescription/${name}.png`
     },

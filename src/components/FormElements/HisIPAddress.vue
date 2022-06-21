@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onActivated, ref, watch } from 'vue'
+import { defineComponent, onActivated, onMounted, ref, watch } from 'vue'
 import HisKeyboard from "@/components/Keyboard/HisKeyboard.vue"
 import { NUMBER_PAD_LO } from "@/components/Keyboard/KbLayouts"
 import ViewPort from "@/components/DataViews/ViewPort.vue"
@@ -68,6 +68,7 @@ export default defineComponent({
         }
     },
     setup(props, {emit}) {
+        onMounted(() => emit('onFieldActivated', this))
         onActivated(() => emit('onFieldActivated', this))
         const showKeyboard = ref(false)
         const activeIndex = ref('')

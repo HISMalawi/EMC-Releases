@@ -69,11 +69,17 @@ export default defineComponent({
         immediate: true
     }
   },
-  async activated() {
-    this.$emit('onFieldActivated', this)
-    this.listData = await this.options(this.fdata, this.cdata, this.listData)
+  mounted() {
+    this.init()
+  },
+  activated() {
+    this.init()
   },
   methods: {
+    async init() {
+        this.$emit('onFieldActivated', this)
+        this.listData = await this.options(this.fdata, this.cdata, this.listData)
+    },
     async launchEditor(field: Field, callback: Function) {
         const modal = await modalController.create({
             component: TouchField,

@@ -15,11 +15,20 @@ export default defineComponent({
   data: () => ({
     value: "",
   }),
-  async activated() {
-    const data = await this.options();
-    this.value = data[0].value;
+  methods: {
+    async init() {
+      this.$emit("onFieldActivated", this);
+      const data = await this.options();
+      this.value = data[0].value;
+    }
   },
-});
+  mounted() {
+    this.init()
+  },
+  activated() {
+    this.init()
+  }
+})
 </script>
 <style scoped>
 .center {

@@ -78,14 +78,20 @@ export default defineComponent({
     data: () => ({
         listData: [] as Option[]
     }),
-    async activated() {
-        this.$emit('onFieldActivated', this)
-        if (typeof this.config.pregnancyCount === 'function') {
-            this.listData = this.buildOptions((await this.config.pregnancyCount(this.fdata)))
-            this.$emit('onValue', this.listData)
-        }
+    mounted() {
+        this.init()
+    },
+    activated() {
+        this.init()
     },
     methods: {
+        async init() {
+            this.$emit('onFieldActivated', this)
+            if (typeof this.config.pregnancyCount === 'function') {
+                this.listData = this.buildOptions((await this.config.pregnancyCount(this.fdata)))
+                this.$emit('onValue', this.listData)
+            }
+        },
         buildOptions(limit: number) {
             const options = []
             for(let i=0; i < limit; ++i) {

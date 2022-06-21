@@ -22,14 +22,22 @@ export default defineComponent({
         columns: [] as Array<string>,
         rows: [] as Array<string>,
     }),
-    async activated() {
-        this.$emit('onFieldActivated', this)
-        if (typeof this.config.columns === "function") {
-            this.columns = await this.config.columns(this.fdata, this.cdata)
+    methods: {
+        async init() {
+            this.$emit('onFieldActivated', this)
+            if (typeof this.config.columns === "function") {
+                this.columns = await this.config.columns(this.fdata, this.cdata)
+            }
+            if (typeof this.config.rows === "function") {
+                this.rows = await this.config.rows(this.fdata, this.cdata)
+            }
         }
-        if (typeof this.config.rows === "function") {
-            this.rows = await this.config.rows(this.fdata, this.cdata)
-        }
+    },
+    mounted() {
+        this.init()
+    },
+    activated() {
+        this.init()
     }
 })
 </script>

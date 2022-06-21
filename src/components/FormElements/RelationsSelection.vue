@@ -78,11 +78,17 @@ export default defineComponent({
             return Transformer.convertArrayToTurples(this.listData, 2)
         }
     },
-    async activated() {
-        this.$emit('onFieldActivated', this)
-        this.listData = await this.options(this.fdata)
+    mounted() {
+        this.init()
+    },
+    activated() {
+        this.init()
     },
     methods: {
+        async init() {
+            this.$emit('onFieldActivated', this)
+            this.listData = await this.options(this.fdata)
+        },
         onClick(relation: any) {
             this.selected = relation.label
             this.$emit('onValue', relation)

@@ -59,17 +59,23 @@ export default defineComponent({
         date: '' as any,
         isInit: true as boolean
     }),
-    async activated(){
-        this.$emit('onFieldActivated', this)
-        if (typeof this.config.initialDate === 'function') {
-            this.date = new Date(this.config.initialDate())
-        } else {
-            this.date = new Date()
-        }
-        await this.setDefaultValue()
-        this.isInit = false
+    mounted() {
+        this.init()
+    },
+    activated(){
+        this.init()
     },
     methods: {
+        async init() {
+            this.$emit('onFieldActivated', this)
+            if (typeof this.config.initialDate === 'function') {
+                this.date = new Date(this.config.initialDate())
+            } else {
+                this.date = new Date()
+            }
+            await this.setDefaultValue()
+            this.isInit = false
+        },
         async setDefaultValue() {
             if (this.defaultValue && !this.value) {
                 const defaults = await this.defaultValue(this.fdata, this.cdata)

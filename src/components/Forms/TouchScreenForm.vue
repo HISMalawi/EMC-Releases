@@ -22,8 +22,8 @@
     <ion-content>
       <keep-alive>
         <component
-          :key="currentField.id"
           v-bind:is="currentField.type"
+          :key="currentField.id"
           :config="currentField.config"
           :options="currentField.options"
           :preset="currentField.preset"
@@ -93,11 +93,9 @@ import {toastDanger} from "@/utils/Alerts"
 function buildAsyncComponents() {
   const components: any = {}
   COMPONENT_REFS.forEach((name: string) => {
-    components[name] = defineAsyncComponent({
-      delay: 100,
-      timeout: 4000,
-      loader: () => import(/* webpackChunkName: "TouchFormElement"*/`@/components/FormElements/${name}.vue`)
-    })
+    components[name] = defineAsyncComponent(() => import(
+      /* webpackChunkName: "TouchFormElement"*/`@/components/FormElements/${name}.vue`)
+    )
   })
   return components
 }

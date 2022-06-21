@@ -63,6 +63,12 @@ export default defineComponent({
     ActiveCategory: '',
   }),
   methods: {
+    async init() {
+      this.$emit('onFieldActivated', this)
+      const data = await PatientRadiologyService.getRadiologyList('Radiology Orders')
+      this.listData = this.mapListToOptions(data)
+      this.$emit('onValue', this.getChecked(this.radiologyOrdersList))
+    },
     async onselect(option: Option, event: any){
       this.$nextTick(async ()=> {
         const opt = {...option}
@@ -134,15 +140,14 @@ export default defineComponent({
       }
     }
   },
-  async activated() {
-    this.$emit('onFieldActivated', this)
-    const data = await PatientRadiologyService.getRadiologyList('Radiology Orders')
-    this.listData = this.mapListToOptions(data)
-    this.$emit('onValue', this.getChecked(this.radiologyOrdersList))
+  mounted() {
+    this.init()
+  },
+  activated() {
+    this.init()
   }
-});
+})
 </script>
-
 <style scoped>
 ion-col {
   padding: 0;
