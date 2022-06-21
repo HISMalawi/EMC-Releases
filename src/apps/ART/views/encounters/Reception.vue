@@ -15,6 +15,7 @@ import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations";
 import { ReceptionService } from "@/apps/ART/services/reception_service"
+import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { ProgramService } from "@/services/program_service";
 import { toastWarning, toastSuccess } from "@/utils/Alerts"
 import EncounterMixinVue from '../../../../views/EncounterMixin.vue'
@@ -30,6 +31,7 @@ export default defineComponent({
     hasARVNumber: true,
     hasGuardian: false,
     suggestedNumber: "" as any,
+    patientType: {} as any,
   }),
   watch: {
     ready: {
@@ -49,6 +51,9 @@ export default defineComponent({
           const j = await ProgramService.getNextSuggestedARVNumber();
           this.suggestedNumber = j.arv_number.replace(/^\D+|\s/g, "");
         }
+
+          this.patientType = new PatientTypeService(this.patientID, this.providerID);
+          await this.patientType.loadPatientType()
         this.fields = this.getFields();
       },
       immediate: true
@@ -134,7 +139,7 @@ export default defineComponent({
           helpText: "Capture ARV Number?",
           type: FieldType.TT_SELECT,
           requireNext: true,
-          condition: () => !this.hasARVNumber,
+          condition: () => !this.hasARVNumber && this.patientType.getType() === "New patient",
           validation: (val: any) => Validation.required(val),
           options: () => this.yesNoOptions(),
         },
