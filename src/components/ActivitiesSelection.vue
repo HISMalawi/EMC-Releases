@@ -9,7 +9,7 @@
       <div class="his-card clickable" v-for="(entry, index) in entries" :key="index" @click="entry.selected = !entry.selected"> 
         <ion-row >
           <ion-col size="1">
-            <ion-checkbox v-model="entry.selected" />
+            <ion-checkbox v-model="entry.selected" @click="entry.selected = !entry.selected" />
           </ion-col>
           <ion-col class="ion-text-center his-md-text">
             {{ entry.value }}
