@@ -92,9 +92,11 @@ import {toastDanger} from "@/utils/Alerts"
 
 function buildAsyncComponents() {
   const components: any = {}
-  COMPONENT_REFS.forEach((componentName: string) => {
-    components[componentName] = defineAsyncComponent({
-      loader: () => import(`@/components/FormElements/${componentName}.vue`)
+  COMPONENT_REFS.forEach((name: string) => {
+    components[name] = defineAsyncComponent({
+      delay: 100,
+      timeout: 4000,
+      loader: () => import(/* webpackChunkName: "TouchFormElement"*/`@/components/FormElements/${name}.vue`)
     })
   })
   return components
