@@ -89,7 +89,9 @@ import {
 import { alertConfirmation, toastWarning } from "@/utils/Alerts";
 import InfoCard from "@/components/DataViews/HisFormInfoCard.vue"
 import {toastDanger} from "@/utils/Alerts"
-
+/**
+ * Build async components for all form elements
+ */
 function buildAsyncComponents() {
   const components: any = {}
   COMPONENT_REFS.forEach((name: string) => {
