@@ -59,9 +59,12 @@ const ANC: AppInterface = {
                 ]
             },
             'LABS': async () => {
-                return (await OrderService.getOrders(patientID)).
-                    map((order: any) => {
-                        return { label: order.specimen, value: order.order_date } 
+                return (await OrderService.getOrders(patientID))
+                    .map((order: any) => {
+                        return { 
+                            label: order.tests.map((t: any) => t.name).join(' & '),
+                            value: HisDate.toStandardHisDisplayFormat(order.order_date) 
+                        } 
                     })
             },
             'ALERTS': () => { 
