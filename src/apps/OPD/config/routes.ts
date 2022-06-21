@@ -27,7 +27,7 @@ export default [
     component: () => import('@/apps/OPD/views/encounters/OutcomeStatus.vue')
   },
   {
-    name: "social history",
+    name: "OPD social history",
     path: "/opd/encounters/social/:patient_id",
     component: () => import('@/apps/OPD/views/encounters/SocialHistory.vue')
   },
