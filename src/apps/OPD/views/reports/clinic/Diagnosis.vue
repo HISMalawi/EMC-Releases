@@ -6,6 +6,7 @@
       :fields="fields"
       :columns="columns"
       :period="period"
+      :customInfo="customInfo"
       :onReportConfiguration="init"
     ></report-template>
   </ion-page>
@@ -28,6 +29,10 @@ export default defineComponent({
     title: 'OPD Diagnosis',
     rows: [] as RowInterface[][],
     reportService: {} as any,
+    customInfo: {
+      label: "Total OPD Visits",
+      value: 0
+    },
     columns: [
       [
         table.thTxt('Age Groups', {
@@ -134,6 +139,11 @@ export default defineComponent({
         const underFourteenMales: Array<string> = get(data[diagnosis], 'M.5-14 yrs', [])
         const overFourteenFemales: Array<string> = get(data[diagnosis], 'F.>= 14 years', [])
         const overFourteenMales: Array<string> = get(data[diagnosis], 'M.>= 14 years', [])
+
+        this.customInfo.value += underFiveFemales.length + underFiveMales.length
+        this.customInfo.value += underSixFemales.length + underSixMales.length
+        this.customInfo.value += underFourteenFemales.length + underFourteenMales.length
+        this.customInfo.value += overFourteenFemales.length + overFourteenMales.length
 
         row.push([
           table.td(diagnosis, {style: {textAlign: 'left'}}),
