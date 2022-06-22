@@ -129,7 +129,7 @@ export default defineComponent({
     },
     buildRows(data: Record<string, any>): RowInterface[][] {
       if(isEmpty(data)) return []
-      const row: RowInterface[][] = []
+      const rows: RowInterface[][] = []
       Object.keys(data).forEach(diagnosis => {
         const underSixFemales: Array<string> = get(data[diagnosis], "F.0-5 months", [])
         const underSixMales: Array<string> = get(data[diagnosis], 'M.0-5 months', [])
@@ -145,7 +145,7 @@ export default defineComponent({
         this.customInfo.value += underFourteenFemales.length + underFourteenMales.length
         this.customInfo.value += overFourteenFemales.length + overFourteenMales.length
 
-        row.push([
+        rows.push([
           table.td(diagnosis, {style: {textAlign: 'left'}}),
           this.buildColumn(underSixFemales, `under 6 months females diagnosed with ${diagnosis}`),
           this.buildColumn(underSixMales, `under 6 months males diagnosed with ${diagnosis}`),
@@ -168,7 +168,11 @@ export default defineComponent({
         ])
       })
 
-      return row
+      return rows.sort((a, b) => {
+        if(a[0].td < b[0].td) return -1
+        if(a[0].td > b[0].td) return 1
+        return 0
+      })
     },
   },
 })
