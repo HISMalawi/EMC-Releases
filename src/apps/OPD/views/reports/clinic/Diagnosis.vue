@@ -130,12 +130,12 @@ export default defineComponent({
           Object.keys(data[diagnosis][gender]).forEach(ageGroup => {
             const underSixFemales: Array<string> = (ageGroup === "0-5 months" && gender === "F") ? data[diagnosis][gender][ageGroup] : []
             const underSixMales: Array<string> = (ageGroup === "0-5 months" && gender === "M") ? data[diagnosis][gender][ageGroup] : []
-            const underFiveFemales: Array<string> = (ageGroup.match(/6-11 months|12-23 months|2-4 years/) && gender === "F") ? data[diagnosis][gender][ageGroup] : []
-            const underFiveMales: Array<string> = (ageGroup.match(/6-11 months|12-23 months|2-4 years/) && gender === "M") ? data[diagnosis][gender][ageGroup] : []
-            const underFourteenFemales: Array<string> = (ageGroup.match(/5-9 years|10-14 years/) && gender === "F") ? data[diagnosis][gender][ageGroup] : []
-            const underFourteenMales: Array<string> = (ageGroup.match(/5-9 years|10-14 years/) && gender === "M") ? data[diagnosis][gender][ageGroup] : []
-            const overFourteenFemales: Array<string> = (!ageGroup.match(/Unknown/i) && gender === "F") ? data[diagnosis][gender][ageGroup] : []
-            const overFourteenMales: Array<string> = (!ageGroup.match(/Unknown/i) && gender === "M") ? data[diagnosis][gender][ageGroup] : []
+            const underFiveFemales: Array<string> = (ageGroup.match(/6 mth < 5 yrs/) && gender === "F") ? data[diagnosis][gender][ageGroup] : []
+            const underFiveMales: Array<string> = (ageGroup.match(/6 mth < 5 yrs/) && gender === "M") ? data[diagnosis][gender][ageGroup] : []
+            const underFourteenFemales: Array<string> = (ageGroup.match(/5-14 yrs/) && gender === "F") ? data[diagnosis][gender][ageGroup] : []
+            const underFourteenMales: Array<string> = (ageGroup.match(/5-14 yrs/) && gender === "M") ? data[diagnosis][gender][ageGroup] : []
+            const overFourteenFemales: Array<string> = (ageGroup.match(/>= 14 years/i) && gender === "F") ? data[diagnosis][gender][ageGroup] : []
+            const overFourteenMales: Array<string> = (ageGroup.match(/>= 14 years/i) && gender === "M") ? data[diagnosis][gender][ageGroup] : []
 
             row.push([
               table.td(diagnosis, {style: {textAlign: 'left'}}),
