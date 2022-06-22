@@ -17,7 +17,7 @@ import { OpdReportService } from "@/apps/OPD/services/opd_report_service"
 import ReportTemplate from "@/views/reports/BaseTableReport.vue"
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 import ReportMixin from '@/apps/ART/views/reports/ReportMixin.vue'
-import { isEmpty } from 'lodash'
+import { get, isEmpty } from 'lodash'
 import { IonPage } from "@ionic/vue";
 import { Patientservice } from '@/services/patient_service'
 
@@ -126,40 +126,36 @@ export default defineComponent({
       if(isEmpty(data)) return []
       const row: RowInterface[][] = []
       Object.keys(data).forEach(diagnosis => {
-        Object.keys(data[diagnosis]).forEach(gender => {
-          Object.keys(data[diagnosis][gender]).forEach(ageGroup => {
-            const underSixFemales: Array<string> = (ageGroup === "0-5 months" && gender === "F") ? data[diagnosis][gender][ageGroup] : []
-            const underSixMales: Array<string> = (ageGroup === "0-5 months" && gender === "M") ? data[diagnosis][gender][ageGroup] : []
-            const underFiveFemales: Array<string> = (ageGroup.match(/6 mth < 5 yrs/) && gender === "F") ? data[diagnosis][gender][ageGroup] : []
-            const underFiveMales: Array<string> = (ageGroup.match(/6 mth < 5 yrs/) && gender === "M") ? data[diagnosis][gender][ageGroup] : []
-            const underFourteenFemales: Array<string> = (ageGroup.match(/5-14 yrs/) && gender === "F") ? data[diagnosis][gender][ageGroup] : []
-            const underFourteenMales: Array<string> = (ageGroup.match(/5-14 yrs/) && gender === "M") ? data[diagnosis][gender][ageGroup] : []
-            const overFourteenFemales: Array<string> = (ageGroup.match(/>= 14 years/i) && gender === "F") ? data[diagnosis][gender][ageGroup] : []
-            const overFourteenMales: Array<string> = (ageGroup.match(/>= 14 years/i) && gender === "M") ? data[diagnosis][gender][ageGroup] : []
+        const underSixFemales: Array<string> = get(data[diagnosis], "F.0-5 months", [])
+        const underSixMales: Array<string> = get(data[diagnosis], 'M.0-5 months', [])
+        const underFiveFemales: Array<string> = get(data[diagnosis], 'F.6 mth < 5 yrs', [])
+        const underFiveMales: Array<string> = get(data[diagnosis], 'M.6 mth < 5 yrs', [])
+        const underFourteenFemales: Array<string> = get(data[diagnosis], 'F.5-14 yrs', [])
+        const underFourteenMales: Array<string> = get(data[diagnosis], 'M.5-14 yrs', [])
+        const overFourteenFemales: Array<string> = get(data[diagnosis], 'F.>= 14 years', [])
+        const overFourteenMales: Array<string> = get(data[diagnosis], 'M.>= 14 years', [])
 
-            row.push([
-              table.td(diagnosis, {style: {textAlign: 'left'}}),
-              this.buildColumn(underSixFemales, `under 6 months females diagnosed with ${diagnosis}`),
-              this.buildColumn(underSixMales, `under 6 months males diagnosed with ${diagnosis}`),
-              this.buildColumn(underFiveFemales, `under 5 years females diagnosed with ${diagnosis}`),
-              this.buildColumn(underFiveMales, `under 5 years males diagnosed with ${diagnosis}`),
-              this.buildColumn(underFourteenFemales, `under 14 years females diagnosed with ${diagnosis}`),
-              this.buildColumn(underFourteenMales, `under 14 years males diagnosed with ${diagnosis}`),
-              this.buildColumn(overFourteenFemales, `over 14 years females diagnosed with ${diagnosis}`),
-              this.buildColumn(overFourteenMales, `over 14 years males diagnosed with ${diagnosis}`),
-              this.buildColumn([
-                ...underFiveFemales,
-                ...underFiveMales,
-                ...underSixFemales,
-                ...underSixMales,
-                ...underFourteenFemales,
-                ...underFourteenMales,
-                ...overFourteenFemales,
-                ...overFourteenMales
-              ], `Total diagnosed with ${diagnosis}`),
-            ])
-          })
-        })
+        row.push([
+          table.td(diagnosis, {style: {textAlign: 'left'}}),
+          this.buildColumn(underSixFemales, `under 6 months females diagnosed with ${diagnosis}`),
+          this.buildColumn(underSixMales, `under 6 months males diagnosed with ${diagnosis}`),
+          this.buildColumn(underFiveFemales, `under 5 years females diagnosed with ${diagnosis}`),
+          this.buildColumn(underFiveMales, `under 5 years males diagnosed with ${diagnosis}`),
+          this.buildColumn(underFourteenFemales, `under 14 years females diagnosed with ${diagnosis}`),
+          this.buildColumn(underFourteenMales, `under 14 years males diagnosed with ${diagnosis}`),
+          this.buildColumn(overFourteenFemales, `over 14 years females diagnosed with ${diagnosis}`),
+          this.buildColumn(overFourteenMales, `over 14 years males diagnosed with ${diagnosis}`),
+          this.buildColumn([
+            ...underFiveFemales,
+            ...underFiveMales,
+            ...underSixFemales,
+            ...underSixMales,
+            ...underFourteenFemales,
+            ...underFourteenMales,
+            ...overFourteenFemales,
+            ...overFourteenMales
+          ], `Total diagnosed with ${diagnosis}`),
+        ])
       })
 
       return row
