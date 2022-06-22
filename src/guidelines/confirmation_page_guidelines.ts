@@ -324,7 +324,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         },
         conditions: {
             currentOutcome: (outcome: string) => outcome === 'Patient transferred out',
-            programName: (name: string) => name === 'HIV PROGRAM'
+            programName: (name: string) => name === 'ART'
         }
     },
     "[ART Drug refill visit purpose] Select purpose of visit for Drug Refill patients" : {
@@ -358,7 +358,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         conditions: {
             currentOutcome: (outcome: string) => outcome != 'Patient transferred out',
             patientType: (pType: string) => pType === 'Drug Refill',
-            programName: (name: string) => name === 'HIV PROGRAM'
+            programName: (name: string) => name === 'ART'
         }
     },
     "[ART External consultation visit purpose] Select purpose of visit if patient is External Consultation": {
@@ -392,7 +392,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         conditions: {
             currentOutcome: (outcome: string) => outcome != 'Patient transferred out',
             patientType: (pType: string) => pType === 'External consultation',
-            programName: (name: string) => name === 'HIV PROGRAM'
+            programName: (name: string) => name === 'ART'
         }
     },
     "Prompt patient enrollment in current programme if not enrolled" : {
@@ -421,7 +421,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         },
         conditions: {
-            programName: (name: string) => name.match(/n\/a/i) ? true : false
+            enrolledInProgram: (enrolled: boolean) => enrolled === false
         }
     },
     "(ART Filing numbers) Prompt dormant filing number reactivation if patient has a dormant filing number": {
@@ -450,7 +450,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         },
         conditions: {
-            programName: (programName: string) => programName === 'HIV PROGRAM',
+            programName: (programName: string) => programName === 'ART',
             identifiers: (identifiers: string[]) => identifiers.includes('Archived filing number'),
             currentOutcome: (outcome: string) => ![
                 'Treatment stopped', 
@@ -697,8 +697,44 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         },
         conditions: {
-            programName: (name: string) => name.match(/anc/i) ? true : false,
+            programName: (name: string) => name === 'ANC',
             anc: (anc: any)  => anc.currentPregnancyIsOverdue === true
         }        
+    },
+    "[ANC] Exit if client is NOT ELIGIBLE for ANC": {
+        priority: 1,
+        targetEvent: TargetEvent.ONLOAD,
+        actions: {
+            alert: async () => {
+                const action = await infoActionSheet(
+                    'Client not eligible for ANC',
+                    `This program is for women eligible for ANC only`,
+                    'If this is a mistake, please update client Demographics or Exit',
+                    [
+                        { 
+                            name: 'EXIT',
+                            slot: 'end', 
+                            color: 'success'
+                        },
+                        { 
+                            name: 'EDIT DEMOGRAPHICS',
+                            slot: 'end', 
+                            color: 'danger'
+                        }
+                    ],
+                    'his-danger-color'
+                )
+                return action === 'EXIT' ? FlowState.GO_HOME : FlowState.UPDATE_DMG
+            }
+        },
+        conditions: {
+            demographics: ({gender}: any) => {
+                const g = gender.toLowerCase()
+                return g === 'm' || g === 'male'
+            },
+            programName: (name: string) => {
+                return name === 'ANC'
+            } 
+        }
     }
 }

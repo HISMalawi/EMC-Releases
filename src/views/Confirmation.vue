@@ -125,6 +125,7 @@ import { ObservationService } from "@/services/observation_service";
 import { delayPromise } from "@/utils/Timers";
 import { AncPregnancyStatusService } from "@/apps/ANC/Services/anc_pregnancy_status_service"
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
+import { isValueEmpty } from "@/utils/Strs";
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -158,6 +159,7 @@ export default defineComponent({
       userRoles: [] as string[],
       scannedNpid: '' as string,
       currentNpid: '' as string,
+      enrolledInProgram: false as boolean,
       programName: 'N/A' as string,
       currentOutcome: '' as string,
       programs: [] as string[],
@@ -431,12 +433,13 @@ export default defineComponent({
       }
     },
     async setProgramFacts() {
+      this.facts.programName = this.app.applicationName
       try {
         this.program = new PatientProgramService(this.patient.getID())
         this.programInfo = await this.program.getProgram()
         const { program, outcome }: any =  this.programInfo
+        this.facts.enrolledInProgram = !(isValueEmpty(program) || program.match(/n\/a/i))
         this.facts.currentOutcome = outcome
-        this.facts.programName = program
         this.facts.userRoles = UserService.getUserRoles().map((r: any) => r.role)
         this.facts.patientType = (await ObservationService.getFirstValueCoded(
           this.patient.getID(), 'Type of patient'))
