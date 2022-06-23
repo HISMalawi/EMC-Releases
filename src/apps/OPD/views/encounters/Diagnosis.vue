@@ -22,7 +22,6 @@ export default defineComponent({
   data: () => ({
     activeField: '',
     notesService: {} as any,
-    diagnosisList: [] as Array<any>,
     diagnosisService: {} as any,
     malariaTestResult: 'No' as string
   }),
@@ -33,7 +32,6 @@ export default defineComponent({
           this.malariaTestResult = await OrderService.getLatestMalariaTestResult(this.patientID)
           this.notesService = new ClinicalNotesService(this.patientID, this.providerID)
           this.diagnosisService = new PatientDiagnosisService(this.patientID, this.providerID)
-          this.diagnosisList = await PatientDiagnosisService.getDiagnosis()
           this.fields = this.getFields()
         }
       },
@@ -59,7 +57,7 @@ export default defineComponent({
     mapListToOptions(list: ConceptName[]){
       if(isEmpty(list)) return []
       return list.map(item => ({
-        label: item.name, value: item.name, other: item.concept_id
+        label: item.name, value: item.name, other: item.concept_id, isChecked: false
       })).sort((a, b) => a.label < b.label ? -1 : a.label > b.label ? 1 : 0)
     },
     async checkMalariaResult(data: Array<any>){
@@ -75,9 +73,11 @@ export default defineComponent({
         {
           id: 'primary_diagnosis',
           helpText: 'Select primary diagnosis',
-          type: FieldType.TT_MULTIPLE_SELECT,
+          type: FieldType.TT_INFINITE_SCROLL_MULTIPLE_SELECT,
           validation: (data: any) => Validation.required(data),
-          options: () => this.mapListToOptions(this.diagnosisList),
+          options: async (_, filter='', page=1, limit=10) => this.mapListToOptions(
+            await PatientDiagnosisService.getDiagnosis(filter, page, limit)
+          ),
           beforeNext: async (data: any) => await this.checkMalariaResult(data),
           computedValue: (options: Array<Option>) => ({
             tag: 'diagnosis',
@@ -89,6 +89,7 @@ export default defineComponent({
             label: "Primary diagnosis"
           }),
           config: {
+            isFilterDataViaApi: true,
             showKeyboard: true,
           }
         },
@@ -96,7 +97,9 @@ export default defineComponent({
           id: 'secondary_diagnosis',
           helpText: 'Select secondary diagnosis',
           type: FieldType.TT_MULTIPLE_SELECT,
-          options: () => this.mapListToOptions(this.diagnosisList),
+          options: async (_, filter='') => this.mapListToOptions(
+            await PatientDiagnosisService.getDiagnosis(filter)
+          ),
           beforeNext: async (data: any) => await this.checkMalariaResult(data),
           computedValue: (options: Array<Option>) => ({
             tag: 'diagnosis',
@@ -109,6 +112,7 @@ export default defineComponent({
           }),
           config: {
             showKeyboard: true,
+            isFilterDataViaApi: true,
           }
         },
         {
