@@ -51,6 +51,7 @@ export default defineComponent({
     },
     data: function() {
       return {
+        tableCssTheme: 'opd-report-theme',
         rows: [] as RowInterface[][],
         columns: [
             [
