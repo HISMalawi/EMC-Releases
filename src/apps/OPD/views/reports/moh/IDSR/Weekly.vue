@@ -1,42 +1,51 @@
 <template>
-  <table class="my-table" style="margin: auto; width: 95%; margin-top: 3%; margin-bottom: 3%;">
-  <tr>
-    <td rowspan="2" colspan="2" class="td-text-align-left" style="width: min-content;padding: 1.5%;">Diseases/Events/Conditions</td>
-    <td colspan="3" class="td-text-align-left" style="text-align: center;">Out-patient Cases</td>
-  </tr>
-  <tr>
-    <td class="td-text-align-left td-span-width">&#60;5 yrs</td>
-    <td class="td-text-align-left td-span-width">&#62;&#61;5 yrs</td>
-    <td class="td-text-align-left td-span-width">Total</td>
-  </tr>
-  <weekly-dummy v-if="show"></weekly-dummy>
-  <tr v-for="(condition, index) in conditions" :key="index">
-    <td>{{condition.id}}</td>
-    <td class="td-text-align-left" style="width: 43.3%;padding: 1.5%;">{{condition.name}}</td>
-    <td id="ls-5yrs" @click="onDrillDown(condition.name+lessThanFiveYears, condition.lessThanFiveYearsPatientIds);"> <a> {{condition.lessThanFiveYears}} </a> </td>
-    <td id="grt-5yrs" @click="onDrillDown(condition.name+greaterAndEqualFiveYears, condition.greaterThanEqualFiveYearsPatientIds);"> <a> {{condition.greaterThanEqualFiveYears}} </a> </td>
-    <td id="total" @click="onDrillDown(condition.name+total, condition.totalPatientIds);"> <a> {{condition.total}} </a> </td>
-  </tr>
-  </table>
+  <div class="my-table" style="margin: auto; width: 95%; margin-top: 3%; margin-bottom: 3%;">
+    <report-table 
+    :columns="columns"
+    :rows="rows">
+    </report-table>
+  </div>
 </template>
 
 <script lang="ts">
 /* eslint-disable @typescript-eslint/camelcase */
 import { defineComponent } from 'vue'
-import WeeklyDummy from '@/apps/OPD/views/reports/moh/IDSR/WeeklyDummy.vue'
 import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
 import { Service } from "@/services/service"
 import dayjs from 'dayjs';
+import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
+import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 
 export default defineComponent({
-  components: { WeeklyDummy },
+  components: { ReportTable },
   data: function(){
     return {
-      show: true,
       conditions: [] as any,
-      lessThanFiveYears: " < 5 yrs",
-      greaterAndEqualFiveYears: " >= 5 yrs",
-      total: ' Total'
+      lessThanFiveYears: " < 5 yrs ",
+      greaterAndEqualFiveYears: " >= 5 yrs ",
+      total: ' Total ',
+      rows: [] as RowInterface[][],
+      columns: [
+      [
+        table.thTxt('', {
+          colspan: 2,
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('Out-patient Cases', {
+          colspan: 3,
+          sortable: false,
+          exportable: false 
+        }),
+      ],
+      [
+         table.thTxt(''),
+        table.thTxt('Diagnosis'),
+        table.thTxt('< 5 yrs', { value: 'Females <6 months' }),
+        table.thTxt('>= 5 yrs', { value: 'Males <6 months' }),
+        table.thTxt('Total'),
+      ]
+    ] as ColumnInterface[][],
     }
   },
   props: ['params', 'epiweek', 'quarter','onDrillDown'],
@@ -47,7 +56,7 @@ export default defineComponent({
      const Conditions = report.renderResults(this.params)
      if(Conditions.length){
       this.conditions = Conditions
-      this.show = false
+      this.rows = this.buildRows(Conditions)
      }
    },
    onDownload() {
@@ -76,6 +85,39 @@ export default defineComponent({
         document.body.removeChild(link);
       }
    },
+   buildRows(data: any): RowInterface[][] {
+     const rows: RowInterface[][] = []
+     data.forEach((condition: { 
+       id: number;
+       name: string;
+       lessThanFiveYears: number;
+       greaterThanEqualFiveYears: number;
+       total: number;
+       lessThanFiveYearsPatientIds: any;
+       greaterThanEqualFiveYearsPatientIds: any;
+       totalPatientIds: any;
+
+       }) => {
+        rows.push([
+          table.td(condition.id, {style: {textAlign: 'left'}}),
+          table.td(condition.name, {style: {textAlign: 'left'}}),
+          this.buildRow(this.lessThanFiveYears+'('+condition.name+')', condition.lessThanFiveYears, condition.lessThanFiveYearsPatientIds),
+          this.buildRow(this.greaterAndEqualFiveYears+'('+condition.name+')', condition.greaterThanEqualFiveYears, condition.greaterThanEqualFiveYearsPatientIds),
+          this.buildRow(this.total+'('+condition.name+')', condition.total, condition.totalPatientIds)
+        ])
+     })
+     return rows
+   },
+   buildRow(name: string, count: number, patientIds: any) {
+    if (!(count > 0)) {
+      return table.td(0)
+     } else {
+      return table.tdLink(
+      count,
+      async () =>  this.onDrillDown(name, patientIds)
+      )
+     }
+   }
   },
   watch: {
     params: {

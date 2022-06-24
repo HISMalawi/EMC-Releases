@@ -1,33 +1,19 @@
 <template>
-  <table style="margin: auto; width: 95%; margin-top: 1%;">
-    <tr id="">
-      <td colspan="5" id="" style="border-right-style: solid; font-weight: bold; text-align: center;">{{reportName}}</td>
-    </tr>
-  <tr>
-    <td class="td-text-align-left">Country:</td>
-    <td class="td-text-align-left">Malawi</td>
-  </tr>
-  <tr>
-    <td class="td-text-align-left">Reporting Facility Name:</td>
-    <td class="td-text-align-left">{{clinicName}}</td>
-  </tr>
-  <tr>
-    <td class="td-text-align-left">{{rangeLabel}}:</td>
-    <td class="td-text-align-left">{{range}}</td>
-  </tr>
-  <tr>
-    <td class="td-text-align-left">{{periodLabel}}</td>
-    <td class="td-text-align-left">{{periodDates}}</td>
-  </tr>
-  <tr>
-    <td class="td-text-align-left">Total OPD Visits: </td>
-    <td class="td-text-align-left"><span id="total_visits">{{totalOPDVisits}}</span></td>
-  </tr>
-  </table>
+  <div style="margin: auto; width: 95%; margin-top: 1%;">
+    <report-table 
+    :columns="columns"
+    :rows="rows">
+    </report-table>
+  </div>
 </template>
 
 <script lang="ts">
-  export default {
+import { defineComponent } from 'vue'
+import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
+import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
+
+export default defineComponent({
+    components: { ReportTable },
     props: {
       clinicName: {
         type: String,
@@ -62,7 +48,62 @@
         required: true
       },
     },
-  }
+    data: function() {
+      return {
+        rows: [] as RowInterface[][],
+        columns: [
+            [
+              table.thTxt(this.reportName, {
+                colspan: 2,
+                sortable: false,
+                exportable: false 
+              })
+            ]
+        ] as ColumnInterface[][],
+      }
+    },
+    mounted() {
+      this.initTable()
+    },
+    methods: {
+      initTable() {
+        const rows: RowInterface[][] = []
+        const tableHeaders = [
+          {
+            name: 'Country:',
+            value: 'Malawi',
+          },
+          {
+            name: 'Reporting Facility Name',
+            value: this.clinicName
+          },
+          {
+            name: this.rangeLabel,
+            value: this.range
+          },
+          {
+            name: this.periodLabel,
+            value: this.periodDates
+          },
+          {
+            name: 'Total OPD Visits:',
+            value: this.totalOPDVisits
+          }
+
+        ]
+
+        tableHeaders.forEach(item => {
+                  rows.push([
+          table.td(item.name, {style: {textAlign: 'left'}}),
+          table.td(item.value, {style: {textAlign: 'left'}}),
+        ])
+        })
+
+        
+        this.rows = rows
+      }
+    }
+  })
   </script>
 
 <style scoped>
