@@ -30,7 +30,7 @@ import { Field } from '@/components/Forms/FieldInterface'
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import ReportMixinVue from "../../ReportMixin.vue";
 import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
-import IdsrH from "@/apps/OPD/views/reports/moh/IDSR/IDSRHeader.vue"
+import IdsrH from "@/apps/OPD/views/reports/moh/MOHReportHeader.vue"
 import Weekly from "@/apps/OPD/views/reports/moh/IDSR/IDSRTableTemplate.vue"
 import HisDate from "@/utils/Date"
 

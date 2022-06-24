@@ -43,8 +43,8 @@ export default defineComponent({
       [
         table.thTxt(''),
         table.thTxt('Diseases/Events/Conditions'),
-        table.thTxt('< 5 yrs', { value: 'Females <6 months' }),
-        table.thTxt('>= 5 yrs', { value: 'Males <6 months' }),
+        table.thTxt('< 5 yrs'),
+        table.thTxt('>= 5 yrs'),
         table.thTxt('Total'),
       ]
     ] as ColumnInterface[][],

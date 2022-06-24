@@ -76,15 +76,15 @@ export default defineComponent({
             value: 'Malawi',
           },
           {
-            name: 'Reporting Facility Name',
+            name: 'Reporting Facility Name:',
             value: this.clinicName
           },
           {
-            name: this.rangeLabel,
+            name: this.rangeLabel+':',
             value: this.range
           },
           {
-            name: this.periodLabel,
+            name: this.periodLabel+':',
             value: this.periodDates
           },
           {
@@ -94,10 +94,13 @@ export default defineComponent({
 
         ]
         tableHeaders.forEach(item => {
-                  rows.push([
-          table.td(item.name, {style: {textAlign: 'left'}}),
-          table.td(item.value, {style: {textAlign: 'left'}}),
-        ])
+          console.log(item.name)
+          if(item.name !== 'undefined:') {
+                rows.push([
+                    table.td(item.name, {style: {textAlign: 'left'}}),
+                    table.td(item.value, {style: {textAlign: 'left'}}),
+                ])
+          }
         })
         this.rows = rows
       }
