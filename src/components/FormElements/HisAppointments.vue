@@ -168,9 +168,7 @@ export default defineComponent({
       }
 
       if(this.clinicHolidays.includes(HisDate.toStandardHisFormat(date))){
-        const proceed = await alertConfirmation(
-          "Do you really want to set appointment on a clinic holiday?"
-        )
+        const proceed = await alertConfirmation("Selected date is a clinic holiday, do you want to set an appointment?")
         if (!proceed) return false
       }
       const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednwsday', 'Thursday', 'Friday', 'Saturday']
