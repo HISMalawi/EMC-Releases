@@ -2,7 +2,8 @@
   <div class="my-table" style="margin: auto; width: 95%; margin-top: 3%; margin-bottom: 3%;">
     <report-table 
     :columns="columns"
-    :rows="rows">
+    :rows="rows"
+    :config="{tableCssTheme}">
     </report-table>
   </div>
 </template>
@@ -24,6 +25,7 @@ export default defineComponent({
       lessThanFiveYears: " < 5 yrs ",
       greaterAndEqualFiveYears: " >= 5 yrs ",
       total: ' Total ',
+      tableCssTheme: 'opd-report-theme',
       rows: [] as RowInterface[][],
       columns: [
       [

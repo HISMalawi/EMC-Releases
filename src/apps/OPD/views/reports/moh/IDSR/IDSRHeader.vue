@@ -2,7 +2,8 @@
   <div style="margin: auto; width: 95%; margin-top: 1%;">
     <report-table 
     :columns="columns"
-    :rows="rows">
+    :rows="rows"
+    :config="{tableCssTheme}">
     </report-table>
   </div>
 </template>
