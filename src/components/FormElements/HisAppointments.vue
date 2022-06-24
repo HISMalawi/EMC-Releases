@@ -143,13 +143,10 @@ export default defineComponent({
     },
     async getClinicDays() {
       let days = ''
-      if(this.patientAge === 0) {
-        days += await ART_GLOBAL_PROP.adultClinicDays()
-        days += ',' + await ART_GLOBAL_PROP.peadsClinicDays()
-      } else if (this.patientAge >= 18) {
-        days += await ART_GLOBAL_PROP.adultClinicDays()
+      if (this.patientAge >= 18) {
+        days = await ART_GLOBAL_PROP.adultClinicDays()
       } else {
-        days += await ART_GLOBAL_PROP.peadsClinicDays()
+        days = await ART_GLOBAL_PROP.peadsClinicDays()
       }
       if(days) this.clinicDays = days.split(',')
     },
