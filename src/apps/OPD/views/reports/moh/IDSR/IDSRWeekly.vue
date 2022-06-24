@@ -31,7 +31,7 @@ import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import ReportMixinVue from "../../ReportMixin.vue";
 import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
 import IdsrH from "@/apps/OPD/views/reports/moh/IDSR/IDSRHeader.vue"
-import Weekly from "@/apps/OPD/views/reports/moh/IDSR/Weekly.vue"
+import Weekly from "@/apps/OPD/views/reports/moh/IDSR/IDSRTableTemplate.vue"
 import HisDate from "@/utils/Date"
 
 export default defineComponent({
