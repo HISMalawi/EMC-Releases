@@ -112,11 +112,11 @@ export default defineComponent({
     this.$emit('onFieldActivated', this)
   },
   async created() {
+    this.patientAge = this.config.patientAge || 0;
     await this.getAppointmentLimit()
     await this.getClinicHolidays()
     await this.getClinicDays()
     const items = await this.options(this.fdata);
-    this.patientAge = this.config.patientAge || 0;
     this.sessionDate = AppointmentService.getSessionDate();
     const date = items[0].other.appointmentDate;
     this.appointments = await this.getAppointments(date)
@@ -143,10 +143,10 @@ export default defineComponent({
     },
     async getClinicDays() {
       let days = ''
-      if(!this.patientAge) {
+      if(this.patientAge === 0) {
         days += await ART_GLOBAL_PROP.adultClinicDays()
-        days += ', ' + await ART_GLOBAL_PROP.peadsClinicDays()
-      } else if (this.patientAge > 18) {
+        days += ',' + await ART_GLOBAL_PROP.peadsClinicDays()
+      } else if (this.patientAge >= 18) {
         days += await ART_GLOBAL_PROP.adultClinicDays()
       } else {
         days += await ART_GLOBAL_PROP.peadsClinicDays()
