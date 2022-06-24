@@ -98,23 +98,21 @@ export default defineComponent({
       async handler() {
         this.page = 1;
         this.disableScroll = false;
-        const checkedItems = new Array(...this.checkedItems);
         const data = await this.getListData();
-        for (const checkedItem of checkedItems) {
-          const index = data.findIndex(i => checkedItem.value === i.value);
-          if (index > -1) {
+        for(const item of [...this.checkedItems]) {
+          const index = data.findIndex(entry => entry.value === item.value);
+          if(index > -1) {
             data[index].isChecked = true;
           } else {
-            data.push({...checkedItem});
+            data.push(item);
           }
-        }
-        this.listData = data
+        }      
       },
       deep: true,
     },
   },
   computed: {
-    checkedItems() {
+    checkedItems(): Option[] {
       return this.listData.filter(item => item.isChecked);
     },
   },
