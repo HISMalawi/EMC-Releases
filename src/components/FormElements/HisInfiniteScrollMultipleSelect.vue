@@ -89,7 +89,7 @@ export default defineComponent({
     },
     listData: {
       handler(newValue: Array<Option>) {
-        this.checkedItems = newValue.filter(item => item.isChecked);
+        this.checkedItems = cloneDeep([...newValue.filter(item => item.isChecked)]);
       },
       deep: true,
       immediate: true,
@@ -106,7 +106,8 @@ export default defineComponent({
           } else {
             data.push(item);
           }
-        }      
+        }
+        this.listData = data;     
       },
       deep: true,
     },
