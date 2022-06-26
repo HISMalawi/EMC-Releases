@@ -6,13 +6,13 @@ export class PatientDiagnosisService extends AppEncounterService {
         super(patientID, 8, providerID) 
     }
 
-    static async getDiagnosis(filter='', page=1, pageSize=10) {
+    static async getDiagnosis(filter='', page=1, limit=10) {
         const conceptSetId = ConceptService.getConceptID('Qech outpatient diagnosis list')
         return AppEncounterService.getJson('diagnosis', {
             id: conceptSetId,
             name: filter,
             page: page,
-            'page_size': pageSize
+            'page_size': limit
         })
     }
 }

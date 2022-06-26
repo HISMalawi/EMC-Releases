@@ -97,8 +97,8 @@ export default defineComponent({
           id: 'secondary_diagnosis',
           helpText: 'Select secondary diagnosis',
           type: FieldType.TT_MULTIPLE_SELECT,
-          options: async (_, filter='') => this.mapListToOptions(
-            await PatientDiagnosisService.getDiagnosis(filter)
+          options: async (_, filter='', page=1, limit=10) => this.mapListToOptions(
+            await PatientDiagnosisService.getDiagnosis(filter, page, limit)
           ),
           beforeNext: async (data: any) => await this.checkMalariaResult(data),
           computedValue: (options: Array<Option>) => ({
