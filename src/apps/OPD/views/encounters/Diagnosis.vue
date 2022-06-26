@@ -96,7 +96,7 @@ export default defineComponent({
         {
           id: 'secondary_diagnosis',
           helpText: 'Select secondary diagnosis',
-          type: FieldType.TT_MULTIPLE_SELECT,
+          type: FieldType.TT_INFINITE_SCROLL_MULTIPLE_SELECT,
           options: async (_, filter='', page=1, limit=10) => this.mapListToOptions(
             await PatientDiagnosisService.getDiagnosis(filter, page, limit)
           ),
