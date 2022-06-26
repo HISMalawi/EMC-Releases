@@ -52,6 +52,7 @@ import {
   IonInfiniteScroll, 
   IonInfiniteScrollContent 
 } from "@ionic/vue";
+import EventBus from "@/utils/EventBus";
 
 export default defineComponent({
   name: "HisInfiniteScrollMultipleSelect",
@@ -74,6 +75,7 @@ export default defineComponent({
     showKeyboard: false,
     keyboard: QWERTY,
     listData: [] as Array<Option>,
+    checkedItems: [] as Array<Option>,
     disableScroll: false,
     filter: '',
     selected: '',
@@ -82,44 +84,38 @@ export default defineComponent({
   }),
   watch: {
     checkedItems: {
-      handler(newValue) {
+      handler(newValue: Array<Option>) {
+        this.listData.forEach(entry => {
+          if (newValue.find(item => item.value === entry.value)) {
+            entry.isChecked = true;
+          } else {
+            entry.isChecked = false;
+          }
+        });
         this.$emit("onValue", newValue);
       },
       deep: true,
-    },
-    listData: {
-      handler(newValue: Array<Option>) {
-        this.checkedItems = cloneDeep([...newValue.filter(item => item.isChecked)]);
-      },
-      deep: true,
-      immediate: true,
+      immediate: true
     },
     filter: {
       async handler() {
         this.page = 1;
         this.disableScroll = false;
         const data = await this.getListData();
-        for(const item of [...this.checkedItems]) {
+        [...this.checkedItems].forEach(item => {
           const index = data.findIndex(entry => entry.value === item.value);
-          if(index > -1) {
-            data[index].isChecked = true;
-          } else {
+          if(index === -1) {
             data.push(item);
+          } else {
+            data[index].isChecked = true;
           }
-        }
-        this.listData = data;     
+        })
+        this.listData = data;
       },
-      deep: true,
-    },
-  },
-  computed: {
-    checkedItems(): Option[] {
-      return this.listData.filter(item => item.isChecked);
     },
   },
   methods: {
     async getListData(): Promise<Array<Option>> {
-      console.log('getListData using filters: ', this.filter, this.page, this.limit);
       return await this.options(this.fdata, this.filter, this.page, this.limit);
     },
     async keypress(value: string) {
@@ -135,23 +131,29 @@ export default defineComponent({
     async pushData(event: any) {
       this.page++;
       const data = await this.getListData();
-      console.log('pushData: ', data);
       if (data.length > 0) {
-        this.listData.push(...data);
+        this.listData = [
+          ...this.listData, 
+          ...data.filter(entry => !this.listData.find(item => item.value === entry.value))
+        ];
       } else {
         this.disableScroll = true;
       }
       event.target.complete();
     },
     onSelect(entry: Option, event: Event) {
-      if ((event.target as HTMLInputElement).checked) {
-        this.listData = this.listData.map(item => item.value === entry.value ? {...item, isChecked: true} : item)
-      } else {
-        this.unCheck(entry)
-      }
+      this.$nextTick(async () => {
+        if (entry.isChecked) {
+          if((this.checkedItems.findIndex(item => item.value === entry.value)) === -1) {
+            this.checkedItems.push(entry);
+          }
+        } else {
+          this.unCheck(entry);
+        }
+      });
     },
     unCheck(entry: Option) {
-      this.listData = this.listData.map(item => item.value === entry.value ? {...item, isChecked: false} : item)
+      this.checkedItems = this.checkedItems.filter(item => item.value !== entry.value);
     },
   },
   created() {
