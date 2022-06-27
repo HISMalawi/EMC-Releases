@@ -78,7 +78,6 @@ export default defineComponent({
                     helpText: 'Referred from',
                     type: FieldType.TT_SELECT,
                     validation: (value: any) => Validation.required(value),
-                    defaultValue: () => Patientservice.getLocationName(),
                     computedValue: ({ label }: Option) => ({obs: this.registrationService.buildValueText('Referred from', label)}),
                     condition: (fields: any) => fields.visit_type.value === 'Referral',
                     options: (_: any, filter='') => getFacilities(filter),
