@@ -83,6 +83,11 @@ export default defineComponent({
     limit: 10,
   }),
   watch: {
+    clear(){
+      this.checkedItems = [],
+      this.filter = ''
+      this.selected = ''
+    },
     checkedItems: {
       handler(newValue: Array<Option>) {
         this.listData.forEach(entry => {
