@@ -310,6 +310,10 @@ export default defineComponent({
       // Use local patient if available if DDE never found them
       if (isEmpty(results) && !isEmpty(this.localPatient)) results = this.localPatient
 
+      if(Array.isArray(results) && results.length > 1){
+        await this.runFlowState(FlowState.RESOLVE_DUPLICATE_NPIDS)
+      }
+
       if (this.facts.patientFound) {
         this.patient = new Patientservice(
           Array.isArray(results)

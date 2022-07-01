@@ -26,13 +26,6 @@
                        @click="() => reassignIdentifier(item)"> 
                         Re-Assign 
                     </ion-button>
-                    <ion-button
-                        size="medium"
-                        color="warning"
-                        v-if="!item.isComplete"
-                       :router-link="`/patient/registration?edit_person=${item.patientID}`"> 
-                        Update Missing Data
-                    </ion-button>
                 </ion-item>
             </ion-list>
         </ion-content>
@@ -85,6 +78,7 @@ import { Patientservice } from '@/services/patient_service'
 import { alertConfirmation, toastDanger, toastWarning } from '@/utils/Alerts'
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import HisDate from "@/utils/Date"
+import { infoActionSheet } from '@/utils/ActionSheets'
 
 export default defineComponent({
     components: {
@@ -103,14 +97,44 @@ export default defineComponent({
         dde: {} as any,
         ddeEnabled: false as boolean,
         items: [] as any,
-        title: '' as string
+        title: '' as string,
+        npid: '' as string,
     }),
     watch: {
         $route: {
             handler({params}: any) {
                 if (params){
-                    this.title = `Duplicates for NPID (${params.npid})`
-                    this.init(params.npid)
+                    this.npid = params.npid
+                    this.title = `Duplicates for NPID (${this.npid})`
+                    this.init(this.npid)
+                }
+            },
+            deep: true,
+            immediate: true
+        },
+        items: {
+            async handler(items: any) {
+                if (items.length > 5){
+                    const action = await infoActionSheet(
+                        'More than 5 duplicates found',
+                        `There are more than 5 duplicates for this NPID (${this.npid}). Please search by name and gender`,
+                        `Choose how to proceed`,
+                        [
+                            { 
+                                name: 'Close', 
+                                slot: 'start', 
+                                color: 'danger',
+                            },
+                            { 
+                                name: 'Search by name', 
+                                slot: 'start', 
+                                color: 'primary'
+                            }
+                        ],
+                        'his-danger-color'
+                    )
+                    if(action === 'Search by name') return this.$router.push('/patient/registration')
+                    return this.$router.push('/home')
                 }
             },
             deep: true,

@@ -231,11 +231,12 @@ export default defineComponent({
                     toastDanger(`Failed to assign new NPID: ${e}`)
                 }
         }
-        if (this.patient.getNationalID().match(/unknown/i)) {
-            this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
-        } else {
-            this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
-        }
+        
+        this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
+        // if (this.patient.getNationalID().match(/unknown/i)) {
+        // } else {
+        //     this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
+        // }
     },
     resolvePersonAttributes(form: Record<string, Option> | Record<string, null>) {
         return Object.values(form)
@@ -401,8 +402,7 @@ export default defineComponent({
             condition: () => this.editConditionCheck(['occupation']) && this.isMilitarySite,
             validation: (val: any) => Validation.required(val),
             options: () => this.mapToOption([
-                'MDF Reserve',
-                'MDF Retired',
+                'Military',
                 'Civilian'
             ])
         }
@@ -418,7 +418,7 @@ export default defineComponent({
                     'value': value
                 }
             }),
-            condition: (form: any) => this.editConditionCheck(['person_regiment_id']) && form.occupation && form.occupation.value.match(/MDF/i),
+            condition: (form: any) => this.editConditionCheck(['person_regiment_id']) && form.occupation && form.occupation.value.match(/Military/i),
             validation: (val: any) => Validation.required(val)
         }
     },
@@ -434,7 +434,7 @@ export default defineComponent({
                     'value': value
                 }
             }),
-            condition: (form: any) => this.editConditionCheck(['rank']) && form.occupation && form.occupation.value.match(/MDF/i),
+            condition: (form: any) => this.editConditionCheck(['rank']) && form.occupation && form.occupation.value.match(/Military/i),
             options: () => this.mapToOption([
                 'First Lieutenant',
                 'Captain',
@@ -463,7 +463,7 @@ export default defineComponent({
                 'year_person_date_joined_military',
                 'month_person_date_joined_military',
                 'day_person_date_joined_military'
-            ]) && form.occupation && form.occupation.value.match(/MDF/i),
+            ]) && form.occupation && form.occupation.value.match(/Military/i),
             minDate: () => HisDate.estimateDateFromAge(100),
             maxDate: () => WorkflowService.getSessionDate(),
             estimation: {
