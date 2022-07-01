@@ -26,13 +26,6 @@
                        @click="() => reassignIdentifier(item)"> 
                         Re-Assign 
                     </ion-button>
-                    <ion-button
-                        size="medium"
-                        color="warning"
-                        v-if="!item.isComplete"
-                       :router-link="`/patient/registration?edit_person=${item.patientID}`"> 
-                        Update Missing Data
-                    </ion-button>
                 </ion-item>
             </ion-list>
         </ion-content>

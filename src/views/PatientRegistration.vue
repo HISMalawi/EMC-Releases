@@ -231,11 +231,12 @@ export default defineComponent({
                     toastDanger(`Failed to assign new NPID: ${e}`)
                 }
         }
-        if (this.patient.getNationalID().match(/unknown/i)) {
-            this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
-        } else {
-            this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
-        }
+        
+        this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
+        // if (this.patient.getNationalID().match(/unknown/i)) {
+        // } else {
+        //     this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
+        // }
     },
     resolvePersonAttributes(form: Record<string, Option> | Record<string, null>) {
         return Object.values(form)
