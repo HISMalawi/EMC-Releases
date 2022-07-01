@@ -313,7 +313,6 @@ export default defineComponent({
       if (this.facts.patientFound) {
         if(Array.isArray(results) && results.length > 1){
           await this.runFlowState(FlowState.RESOLVE_DUPLICATE_NPIDS)
-          console.log('Multiple patients found')
         }
         this.patient = new Patientservice(
           Array.isArray(results)
