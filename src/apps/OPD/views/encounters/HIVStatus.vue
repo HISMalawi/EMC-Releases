@@ -91,11 +91,13 @@ export default defineComponent({
                     helpText: 'HIV test location',
                     type: FieldType.TT_SELECT,
                     validation: (value: any) => Validation.required(value),
+                    defaultValue: () => HIVStatusService.getLocationName(),
                     computedValue: ({ label }: Option) => ({obs: this.hivService.buildValueText('HIV test location', label)}),
                     condition: (fields: any) => fields.hiv_status.value !== 'Never tested',
                     options: (_: any, filter='') => getFacilities(filter),
                     config: {
-                        showKeyboard: true
+                        showKeyboard: true,
+                        isFilterDataViaApi: true
                     }
                 }
             ]
