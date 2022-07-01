@@ -55,7 +55,6 @@ export default defineComponent({
             this.setRows((await this.report.getRegimenReport()))
         },
         setRows(data: any) {
-            console.log(data)
             this.sortByArvNumber(Object.values(data)).map((d: any) => {
                 let lastDispenseDate = ''
                 const medications = d.medication.map((m: any) => {
