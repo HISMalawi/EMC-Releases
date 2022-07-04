@@ -16,7 +16,6 @@ import { Service } from "@/services/service"
 import dayjs from 'dayjs';
 import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
-import { isEmpty } from 'lodash';
 
 export default defineComponent({
   components: { ReportTable },
