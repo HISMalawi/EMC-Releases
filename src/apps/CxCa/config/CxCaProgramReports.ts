@@ -18,8 +18,12 @@ export const REPORTS: FolderInterface[] = [
         defaultFilesIcon: 'reports.png',
         files: [
             {
-                name: 'Active clients with adverse outcomes',
-                pathName: 'clinic_archiving_candidates'
+                name: 'Visit reason',
+                pathName: 'cc_visit_reasons'
+            },
+            {
+                name: 'Booked clients',
+                pathName: 'cc_booked_clients'
             }
         ]
     },
