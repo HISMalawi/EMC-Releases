@@ -160,9 +160,13 @@ export default defineComponent({
                 label: q.name, value: q.start, other: q
             }))
         },
-        getDateDurationFields(useQuarter=false, setCustomQuarterPeriod=false, maxQuarter=5): Array<Field> {
+        getDateDurationFields(
+            useQuarter=false, 
+            setCustomQuarterPeriod=false, 
+            maxQuarter=5, 
+            maxDate=Service.getSessionDate() as string | null,
+        ): Array<Field> {
             const minDate = '2000-01-01'
-            const maxDate = Service.getSessionDate()
             return [
                 {
                     id: 'quarter',
