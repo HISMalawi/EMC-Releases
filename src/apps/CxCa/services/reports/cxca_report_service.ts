@@ -1,7 +1,5 @@
 import { Service } from "@/services/service";
 import HisDate from "@/utils/Date"
-import { PrintoutService } from '@/services/printout_service';
-import Url from "@/utils/Url";
 
 export interface QuarterInterface {
     name: string;
@@ -35,42 +33,10 @@ export class CxCaReportService extends Service {
     getPepfarReport(reportName: string) {
         return this.getReport('pepfar_cxca', {'report_name': reportName})
     }
-
-    getClinicRegistrations(){
-        return this.getReport('registration');
+    getClinicReport(reportName: string) {
+        return this.getReport('screened_for_cxca', {'report_name': reportName})
     }
-
-    getDrugsGivenWithoutPrescription() {
-        return this.getReport('drugs_given_without_prescription')
-    }
-
-    getDrugsGivenWithPrescription() {
-        return this.getReport('drugs_given_with_prescription')
-    }
-
-    getDiagnosis(){
-        const url = `programs/${this.programID}/reports/diagnosis`
-        return Service.getJson(url, {
-            'start_date': this.startDate,
-            'end_date': this.endDate,
-            'date': this.date
-        })
-    }
-
-    getDiagnosisByAddress(){
-        return this.getReport('diagnosis_by_address')
-    }
-
-    getLaPrescriptions(){
-        const url = `programs/${this.programID}/reports/la_prescriptions`
-        return Service.getJson(url, {
-            'start_date': this.startDate,
-            'end_date': this.endDate,
-            
-        })
-    }
-
-
+    
     getDateIntervalPeriod() {
         return `${HisDate.toStandardHisDisplayFormat(this.startDate)} - ${HisDate.toStandardHisDisplayFormat(this.endDate)}`
     }

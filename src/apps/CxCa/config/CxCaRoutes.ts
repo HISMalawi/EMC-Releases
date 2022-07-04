@@ -61,5 +61,21 @@ export default [
                 component: () => import('@/apps/CxCa/views/reports/pepfar/CCTypeOfTreatment.vue')
             }
         ]
+    },
+    {
+        path: '/cxca/report/clinic',
+        component: ReportTemplate,
+        children: [
+            {
+                name: 'cc_visit_reasons',
+                path: 'cc_visit_reasons',
+                component: () => import('@/apps/CxCa/views/reports/clinic/VisitReason.vue')
+            },
+            {
+                name: 'cc_booked_clients',
+                path: 'cc_booked_clients',
+                component: () => import('@/apps/CxCa/views/reports/clinic/BookedClients.vue')
+            },
+        ]
     }
 ]
