@@ -370,16 +370,13 @@ export class Patientservice extends Service {
     }
 
     patientIsComplete() {
-        const attributes = [
+        return [
             this.getGender(),
             this.getBirthdate(),
             this.getGivenName(),
             this.getFamilyName(),
             ...Object.values(this.getAddresses())
-        ]
-        return attributes.map(
-            (a: any) => !isValueEmpty(a)
-        ).every(Boolean)
+        ].every((a: any) => !isValueEmpty(a))
     }
 
     getAddresses() {
