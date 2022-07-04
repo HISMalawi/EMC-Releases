@@ -1,5 +1,5 @@
 <template>
-  <ion-page>
+  <ion-page class="his-md-text">
     <his-standard-form 
     :cancelDestinationPath="cancelDestination" 
     :fields="fields" 
