@@ -22,17 +22,9 @@ export default defineComponent({
     reportService: {} as any,
     columns: [
       [
-        table.thTxt('', {
-          sortable: false,
-          exportable: false
-        }),
-        table.thTxt('Reason', {
-          sortable: false,
-          exportable: false
-        }), table.thTxt('Number', {
-          sortable: false,
-          exportable: false
-        }),
+        table.thTxt(''),
+        table.thTxt('Reason'),
+         table.thTxt('Number'),
       ]
     ] as ColumnInterface[][],
   }),

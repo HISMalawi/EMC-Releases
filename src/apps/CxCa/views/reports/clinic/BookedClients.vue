@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <report-template :title="title" :rows="rows" :fields="fields" :columns="columns" :period="period"
+    <report-template :title="title" :rows="rows" :fields="fields" :columns="columns" :period="period" :canExportPDf="false" :canExportCsv="false"
       :onReportConfiguration="init"></report-template>
   </ion-page>
 </template>
@@ -22,30 +22,13 @@ export default defineComponent({
     reportService: {} as any,
     columns: [
       [
-        table.thTxt('', {
-          sortable: false,
-          exportable: false
-        }),
-        table.thTxt('First Name', {
-          sortable: false,
-          exportable: false
-        }), 
-        table.thTxt('Last Name', {
-          sortable: false,
-          exportable: false
-        }),
-        table.thTxt('Birthdate', {
-          sortable: false,
-          exportable: false
-        }),table.thTxt('Booked', {
-          sortable: false,
-          exportable: false
-        }),table.thTxt('Seen', {
-          sortable: false,
-          exportable: false
-        }),table.thTxt('Action', {
-          sortable: false,
-          exportable: false
+        table.thTxt('', {}),
+        table.thTxt('First Name'), 
+        table.thTxt('Last Name'),
+        table.thTxt('Birthdate'),
+        table.thTxt('Booked'),
+        table.thTxt('Seen'),
+        table.thTxt('Action')
         }),
       ]
     ] as ColumnInterface[][],
