@@ -16,6 +16,7 @@ import { Service } from "@/services/service"
 import dayjs from 'dayjs';
 import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
+import { isEmpty } from 'lodash';
 
 export default defineComponent({
   components: { ReportTable },
@@ -54,7 +55,6 @@ export default defineComponent({
   methods: {
    renderResults() {
      const report = new IDSRReportService()
-     console.log(this.params)
      const Conditions = report.renderResults(this.params)
      if(Conditions.length){
       this.conditions = Conditions
@@ -98,7 +98,6 @@ export default defineComponent({
        lessThanFiveYearsPatientIds: any;
        greaterThanEqualFiveYearsPatientIds: any;
        totalPatientIds: any;
-
        }) => {
         rows.push([
           table.td(condition.id, {style: {textAlign: 'left'}}),
@@ -110,7 +109,10 @@ export default defineComponent({
      })
      return rows
    },
-   buildRow(name: string, count: number, patientIds: any) {
+   buildRow(name: string, count: any, patientIds: any) {
+    if (typeof(count) == 'string') {
+      return table.td('')
+    }
     if (!(count > 0)) {
       return table.td(0)
      } else {

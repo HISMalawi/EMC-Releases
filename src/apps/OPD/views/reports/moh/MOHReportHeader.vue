@@ -94,7 +94,6 @@ export default defineComponent({
 
         ]
         tableHeaders.forEach(item => {
-          console.log(item.name)
           if(item.name !== 'undefined:') {
                 rows.push([
                     table.td(item.name, {style: {textAlign: 'left'}}),
