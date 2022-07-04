@@ -22,14 +22,13 @@ export default defineComponent({
     reportService: {} as any,
     columns: [
       [
-        table.thTxt('', {}),
+        table.thTxt(''),
         table.thTxt('First Name'), 
         table.thTxt('Last Name'),
         table.thTxt('Birthdate'),
         table.thTxt('Booked'),
         table.thTxt('Seen'),
         table.thTxt('Action')
-        }),
       ]
     ] as ColumnInterface[][],
   }),

@@ -17,7 +17,7 @@ export default defineComponent({
   components: { ReportTemplate, IonPage },
   mixins: [ReportMixin],
   data: () => ({
-    title: 'CC All Questions',
+    title: 'Visit reasons',
     rows: [] as RowInterface[],
     reportService: {} as any,
     columns: [
