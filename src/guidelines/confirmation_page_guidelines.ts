@@ -5,7 +5,7 @@
 */
 import { GuideLineInterface } from "@/utils/GuidelineEngine"
 import { infoActionSheet, tableActionSheet } from "@/utils/ActionSheets"
-import { isValueEmpty } from '@/utils/Strs';
+import { isUnknownOrEmpty } from '@/utils/Strs';
 
 export enum TargetEvent {
     ON_CONTINUE = 'oncontinue',
@@ -197,7 +197,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         },
         conditions: {
-            currentNpid: (npid: string) => isValueEmpty(npid)
+            currentNpid: (npid: string) => isUnknownOrEmpty(npid)
         }
     },
     "Detect NPID duplicates and prompt the user to resolve them" : {
