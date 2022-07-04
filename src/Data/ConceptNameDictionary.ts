@@ -945,7 +945,7 @@ export default [
    },
    {
       "categories": [],
-      "concept_id": 64,
+      "concept_id": 664,
       "name": "Negative"
    },
    {
