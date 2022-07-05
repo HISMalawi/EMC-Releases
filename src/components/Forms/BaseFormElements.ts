@@ -47,6 +47,7 @@ import HisGridSelector from "@/components/FormElements/HisGridSelector.vue"
 import AncDrugSetInput from "@/components/FormElements/AncDrugSetInput.vue"
 import RadiologyPicker from "@/components/FormElements/HisRadiologyPicker.vue"
 import PrescriptionInput from "@/components/FormElements/HisPrescriptionInput.vue"
+import InfiniteScrollMultipleSelect from "@/components/FormElements/HisInfiniteScrollMultipleSelect.vue";
 
 // Reference names for BaseFormComponents
 export enum FieldType {
@@ -99,7 +100,8 @@ export enum FieldType {
     TT_ANC_LMP_DATE_INPUT = 'anc-lmp-date-input',
     TT_ANC_DRUGSET_INPUT = 'AncDrugSetInput',
     TT_DRUG_TRANSFER_IN = 'drug-transfer-in-qty',
-    TT_PRESCRIPTION_INPUT = 'prescription-input'
+    TT_PRESCRIPTION_INPUT = 'prescription-input',
+    TT_INFINITE_SCROLL_MULTIPLE_SELECT="infinite-scroll-multiple-select",
 }
 
 // Components to be rendered
@@ -152,5 +154,6 @@ export const BaseFormComponents = {
     HisGridSelector,
     AncDrugSetInput,
     RadiologyPicker,
-    PrescriptionInput
+    PrescriptionInput,
+    InfiniteScrollMultipleSelect,
 }
