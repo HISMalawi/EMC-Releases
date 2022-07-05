@@ -18,7 +18,11 @@
                   :detail="true"
                   :color="ActiveCategory === data.label ? 'light':''"
                 > 
-                  <ion-label> {{ data.label }} </ion-label>
+                  <ion-label>
+                    <ion-text class="his-md-text">
+                      {{ data.label }}
+                    </ion-text>
+                  </ion-label>
                 </ion-item>
               </ion-list>
             </ion-col>
@@ -27,7 +31,7 @@
                 <ion-list class='view-port-content'>
                   <ion-item v-for="(entry, index) in activeCategoryItems" :key="index" :color="entry.isChecked ? 'light':''">
                     <ion-label> 
-                      <ion-text>
+                      <ion-text class="his-md-text">
                         {{ entry.label }} 
                       </ion-text>
                     </ion-label>
