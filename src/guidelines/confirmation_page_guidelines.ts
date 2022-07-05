@@ -596,6 +596,29 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         }
     },
+    "[DDE] assign newer NPID when the current one is invalid": {
+        priority: 3,
+        targetEvent: TargetEvent.ONLOAD,
+        actions: {
+            alert: async () => {
+                return FlowState.ASSIGN_NPID
+            }
+        },
+        conditions: {
+            globalProperties({ddeEnabled}: any) {
+                return ddeEnabled === true
+            },
+            demographics: ({patientIsComplete}: any) => {
+                return patientIsComplete === true
+            },
+            patientFound: (isFound: boolean) => {
+                return isFound === true
+            },
+            hasInvalidNpid(isTrue: boolean) {
+                return isTrue
+            }
+        }
+    },
     "[DDE ON] Warn program managers when Patient has incomplete demographics. Dont force them to update though": {
         priority: 2,
         targetEvent: TargetEvent.ONLOAD,

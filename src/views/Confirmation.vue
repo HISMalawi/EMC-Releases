@@ -160,6 +160,7 @@ export default defineComponent({
       userRoles: [] as string[],
       scannedNpid: '' as string,
       currentNpid: '' as string,
+      hasInvalidNpid: false as boolean,
       enrolledInProgram: false as boolean,
       programName: 'N/A' as string,
       currentOutcome: '' as string,
@@ -315,6 +316,9 @@ export default defineComponent({
         await this.setProgramFacts()
         if (this.useDDE) {
           await this.setDDEFacts()
+          this.facts.hasInvalidNpid = !this.patient.getDocID() || (
+            this.patient.getDocID() && this.patient.getNationalID().match(/unknown/i)
+          )
         } 
         if (this.facts.programName.match(/ANC/i)) {
           await this.setAncFacts()
@@ -322,6 +326,11 @@ export default defineComponent({
         await this.drawPatientCards()
         await this.setViralLoadStatus()
         this.facts.currentNpid = this.patient.getNationalID()
+        // if (!this.patient.getDocID()) {
+        //   await this.patient.assignNpid()
+        //   await (new PatientPrintoutService(this.patient.getID())).printNidLbl()
+        //   await this.reloadPatient()
+        // }
       } else {
         // [DDE] a user might scan a deleted npid but might have a newer one.
         // The function below checks for newer version
@@ -624,13 +633,11 @@ export default defineComponent({
         }
       }
       states[FlowState.ASSIGN_NPID] = async () => {
-        const req =  await this.patient.assignNpid()
-        if (req && (await alertConfirmation('Do you want to print National ID?'))) {
-          const print = new PatientPrintoutService(this.patient.getID())
-          await print.printNidLbl()
-          await this.reloadPatient()
-          return FlowState.FORCE_EXIT
-        }
+        await this.patient.assignNpid()
+        await (new PatientPrintoutService(this.patient.getID())).printNidLbl()
+        await delayPromise(1500)
+        await this.findAndSetPatient(this.patient.getID(), undefined)
+        return FlowState.FORCE_EXIT
       },
       states[FlowState.INITIATE_ANC_PREGNANCY] = async () => {
         await this.initiateNewAncPregnancy()
