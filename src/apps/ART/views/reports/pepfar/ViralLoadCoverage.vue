@@ -85,25 +85,7 @@ export default defineComponent({
       this.totals[gender][key] = this.totals[gender][key].concat(data)
     },
     drillDown(patients: Array<any>, context: string) {
-      if (patients.length >= 1) {
-        const columns = [
-          [
-            table.thTxt('ARV #'),
-            table.thTxt('DOB'),
-            table.thTxt('Gender'),
-            table.thTxt('Action')
-          ]
-        ]
-        const asyncRows = () =>
-          this.sortByArvNumber(patients).map((p: any) => ([
-            this.tdARV(p.arv_number), 
-            table.tdDate(p.birthdate), 
-            table.td(p.gender),
-            table.tdBtn('Show', () => this.$router.push({ path: `/patient/dashboard/${p.patient_id}`}))
-          ]))
-        return table.tdLink(patients.length, () => this.drilldownAsyncRows(context, columns, asyncRows))
-      }
-      return table.td(0)
+      return this.drill(patients.map(p => p.patient_id), context)
     },
     async setFemaleTotalsRow() {
       const totals = this.totals.F
