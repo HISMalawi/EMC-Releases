@@ -316,9 +316,6 @@ export default defineComponent({
         await this.setProgramFacts()
         if (this.useDDE) {
           await this.setDDEFacts()
-          this.facts.hasInvalidNpid = !this.patient.getDocID() || (
-            this.patient.getDocID() && this.patient.getNationalID().match(/unknown/i)
-          )
         } 
         if (this.facts.programName.match(/ANC/i)) {
           await this.setAncFacts()
@@ -326,11 +323,6 @@ export default defineComponent({
         await this.drawPatientCards()
         await this.setViralLoadStatus()
         this.facts.currentNpid = this.patient.getNationalID()
-        // if (!this.patient.getDocID()) {
-        //   await this.patient.assignNpid()
-        //   await (new PatientPrintoutService(this.patient.getID())).printNidLbl()
-        //   await this.reloadPatient()
-        // }
       } else {
         // [DDE] a user might scan a deleted npid but might have a newer one.
         // The function below checks for newer version
@@ -457,6 +449,9 @@ export default defineComponent({
      * exception handling is required
      */
     async setDDEFacts() {
+      this.facts.hasInvalidNpid = !this.patient.getDocID() || (
+        this.patient.getDocID() && this.patient.getNationalID().match(/unknown/i)
+      )
       try {
         const localAndRemoteDiffs = (await this.ddeInstance.getLocalAndRemoteDiffs())?.diff
         this.facts.dde.localDiffs = this.ddeInstance.formatDiffValuesByType(

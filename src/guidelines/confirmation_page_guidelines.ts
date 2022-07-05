@@ -600,7 +600,19 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         priority: 3,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
-            alert: async () => {
+            alert: async ({ currentNpid }: any) => {
+                await infoActionSheet(
+                    '[DDE] NATIONAL ID',
+                    `Current NPID ${currentNpid} is invalid`,
+                    'Reasign and Print',
+                    [
+                        { 
+                            name: 'Reassign', 
+                            slot: 'start', 
+                            color: 'primary'
+                        }
+                    ]
+                )
                 return FlowState.ASSIGN_NPID
             }
         },
