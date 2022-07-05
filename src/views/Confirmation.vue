@@ -323,10 +323,21 @@ export default defineComponent({
         await this.drawPatientCards()
         await this.setViralLoadStatus()
         this.facts.currentNpid = this.patient.getNationalID()
+        await this.validateNpid()
       } else {
         // [DDE] a user might scan a deleted npid but might have a newer one.
         // The function below checks for newer version
         if (this.facts.scannedNpid) await this.setVoidedNpidFacts(this.facts.scannedNpid)
+      }
+    },
+    async validateNpid () {
+      if(this.useDDE){
+        this.facts.hasInvalidNpid = !this.patient.getDocID() || (
+          this.patient.getDocID() && this.patient.getNationalID().match(/unknown/i)
+        )
+      } else {
+        const results = await Patientservice.findByNpid(this.facts.currentNpid, {"page_size": 2})
+        this.facts.hasInvalidNpid = Array.isArray(results) && results.length > 1
       }
     },
     /**
@@ -449,9 +460,6 @@ export default defineComponent({
      * exception handling is required
      */
     async setDDEFacts() {
-      this.facts.hasInvalidNpid = !this.patient.getDocID() || (
-        this.patient.getDocID() && this.patient.getNationalID().match(/unknown/i)
-      )
       try {
         const localAndRemoteDiffs = (await this.ddeInstance.getLocalAndRemoteDiffs())?.diff
         this.facts.dde.localDiffs = this.ddeInstance.formatDiffValuesByType(
@@ -630,7 +638,7 @@ export default defineComponent({
       states[FlowState.ASSIGN_NPID] = async () => {
         await this.patient.assignNpid()
         await (new PatientPrintoutService(this.patient.getID())).printNidLbl()
-        await delayPromise(1500)
+        await delayPromise(500)
         await this.findAndSetPatient(this.patient.getID(), undefined)
         return FlowState.FORCE_EXIT
       },

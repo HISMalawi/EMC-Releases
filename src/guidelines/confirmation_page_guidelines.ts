@@ -596,13 +596,13 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         }
     },
-    "[DDE] assign newer NPID when the current one is invalid": {
+    "assign newer NPID when the current one is invalid": {
         priority: 3,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({ currentNpid }: any) => {
                 await infoActionSheet(
-                    '[DDE] NATIONAL ID',
+                    'NATIONAL ID',
                     `Current NPID ${currentNpid} is invalid`,
                     'Reasign and Print',
                     [
@@ -617,9 +617,6 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         },
         conditions: {
-            globalProperties({ddeEnabled}: any) {
-                return ddeEnabled === true
-            },
             demographics: ({patientIsComplete}: any) => {
                 return patientIsComplete === true
             },
