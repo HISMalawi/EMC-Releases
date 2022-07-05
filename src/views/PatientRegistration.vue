@@ -35,6 +35,7 @@ import { IonPage } from "@ionic/vue"
 import { infoActionSheet } from "@/utils/ActionSheets"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import dayjs from "dayjs";
+import { delayPromise } from "@/utils/Timers";
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
@@ -227,16 +228,13 @@ export default defineComponent({
                 try {
                     await this.patient.assignNpid()
                     await this.patient.printNationalID()
+                    await delayPromise(1000)
+
                } catch (e) {
                     toastDanger(`Failed to assign new NPID: ${e}`)
                 }
         }
-        
         this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
-        // if (this.patient.getNationalID().match(/unknown/i)) {
-        // } else {
-        //     this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
-        // }
     },
     resolvePersonAttributes(form: Record<string, Option> | Record<string, null>) {
         return Object.values(form)
@@ -576,14 +574,7 @@ export default defineComponent({
                             }
                         },
                         onClick: (form: any) => {
-                            let searchParam = ''
-                            const npid = form?.results?.other?.npid 
-                            if (npid && !isValueEmpty(npid)) {
-                                searchParam = `patient_barcode=${npid}`
-                            } else {
-                                searchParam = `person_id=${form.results.value}`
-                            }
-                            return this.$router.push(`/patients/confirm?${searchParam}`)
+                            return this.$router.push(`/patients/confirm?person_id=${form.results.value}`)
                         }
                     }
                 ]

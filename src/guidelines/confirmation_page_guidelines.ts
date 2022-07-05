@@ -200,8 +200,40 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             currentNpid: (npid: string) => isUnknownOrEmpty(npid)
         }
     },
+    "Detect NPID over 5 duplicates and prompt the user to resolve them" : {
+        priority: 1,
+        targetEvent: TargetEvent.ONLOAD,
+        actions: {
+            alert: async ({ scannedNpid }: any) => {
+                const action = await infoActionSheet(
+                    'More than 5 duplicates found',
+                    `There are more than 5 duplicates for this NPID (${scannedNpid}). Please search by name and gender`,
+                    `Choose how to proceed`,
+                    [
+                        { 
+                            name: 'Close', 
+                            slot: 'start', 
+                            color: 'danger',
+                        },
+                        { 
+                            name: 'Search by name', 
+                            slot: 'start', 
+                            color: 'primary'
+                        }
+                    ],
+                    'his-danger-color'
+                )
+                return action === 'Search by name' ? FlowState.SEARCH_BY_NAME : FlowState.GO_HOME
+            }
+        },
+        conditions: {
+            npidHasOverFiveDuplicates(isTrue: boolean) {
+                return isTrue
+            }
+        }
+    },
     "Detect NPID duplicates and prompt the user to resolve them" : {
-        priority: 2,
+        priority: 1,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({ scannedNpid }: any) => {

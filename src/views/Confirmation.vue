@@ -156,6 +156,7 @@ export default defineComponent({
       hasHighViralLoad: false as boolean,
       patientFound: false as boolean,
       npidHasDuplicates: false as boolean,
+      npidHasOverFiveDuplicates: false as boolean,
       userRoles: [] as string[],
       scannedNpid: '' as string,
       currentNpid: '' as string,
@@ -264,18 +265,7 @@ export default defineComponent({
       if (this.useDDE && npid) {
         await this.handleSearchResults(this.ddeInstance.searchNpid(npid))
       } else if (id) {
-        // We need to maintain DDE workflow if an npid wasnt used to find the patient.
-        // So find them locally first and then check with DDE if service is enabled
-        if (this.useDDE) {
-          this.localPatient = await Patientservice.findByID(id)
-          if (this.localPatient) {
-            const p = new Patientservice(this.localPatient)
-            this.facts.scannedNpid = p.getNationalID()
-            await this.handleSearchResults(this.ddeInstance.searchNpid(this.facts.scannedNpid))
-          }
-        } else {
-          await this.handleSearchResults(Patientservice.findByID(id))
-        }
+        await this.handleSearchResults(Patientservice.findByID(id))
       } else {
         await this.handleSearchResults(Patientservice.findByNpid(npid as string))
       }
@@ -305,13 +295,14 @@ export default defineComponent({
         }
       }
 
-      this.facts.patientFound = !isEmpty(results) || !isEmpty(this.localPatient)
-      
       // Use local patient if available if DDE never found them
       if (isEmpty(results) && !isEmpty(this.localPatient)) results = this.localPatient
-
+      
       if(Array.isArray(results) && results.length > 1){
-        await this.runFlowState(FlowState.RESOLVE_DUPLICATE_NPIDS)
+        this.facts.npidHasDuplicates = results.length <= 5
+        this.facts.npidHasOverFiveDuplicates = results.length > 5
+      } else {
+        this.facts.patientFound = !isEmpty(results)
       }
 
       if (this.facts.patientFound) {
@@ -331,7 +322,6 @@ export default defineComponent({
         await this.drawPatientCards()
         await this.setViralLoadStatus()
         this.facts.currentNpid = this.patient.getNationalID()
-        this.facts.npidHasDuplicates = Array.isArray(results) && results.length > 1
       } else {
         // [DDE] a user might scan a deleted npid but might have a newer one.
         // The function below checks for newer version
