@@ -65,6 +65,10 @@ export default defineComponent({
   methods: {
     async onPeriod(_: any, config: any) {
       this.rows = [];
+      this.totals = {
+        F: {},
+        M: {}
+      };
       this.report = new ViralLoadReportService();
       this.report.setStartDate(config.start_date);
       this.report.setEndDate(config.end_date);
