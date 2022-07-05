@@ -5,7 +5,13 @@
           <ion-row>
             <ion-col size="12">
               <span v-for="(item, index) in checkedItems" :key="index"> 
-                <ion-chip color="danger" @click="uncheck(item)">{{item.label}}</ion-chip>
+                <ion-chip color="danger" @click="uncheck(item)">
+                  <ion-label>
+                    <ion-text class="his-md-text">
+                      {{item.label}}
+                    </ion-text>
+                  </ion-label>
+                </ion-chip>
               </span>
             </ion-col>
           </ion-row>
