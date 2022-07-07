@@ -15,7 +15,6 @@
     </report-template>
   </ion-page>
 </template>
-
 <script lang='ts'>
 import { defineComponent } from "vue";
 import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue";
@@ -24,7 +23,6 @@ import table from "@/components/DataViews/tables/ReportDataTable";
 import { ViralLoadReportService } from "@/apps/ART/services/reports/viral_load_report";
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service"
 import { IonPage } from "@ionic/vue";
-import { uniq } from "lodash";
 
 export default defineComponent({
   mixins: [ReportMixin],
@@ -55,9 +53,8 @@ export default defineComponent({
         table.thTxt("Targeted"),//, { value:'Targeted High VL (>=1000 copies)'}),
         table.thTxt("Routine"),//, { value: 'Routine (Low VL (<1000 copies))'}),
         table.thTxt("Targeted")//, { value:'Targeted (Low VL (<1000 copies))'}),
-      ],
-    ],
-
+      ]
+    ]
   }),
   created() {
     this.fields = this.getDateDurationFields();
@@ -65,6 +62,10 @@ export default defineComponent({
   methods: {
     async onPeriod(_: any, config: any) {
       this.rows = [];
+      this.totals = {
+        F: {},
+        M: {}
+      };
       this.report = new ViralLoadReportService();
       this.report.setStartDate(config.start_date);
       this.report.setEndDate(config.end_date);
@@ -104,19 +105,14 @@ export default defineComponent({
     async setFemaleTotalsRow() {
       const totals = this.totals.F
 
-      const allF = uniq(Object.values(totals).reduce(
-        (all: Array<any>, curr: any) => all.concat(
-          curr.map((f: any) => f.patient_id)
-        ), []
-      ))
+      const allFemaleTxCurr = totals.tx_curr.map((p: any) => p.patient_id)
 
-      const fStatus = await this.report.getMaternalStatus(allF)
+      const fStatus = await this.report.getMaternalStatus(allFemaleTxCurr)
 
       const allFp = fStatus.FBf.concat(fStatus.FP)
 
       const fp = (status: 'FBf' | 'FP', fl: Array<any>) => {
-        const statuses = fStatus[status]
-        return fl.filter((f: any) => statuses.includes(f.patient_id))
+        return fl.filter((f: any) => fStatus[status].includes(f.patient_id))
       }
 
       const fnp = (fd: Array<any>) => fd.filter((f: any) => !allFp.includes(f.patient_id))
@@ -176,14 +172,13 @@ export default defineComponent({
       ])
     },
     async setRows(gender: 'M' | 'F') {
-      for (const i in AGE_GROUPS) {
-        const group = AGE_GROUPS[i];
+      for (const group of AGE_GROUPS) {
         if (group in this.cohort) {
           const cohortData = this.cohort[group];
           const td = (id: string, patients: any, context: string) => {
-            const filteredPatients =  patients.filter((p: any) => p.gender === gender)
-            this.setTotals(id, gender, filteredPatients)
-            return this.drillDown(filteredPatients, context)
+            const genderFiltered =  patients.filter((p: any) => p.gender === gender)
+            this.setTotals(id, gender, genderFiltered)
+            return this.drillDown(genderFiltered, context)
           }
           this.rows.push([
             table.td(group),

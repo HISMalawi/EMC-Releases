@@ -26,7 +26,7 @@ export interface DateFieldInterface {
     defaultValue?: Function;
     beforeNext?: Function;
     minDate?(formData: any, computeForm: any): string;
-    maxDate?(formData: any, computeForm: any): string;
+    maxDate?(formData: any, computeForm: any): string | null;
     unload?(data: any, state: string, formData: any,  computeForm: any): void; 
     computeValue: Function;
     appearInSummary?: Function;
@@ -136,7 +136,7 @@ function validateMinMax(date: string, field: DateFieldInterface, form: any, comp
     }
     if (field.maxDate) {
         const max = field.maxDate(form, computed)
-        if (new Date(date) > new Date(max)) {
+        if (max && new Date(date) > new Date(max)) {
             return [`${d(date)} is greater than max date of  ${d(max)}`]
         }
     }
@@ -249,9 +249,9 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
         }
 
         if (year && typeof field.maxDate === 'function') {
-            const maxYear = HisDate.getYear(field.maxDate(f, c))
-            if (year > maxYear) {
-                return [`Year of ${year} exceeds Maximum year of ${maxYear}`]
+            const max = field.maxDate(f, c)
+            if (max && year > HisDate.getYear(max)) {
+                return [`Year of ${year} exceeds Maximum year of ${HisDate.getYear(max)}`]
             }
         }
 
