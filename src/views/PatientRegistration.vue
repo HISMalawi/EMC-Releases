@@ -228,7 +228,7 @@ export default defineComponent({
                 try {
                     await this.patient.assignNpid()
                     await this.patient.printNationalID()
-                    await delayPromise(500)
+                    await delayPromise(300)
                } catch (e) {
                     toastDanger(`Failed to assign new NPID: ${e}`)
                 }

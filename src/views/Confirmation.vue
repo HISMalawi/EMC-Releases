@@ -638,8 +638,8 @@ export default defineComponent({
       states[FlowState.ASSIGN_NPID] = async () => {
         await this.patient.assignNpid()
         await (new PatientPrintoutService(this.patient.getID())).printNidLbl()
-        await delayPromise(500)
-        await this.findAndSetPatient(this.patient.getID(), undefined)
+        await delayPromise(300)
+        await this.reloadPatient()
         return FlowState.FORCE_EXIT
       },
       states[FlowState.INITIATE_ANC_PREGNANCY] = async () => {
