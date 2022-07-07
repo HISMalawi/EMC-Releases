@@ -125,7 +125,7 @@ import { ObservationService } from "@/services/observation_service";
 import { delayPromise } from "@/utils/Timers";
 import { AncPregnancyStatusService } from "@/apps/ANC/Services/anc_pregnancy_status_service"
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
-import { isValueEmpty } from "@/utils/Strs";
+import { isUnknownOrEmpty, isValueEmpty } from "@/utils/Strs";
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -333,7 +333,7 @@ export default defineComponent({
     async validateNpid () {
       if(this.useDDE){
         this.facts.hasInvalidNpid = !this.patient.getDocID() || (
-          this.patient.getDocID() && this.patient.getNationalID().match(/unknown/i)
+          this.patient.getDocID() && isUnknownOrEmpty(this.patient.getNationalID())
         )
       } else {
         const results = await Patientservice.findByNpid(this.facts.currentNpid, {"page_size": 2})
