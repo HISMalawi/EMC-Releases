@@ -317,13 +317,15 @@ export default defineComponent({
         if (this.useDDE) {
           await this.setDDEFacts()
         } 
-        if (this.facts.programName.match(/ANC/i)) {
+        if (this.facts.programName === 'ANC') {
           await this.setAncFacts()
-        } 
-        await this.drawPatientCards()
-        await this.setViralLoadStatus()
+        }
+        if (this.facts.programName === 'ART') {
+          await this.setViralLoadStatus()
+        }
         this.facts.currentNpid = this.patient.getNationalID()
         await this.validateNpid()
+        await this.drawPatientCards()
       } else {
         // [DDE] a user might scan a deleted npid but might have a newer one.
         // The function below checks for newer version
