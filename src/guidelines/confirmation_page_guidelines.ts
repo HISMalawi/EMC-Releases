@@ -200,8 +200,40 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             currentNpid: (npid: string) => isUnknownOrEmpty(npid)
         }
     },
+    "Detect NPID over 5 duplicates and prompt the user to resolve them" : {
+        priority: 1,
+        targetEvent: TargetEvent.ONLOAD,
+        actions: {
+            alert: async ({ scannedNpid }: any) => {
+                const action = await infoActionSheet(
+                    'More than 5 duplicates found',
+                    `There are more than 5 duplicates for this NPID (${scannedNpid}). Please search by name and gender`,
+                    `Choose how to proceed`,
+                    [
+                        { 
+                            name: 'Close', 
+                            slot: 'start', 
+                            color: 'danger',
+                        },
+                        { 
+                            name: 'Search by name', 
+                            slot: 'start', 
+                            color: 'primary'
+                        }
+                    ],
+                    'his-danger-color'
+                )
+                return action === 'Search by name' ? FlowState.SEARCH_BY_NAME : FlowState.GO_HOME
+            }
+        },
+        conditions: {
+            npidHasOverFiveDuplicates(isTrue: boolean) {
+                return isTrue
+            }
+        }
+    },
     "Detect NPID duplicates and prompt the user to resolve them" : {
-        priority: 2,
+        priority: 1,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({ scannedNpid }: any) => {
@@ -561,6 +593,38 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             },
             scannedNpid(scannedNpid: string, {currentNpid}: any) {
                 return !scannedNpid.match(new RegExp(currentNpid, 'i'))
+            }
+        }
+    },
+    "assign newer NPID when the current one is invalid": {
+        priority: 3,
+        targetEvent: TargetEvent.ONLOAD,
+        actions: {
+            alert: async ({ currentNpid }: any) => {
+                await infoActionSheet(
+                    'NATIONAL ID',
+                    `Current NPID ${currentNpid} is invalid`,
+                    'Reasign and Print',
+                    [
+                        { 
+                            name: 'Reassign', 
+                            slot: 'start', 
+                            color: 'primary'
+                        }
+                    ]
+                )
+                return FlowState.ASSIGN_NPID
+            }
+        },
+        conditions: {
+            demographics: ({patientIsComplete}: any) => {
+                return patientIsComplete === true
+            },
+            patientFound: (isFound: boolean) => {
+                return isFound === true
+            },
+            hasInvalidNpid(isTrue: boolean) {
+                return isTrue
             }
         }
     },

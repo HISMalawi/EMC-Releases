@@ -32,8 +32,8 @@ export class Patientservice extends Service {
         return super.getJson(`/search/patients`, params)
     }
 
-    public static findByNpid(npid: string) {
-        return super.getJson(`search/patients/by_npid`, { npid })
+    public static findByNpid(npid: string, params = {}) {
+        return super.getJson(`search/patients/by_npid`, { npid, ...params })
     }
 
     public static findByOtherID(idType: string | number, identifier: string | number) {

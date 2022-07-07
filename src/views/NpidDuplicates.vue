@@ -111,34 +111,6 @@ export default defineComponent({
             },
             deep: true,
             immediate: true
-        },
-        items: {
-            async handler(items: any) {
-                if (items.length > 5){
-                    const action = await infoActionSheet(
-                        'More than 5 duplicates found',
-                        `There are more than 5 duplicates for this NPID (${this.npid}). Please search by name and gender`,
-                        `Choose how to proceed`,
-                        [
-                            { 
-                                name: 'Close', 
-                                slot: 'start', 
-                                color: 'danger',
-                            },
-                            { 
-                                name: 'Search by name', 
-                                slot: 'start', 
-                                color: 'primary'
-                            }
-                        ],
-                        'his-danger-color'
-                    )
-                    if(action === 'Search by name') return this.$router.push('/patient/registration')
-                    return this.$router.push('/home')
-                }
-            },
-            deep: true,
-            immediate: true
         }
     },
     computed: {
