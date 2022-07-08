@@ -91,7 +91,7 @@ export default defineComponent({
           this.currentWeight = Number((await this.patient.getRecentWeight()))
 
           // this.wasTransferredIn = await this.getTransferInStatus()
-          this.wasTransferredIn = await this.getTransferInStatus()
+          this.wasTransferredIn = (await this.getTransferInStatus()) || false
           this.currentWeight = Number((await this.patient.getRecentWeight()))
 
           // this.wasTransferredIn = await this.getTransferInStatus()
@@ -190,7 +190,7 @@ export default defineComponent({
       return receivedArvs 
         && receivedArvs.match(/yes/i) 
         && transferLetterObs 
-        && transferLetterObs.value_coded.match(/yes/i)
+        && `${transferLetterObs.value_coded}`.match(/yes/i)
         && date === this.consultation.getDate()
     },
     async getDateStartedArt() {
