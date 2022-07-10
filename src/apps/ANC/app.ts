@@ -18,6 +18,7 @@ const ANC: AppInterface = {
     applicationName: 'ANC',
     applicationIcon: 'anc.png',
     applicationDescription: 'Antenatal Program',
+    isPocApp: true,
     appRoutes: AncRoutes,
     primaryPatientActivites: PRIMARY_ACTIVITIES,
     secondaryPatientActivites: [],
