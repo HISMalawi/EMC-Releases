@@ -10,7 +10,7 @@ import {
     onRegisterPatient,
     formatPatientProgramSummary,
     getPatientDashboardAlerts,
-    getPatientDashboardLabOrderCardItems
+    getPatientDashboardLabOrderCardItems,
 } from "@/apps/ART/Config/ArtAppScripts"
 import { ART_GLOBAL_PROP } from "./art_global_props";
 import ART_PROP from "./art_global_props";

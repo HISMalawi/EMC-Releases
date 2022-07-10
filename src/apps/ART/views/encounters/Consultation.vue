@@ -62,7 +62,7 @@ export default defineComponent({
     dispensation: {} as any,
     completed3HP: false as boolean,
     hasTbHistoryObs: false,
-    allergicToSulphur: false,
+    allergicToSulphur: false as boolean | null,
     TBSuspected: false,
     presentedTBSymptoms: false,
     askAdherence: false as boolean,
@@ -74,7 +74,8 @@ export default defineComponent({
     malawiSideEffectReasonObs: [] as any,
     otherSideEffectReasonObs: [] as any,
     wasTransferredIn: false as boolean,
-    dateStartedArt: '' as string
+    dateStartedArt: '' as string,
+    clientHadAHysterectomy: false as any,
   }),
   watch: {
     ready: {
@@ -90,7 +91,7 @@ export default defineComponent({
           this.currentWeight = Number((await this.patient.getRecentWeight()))
 
           // this.wasTransferredIn = await this.getTransferInStatus()
-          this.wasTransferredIn = await this.getTransferInStatus()
+          this.wasTransferredIn = (await this.getTransferInStatus()) || false
           this.currentWeight = Number((await this.patient.getRecentWeight()))
 
           // this.wasTransferredIn = await this.getTransferInStatus()
@@ -118,6 +119,7 @@ export default defineComponent({
             this.CxCaMaxAge = end
             this.CxCaStartAge = start
             this.DueForCxCa = await this.consultation.clientDueForCxCa()
+            this.clientHadAHysterectomy =  await this.consultation.clientHasHadAHysterectomy();
           }
 
           if (this.patient.isChildBearing()) {
@@ -188,7 +190,7 @@ export default defineComponent({
       return receivedArvs 
         && receivedArvs.match(/yes/i) 
         && transferLetterObs 
-        && transferLetterObs.value_coded.match(/yes/i)
+        && `${transferLetterObs.value_coded}`.match(/yes/i)
         && date === this.consultation.getDate()
     },
     async getDateStartedArt() {
@@ -254,6 +256,7 @@ export default defineComponent({
         && this.CxCaEnabled 
         && age >= this.CxCaStartAge 
         && age <= this.CxCaMaxAge
+        && !this.clientHadAHysterectomy
     },
     pregnancyEligible() {
       return this.patient.isChildBearing() && !this.onPermanentFPMethods
@@ -262,6 +265,7 @@ export default defineComponent({
       return (this.pregnancyEligible()
         && !this.patientHitMenopause 
         && !this.isPregnant(formData))
+        && !this.isANCclient()
     },
     showNewContraceptionMethods(formData: any) {
       return (
@@ -269,6 +273,7 @@ export default defineComponent({
         !this.patientHitMenopause &&
         !this.isPregnant(formData) &&
         !this.isOnTubalLigation(formData)
+        && !this.isANCclient()
       )
     },
     isPregnant(formData: any) {
@@ -623,6 +628,9 @@ export default defineComponent({
       const orders = await OrderService.getOrdersIncludingGivenResultStatus(this.patientID);
       return OrderService.formatLabs(orders);
     },
+    isANCclient() {
+      return ProgramService.getSuspendedProgram() === 'ANC'
+    },
     getFields(): any {
       return [
         {
@@ -655,13 +663,16 @@ export default defineComponent({
           condition: () => this.wasTransferredIn,
           minDate: () => this.dateStartedArt,
           maxDate: () => this.consultation.getDate(),
-          computeValue: (date: string) => ({
-            tag: 'consultation',
-            date,
-            obs: this.consultation.buildValueDate(
-              'Date drug received from previous facility', date
-            )
-          }),
+          computeValue: (date: string) => {
+            this.prescription.setDate(date)
+            return {
+              tag: 'consultation',
+              date,
+              obs: this.consultation.buildValueDate(
+                'Date drug received from previous facility', date
+              )
+            }
+          },
           estimation: {
             allowUnknown: false
           }
@@ -856,32 +867,39 @@ export default defineComponent({
               () => Validation.required(data),
               () => Validation.anyEmpty(data),
             ]),
-          computedValue: (v: Option[]) => ({
-            tag: 'consultation',
-            obs: v.map(d => this.consultation.buildValueCoded(d.other.concept, d.value)) 
-          }),
+          computedValue: (v: Option[]) => {
+            let obs = []
+            if (this.isANCclient()) obs.push(
+              this.consultation.buildValueCoded('Is patient pregnant', 'Yes')
+            )
+            obs = obs.concat(v.map(d => this.consultation.buildValueCoded(d.other.concept, d.value)))
+            return {
+              obs,
+              tag: 'consultation'
+            }
+          },
           options: (formData: any) => {
-            const options = [
-              {
-                label: "Pregnant",
-                value: "",
-                other: {
-                  values: this.yesNoOptions(),
-                  concept: "Is patient pregnant",
-                },
-              },
-              {
-                label: "Breastfeeding",
-                value: "",
-                other: {
-                  values: this.yesNoOptions(),
-                  concept: "Is patient breast feeding",
-                },
-              },
-            ]
-            return formData.pregnant_breastfeeding 
-              ? formData.pregnant_breastfeeding
-              : options
+            const options = []
+            // Because ANC clients are always Pregnant!
+            if (!this.isANCclient()) options.push({
+              label: "Pregnant",
+              value: "",
+              other: {
+                values: this.yesNoOptions(),
+                concept: "Is patient pregnant",
+              }
+            })
+
+            options.push({
+              label: "Breastfeeding",
+              value: "",
+              other: {
+                values: this.yesNoOptions(),
+                concept: "Is patient breast feeding",
+              }
+            })
+
+            return formData.pregnant_breastfeeding || options
           }
         },
         {
@@ -1258,10 +1276,21 @@ export default defineComponent({
           type: FieldType.TT_SELECT,
           validation: (data: any) => Validation.required(data),
           computedValue: (data: any) => {
-            this.allergicToSulphur = data.value.match(/yes/i)
+            this.allergicToSulphur = data.value.match(/unknown/i) 
+              ? null 
+              : data.value.match(/yes/i) 
+              ? true 
+              : false  
             return {
               tag: 'consultation',
-              obs: this.consultation.buildValueCoded("Allergic to sulphur", data.value)
+              obs: () => {
+                return this.consultation.buildValueCoded("Allergic to sulphur", 
+                  this.allergicToSulphur === null 
+                  ? data.value 
+                  : this.allergicToSulphur 
+                  ? 'Yes' 
+                  : 'No')
+              }
             }
           },
           options: () => this.yesNoUnknownOptions()

@@ -20,6 +20,12 @@ export class PatientDemographicsExchangeService extends Service {
         this.enabled = false
     }
 
+    static getRemainingNpids() {
+        return Service.getJson('dde/patients/remaining_npids', {
+            'program_id': Service.getProgramID()
+        })
+    }
+
     setPatientID(patientID: number) {
         this.patientID = patientID
     }

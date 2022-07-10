@@ -5,12 +5,13 @@ import { Patientservice } from "@/services/patient_service"
 import { ProgramService } from "@/services/program_service"
 import { PatientProgramService } from "@/services/patient_program_service"
 import { UserService } from "@/services/user_service"
-import { find } from "lodash"
+import { find, isEmpty } from "lodash"
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { ENCOUNTER_GUIDELINES, FlowState } from "@/guidelines/encounter_guidelines"
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { delayPromise } from '@/utils/Timers'
+import { toastDanger } from '@/utils/Alerts'
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -94,13 +95,18 @@ export default defineComponent({
             }
         },
         async setEncounterFacts() {
-            const program = await new PatientProgramService(this.patientID).getProgram()
+            try {
+                const program = await new PatientProgramService(this.patientID).getProgram()
+                this.facts.outcome = program.outcome
+                this.facts.outcomeStartDate = program.startDate
+            } catch (e) {
+                console.error(e)
+                toastDanger(`${e}`)
+            }
             this.facts.sessionDate = ProgramService.getSessionDate()
             this.facts.apiDate = ProgramService.getCachedApiDate() as string
             this.facts.isBdeMode = ProgramService.isBDE() as boolean
             this.facts.birthDate = this.patient.getBirthdate()
-            this.facts.outcome = program.outcome
-            this.facts.outcomeStartDate = program.startDate
             this.facts.encounterName = this.$route.name 
                 ? this.$route.name.toString().toUpperCase()
                 : 'N/A'
@@ -112,7 +118,14 @@ export default defineComponent({
                         const usernameB = b.username.toUpperCase()
                         return usernameA < usernameB ? -1 : usernameA > usernameB  ? 1 : 0
                     })
-                    .map((p: any) => `${p.username} (${p.person?.names[0]?.given_name} ${p?.person?.names[0].family_name})`)
+                    .map((p: any) => {
+                        let name = `${p.username}`
+                        if (!isEmpty(p?.person?.names)) {
+                            const [ latestName ] = p.person?.names || []
+                            name += ` (${latestName.given_name} ${latestName.family_name})`
+                        }
+                        return name
+                    })
             }
         },
         toOption(label: string, other={}) {
@@ -129,7 +142,7 @@ export default defineComponent({
             return `/patient/dashboard/${this.patientID}`
         },
         gotoPatientDashboard() {
-            return this.$router.push({path: this.patientDashboardUrl()}) 
+            return this.$router.push({path: this.patientDashboardUrl()})
         },
         nextTask() {
             return nextTask(this.patientID, this.$router)
@@ -139,6 +152,16 @@ export default defineComponent({
                 { label: "Yes", value: "Yes" },
                 { label: "No", value: "No" }
             ]
+        },
+        toYesNoOption(label: string, other: any={}): Option {
+            return {
+                label,
+                value: '',
+                other: {
+                    ...other,
+                    values: this.yesNoOptions()
+                }
+            } 
         },
         mapOptions(options: Array<string>) {
             return options.map((option) => {
@@ -159,6 +182,8 @@ export default defineComponent({
                     const data = cur.obs ? cur.obs : cur
                     if (Array.isArray(data)) {
                         accum = accum.concat(data)
+                    } else if (typeof data === 'function') {
+                        accum.push(data())
                     } else {
                         accum.push(data)
                     }

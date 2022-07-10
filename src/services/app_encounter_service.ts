@@ -5,6 +5,7 @@ import { ConceptService } from "@/services/concept_service"
 
 export class AppEncounterService extends ObservationService {
     encounterTypeID: number;
+    programID: number;
     encounterID: number;
     providerID: number;
     patientID: number;
@@ -16,6 +17,7 @@ export class AppEncounterService extends ObservationService {
         this.encounterID = 0
         this.date = ObservationService.getSessionDate()
         this.providerID = providerID
+        this.programID = ObservationService.getProgramID()
     }
 
     getDate() {
@@ -36,6 +38,10 @@ export class AppEncounterService extends ObservationService {
 
     getFirstValueCoded(conceptName: string) {
         return AppEncounterService.getFirstValueCoded(this.patientID, conceptName, this.date)
+    }
+
+    getFirstValueNumber(conceptName: string) { 
+        return AppEncounterService.getFirstValueNumber(this.patientID, conceptName, this.date)
     }
 
     async buildObs(conceptName: string, obj: Record<string, any>) {

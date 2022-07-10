@@ -3,7 +3,7 @@ import { defineComponent } from 'vue'
 import HisKeyboard from "@/components/Keyboard/HisKeyboard.vue"
 import handleVirtualInput from "@/components/Keyboard/KbHandler"
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
-import { Option } from '../Forms/FieldInterface'
+import { FooterBtnEvent, Option } from '../Forms/FieldInterface'
 import { QWERTY } from "@/components/Keyboard/HisKbConfigurations"
 import ViewPort from "@/components/DataViews/ViewPort.vue"
 import FieldMixinVue from './FieldMixin.vue';
@@ -13,12 +13,28 @@ import {
     IonLabel, 
     IonGrid, 
     IonRow, 
-    IonCol
+    IonCol,
+    IonInfiniteScroll, 
+    IonInfiniteScrollContent, 
+    IonContent
 } from "@ionic/vue"
-import { find } from 'lodash';
+import { find, isPlainObject } from 'lodash';
 
 export default defineComponent({
-    components: { IonList, IonItem, IonLabel, HisTextInput, HisKeyboard, ViewPort, IonGrid, IonRow, IonCol },
+    components: { 
+        IonList, 
+        IonItem, 
+        IonLabel, 
+        HisTextInput, 
+        HisKeyboard, 
+        ViewPort, 
+        IonGrid, 
+        IonRow, 
+        IonCol, 
+        IonInfiniteScroll, 
+        IonInfiniteScrollContent, 
+        IonContent 
+    },
     mixins: [FieldMixinVue],
     data: () => ({ 
         showKeyboard: false,
@@ -26,14 +42,39 @@ export default defineComponent({
         filter: '',
         filtered: [] as any,
         keyboard: QWERTY,
-        listData: [] as Array<Option>
+        listData: [] as Array<Option>,
+        infiniteScroll: {
+            enabled: false,
+            page: 1,
+            limit: 10,
+            threshold: '100px',
+            handler: async (filter: string, page: number, limit: number) => [] as Option[]
+        },
     }),
     created(){
-        if (this.config) {
-            this.showKeyboard = this.config?.showKeyboard === true
-        }
+        this.showKeyboard = this.config?.showKeyboard === true
+        this.infiniteScroll.enabled = this.config?.infiniteScroll?.enabled === true
+        this.infiniteScroll.page = this.config?.infiniteScroll?.page || 1
+        this.infiniteScroll.limit = this.config?.infiniteScroll?.limit || 10
+        this.infiniteScroll.threshold = this.config?.infiniteScroll?.threshold || '100px'
+        this.infiniteScroll.handler = this.config?.infiniteScroll?.handler 
     },
     watch: {
+        footerButtonEvent : {
+            handler(event: FooterBtnEvent) {
+                if (isPlainObject(event.onClickComponentEvents)) {
+                    const e: any = event?.onClickComponentEvents || {}
+                    if (e  && typeof e.setValue === 'function') {
+                        const value = e.setValue(event)
+                        if (typeof value === 'string') {
+                            this.filter = value
+                            this.selected = value
+                        }
+                    }
+                }
+            },
+            deep: true
+        },
         listData: {
             handler(data: any) { if (data) this.filtered = data },
             deep: true,
@@ -42,7 +83,10 @@ export default defineComponent({
         filter: {
             async handler(filter: string) {
                 // restore initial list data if filter used is empty
-                if (!filter) return this.filtered = this.listData
+                if (!filter) {
+                    this.filtered = this.listData
+                    return
+                }
                 /** Filter data from an external source  if config is true*/
                 if (this.config?.isFilterDataViaApi) {
                     this.filtered = await this.options(this.fdata, filter)
@@ -55,11 +99,16 @@ export default defineComponent({
                     }
                     return
                 }
+                /** Reset page if infinite scroll is enabled */
+                if(this.infiniteScroll.enabled) {
+                    this.infiniteScroll.page = 1
+                }
                 // Filter locallist
                 this.filtered = this.listData.filter(item => this.isMatch(item.label, this.filter))
+
             },
             immediate: true
-        }
+        },
     },
     methods: {
         isMatch(itemA: string, itemB: string){
@@ -79,10 +128,25 @@ export default defineComponent({
         },
         keypress(text: any){
             if (!this.filter) this.selected = ''
-
             this.filter = handleVirtualInput(text, this.selected)
             this.selected = this.filter
+        },
+        async pushData(evt: any) {
+            if(this.infiniteScroll.enabled && typeof this.infiniteScroll.handler === 'function') {
+                this.infiniteScroll.page++
+                const items: Option[] = await this.infiniteScroll.handler(this.filter, this.infiniteScroll.page, this.infiniteScroll.limit)
+                this.listData.push(...items)
+            }
+            evt.target.complete()
         }
     }
 })
 </script>
+
+<style scoped>
+ion-content {
+  --offset-bottom: auto !important;
+  --overflow: hidden;
+  overflow: auto;
+}
+</style>

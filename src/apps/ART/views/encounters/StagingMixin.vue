@@ -167,10 +167,16 @@ export default defineComponent({
             }
             return true
         },
-        hasStaging(f: Record<string, any>) {
-            // For components that have Optional staging
+        hasTransferLater(f: Record<string, any>): boolean {
             if ('has_transfer_letter' in f) {
                 return f.has_transfer_letter && f.has_transfer_letter.value === 'Yes'
+            }
+            return false
+        },
+        hasStaging(f: Record<string, any>) {
+            // For components that have Optional staging
+            if (this.hasTransferLater(f)) {
+                return true
             }
             return this.canShowStagingFields
         },
@@ -209,6 +215,9 @@ export default defineComponent({
                 }
             }
         },
+        isANCclient() {
+            return StagingService.getSuspendedProgram() === 'ANC'
+        },
         getStagingFields(): Array<Field> {
             return [
                 {
@@ -220,23 +229,36 @@ export default defineComponent({
                         label: d.label, 
                         value: d.value 
                     }),
-                    computedValue: (data: Array<Option>) => ({
-                        tag: 'staging',
-                        obs: data.map((d: Option) => {
+                    computedValue: (data: Array<Option>, f: Record<string, any>) => {
+                        let obs = []
+                        // For ANC clients, mark pregnancy status as 'Yes' always!!
+                        // The assumption here is also that the pregnancy option is not available for selection
+                        if (this.isANCclient() && !this.hasTransferLater(f)) {
+                            this.stagingFacts['pregnant'] = 'Yes' 
+                            obs.push(this.staging.buildValueCoded('Is patient pregnant', 'Yes'))
+                        }
+                        obs = obs.concat(data.map(d => {
                             const  { value, other } = d
 
                             const factID: 'pregnant' | 'breastFeeding' = other.factID
-                            this.stagingFacts[factID] = value.toString().match(/Yes/i) ? 'Yes' : 'No'
+
+                            this.stagingFacts[factID] = `${value}`.match(/Yes/i) ? 'Yes' : 'No'
 
                             return this.staging.buildValueCoded(other.concept, value)
-                        })
-                    }),
+                        }))
+                        return {
+                            obs,
+                            tag: 'staging'
+                        }
+                    },
                     options: (f: any) => {
                         if (!isEmpty(f.pregnancy_status)) {
                             return f.pregnancy_status
                         } else {
-                            return [
-                                {
+                            const options = []
+                            // Hide pregnancy option for ANC clients who are not transferr in
+                            if (!this.isANCclient() || this.hasTransferLater(f)) {
+                                options.push({
                                     label: 'Pregnant?',
                                     value: '',
                                     other: {
@@ -244,17 +266,18 @@ export default defineComponent({
                                         concept: 'Is patient pregnant',
                                         factID: 'pregnant'
                                     }
-                                },
-                                {
-                                    label: 'Breastfeeding?',
-                                    value: '',
-                                    other: {
-                                        values: this.yesNoOptions(),
-                                        concept: 'Is patient breast feeding',
-                                        factID: 'breastFeeding'
-                                    }
+                                })
+                            }
+                            options.push({
+                                label: 'Breastfeeding?',
+                                value: '',
+                                other: {
+                                    values: this.yesNoOptions(),
+                                    concept: 'Is patient breast feeding',
+                                    factID: 'breastFeeding'
                                 }
-                            ]
+                            })
+                            return options
                         }
                     },
                     condition: (f: any) => this.hasStaging(f) && this.stagingFacts.isChildBearing,

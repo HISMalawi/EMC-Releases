@@ -95,7 +95,7 @@ export const REPORTS: FolderInterface[] = [
                 pathName: 'clinic_mental_health'
             },
             {
-                name: 'Drugs given',
+                name: 'Drugs (dispensed without prescription)',
                 pathName: 'clinic_drugs_given'
             },
             {

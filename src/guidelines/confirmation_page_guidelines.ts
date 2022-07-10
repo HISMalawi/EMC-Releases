@@ -5,7 +5,7 @@
 */
 import { GuideLineInterface } from "@/utils/GuidelineEngine"
 import { infoActionSheet, tableActionSheet } from "@/utils/ActionSheets"
-import { isValueEmpty } from '@/utils/Strs';
+import { isUnknownOrEmpty } from '@/utils/Strs';
 
 export enum TargetEvent {
     ON_CONTINUE = 'oncontinue',
@@ -27,8 +27,12 @@ export enum FlowState {
     UPDATE_LOCAL_DDE_DIFFS = 'updateLocalDiffs',
     RESOLVE_DUPLICATE_NPIDS = 'resolveDuplicateNpids',
     ADD_AS_DRUG_REFILL = 'addAsDrugRefill',
-    ADD_AS_EXTERNAL_CONSULTATION = 'addAsExternalConsultation'
+    ADD_AS_EXTERNAL_CONSULTATION = 'addAsExternalConsultation',
+    INITIATE_ANC_PREGNANCY = 'initiateNewAncPregnancy',
+    VIEW_MERGE_AUDIT_FOR_NPID = 'viewMergeAuditForNpid',
+    SEARCH_BY_NAME = 'searchByName'
 }
+
 export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = {
     "Do not proceed if patient is not found in the system" : {
         priority: 1,
@@ -44,11 +48,18 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                             name: 'Close', 
                             slot: 'start', 
                             color: 'primary',
+                        },
+                        {
+                            name: 'Search by name',
+                            slot: 'end',
+                            color: 'success'
                         }
                     ],
                     'his-danger-color'
                 )
-                return FlowState.GO_HOME
+                return action === 'Search by name' 
+                    ? FlowState.SEARCH_BY_NAME
+                    : FlowState.GO_HOME
             }
         },
         conditions: {
@@ -103,11 +114,26 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                             name: 'Close', 
                             slot: 'start', 
                             color: 'primary',
+                        },
+                        {
+                            name: 'Merge history',
+                            slot: 'end',
+                            color: 'primary'
+                        },
+                        {
+                            name: 'Search by name',
+                            slot: 'end',
+                            color: 'success'
                         }
+                        
                     ],
                     'his-danger-color'
                 )
-                return FlowState.GO_HOME
+                return action === 'Merge history' 
+                    ?  FlowState.VIEW_MERGE_AUDIT_FOR_NPID 
+                    : action === 'Search by name' 
+                    ? FlowState.SEARCH_BY_NAME
+                    : FlowState.GO_HOME
             }
         },
         conditions: {
@@ -120,7 +146,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE] Notify the user to proceed with Remote NPID if local NPID does not match remote": {
-        priority: 2,
+        priority: 1,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({dde}: any) => {
@@ -171,11 +197,43 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         },
         conditions: {
-            currentNpid: (npid: string) => isValueEmpty(npid)
+            currentNpid: (npid: string) => isUnknownOrEmpty(npid)
+        }
+    },
+    "Detect NPID over 5 duplicates and prompt the user to resolve them" : {
+        priority: 1,
+        targetEvent: TargetEvent.ONLOAD,
+        actions: {
+            alert: async ({ scannedNpid }: any) => {
+                const action = await infoActionSheet(
+                    'More than 5 duplicates found',
+                    `There are more than 5 duplicates for this NPID (${scannedNpid}). Please search by name and gender`,
+                    `Choose how to proceed`,
+                    [
+                        { 
+                            name: 'Close', 
+                            slot: 'start', 
+                            color: 'danger',
+                        },
+                        { 
+                            name: 'Search by name', 
+                            slot: 'start', 
+                            color: 'primary'
+                        }
+                    ],
+                    'his-danger-color'
+                )
+                return action === 'Search by name' ? FlowState.SEARCH_BY_NAME : FlowState.GO_HOME
+            }
+        },
+        conditions: {
+            npidHasOverFiveDuplicates(isTrue: boolean) {
+                return isTrue
+            }
         }
     },
     "Detect NPID duplicates and prompt the user to resolve them" : {
-        priority: 2,
+        priority: 1,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({ scannedNpid }: any) => {
@@ -298,7 +356,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         },
         conditions: {
             currentOutcome: (outcome: string) => outcome === 'Patient transferred out',
-            programName: (name: string) => name === 'HIV PROGRAM'
+            programName: (name: string) => name === 'ART'
         }
     },
     "[ART Drug refill visit purpose] Select purpose of visit for Drug Refill patients" : {
@@ -332,7 +390,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         conditions: {
             currentOutcome: (outcome: string) => outcome != 'Patient transferred out',
             patientType: (pType: string) => pType === 'Drug Refill',
-            programName: (name: string) => name === 'HIV PROGRAM'
+            programName: (name: string) => name === 'ART'
         }
     },
     "[ART External consultation visit purpose] Select purpose of visit if patient is External Consultation": {
@@ -366,7 +424,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         conditions: {
             currentOutcome: (outcome: string) => outcome != 'Patient transferred out',
             patientType: (pType: string) => pType === 'External consultation',
-            programName: (name: string) => name === 'HIV PROGRAM'
+            programName: (name: string) => name === 'ART'
         }
     },
     "Prompt patient enrollment in current programme if not enrolled" : {
@@ -395,7 +453,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         },
         conditions: {
-            programName: (name: string) => name.match(/n\/a/i) ? true : false
+            enrolledInProgram: (enrolled: boolean) => enrolled === false
         }
     },
     "(ART Filing numbers) Prompt dormant filing number reactivation if patient has a dormant filing number": {
@@ -424,7 +482,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         },
         conditions: {
-            programName: (programName: string) => programName === 'HIV PROGRAM',
+            programName: (programName: string) => programName === 'ART',
             identifiers: (identifiers: string[]) => identifiers.includes('Archived filing number'),
             currentOutcome: (outcome: string) => ![
                 'Treatment stopped', 
@@ -538,6 +596,38 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         }
     },
+    "assign newer NPID when the current one is invalid": {
+        priority: 3,
+        targetEvent: TargetEvent.ONLOAD,
+        actions: {
+            alert: async ({ currentNpid }: any) => {
+                await infoActionSheet(
+                    'NATIONAL ID',
+                    `Current NPID ${currentNpid} is invalid`,
+                    'Reasign and Print',
+                    [
+                        { 
+                            name: 'Reassign', 
+                            slot: 'start', 
+                            color: 'primary'
+                        }
+                    ]
+                )
+                return FlowState.ASSIGN_NPID
+            }
+        },
+        conditions: {
+            demographics: ({patientIsComplete}: any) => {
+                return patientIsComplete === true
+            },
+            patientFound: (isFound: boolean) => {
+                return isFound === true
+            },
+            hasInvalidNpid(isTrue: boolean) {
+                return isTrue
+            }
+        }
+    },
     "[DDE ON] Warn program managers when Patient has incomplete demographics. Dont force them to update though": {
         priority: 2,
         targetEvent: TargetEvent.ONLOAD,
@@ -642,4 +732,73 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             hasHighViralLoad: (isHigh: boolean)  => isHigh === true
         }
     },
+    "[ANC] Warn last LMP is more than 8 months ago and ask to initiate new pregnancy": {
+        priority: 10,
+        targetEvent: TargetEvent.ON_CONTINUE,
+        actions: {
+            alert: async ({anc}: any) => {
+                const action = await infoActionSheet(
+                    'Pregancy overdue',
+                    `Last menstrual period was ${anc.lmpMonths} months ago!`,
+                    'Would you like to initiate new pregnancy?',
+                    [
+                        { 
+                            name: 'Yes',  
+                            slot: 'end', 
+                            color: 'success'
+                        },
+                        { 
+                            name: 'No',  
+                            slot: 'end', 
+                            color: 'danger'
+                        }
+                    ],
+                    'his-danger-color'
+                )
+                return action === 'Yes' 
+                    ? FlowState.INITIATE_ANC_PREGNANCY 
+                    : FlowState.CONTINUE
+            }
+        },
+        conditions: {
+            programName: (name: string) => name === 'ANC',
+            anc: (anc: any)  => anc.currentPregnancyIsOverdue === true
+        }        
+    },
+    "[ANC] Exit if client is NOT ELIGIBLE for ANC": {
+        priority: 1,
+        targetEvent: TargetEvent.ONLOAD,
+        actions: {
+            alert: async () => {
+                const action = await infoActionSheet(
+                    'Client not eligible for ANC',
+                    `This program is for women eligible for ANC only`,
+                    'If this is a mistake, please update client Demographics or Exit',
+                    [
+                        { 
+                            name: 'EXIT',
+                            slot: 'end', 
+                            color: 'success'
+                        },
+                        { 
+                            name: 'EDIT DEMOGRAPHICS',
+                            slot: 'end', 
+                            color: 'danger'
+                        }
+                    ],
+                    'his-danger-color'
+                )
+                return action === 'EXIT' ? FlowState.GO_HOME : FlowState.UPDATE_DMG
+            }
+        },
+        conditions: {
+            demographics: ({gender}: any) => {
+                const g = gender.toLowerCase()
+                return g === 'm' || g === 'male'
+            },
+            programName: (name: string) => {
+                return name === 'ANC'
+            } 
+        }
+    }
 }

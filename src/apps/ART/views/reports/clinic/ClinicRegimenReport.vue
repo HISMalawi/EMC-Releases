@@ -35,7 +35,9 @@ export default defineComponent({
                 table.thTxt('Weight(Kg)'),
                 table.thTxt('Curr.Reg'),
                 table.thTxt('ARVs'), 
-                table.thTxt('Curr.reg dispensed')
+                table.thTxt('Curr.reg dispensed'),
+                table.thTxt('VL result'),
+                table.thTxt('Date of VL result')
             ]
         ]
     }),
@@ -67,7 +69,9 @@ export default defineComponent({
                     table.td(d.current_weight),
                     table.td(d.current_regimen),
                     table.td(medications.join(', ')),
-                    table.tdDate(lastDispenseDate)
+                    table.tdDate(lastDispenseDate),
+                    table.td(d.vl_result),
+                    table.tdDate(d.vl_result_date)
                 ])
             })
         }

@@ -30,7 +30,7 @@ import { Field } from '@/components/Forms/FieldInterface'
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import ReportMixinVue from "../../ReportMixin.vue";
 import { HMISReportService } from "@/apps/OPD/services/hmis_report_service"
-import HmisHeader from "@/apps/OPD/views/reports/moh/HMIS/HMISHeader.vue"
+import HmisHeader from "@/apps/OPD/views/reports/moh/MOHReportHeader.vue"
 import HmisTemplate from "@/apps/OPD/views/reports/moh/HMIS/HMISTemplate.vue"
 import HisDate from "@/utils/Date"
 

@@ -6,7 +6,7 @@
       :fields="fields"
       :columns="columns"
       :period="period"
-      :config="tableConfig"
+      :customInfo="customInfo"
       :onReportConfiguration="init"
     ></report-template>
   </ion-page>
@@ -18,8 +18,7 @@ import { OpdReportService } from "@/apps/OPD/services/opd_report_service"
 import ReportTemplate from "@/views/reports/BaseTableReport.vue"
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 import ReportMixin from '@/apps/ART/views/reports/ReportMixin.vue'
-import { isEmpty } from 'lodash'
-import { border } from '@/apps/OPD/utils/table'
+import { get, isEmpty } from 'lodash'
 import { IonPage } from "@ionic/vue";
 import { Patientservice } from '@/services/patient_service'
 
@@ -30,29 +29,52 @@ export default defineComponent({
     title: 'OPD Diagnosis',
     rows: [] as RowInterface[][],
     reportService: {} as any,
-    tableConfig: {
-      showIndex: false,
+    customInfo: {
+      label: "Total OPD Visits",
+      value: 0
     },
     columns: [
       [
-        table.thTxt('Age Groups', border),
-        table.thTxt('<6 months', {colspan: 2, ...border}),
-        table.thTxt('6 months < 5 yrs', {colspan: 2, ...border}),
-        table.thTxt('5 yrs < 14 yrs', {colspan: 2, ...border}),
-        table.thTxt('> 14 yrs', {colspan: 2, ...border}),
-        table.thTxt(''),
+        table.thTxt('Age Groups', {
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('<6 months', {
+          colspan: 2,
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('6 months < 5 yrs', {
+          colspan: 2,
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('5 yrs < 14 yrs', {
+          colspan: 2,
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('> 14 yrs', {
+          colspan: 2,
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('', {
+          sortable: false,
+          exportable: false 
+        }),
       ],
       [
-        table.thTxt('Diagnosis', border),
-        table.thTxt('F', border),
-        table.thTxt('M', border),
-        table.thTxt('F', border),
-        table.thTxt('M', border),
-        table.thTxt('F', border),
-        table.thTxt('M', border),
-        table.thTxt('F', border),
-        table.thTxt('M', border),
-        table.thTxt('Total', border),
+        table.thTxt('Diagnosis'),
+        table.thTxt('F', { value: 'Females <6 months' }),
+        table.thTxt('M', { value: 'Males <6 months' }),
+        table.thTxt('F', { value: 'Females 6 months < 5 yrs'}),
+        table.thTxt('M', { value: 'Males 6 months < 5 yrs' }),
+        table.thTxt('F', { value: 'Females 5 yrs < 14 yrs' }),
+        table.thTxt('M', { value: 'Males 5 yrs < 14 yrs' }),
+        table.thTxt('F', { value: 'Females > 14 yrs' }),
+        table.thTxt('M', { value: 'Males > 14 yrs' }),
+        table.thTxt('Total'),
       ]
     ] as ColumnInterface[][],
   }),
@@ -107,45 +129,50 @@ export default defineComponent({
     },
     buildRows(data: Record<string, any>): RowInterface[][] {
       if(isEmpty(data)) return []
-      const row: RowInterface[][] = []
+      const rows: RowInterface[][] = []
       Object.keys(data).forEach(diagnosis => {
-        Object.keys(data[diagnosis]).forEach(gender => {
-          Object.keys(data[diagnosis][gender]).forEach(ageGroup => {
-            const underSixFemales: Array<string> = (ageGroup === "0-5 months" && gender === "F") ? data[diagnosis][gender][ageGroup] : []
-            const underSixMales: Array<string> = (ageGroup === "0-5 months" && gender === "M") ? data[diagnosis][gender][ageGroup] : []
-            const underFiveFemales: Array<string> = (ageGroup.match(/6-11 months|12-23 months|2-4 years/) && gender === "F") ? data[diagnosis][gender][ageGroup] : []
-            const underFiveMales: Array<string> = (ageGroup.match(/6-11 months|12-23 months|2-4 years/) && gender === "M") ? data[diagnosis][gender][ageGroup] : []
-            const underFourteenFemales: Array<string> = (ageGroup.match(/5-9 years|10-14 years/) && gender === "F") ? data[diagnosis][gender][ageGroup] : []
-            const underFourteenMales: Array<string> = (ageGroup.match(/5-9 years|10-14 years/) && gender === "M") ? data[diagnosis][gender][ageGroup] : []
-            const overFourteenFemales: Array<string> = (!ageGroup.match(/Unknown/i) && gender === "F") ? data[diagnosis][gender][ageGroup] : []
-            const overFourteenMales: Array<string> = (!ageGroup.match(/Unknown/i) && gender === "M") ? data[diagnosis][gender][ageGroup] : []
+        const underSixFemales: Array<string> = get(data[diagnosis], "F.0-5 months", [])
+        const underSixMales: Array<string> = get(data[diagnosis], 'M.0-5 months', [])
+        const underFiveFemales: Array<string> = get(data[diagnosis], 'F.6 mth < 5 yrs', [])
+        const underFiveMales: Array<string> = get(data[diagnosis], 'M.6 mth < 5 yrs', [])
+        const underFourteenFemales: Array<string> = get(data[diagnosis], 'F.5-14 yrs', [])
+        const underFourteenMales: Array<string> = get(data[diagnosis], 'M.5-14 yrs', [])
+        const overFourteenFemales: Array<string> = get(data[diagnosis], 'F.>= 14 years', [])
+        const overFourteenMales: Array<string> = get(data[diagnosis], 'M.>= 14 years', [])
 
-            row.push([
-              table.td(diagnosis, {style: {textAlign: 'left'}}),
-              this.buildColumn(underSixFemales, `under 6 months females diagnosed with ${diagnosis}`),
-              this.buildColumn(underSixMales, `under 6 months males diagnosed with ${diagnosis}`),
-              this.buildColumn(underFiveFemales, `under 5 years females diagnosed with ${diagnosis}`),
-              this.buildColumn(underFiveMales, `under 5 years males diagnosed with ${diagnosis}`),
-              this.buildColumn(underFourteenFemales, `under 14 years females diagnosed with ${diagnosis}`),
-              this.buildColumn(underFourteenMales, `under 14 years males diagnosed with ${diagnosis}`),
-              this.buildColumn(overFourteenFemales, `over 14 years females diagnosed with ${diagnosis}`),
-              this.buildColumn(overFourteenMales, `over 14 years males diagnosed with ${diagnosis}`),
-              this.buildColumn([
-                ...underFiveFemales,
-                ...underFiveMales,
-                ...underSixFemales,
-                ...underSixMales,
-                ...underFourteenFemales,
-                ...underFourteenMales,
-                ...overFourteenFemales,
-                ...overFourteenMales
-              ], `Total diagnosed with ${diagnosis}`),
-            ])
-          })
-        })
+        this.customInfo.value += underFiveFemales.length + underFiveMales.length
+        this.customInfo.value += underSixFemales.length + underSixMales.length
+        this.customInfo.value += underFourteenFemales.length + underFourteenMales.length
+        this.customInfo.value += overFourteenFemales.length + overFourteenMales.length
+
+        rows.push([
+          table.td(diagnosis, {style: {textAlign: 'left'}}),
+          this.buildColumn(underSixFemales, `under 6 months females diagnosed with ${diagnosis}`),
+          this.buildColumn(underSixMales, `under 6 months males diagnosed with ${diagnosis}`),
+          this.buildColumn(underFiveFemales, `under 5 years females diagnosed with ${diagnosis}`),
+          this.buildColumn(underFiveMales, `under 5 years males diagnosed with ${diagnosis}`),
+          this.buildColumn(underFourteenFemales, `under 14 years females diagnosed with ${diagnosis}`),
+          this.buildColumn(underFourteenMales, `under 14 years males diagnosed with ${diagnosis}`),
+          this.buildColumn(overFourteenFemales, `over 14 years females diagnosed with ${diagnosis}`),
+          this.buildColumn(overFourteenMales, `over 14 years males diagnosed with ${diagnosis}`),
+          this.buildColumn([
+            ...underFiveFemales,
+            ...underFiveMales,
+            ...underSixFemales,
+            ...underSixMales,
+            ...underFourteenFemales,
+            ...underFourteenMales,
+            ...overFourteenFemales,
+            ...overFourteenMales
+          ], `Total diagnosed with ${diagnosis}`),
+        ])
       })
 
-      return row
+      return rows.sort((a, b) => {
+        if(a[0].td < b[0].td) return -1
+        if(a[0].td > b[0].td) return 1
+        return 0
+      })
     },
   },
 })

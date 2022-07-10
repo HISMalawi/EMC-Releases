@@ -27,6 +27,13 @@ export const NUMBERS_ONLY = [
     ]
 ]
 
+export const NUMBERS_WITH_UNKNOWN = [
+    NUMBER_PAD_LO,
+    [
+        ['Delete', 'Unknown']
+    ]
+]
+
 export const NUMBERS_WITH_ESTIMATE = [
     NUMBER_PAD_LO,
     [

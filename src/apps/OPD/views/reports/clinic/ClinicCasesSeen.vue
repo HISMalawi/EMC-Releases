@@ -17,7 +17,6 @@ import { NCD_TYPES, OpdReportService } from "@/apps/OPD/services/opd_report_serv
 import ReportTemplate from "@/views/reports/BaseTableReport.vue"
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 import ReportMixin from '@/apps/ART/views/reports/ReportMixin.vue'
-import { border } from '@/apps/OPD/utils/table'
 import { IonPage } from "@ionic/vue";
 
 export default defineComponent({
@@ -29,16 +28,27 @@ export default defineComponent({
     reportService: {} as any,
     columns: [
       [
-        table.thTxt('', {colspan: 2, ...border}),
-        table.thTxt('New cases', {colspan: 2, ...border}),
-        table.thTxt('All cases', {colspan: 2, ...border}),
+        table.thTxt('', {
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('New cases', {
+          colspan: 2,
+          sortable: false,
+          exportable: false 
+        }),
+        table.thTxt('All cases', {
+          colspan: 2,
+          sortable: false,
+          exportable: false 
+        }),
       ],
       [
-        table.thTxt('NCD type', border),
-        table.thTxt('Male', border),
-        table.thTxt('Female', border),
-        table.thTxt('Male', border),
-        table.thTxt('Female', border),
+        table.thTxt('NCD type'),
+        table.thTxt('Male', { value: 'Male (New Cases)' }),
+        table.thTxt('Female', { value: 'Female (New Cases)' }),
+        table.thTxt('Male', { value: 'Male (All Cases)' }),
+        table.thTxt('Female', { value: 'Female (All Cases)' }),
       ]
     ] as ColumnInterface[][],
   }),

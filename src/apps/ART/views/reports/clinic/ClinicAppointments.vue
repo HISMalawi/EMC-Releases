@@ -25,6 +25,7 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import HisDate from "@/utils/Date"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { IonPage } from "@ionic/vue"
+import { isEmpty } from 'lodash'
 
 export default defineComponent({
     mixins: [ReportMixin],
@@ -57,12 +58,9 @@ export default defineComponent({
                 validation: (val: any) => Validation.required(val),
                 onValue: async (date: string, context: any) => {
                     const data = await this.report.getBookedAppointments(date)
-                    if (data.length > 0) {
-                        this.appointments = data
-                        context.appointmentCounter = this.appointments.length
-                        return true
-                    }
-                    return false
+                    this.appointments = !isEmpty(data) ? data : []
+                    context.appointmentCounter = this.appointments.length
+                    return true
                 }
             }
         ]

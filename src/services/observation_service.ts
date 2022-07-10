@@ -173,7 +173,7 @@ export class ObservationService extends ConceptService {
 
     static async getAllValueCoded(patientID: number, conceptName: string, date=this.getSessionDate(), strictMode=true){
         const obs = await this.getAll(patientID, conceptName, date, strictMode)
-        return Promise.all(obs.map((ob: any) => ConceptService.getConceptName(ob['value_coded'])))
+        return !isEmpty(obs) ? Promise.all(obs.map((ob: any) => ConceptService.getConceptName(ob['value_coded']))) : []
     }
 
     static getFirstValueText(patientID: number, conceptName: string, date=this.getSessionDate(), strictMode=true) {

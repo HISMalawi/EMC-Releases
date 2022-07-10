@@ -92,6 +92,8 @@ export default defineComponent({
                     this.defaultIcon = item.defaultFilesIcon
                 }
                 this.setItems(item.files)
+            } else if (typeof item.action === 'function') {
+                item.action()
             } else if (item.pathName) {
                 this.$router.push({ name: item.pathName })
             } else if (item.pathUrl) {

@@ -1,6 +1,7 @@
 <template>
     <view-port :showFull="false">
         <ion-input class="input_display" :readonly="true" :value="value"/>
+        <slot :date="value"> </slot>
     </view-port>
     <ion-grid class="his-floating-keyboard">
         <ion-row> 
@@ -26,10 +27,15 @@
                 />
             </ion-col>
         </ion-row>
-        <ion-row> 
+        <ion-row>
             <ion-col class="ion-text-center" > 
-                <ion-button style="width:30%; height:6vh;" @click="today"> 
+                <ion-button color="success" style="width:100%; height:6vh;" @click="today"> 
                     <b>TODAY</b>
+                </ion-button>
+            </ion-col>
+            <ion-col> 
+                <ion-button :disabled="!config.allowUnknown" color="warning" style="width:100%; height:6vh;" @click="value='Unknown'"> 
+                    <b>Unknown</b>
                 </ion-button>
             </ion-col>
         </ion-row>
@@ -55,7 +61,11 @@ export default defineComponent({
     }),
     async activated(){
         this.$emit('onFieldActivated', this)
-        this.date = new Date()
+        if (typeof this.config.initialDate === 'function') {
+            this.date = new Date(this.config.initialDate())
+        } else {
+            this.date = new Date()
+        }
         await this.setDefaultValue()
         this.isInit = false
     },

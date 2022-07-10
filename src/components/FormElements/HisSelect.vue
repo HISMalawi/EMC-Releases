@@ -5,7 +5,8 @@
             <ion-item 
                 class="his-md-text"
                 button v-for="(item, index) in filtered" 
-                :color="item.label === selected ? 'lightblue': ''" 
+                :color="item.label === selected ? 'lightblue': ''"
+                :lines="item.isChecked ? 'none':''" 
                 :key="index"
                 :disabled="'disabled' in item && item.disabled ? true: false"
                 @click="onselect(item)"> 

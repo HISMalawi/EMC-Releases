@@ -41,7 +41,7 @@
             <ion-button 
                 :style="{width: '100%'}" 
                 color="success"
-                @click="$router.push(nextTask)">
+                @click="goToNextTask">
                 <ion-label><b>Next Task: {{ nextTask.name.toUpperCase() }}</b></ion-label>
                 <ion-icon :icon="alertCircle"> </ion-icon>
             </ion-button>
@@ -135,7 +135,7 @@
                             </ion-col> 
                             <ion-col size-md="4" size-sm="6"> 
                                 <span v-if="nextTask.name"> 
-                                    <ion-chip class="next-task" color="success" @click="$router.push(nextTask)">Next Task: {{ nextTask.name.toUpperCase() }}</ion-chip>
+                                    <ion-chip class="next-task" color="success" @click="goToNextTask">Next Task: {{ nextTask.name.toUpperCase() }}</ion-chip>
                                 </span>
                                 <span v-else> 
                                     Next Task: <b>NONE</b>
@@ -278,6 +278,9 @@ import { EncounterService } from '@/services/encounter_service'
 import { ConceptService } from "@/services/concept_service"
 import { PersonService } from "@/services/person_service"
 import { TaskInterface } from "@/apps/interfaces/TaskInterface"
+import { nextTask } from "@/utils/WorkflowTaskHelper"
+import App from "@/apps/app_lib"
+
 export default defineComponent({
     components: {
         IonSegment,
@@ -316,7 +319,7 @@ export default defineComponent({
     },
     data: () => ({
         activeTab: 1 as number,
-        app: ProgramService.getActiveApp() as any,
+        app: {} as any,
         tasksDisabled: true as boolean,
         dashboardComponent: {} as any,
         isBDE: false as boolean,
@@ -339,7 +342,8 @@ export default defineComponent({
         alertCardItems: [] as Array<Option>,
         patientCards: [] as Array<any>,
         appVersion: ProgramService.getFullVersion(),
-        sessionEncounters: [] as Encounter[]
+        sessionEncounters: [] as Encounter[],
+        savedEncounters: [] as string[]
     }),
     computed: {
         patientIsset(): boolean {
@@ -384,6 +388,8 @@ export default defineComponent({
     },
     methods: {
         async init() {
+            await App.doAppManagementTasks()
+            this.app = App.getActiveApp()
             this.patient = await this.fetchPatient(this.patientId)
             try {
                 this.patientProgram = await ProgramService.getProgramInformation(this.patientId)
@@ -397,11 +403,10 @@ export default defineComponent({
             this.isBDE = ProgramService.isBDE() || false
             this.nextTask = await this.getNextTask(this.patientId)
             this.onProgramVisitDates((await this.getPatientVisitDates(this.patientId)))
+            this.tasksDisabled = false
             this.alertCardItems = await this.getPatientAlertCardInfo() || []
             this.programID = ProgramService.getProgramID()
-            if (!this.visitDates.length) {
-                this.tasksDisabled = false
-            }
+            await this.loadSavedEncounters()
             this.updateCards()
         },
         async showLoader() {
@@ -416,6 +421,13 @@ export default defineComponent({
         },
         toTime(date: string | Date) {
             return HisDate.toStandardHisTimeFormat(date)
+        },
+        async loadSavedEncounters() {
+            try {
+                this.savedEncounters = await EncounterService.getSavedEncounters(this.patientId)
+            } catch (e) {
+                console.warn(`Program might not support saved encounters`, e)
+            }
         },
         async loadCardData(date: string) {
             try {
@@ -521,6 +533,9 @@ export default defineComponent({
         getNextTask(patientId: number) {
             return WorkflowService.getNextTaskParams(patientId)
         },
+        goToNextTask() {
+            nextTask(this.patientId, this.$router)
+        },
         onActiveVisitDate(data: Option) {
             this.activeVisitDate = data.value
         },
@@ -556,6 +571,7 @@ export default defineComponent({
                         try {
                             await this.showLoader()
                             await EncounterService.voidEncounter(encounter.encounter_id, reason)
+                            await this.loadSavedEncounters()
                             loadingController.dismiss()
                             /**Refresh card data*/
                             await this.loadCardData(this.activeVisitDate as string)
@@ -673,10 +689,11 @@ export default defineComponent({
                     items,
                     title: `${title}: ${displayDate}`,
                     taskParams: { 
-                        patient: this.patient.getObj(), 
+                        patient: this.patient.getObj(),
                         program: this.patientProgram,
                         visitDate: this.activeVisitDate,
-                        patientID: this.patientId
+                        patientID: this.patientId,
+                        savedEncounters: this.savedEncounters
                     }
                 }
             })

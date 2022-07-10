@@ -1,4 +1,5 @@
 import {Service} from "@/services/service"
+import { SuspenseProps } from "vue";
 
 export interface NewEncounter {
     encounter_type_id: number;
@@ -12,7 +13,7 @@ export class EncounterService extends Service {
     constructor() {
         super()
     }
-
+    
     static create(encounter: NewEncounter) {
         const data = {...encounter}
 
@@ -27,6 +28,10 @@ export class EncounterService extends Service {
 
     static voidEncounter(encounterId: number, reason='Unknown') {
         return super.void(`/encounters/${encounterId}`, {reason})
+    }
+
+    static getSavedEncounters(patientId: number, programId=super.getProgramID()) {
+        return super.getJson(`programs/${programId}/patients/${patientId}/saved_encounters`)
     }
 
     static getEncounters(patientId: number, params={}) {

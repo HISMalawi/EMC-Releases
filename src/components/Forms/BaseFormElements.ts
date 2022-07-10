@@ -1,3 +1,5 @@
+import HisMultiSelectGrid from "@/components/FormElements/HisMultiSelectGrid.vue" 
+import HisAgeInput from "@/components/FormElements/HisAgeInput.vue"
 import BarcodeInput from "@/components/FormElements/HisBarcodeInput.vue"
 import NoteInput from "@/components/FormElements/HisNote.vue"
 import SingleSelect from "@/components/FormElements/HisSelect.vue";
@@ -36,13 +38,22 @@ import IPAddressInput from "@/components/FormElements/HisIPAddress.vue"
 import TextBanner from "@/components/FormElements/HisTextBanner.vue"
 import DrugDispenser from "@/components/FormElements/GeneralDrugDispenser.vue"
 import HisDataTable from "@/components/FormElements/HisDataTable.vue"
-import RadiologyPicker from "@/components/FormElements/HisRadiologyPicker.vue"
+import HisGroupSelector from "@/components/FormElements/HisGroupSelector.vue"
+import AncPregnancyInfoConfig from "@/components/FormElements/AncPregnancyInfoConfig.vue"
+import AncPregnancyDetailsInput from "@/components/FormElements/AncPregnancyDetailsInput.vue"
+import AncLmpDateInput from "@/components/FormElements/AncLmpDateInput.vue"
 import DrugTransferInQty from "@/components/FormElements/DrugTransferInput.vue"
 import HisGridSelector from "@/components/FormElements/HisGridSelector.vue"
+import AncDrugSetInput from "@/components/FormElements/AncDrugSetInput.vue"
+import RadiologyPicker from "@/components/FormElements/HisRadiologyPicker.vue"
 import PrescriptionInput from "@/components/FormElements/HisPrescriptionInput.vue"
+import InfiniteScrollMultipleSelect from "@/components/FormElements/HisInfiniteScrollMultipleSelect.vue";
 
 // Reference names for BaseFormComponents
 export enum FieldType {
+    TT_MULTI_SELECT_GRID='his-multi-select-grid',
+    TT_AGE_INPUT='his-age-input',
+    TT_GROUP_SELECTOR = 'HisGroupSelector',
     TT_DATA_TABLE = 'HisDataTable',
     TT_GRID_SELECTOR = 'HisGridSelector',
     TT_NOTE = 'NoteInput',
@@ -84,8 +95,13 @@ export enum FieldType {
     TT_TEXT_BANNER = 'text-banner',
     TT_DRUG_DISPENSER = 'drug-dispenser',
     TT_CLINIC_HOLIDAY_PICKER = 'clinic-holiday-picker',
+    TT_ANC_PREGNANCY_INPUT_CONFIG = 'anc-pregnancy-info-config',
+    TT_ANC_PREGNANCY_DETAILS_INPUT = 'anc-pregnancy-details-input',
+    TT_ANC_LMP_DATE_INPUT = 'anc-lmp-date-input',
+    TT_ANC_DRUGSET_INPUT = 'AncDrugSetInput',
     TT_DRUG_TRANSFER_IN = 'drug-transfer-in-qty',
-    TT_PRESCRIPTION_INPUT = 'prescription-input'
+    TT_PRESCRIPTION_INPUT = 'prescription-input',
+    TT_INFINITE_SCROLL_MULTIPLE_SELECT="infinite-scroll-multiple-select",
 }
 
 // Components to be rendered
@@ -128,8 +144,16 @@ export const BaseFormComponents = {
     DrugDispenser,
     ClinicHolidayPicker,
     NoteInput,
-    RadiologyPicker,
+    HisGroupSelector,
+    AncPregnancyInfoConfig,
+    AncPregnancyDetailsInput,
+    HisAgeInput,
+    HisMultiSelectGrid,
+    AncLmpDateInput,
     DrugTransferInQty,
     HisGridSelector,
-    PrescriptionInput
+    AncDrugSetInput,
+    RadiologyPicker,
+    PrescriptionInput,
+    InfiniteScrollMultipleSelect,
 }

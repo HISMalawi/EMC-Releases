@@ -1,5 +1,5 @@
 <template>
-    <div :class="`his-card ${state}`" @click="$emit('onclick')"> 
+    <div :class="`his-card ${state}`" @click="() => enabled ? $emit('onclick') : null"> 
       <s v-if="!enabled">{{ label }}</s> 
       <div v-if="enabled" class="his-md-text">{{label}}</div>
     </div>

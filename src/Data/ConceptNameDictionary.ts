@@ -15,6 +15,333 @@ export default [
       "name": "HIV viral load",
    }, 
    {
+      "concept_id": 6328,
+      "name": "New"
+   },
+   {
+      "categories": [],
+      "concept_id": 7977,
+      "name": "Hemorrhage"
+   },
+   {
+      "categories": [],
+      "concept_id": 7156,
+      "name": "Eclampsia"
+   },
+   {
+      "categories": [],
+      "concept_id": 8758,
+      "name": "Episiotomy"
+   },
+   {
+      "categories": [],
+      "concept_id": 228,
+      "name": "APH"
+   },
+   {
+      "categories": [],
+      "concept_id": 230,
+      "name": "PPH"
+   },
+   {
+      "categories": [],
+      "concept_id": 2895,
+      "name": "Alive"
+   },
+   {
+      "categories": [],
+      "concept_id": 9656,
+      "name": "Previous HIV Test Results"
+   },
+   {
+      "categories": [],
+      "concept_id": 2473,
+      "name": "B-HCG"
+   },
+   {
+      "categories": [],
+      "concept_id": 9655,
+      "name": "Previous HIV Test Done"
+   },
+   {
+      "categories": [],
+      "concept_id": 9657,
+      "name": "Previous HIV Test Date"
+   },
+   {
+      "categories": [],
+      "concept_id" : 3340,
+      "name" : "Currently taking alcohol"
+   },
+   {
+      "categories": [],
+      "concept_id" : 1057,
+      "name": "Never Married"
+   },
+   {
+      "categories": [],
+      "concept_id" :5555,
+      "name": "Married"
+   },
+   {
+      "categories": [],
+      "concept_id" :1056,
+      "name": "Seperated"
+   },
+   {
+      "categories": [],
+      "concept_id": 1058,
+      "name": "Divorced",
+   },
+   {
+      "categories": [],
+      "concept_id": 6686,
+      "name": 'Ultrasound'
+   },
+   {
+      "categories": [],
+      "concept_id": 7433,
+      "name": "Presentation"
+   },
+   {
+      "categories": [],
+      "concept_id": 7979,
+      "name": "Fetal Heart Beat"
+   },
+   {
+      "categories": [],
+      "concept_id": 9637,
+      "name": "Fetal movement heard"
+   },
+   {
+      "categories": [],
+      "concept_id": 9562,
+      "name": "Fetal movement felt"
+   },
+   {
+      "categories": [],
+      "concept_id": 7835,
+      "name": "Fundus" 
+   },
+   {
+      "categories": [],
+      "concept_id": 7837,
+      "name": "Position"
+   },
+   {
+      "categories": [],
+      "concept_id": 7142,
+      "name": "Multiple gestation"
+   },
+   {
+      "categories": [],
+      "concept_id": 7919,
+      "name": "LIQUOR"
+   },
+   {
+      "categories": [],
+      "concept_id": 9563,
+      "name": "Last Fetal movement felt"
+   },
+   {
+      "categories": [],
+      "concept_id": 7836,
+      "name": "Lie"
+   },
+   {
+      "categories": [],
+      "concept_id": 9654,
+      "name": "Fetal heart movement seen"
+   },
+   {
+      "categories": [],
+      "concept_id": 7839,
+      "name": "Fetal heart rate"
+   },
+   {
+      "categories": ["anc_medical_history"],
+      "concept_id": 5,
+      "name": "Asthma"
+   }, {
+      "categories": ["anc_medical_history"],
+      "concept_id": 155,
+      "name": "Epilepsy"
+   }, 
+   {
+      "categories": ["anc_medical_history"],
+      "concept_id": 174,
+      "name": "Sexually transmitted infection"
+   }, 
+   {
+      "categories": ["anc_medical_history"],
+      "concept_id": 1063,
+      "name": "Blood transfusion"
+   }, 
+   {
+      "categories": ["anc_medical_history"],
+      "concept_id": 6033,
+      "name": "Renal disease"
+   }, 
+   {
+      "categories": ["anc_medical_history"],
+      "concept_id": 7978,
+      "name": "Spine/Leg Deformity"
+   }, 
+   {
+      "categories": ["anc_medical_history"],
+      "concept_id": 8809,
+      "name": "Hypertension"
+   },
+   {
+      "categories": [],
+      "concept_id": 7439,
+      "name": "Procedure done"
+   },
+   {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 1171,
+     "name": "Caesarean section"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 1719,
+     "name": "Tubal ligation"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 3593,
+     "name": "Biopsy"
+   }, {
+      "categories": ["anc_surgical_history", "reason_for_no_cxca"],
+      "concept_id": 5276,
+     "name": "Hysterectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7440,
+     "name": "Uterine evacuation"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7441,
+     "name": "Exam under anaesthesia"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7443,
+     "name": "Total abdominal hysterectomy +/- adnexectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7444,
+     "name": "Subtotal abdominal hysterectomy +/- adnexectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7462,
+     "name": "Suturing of cervical or vaginal injury under anaesthesia"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7469,
+     "name": "Vaginal Reconstruction"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7470,
+     "name": "Exploratory laparatomy +/- adnexectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7471,
+     "name": "Cauterization of vulva or perineal warts"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7472,
+     "name": "Marsupilisation"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7474,
+     "name": "Salpingectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7475,
+     "name": "Dilation and curettage"
+   }, {
+      "categories": ["anc_medical_history", "anc_surgical_history"],
+      "concept_id": 7477,
+     "name": "Fistula repair"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7478,
+     "name": "Myomectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7480,
+     "name": "Hysterescopy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7481,
+     "name": "Cystoscopy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 7482,
+     "name": "Vulvectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 8380,
+     "name": "Suturing of perineum"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 8381,
+     "name": "Repair of uterus"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 8765,
+     "name": "Cystectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 8766,
+     "name": "Ceclage"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 8767,
+     "name": "Bilateral tubal ligation"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 8773,
+     "name": "Excision"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9058,
+     "name": "Evacuation/Manual Vacuum Aspiration"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9304,
+     "name": "Polypectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9305,
+     "name": "Decapitation"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9306,
+     "name": "Abdominal Washout"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9307,
+     "name": "Vaginal hysterectomy"
+   }, {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9308,
+     "name": "Gaped episiotomy repair"
+   }, 
+   {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9309,
+      "name": "Macdonald suture"
+   }, 
+   {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 9314,
+      "name": "Oophorectomy"
+   },
+   {
+      "categories": [],
+      "concept_id": 7124,
+      "name": "Tetanus toxoid vaccine"
+   },
+   {
       "categories": [],
       "concept_id": 6408,
       "name": "Other conditions"
@@ -367,14 +694,24 @@ export default [
       "name": "Patient refused"
    },
    {
-      "categories": [],
-      "concept_id": 7215,
-      "name": "Other (Specify)"
+      "categories": ["reason_for_no_cxca"],
+      "concept_id": 10001,
+      "name": "Chemotherapy"
+   },
+   {
+      "categories": ["reason_for_no_cxca"],
+      "concept_id": 10543,
+      "name": "Services not available"
+   },
+   {
+      "categories": ["reason_for_no_cxca"],
+      "concept_id": 10544,
+      "name": "Provider not available"
    },
    {
       "categories": [],
-      "concept_id": 1719,
-      "name": "Tubal ligation"
+      "concept_id": 7215,
+      "name": "Other (Specify)"
    },
    {
       "categories": [],
@@ -491,7 +828,7 @@ export default [
       "name": "Drug Refill"
    },
    {
-      "categories": ['risk factors'],
+      "categories": ['risk factors', 'anc_medical_history'],
       "concept_id": 3720,
       "name": "Diabetes"
    },{
@@ -567,9 +904,53 @@ export default [
       "name": "Qech outpatient diagnosis list"
    },
    {
-      "categories": [],
+      "categories": [
+         "anc_diagnosis"
+      ],
       "concept_id": 123,
       "name": "Malaria"
+   },
+   {
+      "categories": [
+         "anc_diagnosis"
+      ],
+      "concept_id": 3,
+      "name": "Anaemia"
+   },
+   {
+      "categories": [
+         "anc_diagnosis"
+      ],
+      "concept_id": 7941,
+      "name": "Pre-eclampsia"
+   },
+   {
+      "categories": [
+         "anc_diagnosis"
+      ],
+      "concept_id": 9665,
+      "name": "Vaginal bleeding"
+   },
+   {
+      "categories": [
+         "anc_diagnosis"
+      ],
+      "concept_id": 9664,
+      "name": "Early rupture of membranes"
+   },
+   {
+      "categories": [
+         "anc_diagnosis"
+      ],
+      "concept_id": 7883,
+      "name": "Premature labour"
+   },
+   {
+      "categories": [
+         "anc_diagnosis"
+      ],
+      "concept_id": 43,
+      "name": "Pneumonia"
    },
    {
       "categories": [],
@@ -583,7 +964,17 @@ export default [
    },
    {
       "categories": [],
-      "concept_id": 64,
+      "concept_id": 9436,
+      "name": "Inconclusive"
+   },
+   {
+      "categories": [],
+      "concept_id": 6698,
+      "name": "Trace"
+   },
+   {
+      "categories": [],
+      "concept_id": 664,
       "name": "Negative"
    },
    {
@@ -2176,6 +2567,7 @@ export default [
    },
    {
       "categories": [
+         "anc_diagnosis",
          "stage_2_conditions_pedaids",
          "who_staging_conditions"
       ],

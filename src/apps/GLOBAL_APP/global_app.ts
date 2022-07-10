@@ -2,6 +2,11 @@ import { PatientPrintoutService } from "@/services/patient_printout_service"
 import { UserService } from "@/services/user_service"
 import App from "@/apps/app_lib"
 import { GLOBAL_PROP } from "./global_prop"
+import { modalController } from "@ionic/vue"
+import Summary from "@/components/HomeSummary.vue"
+import { PatientDemographicsExchangeService } from "@/services/patient_demographics_exchange_service"
+import dayjs from "dayjs"
+import { delayPromise } from "@/utils/Timers"
 
 export default {
   GlobalAppSettings: [
@@ -92,6 +97,18 @@ export default {
           pathUrl: '/view_duplicates'
         },
         {
+          name: "Manage Drug Sets",
+          pathUrl: "/anc/drugset",
+          condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ANC'
+            : false
+        },
+        {
+          name: "Data Cleaning",
+          pathUrl: "/anc/datacleaning",
+          condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ANC'
+            : false
+        },
+        {
           name: "Data Cleaning",
           pathUrl: "/data_cleaning",
           condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ART'
@@ -125,6 +142,58 @@ export default {
         {
           name: "DDE Activation",
           pathUrl: `/preferences?label=Activate DDE&property=${GLOBAL_PROP.DDE_ENABLED}`
+        },
+        {
+          name: 'DDE NPID Status',
+          action: async () => {
+            (await modalController.create({
+              component: Summary,
+              backdropDismiss: false,
+              componentProps: {
+                title: 'DDE NPID Status',
+                loadData: async(title: any) => {
+                  await delayPromise(400)
+                  const data = await PatientDemographicsExchangeService.getRemainingNpids()
+                  if (data) {
+                    const stats = data['npid_status'][0]
+                    const id = stats['location_id']
+                    const avg = stats['avg_consumption_rate_per_day'] || 1
+                    const unassigned = stats['unassigned']
+                    const assigned = stats['assigned']
+                    const daysLeft = Math.floor(unassigned / avg)
+                    const lastUpdated = dayjs(stats['date_last_updated']).format('DD/MMM/YYYY HH:mm:ss')
+                    title.value = stats['location_name'] + ' DDE NPID Status'
+                    return [
+                      { label: 'Location ID', value: id},
+                      { 
+                        label: 'Estimated days left', 
+                        value: daysLeft,
+                        color: (() => { 
+                          let col = ''
+                          if (daysLeft <= 30) {
+                            col = '#FFFF00'
+                          }
+                          if (daysLeft <= 20) {
+                            col = '#FFA500'
+                          } 
+                          if (daysLeft <= 15) {
+                            col = '#ff0000'
+                          }
+                          return col
+                        })()
+                      },
+                      { label: 'Unassigned', value: unassigned },
+                      { label: 'Assigned', value: assigned },
+                      { label: 'Average consumption per day', value: avg },
+                      { label: 'Last update', value: lastUpdated }
+                    ]
+                  }
+                  return []
+                },
+                onClose: () => modalController.dismiss()
+              }
+            })).present()
+          }
         }
       ]
     },

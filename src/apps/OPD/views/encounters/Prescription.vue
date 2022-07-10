@@ -19,6 +19,7 @@ import { isEmpty } from 'lodash';
 import { ANTI_MALARIA_DRUGS, DrugPrescriptionService, DRUG_FREQUENCIES } from '../../services/drug_prescription_service';
 import HisDate from "@/utils/Date"
 import { alertConfirmation, toastSuccess, toastWarning } from '@/utils/Alerts';
+import { loadingController } from '@ionic/core';
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -33,8 +34,7 @@ export default defineComponent({
     ready: {
       async handler(isReady: boolean) {
         if(isReady){
-          this.prescriptionService = new DrugPrescriptionService(this.patientID, this.providerID)
-          await this.prescriptionService.loadDrugs()    
+          this.prescriptionService = new DrugPrescriptionService(this.patientID, this.providerID)  
           this.hasMalaria = await this.prescriptionService.hasMalaria()
           this.fields = this.getFields()
         }
@@ -87,7 +87,7 @@ export default defineComponent({
           condition: () => this.activeField === 'malaria_drugs' && this.showMalariaDrugs,
           unload: () => {
             this.showMalariaDrugs = false
-            this.activeField = 'drugs'
+            this.activeField = 'drugs_details'
           },
           options: () => ANTI_MALARIA_DRUGS.map(drug => ({
             label: `${drug.name}, ${drug.frequency} time(s) a day, for ${drug.duration} days`,
@@ -98,19 +98,10 @@ export default defineComponent({
         {
           id: 'drugs',
           helpText: 'Select drugs',
-          type: FieldType.TT_MULTIPLE_SELECT,
+          type: FieldType.TT_INFINITE_SCROLL_MULTIPLE_SELECT,
           validation: (data: any) => Validation.required(data),
-          options: async (f: any) => {
-            const drugs: Option[] = await this.prescriptionService.getDrugOptions()
-            if(isEmpty(f['malaria_drugs'])) return drugs
-            const malariaDrug: Option = f['malaria_drugs']
-            return drugs.map(drug => {
-              if(drug.other.drug_id !== malariaDrug.other.drug_id) return drug
-              drug.other = {...malariaDrug.other}
-              drug.isChecked = true
-              return drug
-            })
-          },
+          options: async (_: any, filter = '', page=1, limit=10) => 
+            await this.prescriptionService.loadDrugs(filter, page, limit),
           onload: () => this.activeField = '',
           config: {
             showKeyboard: true,
@@ -138,7 +129,7 @@ export default defineComponent({
           helpText: 'Complete prescribed drug details',
           type: FieldType.TT_PRESCRIPTION_INPUT,
           validation: (data: any) => Validation.required(data),
-          options: (f: any) => [...f.drugs],
+          options: (f: any) => [...f.drugs, ...(f.malaria_drugs ? [f.malaria_drugs] : [])],
           beforeNext: (data: Option[]) => {
             if(isEmpty(data)) return false
             if(this.isOrderComplete(data)) return true

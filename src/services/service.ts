@@ -82,6 +82,10 @@ export class Service {
         return this.jsonResponseHandler(ApiClient.remove(url, reason))
     }
 
+    static async getThirdpartyApps() {
+        return JSON.parse((await ApiClient.getConfig()).thirdpartyapps)
+    }
+
     private static async jsonResponseHandler(request: Promise<any>) {
         const response = await request
         if (response) {
@@ -189,6 +193,10 @@ export class Service {
         if ('applicationName' in app) return app.applicationName
         
         return '';
+    }
+
+    static getSuspendedProgram() {
+        return sessionStorage.getItem('suspendedApp') || ''
     }
 
     static getProgramID() {

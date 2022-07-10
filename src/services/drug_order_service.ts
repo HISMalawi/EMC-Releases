@@ -10,6 +10,17 @@ export class DrugOrderService extends Service {
         return this.postJson('drug_orders', orders)
     }
 
+    static updateDispensationOrders(orders: any) {
+        return this.postJson('dispensations', {
+            'program_id': this.getProgramID(),
+            dispensations: orders.map((order: any) => ({
+                'date': this.getSessionDate(),
+                'drug_order_id': order['order_id'],
+                'quantity': order['quantity']
+            }))
+        })
+    }
+
     static getDrugOrderHistory(patientID: number) {
         return this.getJson('drug_orders', { 'patient_id': patientID })
     }
@@ -17,8 +28,8 @@ export class DrugOrderService extends Service {
     static getDrugOrders(patientID: number) {
         return this.getJson('drug_orders', {
             'patient_id': patientID,
-            'date': Service.getSessionDate(),
-            'program_id': Service.getProgramID()
+            'date': this.getSessionDate(),
+            'program_id': this.getProgramID()
         })
     }
 
@@ -45,7 +56,7 @@ export class DrugOrderService extends Service {
     static getOrderByPatient(patientId: number, params: any) {
         return this.getJson('/drug_orders', {
             'patient_id': patientId,
-            'program_id': super.getProgramID(),
+            'program_id': this.getProgramID(),
             ...params
         })
     }

@@ -55,9 +55,14 @@ const routes: Array<RouteRecordRaw> = [
     component: Home,
   },
   {
-    name: "View Duplicates",
-    path: "/view_duplicates",
-    component: () => import("@/views/DuplicateIdentifiers.vue"),
+    name: 'Merge rollback',
+    path: '/merge/rollback/:id',
+    component: () => import('@/views/MergeRollback.vue')
+  },
+  {
+    name: 'View Duplicates',
+    path: '/view_duplicates',
+    component : () => import('@/views/DuplicateIdentifiers.vue')
   },
   {
     path: "/example/desktop",

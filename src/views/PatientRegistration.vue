@@ -19,6 +19,7 @@ import { generateDateFields } from "@/utils/HisFormHelpers/MultiFieldDateHelper"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Patientservice } from "@/services/patient_service"
 import HisDate from "@/utils/Date"
+import { STANDARD_DATE_FORMAT } from "@/utils/Date"
 import { WorkflowService } from "@/services/workflow_service"
 import { isPlainObject, isEmpty } from "lodash"
 import PersonField from "@/utils/HisFormHelpers/PersonFieldHelper"
@@ -33,6 +34,8 @@ import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { IonPage } from "@ionic/vue"
 import { infoActionSheet } from "@/utils/ActionSheets"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
+import dayjs from "dayjs";
+import { delayPromise } from "@/utils/Timers";
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
@@ -225,15 +228,12 @@ export default defineComponent({
                 try {
                     await this.patient.assignNpid()
                     await this.patient.printNationalID()
+                    await delayPromise(300)
                } catch (e) {
                     toastDanger(`Failed to assign new NPID: ${e}`)
                 }
         }
-        if (this.patient.getNationalID().match(/unknown/i)) {
-            this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
-        } else {
-            this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
-        }
+        this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
     },
     resolvePersonAttributes(form: Record<string, Option> | Record<string, null>) {
         return Object.values(form)
@@ -256,18 +256,18 @@ export default defineComponent({
         return name
     },
     genderField(): Field {
+        const IS_ANC_APP = this.app.applicationName === 'ANC'
         const IS_CXCA = this.app.applicationName === 'CxCa'
         const gender: Field = PersonField.getGenderField()
         gender.requireNext = this.isEditMode()
         gender.defaultValue = () => this.presets.gender
         gender.condition = () => {
-            if (!this.isEditMode() && IS_CXCA) {
+            if (!this.isEditMode() && (IS_ANC_APP || IS_CXCA)) {
                 return false
             }
             return this.editConditionCheck(['gender']) && this.presets.nationalIDStatus != "true"
         }
-
-        if (IS_CXCA && !this.isEditMode()) {
+        if ((IS_ANC_APP || IS_CXCA) && !this.isEditMode()) {
             gender.defaultOutput = () => ({ label: 'Female', value: 'F' })
             gender.defaultComputedOutput = () => ({ person: 'F' })
         } 
@@ -303,8 +303,16 @@ export default defineComponent({
         dobConfig.defaultValue = () => this.presets.birthdate
         dobConfig.condition = () => this.editConditionCheck([
             'year_birth_date', 'month_birth_date', 'day_birth_date'
-        ]) 
-        
+        ])
+        // ANC validation to ensure that we are not registering
+        // Non child bearing youngsters
+        if (this.app.applicationName === 'ANC') {
+            const sdate = Patientservice.getSessionDate()
+            const childBearingAgeInYrs = 12
+            dobConfig.maxDate = () => dayjs(sdate)
+                .subtract(childBearingAgeInYrs, 'years')
+                .format(STANDARD_DATE_FORMAT)
+        }
         return generateDateFields(dobConfig)
     },
     homeRegionField(): Field {
@@ -391,8 +399,7 @@ export default defineComponent({
             condition: () => this.editConditionCheck(['occupation']) && this.isMilitarySite,
             validation: (val: any) => Validation.required(val),
             options: () => this.mapToOption([
-                'MDF Reserve',
-                'MDF Retired',
+                'Military',
                 'Civilian'
             ])
         }
@@ -408,7 +415,7 @@ export default defineComponent({
                     'value': value
                 }
             }),
-            condition: (form: any) => this.editConditionCheck(['person_regiment_id']) && form.occupation && form.occupation.value.match(/MDF/i),
+            condition: (form: any) => this.editConditionCheck(['person_regiment_id']) && form.occupation && form.occupation.value.match(/Military/i),
             validation: (val: any) => Validation.required(val)
         }
     },
@@ -424,7 +431,7 @@ export default defineComponent({
                     'value': value
                 }
             }),
-            condition: (form: any) => this.editConditionCheck(['rank']) && form.occupation && form.occupation.value.match(/MDF/i),
+            condition: (form: any) => this.editConditionCheck(['rank']) && form.occupation && form.occupation.value.match(/Military/i),
             options: () => this.mapToOption([
                 'First Lieutenant',
                 'Captain',
@@ -453,7 +460,7 @@ export default defineComponent({
                 'year_person_date_joined_military',
                 'month_person_date_joined_military',
                 'day_person_date_joined_military'
-            ]) && form.occupation && form.occupation.value.match(/MDF/i),
+            ]) && form.occupation && form.occupation.value.match(/Military/i),
             minDate: () => HisDate.estimateDateFromAge(100),
             maxDate: () => WorkflowService.getSessionDate(),
             estimation: {
@@ -566,14 +573,7 @@ export default defineComponent({
                             }
                         },
                         onClick: (form: any) => {
-                            let searchParam = ''
-                            const npid = form?.results?.other?.npid 
-                            if (npid && !isValueEmpty(npid)) {
-                                searchParam = `patient_barcode=${npid}`
-                            } else {
-                                searchParam = `person_id=${form.results.value}`
-                            }
-                            return this.$router.push(`/patients/confirm?${searchParam}`)
+                            return this.$router.push(`/patients/confirm?person_id=${form.results.value}`)
                         }
                     }
                 ]

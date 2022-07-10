@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 export const STANDARD_DATE_FORMAT = 'YYYY-MM-DD'
 export const DISPLAY_DATE_FORMAT = 'DD/MMM/YYYY'
 
-
 function currentDisplayDate() {
     return dayjs().format(DISPLAY_DATE_FORMAT)
 }

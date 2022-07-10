@@ -32,8 +32,8 @@ export class Patientservice extends Service {
         return super.getJson(`/search/patients`, params)
     }
 
-    public static findByNpid(npid: string) {
-        return super.getJson(`search/patients/by_npid`, { npid })
+    public static findByNpid(npid: string, params = {}) {
+        return super.getJson(`search/patients/by_npid`, { npid, ...params })
     }
 
     public static findByOtherID(idType: string | number, identifier: string | number) {
@@ -346,16 +346,13 @@ export class Patientservice extends Service {
     }
 
     patientIsComplete() {
-        const attributes = [
+        return [
             this.getGender(),
             this.getBirthdate(),
             this.getGivenName(),
             this.getFamilyName(),
             ...Object.values(this.getAddresses())
-        ]
-        return attributes.map(
-            (a: any) => !isValueEmpty(a)
-        ).every(Boolean)
+        ].every((a: any) => !isValueEmpty(a))
     }
 
     getAddresses() {

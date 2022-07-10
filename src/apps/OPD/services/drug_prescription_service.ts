@@ -1,9 +1,10 @@
+import { Option } from "@/components/Forms/FieldInterface";
 import { ConceptName } from "@/interfaces/conceptName";
 import { DrugInterface } from "@/interfaces/Drug";
 import { AppEncounterService } from "@/services/app_encounter_service"
 import { DrugOrderService } from "@/services/drug_order_service";
 import { OrderService } from "@/services/order_service";
-import { isEmpty } from "lodash";
+import { DrugService } from '../../../services/drug_service';
 
 export const DRUG_FREQUENCIES: Array<{label: string; code: string; value: number; [x: string]: any}> = [
   { label : "ONCE A DAY (OD)", code : "OD", value : 1 },
@@ -62,28 +63,27 @@ export const ANTI_MALARIA_DRUGS = [
 ];
 
 export class DrugPrescriptionService extends AppEncounterService {
-  drugs: ConceptName[] = [];
   constructor(patientID: number, providerID: number) {
     super(patientID, 25, providerID) 
   }
-  async loadDrugs(filter = '') {
-    this.drugs = await DrugPrescriptionService.getJson('drugs', {
-      'page_size': 1000000,
-      name: filter
+
+  async loadDrugs(filter = '', page=1, limit=10): Promise<Option[]> {
+    const drugs: ConceptName[] = await DrugService.getDrugs({ 
+      "name": filter, 
+      "page": page,
+      "page_size": limit 
     })
-  }
-  getDrugOptions() {
-    if(isEmpty(this.drugs)) return []
-    return this.drugs.map(drug => ({
+    return drugs.map(drug => ({
       label: drug.name, value: drug.name, other: drug
     }))
   }
+
   async hasMalaria() {
     const malariaTestResult = await OrderService.getLatestMalariaTestResult(this.patientID)
     if(malariaTestResult === "No") {
-      const primaryDiagnosis = await AppEncounterService.getAllValueCoded(this.patientID, 'Primary diagnosis')
+      const primaryDiagnosis: any[] = await AppEncounterService.getAllValueCoded(this.patientID, 'Primary diagnosis')
       if(primaryDiagnosis.includes('Malaria')) return true
-      const secondaryDiagnosis = await AppEncounterService.getAllValueCoded(this.patientID, 'Secondary diagnosis')
+      const secondaryDiagnosis: any[] = await AppEncounterService.getAllValueCoded(this.patientID, 'Secondary diagnosis')
       if(secondaryDiagnosis.includes('Malaria')) return true
       return false
     }

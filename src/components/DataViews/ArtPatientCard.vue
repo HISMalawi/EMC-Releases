@@ -3,6 +3,7 @@
         :class="stateClass"
         > 
         <li>
+            <ul> NPID : <b>{{patient.npid}}</b></ul>
             <ul> Arv# : <b>{{patient.arvNum}}</b></ul>
             <ul> Name : <b>{{patient.name}}</b></ul>
             <ul> Birth date : <b>{{patient.birthdate}}</b></ul>
