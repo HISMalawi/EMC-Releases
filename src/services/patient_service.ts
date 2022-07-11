@@ -11,6 +11,7 @@ import { find, isEmpty } from 'lodash';
 import { isValueEmpty } from '@/utils/Strs';
 import { PatientIdentifierService } from './patient_identifier_service';
 import { PatientPrintoutService } from './patient_printout_service';
+import dayjs from 'dayjs';
 
 export class Patientservice extends Service {
     patient: Patient;
@@ -241,7 +242,7 @@ export class Patientservice extends Service {
     }
     
     getAge() {
-        return HisDate.getAgeInYears(this.patient.person.birthdate)
+        return dayjs(Service.getSessionDate()).diff(this.patient.person.birthdate, 'years')
     }
 
     getAgeInMonths() {
