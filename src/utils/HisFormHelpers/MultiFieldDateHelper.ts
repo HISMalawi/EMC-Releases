@@ -5,6 +5,8 @@ import HisDate from "@/utils/Date"
 import StandardValidations from "@/components/Forms/validations/StandardValidations"
 import { NUMBER_PAD_LO } from "@/components/Keyboard/KbLayouts"
 import { NUMBERS_WITHOUT_NA_UNKNOWN } from '../../components/Keyboard/HisKbConfigurations';
+import dayjs from "dayjs"
+import { Service } from "@/services/service"
 
 export enum EstimationFieldType {
     AGE_ESTIMATE_FIELD = "age-estimate-field",
@@ -409,10 +411,9 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     ) 
 
     ageEstimate.computedValue = (val: Option) => {
-        const [year] = HisDate.estimateDateFromAge(
-            parseInt(val.value.toString())
-            )
-            .split('-')
+        const year = dayjs(Service.getSessionDate())
+            .subtract(val.value as number, 'years')
+            .year()
         fullDate = `${year}-07-15`
         return field.computeValue(fullDate, true)
     }
@@ -433,9 +434,9 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     ) 
 
     durationEstimate.computedValue = (val: Option) => {
-        const [year] = HisDate.getDateBeforeByDays(
-            refDate, parseInt(val.value.toString()
-            )).split('-')
+        const year = dayjs(Service.getSessionDate())
+            .subtract(val.value as number, 'day')
+            .year()
         fullDate = `${year}-07-15`
         return field.computeValue(fullDate, true)
     }
