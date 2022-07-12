@@ -1,5 +1,3 @@
-
-import ReportTemplate from "@/apps/ART/views/reports/pepfar/PepfarIndex.vue"
 export default [
     {
         name: "cxca test",
@@ -32,50 +30,38 @@ export default [
         component: () => import('@/apps/CxCa/views/encounters/CxCaResult.vue')
     },
     {
-        path: '/cxca/report/pepfar',
-        component: ReportTemplate,
-        children: [
-            {
-                name: 'cc_basic_results',
-                path: 'cc_basic_results',
-                component: () => import('@/apps/CxCa/views/reports/pepfar/CCBasicResult.vue')
-            },
-            {
-                name: 'cc_all_questions',
-                path: 'cc_all_questions',
-                component: () => import('@/apps/CxCa/views/reports/pepfar/CCAllQuestions.vue')
-            },
-            {
-                name: 'cc_type_of_screen',
-                path: 'cc_type_of_screen',
-                component: () => import('@/apps/CxCa/views/reports/pepfar/CCTypeOfScreen.vue')
-            },
-            {
-                name: 'cc_screen_result',
-                path: 'cc_screen_result',
-                component: () => import('@/apps/CxCa/views/reports/pepfar/CCScreenResult.vue')
-            },
-            {
-                name: 'cc_type_of_treatment',
-                path: 'cc_type_of_treatment',
-                component: () => import('@/apps/CxCa/views/reports/pepfar/CCTypeOfTreatment.vue')
-            }
-        ]
+        name: 'cc_basic_results',
+        path: '/cxca/report/pepfar/cc_basic_results',
+        component: () => import('@/apps/CxCa/views/reports/pepfar/CCBasicResult.vue')
     },
     {
-        path: '/cxca/report/clinic',
-        component: ReportTemplate,
-        children: [
-            {
-                name: 'cc_visit_reasons',
-                path: 'cc_visit_reasons',
-                component: () => import('@/apps/CxCa/views/reports/clinic/VisitReason.vue')
-            },
-            {
-                name: 'cc_booked_clients',
-                path: 'cc_booked_clients',
-                component: () => import('@/apps/CxCa/views/reports/clinic/BookedClients.vue')
-            },
-        ]
+        name: 'cc_all_questions',
+        path: '/cxca/report/pepfar/cc_all_questions',
+        component: () => import('@/apps/CxCa/views/reports/pepfar/CCAllQuestions.vue')
+    },
+    {
+        name: 'cc_type_of_screen',
+        path: '/cxca/report/pepfar/cc_type_of_screen',
+        component: () => import('@/apps/CxCa/views/reports/pepfar/CCTypeOfScreen.vue')
+    },
+    {
+        name: 'cc_screen_result',
+        path: '/cxca/report/pepfar/cc_screen_result',
+        component: () => import('@/apps/CxCa/views/reports/pepfar/CCScreenResult.vue')
+    },
+    {
+        name: 'cc_type_of_treatment',
+        path: '/cxca/report/pepfar/cc_type_of_treatment',
+        component: () => import('@/apps/CxCa/views/reports/pepfar/CCTypeOfTreatment.vue')
+    },
+    {
+        name: 'cc_visit_reasons',
+        path: '/cxca/report/clinic/cc_visit_reasons',
+        component: () => import('@/apps/CxCa/views/reports/clinic/VisitReason.vue')
+    },
+    {
+        name: 'cc_booked_clients',
+        path: '/cxca/report/clinic/cc_booked_clients',
+        component: () => import('@/apps/CxCa/views/reports/clinic/BookedClients.vue')
     }
 ]
