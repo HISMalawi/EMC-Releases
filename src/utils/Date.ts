@@ -1,9 +1,12 @@
-import { Service } from "@/services/service";
 import dayjs from "dayjs";
 
 export const STANDARD_DATE_FORMAT = 'YYYY-MM-DD'
 const DISPLAY_DATE_FORMAT = 'DD/MMM/YYYY'
 
+
+function sessionDate() {
+    return sessionStorage.getItem('sessionDate') || dayjs().format(STANDARD_DATE_FORMAT)
+}
 
 function currentDisplayDate() {
     return dayjs().format(DISPLAY_DATE_FORMAT)
@@ -38,12 +41,12 @@ function toStandardHisFormat(date: string | Date): string {
 }
 
 function estimateDateFromAge(age: number): string {
-    const date = dayjs(Service.getSessionDate()).subtract(age, 'years')
+    const date = dayjs(sessionDate()).subtract(age, 'years')
     return date.format(STANDARD_DATE_FORMAT)
 }
 
 function getYearFromAge(age: number) {
-    return dayjs(Service.getSessionDate()).subtract(age, 'years').year()
+    return dayjs(sessionDate()).subtract(age, 'years').year()
 }
 
 function getYear(date: string) {
@@ -110,7 +113,6 @@ export default {
     toStandardHisTimeFormat,
     toStandardHisDisplayFormat,
     currentDisplayDate,
-    dateIsAfter,
     stitchDate,
     toStandardHisFormat,
     estimateDateFromAge,
