@@ -46,7 +46,7 @@
   <ion-note v-if="model.error" color="danger">{{ model.error }}</ion-note>
 </template>
 <script lang="ts">
-import { IonCheckbox, IonIcon, IonInput, IonLabel, IonNote, modalController } from "@ionic/vue";
+import { IonCheckbox, IonInput, IonLabel, IonNote, modalController } from "@ionic/vue";
 import { computed, defineComponent, onMounted, PropType, ref } from "vue";
 import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 import { Option } from '@/components/Forms/FieldInterface';
@@ -132,7 +132,19 @@ export default defineComponent({
       }
     }
 
-    onMounted(() => model.value.value = 0);
+    onMounted(() => {
+      if (model.value.value) {
+        const defaultOption = props.options.find(option => option.value === model.value.value)
+        if (defaultOption) {
+          selectedOption.value = defaultOption
+        }else {
+          selectedOption.value = {
+            label: model.value.value,
+            value: model.value.value
+          }
+        }
+      }
+    });
 
     return {
       validate,
