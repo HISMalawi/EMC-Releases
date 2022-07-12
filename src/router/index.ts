@@ -8,17 +8,13 @@ const routes: Array<RouteRecordRaw> = [
   ...AllAppRoutes(),
   {
     path: '/',
-    redirect: '/home'
+    name: 'Home',
+    component: Home
   },
   {
     path: '/npid/duplicates/:npid',
     name: 'NPID Duplicates',
     component: () => import("@/views/NpidDuplicates.vue")
-  },
-  {
-    path: '/home',
-    name: 'Home',
-    component: Home
   },
   {
     name: 'Merge rollback',
