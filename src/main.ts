@@ -4,7 +4,6 @@ import router from './router';
 
 import { IonicVue } from '@ionic/vue';
 import VueApexCharts from "vue3-apexcharts";
-import dayjs from 'dayjs'
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
@@ -36,7 +35,6 @@ const app = createApp(App)
   .use(router)
   .use(VueApexCharts);
 
-app.config.globalProperties.$dayjs = dayjs;
 router.isReady().then(() => {
   app.mount('#app');
 });
