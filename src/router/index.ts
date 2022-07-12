@@ -2,21 +2,11 @@ import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import Login from '../views/Login/Login.vue'
 import Home from '../views/Home.vue';
-import HisApps from '@/apps/his_apps';
+import { AllAppRoutes } from '@/apps/his_apps';
 import { alertController, loadingController, modalController, toastController } from '@ionic/vue';
 
-const HIS_APP_ROUTES = (() => {
-  let routes: Array<RouteRecordRaw> = []
-  HisApps.forEach(app => {
-    if (app.appRoutes) {
-      routes = [...routes, ...app.appRoutes]
-    }
-  })
-  return routes
-})()
-
 const routes: Array<RouteRecordRaw> = [
-  ...HIS_APP_ROUTES,
+  ...AllAppRoutes(),
   {
     path: '/',
     redirect: '/home'
