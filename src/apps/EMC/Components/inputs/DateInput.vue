@@ -101,10 +101,10 @@ export default defineComponent({
   emits: ["update:modelValue", "isEstimated"],
   setup(props, { emit}) {
     const isEstimated = ref(false);
-    const age = ref<number>()
-    const day = ref<number>()
-    const month = ref<number>(0)
-    const year = ref<number>()
+    const age = ref<number>();
+    const day = ref<number | undefined>(dayjs(props.modelValue.value).date());
+    const month = ref<number | undefined>(dayjs(props.modelValue.value).month())
+    const year = ref<number | undefined>(dayjs(props.modelValue.value).year())
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     const date = computed(() => {
