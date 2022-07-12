@@ -98,18 +98,10 @@ export default defineComponent({
         {
           id: 'drugs',
           helpText: 'Select drugs',
-          type: FieldType.TT_MULTIPLE_SELECT,
+          type: FieldType.TT_INFINITE_SCROLL_MULTIPLE_SELECT,
           validation: (data: any) => Validation.required(data),
-          options: async (_: any, filter = '') => {
-            const loader = await loadingController.create({
-              message: 'Loading drugs...',
-              translucent: true,
-            });
-            await loader.present();
-            const drugs = await this.prescriptionService.loadDrugs(filter)
-            await loader.dismiss();
-            return drugs
-          },
+          options: async (_: any, filter = '', page=1, limit=10) => 
+            await this.prescriptionService.loadDrugs(filter, page, limit),
           onload: () => this.activeField = '',
           config: {
             showKeyboard: true,

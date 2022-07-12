@@ -5,7 +5,7 @@ import { Patientservice } from "@/services/patient_service"
 import { ProgramService } from "@/services/program_service"
 import { PatientProgramService } from "@/services/patient_program_service"
 import { UserService } from "@/services/user_service"
-import { find } from "lodash"
+import { find, isEmpty } from "lodash"
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { ENCOUNTER_GUIDELINES, FlowState } from "@/guidelines/encounter_guidelines"
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
@@ -118,7 +118,14 @@ export default defineComponent({
                         const usernameB = b.username.toUpperCase()
                         return usernameA < usernameB ? -1 : usernameA > usernameB  ? 1 : 0
                     })
-                    .map((p: any) => `${p.username} (${p.person?.names[0]?.given_name} ${p?.person?.names[0].family_name})`)
+                    .map((p: any) => {
+                        let name = `${p.username}`
+                        if (!isEmpty(p?.person?.names)) {
+                            const [ latestName ] = p.person?.names || []
+                            name += ` (${latestName.given_name} ${latestName.family_name})`
+                        }
+                        return name
+                    })
             }
         },
         toOption(label: string, other={}) {

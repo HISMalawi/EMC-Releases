@@ -35,6 +35,7 @@ import { IonPage } from "@ionic/vue"
 import { infoActionSheet } from "@/utils/ActionSheets"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import dayjs from "dayjs";
+import { delayPromise } from "@/utils/Timers";
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
@@ -227,15 +228,12 @@ export default defineComponent({
                 try {
                     await this.patient.assignNpid()
                     await this.patient.printNationalID()
+                    await delayPromise(300)
                } catch (e) {
                     toastDanger(`Failed to assign new NPID: ${e}`)
                 }
         }
-        if (this.patient.getNationalID().match(/unknown/i)) {
-            this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
-        } else {
-            this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
-        }
+        this.$router.push(`/patients/confirm?person_id=${this.patient.getID()}`)
     },
     resolvePersonAttributes(form: Record<string, Option> | Record<string, null>) {
         return Object.values(form)
@@ -401,8 +399,7 @@ export default defineComponent({
             condition: () => this.editConditionCheck(['occupation']) && this.isMilitarySite,
             validation: (val: any) => Validation.required(val),
             options: () => this.mapToOption([
-                'MDF Reserve',
-                'MDF Retired',
+                'Military',
                 'Civilian'
             ])
         }
@@ -418,7 +415,7 @@ export default defineComponent({
                     'value': value
                 }
             }),
-            condition: (form: any) => this.editConditionCheck(['person_regiment_id']) && form.occupation && form.occupation.value.match(/MDF/i),
+            condition: (form: any) => this.editConditionCheck(['person_regiment_id']) && form.occupation && form.occupation.value.match(/Military/i),
             validation: (val: any) => Validation.required(val)
         }
     },
@@ -434,7 +431,7 @@ export default defineComponent({
                     'value': value
                 }
             }),
-            condition: (form: any) => this.editConditionCheck(['rank']) && form.occupation && form.occupation.value.match(/MDF/i),
+            condition: (form: any) => this.editConditionCheck(['rank']) && form.occupation && form.occupation.value.match(/Military/i),
             options: () => this.mapToOption([
                 'First Lieutenant',
                 'Captain',
@@ -463,7 +460,7 @@ export default defineComponent({
                 'year_person_date_joined_military',
                 'month_person_date_joined_military',
                 'day_person_date_joined_military'
-            ]) && form.occupation && form.occupation.value.match(/MDF/i),
+            ]) && form.occupation && form.occupation.value.match(/Military/i),
             minDate: () => HisDate.estimateDateFromAge(100),
             maxDate: () => WorkflowService.getSessionDate(),
             estimation: {
@@ -576,14 +573,7 @@ export default defineComponent({
                             }
                         },
                         onClick: (form: any) => {
-                            let searchParam = ''
-                            const npid = form?.results?.other?.npid 
-                            if (npid && !isValueEmpty(npid)) {
-                                searchParam = `patient_barcode=${npid}`
-                            } else {
-                                searchParam = `person_id=${form.results.value}`
-                            }
-                            return this.$router.push(`/patients/confirm?${searchParam}`)
+                            return this.$router.push(`/patients/confirm?person_id=${form.results.value}`)
                         }
                     }
                 ]

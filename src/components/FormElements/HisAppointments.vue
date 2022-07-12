@@ -80,6 +80,7 @@ import { AppointmentService } from "@/apps/ART/services/appointment_service";
 import FieldMixinVue from "./FieldMixin.vue";
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
 import { alertConfirmation } from "@/utils/Alerts";
+import dayjs from "dayjs";
 
 export default defineComponent({
   components: { ViewPort, Calendar, IonGrid, IonCol, IonRow },
@@ -99,6 +100,8 @@ export default defineComponent({
     runOutDate: null as any,
     appointments: [],
     clinicHolidays: [] as Array<string>,
+    clinicDays: [] as Array<string>,
+    patientAge: 0,
     appointmentLimit: 0 as any,
     sessionDate: null as any,
     masks: {
@@ -112,8 +115,10 @@ export default defineComponent({
     this.$emit('onFieldActivated', this)
   },
   async created() {
+    this.patientAge = this.config.patientAge || 0;
     await this.getAppointmentLimit()
     await this.getClinicHolidays()
+    await this.getClinicDays()
     const items = await this.options(this.fdata);
     this.sessionDate = AppointmentService.getSessionDate();
     const date = items[0].other.appointmentDate;
@@ -139,6 +144,15 @@ export default defineComponent({
         this.clinicHolidays = holidays.split(',')
       }
     },
+    async getClinicDays() {
+      let days = ''
+      if (this.patientAge >= 18) {
+        days = await ART_GLOBAL_PROP.adultClinicDays()
+      } else {
+        days = await ART_GLOBAL_PROP.peadsClinicDays()
+      }
+      if(days) this.clinicDays = days.split(',')
+    },
     async isDateAvalaible(date: string) {
       const appointments = await this.getAppointments(date)
       if(appointments.length !== 0 && appointments.length >= this.appointmentLimit) {
@@ -154,8 +168,14 @@ export default defineComponent({
       }
 
       if(this.clinicHolidays.includes(HisDate.toStandardHisFormat(date))){
+        const proceed = await alertConfirmation("Selected date is a clinic holiday, do you want to set an appointment?")
+        if (!proceed) return false
+      }
+      const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+      const weekDay = weekDays[dayjs(date).day()]
+      if(!this.clinicDays.includes(weekDay)){
         const proceed = await alertConfirmation(
-          "Do you really want to set appointment on a clinic holiday?"
+          `The selected date ${HisDate.toStandardHisDisplayFormat(date)} is not a clinic day. Do you want to proceed with this date?`
         )
         if (!proceed) return false
       }

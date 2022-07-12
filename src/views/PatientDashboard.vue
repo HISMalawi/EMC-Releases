@@ -403,12 +403,10 @@ export default defineComponent({
             this.isBDE = ProgramService.isBDE() || false
             this.nextTask = await this.getNextTask(this.patientId)
             this.onProgramVisitDates((await this.getPatientVisitDates(this.patientId)))
+            this.tasksDisabled = false
             this.alertCardItems = await this.getPatientAlertCardInfo() || []
             this.programID = ProgramService.getProgramID()
             await this.loadSavedEncounters()
-            if (!this.visitDates.length) {
-                this.tasksDisabled = false
-            }
             this.updateCards()
         },
         async showLoader() {

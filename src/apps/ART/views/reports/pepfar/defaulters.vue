@@ -41,7 +41,7 @@ export default defineComponent({
         ]
     }),
     created() {
-        this.fields = this.getDateDurationFields()
+        this.fields = this.getDateDurationFields(false, false, 5, null)
     },
     methods: {
         async onPeriod(_: any, config: any) {

@@ -73,7 +73,7 @@ export async function onRegisterPatient(patientID: number, person: any, attr: an
             to: `/guardian/registration/${patientID}`
         })
     }
-    if ((await ART_GLOBAL_PROP.filingNumbersEnabled())) {
+    if ((await ART_GLOBAL_PROP.filingNumbersEnabled()) && person.patient_type === "New patient") {
         addWorkflowTask(patientID, {
             from: person?.relationship === 'Yes' 
                 ? 'Guardian Registration'
@@ -228,11 +228,20 @@ export function confirmationSummary(patient: Patientservice, program: any) {
                 .getGuardianDetails(
                     patient.getID()
                 )
-            if (req) {
-                return req.map((r: any) => ({
-                    label: r.name,
-                    value: r.relationshipType,
-                }))
+            if (req && req.length > 0) {
+                const data: any = [];
+                req.forEach(element => {
+                   data.push( {
+                        label: element.name,
+                        value: element.relationshipType
+                   }) 
+                   data.push({
+
+                        label: "Phone",
+                        value: element.phoneNumber
+                   })
+                });
+                return data
             } 
             return []
         }

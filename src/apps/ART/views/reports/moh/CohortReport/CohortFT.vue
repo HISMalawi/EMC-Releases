@@ -160,7 +160,7 @@
       <td style="font-weight: normal;">&nbsp;</td>
       <td style="font-weight: normal;">&nbsp;</td>
       <td class="vertical-separator">&nbsp;</td>
-      <td style="font-weight: normal;"><a href="#" @click.prevent="drillDown('cummulative_all_males');">{{indicators.cummulative_all_males ||  0 }}</a></td>
+      <td style="font-weight: normal;"><a href="#" @click.prevent="drillDown('cum_all_males');">{{indicators.cum_all_males ||  0 }}</a></td>
       <td style="font-weight: normal;">&nbsp;</td>
       <td style="font-weight: normal;">&nbsp;</td>
     </tr>

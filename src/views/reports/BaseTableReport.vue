@@ -10,16 +10,20 @@
       <ion-toolbar>
         <ion-row> 
           <ion-col size="2">
-            <img class="logo ion-margin-start" :src="logo" />
+            <img class="ion-margin-start" :src="logo" :style="{width: customInfo ? '80px' : '60px'}" />
           </ion-col>
           <ion-col>
             <ion-row>
-              <ion-col size="2"><b>Title</b></ion-col> 
+              <ion-col size="3"><b>Title</b></ion-col> 
               <ion-col> <b>{{ title }}</b> </ion-col>
             </ion-row>
             <ion-row v-if="period"> 
-              <ion-col size="2"><b>Period</b></ion-col> 
+              <ion-col size="3"><b>Period</b></ion-col> 
               <ion-col> <b>{{ period }}</b> </ion-col>
+            </ion-row>
+            <ion-row v-if="customInfo"> 
+              <ion-col size="3"><b>{{ customInfo.label }}</b></ion-col> 
+              <ion-col> <b>{{ customInfo.value }}</b> </ion-col>
             </ion-row>
           </ion-col>
         </ion-row>
@@ -79,10 +83,10 @@
 import { defineComponent, PropType } from "vue";
 import HisFooter from "@/components/HisDynamicNavFooter.vue";
 import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
-import { Field } from '@/components/Forms/FieldInterface'
 import { toCsv, toTablePDF } from "@/utils/Export"
 import { toExportableFormat, ColumnInterface, RowInterface} from "@/components/DataViews/tables/ReportDataTable" 
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
+import { Field, Option } from '@/components/Forms/FieldInterface';
 import { 
   IonPage,
   IonHeader,
@@ -189,6 +193,9 @@ export default defineComponent({
       type: Boolean,
       default: true
     },
+    customInfo: {
+      type: Object as PropType<Option>
+    }
   },
   data: () => ({
     formData: {} as any,
@@ -303,9 +310,6 @@ export default defineComponent({
 })
 </script>
 <style scoped>
-.logo {
-  width: 60px;
-}
 .report-content {
   margin: auto;
   width: 99.9%;

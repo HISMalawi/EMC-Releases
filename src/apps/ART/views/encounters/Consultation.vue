@@ -74,7 +74,8 @@ export default defineComponent({
     malawiSideEffectReasonObs: [] as any,
     otherSideEffectReasonObs: [] as any,
     wasTransferredIn: false as boolean,
-    dateStartedArt: '' as string
+    dateStartedArt: '' as string,
+    clientHadAHysterectomy: false as any,
   }),
   watch: {
     ready: {
@@ -90,7 +91,7 @@ export default defineComponent({
           this.currentWeight = Number((await this.patient.getRecentWeight()))
 
           // this.wasTransferredIn = await this.getTransferInStatus()
-          this.wasTransferredIn = await this.getTransferInStatus()
+          this.wasTransferredIn = (await this.getTransferInStatus()) || false
           this.currentWeight = Number((await this.patient.getRecentWeight()))
 
           // this.wasTransferredIn = await this.getTransferInStatus()
@@ -118,6 +119,7 @@ export default defineComponent({
             this.CxCaMaxAge = end
             this.CxCaStartAge = start
             this.DueForCxCa = await this.consultation.clientDueForCxCa()
+            this.clientHadAHysterectomy =  await this.consultation.clientHasHadAHysterectomy();
           }
 
           if (this.patient.isChildBearing()) {
@@ -188,7 +190,7 @@ export default defineComponent({
       return receivedArvs 
         && receivedArvs.match(/yes/i) 
         && transferLetterObs 
-        && transferLetterObs.value_coded.match(/yes/i)
+        && `${transferLetterObs.value_coded}`.match(/yes/i)
         && date === this.consultation.getDate()
     },
     async getDateStartedArt() {
@@ -254,6 +256,7 @@ export default defineComponent({
         && this.CxCaEnabled 
         && age >= this.CxCaStartAge 
         && age <= this.CxCaMaxAge
+        && !this.clientHadAHysterectomy
     },
     pregnancyEligible() {
       return this.patient.isChildBearing() && !this.onPermanentFPMethods

@@ -5,7 +5,13 @@
           <ion-row>
             <ion-col size="12">
               <span v-for="(item, index) in checkedItems" :key="index"> 
-                <ion-chip color="danger" @click="uncheck(item)">{{item.label}}</ion-chip>
+                <ion-chip color="danger" @click="uncheck(item)">
+                  <ion-label>
+                    <ion-text class="his-md-text">
+                      {{item.label}}
+                    </ion-text>
+                  </ion-label>
+                </ion-chip>
               </span>
             </ion-col>
           </ion-row>
@@ -18,7 +24,11 @@
                   :detail="true"
                   :color="ActiveCategory === data.label ? 'light':''"
                 > 
-                  <ion-label> {{ data.label }} </ion-label>
+                  <ion-label>
+                    <ion-text class="his-md-text">
+                      {{ data.label }}
+                    </ion-text>
+                  </ion-label>
                 </ion-item>
               </ion-list>
             </ion-col>
@@ -27,7 +37,7 @@
                 <ion-list class='view-port-content'>
                   <ion-item v-for="(entry, index) in activeCategoryItems" :key="index" :color="entry.isChecked ? 'light':''">
                     <ion-label> 
-                      <ion-text>
+                      <ion-text class="his-md-text">
                         {{ entry.label }} 
                       </ion-text>
                     </ion-label>

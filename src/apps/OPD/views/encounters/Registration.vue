@@ -80,7 +80,7 @@ export default defineComponent({
                     validation: (value: any) => Validation.required(value),
                     computedValue: ({ label }: Option) => ({obs: this.registrationService.buildValueText('Referred from', label)}),
                     condition: (fields: any) => fields.visit_type.value === 'Referral',
-                    options: () => getFacilities(''),
+                    options: (_: any, filter='') => getFacilities(filter),
                     config: {
                         showKeyboard: true,
                         isFilterDataViaApi: true

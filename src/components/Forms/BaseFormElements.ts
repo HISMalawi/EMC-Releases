@@ -55,7 +55,8 @@ export enum FieldType {
     TT_ANC_LMP_DATE_INPUT = 'AncLmpDateInput',
     TT_ANC_DRUGSET_INPUT = 'AncDrugSetInput',
     TT_DRUG_TRANSFER_IN = 'DrugTransferInput',
-    TT_PRESCRIPTION_INPUT = 'HisPrescriptionInput'
+    TT_PRESCRIPTION_INPUT = 'HisPrescriptionInput',
+    TT_INFINITE_SCROLL_MULTIPLE_SELECT="HisInfiniteScrollMultipleSelect"
 }
 
 // Register FieldTypes here that will be registered at runtime
@@ -108,5 +109,6 @@ export const COMPONENT_REFS: FieldType[] = [
     FieldType.TT_GRID_SELECTOR,
     FieldType.TT_ANC_DRUGSET_INPUT,
     FieldType.TT_RADIOLOGY_PICKER,
-    FieldType.TT_PRESCRIPTION_INPUT
+    FieldType.TT_PRESCRIPTION_INPUT,
+    FieldType.TT_INFINITE_SCROLL_MULTIPLE_SELECT
 ]

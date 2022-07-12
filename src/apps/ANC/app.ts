@@ -46,6 +46,7 @@ const ANC: AppInterface = {
                 const appointmentDate = (await ObservationService.getFirstValueDatetime(patientID, 'appointment date')) || 'N/A'; 
                 const info = await ProgramService.getProgramInformation(patientID)
                 return [
+                    { label: 'ANC visit', value: info.anc_visits || 'N/A' },
                     { label: 'Next Appointment Date', value: d(appointmentDate) },
                     { label: 'Gestation Age', value: info.gestation ? `${info.gestation} week(s)` : 'N/A' },
                     { label: 'Date of LMP', value: d(info.date_of_lnmp) },
@@ -59,9 +60,12 @@ const ANC: AppInterface = {
                 ]
             },
             'LABS': async () => {
-                return (await OrderService.getOrders(patientID)).
-                    map((order: any) => {
-                        return { label: order.specimen, value: order.order_date } 
+                return (await OrderService.getOrders(patientID))
+                    .map((order: any) => {
+                        return { 
+                            label: order.tests.map((t: any) => t.name).join(' & '),
+                            value: HisDate.toStandardHisDisplayFormat(order.order_date) 
+                        } 
                     })
             },
             'ALERTS': () => { 

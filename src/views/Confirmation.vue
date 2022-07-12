@@ -125,6 +125,7 @@ import { ObservationService } from "@/services/observation_service";
 import { delayPromise } from "@/utils/Timers";
 import { AncPregnancyStatusService } from "@/apps/ANC/Services/anc_pregnancy_status_service"
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
+import { isUnknownOrEmpty, isValueEmpty } from "@/utils/Strs";
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -155,9 +156,12 @@ export default defineComponent({
       hasHighViralLoad: false as boolean,
       patientFound: false as boolean,
       npidHasDuplicates: false as boolean,
+      npidHasOverFiveDuplicates: false as boolean,
       userRoles: [] as string[],
       scannedNpid: '' as string,
       currentNpid: '' as string,
+      hasInvalidNpid: false as boolean,
+      enrolledInProgram: false as boolean,
       programName: 'N/A' as string,
       currentOutcome: '' as string,
       programs: [] as string[],
@@ -262,18 +266,7 @@ export default defineComponent({
       if (this.useDDE && npid) {
         await this.handleSearchResults(this.ddeInstance.searchNpid(npid))
       } else if (id) {
-        // We need to maintain DDE workflow if an npid wasnt used to find the patient.
-        // So find them locally first and then check with DDE if service is enabled
-        if (this.useDDE) {
-          this.localPatient = await Patientservice.findByID(id)
-          if (this.localPatient) {
-            const p = new Patientservice(this.localPatient)
-            this.facts.scannedNpid = p.getNationalID()
-            await this.handleSearchResults(this.ddeInstance.searchNpid(this.facts.scannedNpid))
-          }
-        } else {
-          await this.handleSearchResults(Patientservice.findByID(id))
-        }
+        await this.handleSearchResults(Patientservice.findByID(id))
       } else {
         await this.handleSearchResults(Patientservice.findByNpid(npid as string))
       }
@@ -303,10 +296,15 @@ export default defineComponent({
         }
       }
 
-      this.facts.patientFound = !isEmpty(results) || !isEmpty(this.localPatient)
-      
       // Use local patient if available if DDE never found them
       if (isEmpty(results) && !isEmpty(this.localPatient)) results = this.localPatient
+      
+      if(Array.isArray(results) && results.length > 1){
+        this.facts.npidHasDuplicates = results.length <= 5
+        this.facts.npidHasOverFiveDuplicates = results.length > 5
+      } else {
+        this.facts.patientFound = !isEmpty(results)
+      }
 
       if (this.facts.patientFound) {
         this.patient = new Patientservice(
@@ -319,17 +317,29 @@ export default defineComponent({
         if (this.useDDE) {
           await this.setDDEFacts()
         } 
-        if (this.facts.programName.match(/ANC/i)) {
+        if (this.facts.programName === 'ANC') {
           await this.setAncFacts()
-        } 
-        await this.drawPatientCards()
-        await this.setViralLoadStatus()
+        }
+        if (this.facts.programName === 'ART') {
+          await this.setViralLoadStatus()
+        }
         this.facts.currentNpid = this.patient.getNationalID()
-        this.facts.npidHasDuplicates = Array.isArray(results) && results.length > 1
+        await this.validateNpid()
+        await this.drawPatientCards()
       } else {
         // [DDE] a user might scan a deleted npid but might have a newer one.
         // The function below checks for newer version
         if (this.facts.scannedNpid) await this.setVoidedNpidFacts(this.facts.scannedNpid)
+      }
+    },
+    async validateNpid () {
+      if(this.useDDE){
+        this.facts.hasInvalidNpid = !this.patient.getDocID() || (
+          this.patient.getDocID() && isUnknownOrEmpty(this.patient.getNationalID())
+        )
+      } else {
+        const results = await Patientservice.findByNpid(this.facts.currentNpid, {"page_size": 2})
+        this.facts.hasInvalidNpid = Array.isArray(results) && results.length > 1
       }
     },
     /**
@@ -431,12 +441,13 @@ export default defineComponent({
       }
     },
     async setProgramFacts() {
+      this.facts.programName = this.app.applicationName
       try {
         this.program = new PatientProgramService(this.patient.getID())
         this.programInfo = await this.program.getProgram()
         const { program, outcome }: any =  this.programInfo
+        this.facts.enrolledInProgram = !(isValueEmpty(program) || program.match(/n\/a/i))
         this.facts.currentOutcome = outcome
-        this.facts.programName = program
         this.facts.userRoles = UserService.getUserRoles().map((r: any) => r.role)
         this.facts.patientType = (await ObservationService.getFirstValueCoded(
           this.patient.getID(), 'Type of patient'))
@@ -627,13 +638,11 @@ export default defineComponent({
         }
       }
       states[FlowState.ASSIGN_NPID] = async () => {
-        const req =  await this.patient.assignNpid()
-        if (req && (await alertConfirmation('Do you want to print National ID?'))) {
-          const print = new PatientPrintoutService(this.patient.getID())
-          await print.printNidLbl()
-          await this.reloadPatient()
-          return FlowState.FORCE_EXIT
-        }
+        await this.patient.assignNpid()
+        await (new PatientPrintoutService(this.patient.getID())).printNidLbl()
+        await delayPromise(300)
+        await this.reloadPatient()
+        return FlowState.FORCE_EXIT
       },
       states[FlowState.INITIATE_ANC_PREGNANCY] = async () => {
         await this.initiateNewAncPregnancy()

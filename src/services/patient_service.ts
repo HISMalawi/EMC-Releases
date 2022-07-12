@@ -11,6 +11,7 @@ import { find, isEmpty } from 'lodash';
 import { isValueEmpty } from '@/utils/Strs';
 import { PatientIdentifierService } from './patient_identifier_service';
 import { PatientPrintoutService } from './patient_printout_service';
+import dayjs from 'dayjs';
 
 export class Patientservice extends Service {
     patient: Patient;
@@ -32,8 +33,8 @@ export class Patientservice extends Service {
         return super.getJson(`/search/patients`, params)
     }
 
-    public static findByNpid(npid: string) {
-        return super.getJson(`search/patients/by_npid`, { npid })
+    public static findByNpid(npid: string, params = {}) {
+        return super.getJson(`search/patients/by_npid`, { npid, ...params })
     }
 
     public static findByOtherID(idType: string | number, identifier: string | number) {
@@ -241,7 +242,7 @@ export class Patientservice extends Service {
     }
     
     getAge() {
-        return HisDate.getAgeInYears(this.patient.person.birthdate)
+        return dayjs(Service.getSessionDate()).diff(this.patient.person.birthdate, 'years')
     }
 
     getAgeInMonths() {
@@ -370,16 +371,13 @@ export class Patientservice extends Service {
     }
 
     patientIsComplete() {
-        const attributes = [
+        return [
             this.getGender(),
             this.getBirthdate(),
             this.getGivenName(),
             this.getFamilyName(),
             ...Object.values(this.getAddresses())
-        ]
-        return attributes.map(
-            (a: any) => !isValueEmpty(a)
-        ).every(Boolean)
+        ].every((a: any) => !isValueEmpty(a))
     }
 
     getAddresses() {

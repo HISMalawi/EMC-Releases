@@ -156,13 +156,15 @@ export default {
                   const data = await PatientDemographicsExchangeService.getRemainingNpids()
                   if (data) {
                     const stats = data['npid_status'][0]
-                    const avg = stats['avg_consumption_rate_per_day']
+                    const id = stats['location_id']
+                    const avg = stats['avg_consumption_rate_per_day'] || 1
                     const unassigned = stats['unassigned']
                     const assigned = stats['assigned']
                     const daysLeft = Math.floor(unassigned / avg)
                     const lastUpdated = dayjs(stats['date_last_updated']).format('DD/MMM/YYYY HH:mm:ss')
                     title.value = stats['location_name'] + ' DDE NPID Status'
                     return [
+                      { label: 'Location ID', value: id},
                       { 
                         label: 'Estimated days left', 
                         value: daysLeft,
@@ -183,7 +185,7 @@ export default {
                       { label: 'Unassigned', value: unassigned },
                       { label: 'Assigned', value: assigned },
                       { label: 'Average consumption per day', value: avg },
-                      { label: 'Last update', value: lastUpdated },
+                      { label: 'Last update', value: lastUpdated }
                     ]
                   }
                   return []

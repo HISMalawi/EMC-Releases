@@ -85,6 +85,7 @@ import { Patientservice } from '@/services/patient_service'
 import { alertConfirmation, toastDanger, toastWarning } from '@/utils/Alerts'
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import HisDate from "@/utils/Date"
+import { infoActionSheet } from '@/utils/ActionSheets'
 
 export default defineComponent({
     components: {
@@ -103,14 +104,16 @@ export default defineComponent({
         dde: {} as any,
         ddeEnabled: false as boolean,
         items: [] as any,
-        title: '' as string
+        title: '' as string,
+        npid: '' as string,
     }),
     watch: {
         $route: {
             handler({params}: any) {
                 if (params){
-                    this.title = `Duplicates for NPID (${params.npid})`
-                    this.init(params.npid)
+                    this.npid = params.npid
+                    this.title = `Duplicates for NPID (${this.npid})`
+                    this.init(this.npid)
                 }
             },
             deep: true,
