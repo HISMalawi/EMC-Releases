@@ -236,6 +236,10 @@ export class Patientservice extends Service {
         return this.patient.person.names[0].family_name
     }
 
+    getMiddleName() {
+        return this.patient.person.names[0].middle_name
+    }
+
     private normaliseName(name: string) {
         return name.replace(/n\/a|unknown|null|undefined/gi, '').trim()
     }
