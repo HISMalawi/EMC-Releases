@@ -4,7 +4,7 @@
       <ion-item v-for="(option, i) in entries" :key="i" :lines="i === entries.length - 1 ? 'none': ''">
         <div :style="{width: '100%', display: 'flex', justifyContent: 'space-between'}">
           <span>{{ option.label }}: </span>
-          <span v-if="option.other && option.other.editable" @click="option.other.onClickHandler">
+          <span v-if="option.other && typeof option.other.onClickHandler === 'function'" @click="option.other.onClickHandler">
             <a><b>{{ option.value || 'N/A' }}</b></a>
           </span>
           <span v-else><b>{{ option.value || 'N/A'}}</b></span>
@@ -68,7 +68,6 @@ export default defineComponent({
         label: "ARV Number", 
         value: props.patient.getArvNumber(),
         other: {
-          editable: true,
           onClickHandler: () => {
             emit('updateARVNumber')
           }
@@ -79,7 +78,6 @@ export default defineComponent({
         label: "Given Name",
         value: props.patient.getGivenName(),
         other: {
-          editable: true,
           onClickHandler: () => {
             emit('updatePatient', 'given_name')
           }
@@ -89,9 +87,8 @@ export default defineComponent({
         label: "Family Name",
         value: props.patient.getFamilyName(),
         other: {
-          editable: true,
           onClickHandler: () => {
-            emit('updatePatient', 'family_name')
+            emit('updatePatient', 'given_name')
           }
         },
       },
@@ -99,9 +96,8 @@ export default defineComponent({
         label: "DOB and Age at Initiation",
         value: getDobAndAgeAtInitiation(),
         other: {
-          editable: true,
           onClickHandler: () => {
-            emit('updatePatient', 'year_birth_date')
+            emit('updatePatient', 'birthdate')
           }
         },
       },
@@ -109,7 +105,6 @@ export default defineComponent({
         label: "Sex",
         value: props.patient.getGender(),
         other: {
-          editable: true,
           onClickHandler: () => {
             emit('updatePatient', 'gender')
           }
@@ -119,9 +114,8 @@ export default defineComponent({
         label: "Location",
         value: props.patient.getCurrentVillage(),
         other: {
-          editable: true,
           onClickHandler: () => {
-            emit('updatePatient', 'current_region')
+            emit('updatePatient', 'home_village')
           }
         },
       },
@@ -129,9 +123,8 @@ export default defineComponent({
         label: "Landmark", 
         value: props.patient.getClosestLandmark(),
         other: {
-          editable: true,
           onClickHandler: () => {
-            emit('updatePatient', 'default_landmarks')
+            emit('updatePatient', 'landmarks')
           }
         },
       },
@@ -139,9 +132,8 @@ export default defineComponent({
         label: "Phone Number", 
         value: props.patient.getPhoneNumber(),
         other: {
-          editable: true,
           onClickHandler: () => {
-            emit('updatePatient', 'cell_phone_number')
+            emit('updatePatient', 'phone_number')
           }
         },
       },
@@ -149,7 +141,6 @@ export default defineComponent({
         label: "Guardian",
         value: props.guardians ? props.guardians : "add",
         other: {
-          editable: !props.guardians,
           onClickHandler: () => {
             emit('addGuardian')
           }
