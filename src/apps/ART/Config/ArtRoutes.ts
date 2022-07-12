@@ -1,55 +1,55 @@
 import { ART_GLOBAL_PROP } from "../art_global_props"
-import Prescription from "@/apps/ART/views/encounters/Prescription.vue"
-import Registration from "@/apps/ART/views/encounters/Registration.vue"
-import Appointments from "@/apps/ART/views/encounters/Appointment.vue"
-import Adherence from "@/apps/ART/views/encounters/Adherence.vue"
-import Consultation from "@/apps/ART/views/encounters/Consultation.vue"
-import Dispensing from "@/apps/ART/views/encounters/Dispensing.vue"
-import Reception from "@/apps/ART/views/encounters/Reception.vue"
-import Staging from "@/apps/ART/views/encounters/Staging.vue"
-import Vitals from "@/apps/ART/views/encounters/Vitals.vue"
-import PatientType from "@/apps/ART/views/encounters/PatientType.vue"
-import FastTrack from "@/apps/ART/views/encounters/FastTrack.vue"
-import BPManagment from "@/apps/ART/views/encounters/BPManagement.vue"
-import LabActivities from "@/apps/ART/views/encounters/LabActivities.vue"
-import Mastercard from "@/apps/ART/views/Mastercard.vue"
-import PepFarDiaggregatedReport from "@/apps/ART/views/reports/pepfar/disaggregated.vue"
-import PepFarDefaultersReport from "@/apps/ART/views/reports/pepfar/defaulters.vue"
-import PepFarRegimenReport from "@/apps/ART/views/reports/pepfar/regimen.vue"
-import PepFarRegimenSwitchReport from "@/apps/ART/views/reports/pepfar/RegimenSwitch.vue"
-import PepFarVlCoverage from "@/apps/ART/views/reports/pepfar/ViralLoadCoverage.vue"
-import TBPrevReport from "@/apps/ART/views/reports/pepfar/TBPrev.vue"
-import TXCurrMMD from "@/apps/ART/views/reports/pepfar/TxCurrMMD.vue"
-import TXCurrMl from "@/apps/ART/views/reports/pepfar/TxCurrMl.vue"
-import TXRtt from "@/apps/ART/views/reports/pepfar/TxRtt.vue"
-import ClinicMissedAppointmentsReport from "@/apps/ART/views/reports/clinic/ClinicMissedAppointments.vue"
-import ClinicDefaultersReport from "@/apps/ART/views/reports/clinic/ClinicDefaulters.vue"
-import ClinicRegimenReport from "@/apps/ART/views/reports/clinic/ClinicRegimenReport.vue"
-import ClinicRegimenSwitchReport from "@/apps/ART/views/reports/clinic/ClinicRegimenSwitchReport.vue"
-import ClinicPregnantPatientsReport from "@/apps/ART/views/reports/clinic/ClinicPregnantPatientsReport.vue"
-import ClinicClientsDueForViralLoad from "@/apps/ART/views/reports/clinic/ClinicDueForViralLoad.vue"
-import ClinicRetentionReport from "@/apps/ART/views/reports/clinic/ClinicRetentionReport.vue"
-import ClinicExternalConsultationReport from "@/apps/ART/views/reports/clinic/ClinicExternalConsultation.vue"
-import ClinicViralLoadReport from "@/apps/ART/views/reports/clinic/ClinicViralLoadReport.vue"
-import ClinicOtherOutcomeReport from "@/apps/ART/views/reports/clinic/ClinicOtherOutcomeReport.vue"
-import ClinicRegimenFormulationReport from "@/apps/ART/views/reports/clinic/ClinicRegimenFormulationReport.vue"
-import ClinicLabResultsReport from "@/apps/ART/views/reports/clinic/ClinicLabResultsReport.vue"
-import ClinicArchivingCandidates from "@/apps/ART/views/reports/clinic/ClinicArchivingCandidates.vue"
-import MohDisaggregatedReport from "@/apps/ART/views/reports/moh/MohDisaggregatedReport.vue"
-import MohSurvivalAnalysisReport from "@/apps/ART/views/reports/moh/MohSurvivalAnalysisReport.vue"
-import MohTptInitiationsReport from "@/apps/ART/views/reports/moh/MohTptInitiationsReport.vue"
-import MohTxCurrMMD from "@/apps/ART/views/reports/moh/MohTxCurrMMD.vue"
-import MohRegimenWeightDistribution from "@/apps/ART/views/reports/moh/MohRegimenWeightDistribution.vue"
-import MohCohort from "@/apps/ART/views/reports/moh/CohortReport/MohCohort.vue"
-import ReportTemplate from "@/apps/ART/views/reports/pepfar/PepfarIndex.vue"
-import StockCardReport from "@/apps/ART/views/reports/clinic/ClinicStockCardReport.vue"
-import ClinicAppointments from "@/apps/ART/views/reports/clinic/ClinicAppointments.vue"
-import DataCleaning from "@/apps/ART/views/reports/inconsistencies/DataCleaning.vue"
-import HyperTensionDiagnosis from "@/apps/ART/views/encounters/hypertension_diagnosis.vue"
-import BPPrescription from "@/apps/ART/views/encounters/BPDrug_management.vue"
-import SocialHistory from "@/apps/ART/views/encounters/SocialHistory.vue"
-import BPAdherence from "@/apps/ART/views/encounters/BPAdherence.vue"
-import SCARV from "@/apps/ART/views/reports/pepfar/SCARVReport.vue"
+const Prescription = () => import("@/apps/ART/views/encounters/Prescription.vue")
+const Registration = () => import("@/apps/ART/views/encounters/Registration.vue")
+const Appointments = () => import("@/apps/ART/views/encounters/Appointment.vue")
+const Adherence = () => import("@/apps/ART/views/encounters/Adherence.vue")
+const Consultation = () => import("@/apps/ART/views/encounters/Consultation.vue")
+const Dispensing = () => import("@/apps/ART/views/encounters/Dispensing.vue")
+const Reception = () => import("@/apps/ART/views/encounters/Reception.vue")
+const Staging = () => import("@/apps/ART/views/encounters/Staging.vue")
+const Vitals = () => import("@/apps/ART/views/encounters/Vitals.vue")
+const PatientType = () => import("@/apps/ART/views/encounters/PatientType.vue")
+const FastTrack = () => import("@/apps/ART/views/encounters/FastTrack.vue")
+const BPManagment = () => import("@/apps/ART/views/encounters/BPManagement.vue")
+const LabActivities = () => import("@/apps/ART/views/encounters/LabActivities.vue")
+const Mastercard = () => import("@/apps/ART/views/Mastercard.vue")
+const PepFarDiaggregatedReport = () => import("@/apps/ART/views/reports/pepfar/disaggregated.vue")
+const PepFarDefaultersReport = () => import("@/apps/ART/views/reports/pepfar/defaulters.vue")
+const PepFarRegimenReport = () => import("@/apps/ART/views/reports/pepfar/regimen.vue")
+const PepFarRegimenSwitchReport = () => import("@/apps/ART/views/reports/pepfar/RegimenSwitch.vue")
+const PepFarVlCoverage = () => import("@/apps/ART/views/reports/pepfar/ViralLoadCoverage.vue")
+const TBPrevReport = () => import("@/apps/ART/views/reports/pepfar/TBPrev.vue")
+const TXCurrMMD = () => import("@/apps/ART/views/reports/pepfar/TxCurrMMD.vue")
+const TXCurrMl = () => import("@/apps/ART/views/reports/pepfar/TxCurrMl.vue")
+const TXRtt = () => import("@/apps/ART/views/reports/pepfar/TxRtt.vue")
+const ClinicMissedAppointmentsReport = () => import("@/apps/ART/views/reports/clinic/ClinicMissedAppointments.vue")
+const ClinicDefaultersReport = () => import("@/apps/ART/views/reports/clinic/ClinicDefaulters.vue")
+const ClinicRegimenReport = () => import("@/apps/ART/views/reports/clinic/ClinicRegimenReport.vue")
+const ClinicRegimenSwitchReport = () => import("@/apps/ART/views/reports/clinic/ClinicRegimenSwitchReport.vue")
+const ClinicPregnantPatientsReport = () => import("@/apps/ART/views/reports/clinic/ClinicPregnantPatientsReport.vue")
+const ClinicClientsDueForViralLoad = () => import("@/apps/ART/views/reports/clinic/ClinicDueForViralLoad.vue")
+const ClinicRetentionReport = () => import("@/apps/ART/views/reports/clinic/ClinicRetentionReport.vue")
+const ClinicExternalConsultationReport = () => import("@/apps/ART/views/reports/clinic/ClinicExternalConsultation.vue")
+const ClinicViralLoadReport = () => import("@/apps/ART/views/reports/clinic/ClinicViralLoadReport.vue")
+const ClinicOtherOutcomeReport = () => import("@/apps/ART/views/reports/clinic/ClinicOtherOutcomeReport.vue")
+const ClinicRegimenFormulationReport = () => import("@/apps/ART/views/reports/clinic/ClinicRegimenFormulationReport.vue")
+const ClinicLabResultsReport = () => import("@/apps/ART/views/reports/clinic/ClinicLabResultsReport.vue")
+const ClinicArchivingCandidates = () => import("@/apps/ART/views/reports/clinic/ClinicArchivingCandidates.vue")
+const MohDisaggregatedReport = () => import("@/apps/ART/views/reports/moh/MohDisaggregatedReport.vue")
+const MohSurvivalAnalysisReport = () => import("@/apps/ART/views/reports/moh/MohSurvivalAnalysisReport.vue")
+const MohTptInitiationsReport = () => import("@/apps/ART/views/reports/moh/MohTptInitiationsReport.vue")
+const MohTxCurrMMD = () => import("@/apps/ART/views/reports/moh/MohTxCurrMMD.vue")
+const MohRegimenWeightDistribution = () => import("@/apps/ART/views/reports/moh/MohRegimenWeightDistribution.vue")
+const MohCohort = () => import("@/apps/ART/views/reports/moh/CohortReport/MohCohort.vue")
+const ReportTemplate = () => import("@/apps/ART/views/reports/pepfar/PepfarIndex.vue")
+const StockCardReport = () => import("@/apps/ART/views/reports/clinic/ClinicStockCardReport.vue")
+const ClinicAppointments = () => import("@/apps/ART/views/reports/clinic/ClinicAppointments.vue")
+const DataCleaning = () => import("@/apps/ART/views/reports/inconsistencies/DataCleaning.vue")
+const HyperTensionDiagnosis = () => import("@/apps/ART/views/encounters/hypertension_diagnosis.vue")
+const BPPrescription = () => import("@/apps/ART/views/encounters/BPDrug_management.vue")
+const SocialHistory = () => import("@/apps/ART/views/encounters/SocialHistory.vue")
+const BPAdherence = () => import("@/apps/ART/views/encounters/BPAdherence.vue")
+const SCARV = () => import("@/apps/ART/views/reports/pepfar/SCARVReport.vue")
 
 export default [
     {
