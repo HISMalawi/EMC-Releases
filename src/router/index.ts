@@ -1,12 +1,9 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import Login from '../views/Login/Login.vue'
-
 import Home from '../views/Home.vue';
 import Confirmation from '../views/Confirmation.vue';
 import HClocation from '../views/HClocation.vue';
-import SearchPatient from "@/views/SearchPatient.vue";
-import SearchClient from '../views/SearchClient.vue'
 import PatientRegistration from '../views/PatientRegistration.vue'
 import GuardianRegistration from '../views/GuardianRegistration.vue'
 import SearchResults from '../views/SearchResults.vue'
@@ -80,11 +77,6 @@ const routes: Array<RouteRecordRaw> = [
     component: Login
   },
   {
-    path: '/search_patient',
-    name: 'Search Patient',
-    component: SearchPatient
-  },
-  {
     path: '/session/date',
     name: 'Session Date',
     component: SessionDate
@@ -105,11 +97,6 @@ const routes: Array<RouteRecordRaw> = [
     component: HClocation
   },
   {
-    path: '/search_client',
-    name: 'Search client',
-    component: SearchClient
-  },
-  {
     path: '/patient/dashboard/:id',
     name: 'Patient Dashboard',
     component: PatientDashboard
@@ -128,11 +115,6 @@ const routes: Array<RouteRecordRaw> = [
     path: '/example',
     name: 'Example',
     component: Example
-  },
-  {
-    path: '/patient/search_results',
-    name: 'Patient Search results',
-    component: SearchResults
   },
   {
     path: '/patients/search/id',
