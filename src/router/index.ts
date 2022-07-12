@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
-import Login from '../views/Login/Login.vue'
 import Home from '../views/Home.vue';
 import { AllAppRoutes } from '@/apps/his_apps';
 import { alertController, loadingController, modalController, toastController } from '@ionic/vue';
@@ -44,7 +43,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     name: 'Login',
-    component: Login
+    component: () => import('../views/Login/Login.vue')
   },
   {
     path: '/session/date',
