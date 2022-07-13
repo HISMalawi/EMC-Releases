@@ -493,10 +493,14 @@ export default defineComponent({
       this.cards = []
       const summaryEntries: Record<string, Function>
         = await this.app.confirmationSummary(this.patient, this.programInfo)
+      
+      // Create phatom cards to avoid popip effect
+      this.cards = Object.keys(summaryEntries)
+        .map(title => ({ title }))
 
-      for (const title in summaryEntries) {
-        const data = await summaryEntries[title]()
-        this.cards.push({ title, data })
+      for (let x=0; x < this.cards.length; x++) {
+        const card = this.cards[x]
+        this.cards[x].data = await summaryEntries[card.title]()
       }
     },
     async setVoidedNpidFacts(npid: string) {
