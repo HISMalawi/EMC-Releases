@@ -67,12 +67,8 @@ export default defineComponent({
             this.clearSelection() 
         }
     },
-    async activated() {
-        await this.init()
-        if (this.activationState === 'next') {
-            this.active = {}
-            this.clearSelection()
-        }
+    activated() {
+        this.init()
     },
     mounted() {
         this.init()
@@ -80,6 +76,10 @@ export default defineComponent({
     methods: {
         async init() {
             this.$emit('onFieldActivated', this)
+            if (this.activationState === 'next') {
+                this.active = {}
+                this.clearSelection()
+            }
             const options = await this.options(this.fdata)
             this.listData = Transformer.convertArrayToTurples(options)
         },
