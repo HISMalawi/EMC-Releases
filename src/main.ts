@@ -3,7 +3,6 @@ import App from './App.vue'
 import router from './router';
 
 import { IonicVue } from '@ionic/vue';
-import VueApexCharts from "vue3-apexcharts";
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
@@ -33,7 +32,6 @@ import './theme/variables.css';
 const app = createApp(App)
   .use(IonicVue)
   .use(router)
-  .use(VueApexCharts);
 
 router.isReady().then(() => {
   app.mount('#app');

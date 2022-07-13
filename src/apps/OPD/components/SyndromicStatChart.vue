@@ -1,16 +1,21 @@
 <template>
-    <apexchart
+  <ApexChart
     width="99%"
     height="350px"
     type="area" 
     :options="options" 
     :series="series"
-    ></apexchart>
+    />
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
+import ApexChart from "vue3-apexcharts";
+
 export default defineComponent({
+  components: {
+    ApexChart
+  },
   props: {
     categories: Array,
     series: Array

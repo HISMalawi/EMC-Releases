@@ -9,12 +9,11 @@
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue'
 import { IonModal } from "@ionic/vue"
-import ZebraModal from "@/components/ZebraPrinterImage.vue"
 
 export default defineComponent({
     components: {
         IonModal,
-        ZebraModal
+        ZebraModal: () => import("@/components/ZebraPrinterImage.vue")
     },
     emits: ['modalDismissed'],
     props: {

@@ -14,15 +14,14 @@
         <ion-content> 
             <view-port> 
                 <div class="view-port-content"> 
-                    <apexchart
+                    <ApexChart
                         :width="width"
                         :height="height"
                         :type="chartType"
                         :options="chartOptions"
                         :series="series"
                         @click="pointSelection"
-                    >
-                    </apexchart>
+                    />
                 </div>
             </view-port>
         </ion-content>
@@ -52,9 +51,11 @@ import { PatientReportService } from "@/apps/ART/services/reports/patient_report
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
 import { uniq } from 'lodash';
+import ApexChart from "vue3-apexcharts";
 
 export default defineComponent({
     components: {
+        ApexChart,
         IonPage,
         IonHeader,
         IonTitle,
