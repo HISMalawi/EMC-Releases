@@ -26,7 +26,6 @@ import {
   IonFooter,
 } from "@ionic/vue";
 import { defineComponent } from 'vue'
-import HisStandardForm from "@/components/Forms/TouchScreenForm.vue";
 import EncounterMixinVue from '@/views/EncounterMixin.vue';
 import { PatientRadiologyService } from "@/apps/OPD/services/patient_radiology_service";
 import HisRadiologyPicker from '@/components/FormElements/HisRadiologyPicker.vue'
@@ -36,7 +35,6 @@ import { isEmpty } from "lodash";
 export default defineComponent({
   name: "Modal",
   components: { 
-    HisStandardForm,
     IonButton,
     IonContent,
     IonHeader,
