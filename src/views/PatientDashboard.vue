@@ -412,6 +412,9 @@ export default defineComponent({
             })
             await loading.present()
         },
+        clearLoader() {
+            loadingController.getTop().then(v => v ? loadingController.dismiss() : null)
+        },
         toDate(date: string | Date) {
             return HisDate.toStandardHisDisplayFormat(date)
         },
@@ -429,10 +432,10 @@ export default defineComponent({
             try {
                 await this.showLoader()
                 this.encounters = await EncounterService.getEncounters(this.patientId, {date})
+                this.tasksDisabled = false
+                this.clearLoader()
                 this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
                 this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
-                this.tasksDisabled = false
-                loadingController.dismiss()
                 this.medicationCardItems = this.getMedicationCardInfo(this.medications)
                 this.labOrderCardItems = await this.getLabOrderCardInfo(date)
                 // Track encounters recorded on system session date
@@ -442,8 +445,8 @@ export default defineComponent({
                 this.updateCards()
             } catch(e) {
                 toastDanger(`${e}`)
+                this.clearLoader()
                 this.tasksDisabled = false
-                loadingController.getTop().then(v => v ? loadingController.dismiss() : null)
             }
         },
         updateCards() {
