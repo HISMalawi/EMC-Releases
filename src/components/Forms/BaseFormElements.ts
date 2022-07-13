@@ -89,7 +89,6 @@ export const COMPONENT_REFS: FieldType[] = [
     FieldType.TT_PERSON_RESULT_VIEW,
     FieldType.TT_PROGRAM_SELECTION,
     FieldType.TT_APPOINTMENT_PICKER,
-    FieldType.TT_PERSON_RESULT_VIEW,
     FieldType.TT_RELATION_SELECTION,
     FieldType.TT_FILING_NUMBER_VIEW,
     FieldType.TT_PERSON_MATCH_VIEW,
