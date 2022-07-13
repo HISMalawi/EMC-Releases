@@ -261,7 +261,6 @@ export default defineComponent({
       await this.presentLoading()
 
       if (!this.facts.scannedNpid) this.facts.scannedNpid = npid || ''
-
       await this.resolveGlobalPropertyFacts()
       if (this.useDDE && npid) {
         await this.handleSearchResults(this.ddeInstance.searchNpid(npid))
@@ -270,7 +269,7 @@ export default defineComponent({
       } else {
         await this.handleSearchResults(Patientservice.findByNpid(npid as string))
       }
-      await loadingController.dismiss()
+      this.clearLoader()
       await this.onEvent(TargetEvent.ONLOAD)
     },
     /**
@@ -325,12 +324,16 @@ export default defineComponent({
         }
         this.facts.currentNpid = this.patient.getNationalID()
         await this.validateNpid()
+        this.clearLoader()
         await this.drawPatientCards()
       } else {
         // [DDE] a user might scan a deleted npid but might have a newer one.
         // The function below checks for newer version
         if (this.facts.scannedNpid) await this.setVoidedNpidFacts(this.facts.scannedNpid)
       }
+    },
+    clearLoader() {
+      loadingController.getTop().then(v => v ? loadingController.dismiss() : null)
     },
     async validateNpid () {
       if(this.useDDE){
