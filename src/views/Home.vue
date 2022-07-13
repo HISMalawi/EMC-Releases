@@ -149,14 +149,12 @@
 
 <script lang="ts">
 import HisApp from "@/apps/app_lib"
-import { defineComponent } from "vue";
+import { defineAsyncComponent, defineComponent } from "vue";
 import { barcode } from "ionicons/icons";
 import ApiClient from "@/services/api_client";
 import HisDate from "@/utils/Date"
 import { AppInterface, FolderInterface } from "@/apps/interfaces/AppInterface";
 import { Service } from "@/services/service"
-import ProgramIcon from "@/components/DataViews/DashboardAppIcon.vue"
-import HomeFolder from "@/components/HomeComponents/HomeFolders.vue"
 import { AuthService } from "@/services/auth_service"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
 import { Notification } from "@/composables/notifications" 
@@ -190,7 +188,6 @@ import {
 } from "@ionic/vue";
 import usePlatform from "@/composables/usePlatform";
 import { alertConfirmation } from "@/utils/Alerts";
-import HomeNotification from "@/components/HomeComponents/HomeNotifications.vue"
 
 export default defineComponent({
   name: "Home",
@@ -198,8 +195,6 @@ export default defineComponent({
     IonTitle,
     IonThumbnail,
     IonIcon,
-    ProgramIcon,
-    HomeFolder,
     IonContent,
     IonHeader,
     IonPage,
@@ -212,7 +207,9 @@ export default defineComponent({
     IonSegment,
     IonSegmentButton,
     IonLabel,
-    HomeNotification
+    ProgramIcon: defineAsyncComponent(() => import("@/components/DataViews/DashboardAppIcon.vue")),
+    HomeFolder: defineAsyncComponent(() => import("@/components/HomeComponents/HomeFolders.vue")),
+    HomeNotification: defineAsyncComponent(() => import("@/components/HomeComponents/HomeNotifications.vue"))
   },
   setup() {
     const { useVirtualInput } = usePlatform()
