@@ -219,9 +219,7 @@
 </template>
 <script lang="ts">
 import HisApp from "@/apps/app_lib"
-import { defineComponent } from 'vue'
-import PrimaryCard from "@/components/DataViews/DashboardPrimaryCard.vue"
-import VisitDatesCard from "@/components/DataViews/VisitDatesCard.vue"
+import { defineAsyncComponent, defineComponent } from 'vue'
 import HisDate from "@/utils/Date"
 import { Encounter } from "@/interfaces/encounter"
 import { Option } from "@/components/Forms/FieldInterface"
@@ -237,8 +235,6 @@ import CardDrilldown from "@/components/DataViews/DashboardTableModal.vue"
 import { WorkflowService } from "@/services/workflow_service"
 import { toastSuccess, alertConfirmation, toastDanger } from "@/utils/Alerts";
 import _, { isArray, isEmpty, uniq } from "lodash"
-import MinimalToolbar from "@/components/PatientDashboard/Poc/MinimalToolbar.vue"
-import FullToolbar from "@/components/PatientDashboard/Poc/FullToolbar.vue"
 import {
     man,
     time,
@@ -285,10 +281,6 @@ export default defineComponent({
     components: {
         IonSegment,
         IonSegmentButton,
-        FullToolbar,
-        MinimalToolbar,
-        VisitDatesCard,
-        PrimaryCard,
         IonChip,
         IonPage,
         IonIcon,
@@ -299,6 +291,10 @@ export default defineComponent({
         IonGrid,
         IonRow,
         IonCol,
+        FullToolbar: defineAsyncComponent(() => import("@/components/PatientDashboard/Poc/FullToolbar.vue")),
+        MinimalToolbar: defineAsyncComponent(() => import("@/components/PatientDashboard/Poc/MinimalToolbar.vue")),
+        VisitDatesCard: defineAsyncComponent(() => import("@/components/DataViews/VisitDatesCard.vue")),
+        PrimaryCard: defineAsyncComponent(() => import("@/components/DataViews/DashboardPrimaryCard.vue")),
     },
     setup() {
         return {

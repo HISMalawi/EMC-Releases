@@ -7,13 +7,13 @@
     </ion-modal>
 </template>
 <script lang="ts">
-import { defineComponent, ref, watch } from 'vue'
+import { defineAsyncComponent, defineComponent, ref, watch } from 'vue'
 import { IonModal } from "@ionic/vue"
 
 export default defineComponent({
     components: {
         IonModal,
-        ZebraModal: () => import("@/components/ZebraPrinterImage.vue")
+        ZebraModal: defineAsyncComponent(() => import("@/components/ZebraPrinterImage.vue"))
     },
     emits: ['modalDismissed'],
     props: {
