@@ -32,6 +32,10 @@ export class ObservationService extends ConceptService {
         return super.postJson('/observations', data)     
     }
 
+    static voidObs(obsID: number) {
+        return super.void('observations/' + obsID, {})
+    }
+
     static saveObs(encounterId: number, obs: ObsValue) {
         return this.create({
             'encounter_id': encounterId,
