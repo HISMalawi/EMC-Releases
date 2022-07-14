@@ -52,10 +52,15 @@ export default defineComponent({
             ]        
             data.forEach((order: any, index: number) => {
                 const adherenceStatus = this.adherenceStatus(order)
+                const strFrequency = `${order.frequency}`.match(/qod/i) 
+                    ? 'QOD'
+                    : `${order.frequency}`.match(/weekly/i) 
+                    ? 'QW'
+                    : order.frequency
                 columns.push(order.drug.name)
                 rows[0].push('')
                 rows[1].push(order.quantity)
-                rows[2].push(`${order.equivalent_daily_dose} ${order.frequency}`)
+                rows[2].push(`${order.equivalent_daily_dose} <b>${strFrequency}</b>`)
                 rows[3].push('')
                 rows[4].push(this.calcPillsExpected(order) < 0 ? 0 : this.calcPillsExpected(order))
                 rows[5].push(order.pillsBrought)
