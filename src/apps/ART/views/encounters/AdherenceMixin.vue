@@ -41,7 +41,7 @@ export default defineComponent({
             const rows = [
                 ['Prescription'],
                 ['Tabs given'],
-                ['Tabs per day'],
+                ['Tabs per'],
                 ['Tabs remaining'],
                 ['Expected'],
                 ['Actual (counted)'],
@@ -55,7 +55,7 @@ export default defineComponent({
                 columns.push(order.drug.name)
                 rows[0].push('')
                 rows[1].push(order.quantity)
-                rows[2].push(order.equivalent_daily_dose)
+                rows[2].push(`${order.equivalent_daily_dose} ${order.frequency}`)
                 rows[3].push('')
                 rows[4].push(this.calcPillsExpected(order) < 0 ? 0 : this.calcPillsExpected(order))
                 rows[5].push(order.pillsBrought)
