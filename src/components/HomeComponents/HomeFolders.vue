@@ -85,20 +85,20 @@ export default defineComponent({
             return (await Promise.all(verified)).filter((i: any) => i.canShow)
         },
         async onClick(item: any){
-            if (item.files) {
+            if (item.pathUrl) {
+                this.$router.push(item.pathUrl)
+            } else if (typeof item.action === 'function') {
+                item.action()
+            } else if (item.pathName) {
+                this.$router.push({ name: item.pathName })
+            } else if (item.files) {
                 this.showingChildNodes = true
                 this.defaultIcon = 'sys-setting.png'
                 if (item.defaultFilesIcon) {
                     this.defaultIcon = item.defaultFilesIcon
                 }
                 this.setItems(item.files)
-            } else if (typeof item.action === 'function') {
-                item.action()
-            } else if (item.pathName) {
-                this.$router.push({ name: item.pathName })
-            } else if (item.pathUrl) {
-                this.$router.push(item.pathUrl)
-            }
+            } 
         },
         onBack() {
             this.showingChildNodes = false
