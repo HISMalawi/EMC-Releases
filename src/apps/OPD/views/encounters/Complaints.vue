@@ -32,7 +32,8 @@ export default defineComponent({
     todaysDate: ObservationService.getSessionDate(),
     presentingComplaints: "" as any,
     isPacsEnabled: false,
-    radiologyBtnName: 'Radiology Orders'
+    radiologyBtnName: 'Radiology Order',
+    BackBtn: "" as any
   }),
   watch: {
     ready: {
@@ -40,6 +41,7 @@ export default defineComponent({
         if(isReady){
           this.complaintsService = new PatientComplaintsService(this.patientID, this.providerID)
           this.isPacsEnabled = (await OPD_GLOBAL_PROP.isPACsEnabled())
+          this.BackBtn = await this.disableBackBtn()
           this.fields = this.getFields()
         }
       },
@@ -132,7 +134,7 @@ export default defineComponent({
             }))
           },
           config: {
-            hiddenFooterBtns: [ this.showRadiologyOdersBtn() ],
+            hiddenFooterBtns: [ this.showRadiologyOdersBtn(), this.BackBtn ],
             footerBtns: [
               {
                 name: "Lab Order",
@@ -190,6 +192,11 @@ export default defineComponent({
         };
       })
       return OPDComplaint.concat(triageComplaint);
+    },
+    async disableBackBtn() {
+      if( await this.getTriagePresentingComplaints()) {
+        return ''
+      } else return 'Back'
     }
   }
 })
