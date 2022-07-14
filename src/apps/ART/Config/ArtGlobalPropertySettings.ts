@@ -84,6 +84,10 @@ export const PROPERTIES: FolderInterface[] = [
                 "Is this a military site?",
                 GLOBAL_PROP.MILITARY_SITE
             ),
+            globalPropConfig(
+                "Can Edit Height Retrospectively?",
+                ART_GLOBAL_PROP.RETROSPECTIVE_HEIGHT_EDITING
+            ),
             {
                 name: "Activate CxCa Screening",
                 pathUrl: "/art/preferences/cervical_cancer_screening"

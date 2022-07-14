@@ -39,7 +39,8 @@ export default defineComponent({
     hasHTNObs: false,
     vitals: {} as any,
     weightForHeight: {} as any,
-    medianWeightandHeight: {} as any
+    medianWeightandHeight: {} as any,
+    canEditHeightInBDE: false as boolean
   }),
   watch: {
     ready: {
@@ -55,6 +56,9 @@ export default defineComponent({
       this.vitals = new VitalsService(patient.getID(), this.providerID);
       this.age = patient.getAge();
       this.gender = patient.getGender();
+
+      this.canEditHeightInBDE = ((await ART_PROP.canEditVitalsHeight()) || false)
+        && (VitalsService.isBDE() || false)
 
       if (optionWhiteList) this.optionWhiteList = optionWhiteList.split(',')
 
@@ -94,8 +98,8 @@ export default defineComponent({
             modifier: "CM",
             icon: "height",
             recentHeight: this.recentHeight,
-            visible: showHeight,
-            required: showHeight,
+            visible: this.canEditHeightInBDE || showHeight,
+            required: this.canEditHeightInBDE || showHeight
           },
         },
         { label: "BP", value: "", other: { modifier: "mmHG", icon: "bp" } },
