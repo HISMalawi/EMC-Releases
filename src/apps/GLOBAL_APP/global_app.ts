@@ -13,33 +13,27 @@ export default {
     {
       name: 'Session Management',
       icon: 'time.png',
+      pathUrl: '/session/date',
       files: [
-        {
-          name: 'Change session date',
-          pathUrl: '/session/date'
-        }
+
       ]
     },
     {
       name: 'Portal Settings',
       icon: 'portal.png',
       condition: () => UserService.isAdmin(),
+      pathUrl: "/portal/config",
       files: [
-        {
-          name: "Portal settings",
-          pathUrl: "/portal/config",
-        }
+
       ]
     },
     {
       name: 'Network',
       icon: 'portal.png',
       condition: () => UserService.isAdmin(),
+      pathUrl: "/settings/host",
       files: [
-        {
-          name: "IP Configuration",
-          pathUrl: "/settings/host",
-        }
+        
       ]
     },
     {
