@@ -35,6 +35,9 @@ import Layout from "../Components/Layout.vue";
 import VisitsSummary from "../Components/tables/VisitsSummary.vue";
 import InformationHeader from "@/apps/EMC/Components/InformationHeader.vue";
 import { PatientObservationService } from "@/services/patient_observation_service";
+import { modalController } from "@ionic/vue";
+import PatientDemographics from "../Components/modals/PatientDemographics.vue";
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   components: {
@@ -84,14 +87,25 @@ export default defineComponent({
         })
         .join(" ");
     },
-    updateDemographics(attribute: string) {
-      this.$router.push({
-        path: "/patient/registration",
-        query: {
-          'edit_person': this.patientId,
-          'person_attribute': attribute,
-        },
+    async showModal(component: any, componentProps?: Record<string, any>, cssClass = 'custom-modal', backdropDismiss = true) {
+      const modal = await modalController.create({
+        component,
+        cssClass,
+        backdropDismiss,
+        componentProps,
       });
+      modal.present();
+      const { data } = await modal.onWillDismiss();
+      if(data) return data;
+    },
+    async updateDemographics(attribute: string) {
+      const data = await this.showModal(PatientDemographics, {
+        patientService: this.patient,
+        attribute,
+      });
+      if(!isEmpty(data)) {
+        await this.init();
+      }
     },
     addGuardian() {
       this.$router.push({
