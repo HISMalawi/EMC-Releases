@@ -34,7 +34,7 @@ export default defineComponent({
     age: null as any,
     gender: null as any,
     hasBPinfo: false,
-    finalHeightValue: null,
+    finalHeightValue: null as number | null,
     recentHeight: null,
     recentHeightObsID: -1,
     HTNEnabled: false,
@@ -311,38 +311,47 @@ export default defineComponent({
           type: FieldType.TT_VITALS_ENTRY,
           validation: (value: any) => this.validateVitals(value),
           beforeNext: async (val: Option[]) => {
-            const height = find(val, { label: "Height" });
-            if ((this.recentHeight && height) 
-              && height.other.visible
-              && parseInt(`${height.value}`) < parseInt(this.recentHeight || `0`)) {
-              const curHeightTxt = `Use ${this.recentHeight} CM`
-              const newHeightTxt = `Use ${height.value} CM`
-              const action = await infoActionSheet(
-                `Previous Height "${this.recentHeight}CM"`,
-                `Current Height "${height.value} CM"`,
-                `Inconsistent Height Reading (Height can not be lower than previous height of " ${this.recentHeight} "KG. Please SELECT the correct height.)`,
-                [
-                  {
-                    name: curHeightTxt,
-                    slot: 'start',
-                    color: 'success'
-                  },
-                  {
-                    name: newHeightTxt,
-                    slot: 'end',
-                    color: 'danger'
-                  }
-                ]
-              )
-              if (action === newHeightTxt && this.recentHeightObsID) {
-                const verify = await alertConfirmation(
-                  `Do you want to void height observation for ${this.recentHeight}`
+            const heightOption = find(val, { label: "Height" });
+            if (heightOption && this.recentHeight && heightOption.other.visible) {
+              const enteredHeight = parseInt(`${heightOption.value || 0}`);
+              const prevHeight = parseInt(`${this.recentHeight || 0}`);
+              /** Warn if editing height for someone over 18 years old */
+              if (this.age > 18 && this.canEditHeightInBDE
+                && (enteredHeight != prevHeight)) {
+                return (await alertConfirmation(`Are you sure you want to change height from ${prevHeight} CM to ${enteredHeight} CM?`, {
+                  header: "Patient is over 18 years old"
+                }))
+              }
+              /** Warning condition for someone less than 18 years old */
+              if (this.age < 18 && enteredHeight < prevHeight) {
+                const prevHeightBtnTxt = `Use ${prevHeight} CM`
+                const newHeightBtnTxt = `Use ${enteredHeight} CM`
+                const action = await infoActionSheet(
+                  `Previous Height "${prevHeight} CM"`,
+                  `Current Height "${enteredHeight} CM"`,
+                  `Inconsistent Height Reading (Height can not be lower than previous height of " ${this.recentHeight} "KG. Please SELECT the correct height.)`,
+                  [
+                    {
+                      name: prevHeightBtnTxt,
+                      slot: 'start',
+                      color: 'success'
+                    },
+                    {
+                      name: newHeightBtnTxt,
+                      slot: 'end',
+                      color: 'danger'
+                    }
+                  ]
                 )
-                if (verify) {
-                  await VitalsService.voidObs(this.recentHeightObsID)
+                if (action === newHeightBtnTxt && this.recentHeightObsID) {
+                  if ((await alertConfirmation(
+                    `Do you want to void height observation for ${prevHeight}`
+                  ))) {
+                    await VitalsService.voidObs(this.recentHeightObsID)
+                  }
+                } else {
+                  this.finalHeightValue = prevHeight
                 }
-              } else {
-                this.finalHeightValue = this.recentHeight
               }
             }
             return true
