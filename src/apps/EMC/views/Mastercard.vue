@@ -38,6 +38,7 @@ import { PatientObservationService } from "@/services/patient_observation_servic
 import { modalController } from "@ionic/vue";
 import PatientDemographics from "../Components/modals/PatientDemographics.vue";
 import { isEmpty } from "lodash";
+import GuardianDemographicsVue from "../Components/modals/GuardianDemographics.vue";
 
 export default defineComponent({
   components: {
@@ -104,16 +105,14 @@ export default defineComponent({
         attribute,
       });
       if(!isEmpty(data)) {
-        await this.init();
+        this.patient = await this.fetchPatient(this.patientId);
       }
     },
-    addGuardian() {
-      this.$router.push({
-        path: `/guardian/registration/${this.patientId}`,
-        query: {
-          source: this.$route.name?.toString(),
-        },
-      });
+    async addGuardian() {
+      const data = await this.showModal(GuardianDemographicsVue, {
+        patientId: this.patientId
+      })
+      this.patient = await this.fetchPatient(this.patientId);
     },
     updateARVNumber() {
       this.$router.push({name: "Edit ARV Number"})

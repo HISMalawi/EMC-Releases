@@ -20,6 +20,7 @@ import MultiColumnView from "@/components/containers/MultiColumnView.vue";
 import { PatientObservationService } from '@/services/patient_observation_service';
 import HisDate from "@/utils/Date";
 import dayjs from 'dayjs';
+import { isEmpty } from 'lodash';
 
 export default defineComponent({
   components: {
@@ -141,9 +142,14 @@ export default defineComponent({
         label: "Guardian",
         value: props.guardians ? props.guardians : "add",
         other: {
-          onClickHandler: () => {
-            emit('addGuardian')
-          }
+          ...(isEmpty(props.guardians) 
+            ? {
+                onClickHandler: () => {
+                  emit('addGuardian')
+                }
+              } 
+            : {}
+          ),
         },
       },
       { label: "Date of starting first line ARV Regimen", value: props.artStartDate },
