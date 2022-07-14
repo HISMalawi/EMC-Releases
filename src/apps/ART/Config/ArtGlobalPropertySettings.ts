@@ -85,7 +85,7 @@ export const PROPERTIES: FolderInterface[] = [
                 GLOBAL_PROP.MILITARY_SITE
             ),
             globalPropConfig(
-                "Can Edit Height Retrospectively?",
+                "Edit Adult Height Retrospectively?",
                 ART_GLOBAL_PROP.RETROSPECTIVE_HEIGHT_EDITING
             ),
             {
