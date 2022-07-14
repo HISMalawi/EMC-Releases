@@ -124,10 +124,10 @@
         </ion-col>
 
         <ion-col>
-          <ion-button class="xl-button mobile-component-view" color="primary" router-link="/patient/registration">
+          <ion-button class="xl-button mobile-component-view" color="success" router-link="/patient/registration">
             <ion-icon :icon="person"></ion-icon>
           </ion-button>
-          <ion-button class="xl-button full-component-view" color="primary" size="large" router-link="/patient/registration">
+          <ion-button class="xl-button full-component-view" color="success" size="large" router-link="/patient/registration">
             <ion-icon :icon="person"></ion-icon>
             <ion-label> Find or Register </ion-label>
           </ion-button>
