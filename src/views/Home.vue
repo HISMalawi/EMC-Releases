@@ -57,19 +57,19 @@
 
     <ion-toolbar> 
       <ion-segment scrollable :value="activeTab" class="ion-justify-content-center">
-        <ion-segment-button :value="1" @click="activeTab = 1">
+        <ion-segment-button :value="1" @click="onSegmentClick(1)">
           <ion-icon :icon="statsChart"> </ion-icon>
           <ion-label class="his-sm-text">Overview</ion-label>
         </ion-segment-button>
-        <ion-segment-button v-if="canReport" :value="2" @click="activeTab = 2">
+        <ion-segment-button v-if="canReport" :value="2" @click="onSegmentClick(2)">
           <ion-icon :icon="pieChart"> </ion-icon>
           <ion-label class="his-sm-text">Reports</ion-label>
         </ion-segment-button>
-        <ion-segment-button :value="3" @click="activeTab = 3">
+        <ion-segment-button :value="3" @click="onSegmentClick(3)">
           <ion-icon :icon="settings"> </ion-icon>
           <ion-label class="his-sm-text">Administration</ion-label>
         </ion-segment-button>
-        <ion-segment-button :value="4" @click="activeTab = 4">
+        <ion-segment-button :value="4" @click="onSegmentClick(4)">
           <ion-icon :color="hasUnreadNotifications ? 'danger' : ''" :icon="notifications"/>
           <ion-label :color="hasUnreadNotifications ? 'danger' : ''" class="his-sm-text">
             Alerts <b v-if="hasUnreadNotifications">({{notificationCount}})</b>
@@ -88,12 +88,13 @@
         <home-folder
           v-if="activeTab == 2"
           :items="appReports"
+          :resetList="listResetCount"
           >
         </home-folder>
         <home-folder 
           v-if="activeTab == 3"
-          :items="app.globalPropertySettings" 
-          >
+          :items="app.globalPropertySettings"
+          :resetList="listResetCount">
         </home-folder>
         <home-notification v-if="activeTab == 4"/>
       </div>
@@ -247,6 +248,7 @@ export default defineComponent({
       patientBarcode: "",
       overviewComponent: {} as any,
       isBDE: false,
+      listResetCount: 0 as number, // attribute is used for refreshing HomeFolder component when the segment is clicked
     };
   },
   computed: {
@@ -273,6 +275,10 @@ export default defineComponent({
     }
   },
   methods: {
+    onSegmentClick(tabIndex: number) {
+      this.activeTab = tabIndex
+      this.listResetCount += 1
+    },
     fetchLocationID: async function () {
       const centerID = await GLOBAL_PROP.healthCenterID()
 
