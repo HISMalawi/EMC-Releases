@@ -101,7 +101,6 @@ export default defineComponent({
       await loader.show();
       await setPatient();
       await loader.hide();
-      console.log("Patient data loaded", patient);
       const date = await patient.value?.getARTStartDate();
       artStartDate.value = date ? HisDate.toStandardHisDisplayFormat(date) : "N/A";
       await setPatientGuardian();
