@@ -7,7 +7,7 @@ const EMC: AppInterface = {
   isPocApp: false,
   appLandingPage: "/emc/home",
   applicationName: "EMC",
-  applicationIcon: "card.png",
+  applicationIcon: "aids.png",
   applicationDescription: "HIV Electronic Master card App",
   appRoutes: EmcRoutes,
   homeOverviewComponent: {},
