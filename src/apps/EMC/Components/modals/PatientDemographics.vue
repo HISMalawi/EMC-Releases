@@ -54,13 +54,12 @@
 
 <script lang="ts">
 import { defineComponent, PropType, reactive, ref } from "vue";
-import { IonGrid, IonRow, IonCol, loadingController, modalController } from "@ionic/vue";
+import { IonGrid, IonRow, IonCol, modalController } from "@ionic/vue";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Option } from "@/components/Forms/FieldInterface";
 import { LocationService } from "@/services/location_service";
 import { isEmpty } from "lodash";
 import { PatientRegistrationService } from "@/services/patient_registration_service";
-import { useRouter } from "vue-router";
 import { DTForm } from "@/apps/EMC/interfaces/dt_form_field";
 import TextInput from "../inputs/TextInput.vue";
 import DateInput from "../inputs/DateInput.vue";
@@ -69,6 +68,8 @@ import { getLandmarks, getVillagesByName } from "@/utils/HisFormHelpers/Location
 import { isValidForm, resolveFormValues } from "@/apps/EMC/utils/form";
 import { Patientservice } from "@/services/patient_service";
 import { loader } from "@/utils/loader";
+import EventBus from "@/utils/EventBus";
+import { EmcEvents } from "../../interfaces/emc_event";
 
 export default defineComponent({
   components: {
@@ -86,7 +87,6 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const router = useRouter();
     const isBirthdateEstimated = ref(false);
     const landmarks = getLandmarks();
     const genderOptions: Option[] = [
@@ -151,20 +151,25 @@ export default defineComponent({
 
 
     const resolveAddress = async (villageId: number) => {
-      const village = await LocationService.getVillage(villageId)
-      const TA = isEmpty(village)
-        ? null
-        : await LocationService.getTraditionalAuthorityById(village.traditional_authority_id)
-      
-      const district = isEmpty(TA) 
-        ? null
-        : await LocationService.getDistrictByID(TA[0].district_id)
-
-      return {
-        'current_district': isEmpty(district) ? "N/A" : district[0].name,
-        'current_traditional_authority': isEmpty(TA) ? "N/A" : TA[0].name,
-        'current_village': village.value || "N/A" 
+      const villages = await LocationService.getVillage(villageId)
+      const address = {
+        'current_district': "N/A",
+        'current_traditional_authority': "N/A",
+        'current_village': "N/A" 
       }
+
+      if(villages.length > 0) {
+        address['current_village'] = villages[0].name
+        const TA = await LocationService.getTraditionalAuthorityById(villages[0].traditional_authority_id)
+        if(TA.length > 0) {
+          address['current_traditional_authority'] = TA[0].name
+          const district = await LocationService.getDistrictByID(TA[0].district_id)
+          if(!isEmpty(district)) {
+            address['current_district'] = district[0].name
+          }
+        }
+      } 
+      return address;
     }
 
     const onFinish = async () => {
@@ -182,7 +187,7 @@ export default defineComponent({
         if(formData.homeVillage !== props.patientService.getCurrentVillage()) {
           Object.assign(updatedPatient, {
             ...updatedPatient,
-            ...resolveAddress(formData.homeVillage)
+            ...(await resolveAddress(formData.homeVillage))
           })
         }
         if(!isEmpty(updatedPatient)) {
@@ -191,7 +196,8 @@ export default defineComponent({
           await person.updatePerson(updatedPatient);
         }
         await loader.hide();
-        closeModal(true);
+        closeModal();
+        EventBus.emit(EmcEvents.RELOAD_PATIENT_DATA);
       } catch (error) {
         await loader.hide();
         console.log(error)
