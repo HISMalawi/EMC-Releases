@@ -89,7 +89,7 @@ export default defineComponent({
     };
 
     const onFinish = async () => {
-      await loader.show("Updating patient...");
+      await loader.show("Processing...");
       if(!(await isValidForm(guardian))) return
       try {
         const { formData } = resolveFormValues(guardian)
