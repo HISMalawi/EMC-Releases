@@ -20,12 +20,6 @@ export enum ART_GLOBAL_PROP {
     CERVICAL_CANCER_SCREENING = 'activate.cervical.cancer.screening',
     CERVICAL_CANCER_AGE_BOUNDS = 'cervical.cancer.screening.age.bounds',
     CLINIC_HOLIDAYS = 'clinic.holidays',
-    RETROSPECTIVE_HEIGHT_EDITING = 'vitals.height.editing.retrospective'
-}
-
-// Editing for patients over 18years of age
-function canEditVitalsHeight() {
-    return GlobalPropertyService.isProp(`${ART_GLOBAL_PROP.RETROSPECTIVE_HEIGHT_EDITING}=true`)
 }
 
 function cervicalCancerScreeningEnabled() {
@@ -130,7 +124,6 @@ function setFilingNumberLimit(limit: string) {
 }
 
 export default {
-    canEditVitalsHeight,
     cervicalCancerScreeningAgeBounds,
     systolicThreshold,
     diastolicThreshold,
