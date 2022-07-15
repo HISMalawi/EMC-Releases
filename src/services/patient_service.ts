@@ -216,7 +216,9 @@ export class Patientservice extends Service {
     }
 
     async getMedianWeightHeight() {
-        return Service.getJson(`patients/${this.getID()}/median_weight_height`)
+        return Service.getJson(`patients/${this.getID()}/median_weight_height`, {
+            date: Service.getSessionDate()
+        })
     }
 
     getObj() {
