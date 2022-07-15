@@ -44,6 +44,8 @@ import { isValidForm, resolveFormValues } from "@/apps/EMC/utils/form";
 import { loader } from "@/utils/loader";
 import { toUnderscores } from "@/utils/Strs";
 import { RelationsService } from "@/services/relations_service";
+import EventBus from "@/utils/EventBus";
+import { EmcEvents } from "../../interfaces/emc_event";
 
 export default defineComponent({
   components: {
@@ -117,7 +119,8 @@ export default defineComponent({
         const guardianId = registrationService.getPersonID()      
         await RelationsService.createRelation(props.patientId, guardianId, 13)
         await loader.hide();
-        closeModal({refresh: true});
+        closeModal();
+        EventBus.emit(EmcEvents.RELOAD_GUARDIAN_DATA)
       } catch (error) {
         await loader.hide();
         console.log(error)
