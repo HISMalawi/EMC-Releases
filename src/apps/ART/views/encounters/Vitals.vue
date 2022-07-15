@@ -24,6 +24,7 @@ import ART_PROP from "@/apps/ART/art_global_props"
 import { find, isEmpty } from "lodash";
 import HisApp from "@/apps/app_lib"
 import { infoActionSheet } from "@/utils/ActionSheets"
+import dayjs from "dayjs";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -43,7 +44,7 @@ export default defineComponent({
     vitals: {} as any,
     weightForHeight: {} as any,
     medianWeightandHeight: {} as any,
-    canEditHeightInBDE: false as boolean
+    canEditHeight: false as boolean
   }),
   watch: {
     ready: {
@@ -60,16 +61,22 @@ export default defineComponent({
       this.age = patient.getAge();
       this.gender = patient.getGender();
 
-      this.canEditHeightInBDE = ((await ART_PROP.canEditVitalsHeight()) || false)
-        && (VitalsService.isBDE() || false)
-
       if (optionWhiteList) this.optionWhiteList = optionWhiteList.split(',')
 
       if (this.canCheckWeightHeight()) {
         const lastHeight = await patient.getRecentHeightObs();
         if (!isEmpty(lastHeight)) {
+          const patientAgeAtPrevRecordedHeight = dayjs(lastHeight['obs_datetime'])
+            .diff(this.patient.getBirthdate(), 'year')
           this.recentHeight = lastHeight['value_numeric'];
           this.recentHeightObsID = lastHeight['obs_id'];
+          /**
+           * For a scenario where a patient's height was last updated when they were a minor
+           * and they return as an adult, provide an option to update their height.
+           */
+          this.canEditHeight = patientAgeAtPrevRecordedHeight < 18 || this.age < 18
+        } else {
+          this.canEditHeight = true
         }
         if (this.age <= 14) {
           this.medianWeightandHeight = await patient.getMedianWeightHeight();
@@ -85,8 +92,7 @@ export default defineComponent({
       this.fields = this.getFields();
     },
     getOptions() {
-      const recentHeight = this.recentHeight && this.age > 18? this.recentHeight : "";
-      const showHeight = !(recentHeight && this.age > 18);
+      const recentHeight = this.recentHeight && this.age > 18 ? this.recentHeight : "";
       const options = [
         {
           label: "Weight",
@@ -104,8 +110,8 @@ export default defineComponent({
             modifier: "CM",
             icon: "height",
             recentHeight: this.recentHeight,
-            visible: this.canEditHeightInBDE || showHeight,
-            required: this.canEditHeightInBDE || showHeight
+            visible: this.canEditHeight,
+            required: this.canEditHeight
           },
         },
         { label: "BP", value: "", other: { modifier: "mmHG", icon: "bp" } },
@@ -315,21 +321,15 @@ export default defineComponent({
             if (heightOption && this.recentHeight && heightOption.other.visible) {
               const enteredHeight = parseInt(`${heightOption.value || 0}`);
               const prevHeight = parseInt(`${this.recentHeight || 0}`);
-              /** Warn if editing height for someone over 18 years old */
-              if (this.age > 18 && this.canEditHeightInBDE
-                && (enteredHeight != prevHeight)) {
-                return (await alertConfirmation(`Are you sure you want to change height from ${prevHeight} CM to ${enteredHeight} CM?`, {
-                  header: "Patient is over 18 years old"
-                }))
-              }
-              /** Warning condition for someone less than 18 years old */
-              if (this.age < 18 && enteredHeight < prevHeight) {
+
+              /** Warn if inconsistent height is detected */
+              if (enteredHeight < prevHeight) {
                 const prevHeightBtnTxt = `Use ${prevHeight} CM`
                 const newHeightBtnTxt = `Use ${enteredHeight} CM`
                 const action = await infoActionSheet(
                   `Previous Height "${prevHeight} CM"`,
                   `Current Height "${enteredHeight} CM"`,
-                  `Inconsistent Height Reading (Height can not be lower than previous height of " ${this.recentHeight} "KG. Please SELECT the correct height.)`,
+                  `Inconsistent Height Reading (Height can not be lower than previous height of " ${this.recentHeight} "CM. Please SELECT the correct height.)`,
                   [
                     {
                       name: prevHeightBtnTxt,
