@@ -6,12 +6,13 @@
           <ion-thumbnail slot="start"> 
             <img :src="logo" class="logo" alt="Master card logo"/>
           </ion-thumbnail>
-          <ion-label> E-MASTERCARD </ion-label>
+          <ion-label>E-MASTERCARD </ion-label>
         </ion-item>
+        <ion-label class="ion-margin-start">{{ description }}</ion-label>
       </ion-toolbar>
-    </ion-header>
+    </ion-header >
     <ion-content>
-      <ion-list>
+      <ion-list style="margin-top: 50px; border-top: 1px solid #c2c2c2;">
         <ion-item
           v-for="(p, i) in appPages" :key="i"
           :router-link="p.url" 
@@ -96,6 +97,7 @@ export default defineComponent({
     const router = useRouter()
     const app = ref(HisApp.getActiveApp())
     const logo = computed(() => Img(app.value?.applicationIcon || '' ))
+    const description = computed(() => app.value?.applicationDescription || '')
     const selectApp = async () => {
       const data = await HisApp.selectApplication("HomePage");
       if (data && data.applicationName !== app.value?.applicationName) {
@@ -143,6 +145,7 @@ export default defineComponent({
       showAuthUserMenu,
       facility,
       user,
+      description,
     }
   },
 });
