@@ -372,21 +372,6 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     // on MonthlyDay component.
     if (!estimateMonthOrDay) day.config.keyboardActions = []
 
-    const validateValueEstimate = (v: Option, f: any, c: any) => {
-        if (StandardValidations.required(v)) {
-            return ['Please select an estimate']
-        }
-        if (isNaN(parseInt(v.value.toString()))) {
-            return ['Please enter a valid number']
-        }
-        const ageEstimateRegex = /^(12[0-7]|1[01][0-9]|[1-9]?[0-9])$/
-        if(!v.value.toString().match(ageEstimateRegex) ){
-            return ['Not a valid age estimate'] 
-        }
-        
-        return validateMinMax(fullDate, field, f, c)
-    }
-
     const valueEstimateCondition = (f: any, estimateType: EstimationFieldType) => {
         const conditions = [
             f[yearID].value === 'Unknown',
@@ -403,7 +388,14 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
         if (v && v.value > 300) {
             return ['Age estimate is too high and exceeding hard limit of 300']
         }
-        return validateValueEstimate(v, f, c)
+        if (isNaN(parseInt(v.value.toString()))) {
+            return ['Please enter a valid number']
+        }
+        const ageEstimateRegex = /^(12[0-7]|1[01][0-9]|[1-9]?[0-9])$/
+        if(!v.value.toString().match(ageEstimateRegex) ){
+            return ['Not a valid age estimate'] 
+        }
+        return validateMinMax(fullDate, field, f, c)
     }
 
     ageEstimate.condition = (form: any) => valueEstimateCondition(
@@ -427,7 +419,12 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     // DURATION ESTIMATE
     durationEstimate.proxyID = field.id
 
-    durationEstimate.validation = validateValueEstimate
+    durationEstimate.validation = (v: Option, f: any, c: any) => {
+        if (StandardValidations.required(v)) {
+            return ['Please select an estimate']
+        }
+        return validateMinMax(fullDate, field, f, c)
+    }
 
     durationEstimate.condition = (form: any) => valueEstimateCondition(
         form, EstimationFieldType.MONTH_ESTIMATE_FIELD
