@@ -1,13 +1,13 @@
 <template>
 <layout>
-  <ion-grid class="ion-no-margin ion-no-padding">
+  <ion-grid class="ion-no-margin ion-no-padding" v-if="isReady">
     <ion-row>
       <ion-col size="12">
         <information-header
-          v-if="isReady"
+          v-if="patient"
           :patient="patient"
           :guardians="guardians"
-          :artStartDate="startDate"
+          :artStartDate="artStartDate"
           @updateARVNumber="updateARVNumber"
           @addGuardian="addGuardian"
           @updatePatient="updateDemographics"
@@ -17,9 +17,9 @@
     <ion-row>
       <ion-col>
         <visits-summary
-          v-if="patientId !== 0 && startDate"
+          v-if="patient"
           :patient="patient"
-          :startDate="startDate"
+          :startDate="artStartDate"
         />
       </ion-col>
     </ion-row>
@@ -27,7 +27,7 @@
 </layout>
 </template>
 <script lang="ts">
-import { defineComponent } from "vue";
+import { computed, defineComponent, onMounted, reactive, ref, watch } from "vue";
 import HisDate from "@/utils/Date";
 import { Patient } from "@/interfaces/patient";
 import { RelationshipService } from "@/services/relationship_service";
@@ -35,10 +35,14 @@ import Layout from "../Components/Layout.vue";
 import VisitsSummary from "../Components/tables/VisitsSummary.vue";
 import InformationHeader from "@/apps/EMC/Components/InformationHeader.vue";
 import { PatientObservationService } from "@/services/patient_observation_service";
-import { modalController } from "@ionic/vue";
 import PatientDemographics from "../Components/modals/PatientDemographics.vue";
-import { isEmpty } from "lodash";
 import GuardianDemographicsVue from "../Components/modals/GuardianDemographics.vue";
+import { useRoute } from "vue-router";
+import { loader } from "@/utils/loader";
+import EventBus from "@/utils/EventBus";
+import { EmcEvents } from "../interfaces/emc_event";
+import { modal } from "@/utils/modal";
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   components: {
@@ -46,82 +50,72 @@ export default defineComponent({
     VisitsSummary,
     InformationHeader,
   },
-  data: () => ({
-    patientId: 0 as any,
-    patient: {} as any,
-    guardians: "",
-    startDate: '',
-    isReady: false as boolean,
-  }),
-  watch: {
-    $route: {
-      async handler({ params }: any) {
-        if (!params) return;
+  setup () {
+    const route = useRoute();
+    const patientId = parseInt(route.params.patientId.toString()) || 0;
+    const patient = ref<PatientObservationService>();
+    const artStartDate = ref<string>("");
+    const guardians = ref<string>("");
+    const isReady = computed(() => !isEmpty(patient.value))
 
-        this.patientId = parseInt(params.patientId);
+    const setPatient = async () => {
+      if (patientId) {
+        const patientData: Patient = await PatientObservationService.findByID(patientId);
+        if(patientData) {
+          patient.value = new PatientObservationService(patientData);
+        }
+      }
+    };
 
-        if (this.patientId) this.init();
-      },
-      deep: true,
-      immediate: true,
-    },
-  },
-  methods: {
-    async init() {
-      this.patient = await this.fetchPatient(this.patientId);
-      await this.setARTStartDate()
-      this.guardians = await this.getGuardian();
-      this.isReady = true;
-    },
-    async setARTStartDate() {
-      const date = await this.patient.getARTStartDate();
-      this.startDate = date ? HisDate.toStandardHisDisplayFormat(date) : "N/A";
-    },
+    const setPatientGuardian = async () => {
+      const relationship = await RelationshipService.getGuardianDetails(patientId);
+      guardians.value = relationship.map((r: any) => ` ${r.name} (${r.relationshipType})`).join(", ");
+    }
 
-    async getGuardian() {
-      const relationship = await RelationshipService.getGuardianDetails(
-        this.patientId
-      );
-      return relationship
-        .map((r: any) => {
-          return ` ${r.name} (${r.relationshipType})`;
-        })
-        .join(" ");
-    },
-    async showModal(component: any, componentProps?: Record<string, any>, cssClass = 'custom-modal', backdropDismiss = true) {
-      const modal = await modalController.create({
-        component,
-        cssClass,
-        backdropDismiss,
-        componentProps,
-      });
-      modal.present();
-      const { data } = await modal.onWillDismiss();
-      if(data) return data;
-    },
-    async updateDemographics(attribute: string) {
-      const data = await this.showModal(PatientDemographics, {
-        patientService: this.patient,
+    const updateDemographics = async (attribute: string) => {
+      await modal.show(PatientDemographics, {
+        patientService: patient.value,
         attribute,
       });
-      if(!isEmpty(data)) {
-        this.patient = await this.fetchPatient(this.patientId);
-      }
-    },
-    async addGuardian() {
-      const data = await this.showModal(GuardianDemographicsVue, {
-        patientId: this.patientId
-      })
-      this.patient = await this.fetchPatient(this.patientId);
-    },
-    updateARVNumber() {
-      this.$router.push({name: "Edit ARV Number"})
-    },
+    }
 
-    async fetchPatient(patientId: number | string) {
-      const patient: Patient = await PatientObservationService.findByID(patientId);
-      return patient ? new PatientObservationService(patient) : {};
-    },
+    const addGuardian = async () => {
+      await modal.show(GuardianDemographicsVue, {
+        patientId,
+      });
+    }
+
+    const updateARVNumber = async () => {
+      // this.$router.push({name: "Edit ARV Number"})
+      console.log("updateARVNumber");
+    }
+
+    EventBus.on(EmcEvents.RELOAD_PATIENT_DATA,async () => {
+      await setPatient();
+    });
+    EventBus.on(EmcEvents.RELOAD_GUARDIAN_DATA, async () => {
+      await setPatientGuardian();
+    });
+
+    onMounted(async () => {
+      await loader.show();
+      await setPatient();
+      await loader.hide();
+      console.log("Patient data loaded", patient);
+      const date = await patient.value?.getARTStartDate();
+      artStartDate.value = date ? HisDate.toStandardHisDisplayFormat(date) : "N/A";
+      await setPatientGuardian();
+    });
+
+    return {
+      patient,
+      artStartDate,
+      guardians,
+      isReady,
+      updateDemographics,
+      addGuardian,
+      updateARVNumber,
+    };
   },
 });
 </script>
