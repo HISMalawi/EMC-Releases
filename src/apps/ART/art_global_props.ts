@@ -19,7 +19,7 @@ export enum ART_GLOBAL_PROP {
     FILING_NUMBER_PREFIX = 'filing.number.prefix',
     CERVICAL_CANCER_SCREENING = 'activate.cervical.cancer.screening',
     CERVICAL_CANCER_AGE_BOUNDS = 'cervical.cancer.screening.age.bounds',
-    CLINIC_HOLIDAYS = 'clinic.holidays'
+    CLINIC_HOLIDAYS = 'clinic.holidays',
 }
 
 function cervicalCancerScreeningEnabled() {
