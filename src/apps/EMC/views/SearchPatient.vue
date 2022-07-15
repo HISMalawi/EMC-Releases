@@ -6,7 +6,6 @@
           <ion-searchbar 
             style="width: 450px" 
             class="box-input ion-no-padding ion-margin-end"
-            showBottomline="never"
             placeholder="Search by Name or ARV Number"
             v-model="searchText"
             v-on:keyup.enter="searchPatient"
@@ -171,7 +170,7 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style>
 .box {
   border-color: #a3a3a3;
   border-width: thin;
@@ -185,4 +184,9 @@ export default defineComponent({
   margin-bottom: 0;
   margin-right: .5rem;
 }
+
+.sc-ion-searchbar-md-h{
+  --box-shadow: none !important;
+}
+
 </style>
