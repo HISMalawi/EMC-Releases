@@ -37,6 +37,7 @@ import InformationHeader from "@/apps/EMC/Components/InformationHeader.vue";
 import { PatientObservationService } from "@/services/patient_observation_service";
 import PatientDemographics from "../Components/modals/PatientDemographics.vue";
 import GuardianDemographicsVue from "../Components/modals/GuardianDemographics.vue";
+import ARVNumberVue from "../Components/modals/ArvNumber.vue";
 import { useRoute } from "vue-router";
 import { loader } from "@/utils/loader";
 import EventBus from "@/utils/EventBus";
@@ -86,8 +87,9 @@ export default defineComponent({
     }
 
     const updateARVNumber = async () => {
-      // this.$router.push({name: "Edit ARV Number"})
-      console.log("updateARVNumber");
+      await modal.show(ARVNumberVue, {
+        patient: patient.value,
+      });
     }
 
     EventBus.on(EmcEvents.RELOAD_PATIENT_DATA,async () => {

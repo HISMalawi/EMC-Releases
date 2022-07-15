@@ -59,6 +59,9 @@ export class ProgramService extends Service {
     return super.getJson(`/programs/1/next_available_arv_number`);
       
     }
+    static voidARVNumber(arvNumber: string) {
+      return super.postJson(`/programs/1/void_arv_number/${arvNumber}`, {})
+  }
     static getFastTrackStatus(patientID: number) {
         return super.getJson('/on_fast_track', {'person_id': patientID, date: super.getSessionDate()});
     }
