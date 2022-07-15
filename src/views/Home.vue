@@ -59,15 +59,23 @@
       <ion-segment scrollable :value="activeTab" class="ion-justify-content-center">
         <ion-segment-button :value="1" @click="onSegmentClick(1)">
           <ion-icon :icon="statsChart"> </ion-icon>
-          <ion-label class="his-sm-text">Overview</ion-label>
+          <ion-label class="his-sm-text">
+            Overview
+          </ion-label>
         </ion-segment-button>
         <ion-segment-button v-if="canReport" :value="2" @click="onSegmentClick(2)">
           <ion-icon :icon="pieChart"> </ion-icon>
-          <ion-label class="his-sm-text">Reports</ion-label>
+          <ion-label class="his-sm-text">
+            <ion-icon v-if="showSegmentBackArrow && activeTab === 2" :icon="arrowBack"/>
+            Reports
+          </ion-label>
         </ion-segment-button>
         <ion-segment-button :value="3" @click="onSegmentClick(3)">
           <ion-icon :icon="settings"> </ion-icon>
-          <ion-label class="his-sm-text">Administration</ion-label>
+          <ion-label class="his-sm-text">
+            <ion-icon v-if="showSegmentBackArrow && activeTab === 3" :icon="arrowBack"/>
+            Administration
+          </ion-label>
         </ion-segment-button>
         <ion-segment-button :value="4" @click="onSegmentClick(4)">
           <ion-icon :color="hasUnreadNotifications ? 'danger' : ''" :icon="notifications"/>
@@ -88,11 +96,13 @@
         <home-folder
           v-if="activeTab == 2"
           :items="appReports"
+          @onSublist="showSegmentBackArrow = true"
           :resetList="listResetCount"
           >
         </home-folder>
         <home-folder 
           v-if="activeTab == 3"
+          @onSublist="showSegmentBackArrow = true"
           :items="app.globalPropertySettings"
           :resetList="listResetCount">
         </home-folder>
@@ -168,7 +178,8 @@ import {
   logOut,
   statsChart,
   pieChart,
-  settings
+  settings,
+  arrowBack
 } from 'ionicons/icons';
 import {
   IonThumbnail,
@@ -231,6 +242,7 @@ export default defineComponent({
       logOut,
       statsChart,
       pieChart,
+      arrowBack,
       settings,
       useVirtualInput
     }
@@ -248,6 +260,7 @@ export default defineComponent({
       patientBarcode: "",
       overviewComponent: {} as any,
       isBDE: false,
+      showSegmentBackArrow: false as boolean,
       listResetCount: 0 as number, // attribute is used for refreshing HomeFolder component when the segment is clicked
     };
   },
@@ -278,6 +291,7 @@ export default defineComponent({
     onSegmentClick(tabIndex: number) {
       this.activeTab = tabIndex
       this.listResetCount += 1
+      this.showSegmentBackArrow = false
     },
     fetchLocationID: async function () {
       const centerID = await GLOBAL_PROP.healthCenterID()

@@ -29,6 +29,7 @@ import {
 } from "@ionic/vue";
 import { arrowBack } from 'ionicons/icons';
 export default defineComponent({
+    emits: ['onSublist'],
     setup() {
         return {
             arrowBack
@@ -92,6 +93,7 @@ export default defineComponent({
                 if (item.defaultFilesIcon) {
                     this.defaultIcon = item.defaultFilesIcon
                 }
+                this.$emit('onSublist')
                 this.setItems(item.files)
             }
         },
