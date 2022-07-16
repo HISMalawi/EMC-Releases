@@ -88,25 +88,26 @@
     
     <ion-content :fullscreen="true">
       <div id="container" class="his-card overview" v-if="ready">
-        <component 
-          v-show="activeTab == 1" 
-          v-bind:is="appOverview"
-          > 
-        </component>
-        <home-folder
-          v-if="activeTab == 2"
-          :items="appReports"
-          @onSublist="showSegmentBackArrow = true"
-          :resetList="listResetCount"
-          >
-        </home-folder>
-        <home-folder 
-          v-if="activeTab == 3"
-          @onSublist="showSegmentBackArrow = true"
-          :items="app.globalPropertySettings"
-          :resetList="listResetCount">
-        </home-folder>
-        <home-notification v-if="activeTab == 4"/>
+        <div v-show="activeTab == 1"> 
+          <component v-bind:is="appOverview"/>
+        </div>
+        <div v-show="activeTab == 2">
+          <home-folder
+            @onSublist="showSegmentBackArrow=true"
+            :items="appReports"
+            :resetList="resetReport">
+          </home-folder>
+        </div>
+        <div v-show="activeTab == 3"> 
+          <home-folder
+            @onSublist="showSegmentBackArrow=true"
+            :items="app.globalPropertySettings"
+            :resetList="resetAdmin">
+          </home-folder>
+        </div>
+        <div v-if="activeTab == 4">
+          <home-notification/>
+        </div>
       </div>
     </ion-content>
 
@@ -261,7 +262,8 @@ export default defineComponent({
       overviewComponent: {} as any,
       isBDE: false,
       showSegmentBackArrow: false as boolean,
-      listResetCount: 0 as number, // attribute is used for refreshing HomeFolder component when the segment is clicked
+      resetReport: 0 as number,
+      resetAdmin: 0 as number,
     };
   },
   computed: {
@@ -290,7 +292,11 @@ export default defineComponent({
   methods: {
     onSegmentClick(tabIndex: number) {
       this.activeTab = tabIndex
-      this.listResetCount += 1
+      if (this.activeTab === 2) {
+        this.resetReport += 1
+      } else if(this.activeTab === 3) {
+        this.resetAdmin += 1
+      }
       this.showSegmentBackArrow = false
     },
     fetchLocationID: async function () {
