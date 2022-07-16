@@ -89,7 +89,7 @@
     <ion-content :fullscreen="true">
       <div id="container" class="his-card overview" v-if="ready">
         <component 
-          v-if ="activeTab == 1" 
+          v-show="activeTab == 1" 
           v-bind:is="appOverview"
           > 
         </component>
