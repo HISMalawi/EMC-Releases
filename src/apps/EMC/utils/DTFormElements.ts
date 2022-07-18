@@ -1,6 +1,6 @@
 import { Option } from "@/components/Forms/FieldInterface";
 
-function strToOptions(str: string[]) {
+export function toOptions(str: string[]) {
   return str.map<Option>(s => ({
     value: s,
     label: s
@@ -18,7 +18,7 @@ export const genderOptions: Option[] = [
 ];
 
 export const tbStatusOptions: Option[] = [
-  ...strToOptions([
+  ...toOptions([
     "TB NOT suspected",
     "TB suspected",
     "Confirmed TB NOT on treatment",
