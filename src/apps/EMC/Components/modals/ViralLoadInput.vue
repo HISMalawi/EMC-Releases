@@ -7,32 +7,28 @@
   <ion-content class="ion-padding">
     <ion-grid style="width: 100%">
       <ion-row>
-        <ion-col size="12">
-          <ion-label class=" ion-padding-bottom">Result Modifier: </ion-label>
-          <ion-select class="box-input ion-margin-top" v-model="modifier" :disabled="ldl">
-            <ion-select-option value="=">&equals;</ion-select-option>
-            <ion-select-option value=">">&gt;</ion-select-option>
-            <ion-select-option value="<"> &lt; </ion-select-option>
-            <ion-select-option value=">=">&le;</ion-select-option>
-            <ion-select-option value="<=">&ge;</ion-select-option>
-          </ion-select>
+        <ion-col size="12" class="ion-margin-vertical">
+          <DateInput v-model="form.orderDate" :form="form" />
+        </ion-col>
+        <ion-col size="6" class="ion-margin-vertical">
+          <SelectInput v-model="form.reason" :options="reasons" />
+        </ion-col>
+        <ion-col size="6" class="ion-margin-vertical">
+          <SelectInput v-model="form.specimenConcept" :options="specimens" />
+        </ion-col>
+        <ion-col size="12" class="ion-margin-vertical">
+          <DateInput v-model="form.resultDate" :form="form" />
+        </ion-col>
+        <ion-col size="6" class="ion-margin-vertical">
+          <SelectInput v-model="form.modifier" :options="modifiers"/>
+        </ion-col>
+        <ion-col size="6" class="ion-margin-vertical">
+          <NumberInput v-model="form.result" :form="form" :min="1"/>
         </ion-col>
       </ion-row>
-      <ion-row>
+      <ion-row class="ion-margin-top">
         <ion-col size="12">
-          <ion-label class=" ion-padding-bottom">Result: </ion-label>
-          <ion-input type="number" :min="1" class="box-input ion-margin-top" v-model="result" :disabled="ldl" />
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="12">
-          <ion-label class=" ion-padding-bottom">Date: </ion-label>
-          <ion-input type="date" class="box-input ion-margin-top" v-model="resultDate" />
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="12" class=" ion-margin-top">
-          <ion-label class=" ion-padding-bottom ion-margin-top">Other Results Options: </ion-label>
+          <ion-label class="ion-padding-vertical bold">Other Results Options: </ion-label>
           <ion-item>
             <ion-label>LDL</ion-label>
             <ion-checkbox slot="start" v-model="ldl" />
@@ -43,7 +39,7 @@
   </ion-content>
   <ion-footer>
     <ion-toolbar>
-      <ion-button color="primary" @click="closeModal" slot="end">Close</ion-button>
+      <ion-button color="primary" @click="modal.hide()" slot="end">Close</ion-button>
       <ion-button color="warning" @click="resetResults" slot="end">Reset</ion-button>
       <ion-button color="success" @click="saveResults" slot="end">Save</ion-button>
     </ion-toolbar>
@@ -51,27 +47,40 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue";
+import { defineComponent, onMounted, PropType, reactive, ref, watch } from "vue";
 import { 
   IonCol, 
   IonGrid, 
   IonRow, 
-  modalController, 
   IonContent, 
   IonFooter, 
   IonHeader, 
   IonTitle, 
   IonToolbar, 
   IonButton, 
-  IonInput, 
   IonLabel, 
-  IonSelectOption,
-  IonSelect,
   IonCheckbox,
   IonItem
 } from "@ionic/vue";
-import { ViralLoadResultsService } from "@/services/viral_load_results_service";
 import { toastWarning } from "@/utils/Alerts";
+import { DTForm } from "../../interfaces/dt_form_field";
+import { Patientservice } from "@/services/patient_service";
+import DateInput from "../inputs/DateInput.vue";
+import SelectInput from "../inputs/SelectInput.vue";
+import NumberInput from "../inputs/NumberInput.vue";
+import dayjs from "dayjs";
+import { toOptions } from "../../utils/DTFormElements";
+import { OrderService } from "@/services/order_service";
+import { LabOrderService } from "@/apps/ART/services/lab_order_service";
+import { Option } from "@/components/Forms/FieldInterface";
+import { ConceptName } from "@/interfaces/conceptName";
+import { loader } from "@/utils/loader";
+import { isValidForm, resolveFormValues } from "../../utils/form";
+import { PatientLabResultService } from "@/services/patient_lab_result_service";
+import { ConceptService } from "@/services/concept_service";
+import EventBus from "@/utils/EventBus";
+import { EmcEvents } from "../../interfaces/emc_event";
+import { modal } from "@/utils/modal";
 
 export default defineComponent({
   components: {
@@ -81,70 +90,169 @@ export default defineComponent({
     IonTitle,
     IonToolbar,
     IonButton,
-    IonInput,
     IonLabel,
     IonGrid,
     IonRow,
     IonCol,
-    IonSelect,
-    IonSelectOption,
     IonCheckbox,
-    IonItem
+    IonItem,
+    DateInput,
+    SelectInput,
+    NumberInput,
   },
   props: {
-    patientId: {
-      type: Number,
+    patient: {
+      type: Object as PropType<Patientservice>,
       required: true
     },
   },
   setup(props) {
-    const modifier = ref('');
-    const result = ref<number>();
     const ldl = ref(false);
-    const resultDate = ref('');
+    const modifiers = toOptions(['=', '>', '<', '>=', '<=']);
+    const reasons = toOptions(["Routine", "Targeted", "Confirmatory", "Stat", "Repeat / Missing"])
+    const specimens = ref<Option[]>([])
 
-    const closeModal = (data?: any) => {
-      modalController.dismiss(data);
-    };
-
-    const isResultsValid = () => {
-      return resultDate.value && (ldl.value || (modifier.value && result.value));
-    };
-
-    const saveResults = async () => {
-      if(isResultsValid()) {
-        const resultValue = ldl.value ? 1 : result.value || 0 ;
-        const valueModifier = ldl.value ? '=' : modifier.value;
-        const vlService = new ViralLoadResultsService(props.patientId);
-        await vlService.setConcept();
-        await vlService.createEncounter();
-        await vlService.createOrder(resultDate.value);
-        const obs = vlService.buildResultObs(resultDate.value, resultValue, valueModifier);
-        await vlService.saveObs(obs);
-        return closeModal({data: "ok"})
-      }
-      toastWarning('Please fill in all fields');
-    }
-
-    const resetResults = () => {
-      modifier.value = '';
-      result.value = undefined;
-      ldl.value = false;
-    };
-
-    watch(ldl, (r) => {
-      if(r) {
-        modifier.value = '';
-        result.value = undefined;
+    const form = reactive<DTForm>({
+      orderDate: {
+        value: '',
+        label: 'Order Date',
+        required: true,
+        validation: async (date) => {
+          if (!dayjs(date.value).isValid()) {
+            return ['Invalid date'];
+          }
+          if(dayjs(date.value).isAfter(dayjs())) {
+            return ['Order date cannot be in the future'];
+          }
+          if(dayjs(date.value).isBefore(dayjs(props.patient.getBirthdate()))) {
+            return ['Order date cannot be before patient\'s date of birth'];
+          }
+          return null
+        }
+      },
+      resultDate: {
+        value: '',
+        label: 'Result Date',
+        required: true,
+        validation: async (date, form) => {
+          if (!dayjs(date.value).isValid()) {
+            return ['Invalid date'];
+          }
+          if(dayjs(date.value).isAfter(dayjs())) {
+            return ['Result date cannot be in the future'];
+          }
+          if(dayjs(date.value).isBefore(dayjs(form.orderDate.value))) {
+            return ['Result date cannot be before order date'];
+          }
+          if(dayjs(date.value).isBefore(dayjs(props.patient.getBirthdate()))) {
+            return ['Result date cannot be before patient\'s date of birth'];
+          }
+          return null
+        }
+      },
+      specimenConcept: {
+        value: '',
+        label: 'Specimen',
+        placeholder: 'Select a specimen',
+        required: true,
+      },
+      modifier: {
+        value: '',
+        label: 'Modifier',
+        placeholder: 'Select a modifier',
+        required: true,
+      },
+      reason: {
+        value: '',
+        label: 'Reason',
+        placeholder: 'Select a reason',
+        required: true,
+      },
+      result: {
+        value: '',
+        label: 'Result Value',
+        placeholder: 'Enter a result value',
+        required: true,
       }
     });
 
+    const saveResults = async () => {
+      await loader.show();
+      if(!(await isValidForm(form))) return loader.hide();
+      try {
+        const { formData } = resolveFormValues(form);
+
+        await LabOrderService.setSessionDate(formData.orderDate)
+        const orderService = new LabOrderService(props.patient.getID(), -1)
+        const vlConceptId = await ConceptService.getConceptID("HIV viral load")
+        const encounter = await orderService.createEncounter();
+        if(!encounter) throw new Error('Unable to create lab order encounter');
+        const formattedOrders  = await OrderService.buildLabOrders(encounter, [{
+          ...formData,
+          'concept_id': vlConceptId
+        }]);
+        const orders = await  OrderService.saveOrdersArray(encounter.encounter_id, formattedOrders);
+        if(!orders) throw new Error('Unable to save lab orders');
+
+        const resultService = new PatientLabResultService(props.patient.getID())
+        resultService.setTestID(orders[0].tests[0].id)
+        resultService.setResultDate(formData.resultDate)
+        const resultEnc = await resultService.createEncounter()
+        if(!resultEnc) throw new Error("Unable to create lab result encounter")
+        await resultService.createLabResult([{
+          "indicator": {
+            "concept_id": vlConceptId,
+          },
+          "value": ldl.value ? "LDL" : parseInt(formData.result),
+          "value_modifier": ldl.value ? "=" : formData.modifier,
+          "value_type": ldl.value ? "text" : "numeric"
+        }])
+
+        await loader.hide()
+        await modal.hide()
+        EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA)
+      } catch (error) {
+        toastWarning(`${error}`)
+        return loader.hide()
+      }
+    }
+
+    const resetResults = () => {
+      for(const key in form) {
+        form[key].value = '';
+        form[key].error = ''
+      }
+    };
+
+    watch(ldl, (isLDL) => {
+      if(isLDL) {
+        form.modifier.value = 0;
+        form.result.value = undefined;
+        form.modifier.error = ''
+        form.result.error = ''
+      }
+      form.modifier.disabled = isLDL;
+      form.modifier.required = !isLDL;
+      form.result.disabled = isLDL;
+      form.result.required = !isLDL;
+    });
+
+    onMounted(async () => {
+      specimens.value = (await OrderService.getSpecimens("HIV viral load"))
+        .map((specimen: ConceptName) => ({
+          label: specimen.name,
+          value: specimen['concept_id']
+        })
+      )
+    })
+
     return {
-      result,
-      modifier,
-      resultDate,
+      form,
+      modifiers,
+      reasons,
+      specimens,
       ldl,
-      closeModal,
+      modal,
       resetResults,
       saveResults,
     };

@@ -144,7 +144,7 @@ export default defineComponent({
             ]
           })
         } catch (error) {
-          toastWarning(error)
+          toastWarning(`${error}`)
         } finally {
           loader.dismiss()
         }

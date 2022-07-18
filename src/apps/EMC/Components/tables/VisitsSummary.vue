@@ -39,6 +39,8 @@ import ViralLoadInput from '@/apps/EMC/Components/modals/ViralLoadInput.vue';
 import OutcomeStatus from '@/apps/EMC/Components/modals/OutcomeStatus.vue';
 import PatientVisit from '@/apps/EMC/Components/modals/PatientVisit.vue';
 import { PatientObservationService } from '@/services/patient_observation_service';
+import EventBus from '@/utils/EventBus';
+import { EmcEvents } from '../../interfaces/emc_event';
 
 interface ActionButtonInterface {
   label: string;
@@ -105,10 +107,9 @@ export default defineComponent({
       {
         label: "Enter VL Results",
         action: async () => {
-          const result = await showModal(ViralLoadInput, {
-            patientId: patientId.value,
+          await showModal(ViralLoadInput, {
+            patient: props.patient,
           });
-          if(result) refreshKey.value++
         }
       }
     ])
@@ -204,6 +205,8 @@ export default defineComponent({
       }
       return rows;
     }
+
+    EventBus.on(EmcEvents.RELOAD_PATIENT_VISIT_DATA, () => refreshKey.value++)
 
     return {
       refreshKey,
