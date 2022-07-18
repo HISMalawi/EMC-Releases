@@ -41,6 +41,7 @@ import PatientVisit from '@/apps/EMC/Components/modals/PatientVisit.vue';
 import { PatientObservationService } from '@/services/patient_observation_service';
 import EventBus from '@/utils/EventBus';
 import { EmcEvents } from '../../interfaces/emc_event';
+import { modal } from '@/utils/modal';
 
 interface ActionButtonInterface {
   label: string;
@@ -76,41 +77,24 @@ export default defineComponent({
       tableCssTheme: "emc-datatable-theme"
     })
 
-    const showModal = async (component: any, componentProps?: Record<string, any>) => {
-      const modal = await modalController.create({
-        component,
-        cssClass: 'custom-modal',
-        componentProps,
-      });
-      modal.present();
-      const { data } = await modal.onWillDismiss();
-      if(data) return data;
-    }
-
     const actionButtons = ref<ActionButtonInterface[]>([
       {
         label: "Add Visit",
-        action: async () => {
-          const refresh = await showModal(PatientVisit, { patient: props.patient });
-          if(refresh) refreshKey.value++;
-        }
+        action: async () => modal.show(PatientVisit, { 
+          patient: props.patient 
+        })
       },
       {
         label: "Update Outcome",
-        action:async () => {
-          const refresh = await showModal(OutcomeStatus, {
-            patientId: patientId.value,
-          })
-          if(refresh) refreshKey.value++;
-        }
+        action:async () => modal.show(OutcomeStatus, {
+          patientId: patientId.value,
+        })
       },
       {
         label: "Enter VL Results",
-        action: async () => {
-          await showModal(ViralLoadInput, {
-            patient: props.patient,
-          });
-        }
+        action: async () => modal.show(ViralLoadInput, {
+          patient: props.patient,
+        })
       }
     ])
 
