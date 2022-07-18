@@ -29,6 +29,7 @@
       style="width: 30%;"
       type="number"
       placeholder="DD"
+      :disabled="model.disabled"
       @ionFocus="() => model.error = ''"
       @ionBlur="validate"
     />
@@ -38,6 +39,7 @@
       :class="model.error ? 'box-input-error'  : 'box-input'"
       style="background-color: #fff; width: 30%;"
       :style="month ? {'color': '#000'} : {'color': '#a0a0a0'}"
+      :disabled="model.disabled"
       @focus="() => model.error = ''"
       @blur="validate"
     >
@@ -51,6 +53,7 @@
       :class="model.error ? 'box-input-error'  : 'box-input'" 
       type="number" 
       placeholder="YYYY" 
+      :disabled="model.disabled"
       @ionFocus="() => model.error = ''"
       @ionBlur="validate"
     />

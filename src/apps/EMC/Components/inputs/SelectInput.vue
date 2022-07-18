@@ -19,6 +19,7 @@
   <div v-else-if="searchable"
     class="ion-margin-top" 
     :class="model.error ? 'box-input-error'  : 'box-input'" 
+    :disabled="model.disabled"
     style="background-color: #fff; width: 100%; height: 2.5rem; padding: 0.5rem;" 
     @click="showOptions"
   >
@@ -37,6 +38,7 @@
     :class="model.error ? 'box-input-error'  : 'box-input'"
     style="background-color: #fff; width: 100%; height: 2.5rem;"
     :style="model.value ? {'color': '#000'} : {'color': '#a0a0a0'}"
+    :disabled="model.disabled"
     @focus="() => model.error = ''"
     @blur="validate"
   >
@@ -79,7 +81,11 @@ export default defineComponent({
     searchable: {
       type: Boolean,
       default: false
-    }
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
   },
   components: {
     IonLabel,
