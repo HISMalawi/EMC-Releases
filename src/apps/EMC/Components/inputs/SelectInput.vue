@@ -33,7 +33,7 @@
   <select 
     v-else
     v-model="model.value" 
-    class="ion-margin-top" 
+    class="ion-margin-top"
     :class="model.error ? 'box-input-error'  : 'box-input'"
     style="background-color: #fff; width: 100%; height: 2.5rem;"
     :style="model.value ? {'color': '#000'} : {'color': '#a0a0a0'}"
@@ -143,6 +143,8 @@ export default defineComponent({
             value: model.value.value
           }
         }
+      } else {
+        model.value.value = 0
       }
     });
 

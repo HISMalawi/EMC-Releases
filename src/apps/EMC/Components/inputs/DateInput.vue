@@ -103,7 +103,7 @@ export default defineComponent({
     const isEstimated = ref(false);
     const age = ref<number>();
     const day = ref<number | undefined>(dayjs(props.modelValue.value).date());
-    const month = ref<number | undefined>(dayjs(props.modelValue.value).month())
+    const month = ref<number>(dayjs(props.modelValue.value).month() || 0);
     const year = ref<number | undefined>(dayjs(props.modelValue.value).year())
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
