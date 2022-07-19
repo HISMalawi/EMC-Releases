@@ -6,196 +6,84 @@
   </ion-header>
   <ion-content class=" ion-padding">
     <ion-grid style="width: 100%">
-      <ion-row >
-        <ion-col :size="showHeightField ? 6 : 4">
-          <ion-label class=" ion-padding-bottom">Visit Date: </ion-label>
-          <ion-input 
-            type="date" 
-            class="ion-margin-top"
-            :class="form.visitDate.error ? 'box-input-error'  : 'box-input'"
-            v-model="form.visitDate.value" 
-          />
-          <ion-note v-if="form.visitDate.error" color="danger">{{ form.visitDate.error }}</ion-note>
+      <ion-row>
+        <ion-col size="6" class="ion-margin-vertical">
+          <DateInput v-model="form.visitDate" :form="form" />
         </ion-col>
-        <ion-col :size="showHeightField ? 6 : 4">
-          <ion-label class=" ion-padding-bottom">Weight: </ion-label>
-          <ion-input 
-            type="number" 
-            :min="1" 
-            class="ion-margin-top"
-            :class="form.weight.error ? 'box-input-error'  : 'box-input'" 
-            v-model="form.weight.value"
-          />
-          <ion-note v-if="form.weight.error" color="danger">{{ form.weight.error }}</ion-note>
+        <ion-col size="6" class="ion-margin-vertical">
+          <NumberInput v-model="form.weight" :form="form" :min="1"/>
         </ion-col>
-        <ion-col size="6" v-if="showHeightField">
-          <ion-label class="ion-padding-bottom">Height: </ion-label>
-          <ion-input 
-            type="number" 
-            :min="1" 
-            class="ion-margin-top"
-            :class="form.height.error ? 'box-input-error'  : 'box-input'" 
-            v-model="form.height.value" 
-          />
-          <ion-note v-if="form.height.error" color="danger">{{ form.height.error }}</ion-note>
+        <ion-col size="6" class="ion-margin-vertical" v-if="showHeightField">
+          <NumberInput v-model="form.height" :form="form" :min="1"/>
         </ion-col>
-        <ion-col :size="showHeightField ? 6 : 4">
-          <ion-label class=" ion-padding-bottom">TB Status: </ion-label>
-          <searchable-select-input
-            class="ion-margin-top"
-            :class="form.tbStatus.error ? 'box-input-error'  : 'box-input'"
-            placeholder="Select TB status"
-            :options="tbStatuses"
-            :value="form.tbStatus.value"
-            @onSelect="(status) => form.tbStatus.value = status"
-            :searchable="false"
-          />
-          <ion-note v-if="form.tbStatus.error" color="danger">{{ form.tbStatus.error }}</ion-note>
+        <ion-col class="ion-margin-vertical" :size="showHeightField ? 6 : 12">
+          <SelectInput v-model="form.tbStatus" :options="tbStatuses" />
         </ion-col>
         <template v-if="isFemale">
-          <ion-col size="6" class="ion-margin-vertical ion-padding-top">
+          <ion-col size="6" class="ion-margin-vertical ion-padding-vertical">
             <yes-no-input v-model="form.isPregnant" inline />
           </ion-col>
-          <ion-col size="6" class="ion-margin-vertical ion-padding-top">
+          <ion-col size="6" class="ion-margin-vertical ion-padding-vertical">
             <yes-no-input v-model="form.isBreastfeeding"  inline />
           </ion-col>
         </template>
-        <ion-col size="12" class="ion-margin-top ion-padding-top" >
+        <ion-col :size="hasContraindications ? 6 : 12 " class="ion-margin-vertical" >
           <yes-no-input v-model="form.hasContraindications"  inline />
-          <multi-column-view :items="contraIndications" :numberOfColumns="5" v-slot="{ entries }" v-if="form.hasContraindications.value === 'Yes'">
-            <template v-for="entry in entries" :key="entry.value" >
-             <ion-label style="font-weight: normal !important;">
-                <ion-checkbox class="ion-margin-end ion-float-left" v-model="entry.isChecked" />
-                <span class="ion-margin-top" style="vertical-align: middle;">{{ entry.label }}</span>
-              </ion-label>
-              <br><br>
-            </template>
+          <multi-column-view :items="contraIndications" :numberOfColumns="2" v-slot="{ entries }" v-if="hasContraindications">
+            <ion-item lines="none" v-for="entry in entries" :key="entry.value">
+              <ion-label>{{ entry.label }}</ion-label>
+              <ion-checkbox slot="start" v-model="entry.isChecked" />
+            </ion-item>
           </multi-column-view>
         </ion-col>
-        <ion-col class="ion-padding-start" size="12" v-if="form.hasContraindications.value === 'Yes'">
+        <ion-col class="ion-padding-start" size="6" v-if="hasContraindications">
           <yes-no-input v-model="form.hasSideEffects" inline />
-          <multi-column-view :items="sideEffects" :numberOfColumns="5" v-slot="{ entries }" v-if="form.hasSideEffects.value === 'Yes'">
-            <template v-for="entry in entries" :key="entry.value" >
-              <ion-label style="font-weight: normal !important;">
-                <ion-checkbox class="ion-margin-end ion-float-left" v-model="entry.isChecked" />
-                <span class="ion-margin-top" style="vertical-align: middle;">{{ entry.label }}</span>
-              </ion-label>
-              <br><br>
-            </template>
+          <multi-column-view :items="sideEffects" :numberOfColumns="2" v-slot="{ entries }" v-if="hasSideEffects">
+            <ion-item lines="none" v-for="entry in entries" :key="entry.value">
+              <ion-label>{{ entry.label }}</ion-label>
+              <ion-checkbox slot="start" v-model="entry.isChecked" />
+            </ion-item>
           </multi-column-view>
         </ion-col>
-        <ion-col size="6" class="ion-padding-top ion-margin-top">
-          <ion-label class=" ion-padding-bottom">Regimen: </ion-label>
-          <searchable-select-input
-            class="ion-margin-top"
-            :class="form.regimen.error ? 'box-input-error'  : 'box-input'"
-            :value="form.regimen.value"
-            :options="regimens"
-            :searchable="false"
-            @onSelect="(reg) => form.regimen.value = reg"
-          />
-          <ion-note v-if="form.regimen.error" color="danger">{{ form.regimen.error }}</ion-note>
+        <ion-col size="6" class="ion-margin-vertical">
+          <SelectInput v-model="form.regimen" :options="regimens" />
         </ion-col>
-        <ion-col size="6" class="ion-padding-top ion-margin-top">
-          <ion-label class="ion-padding-bottom">Quantity: </ion-label>
-          <ion-input 
-            type="number" 
-            :min="1" 
-            class="ion-margin-top"
-            :class="form.totalArvsGiven.error ? 'box-input-error'  : 'box-input'" 
-            v-model="form.totalArvsGiven.value" 
-          />
-          <ion-note v-if="form.totalArvsGiven.error" color="danger">{{ form.totalArvsGiven.error }}</ion-note>
+        <ion-col size="6" class="ion-margin-vertical">
+          <NumberInput v-model="form.totalArvsGiven" :form="form" :min="1"/>
         </ion-col>
-        <ion-col size="6" class="ion-padding-top">
-          <ion-label class=" ion-padding-bottom">CPT Quantity: </ion-label>
-          <ion-input 
-            type="number" :min="1" 
-            class="ion-margin-top"
-            :class="form.totalCPTGiven.error ? 'box-input-error'  : 'box-input'"
-            v-model="form.totalCPTGiven.value" 
-          />
-          <ion-note v-if="form.totalCPTGiven.error" color="danger">{{ form.totalCPTGiven.error }}</ion-note>
+        <ion-col size="6" class="ion-margin-vertical">
+          <NumberInput v-model="form.totalCPTGiven" :form="form" :min="1"/>
         </ion-col>
-         <ion-col size="6" class="ion-padding-top">
-          <ion-label class=" ion-padding-bottom">TB Medications: </ion-label>
-          <searchable-select-input
-            class="ion-margin-top"
-            :class="form.tbMed.error ? 'box-input-error'  : 'box-input'"
-            placeholder="Select TB Medications"
-            :options="tbMeds"
-            :value="form.tbMed.value"
-            @onSelect="(med) => form.tbMed.value = med"
-            :searchable="false"
-          />
-          <ion-note v-if="form.tbMed.error" color="danger">{{ form.tbMed.error }}</ion-note>
+         <ion-col size="6" class="ion-margin-vertical">
+          <SelectInput v-model="form.tbMed" :options="tbMeds" />
         </ion-col>
         <ion-col :size="hasGivenRFP ? 6 : 12" v-if="hasGiven6H || hasGivenRFP">
-          <ion-label class="ion-padding-bottom">IPT Quantity: </ion-label>
-          <ion-input 
-            type="number" 
-            :min="1" 
-            class="ion-margin-top"
-            :class="form.tbStatus.error ? 'box-input-error'  : 'box-input'"
-            v-model="form.totalIPTGiven.value" 
-          />
-          <ion-note v-if="form.totalIPTGiven.error" color="danger">{{ form.totalIPTGiven.error }}</ion-note>
+          <NumberInput v-model="form.totalIPTGiven" :form="form" :min="1"/>
         </ion-col>
         <ion-col size="6" v-if="hasGivenRFP">
-          <ion-label class=" ion-padding-bottom">RFP Quantity: </ion-label>
-          <ion-input 
-            type="number" 
-            :min="1" 
-            class="ion-margin-top"
-            :class="form.totalRFPGiven.error ? 'box-input-error'  : 'box-input'" 
-            v-model="form.totalRFPGiven.value" 
-          />
-          <ion-note v-if="form.totalRFPGiven.error" color="danger">{{ form.totalRFPGiven.error }}</ion-note>
+          <NumberInput v-model="form.totalRFPGiven" :form="form" :min="1"/>
         </ion-col>
         <ion-col size="12" v-if="hasGiven3HP">
-          <ion-label class=" ion-padding-bottom">3HP Quantity: </ion-label>
-          <ion-input 
-            type="number" 
-            :min="1" 
-            class="ion-margin-top"
-            :class="form.totalRFPGiven.error ? 'box-input-error'  : 'box-input'"  
-            v-model="form.total3HPGiven.value" 
-          />
-          <ion-note v-if="form.total3HPGiven.error" color="danger">{{ form.total3HPGiven.error }}</ion-note>
+          <NumberInput v-model="form.total3HPGiven" :form="form" :min="1"/>
         </ion-col>
-        <ion-col size="6" class="ion-margin-vertical ion-padding-vertical">
+        <ion-col size="6" class="ion-margin-vertical">
           <yes-no-input v-model="form.patientPresent" inline />
         </ion-col>
-        <ion-col size="6" class="ion-margin-vertical ion-padding-vertical">
+        <ion-col size="6" class="ion-margin-vertical">
           <yes-no-input v-model="form.guardianPresent" inline />
         </ion-col>
-        <ion-col size="6"> 
-          <ion-label class="ion-padding-bottom">Pill Count: (Last dispensation: {{ totalPrevDrugs }}) </ion-label>
-          <ion-input 
-            type="number" 
-            :min="1" 
-            class="ion-margin-top"
-            :class="form.pillCount.error ? 'box-input-error'  : 'box-input'"  
-            v-model="form.pillCount.value" 
-          />
-          <ion-note v-if="form.pillCount.error" color="danger">{{ form.pillCount.error }}</ion-note>
+        <ion-col size="6" class="ion-margin-vertical">
+          <NumberInput v-model="form.pillCount" :form="form" :min="1"/>
         </ion-col>
-        <ion-col size="6" >
-          <ion-label class=" ion-padding-bottom">Next Appointment Date: </ion-label>
-          <ion-input 
-            type="date"
-            v-model="form.nextAppointmentDate.value"
-            class="ion-margin-top"
-            :class="form.nextAppointmentDate.error ? 'box-input-error'  : 'box-input'" 
-          />
-          <ion-note v-if="form.nextAppointmentDate.error" color="danger">{{ form.nextAppointmentDate.error }}</ion-note>
+        <ion-col size="6" class="ion-margin-vertical">
+          <DateInput v-model="form.nextAppointmentDate" :form="form" />
         </ion-col>
       </ion-row>   
     </ion-grid>
   </ion-content>
   <ion-footer>
     <ion-toolbar>
-      <ion-button color="primary" @click="closeModal" slot="end">Close</ion-button>
+      <ion-button color="primary" @click="modal.hide()" slot="end">Close</ion-button>
       <ion-button color="warning" @click="onClear" slot="end">Reset</ion-button>
       <ion-button color="success" @click="onSubmit" slot="end">Save</ion-button>
     </ion-toolbar>
@@ -215,17 +103,17 @@ import {
   IonTitle, 
   IonToolbar, 
   IonButton, 
-  IonInput, 
   IonLabel,
   IonCheckbox,
-IonNote,
-loadingController, 
+IonItem,
 } from "@ionic/vue";
 import { alertConfirmation, toastSuccess } from "@/utils/Alerts";
 import isEmpty from "lodash/isEmpty";
 import { Option } from "@/components/Forms/FieldInterface";
-import SearchableSelectInput from "../inputs/SearchableSelectInput.vue";
 import YesNoInput from "../inputs/YesNoInput.vue";
+import SelectInput from "../inputs/SelectInput.vue";
+import DateInput from "../inputs/DateInput.vue";
+import NumberInput from "../inputs/NumberInput.vue";
 import { ConceptService } from "@/services/concept_service";
 import MultiColumnView from "@/components/containers/MultiColumnView.vue";
 import { PatientObservationService } from "@/services/patient_observation_service";
@@ -244,6 +132,11 @@ import { BMIService } from "@/services/bmi_service";
 import { DispensationService } from "@/apps/ART/services/dispensation_service";
 import { DTForm } from "../../interfaces/dt_form_field";
 import { isValidForm, optionsToGroupObs, resolveFormValues, resolveObs } from "../../utils/form";
+import { toOptions } from "../../utils/DTFormElements";
+import { loader } from "@/utils/loader";
+import { modal } from "@/utils/modal";
+import { EmcEvents } from "../../interfaces/emc_event";
+import EventBus from "@/utils/EventBus";
 
 export default defineComponent({
   components: {
@@ -253,14 +146,15 @@ export default defineComponent({
     IonTitle,
     IonToolbar,
     IonButton,
-    IonInput,
+    IonItem,
     IonLabel,
-    IonNote,
     IonGrid,
     IonRow,
     IonCol,
     IonCheckbox,
-    SearchableSelectInput,
+    SelectInput,
+    NumberInput,
+    DateInput,
     YesNoInput,
     MultiColumnView
   },
@@ -284,39 +178,37 @@ export default defineComponent({
     const contraIndications = ref<Option[]>([]);
     const sideEffects = ref<Option[]>([]);
     const prevDrugs = ref<any[]>([]);
-    const totalPrevDrugs = computed(() => prevDrugs.value[0]?.quantity)
     const showHeightField = computed(() => !(prevHeight.value && props.patient.getAge() > 18))
     const isFemale = computed(() => props.patient.isFemale())
 
     const form = reactive<DTForm>({
       visitDate: {
         value: undefined as string | undefined,
-        error: '',
+        label: "Visit Date",
+        required: true,
         validation: async (date: Option) => {
-          if (isEmpty(date.value)) {
-            return ['Visit date is required']
-          }
           if(dayjs(date.value).isAfter(dayjs())) {
             return ["Visit date cannot be after today's date"]
+          }
+          if(dayjs(date.value).isBefore(dayjs(props.patient.getBirthdate()))) {
+            return ["Visit date cannot be before patient's birth date"]
           }
           return null
         }
       },
       weight: {
         value: undefined as number | undefined,
-        error: '',
+        label: "Weight",
+        required: true,
         computedValue: (weight: number) => ({
           tag: 'vitals',
           obs: vitals.buildValueNumber('Weight', weight)
         }),
-        validation: (weight: Option) => StandardValidations.validateSeries([
-          () => StandardValidations.required(weight),
-          () => vitals.validator({...weight, label: 'Weight'})
-        ])
+        validation: (weight: Option) => vitals.validator({...weight, label: 'Weight'})
       },
       height: {
         value: undefined as number | undefined,
-        error: '',
+        label: "Height",
         computedValue: (height: number) => ({
           tag: 'vitals',
           obs: vitals.buildValueNumber('Height', height)
@@ -326,7 +218,6 @@ export default defineComponent({
       isPregnant: {
         value: undefined as "Yes" | "No"  | undefined,
         label: 'Is the patient pregnant?',
-        error: '',
         computedValue: (isPregnant: "Yes" | "No") => ({
           tag: 'consultation',
           obs: consultations.buildValueCoded('Is patient pregnant', isPregnant)
@@ -336,7 +227,6 @@ export default defineComponent({
       isBreastfeeding: {
         value: undefined as "Yes" | "No"  | undefined,
         label: 'Is the patient breastfeeding?',
-        error: '',
         computedValue: (isBreastfeeding: "Yes" | "No") => ({
           tag: 'consultation',
           obs: consultations.buildValueCoded('Is patient breast feeding', isBreastfeeding)
@@ -345,17 +235,22 @@ export default defineComponent({
       },
       nextAppointmentDate: {
         value: undefined as string | undefined,
-        error: '',
+        label: "Next Appointment Date",
         required: true,
         computedValue: (nextAppointmentDate: string) => ({
           tag: 'appointment',
           obs: appointment.buildValueDate('Appointment date', nextAppointmentDate)
         }),
+        validation: async (date, form) => {
+          if(dayjs(date.value).isBefore(dayjs(form.visitDate.value))) {
+            return ["Appointment date cannot be before visit date"]
+          }
+          return null
+        }
       },
       patientPresent: {
         value: undefined as "Yes" | "No"  | undefined,
         label: 'Is the patient present?',
-        error: '',
         required: true,
         computedValue: (patientPresent: "Yes" | "No") => ({
           tag: 'reception',
@@ -365,7 +260,6 @@ export default defineComponent({
       guardianPresent: {
         value: undefined as "Yes" | "No"  | undefined,
         label: 'Is the guardian present?',
-        error: '',
         required: true,
         computedValue: (guardianPresent: "Yes" | "No") => ({
           tag: 'reception',
@@ -374,13 +268,14 @@ export default defineComponent({
       },
       pillCount: {
         value: undefined as number  | undefined,
-        error: '',
+        label: "Pill Count",
+        required: true,
         validation: async (pills: Option) => StandardValidations.isNumber(pills)
       },
       regimen: {
-        value: undefined as Option | undefined,
-        error: '',
-        required: true,
+        value: undefined as string | undefined,
+        label: "Regimen",
+        placeholder: "Select a regimen",
         computedValue: () => ({
           tag: 'consultation',
           obs: prescription.buildValueCoded("Medication orders", "Antiretroviral drugs")
@@ -388,7 +283,7 @@ export default defineComponent({
       },
       totalCPTGiven: {
         value: undefined as number  | undefined,
-        error: '',
+        label: "Total CPT Given",
         computedValue: () => ({
           tag: 'consultation',
           obs: prescription.buildValueCoded("Medication orders", "CPT")
@@ -396,54 +291,53 @@ export default defineComponent({
       },
       totalIPTGiven: {
         value: undefined as number  | undefined,
-        error: '',
+        label: "Total IPT Given",
         computedValue: () => ({
           tag: 'consultation',
           obs: prescription.buildValueCoded("Medication orders", "INH")
         }),
         validation: async (drugs: Option, form: any) => {
-          return (form.tbMed.value?.label === '6H' || form.tbMed.value?.label === '3HP (RFP + INH)') && 
+          return (form.tbMed.value === '6H' || form.tbMed.value?.label === '3HP (RFP + INH)') && 
             StandardValidations.isNumber(drugs)
         }
       },
       totalRFPGiven: {
         value: undefined as number  | undefined,
-        error: '',
+        label: "Total RFP Given",
         computedValue: () => ({
           tag: 'consultation',
           obs: prescription.buildValueCoded("Medication orders", "3HP (RFP + INH)")
         }),
         validation: async (drugs: Option, form: any) => {
-          return form.tbMed.value?.label === '3HP (RFP + INH)' && 
+          return form.tbMed.value === '3HP (RFP + INH)' && 
             StandardValidations.isNumber(drugs)
         }
       },
       total3HPGiven: {
         value: undefined as number  | undefined,
-        error: '',
+        label: "Total 3HP Given",
         computedValue: () => ({
           tag: 'consultation',
           obs: prescription.buildValueCoded("Medication orders", "INH 300 / RFP 300 (3HP)")
         }),
         validation: async (drugs: Option, form: any) => {
-          return form.tbMed.value?.label === '3HP (INH 300 / RFP 300)' && 
+          return form.tbMed.value === '3HP (INH 300 / RFP 300)' && 
             StandardValidations.isNumber(drugs)
         }
       },
       totalArvsGiven: {
         value: undefined as number  | undefined,
-        error: '',
+        label: "Total ARVs Given",
         validation: async (drugs: Option, form: any) => form.regimen.value && StandardValidations.isNumber(drugs)
       },
       tbMed: {
-        value: undefined as Option | undefined,
-        error: '',
-        validation: async (med: Option) => StandardValidations.required(med)
+        value: undefined as string | undefined,
+        label: "TB Medication",
+        placeholder: "Select a TB medication",
       },
       hasContraindications: {
         value: undefined as "Yes" | "No"  | undefined,
         label: "Has Side Effects / Contraindications ?",
-        error: '',
         validation: async (state: Option) => {
           if(state.value === "Yes" && contraIndications.value.some(x => !x.isChecked))
             return ["Please select at least one side effect"]
@@ -453,7 +347,6 @@ export default defineComponent({
       hasSideEffects: {
         value: undefined as "Yes" | "No"  | undefined,
         label: "Has Other Side Effects ?",
-        error: '',
         validation: async (state: Option, form: any) => {
           if(form.hasContraindications.value === "No") return null
           if(state.value === "Yes" && sideEffects.value.some(x => !x.isChecked))
@@ -462,13 +355,13 @@ export default defineComponent({
         }
       },
       tbStatus: {
-        value: undefined as Option | undefined,
-        error: '',
-        computedValue: (status: Option) => ({
+        value: undefined as string | undefined,
+        label: "TB Status",
+        computedValue: (status: string) => ({
           tag: 'consultation',
-          obs: consultations.buildValueCoded('TB Status', status.label)
+          obs: consultations.buildValueCoded('TB Status', status)
         }),
-        validation: async (state: Option) => StandardValidations.required(state)
+        validation: async (state) => StandardValidations.required(state)
       },
     })
 
@@ -484,22 +377,20 @@ export default defineComponent({
       }
     })
 
-    const hasGiven3HP = computed(() => form.tbMed.value?.label === '3HP (INH 300 / RFP 300)')
-    const hasGivenRFP = computed(() => form.tbMed.value?.label === '3HP (RFP + INH)')
-    const hasGiven6H = computed(() => form.tbMed.value?.label === '6H')
-    
-    const tbStatuses = ref<Option[]>([
-      { label: 'Confirmed TB Not on treatment', value: 'Confirmed TB Not on treatment' },
-      { label: 'Confirmed TB on treatment', value: 'Confirmed TB on treatment' },
-      { label: 'TB Not Suspected', value: 'TB Not Suspected' },
-      { label: 'TB Suspected', value: 'TB Suspected' },
-    ]);
-    const tbMeds = ref<Option[]>([
-      { label: '6H', value: '6H'},
-      { label: '3HP (RFP + INH)', value: '3HP (RFP + INH)'},
-      { label: '3HP (INH 300 / RFP 300)', value: '3HP (INH 300 / RFP 300)'}
-    ])
+    const hasGiven3HP = computed(() => form.tbMed.value === '3HP (INH 300 / RFP 300)')
+    const hasGivenRFP = computed(() => form.tbMed.value === '3HP (RFP + INH)')
+    const hasGiven6H = computed(() => form.tbMed.value === '6H')
+    const hasContraindications = computed(() => form.hasContraindications.value === 'Yes')
+    const hasSideEffects = computed(() => form.hasSideEffects.value === 'Yes')
 
+    const tbStatuses = toOptions([
+      'Confirmed TB Not on treatment', 
+      'Confirmed TB on treatment', 
+      'TB Not Suspected',
+      'TB Suspected'
+    ]);
+    const tbMeds = toOptions(['6H', '3HP (RFP + INH)', '3HP (INH 300 / RFP 300)'])
+    
     const setPatientPresent = (state: "Yes" | "No") => {
       form.patientPresent.value = state 
       if(state === 'No') {
@@ -514,11 +405,6 @@ export default defineComponent({
       }
     }
 
-
-    const closeModal = (data?: any) => {
-      modalController.dismiss(data);
-    };
-
     const buildBmiObs = async (formData: any): Promise<ObsValue> => {
       const height = formData.height || prevHeight.value
       const bmi = BMIService.calculateBMI(formData.weight, height)
@@ -529,8 +415,8 @@ export default defineComponent({
       const obs: ObsValue[] = [
         await consultations.buildValueCoded('Patient using family planning', 'No')
       ]
-      const methos = consultations.getFamilyPlanningMethods()
-      methos.forEach(async (method) => {
+      const methods = consultations.getFamilyPlanningMethods()
+      methods.forEach(async (method) => {
         obs.push(await consultations.buildValueCoded(method, "No"))
       })
       return obs
@@ -557,15 +443,19 @@ export default defineComponent({
     }
 
     const onSubmit = async () => {
-      const loader = await loadingController.create({
-        message: 'Processing data...'
-      });
-      await loader.present();
-      if(!(await isValidForm(form))) return loader.dismiss()
+      await loader.show()
+      if(!(await isValidForm(form))) return loader.hide()
+      await PatientObservationService.setSessionDate(form.visitDate.value)
+      vitals.setDate(form.visitDate.value)
+      consultations.setDate(form.visitDate.value)
+      prescription.setDate(form.visitDate.value)
+      reception.setDate(form.visitDate.value)
+      adherence.setDate(form.visitDate.value)
+      appointment.setDate(form.visitDate.value)
+      dispensation.setDate(form.visitDate.value)
 
       const { formData, computedFormData } = resolveFormValues(form)
-      await PatientObservationService.setSessionDate(formData.visitDate)
-
+      
       await vitals.createEncounter()
       const vitalsObs = await resolveObs(computedFormData, 'vitals')
       const bmiObs = await buildBmiObs(formData)
@@ -574,9 +464,9 @@ export default defineComponent({
       await consultations.createEncounter()
       const consultationObs = await resolveObs(computedFormData, 'consultation')
       if(isFemale.value) consultationObs.concat(await buildFpmObs())
-      if(form.hasContraindications.value === 'Yes') 
+      if(hasContraindications.value) 
         consultationObs.concat(await optionsToGroupObs("Malawi ART side effects", contraIndications.value))
-      if(form.hasSideEffects.value === 'Yes') 
+      if(hasSideEffects.value) 
         consultationObs.concat(await optionsToGroupObs("Other side effect", sideEffects.value))
       consultationObs.concat(await getTbSymptomsObs())
       await consultations.saveObservationList(consultationObs)
@@ -585,7 +475,7 @@ export default defineComponent({
       const drugOrders: any[] = []
       let duration = 0
       if(formData.regimen && formData.totalArvsGiven) {
-        const arvDrugs: any[] = form.regimen.value.other
+        const arvDrugs: any[] = regimens.value.find(x => x.label === formData.regimen)?.other || []
         duration = Math.min(...arvDrugs.map(drug =>(formData.totalArvsGiven / (drug.am + drug.pm)) + 2))
         arvDrugs.forEach((drug: any) => drugOrders.push(
           toDrugOrder(drug, formData.totalArvsGiven, duration, formData.visitDate)
@@ -648,16 +538,20 @@ export default defineComponent({
       const appointmentObs = await resolveObs(computedFormData, 'appointment')
       await appointment.saveObservationList(appointmentObs)
       await toastSuccess('Patient visit saved successfully')
-      loader.dismiss()
+
       await PatientObservationService.resetSessionDate()
-      closeModal({ data: 'refresh' })
+
+      await loader.hide()
+      await modal.hide()
+      EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA);
     }
 
     const onClear = async () => {
       const confirm = await alertConfirmation('Are you sure you want to clear all fields?')
       if(confirm) {
         for(const key in form) {
-          form[key].value = undefined
+          form[key].value = ''
+          form[key].error = ''
         }
       }
     }
@@ -687,7 +581,6 @@ export default defineComponent({
 
     return {
       form,
-      onSubmit,
       regimens,
       contraIndications,
       sideEffects,
@@ -696,12 +589,14 @@ export default defineComponent({
       hasGiven3HP,
       hasGivenRFP,
       hasGiven6H,
-      totalPrevDrugs,
       showHeightField,
       isFemale,
+      modal,
+      hasContraindications,
+      hasSideEffects,
+      onSubmit,
       setPatientPresent,
       setGuardianPresent,
-      closeModal,
       onClear,
     };
   },
@@ -711,5 +606,9 @@ export default defineComponent({
 <style scoped>
 ion-label {
   font-weight: bold;
+}
+
+ion-checkbox {
+  --size: 20px!important;
 }
 </style>
