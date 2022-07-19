@@ -1,7 +1,7 @@
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import MonthOptions from "@/utils/HisFormHelpers/MonthOptions"
 import { Field, Option } from "@/components/Forms/FieldInterface"
-import HisDate from "@/utils/Date"
+import HisDate, { STANDARD_DATE_FORMAT } from "@/utils/Date"
 import StandardValidations from "@/components/Forms/validations/StandardValidations"
 import { NUMBER_PAD_LO } from "@/components/Keyboard/KbLayouts"
 import { NUMBERS_WITHOUT_NA_UNKNOWN } from '../../components/Keyboard/HisKbConfigurations';
@@ -431,10 +431,9 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     ) 
 
     durationEstimate.computedValue = (val: Option) => {
-        const year = dayjs(Service.getSessionDate())
+        fullDate = dayjs(Service.getSessionDate())
             .subtract(val.value as number, 'day')
-            .year()
-        fullDate = `${year}-07-15`
+            .format(STANDARD_DATE_FORMAT)
         return field.computeValue(fullDate, true)
     }
 
