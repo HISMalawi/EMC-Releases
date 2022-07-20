@@ -20,7 +20,8 @@ export default defineComponent({
   mixins: [EncounterMixinVue],
   data: () => ({
     radiologyService: {} as any,
-    isPacsEnabled: false
+    isPacsEnabled: false,
+    previousRadiologyExaminations: {} as any
   }),
   watch: {
     ready: {
@@ -28,6 +29,7 @@ export default defineComponent({
         if(isReady){
           this.radiologyService = new PatientRadiologyService(this.patientID, this.providerID)
           this.isPacsEnabled = (await OPD_GLOBAL_PROP.isPACsEnabled())
+          this.previousRadiologyExaminations = await this.radiologyService.showPreviousRadiolgy(this.patient)
           this.fields = this.getFields()
         }
       },
@@ -82,7 +84,7 @@ export default defineComponent({
         {
           id: 'radiology_results',
           helpText: 'Previous Radiology Examinations',
-          condition: () => this.radiologyService.showPreviousRadiolgy(this.patient),
+          condition: () => this.previousRadiologyExaminations,
           type: FieldType.TT_TABLE_VIEWER,
           options: (d: any) => this.getTableData(),
           config: {
@@ -94,6 +96,9 @@ export default defineComponent({
           helpText: 'Radiology Examination',
           type: FieldType.TT_RADIOLOGY_PICKER,
           validation: (data: any) => Validation.required(data),
+          config: {
+            hiddenFooterBtns: [ this.disableBackBtn() ],
+          },
           computedValue: (options: Option[]) => {
             return options.map(async (option)=> ({
               ...(await this.radiologyService.buildValueCoded('Radiology Orders', option.other.parent)),
@@ -103,6 +108,11 @@ export default defineComponent({
         },
       ]
     },
+    disableBackBtn() {
+      if(this.previousRadiologyExaminations) {
+        return ''
+      } else return 'Back'
+    }
   }
 })
 </script>
