@@ -98,7 +98,7 @@ export default defineComponent({
                 (p: any) => ([
                    table.td(p.arv_number),
                    table.tdDate(p.birthdate),
-                   table.tdDate(p.prescription_date)
+                   table.tdDate(p.dispensation_date)
                ])
             )
             if (patients.length <= 0) return table.td(0)
