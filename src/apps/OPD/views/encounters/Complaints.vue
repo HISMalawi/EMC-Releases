@@ -33,7 +33,7 @@ export default defineComponent({
     presentingComplaints: "" as any,
     isPacsEnabled: false,
     radiologyBtnName: 'Radiology Order',
-    BackBtn: "" as any
+    hasTriageComplaints: false,
   }),
   watch: {
     ready: {
@@ -41,7 +41,7 @@ export default defineComponent({
         if(isReady){
           this.complaintsService = new PatientComplaintsService(this.patientID, this.providerID)
           this.isPacsEnabled = (await OPD_GLOBAL_PROP.isPACsEnabled())
-          this.BackBtn = await this.disableBackBtn()
+          this.hasTriageComplaints = await this.getTriagePresentingComplaints()
           this.fields = this.getFields()
         }
       },
@@ -115,7 +115,7 @@ export default defineComponent({
         {
           id: "triage_complaints",
           helpText: "Triaging Complaints",
-          condition: () => this.getTriagePresentingComplaints(),
+          condition: () => this.hasTriageComplaints,
           type: FieldType.TT_TABLE_VIEWER,
           options: (d: any) => this.buildResults(),
           config: {
@@ -134,7 +134,7 @@ export default defineComponent({
             }))
           },
           config: {
-            hiddenFooterBtns: [ this.showRadiologyOdersBtn(), this.BackBtn ],
+            hiddenFooterBtns: [ this.showRadiologyOdersBtn(), this.disableBackBtn()],
             footerBtns: [
               {
                 name: "Lab Order",
@@ -193,8 +193,8 @@ export default defineComponent({
       })
       return OPDComplaint.concat(triageComplaint);
     },
-    async disableBackBtn() {
-      if( await this.getTriagePresentingComplaints()) {
+    disableBackBtn() {
+      if(this.hasTriageComplaints) {
         return ''
       } else return 'Back'
     }
