@@ -41,28 +41,24 @@ export class PrintoutService extends Service {
     }
 
     async printLbl(url: any, showPrintImage = true) {
-        const { platformType } = usePlatform()
-        if (platformType.value === 'desktop') {
-            try {
-                if(showPrintImage)
-                EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')                
-                await this.execPrint(url)
-            } catch (e) {
-                toastWarning(e as any, 3000)
-            }
-        } else {
-            try {
+        try {
+            const preFetch = await Service.getText(url)
+            if (!preFetch) throw 'Unable to print Label. Try again later'
+            const { platformType } = usePlatform()
+            if (platformType.value === 'desktop') {
+                if(showPrintImage) EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')
+                document.location = (await ApiClient.expandPath(url)) as any
+            } else {
                 const printer = await this.getDefaultPrinter();
                 if (!printer) return
                 if(showPrintImage) EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')  
-                BluetoothSerial.connect(printer).subscribe(async () => {
-                    BluetoothSerial.write(await Service.getText(url))
+                BluetoothSerial.connect(printer.address).subscribe(async () => {
+                    BluetoothSerial.write(preFetch)
                         .then(() => BluetoothSerial.disconnect())
                 })
-
-            } catch (error) {
-                toastWarning(`${error}`)
             }
+        } catch (e) {
+            toastWarning(e as any)
         }
     }
 
@@ -74,13 +70,13 @@ export class PrintoutService extends Service {
         await this.printLbl(`drugs/${drugId}/barcode?quantity=${quantity}`)
     }
 
-    setDefaultPrinter(printer: string) {
-        sessionStorage.setItem('defaultPrinter', printer)
+    setDefaultPrinter(printer: {name: string; address: string}) {
+        sessionStorage.setItem('defaultPrinter', JSON.stringify(printer))
     }
 
     async getDefaultPrinter() {
         const printer = sessionStorage.getItem('defaultPrinter')
-        if (printer) return printer
+        if (printer) return JSON.parse(printer)
         return this.selectDefaultPrinter()
     }
 
@@ -104,8 +100,8 @@ export class PrintoutService extends Service {
 
         const printer = printers.find(p => p.name +` (${p.address})` === option.selection)
         
-        this.setDefaultPrinter(printer.address)
+        this.setDefaultPrinter({name: printer.name, address: printer.address})
 
-        return printer.address
+        return printer
     }
 }
