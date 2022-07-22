@@ -6,6 +6,7 @@ import { EventChannels } from "@/utils/EventBus";
 import EventBus from "@/utils/EventBus";
 import { BluetoothSerial } from "@awesome-cordova-plugins/bluetooth-serial";
 import { optionsActionSheet } from '@/utils/ActionSheets';
+import dayjs from 'dayjs';
 
 export class PrintoutService extends Service {
     constructor() {
@@ -44,6 +45,7 @@ export class PrintoutService extends Service {
         try {
             const preFetch = await Service.getText(url)
             if (!preFetch) throw 'Unable to print Label. Try again later'
+            await toastSuccess(preFetch, 30000)
             const { platformType } = usePlatform()
             if (platformType.value === 'desktop') {
                 if(showPrintImage) EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')
@@ -80,11 +82,11 @@ export class PrintoutService extends Service {
         return this.selectDefaultPrinter()
     }
 
-    async selectDefaultPrinter(): Promise<string> {
+    async selectDefaultPrinter(): Promise<Record<string, any>> {
         const printers: any[] = await BluetoothSerial.list()
         if (printers.length === 0) {
             toastWarning('No printers found. Please connect a printer.')
-            return ''
+            return {}
         }
         const option = await optionsActionSheet(
             "Select Printer",
@@ -96,7 +98,7 @@ export class PrintoutService extends Service {
             ]
         )
 
-        if(option.action === 'Cancel') return ''
+        if(option.action === 'Cancel') return {}
 
         const printer = printers.find(p => p.name +` (${p.address})` === option.selection)
         
@@ -104,4 +106,26 @@ export class PrintoutService extends Service {
 
         return printer
     }
+
+    async printTestLbl() {
+        const testLblText = `
+            N
+            q801
+            Q329,026
+            ZT
+            B50,180,0,1,5,15,120,N,"Barcode"
+            A35,30,0,2,2,2,N,""
+            A35,76,0,2,2,2,N,"Test Label Printing"
+            A35,122,0,2,2,2,N,"Date: ${dayjs().format('DD/MMM/YYYY')}"
+            P1`
+
+        const printer = await this.getDefaultPrinter();
+        if (!printer) return
+        EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')  
+        BluetoothSerial.connect(printer.address).subscribe(async () => {
+            BluetoothSerial.write(testLblText)
+                .then(() => BluetoothSerial.disconnect())
+        })
+    }
+
 }

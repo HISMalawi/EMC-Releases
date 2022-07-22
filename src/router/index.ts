@@ -20,6 +20,7 @@ import SystemUsage from "@/views/SystemUsage.vue"
 import PrintLocation from "@/views/PrintLocation.vue"
 import PortalSettings from "@/views/PortalSettings.vue"
 import HostConfig from '@/views/HostConfig.vue'
+import PrinterSettings from '@/views/PrinterSettings.vue'
 import ProgramManagement from "@/views/ProgramManagement.vue"
 import LabResults from "@/views/LabResults.vue"
 import User from "@/views/NewUser.vue"
@@ -168,6 +169,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/settings/host',
     name: 'API host settings',
     component: HostConfig
+  },
+  {
+    path: '/settings/printer',
+    name: 'Printer settings',
+    component: PrinterSettings
   },
   {
     path: '/lab/results/:patient_id',
