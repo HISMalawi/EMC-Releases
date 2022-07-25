@@ -11,7 +11,6 @@
       <visit-information
         :getVisitDates="getPatientVisitDates"
         @onPrint="printLabel"
-        @onDetails="showMore"
         style="font-size: 11px"
       ></visit-information>
     </ion-content>
@@ -341,61 +340,7 @@ export default defineComponent({
     },
     printLabel(date: any) {
       new PatientPrintoutService(this.patientId).printVisitSummaryLbl(date);
-    },
-    FormData(data: any) {
-      return Object.keys(data).map((d) => {
-        const display: any =
-          d === "outcome_date"
-            ? HisDate.toStandardHisDisplayFormat(data[d])
-            : data[d];
-        if (d.match(/height/i)) d += " (cm)";
-        if (d.match(/weight/i)) d += " (Kg)";
-        return {
-          label: this.camelCase(d),
-          value: this.joinData(display),
-        };
-      });
-    },
-    joinData(vals: any) {
-      if (isArray(vals)) {
-        const f = [...vals];
-        if (isArray(f)) {
-          let j = "";
-          f.forEach((element) => {
-            j += `${element.join(":")}, `;
-          });
-          return j;
-        }
-        return f;
-      } else {
-        return vals;
-      }
-    },
-    camelCase(val: string) {
-      const label = val.split("_");
-      return `${this.capitalize(label[0])} ${this.capitalize(label[1])}`;
-    },
-    capitalize(val: string) {
-      try {
-        return val.charAt(0).toUpperCase() + val.slice(1);
-      } catch (error) {
-        return "";
-      }
-    },
-    async showMore(date: any) {
-      const title = "Visit details for";
-      const data = await this.getExtras(date);
-      const modal = await modalController.create({
-        component: MastercardDetails,
-        backdropDismiss: false,
-        cssClass: "large-modal",
-        componentProps: {
-          title: `${title}: ${HisDate.toStandardHisDisplayFormat(date)}`,
-          visitData: this.FormData(data),
-        },
-      });
-      modal.present();
-    },
-  },
+    }
+  }
 });
 </script>
