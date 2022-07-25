@@ -665,6 +665,10 @@ export default defineComponent({
         await this.createPatientType('Drug Refill')
         return FlowState.CONTINUE
       }
+      states[FlowState.ADD_AS_NEW_PATIENT] = async () => {
+        await this.createPatientType('New patient')
+        return FlowState.CONTINUE
+      }
       states[FlowState.ADD_AS_EXTERNAL_CONSULTATION] = async () => {
         await this.createPatientType('External consultation')
         return FlowState.CONTINUE
@@ -689,7 +693,7 @@ export default defineComponent({
       }
       return state
     },
-    async createPatientType(patientType: 'Drug Refill' | 'External consultation') {
+    async createPatientType(patientType: 'Drug Refill' | 'External consultation' | 'New patient') {
       const type = new PatientTypeService(this.patient.getID(), -1)
       await type.createEncounter()
       await type.savePatientType(patientType)
