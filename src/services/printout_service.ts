@@ -1,7 +1,7 @@
 import { Service } from "./service";
 import ApiClient from "./api_client";
 import usePlatform from "@/composables/usePlatform";
-import { toastSuccess, toastWarning } from "@/utils/Alerts";
+import { toastWarning } from "@/utils/Alerts";
 import { EventChannels } from "@/utils/EventBus";
 import EventBus from "@/utils/EventBus";
 import { BluetoothSerial } from "@awesome-cordova-plugins/bluetooth-serial";
