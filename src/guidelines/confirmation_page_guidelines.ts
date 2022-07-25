@@ -325,40 +325,43 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
             alert: async ({patientType}: any) => {
+                const buttonOptions = []
+                if (patientType === 'External consultation') { 
+                    buttonOptions.push({
+                        name: 'Drug refill', 
+                        slot: 'start', 
+                        color: 'primary'
+                    })
+                } else {
+                    buttonOptions.push({ 
+                        name: 'External Consultation',
+                        slot: 'start', 
+                        color: 'primary'
+                    })
+                }
+                buttonOptions.push({ 
+                    name: 'New Patient',
+                    slot: 'end',
+                    color: 'primary'
+                }),
+                buttonOptions.push({
+                    name: 'Continue',
+                    slot: 'end',
+                    color: 'success'
+                })
                 const action = await infoActionSheet(
                     'Purpose of visit',
                     `Current Patient type: ${patientType}`,
                     'Please select purspose of the visit',
-                    [
-                        { 
-                            name: 'Drug refill', 
-                            slot: 'start', 
-                            color: 'primary'
-                        },
-                        { 
-                            name: 'Consultation',
-                            slot: 'start', 
-                            color: 'primary'
-                        },
-                        { 
-                            name: 'New',
-                            slot: 'end',
-                            color: 'primary'
-                        },
-                        {
-                            name: 'Continue',
-                            slot: 'end',
-                            color: 'success'
-                        }
-                    ],
+                    buttonOptions,
                     'his-warning-color'
                 )
                 switch(action) { 
                     case 'Drug refill':
                         return FlowState.ADD_AS_DRUG_REFILL
-                    case 'Consultation':
+                    case 'External Consultation':
                         return FlowState.ADD_AS_EXTERNAL_CONSULTATION
-                    case 'New':
+                    case 'New Patient':
                         return FlowState.ADD_AS_NEW_PATIENT
                     default: 
                         return FlowState.CONTINUE
