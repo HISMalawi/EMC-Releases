@@ -157,7 +157,6 @@ export default defineComponent({
       const dates = await Patientservice.getPatientVisits(this.patientId, true);
       const f = dates.map(async (date: string) => {
         const d = await this.getExtras(date);
-        console.log(d)
         return {
           label: HisDate.toStandardHisDisplayFormat(date),
           value: date,
