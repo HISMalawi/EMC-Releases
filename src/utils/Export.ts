@@ -1,5 +1,9 @@
 import jsPDF from "jspdf"
 import autoTable from 'jspdf-autotable'
+import { Filesystem, Directory } from "@capacitor/filesystem"
+import platform from "@/composables/usePlatform"
+import { toastDanger, toastSuccess, toastWarning } from "./Alerts"
+import writeBlob from "capacitor-blob-writer"; 
 
 function convertToCsv(list: Array<any>) {
   return list.reduce((accum: string, row: Array<any>) => {
@@ -7,8 +11,36 @@ function convertToCsv(list: Array<any>) {
   }, '')
 }
 
+function exportMobile(file: string, data: any, type: 'blob' | 'text') {
+  let promiseObj: any = null
+  const path = `HIS-Core/${file.replaceAll('/', '_')}`
+  if (type === 'blob') {
+    promiseObj = writeBlob({
+      path,
+      blob: data,
+      directory: Directory.Documents,
+      recursive: true
+    })
+  } else {
+    promiseObj = Filesystem.writeFile({
+      path,
+      data,
+      directory: Directory.Documents,
+      recursive: true
+    })
+  }
+  if (promiseObj != null) { 
+    promiseObj.then(() => toastSuccess(`File exported in Documents/${path}`))
+      .catch((e: any) => toastDanger(e))
+  }
+}
+
 export function toCsv(header: Array<any>, rows: Array<any>, fileName='document') {
-    const csvContent = convertToCsv(header.concat(rows))
+  const csvContent = convertToCsv(header.concat(rows))
+  const { platformType } = platform()
+  const fileWithExt = `${fileName}.csv`
+
+  if (platformType.value === 'desktop') {
     const csvData = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.setAttribute('id', 'csv')
@@ -16,7 +48,12 @@ export function toCsv(header: Array<any>, rows: Array<any>, fileName='document')
     link.setAttribute("download", `${fileName}.csv`);
     document.body.appendChild(link);
     link.click();
-    link.remove()
+    link.remove();
+  } else if (platformType.value === 'mobile') {
+    exportMobile(fileWithExt, csvContent, 'text')
+  } else {
+    toastWarning('Platform not supported')
+  }
 }
 
 export function toTablePDF(
@@ -41,5 +78,13 @@ export function toTablePDF(
       config.horizontalPageBreakRepeat = 0
     }
     autoTable(doc, config)
-    doc.save(`${fileName}.pdf`)
+    const { platformType } = platform()
+    const path = `${fileName}.pdf`
+    if (platformType.value === 'desktop') { 
+      doc.save(path)
+    } else if (platformType.value === 'mobile') {
+      exportMobile(path, doc.output(), 'blob')
+    } else {
+      toastDanger('Platform not supported') 
+    }
 }
