@@ -68,17 +68,6 @@ export default defineComponent({
         return vals;
       }
     },
-    formatPillsDispensed(vals: any) {
-      if (isArray(vals)) {
-        let j = "";
-        vals.forEach((element: Array<any>) => {
-          j += `${element.join(':')}, `;
-        });
-        return j;
-      } else {
-        return vals;
-      }
-    },
     async getRows (): Promise<RowInterface[][]> {
       const visitDates = await this.getVisitDates()
       return visitDates.map((item: any) => {
@@ -89,7 +78,9 @@ export default defineComponent({
           table.td(item.data['viral_load'], tdStyles),
           table.td(item.data['tb_status'].match(/Unknown/i) ? 'TB NOT suspected' : item.data['tb_status'], tdStyles),
           table.td(item.data.outcome.match(/Unk/i) ? "" : item.data.outcome, tdStyles),
-          table.td(this.formatPillsDispensed(item.data['pills_dispensed']), tdStyles),
+          table.td((item.data?.drugs?.pills_given || []).map((d: any) =>  {
+            return `${d['short_name'] || d['name']} <b>(${d.quantity || '?'})</b>`
+          }).join('<br/>'), tdStyles),
           table.tdBtn('show more', () => this.showMore(item.value), tdStyles, 'secondary'),
         ]
       })
