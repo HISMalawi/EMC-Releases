@@ -26,7 +26,8 @@ export class PrintoutService extends Service {
             BluetoothSerial.connect(printer.address).subscribe(async () => {
                 BluetoothSerial.write(preFetch)
                     .then(() => BluetoothSerial.disconnect())
-            })
+                    .catch((err) => { throw err })
+            }, (err) => { throw err })
         }
     }
 
@@ -76,7 +77,7 @@ export class PrintoutService extends Service {
     }
 
     async selectDefaultPrinter(): Promise<Record<string, any>> {
-        const printers: any[] = await BluetoothSerial.list()
+        const printers: any[] = await this.getAllPrinters()
         if (printers.length === 0) {
             toastWarning('No printers found. Please connect a printer.')
             return {}
@@ -100,7 +101,7 @@ export class PrintoutService extends Service {
         return printer
     }
 
-    async printTestLbl(printer: Record<string, any>) {
+    async printTestLbl(printerAddress: string) {
         const testLblText = `
             N
             q801
@@ -113,10 +114,15 @@ export class PrintoutService extends Service {
             P1`
 
         EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')  
-        BluetoothSerial.connect(printer.address).subscribe(async () => {
+        BluetoothSerial.connect(printerAddress).subscribe(async () => {
             BluetoothSerial.write(testLblText)
-                .then(() => BluetoothSerial.disconnect())
-        })
+                .catch(async (err) => await toastWarning(err))
+                .finally(() => BluetoothSerial.disconnect())
+        }, async (err) => await toastWarning(err))
+    }
+
+    async getAllPrinters() {
+        return BluetoothSerial.list()
     }
 
 }

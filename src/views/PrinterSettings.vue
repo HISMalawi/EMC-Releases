@@ -11,9 +11,6 @@ import { defineComponent } from "vue";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { PrintoutService } from "@/services/printout_service";
-import { toastSuccess } from "@/utils/Alerts";
-import { refresh } from "ionicons/icons";
-import { isEmpty } from "lodash";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -21,49 +18,64 @@ export default defineComponent({
     async onFinish() {
       this.$router.back();
     },
+    isDefaultPrinter(printer: Record<string, any>) {
+      return printer.address === this.defaultPrinter.address;
+    },
+    sortPrinters(printers: Record<string, any>[]) {
+      return printers.sort((a, b) => {
+        if (this.isDefaultPrinter(a) && !this.isDefaultPrinter(b)) {
+          return -1;
+        } else if (!this.isDefaultPrinter(a) && this.isDefaultPrinter(b)) {
+          return 1;
+        } else {
+          return a.name.localeCompare(b.name);
+        }
+      });
+    },
     getFields() {
       return [
         {
           id: "printer_settings",
           helpText: "Printer Settings",
-          type: FieldType.TT_SUMMARY,
-          options: () => [
-            {
-              label: "Printer name",
-              value: this.defaultPrinter.name
-            },
-            {
-              label: "Printer address",
-              value: this.defaultPrinter.address
-            },
-          ],
-          config: {
-            hiddenFooterBtns: ["Clear"],
-            footerBtns: [
-              {
-                name: "Select Printer",
-                size: "large",
-                slot: "end",
-                color: "primary",
-                visible: true,
-                onClick: async () => {
-                  const printer = await this.printerService.selectDefaultPrinter();
-                  if (isEmpty(printer)) return;
-                  this.defaultPrinter = printer;
-                  await this.printerService.printTestLbl();
-                  this.refreshKey = Math.random() * 10000;
-                },
-              },
-            ],
-          },
+          type: FieldType.TT_TABLE_VIEWER,
+          config: { hiddenFooterBtns: ["Clear"]},
+          options: async () => {
+            const printers: Record<string, any>[] = await this.printerService.getAllPrinters();
+            const sortedPrinters = this.sortPrinters(printers);
+            return [{
+              other: {
+                columns: ["Available Printers"],
+                rows: sortedPrinters.map((printer: any) => [
+                  `${printer.name} (${printer.address}) ${this.isDefaultPrinter(printer) ? " - Default" : ""}`,
+                  {
+                    type: "button",
+                    name: "Test Printer",
+                    action: async () => {
+                      await this.printerService.printTestLbl(printer.address);
+                    }
+                  },
+                  (this.isDefaultPrinter(printer) ? "" : {
+                    type: 'button',
+                    name: 'Set as Default',
+                    visible: !this.isDefaultPrinter(printer),
+                    action: () => {
+                      this.printerService.setDefaultPrinter(printer);
+                      this.defaultPrinter = printer;
+                      this.refreshKey = Math.random() * 10000;
+                    }
+                  })
+                ]),
+              }
+            }]
+          }
         },
       ];
     },
   },
   data() {
     return {
-      printerService: {} as any,
-      defaultPrinter: {} as any,
+      printerService: {} as PrintoutService,
+      defaultPrinter: {} as Record<string, any>,
       refreshKey: 0,
       fields: [] as any,
     };
