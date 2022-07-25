@@ -157,6 +157,7 @@ export default defineComponent({
       const dates = await Patientservice.getPatientVisits(this.patientId, true);
       const f = dates.map(async (date: string) => {
         const d = await this.getExtras(date);
+        console.log(d)
         return {
           label: HisDate.toStandardHisDisplayFormat(date),
           value: date,
@@ -167,10 +168,13 @@ export default defineComponent({
       return y;
     },
     async getExtras(date: any) {
-      return await ProgramService.getCurrentProgramInformation(
-        this.patientId,
-        date
+      const programInfo = await ProgramService.getCurrentProgramInformation(
+        this.patientId, date
       );
+      const drugInformation = await ProgramService.getMastercardDrugInformation(
+        this.patientId, date
+      );
+      return { ...programInfo, drugs: drugInformation };
     },
     onActiveVisitDate(data: Option) {
       this.activeVisitDate = data.value;
