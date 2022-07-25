@@ -7,58 +7,51 @@ import EventBus from "@/utils/EventBus";
 import { BluetoothSerial } from "@awesome-cordova-plugins/bluetooth-serial";
 import { optionsActionSheet } from '@/utils/ActionSheets';
 import dayjs from 'dayjs';
+import { isEmpty } from 'lodash';
 
 export class PrintoutService extends Service {
     constructor() {
         super()
     }
 
-    async execPrint(url: string) {
+    private async _print(url: string) {
         const preFetch = await Service.getText(url)
         if (!preFetch) throw 'Unable to print Label. Try again later'
-        document.location = (await ApiClient.expandPath(url)) as any
-    }
-
-    async batchPrintLbls(urls: string[], showPrintImage = true) {
-        const { platformType } = usePlatform()
-        if (platformType.value === 'desktop') {
-            const errors: string[] = []
-            if(showPrintImage) EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')
-            for(const url of urls) {
-                try {
-                    await this.execPrint(url)
-                } catch (e) {
-                    errors.push(e as any)
-                }
-            }
-            if(showPrintImage) await PrintoutService.delay(2000)
-            if (errors.length > 0) {
-                // display unique errors only
-                await toastWarning(errors.filter((value, index, self) => self.indexOf(value) === index).join(), 3000)
-            }           
+        if (usePlatform().platformType.value === 'desktop') {
+            document.location = (await ApiClient.expandPath(url)) as any
         } else {
-            toastWarning('Sorry, your Platform does not support Label printing. Bye!')
+            let printer = await this.getDefaultPrinter();
+            if(isEmpty(printer)) printer = await this.selectDefaultPrinter();
+            if (!printer) throw 'No default printer selected!!!'
+            BluetoothSerial.connect(printer.address).subscribe(async () => {
+                BluetoothSerial.write(preFetch)
+                    .then(() => BluetoothSerial.disconnect())
+            })
         }
     }
 
-    async printLbl(url: any, showPrintImage = true) {
-        try {
-            const preFetch = await Service.getText(url)
-            if (!preFetch) throw 'Unable to print Label. Try again later'
-            await toastSuccess(preFetch, 30000)
-            const { platformType } = usePlatform()
-            if (platformType.value === 'desktop') {
-                if(showPrintImage) EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')
-                document.location = (await ApiClient.expandPath(url)) as any
-            } else {
-                const printer = await this.getDefaultPrinter();
-                if (!printer) return
-                if(showPrintImage) EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')  
-                BluetoothSerial.connect(printer.address).subscribe(async () => {
-                    BluetoothSerial.write(preFetch)
-                        .then(() => BluetoothSerial.disconnect())
-                })
+    async batchPrintLbls(urls: string[], showPrintImage = true) {
+        if(showPrintImage) EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')
+        const errors: string[] = []
+        for(const url of urls) {
+            try {
+                await this._print(url)
+            } catch (e) {
+                errors.push(e as any)
             }
+        }
+        if(showPrintImage) await PrintoutService.delay(2000)
+        if (errors.length > 0) {
+            // display unique errors only
+            await toastWarning(errors.filter((value, index, self) => self.indexOf(value) === index).join(), 3000)
+        } 
+    }
+
+    async printLbl(url: string, showPrintImage = true) {
+        try {
+            if(showPrintImage) EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')
+            await this._print(url)
+            if(showPrintImage) await PrintoutService.delay(2000)
         } catch (e) {
             toastWarning(e as any)
         }
@@ -72,14 +65,14 @@ export class PrintoutService extends Service {
         await this.printLbl(`drugs/${drugId}/barcode?quantity=${quantity}`)
     }
 
-    setDefaultPrinter(printer: {name: string; address: string}) {
+    setDefaultPrinter(printer: Record<string, any>) {
         sessionStorage.setItem('defaultPrinter', JSON.stringify(printer))
     }
 
     async getDefaultPrinter() {
         const printer = sessionStorage.getItem('defaultPrinter')
         if (printer) return JSON.parse(printer)
-        return this.selectDefaultPrinter()
+        return {}
     }
 
     async selectDefaultPrinter(): Promise<Record<string, any>> {
@@ -102,12 +95,12 @@ export class PrintoutService extends Service {
 
         const printer = printers.find(p => p.name +` (${p.address})` === option.selection)
         
-        this.setDefaultPrinter({name: printer.name, address: printer.address})
+        this.setDefaultPrinter(printer)
 
         return printer
     }
 
-    async printTestLbl() {
+    async printTestLbl(printer: Record<string, any>) {
         const testLblText = `
             N
             q801
@@ -119,8 +112,6 @@ export class PrintoutService extends Service {
             A35,122,0,2,2,2,N,"Date: ${dayjs().format('DD/MMM/YYYY')}"
             P1`
 
-        const printer = await this.getDefaultPrinter();
-        if (!printer) return
         EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')  
         BluetoothSerial.connect(printer.address).subscribe(async () => {
             BluetoothSerial.write(testLblText)
