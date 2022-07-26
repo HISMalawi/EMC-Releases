@@ -11,6 +11,7 @@ import { defineComponent } from "vue";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { PrintoutService } from "@/services/printout_service";
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -32,6 +33,13 @@ export default defineComponent({
         }
       });
     },
+    defaultPrinterStyle(){
+      const rowColors: any[] = [];
+      if(!isEmpty(this.defaultPrinter)){
+        rowColors.push({indexes: [0], class: 'adherence-txt-good adherence-col-bg bold'});
+      }
+      return rowColors;
+    },
     getFields() {
       return [
         {
@@ -44,9 +52,10 @@ export default defineComponent({
             const sortedPrinters = this.sortPrinters(printers);
             return [{
               other: {
+                rowColors: this.defaultPrinterStyle(),
                 columns: ["Available Printers"],
                 rows: sortedPrinters.map((printer: any) => [
-                  `${printer.name} (${printer.address}) ${this.isDefaultPrinter(printer) ? " - Default" : ""}`,
+                  `${printer.name} (${printer.address})`,
                   {
                     type: "button",
                     name: "Test Printer",
@@ -54,7 +63,7 @@ export default defineComponent({
                       await this.printerService.printTestLbl(printer.address);
                     }
                   },
-                  (this.isDefaultPrinter(printer) ? "" : {
+                  (this.isDefaultPrinter(printer) ? "Default Printer" : {
                     type: 'button',
                     name: 'Set as Default',
                     visible: !this.isDefaultPrinter(printer),
