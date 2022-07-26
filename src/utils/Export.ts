@@ -4,6 +4,7 @@ import { Filesystem, Directory } from "@capacitor/filesystem"
 import platform from "@/composables/usePlatform"
 import { toastDanger, toastSuccess, toastWarning } from "./Alerts"
 import writeBlob from "capacitor-blob-writer"; 
+import { PDFGenerator } from '@ionic-native/pdf-generator'
 
 function convertToCsv(list: Array<any>) {
   return list.reduce((accum: string, row: Array<any>) => {
@@ -32,6 +33,24 @@ function exportMobile(file: string, data: any, type: 'blob' | 'text') {
   if (promiseObj != null) { 
     promiseObj.then(() => toastSuccess(`File exported in Documents/${path}`))
       .catch((e: any) => toastDanger(e))
+  }
+}
+
+export function toPDFfromHTML(html: string) {
+  const { platformType } = platform()
+  if (platformType.value === 'mobile') {
+    PDFGenerator.fromData(html, {
+      documentSize: 'a4',
+      type: 'share'
+    }).catch((e) => toastDanger(e))
+  } else if (platformType.value === 'desktop') {
+    const printW = open('', '', 'width:1024px, height:768px')
+    if (printW) {
+      printW?.document.write(html)
+      setTimeout(() => { printW.print(); printW.close() }, 3500)
+    }
+  } else {
+    toastWarning('Platform not supported')
   }
 }
 

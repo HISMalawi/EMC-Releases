@@ -9,6 +9,7 @@ import DrilldownTable from "@/apps/ART/views/reports/BasicReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { Patientservice } from "@/services/patient_service"
 import { useRouter } from "vue-router"
+import { toPDFfromHTML } from "@/utils/Export"
 
 export interface WindowPrintParamInterface {
     containerID: string;
@@ -23,21 +24,21 @@ export function AncReportComposable() {
     }
 
     function showPrintWindow(params: WindowPrintParamInterface) {
-        const printW = open('', '', 'width:1024px, height:768px')
         const content = document.getElementById(params.containerID)
-        if (content && printW) {
-            printW.document.write(`
+        if (content) {
+            toPDFfromHTML(`
                 <html>
                 <head>
                     <title>Print Cohort</title>
-                    <link rel="stylesheet" media="print"  href="${params.cssFile}"/>
+                    <style> 
+                    ${params.cssFile}
+                    </style>
                 </head>
                 <body>
                     ${content.innerHTML}
                 </body>
                 </html>
             `)
-            setTimeout(() => { printW.print(); printW.close() }, 3500)
         }
     }
 
