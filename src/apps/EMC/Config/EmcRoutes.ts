@@ -33,4 +33,9 @@ export default [
     name: "HIV staging",
     component: () => import("@/apps/EMC/views/Staging.vue")
   },
+  {
+    path: "/emc/reports",
+    name: "EMC Reports",
+    component: () => import("@/apps/EMC/views/reports/Reports.vue")
+  }
 ];

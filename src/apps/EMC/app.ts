@@ -1,6 +1,7 @@
 import { AppInterface } from "../interfaces/AppInterface";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import EmcRoutes from "./Config/EmcRoutes";
+import { REPORTS } from "./Config/programReports";
 
 const EMC: AppInterface = {
   programID: 1,
@@ -14,7 +15,7 @@ const EMC: AppInterface = {
   primaryPatientActivites: [],
   secondaryPatientActivites: [],
   globalPropertySettings: [],
-  programReports: [],
+  programReports: REPORTS,
   programPatientIdentifiers: {
     "ARV Number": {
       id: 4,
