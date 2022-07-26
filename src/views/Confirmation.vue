@@ -166,7 +166,7 @@ export default defineComponent({
       currentOutcome: '' as string,
       programs: [] as string[],
       identifiers: [] as string[],
-      patientType: '' as string,
+      patientType: 'N/A' as string,
       anc: {
         lmpMonths: -1,
         canInitiateNewPregnancy: false,
@@ -450,7 +450,7 @@ export default defineComponent({
         this.facts.currentOutcome = outcome
         this.facts.userRoles = UserService.getUserRoles().map((r: any) => r.role)
         this.facts.patientType = (await ObservationService.getFirstValueCoded(
-          this.patient.getID(), 'Type of patient'))
+          this.patient.getID(), 'Type of patient')) || 'N/A'
       } catch (e) {
         console.error(`${e}`)
       }
