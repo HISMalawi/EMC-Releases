@@ -324,37 +324,62 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         priority: 3,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
-            alert: async ({patientType}: any) => {
-                const buttonOptions = []
-                if (patientType === 'External consultation') { 
-                    buttonOptions.push({
-                        name: 'Drug refill', 
-                        slot: 'start', 
-                        color: 'primary'
-                    })
-                } else {
-                    buttonOptions.push({ 
-                        name: 'External Consultation',
-                        slot: 'start', 
-                        color: 'primary'
-                    })
+            alert: async ({patientType, currentOutcome}: any) => {
+                let contextualBtn: any = []
+                if (patientType === 'External consultation' || currentOutcome === 'Patient transferred out') { 
+                    contextualBtn = [
+                        {
+                            name: 'Drug refill', 
+                            slot: 'start', 
+                            color: 'primary'
+                        },
+                        { 
+                            name: 'New Patient',
+                            slot: 'end',
+                            color: 'primary'
+                        }
+                    ]
+                }  
+                if (patientType === 'Drug Refill') {
+                    contextualBtn = [
+                        { 
+                            name: 'External Consultation',
+                            slot: 'start', 
+                            color: 'primary'
+                        },
+                        { 
+                            name: 'New Patient',
+                            slot: 'end',
+                            color: 'primary'
+                        }
+                    ]
                 }
-                buttonOptions.push({ 
-                    name: 'New Patient',
-                    slot: 'end',
-                    color: 'primary'
-                }),
-                buttonOptions.push({
-                    name: 'Continue',
-                    slot: 'end',
-                    color: 'success'
-                })
+                if (patientType === 'New patient') {
+                    contextualBtn = [
+                        { 
+                            name: 'External Consultation',
+                            slot: 'start', 
+                            color: 'primary'
+                        },
+                        {
+                            name: 'Drug refill', 
+                            slot: 'start', 
+                            color: 'primary'
+                        }
+                    ] 
+                }
                 const action = await infoActionSheet(
                     'Purpose of visit',
-                    `Current Patient type: ${patientType}`,
+                    `Patient type: ${patientType} | State: ${currentOutcome}`,
                     'Please select purspose of the visit',
-                    buttonOptions,
-                    'his-warning-color'
+                    [
+                        ...contextualBtn,
+                        {
+                            name: 'Continue',
+                            slot: 'end',
+                            color: 'success'
+                        }
+                    ]
                 )
                 switch(action) { 
                     case 'Drug refill':
@@ -370,10 +395,10 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         },
         conditions: {
             programName: (name: string) => name === 'ART',
-            patientType: (type: string) => [
-                'Drug Refill', 
-                'External consultation'
-            ].includes(type)
+            patientType: (type: string, { currentOutcome }: any) => {
+                return ['Drug Refill', 'External consultation'].includes(type) ||
+                    currentOutcome === 'Patient transferred out'
+            }
         }
     },
     "Prompt patient enrollment in current programme if not enrolled" : {
