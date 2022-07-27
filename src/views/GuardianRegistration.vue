@@ -27,6 +27,7 @@ import { RelationshipService } from "@/services/relationship_service";
 import PersonFieldHelper from "@/utils/HisFormHelpers/PersonFieldHelper";
 import { infoActionSheet } from "@/utils/ActionSheets";
 import { delayPromise } from "@/utils/Timers";
+import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -284,6 +285,23 @@ export default defineComponent({
                         onClick: () => this.fieldComponent = 'select_guardian'
                     }
                 },
+                footerBtns: [
+                    {
+                        name: 'Void Relation',
+                        slot: 'start',
+                        color: 'danger',
+                        onClick: async () => {
+                            popVoidReason(async (reason: string) => {
+                                await RelationsService.voidRelation(
+                                    this.patientData.id, 
+                                    this.guardianData.relation.relationship_id,
+                                    reason
+                                )
+                                this.fieldComponent = 'select_guardian'
+                            })
+                        }
+                    }
+                ],
                 hiddenFooterBtns: ['Clear']
             }
         }
