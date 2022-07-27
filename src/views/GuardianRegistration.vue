@@ -31,7 +31,7 @@ export default defineComponent({
   data: () => ({
     patientData: {} as any,
     guardianData: {} as any,
-    fieldAction: 'edit' as 'Scan' | 'Search' | 'Registration' | 'edit',
+    fieldAction: '' as 'Scan' | 'Search' | 'Registration' | 'edit',
     fieldComponent: '' as string,
     fields: [] as Array<Field>,
     form: {} as Record<string, Option> | Record<string, null>,
@@ -57,6 +57,9 @@ export default defineComponent({
                 const patient = await Patientservice.findByID(params.patient_id)
                 if (patient) {
                     this.patientData = PersonFieldHelper.mapPersonData(patient.person)
+                    if (query.edit_guardian) {
+                        this.fieldAction = 'edit'
+                    }
                     this.fields = this.getFields()
                 }
             }
@@ -414,6 +417,7 @@ export default defineComponent({
             config: {
                 hiddenFooterBtns: [
                     'Clear',
+                    'Back',
                     'Next'
                 ],
                 footerBtns : [
