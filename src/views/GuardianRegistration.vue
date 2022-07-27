@@ -25,6 +25,8 @@ import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { toastWarning } from "@/utils/Alerts";
 import { RelationshipService } from "@/services/relationship_service";
 import PersonFieldHelper from "@/utils/HisFormHelpers/PersonFieldHelper";
+import { infoActionSheet } from "@/utils/ActionSheets";
+import { delayPromise } from "@/utils/Timers";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -194,6 +196,30 @@ export default defineComponent({
                             }
                         }
                     })
+                } else {
+                    await delayPromise(450)
+                    const action = await infoActionSheet(
+                        'Patient has no guardians', '',
+                        'Select option to proceed',
+                        [
+                            {
+                                name: 'Cancel',
+                                slot: 'start',
+                                color: 'danger'
+                            },
+                            {
+                                name: 'Register new',
+                                slot: 'start',
+                                color: 'success'
+                            }
+                        ]
+                    )
+                    if (action === 'Register new') {
+                        this.fieldAction = 'Registration'
+                        this.fieldComponent = 'scan'
+                    } else {
+                        this.$router.back()
+                    }
                 }
                 return []
             }
