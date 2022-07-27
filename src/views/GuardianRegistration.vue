@@ -164,7 +164,6 @@ export default defineComponent({
         return listOptions.map((item: any) => ({ label: item, value: item })) 
     },
     guardianSelection(): Field {
-        const guardians: any = []
         return {
             id: 'select_guardian',
             helpText: 'Select guardian to edit/view',
@@ -172,23 +171,21 @@ export default defineComponent({
             condition: () => this.isEditMode(),
             validation: (v: Option) => Validation.required(v),
             options: async () => {
-                if (isEmpty(guardians)) {
-                    const relationship = await RelationshipService.getRelationships(this.patientData.id)
-                    if (!isEmpty(relationship)) {
-                        relationship.forEach((r: any) => {
-                            const guardian = PersonField.mapPersonData(r.relation)
-                            const name = `${guardian['given_name']} ${guardian['family_name']}`
-                            guardians.push({ 
-                                label: name, 
-                                value: r.relation.person_id, 
-                                other: { 
-                                    details: guardian 
-                                }}
-                            )
-                        })
-                    }
+                const relationship = await RelationshipService.getRelationships(this.patientData.id)
+                if (!isEmpty(relationship)) {
+                    return relationship.map((r: any) => {
+                        const guardian = PersonField.mapPersonData(r.relation)
+                        const name = `${guardian['given_name']} ${guardian['family_name']}`
+                        return {
+                            label: name, 
+                            value: r.relation.person_id, 
+                            other: {
+                                details: guardian 
+                            }
+                        }
+                    })
                 }
-                return guardians
+                return []
             }
         }
     },
