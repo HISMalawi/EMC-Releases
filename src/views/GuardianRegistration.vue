@@ -98,7 +98,7 @@ export default defineComponent({
             // Patch updated values
             Object.keys(computedData).forEach((i: string) => {
                 if (i in this.guardianData) {
-                    this.guardianData[i] = computedData[i].person
+                    this.guardianData[i] = computedData[i]?.date || computedData[i].person
                 }
             })
             this.fieldComponent = 'guardian_index'
@@ -293,33 +293,28 @@ export default defineComponent({
     },
     currentRegionField(): Field {
         const region: Field = PersonField.getCurrentRegionField()
-        region.defaultValue =  () => this.getDefaultVal(region.id)
         region.condition = () => this.canEdit(this.currentAddressAttributes, this.isRegistrationMode())
         return region
     },
     currentDistrictField(): Field {
         const currentDistrict: Field = PersonField.getCurrentDistrictField()
-        currentDistrict.defaultValue =  () => this.getDefaultVal(currentDistrict.id)
         currentDistrict.condition = () => this.canEdit(this.currentAddressAttributes, this.isRegistrationMode())
         return currentDistrict
     },
     currentTAField(): Field {
         const currentTA: Field = PersonField.getCurrentTAfield()
-        currentTA.defaultValue =  () => this.getDefaultVal(currentTA.id)
         currentTA.condition = (form: any) => this.canEdit(this.currentAddressAttributes, this.isRegistrationMode()
             && !form.current_region.label.match(/foreign/i))
         return currentTA
     },
     currentVillage(): Field {
         const currentVillage: Field = PersonField.getCurrentVillageField()
-        currentVillage.defaultValue =  () => this.getDefaultVal(currentVillage.id)
         currentVillage.condition = (form: any) => this.canEdit(this.currentAddressAttributes, this.isRegistrationMode()
             && !form.current_region.label.match(/foreign/i))
         return currentVillage
     },
     cellPhoneField(): Field {
         const cellPhone: Field = PersonField.getCellNumberField()
-        cellPhone.defaultValue =  () => this.getDefaultVal(cellPhone.id)
         cellPhone.condition = () => this.canEdit([cellPhone.id], this.isRegistrationMode())
         return cellPhone 
     },
