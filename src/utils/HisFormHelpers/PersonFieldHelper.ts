@@ -404,15 +404,23 @@ export default {
         return ''
     },
     mapPersonData(personObj: any) {
+        const givenName = this.getPersonNameFromPersonObj(personObj, 'given_name')
+        const familyName = this.getPersonNameFromPersonObj(personObj, 'family_name')
+        const homeDistrict = this.getAddressFromPersonObj(personObj, 'home_district')
+        const homeVillage = this.getAddressFromPersonObj(personObj, 'home_village')
+        const homeTA = this.getAddressFromPersonObj(personObj, 'home_traditional_authority')
         return {
-            'given_name': this.getPersonNameFromPersonObj(personObj, 'given_name'),
-            'family_name': this.getPersonNameFromPersonObj(personObj, 'family_name'),
+            'id': personObj.person_id,
+            'name': `${givenName} ${familyName}`,
+            'given_name': givenName,
+            'family_name': familyName,
             'gender': personObj.gender,
             'birth_date': personObj.birthdate,
             'birthdate_estimated': personObj.birthdate_estimated,
-            'home_district': this.getAddressFromPersonObj(personObj, 'home_district'),
-            'home_village': this.getAddressFromPersonObj(personObj, 'home_village'),
-            'home_traditional_authority': this.getAddressFromPersonObj(personObj, 'home_traditional_authority'),
+            'home_district': homeDistrict,
+            'home_village': homeVillage,
+            'home_traditional_authority': homeTA,
+            'home_address': `${homeDistrict} ${homeVillage} ${homeTA}`,
             'current_district': this.getAddressFromPersonObj(personObj, 'current_district'),
             'current_traditional_authority': this.getAddressFromPersonObj(personObj, 'current_traditional_authority'),
             'cell_phone_number': this.getAttrFromPersonObj(personObj, 'Cell Phone Number'),
