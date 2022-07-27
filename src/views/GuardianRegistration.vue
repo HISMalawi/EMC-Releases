@@ -145,9 +145,9 @@ export default defineComponent({
     isRegistrationMode() {
         return this.fieldAction === 'Registration'
     },
-    canEdit(groups: Array<string|number>, defaultCondition=true) {
+    canEdit(groups: Array<string|number>, defaultCondition=true, mandatoryCondition=true) {
         if (this.isEditMode()) {
-            return groups.includes(this.activeField)
+            return groups.includes(this.activeField) && mandatoryCondition
         }
         return defaultCondition
     },
@@ -295,14 +295,20 @@ export default defineComponent({
     },
     homeTAField(): Field {
         const ta: Field =  PersonField.getHomeTaField()
-        ta.condition = (form: any) => this.canEdit(this.homeAddressAttributes, this.isRegistrationMode()
-            && !form.home_region.label.match(/foreign/i))
+        ta.condition = (form: any) => this.canEdit(
+            this.homeAddressAttributes, 
+            this.isRegistrationMode() && !form.home_region.label.match(/foreign/i),
+            !form.home_region.label.match(/foreign/i)
+        )
         return ta
     },
     homeVillageField(): Field {
         const village: Field = PersonField.getHomeVillageField()
-        village.condition = (form: any) => this.canEdit(this.homeAddressAttributes, this.isRegistrationMode()
-            && !form.home_region.label.match(/foreign/i))
+        village.condition = (form: any) => this.canEdit(
+            this.homeAddressAttributes, 
+            this.isRegistrationMode() && !form.home_region.label.match(/foreign/i),
+            !form.home_region.label.match(/foreign/i)
+        )
         return village
     },
     currentRegionField(): Field {
@@ -317,14 +323,20 @@ export default defineComponent({
     },
     currentTAField(): Field {
         const currentTA: Field = PersonField.getCurrentTAfield()
-        currentTA.condition = (form: any) => this.canEdit(this.currentAddressAttributes, this.isRegistrationMode()
-            && !form.current_region.label.match(/foreign/i))
+        currentTA.condition = (form: any) => this.canEdit(
+            this.currentAddressAttributes, 
+            this.isRegistrationMode() && !form.current_region.label.match(/foreign/i),
+            !form.current_region.label.match(/foreign/i)
+        )
         return currentTA
     },
     currentVillage(): Field {
         const currentVillage: Field = PersonField.getCurrentVillageField()
-        currentVillage.condition = (form: any) => this.canEdit(this.currentAddressAttributes, this.isRegistrationMode()
-            && !form.current_region.label.match(/foreign/i))
+        currentVillage.condition = (form: any) => this.canEdit(
+            this.currentAddressAttributes, 
+            this.isRegistrationMode() && !form.current_region.label.match(/foreign/i),
+            !form.current_region.label.match(/foreign/i)
+        )
         return currentVillage
     },
     cellPhoneField(): Field {
