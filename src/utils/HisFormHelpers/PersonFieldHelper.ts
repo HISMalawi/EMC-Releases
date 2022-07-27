@@ -420,7 +420,7 @@ export default {
             'home_district': homeDistrict,
             'home_village': homeVillage,
             'home_traditional_authority': homeTA,
-            'home_address': `${homeDistrict} ${homeVillage} ${homeTA}`,
+            'home_address': `${homeDistrict} ${homeVillage}`,
             'current_district': this.getAddressFromPersonObj(personObj, 'current_district'),
             'current_traditional_authority': this.getAddressFromPersonObj(personObj, 'current_traditional_authority'),
             'cell_phone_number': this.getAttrFromPersonObj(personObj, 'Cell Phone Number'),

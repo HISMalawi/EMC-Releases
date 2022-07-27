@@ -92,15 +92,31 @@ export default defineComponent({
     },
     async onFinish(form: any, computedData: any) {
         if (this.isEditMode()) {
-            const reg = new PatientRegistrationService()
-            reg.setPersonID(this.guardianData.id)
-            await reg.updatePerson(PersonField.resolvePerson(computedData))
-            // Patch updated values
-            Object.keys(computedData).forEach((i: string) => {
-                if (i in this.guardianData) {
-                    this.guardianData[i] = computedData[i]?.date || computedData[i].person
+            if (this.activeField != 'relations') {
+                const reg = new PatientRegistrationService()
+                reg.setPersonID(this.guardianData.id)
+                await reg.updatePerson(PersonField.resolvePerson(computedData))
+                // Patch updated values
+                Object.keys(computedData).forEach((i: string) => {
+                    if (i in this.guardianData) {
+                        this.guardianData[i] = computedData[i]?.date || computedData[i].person
+                    }
+                })
+            } else {
+                if (this.guardianData?.relation) {
+                    const rVoided = await RelationsService.voidRelation(
+                        this.patientData.id, 
+                        this.guardianData.relation.relationship_id, 
+                        'Updating guardian relationship'
+                    )
+                    const relation = await RelationsService.createRelation(
+                        this.patientData.id, this.guardianData.id, form.relations.other.relationship_type_id
+                    )
+                    if (relation) {
+                        this.guardianData.relation = relation
+                    }
                 }
-            })
+            }
             this.fieldComponent = 'guardian_index'
         } else {
             if(this.isSameAsPatient(computedData)) {
@@ -169,7 +185,7 @@ export default defineComponent({
                     return relationship.map((r: any) => {
                         const guardian = PersonField.mapPersonData(r.relation)
                         return {
-                            label: `${guardian.name} (${r.type.description})`, 
+                            label: `${guardian.name} (${r.type.b_is_to_a})`, 
                             value: r.relation.person_id, 
                             other: {
                                 relations: r, 
@@ -199,7 +215,7 @@ export default defineComponent({
                 if (this.guardianData && this.guardianData.id != f.select_guardian.value) {
                     this.guardianData = {
                         ...f.select_guardian.other.details,
-                        ...f.select_guardian.other.relations
+                        relation: f.select_guardian.other.relations
                     }
                 }
                 const editButton = (attribute: string) => ({
@@ -222,7 +238,7 @@ export default defineComponent({
                     ['Current district', this.guardianData.current_district, editButton('current_region')],
                     ['Current T/A', this.guardianData.current_traditional_authority, editButton('current_region')],
                     ['Landmark', this.guardianData.landmark, editButton('default_landmarks')],
-                    ['Relation', this.guardianData.type.description, editButton('relations')]
+                    ['Relation', this.guardianData.relation.type.b_is_to_a, editButton('relations')]
                 ]
                 return [{
                     label: '', 
