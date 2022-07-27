@@ -24,19 +24,19 @@ import { PatientRegistrationService } from "@/services/patient_registration_serv
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { toastWarning } from "@/utils/Alerts";
 import { RelationshipService } from "@/services/relationship_service";
+import PersonFieldHelper from "@/utils/HisFormHelpers/PersonFieldHelper";
 
 export default defineComponent({
   components: { HisStandardForm },
   data: () => ({
-    guardianData: {} as any,
     patientData: {} as any,
+    guardianData: {} as any,
     fieldAction: 'edit' as 'Scan' | 'Search' | 'Registration' | 'edit',
     fieldComponent: '' as string,
     fields: [] as Array<Field>,
     form: {} as Record<string, Option> | Record<string, null>,
     redirectURL: '' as string,
     activeField: '' as string,
-    editEntity: {} as any,
     currentAddressAttributes: [
         'current_region',
         'current_district',
@@ -56,7 +56,7 @@ export default defineComponent({
             if (params.patient_id) {
                 const patient = await Patientservice.findByID(params.patient_id)
                 if (patient) {
-                    this.patientData = this.toPersonData(patient.person)
+                    this.patientData = PersonFieldHelper.mapPersonData(patient.person)
                     this.fields = this.getFields()
                 }
             }
@@ -93,8 +93,14 @@ export default defineComponent({
     async onFinish(form: any, computedData: any) {
         if (this.isEditMode()) {
             const reg = new PatientRegistrationService()
-            reg.setPersonID(form.select_guardian.value)
+            reg.setPersonID(this.guardianData.id)
             await reg.updatePerson(PersonField.resolvePerson(computedData))
+            // Patch updated values
+            Object.keys(computedData).forEach((i: string) => {
+                if (i in this.guardianData) {
+                    this.guardianData[i] = computedData[i].person
+                }
+            })
             this.fieldComponent = 'guardian_index'
         } else {
             if(this.isSameAsPatient(computedData)) {
@@ -131,16 +137,6 @@ export default defineComponent({
         }
         return defaultCondition
     },
-    toPersonData(data: any) {
-        const address = data.addresses[0]
-        return {
-            id: data.person_id,
-            name: `${data.names[0].given_name} ${data.names[0].family_name}`,
-            birthdate: HisDate.toStandardHisDisplayFormat(data.birthdate),
-            homeAddress: `${address.county_district} ${address.neighborhood_cell}`,
-            gender: data.gender
-        }
-    },
     isSameAsPatient(guardian: any) {
         let birthdate = ''
         let name = ''
@@ -151,17 +147,14 @@ export default defineComponent({
             name = guardian.given_name.person && guardian.family_name.person
             gender = guardian.gender.person
         } else {
-            birthdate = this.guardianData.birthdate
+            birthdate = this.guardianData.birth_date
             name = this.guardianData.name
             gender = this.guardianData.gender  
         }
 
         return (name.toLowerCase() === this.patientData.name.toLowerCase()) 
-            && (birthdate === this.patientData.birthdate)
+            && (birthdate === this.patientData.birth_date)
             && (gender === this.patientData.gender)
-    },
-    mapToOption(listOptions: Array<string>): Array<Option> {
-        return listOptions.map((item: any) => ({ label: item, value: item })) 
     },
     guardianSelection(): Field {
         return {
@@ -175,11 +168,11 @@ export default defineComponent({
                 if (!isEmpty(relationship)) {
                     return relationship.map((r: any) => {
                         const guardian = PersonField.mapPersonData(r.relation)
-                        const name = `${guardian['given_name']} ${guardian['family_name']}`
                         return {
-                            label: name, 
+                            label: `${guardian.name} (${r.type.description})`, 
                             value: r.relation.person_id, 
                             other: {
+                                relations: r, 
                                 details: guardian 
                             }
                         }
@@ -189,9 +182,9 @@ export default defineComponent({
             }
         }
     },
-    getDefaultVal(form: any, field: string | number) {
+    getDefaultVal(fieldID: string | number) {
         try {
-            return form.select_guardian.other.details[field]
+            return this.guardianData[fieldID]
         } catch (e) {
             return ''
         }
@@ -203,7 +196,12 @@ export default defineComponent({
             type: FieldType.TT_TABLE_VIEWER,
             condition: (f: any) => f.select_guardian.value, 
             options: (f: any) => {
-                const details = f.select_guardian.other.details
+                if (this.guardianData && this.guardianData.id != f.select_guardian.value) {
+                    this.guardianData = {
+                        ...f.select_guardian.other.details,
+                        ...f.select_guardian.other.relations
+                    }
+                }
                 const editButton = (attribute: string) => ({
                     name: 'Edit',
                     type: 'button',
@@ -213,17 +211,18 @@ export default defineComponent({
                     }
                 })
                 const rows = [
-                    ['Given Name', details.given_name, editButton('given_name')],
-                    ['Family Name', details.family_name, editButton('family_name')],
-                    ['Gender', details.gender,  editButton('gender')],
-                    ['Birthdate', HisDate.toStandardHisDisplayFormat(details.birth_date),  editButton('year_birth_date')],
-                    ['Cell Phone Number', details.cell_phone_number, editButton('cell_phone_number')],
-                    ['Home District', details.home_district, editButton('home_region')],
-                    ['Home TA', details.home_traditional_authority,  editButton('home_region')],
-                    ['Home Village', details.home_village,  editButton('home_region')],
-                    ['Current district',details.current_district, editButton('current_region')],
-                    ['Current T/A', details.current_traditional_authority, editButton('current_region')],
-                    ['Landmark', details.landmark, editButton('default_landmarks')],
+                    ['Given Name', this.guardianData.given_name, editButton('given_name')],
+                    ['Family Name', this.guardianData.family_name, editButton('family_name')],
+                    ['Gender', this.guardianData.gender, editButton('gender')],
+                    ['Birthdate', HisDate.toStandardHisDisplayFormat(this.guardianData.birth_date), editButton('year_birth_date')],
+                    ['Cell Phone Number', this.guardianData.cell_phone_number, editButton('cell_phone_number')],
+                    ['Home District', this.guardianData.home_district, editButton('home_region')],
+                    ['Home TA', this.guardianData.home_traditional_authority, editButton('home_region')],
+                    ['Home Village', this.guardianData.home_village,  editButton('home_region')],
+                    ['Current district', this.guardianData.current_district, editButton('current_region')],
+                    ['Current T/A', this.guardianData.current_traditional_authority, editButton('current_region')],
+                    ['Landmark', this.guardianData.landmark, editButton('default_landmarks')],
+                    ['Relation', this.guardianData.type.description, editButton('relations')]
                 ]
                 return [{
                     label: '', 
@@ -241,26 +240,26 @@ export default defineComponent({
     givenNameField(): Field {
         const name: Field = PersonField.getGivenNameField()
         name.helpText = 'Guardian First name'
-        name.defaultValue = (f: any) => this.getDefaultVal(f, name.id)
+        name.defaultValue = () => this.getDefaultVal(name.id)
         name.condition = () => this.canEdit([name.id], this.isSearchMode())
         return name
     },
     familyNameField(): Field {
         const name: Field = PersonField.getFamilyNameField()
         name.helpText = 'Guardian Last name'
-        name.defaultValue = (f: any) => this.getDefaultVal(f, name.id)
+        name.defaultValue = () => this.getDefaultVal(name.id)
         name.condition = () => this.canEdit([name.id], this.isSearchMode())
         return name
     },
     genderField(): Field {
         const gender: Field = PersonField.getGenderField()
-        gender.defaultValue = (f: any) => this.getDefaultVal(f, gender.id)
+        gender.defaultValue = () => this.getDefaultVal(gender.id)
         gender.condition = () => this.canEdit([gender.id], this.isSearchMode())
         return gender
     },
     dobFields(): Array<Field> {
         const dob =PersonField.getDobConfig()
-        dob.defaultValue = (f: any) => this.getDefaultVal(f, 'birth_date')
+        dob.defaultValue = () => this.getDefaultVal('birth_date')
         dob.condition = () => this.canEdit([
             'year_birth_date', 
             'month_birth_date', 
@@ -294,40 +293,40 @@ export default defineComponent({
     },
     currentRegionField(): Field {
         const region: Field = PersonField.getCurrentRegionField()
-        region.defaultValue =  (f: any) => this.getDefaultVal(f, region.id)
+        region.defaultValue =  () => this.getDefaultVal(region.id)
         region.condition = () => this.canEdit(this.currentAddressAttributes, this.isRegistrationMode())
         return region
     },
     currentDistrictField(): Field {
         const currentDistrict: Field = PersonField.getCurrentDistrictField()
-        currentDistrict.defaultValue =  (f: any) => this.getDefaultVal(f, currentDistrict.id)
+        currentDistrict.defaultValue =  () => this.getDefaultVal(currentDistrict.id)
         currentDistrict.condition = () => this.canEdit(this.currentAddressAttributes, this.isRegistrationMode())
         return currentDistrict
     },
     currentTAField(): Field {
         const currentTA: Field = PersonField.getCurrentTAfield()
-        currentTA.defaultValue =  (f: any) => this.getDefaultVal(f, currentTA.id)
+        currentTA.defaultValue =  () => this.getDefaultVal(currentTA.id)
         currentTA.condition = (form: any) => this.canEdit(this.currentAddressAttributes, this.isRegistrationMode()
             && !form.current_region.label.match(/foreign/i))
         return currentTA
     },
     currentVillage(): Field {
         const currentVillage: Field = PersonField.getCurrentVillageField()
-        currentVillage.defaultValue =  (f: any) => this.getDefaultVal(f, currentVillage.id)
+        currentVillage.defaultValue =  () => this.getDefaultVal(currentVillage.id)
         currentVillage.condition = (form: any) => this.canEdit(this.currentAddressAttributes, this.isRegistrationMode()
             && !form.current_region.label.match(/foreign/i))
         return currentVillage
     },
     cellPhoneField(): Field {
         const cellPhone: Field = PersonField.getCellNumberField()
-        cellPhone.defaultValue =  (f: any) => this.getDefaultVal(f, cellPhone.id)
+        cellPhone.defaultValue =  () => this.getDefaultVal(cellPhone.id)
         cellPhone.condition = () => this.canEdit([cellPhone.id], this.isRegistrationMode())
         return cellPhone 
     },
     landmarkFields(): Field[] {
         const landmarks: Field[] = PersonField.getLandmarkFields()
         const id = landmarks[0].proxyID || landmarks[0].id
-        landmarks[0].defaultValue =  (f: any) => this.getDefaultVal(f, id)
+        landmarks[0].defaultValue =  () => this.getDefaultVal(id)
         landmarks[0].condition = () => this.canEdit([id], this.isRegistrationMode())
         return landmarks
     },
@@ -336,6 +335,7 @@ export default defineComponent({
             id: 'relations',
             helpText: 'Select relationship type',
             type: FieldType.TT_RELATION_SELECTION,
+            defaultValue: () => this.getDefaultVal('relations'),
             validation: (val: Option) => Validation.required(val),
             condition: () => this.canEdit(['relations']),
             onload: (context: any) => {
@@ -343,9 +343,9 @@ export default defineComponent({
                 if (this.isRegistrationMode()) {
                     const person = PersonField.resolvePerson(context.cdata)
                     context.guardian = {
-                        name: `${person.given_name} ${person.family_name}`,
-                        birthdate: HisDate.toStandardHisDisplayFormat(person.birthdate),
-                        homeAddress: `${person.home_district} ${person.home_traditional_authority}`
+                        'name': `${person.given_name} ${person.family_name}`,
+                        'birth_date': HisDate.toStandardHisDisplayFormat(person.birthdate),
+                        'home_address': `${person.home_district} ${person.home_traditional_authority}`
                     }
                 } else {
                     context.guardian = this.guardianData
@@ -376,7 +376,7 @@ export default defineComponent({
             onValue: async (id: string) => {
                 const searchResults = await Patientservice.findByNpid(id)
                 if (!isEmpty(searchResults)) {
-                    this.guardianData = this.toPersonData(searchResults[0].person)
+                    this.guardianData = PersonFieldHelper.mapPersonData(searchResults[0].person)
                     this.fieldComponent = 'relations'
                     this.fieldAction = 'Scan'
                 }
@@ -458,7 +458,7 @@ export default defineComponent({
                             }
                         },
                         onClick: (form: any) => {
-                            this.guardianData = this.toPersonData(
+                            this.guardianData = PersonFieldHelper.mapPersonData(
                                 form.results.other.person.person
                             )
                             this.fieldComponent = 'relations'
