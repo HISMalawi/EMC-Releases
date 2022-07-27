@@ -5,6 +5,10 @@ export class RelationsService extends Service {
         super()
     }
 
+    static voidRelation(patientID: number, relationID: number, reason: string) {
+		return Service.void(`people/${patientID}/relationships/${relationID}`, { reason })
+	}
+
     static getRelations() {
         return super.getJson('types/relationships')
     }
