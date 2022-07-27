@@ -104,13 +104,11 @@ export default defineComponent({
                 })
             } else {
                 if (this.guardianData?.relation) {
-                    const rVoided = await RelationsService.voidRelation(
-                        this.patientData.id, 
-                        this.guardianData.relation.relationship_id, 
-                        'Updating guardian relationship'
-                    )
-                    const relation = await RelationsService.createRelation(
-                        this.patientData.id, this.guardianData.id, form.relations.other.relationship_type_id
+                    const relation = await RelationsService.amendRelation(
+                        this.patientData.id,
+                        this.guardianData.id,
+                        this.guardianData.relation.relationship_id,
+                        form.relations.other.relationship_type_id
                     )
                     if (relation) {
                         this.guardianData.relation = relation
