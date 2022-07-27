@@ -166,7 +166,7 @@ export default defineComponent({
       currentOutcome: '' as string,
       programs: [] as string[],
       identifiers: [] as string[],
-      patientType: '' as string,
+      patientType: 'N/A' as string,
       anc: {
         lmpMonths: -1,
         canInitiateNewPregnancy: false,
@@ -450,7 +450,7 @@ export default defineComponent({
         this.facts.currentOutcome = outcome
         this.facts.userRoles = UserService.getUserRoles().map((r: any) => r.role)
         this.facts.patientType = (await ObservationService.getFirstValueCoded(
-          this.patient.getID(), 'Type of patient'))
+          this.patient.getID(), 'Type of patient')) || 'N/A'
       } catch (e) {
         console.error(`${e}`)
       }
@@ -665,6 +665,10 @@ export default defineComponent({
         await this.createPatientType('Drug Refill')
         return FlowState.CONTINUE
       }
+      states[FlowState.ADD_AS_NEW_PATIENT] = async () => {
+        await this.createPatientType('New patient')
+        return FlowState.CONTINUE
+      }
       states[FlowState.ADD_AS_EXTERNAL_CONSULTATION] = async () => {
         await this.createPatientType('External consultation')
         return FlowState.CONTINUE
@@ -689,7 +693,7 @@ export default defineComponent({
       }
       return state
     },
-    async createPatientType(patientType: 'Drug Refill' | 'External consultation') {
+    async createPatientType(patientType: 'Drug Refill' | 'External consultation' | 'New patient') {
       const type = new PatientTypeService(this.patient.getID(), -1)
       await type.createEncounter()
       await type.savePatientType(patientType)
