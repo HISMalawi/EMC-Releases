@@ -247,7 +247,15 @@ export default defineComponent({
                 }]
             },
             config : {
-                hiddenFooterBtns: ['Clear', 'Next']
+                overrideDefaultFooterBtns: {
+                    nextBtn: {
+                        name: 'Finish',
+                        slot: 'end',
+                        color: 'success',
+                        onClick: () => this.fieldComponent = 'select_guardian'
+                    }
+                },
+                hiddenFooterBtns: ['Clear']
             }
         }
     },
