@@ -36,6 +36,7 @@ export default defineComponent({
     form: {} as Record<string, Option> | Record<string, null>,
     redirectURL: '' as string,
     activeField: '' as string,
+    editEntity: {} as any,
     currentAddressAttributes: [
         'current_region',
         'current_district',
@@ -90,23 +91,30 @@ export default defineComponent({
         return fields
     },
     async onFinish(form: any, computedData: any) {
-        if(this.isSameAsPatient(computedData)) {
-            toastWarning("Guardian cannot be the same patient")
+        if (this.isEditMode()) {
+            const reg = new PatientRegistrationService()
+            reg.setPersonID(form.select_guardian.value)
+            await reg.updatePerson(PersonField.resolvePerson(computedData))
+            this.fieldComponent = 'guardian_index'
         } else {
-            let guardianID = -1
-            if (this.isRegistrationMode()) {
-                const guardian: any = new PatientRegistrationService()
-                await guardian.registerGuardian(PersonField.resolvePerson(computedData))
-                guardianID = guardian.getPersonID()
+            if(this.isSameAsPatient(computedData)) {
+                toastWarning("Guardian cannot be the same patient")
             } else {
-                guardianID = this.guardianData.id
-            }
-            await RelationsService.createRelation(
-                this.patientData.id, guardianID, form.relations.other.relationship_type_id
-            )
-            if(this.redirectURL) this.$router.push({name: this.redirectURL})
-            else await nextTask(this.patientData.id, this.$router, this.$route)  
-        }   
+                let guardianID = -1
+                if (this.isRegistrationMode()) {
+                    const guardian: any = new PatientRegistrationService()
+                    await guardian.registerGuardian(PersonField.resolvePerson(computedData))
+                    guardianID = guardian.getPersonID()
+                } else {
+                    guardianID = this.guardianData.id
+                }
+                await RelationsService.createRelation(
+                    this.patientData.id, guardianID, form.relations.other.relationship_type_id
+                )
+                if(this.redirectURL) this.$router.push({name: this.redirectURL})
+                else await nextTask(this.patientData.id, this.$router, this.$route)
+            }   
+        }
     },
     isEditMode() {
         return this.fieldAction === 'edit'
@@ -170,7 +178,13 @@ export default defineComponent({
                         relationship.forEach((r: any) => {
                             const guardian = PersonField.mapPersonData(r.relation)
                             const name = `${guardian['given_name']} ${guardian['family_name']}`
-                            guardians.push({ label: name, value: name, other: { details: guardian }})
+                            guardians.push({ 
+                                label: name, 
+                                value: r.relation.person_id, 
+                                other: { 
+                                    details: guardian 
+                                }}
+                            )
                         })
                     }
                 }
@@ -187,7 +201,7 @@ export default defineComponent({
     },
     guardianIndex(): Field {
         return {
-            id: 'guardian_details',
+            id: 'guardian_index',
             helpText: 'Guardian details',
             type: FieldType.TT_TABLE_VIEWER,
             condition: (f: any) => f.select_guardian.value, 
@@ -221,6 +235,9 @@ export default defineComponent({
                         rows
                     }
                 }]
+            },
+            config : {
+                hiddenFooterBtns: ['Clear', 'Next']
             }
         }
     },
@@ -447,7 +464,6 @@ export default defineComponent({
                             this.guardianData = this.toPersonData(
                                 form.results.other.person.person
                             )
-                            console.log(this.guardianData)
                             this.fieldComponent = 'relations'
                             this.fieldAction = 'Search'
                         }
