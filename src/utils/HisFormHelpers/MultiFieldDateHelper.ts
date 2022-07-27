@@ -107,9 +107,9 @@ function appendLeadingZero(s: string) {
     return parseInt(s) < 10 ? `0${s}` : s
 }
 
-async function getDefaultDate(field: DateFieldInterface, datePart: 'Year' | 'Month' | 'Day') {
+async function getDefaultDate(form: any, field: DateFieldInterface, datePart: 'Year' | 'Month' | 'Day') {
     if (field.defaultValue) {
-        const date = await field.defaultValue()
+        const date = await field.defaultValue(form)
         if (date) {
             const [year, month, day] = date.split('-')
             switch(datePart) {
@@ -221,7 +221,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
  
     year.config = { ...year.config, ...field.config }
 
-    year.defaultValue = () => getDefaultDate(field, 'Year')
+    year.defaultValue = (f: any) => getDefaultDate(f, field, 'Year')
 
     year.condition = (f: any) => field.condition 
         ? field.condition(f) 
@@ -301,7 +301,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
 
     month.validation = (v: Option) => StandardValidations.required(v)
 
-    month.defaultValue = () => getDefaultDate(field, 'Month')
+    month.defaultValue = (f: any) => getDefaultDate(f, field, 'Month')
 
     // Add Unknown value to trigger default estimated Month
     if (estimateMonthOrDay) {
@@ -342,7 +342,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
         return validateMinMax(fullDate, field, f, c)
     }
 
-    day.defaultValue = () => getDefaultDate(field, 'Day')
+    day.defaultValue = (f: any) => getDefaultDate(f, field, 'Day')
 
     day.computedValue = (v: Option) => {
         const isEstimate = `${v.value}`.match(/unknown/i) ? true : false
