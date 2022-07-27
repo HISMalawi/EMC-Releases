@@ -12,24 +12,14 @@
       </ion-toolbar>
     </ion-header >
     <ion-content>
-      <ion-list style="margin-top: 50px; border-top: 1px solid #c2c2c2;">
-        <ion-item
-          v-for="(p, i) in appPages" :key="i"
-          :router-link="p.url" 
-          detail="true"
-          button
-          class="hydrated"
-          >
-          <ion-label v-show="facility">{{ p.title }}</ion-label>
-        </ion-item>
-      </ion-list>
+      <multi-level-menu :items="menuItems" />
     </ion-content>
   </ion-menu>
   <ion-page id="main-content">
     <ion-header class="toolbar-size">
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-menu-button auto-hide="false"> </ion-menu-button>
+          <ion-menu-button auto-hide="true"></ion-menu-button>
           <ion-button @click="selectApp" >
             <ion-icon :icon="apps"></ion-icon>
           </ion-button>
@@ -56,24 +46,25 @@ import {
   IonPage,
   IonContent,
   IonItem,
-  IonList,
   IonMenu,
   IonThumbnail,
   IonButtons,
   IonMenuButton,
-  menuController,
   IonToolbar,
   IonHeader,
   IonTitle,
   IonLabel,
-  popoverController
+  popoverController,
+  IonIcon,
+IonButton,
 } from "@ionic/vue";
-import { appPages } from "../Config/appPages";
+import { menuItems } from "../Config/appMenu";
 import { apps, caretDown } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import AuthUserMenuVue from "./AuthUserMenu.vue";
 import { Service } from "@/services/service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
+import MultiLevelMenu from "./MultiLevelMenu.vue";
 
 export default defineComponent({
   name: "Layout",
@@ -81,16 +72,18 @@ export default defineComponent({
     IonPage,
     IonContent,
     IonItem,
-    IonList,
     IonMenu,
     IonTitle,
     IonThumbnail,
     IonButtons,
+    IonButton,
     IonToolbar,
     IonHeader,
     IonMenuButton,
     IonLabel,
-  },
+    IonIcon,
+    MultiLevelMenu
+},
   setup() {
     const facility = ref('')
     const user = ref('')
@@ -132,12 +125,11 @@ export default defineComponent({
     }
 
     onMounted(async () => {
-      menuController.open('start')
       facility.value = await getFacility()
       user.value = await Service.getUserName();
     })
     return {
-      appPages,
+      menuItems,
       logo,
       apps,
       caretDown,
