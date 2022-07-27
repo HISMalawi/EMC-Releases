@@ -225,6 +225,20 @@ export default defineComponent({
                     }
                 }
                 return []
+            },
+            config: {
+                footerBtns: [
+                    {
+                        name: 'New Guardian',
+                        slot: 'end',
+                        color: 'primary',
+                        onClick: () => {
+                            this.guardianData = {}
+                            this.fieldAction = 'Registration'
+                            this.fieldComponent = 'scan'
+                        }
+                    }
+                ]
             }
         }
     },
@@ -463,8 +477,8 @@ export default defineComponent({
             config: {
                 hiddenFooterBtns: [
                     'Clear',
-                    'Back',
-                    'Next'
+                    'Next',
+                    'Back'
                 ],
                 footerBtns : [
                     {
