@@ -138,6 +138,7 @@ export default defineComponent({
                     this.patientData.id, guardianID, form.relations.other.relationship_type_id
                 )
                 if(this.redirectURL) this.$router.push({name: this.redirectURL})
+                else if (this.$route.query.edit_guardian) this.fieldComponent = 'select_guardian'
                 else await nextTask(this.patientData.id, this.$router, this.$route)
             }   
         }
@@ -216,6 +217,7 @@ export default defineComponent({
                         ]
                     )
                     if (action === 'Register new') {
+                        this.guardianData = {}
                         this.fieldAction = 'Registration'
                         this.fieldComponent = 'scan'
                     } else {
@@ -302,7 +304,7 @@ export default defineComponent({
                         }
                     }
                 ],
-                hiddenFooterBtns: ['Clear']
+                hiddenFooterBtns: ['Clear', 'Back']
             }
         }
     },
