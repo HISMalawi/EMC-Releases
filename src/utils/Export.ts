@@ -15,6 +15,7 @@ function convertToCsv(list: Array<any>) {
 function exportMobile(file: string, data: any, type: 'blob' | 'text') {
   let promiseObj: any = null
   const path = `HIS-Core/${file.replaceAll('/', '_')}`
+  toastSuccess(`Exporting file to "Documents/${path}"...`)
   if (type === 'blob') {
     promiseObj = writeBlob({
       path,
@@ -31,7 +32,7 @@ function exportMobile(file: string, data: any, type: 'blob' | 'text') {
     })
   }
   if (promiseObj != null) { 
-    promiseObj.then(() => toastSuccess(`File exported in Documents/${path}`))
+    promiseObj.then(() => toastSuccess(`File exported to "Documents/${path}"!`, 3000))
       .catch((e: any) => toastDanger(e))
   }
 }
