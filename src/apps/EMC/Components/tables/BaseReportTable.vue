@@ -9,10 +9,10 @@
             </ion-col>
             <ion-col>
               <h1>{{ title }}</h1>
-              <h5 class="bold">Date: {{ toStandardHisDisplayFormat(date) }}</h5>
-              <h5 class="bold" v-if="useDateRangeFilter">
+              <h5 v-if="useDateRangeFilter">
                 Period: {{ toStandardHisDisplayFormat(period.startDate) + " - " + toStandardHisDisplayFormat(period.endDate) }}
               </h5>
+              <h5 v-else>Date: {{ toStandardHisDisplayFormat(date) }}</h5>
             </ion-col>
           </ion-row>
         </ion-grid>
@@ -97,13 +97,13 @@ export default defineComponent({
       default: false,
     },
   },
-  emits: ["Regenerate", "onDateRangeChange", "onDateChange", "onDrillDown"],
+  emits: ["regenerate", "onDateRangeChange", "onDateChange", "onDrillDown"],
   setup(props, { emit }) {
     const { toStandardHisDisplayFormat, toStandardHisFormat } = HisDate;
     const date = ref(PatientReportService.getSessionDate())
     const period = reactive({
-      startDate: date.value,
-      endDate: date.value,
+      startDate: "",
+      endDate: "",
     })
 
     const filename = computed(() => {
@@ -112,7 +112,7 @@ export default defineComponent({
 
     const actionBtns = computed<ActionButtonInterface[]>(() => {
       const btns = [
-        { label: "Refresh", action: () => emit("Regenerate", props.useDateRangeFilter ? period : date.value ) },
+        { label: "Refresh", action: () => emit("regenerate", props.useDateRangeFilter ? period : date.value ) },
         ...props.actionButtons,
       ]
 

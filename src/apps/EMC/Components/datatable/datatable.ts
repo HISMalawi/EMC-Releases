@@ -1,4 +1,4 @@
-import { computed, defineComponent, h, onMounted, PropType, reactive, ref, watch } from "vue";
+import { computed, DefineComponent, defineComponent, h, onMounted, PropType, reactive, ref, watch } from "vue";
 import { TableColumnInterface, TableFilterInterface, ActionButtonInterface, RowActionButtonInterface, CustomFilterInterface } from "./types";
 import './datatable.css'
 import get from 'lodash/get';
@@ -7,6 +7,8 @@ import orderBy  from "lodash/orderBy";
 import range from "lodash/range";
 import { IonButton, IonCol, IonGrid, IonIcon, IonInput, IonItem, IonLabel, IonRow, IonSearchbar, IonSelect, IonSelectOption, IonSkeletonText } from "@ionic/vue";
 import { arrowDown, arrowUp, swapVertical, caretBack, caretForward, refresh, arrowForward } from "ionicons/icons";
+import dayjs from "dayjs";
+import DateRangePicker from "../inputs/DateRangePicker.vue";
 
 export const DataTable =  defineComponent({
   name: "DataTable",
@@ -39,7 +41,7 @@ export const DataTable =  defineComponent({
       type: String as PropType<"primary" | "secondary" | "tertiary" |"success" | "warning" | "danger" | "light" | "dark" | "medium" | "custom">,
     },
   },
-  setup(props, { emit }) {
+  setup(props, { emit, slots }) {
     const isLoading = ref(false);
     const totalColumns = computed(() => isEmpty(props.rowActionsButtons) ? props.columns.length : props.columns.length + 1);
     const tableRows = ref<any[]>([]);
@@ -207,42 +209,14 @@ export const DataTable =  defineComponent({
           h(IonCol, { size: '4', style: { padding: '10px' } },
             props.customFilters.map(filter => {
               if(filter.type === 'dateRange'){
-                const start = ref('')
-                const end = ref('')
-                watch([start, end], ()=> {
-                  if(start.value && end.value) {
-                    console.log(start.value, end.value)
+                const range = reactive(filter.defaultValue || { startDate: "", endDate: "" });
+                return h(DateRangePicker, {
+                  range: range,
+                  onRangeChange: async (newRange: any) => {
+                    Object.assign(range, newRange);
+                    if(typeof filter.action === 'function') await filter.action(newRange);
                   }
                 })
-                return h(IonRow, { class: 'ion-no-padding ion-no-margin', style: {height: '100%'}}, [
-                  h(IonCol, { size: '6', class: 'ion-no-padding ion-no-margin'}, 
-                    h(IonInput, { 
-                      type: 'date',
-                      class: 'box ',
-                      placeholder: filter.placeholder,
-                      style: { height: '100%' },
-                      value: start, 
-                      onIonChange: (e: Event) => {
-                        start.value = (e.target as HTMLInputElement).value;
-                      }
-                    })
-                  ),
-                  h(IonCol, { size: '1', class: 'ion-no-padding ion-no-margin ion-text-center'},
-                    h(IonIcon, { icon: arrowForward, style: { height: '100%', textAlign: 'center' } })
-                  ),
-                  h(IonCol, { size: '5', class: 'ion-no-padding ion-no-margin'},
-                    h(IonInput, {
-                      class: 'box',
-                      type: 'date',
-                      placeholder: filter.placeholder,
-                      style: { height: '100%' },
-                      value: end, 
-                      onIonChange: (e: Event) => {
-                        end.value = (e.target as HTMLInputElement).value;
-                      }
-                    })
-                  )
-                ])
               } else if (filter.type === 'select'){
                 h(IonItem, { class: "box", lines: "none", style: { display: 'inline-block', '--min-height': '11px', width: '220px', marginLeft: '.5rem' } }, [
                   h(IonLabel, filter.label),

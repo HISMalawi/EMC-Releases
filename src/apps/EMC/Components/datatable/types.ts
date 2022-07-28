@@ -3,6 +3,8 @@ export interface TableColumnInterface {
   path: string;
   exportable?: boolean;
   initialSort?: boolean;
+  sortable?: boolean;
+  date?: boolean;
   initialSortOrder?: sortType;
   sortCaseSensitive?: boolean;
 }
