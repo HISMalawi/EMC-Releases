@@ -47,9 +47,6 @@ export const DataTable =  defineComponent({
     const tableRows = ref<any[]>([]);
     const filteredRows = ref<any[]>([]);
     const activeRows = ref<any[]>([])
-    const aButtons = ref<ActionButtonInterface[]>([
-      ...props.actionsButtons,
-    ]);
     const totalFilteredRows = computed(() => filteredRows.value.length);
     const filters = reactive<TableFilterInterface>({
       search: "",
@@ -252,7 +249,7 @@ export const DataTable =  defineComponent({
             })
           ),
           h(IonCol, { size: '5', class: "ion-padding-end" },
-            aButtons.value.map(btn => h(IonButton, { 
+            props.actionsButtons.map(btn => h(IonButton, { 
               class: 'ion-float-right', 
               color: btn.color || 'primary', 
               onClick: () => btn.action(activeRows.value, tableRows.value, filters)
@@ -306,9 +303,11 @@ export const DataTable =  defineComponent({
                   const defualtActionBtn = props.rowActionsButtons.find(btn => btn.default)
                   if(defualtActionBtn) await defualtActionBtn.action(row)
                 }}, [
-                  ...props.columns.map(column =>
-                    h('td', { key: column.path }, get(row, column.path, ''))
-                  ),
+                  ...props.columns.map(column => {
+                    let value = get(row, column.path);
+                    if(column.date && value) value = dayjs(value).format('DD/MMM/YYYY');
+                    return h('td', { key: column.path }, value)
+                  }),
                   !isEmpty(props.rowActionsButtons) && h('td', props.rowActionsButtons.map(btn => 
                     h(IonButton, { key: btn.icon, size: 'small', color: btn.color || 'primary',  onClick: () => btn.action(row)}, 
                       btn.icon ? h(IonIcon, { icon: btn.icon }) : btn.label || "Button"

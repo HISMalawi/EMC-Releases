@@ -30,16 +30,12 @@ export default defineComponent({
       { path: "given_name", label: "First name", exportable: false },
       { path: "family_name", label: "Last name", exportable: false },
       { path: "gender", label: "Gender" },
-      { path: "birthdate", label: "Date of Birth" },
+      { path: "birthdate", label: "Date of Birth", date: true },
     ]
 
     const getData = async (date: string) => {
       await loader.show()
-      const data = await report.getBookedAppointments(date);
-      rows.value = data.map((d: any) => ({
-        ...d,
-        birthdate: dayjs(d.birthdate).format("DD/MMM/YYYY"),
-      }))
+      rows.value = await report.getBookedAppointments(date);
       await loader.hide();
     }
 
