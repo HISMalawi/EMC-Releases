@@ -237,6 +237,7 @@ export default defineComponent({
       }
       const i = findIndex(this.currentFields, { id: name });
       if (i >= 0 && i <= this.currentFields.length) {
+        this.setActiveFieldComputedValue()
         this.setActiveField(i)
         this.$emit('onIndex', i)
       }
@@ -629,24 +630,8 @@ export default defineComponent({
       if (proxyID) this.formData[proxyID] = value
 
       this.formData[id] = value;
-
-      let computeValue: any = null
-
-      if (this.currentField.computedValue) {
-        //Avoid sending null values to avoid crashing the callback
-        if (value) {
-          computeValue = this.currentField.computedValue(
-            value, this.formData, this.computedFormData
-          );
-        }
-        if (proxyID) {
-          this.computedFormData[proxyID] = computeValue
-        } else {
-          this.computedFormData[id] = computeValue
-        }
-      }
       if (typeof this.currentField.updateHelpTextOnValue === 'function') {
-        this.helpText = this.currentField.updateHelpTextOnValue(value, computeValue) 
+        this.helpText = this.currentField.updateHelpTextOnValue(value, this.formData)
       }
     },
     /**
@@ -670,9 +655,11 @@ export default defineComponent({
         if (typeof this.currentField.exitsForm === 'function' 
           && this.currentField.exitsForm(this.formData, this.computedFormData)) 
           break
-        await this.setActiveField(i, "next");
+        this.setActiveFieldComputedValue()
+        this.setActiveField(i, "next");
         return;
       }
+      this.setActiveFieldComputedValue()
       await this.onFinishAction()
     },
     /**
@@ -709,6 +696,19 @@ export default defineComponent({
       this.footerBtns.push(this.getBackBtn(ftBtns?.backBtn));
       this.footerBtns.push(this.getNextBtn(ftBtns?.nextBtn));
       this.footerBtns.push(this.getFinishBtn(ftBtns?.finishBtn));
+    },
+    setActiveFieldComputedValue() {
+      if (typeof this.currentField === 'object' && typeof this.currentField.computedValue === 'function') {
+        const fieldID = this.currentField.proxyID || this.currentField.id
+        const formValue = this.formData[fieldID]
+        if (formValue != null || !formValue) {
+          this.computedFormData[fieldID] = this.currentField.computedValue(
+            formValue, this.formData, this.computedFormData
+          )
+        } else {
+          this.computedFormData[fieldID] = null
+        }
+      }
     },
     onFieldValue(value: Option | Array<Option>) {
       this.setActiveFieldValue(value);
