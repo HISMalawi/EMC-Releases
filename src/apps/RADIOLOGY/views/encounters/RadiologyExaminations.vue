@@ -40,6 +40,12 @@ export default defineComponent({
                     this.fields.push(this.examinationField())
                     this.fields.push(this.detailedExaminationField())
                     this.fields.push(this.referralField())
+                    this.fields.push(this.payingField())
+                    this.fields.push(this.paymentTypeField())
+                    this.fields.push(this.receiptField())
+                    this.fields.push(this.paymentAmountField())
+                    this.fields.push(this.invoiceField())
+                    this.fields.push(this.invoiceAmountField())
                 }
             },
             immediate: true
@@ -52,6 +58,14 @@ export default defineComponent({
                     value: e.concept_id,
                     label: e.name
                 }))
+        },
+        validateAmount(val: string) {
+            return val.match(/([0-9]+\\.[0-9])|Unknown$/i)
+                ? ['You must enter a decimal number']
+                : null
+        },
+        onFinish() {
+            //TODO: save encounter
         },
         listOfRadiologyTestsField(): Field {
             let tests = [] as any;
@@ -150,90 +164,76 @@ export default defineComponent({
                 }
             }
         },
-        // getFields() {
-        //     return [
-        //         {
-        //             id: "list_of_radiology_test",
-        //             helpText: "Please select the type of examination",
-        //             type: FieldType.TT_SELECT,
-        //             validation: (v: Option) => Validation.required(v),
-        //             options: () => {
-        //                 return []
-        //             }
-        //         },
-        //         {
-        //             id: "examination",
-        //             helpText: "Please select the examination",
-        //             type: FieldType.TT_SELECT,
-        //             // validation: (v: Option) => Validation.required(v),
-        //             options: () => {
-        //                 return []
-        //             }
-        //         },
-        //         {
-        //             id: "detailed_examination",
-        //             helpText: "Please select the detailed examination",
-        //             type: FieldType.TT_SELECT,
-        //             // validation: (v: Option) => Validation.required(v),
-        //             options: () => {
-        //                 return []
-        //             }
-        //         },
-        //         {
-        //             id: "referred_by",
-        //             helpText: "Referred from",
-        //             type: FieldType.TT_SELECT,
-        //             // validation: (v: Option) => Validation.required(v),
-        //             options: () => {
-        //                 return []
-        //             }
-        //         },
-        //         {
-        //             id: "paying",
-        //             helpText: "Is this a paying patient?",
-        //             type: FieldType.TT_SELECT,
-        //             // validation: (v: Option) => Validation.required(v),
-        //             options: () => {
-        //                 return []
-        //             }
-        //         },
-        //         {
-        //             id: "payment_type",
-        //             helpText: "Select payment method",
-        //             type: FieldType.TT_SELECT,
-        //             // validation: (v: Option) => Validation.required(v),
-        //             options: () => {
-        //                 return []
-        //             }
-        //         },
-        //         {
-        //             id: "receipt_number",
-        //             helpText: "Enter receipt number",
-        //             type: FieldType.TT_TEXT,
-        //             // validation: (v: Option) => Validation.required(v),
-        //         },
-        //         {
-        //             id: "invoice_number",
-        //             helpText: "Enter invoice number",
-        //             type: FieldType.TT_TEXT,
-        //             // validation: (v: Option) => Validation.required(v),
-        //         },
-        //         {
-        //             id: "payment_amount",
-        //             helpText: "Enter payment amount",
-        //             type: FieldType.TT_NUMBER,
-        //             // validation: (v: Option) => Validation.required(v),
-        //         },
-        //         {
-        //             id: "invoice_amount",
-        //             helpText: "Enter invoice amount",
-        //             type: FieldType.TT_NUMBER,
-        //             // validation: (v: Option) => Validation.required(v),
-        //         }
-        //     ]
-        // },
-        onFinish() {
-            //TODO: save encounter
+        payingField() {
+            return {
+                id: "paying",
+                helpText: "Is this a paying patient?",
+                type: FieldType.TT_SELECT,
+                validation: (v: Option) => Validation.required(v),
+                options: () => {
+                    return this.yesNoOptions()
+                }
+            }
+        },
+        paymentTypeField() {
+            return {
+                id: "payment_type",
+                helpText: "Select payment method",
+                type: FieldType.TT_SELECT,
+                validation: (v: Option) => Validation.required(v),
+                condition: (f: any) => f.paying.value === 'Yes',
+                options: () => {
+                    return this.mapStrToOptions([
+                        'Cash',
+                        'Invoice'
+                    ])
+                }
+            }
+        },
+        receiptField() {
+            return  {
+                id: "receipt_number",
+                helpText: "Enter receipt number",
+                type: FieldType.TT_TEXT,
+                condition: (f: any) => f.payment_type.value === 'Cash', 
+                validation: (v: Option) => Validation.validateSeries([
+                    () => Validation.required(v),
+                    () => this.validateAmount(`${v.value}`)
+                ])
+            }
+        },
+        invoiceField() {
+            return {
+                id: "invoice_number",
+                helpText: "Enter invoice number",
+                type: FieldType.TT_TEXT,
+                condition: (f: any) => f.payment_type.value === 'Invoice',
+                validation: (v: Option) => Validation.required(v)
+            }
+        },
+        paymentAmountField() {
+            return {
+                id: "payment_amount",
+                helpText: "Enter payment amount",
+                type: FieldType.TT_NUMBER,
+                condition: (f: any) => f.receipt_number.value, 
+                validation: (v: Option) => Validation.validateSeries([
+                    () => Validation.required(v),
+                    () => this.validateAmount(`${v.value}`)
+                ])
+            }
+        },
+        invoiceAmountField() {
+            return {
+                id: "invoice_amount",
+                helpText: "Enter invoice amount",
+                type: FieldType.TT_NUMBER,
+                condition: (f: any) => f.invoice_number.value,
+                validation: (v: Option) => Validation.validateSeries([
+                    () => Validation.required(v),
+                    () => this.validateAmount(`${v.value}`)
+                ])
+            }
         }
     }
 })
