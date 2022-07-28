@@ -113,7 +113,6 @@ import {
   IonCardContent,
   IonCardTitle,
   IonCardHeader,
-  loadingController,
   modalController
 } from "@ionic/vue";
 import {
@@ -123,11 +122,8 @@ import {
 } from "@/guidelines/confirmation_page_guidelines"
 import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { AppInterface } from "@/apps/interfaces/AppInterface";
-import { GlobalPropertyService } from "@/services/global_property_service"
 import { PatientDemographicsExchangeService } from "@/services/patient_demographics_exchange_service"
 import { IncompleteEntityError, BadRequestError } from "@/services/service"
-import  { ART_GLOBAL_PROP } from "@/apps/ART/art_global_props"
-import  { GLOBAL_PROP } from "@/apps/GLOBAL_APP/global_prop"
 import { OrderService } from "@/services/order_service";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { ObservationService } from "@/services/observation_service";
@@ -135,6 +131,7 @@ import { delayPromise } from "@/utils/Timers";
 import { AncPregnancyStatusService } from "@/apps/ANC/Services/anc_pregnancy_status_service"
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 import { isUnknownOrEmpty, isValueEmpty } from "@/utils/Strs";
+import  artGlobalProp from "@/apps/ART/art_global_props"
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -214,20 +211,23 @@ export default defineComponent({
         birthdate: '' as string,
       } as any,
       globalProperties: {
-        useFilingNumbers: `${ART_GLOBAL_PROP.FILING_NUMBERS}=true`,
-        ddeEnabled: `${GLOBAL_PROP.DDE_ENABLED}=true`
+        useFilingNumbers: false,
+        ddeEnabled: false
       } as any
     }
   }),
-  async created() {
+  mounted() {
     const app = HisApp.getActiveApp()
     if (app) this.app = app
-
     this.ddeInstance = new PatientDemographicsExchangeService()
-
-    await this.ddeInstance.loadDDEStatus()
-
-    this.useDDE = this.ddeInstance.isEnabled()
+    this.ddeInstance.loadDDEStatus().then(() => {
+      this.setGlobalPropertyFacts().then(() => {
+        const query = this.$route.query
+        if (!isEmpty(query) && (query.person_id || query.patient_barcode)) {
+          this.findAndSetPatient(query.person_id as any, query.patient_barcode as any)
+        }
+      })
+    })
   },
   computed: {
     demographics(): any {
@@ -240,16 +240,6 @@ export default defineComponent({
     },
     isAdmin() {
       return UserService.isAdmin()
-    }
-  },
-  watch: {
-    $route: {
-      handler({query}: any) {
-        if (!isEmpty(query) && (query.person_id || query.patient_barcode)) {
-          this.findAndSetPatient(query.person_id, query.patient_barcode)
-        }
-      },
-      immediate: true
     }
   },
   methods: {
@@ -268,20 +258,20 @@ export default defineComponent({
      *  - DDE Service only supports NPID search.
     */
     async findAndSetPatient(id: number | undefined, npid: string | undefined) {
-      this.localPatient = {} // Patient found without using DDE
+      let req = null
       this.isReady = false
-
-      if (!this.facts.scannedNpid) this.facts.scannedNpid = npid || ''
-      await this.resolveGlobalPropertyFacts()
-      if (this.useDDE && npid) {
-        await this.handleSearchResults(this.ddeInstance.searchNpid(npid))
-      } else if (id) {
-        await this.handleSearchResults(Patientservice.findByID(id))
-      } else {
-        await this.handleSearchResults(Patientservice.findByNpid(npid as string))
+      this.localPatient = {} // Patient found without using DDE
+      if (!this.facts.scannedNpid) {
+        this.facts.scannedNpid = npid || ''
       }
-      this.isReady = true
-      await this.onEvent(TargetEvent.ONLOAD)
+      if (this.useDDE && npid) {
+        req = this.ddeInstance.searchNpid(npid)
+      } else if (id) {
+        req = Patientservice.findByID(id)
+      } else {
+        req = Patientservice.findByNpid(npid as string)
+      }
+      this.handleSearchResults(req).then(() => this.isReady = true)
     },
     /**
      * Handle search result promises and handle entity related errors.
@@ -335,16 +325,13 @@ export default defineComponent({
         }
         this.facts.currentNpid = this.patient.getNationalID()
         await this.validateNpid()
-        this.isReady = true
-        await this.drawPatientCards()
+        this.onEvent(TargetEvent.ONLOAD).then(() => this.isReady = true)
+        this.drawPatientCards()
       } else {
         // [DDE] a user might scan a deleted npid but might have a newer one.
         // The function below checks for newer version
-        if (this.facts.scannedNpid) await this.setVoidedNpidFacts(this.facts.scannedNpid)
+        if (this.facts.scannedNpid) this.setVoidedNpidFacts(this.facts.scannedNpid)
       }
-    },
-    clearLoader() {
-      loadingController.getTop().then(v => v ? loadingController.dismiss() : null)
     },
     async validateNpid () {
       if(this.useDDE){
@@ -402,6 +389,13 @@ export default defineComponent({
       this.facts.identifiers = this.patient.getIdentifiers()
         .map((id: any) => id.type.name)
     },
+    async setGlobalPropertyFacts() {
+      this.facts.globalProperties.ddeEnabled = this.ddeInstance.isEnabled()
+      this.useDDE = this.ddeInstance.isEnabled()
+      if (this.app.applicationName === 'ART') {
+        this.facts.globalProperties.useFilingNumbers = await artGlobalProp.filingNumbersEnabled()
+      }
+    },
     async setAncFacts() {
       const anc = new AncPregnancyStatusService(this.patient.getID(), -1)
       this.facts.anc.canInitiateNewPregnancy = await anc.canInitiateNewPregnancy()
@@ -444,15 +438,6 @@ export default defineComponent({
         ++index
       }
       return {comparisons, rowColors: [diffIndexes]}
-    },
-    async resolveGlobalPropertyFacts() {
-      for(const i in this.facts.globalProperties) {
-        if (typeof this.facts.globalProperties[i] === 'string') {
-          this.facts.globalProperties[i] = await GlobalPropertyService.isProp(
-            this.facts.globalProperties[i]
-          )
-        }
-      }
     },
     async setProgramFacts() {
       this.facts.programName = this.app.applicationName
@@ -503,11 +488,10 @@ export default defineComponent({
       if (!this.app.confirmationSummary) return
       this.cards = []
       const summaryEntries: Record<string, Function>
-        = await this.app.confirmationSummary(this.patient, this.programInfo)
-      
+        = await this.app.confirmationSummary(this.patient, this.programInfo, this.facts)
+
       // Create phatom cards to avoid popip effect
-      this.cards = Object.keys(summaryEntries)
-        .map(title => ({ title }))
+      this.cards = Object.keys(summaryEntries).map(title => ({ title }))
 
       for (let x=0; x < this.cards.length; x++) {
         const obj = summaryEntries[this.cards[x].title]()
@@ -581,13 +565,13 @@ export default defineComponent({
         if ((await this.initiateNewAncPregnancy())) {
           this.facts.anc.canInitiateNewPregnancy = false
           this.facts.anc.currentPregnancyIsOverdue = false
-          await this.nextTask()
+          this.nextTask()
         } else {
           toastWarning('Unable to initiate new pregnancy')
         }
       }
     },
-    async initiateNewAncPregnancy() {
+    initiateNewAncPregnancy() {
       return new AncPregnancyStatusService(this.patient.getID(), -1).createNewPregnancyStatus()
     },
     /**
@@ -716,8 +700,8 @@ export default defineComponent({
         }
       }, 'void-modal')
     },
-    async nextTask() {
-      await this.onEvent(TargetEvent.ON_CONTINUE, () => {
+    nextTask() {
+      this.onEvent(TargetEvent.ON_CONTINUE, () => {
         nextTask(this.patient.getID(), this.$router)
       })
     }

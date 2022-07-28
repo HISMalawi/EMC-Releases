@@ -142,7 +142,7 @@ export async function getPatientDashboardLabOrderCardItems(patientId: number, da
     return data
 }
 
-export function confirmationSummary(patient: Patientservice, program: any) {
+export function confirmationSummary(patient: Patientservice, program: any, facts: any) {
     const patientID = patient.getID()
     return {
         'PROGRAM INFORMATION': async () => {
@@ -192,7 +192,7 @@ export function confirmationSummary(patient: Patientservice, program: any) {
                 value: patient.getNationalID(),
             }]
 
-            if((await ART_PROP.filingNumbersEnabled())){
+            if(facts.globalProperties.useFilingNumbers){
                 identifiers.push({
                     label: "Filing Number",
                     value: patient.getFilingNumber()
