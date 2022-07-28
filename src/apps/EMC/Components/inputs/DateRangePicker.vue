@@ -1,13 +1,13 @@
 <template>
   <ion-grid class='ion-no-padding ion-no-margin' :style="{height: '100%'}">
     <ion-row>
-      <ion-col>
+      <ion-col size="5">
         <ion-input v-model="start" type="date" class="box" :style="{ width: '100%', height: '100%'}"  />
       </ion-col>
       <ion-col size="1" class="ion-padding-start">
         <ion-icon :icon="arrowForward" :style="{ height: '100%', textAlign: 'center' }" ></ion-icon>
       </ion-col>
-      <ion-col>
+      <ion-col size="5">
         <ion-input v-model="end" type="date" class="box" :style="{ width: '100%', height: '100%'}" />
       </ion-col>
     </ion-row>

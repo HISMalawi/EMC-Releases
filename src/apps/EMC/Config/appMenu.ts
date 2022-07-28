@@ -121,8 +121,9 @@ export const menuItems: MenuItem[] = [
           },
           {
             title: 'Defaulter list',
-            id: 'defaulter_list',
-            img: 'reports/defaulter-list.png'
+            id: 'clinic_defaulters',
+            img: 'reports/defaulter-list.png',            
+            url: '/emc/report/clinic/defaulters'
           },
           {
             title: 'Missed appointments',

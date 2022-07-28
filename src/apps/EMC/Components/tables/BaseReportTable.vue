@@ -8,7 +8,7 @@
               <img :src="reportIcon" style="width: 100%;" />
             </ion-col>
             <ion-col>
-              <h1>{{ title }}</h1>
+              <h1 v-html="title"></h1>
               <h5 v-if="useDateRangeFilter">
                 Period: {{ toStandardHisDisplayFormat(period.startDate) + " - " + toStandardHisDisplayFormat(period.endDate) }}
               </h5>
