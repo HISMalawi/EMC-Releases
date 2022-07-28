@@ -1,6 +1,7 @@
 export interface TableColumnInterface {
   label: string;
   path: string;
+  exportable?: boolean;
   initialSort?: boolean;
   initialSortOrder?: sortType;
   sortCaseSensitive?: boolean;
@@ -48,7 +49,7 @@ export interface RowActionButtonInterface {
 export interface CustomFilterInterface {
   label: string;
   targetColumn?: string;
-  defaultValue?: string;
+  defaultValue?: any;
   action?: (value: any) => Promise<void>;
   type: "text" | "number" | "date" | "select" | "dateRange";
   options?: string[];

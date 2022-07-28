@@ -191,7 +191,7 @@ export const DataTable =  defineComponent({
     });
 
     return () => [
-      h(IonGrid, { style: { width: '100%'}},
+      h(IonGrid, { class: "ion-padding-vertical", style: { width: '100%'}},
         h(IonRow, [
           h(IonCol, { size: '3', style: { padding: '10px' } }, 
             h(IonSearchbar, {
