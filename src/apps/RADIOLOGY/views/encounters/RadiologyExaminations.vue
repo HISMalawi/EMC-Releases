@@ -132,17 +132,14 @@ export default defineComponent({
                                 if (typeof field.filter != 'string' || field.filter.length < 3) {
                                     return toastWarning(`Please enter a valid name`)
                                 }
-                                if (!isEmpty(field.filtered)) {
+                                if (field.filtered.some((i: Option) => i.label.toLowerCase() === field.filter.toLowerCase())) {
                                     return toastWarning(`Can't add already existing referral location`)
                                 }
                                 if ((await alertConfirmation(`Do you want to add referral location?`))) {
                                     const data = await RadiologyInternalSectionService.createInternalSection(field.filter)
                                     if (data) {
                                         field.filter = data.name
-                                        field.listData.push({
-                                            label: data.name,
-                                            value: data.id
-                                        })
+                                        field.listData = [{label: data.name, value: data.id}, ...field.listData]
                                     } else {
                                         toastDanger(`Unable to add ${field.filter}`)
                                     }
