@@ -64,8 +64,10 @@ export default defineComponent({
                 ? ['You must enter a decimal number']
                 : null
         },
-        onFinish() {
-            //TODO: save encounter
+        async onFinish(f: any, c: any) {
+            await this.service.createEncounter()
+            await this.service.saveObservationList((await this.resolveObs(c)))
+            this.gotoPatientDashboard()
         },
         listOfRadiologyTestsField(): Field {
             let tests = [] as any;
@@ -75,6 +77,9 @@ export default defineComponent({
                 helpText: "Please select the type of examination",
                 type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option) => {
+                    return this.service.buildValueCoded('RADIOLOGY TEST', v.label)
+                },
                 beforeNext: async (v: Option) => {
                     if (selectedTest != v.value) {
                         selectedTest = v.value as number
@@ -97,6 +102,9 @@ export default defineComponent({
                 helpText: "Please select the examination",
                 type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option) => {
+                    return this.service.buildValueCoded('Examination', v.label)
+                },
                 condition: () => !isEmpty(this.examinationOptions),
                 beforeNext: async (v: Option, f: any) => {
                     if (selectedExamID != f.list_of_radiology_test.value) {
@@ -114,6 +122,9 @@ export default defineComponent({
                 helpText: "Please select the detailed examination",
                 type: FieldType.TT_SELECT,
                 condition: () => !isEmpty(this.detailedExaminationOptions),
+                computedValue: (v: Option) => {
+                    return this.service.buildValueCoded('Detailed examination', v.label)
+                },
                 validation: (v: Option) => Validation.required(v),
                 options: () => this.detailedExaminationOptions
             }
@@ -125,6 +136,9 @@ export default defineComponent({
                 helpText: "Referred from",
                 type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option) => {
+                    return this.service.buildValueText('REFERRED FROM', v.label)
+                },
                 options: async () => {
                     if (isEmpty(referralSections)) {
                         referralSections = (await RadiologyInternalSectionService.getInternalSections())
@@ -169,6 +183,9 @@ export default defineComponent({
                 id: "paying",
                 helpText: "Is this a paying patient?",
                 type: FieldType.TT_SELECT,
+                computedValue: (v: Option) => {
+                    return this.service.buildValueCoded('PAYING', v.value)
+                },
                 validation: (v: Option) => Validation.required(v),
                 options: () => {
                     return this.yesNoOptions()
@@ -182,6 +199,9 @@ export default defineComponent({
                 type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 condition: (f: any) => f.paying.value === 'Yes',
+                computedValue: (v: Option) => {
+                    return this.service.buildValueCoded('PAYMENT TYPE', v.value)
+                },
                 options: () => {
                     return this.mapStrToOptions([
                         'Cash',
@@ -195,7 +215,10 @@ export default defineComponent({
                 id: "receipt_number",
                 helpText: "Enter receipt number",
                 type: FieldType.TT_TEXT,
-                condition: (f: any) => f.payment_type.value === 'Cash', 
+                condition: (f: any) => f.payment_type.value === 'Cash',
+                computedValue: (v: Option) => {
+                    return this.service.buildValueText('RECEIPT NUMBER', v.value)
+                },
                 validation: (v: Option) => Validation.validateSeries([
                     () => Validation.required(v),
                     () => this.validateAmount(`${v.value}`)
@@ -207,6 +230,9 @@ export default defineComponent({
                 id: "invoice_number",
                 helpText: "Enter invoice number",
                 type: FieldType.TT_TEXT,
+                computedValue: (v: Option) => {
+                    return this.service.buildValueText('INVOICE NUMBER', v.value)
+                },
                 condition: (f: any) => f.payment_type.value === 'Invoice',
                 validation: (v: Option) => Validation.required(v)
             }
@@ -216,7 +242,10 @@ export default defineComponent({
                 id: "payment_amount",
                 helpText: "Enter payment amount",
                 type: FieldType.TT_NUMBER,
-                condition: (f: any) => f.receipt_number.value, 
+                condition: (f: any) => f.receipt_number.value,
+                computedValue: (v: Option) => {
+                    return this.service.buildValueNumber('PAYMENT AMOUNT', v.value)
+                },
                 validation: (v: Option) => Validation.validateSeries([
                     () => Validation.required(v),
                     () => this.validateAmount(`${v.value}`)
@@ -229,6 +258,9 @@ export default defineComponent({
                 helpText: "Enter invoice amount",
                 type: FieldType.TT_NUMBER,
                 condition: (f: any) => f.invoice_number.value,
+                computedValue: (v: Option) => {
+                    return this.service.buildValueNumber('INVOICE AMOUNT', v.value)
+                },
                 validation: (v: Option) => Validation.validateSeries([
                     () => Validation.required(v),
                     () => this.validateAmount(`${v.value}`)
