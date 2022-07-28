@@ -49,8 +49,15 @@
 
     <ion-footer>
       <ion-toolbar color="dark">
-        <ion-button color="danger" size="large" router-link="/"
-          >Cancel</ion-button>
+        <ion-button 
+          :disabled="!isReady" 
+          color="danger" 
+          size="large" 
+          router-link="/"
+          >
+          <ion-spinner v-if="!isReady" name="crescent"/>
+          Cancel
+        </ion-button>
         <ion-button
           v-if="facts.patientFound && isAdmin"
           color="danger left"
@@ -62,16 +69,17 @@
           v-if="facts.anc.canInitiateNewPregnancy"
           slot="end"
           size="large"
-          @click="onInitiateNewAncPregnancy"
-          >
+          @click="onInitiateNewAncPregnancy">
           New Pregnancy
         </ion-button>
         <ion-button 
           v-if="facts.patientFound"
           slot="end" 
+          :disabled="!isReady"
           color="success" 
           size="large" 
           @click="nextTask">
+          <ion-spinner v-if="!isReady" name="crescent"/>
           Continue
         </ion-button>
       </ion-toolbar>
@@ -92,6 +100,7 @@ import { PatientProgramService } from "@/services/patient_program_service"
 import { alertConfirmation, toastDanger, toastSuccess, toastWarning } from "@/utils/Alerts"
 import { Patient } from "@/interfaces/patient"
 import {
+  IonSpinner,
   IonContent,
   IonHeader,
   IonFooter,
@@ -130,6 +139,7 @@ import { isUnknownOrEmpty, isValueEmpty } from "@/utils/Strs";
 export default defineComponent({
   name: "Patient Confirmation",
   components: {
+    IonSpinner,
     IonContent,
     IonHeader,
     IonFooter,
@@ -152,6 +162,7 @@ export default defineComponent({
     ddeInstance: {} as any,
     useDDE: false as boolean,
     programInfo: {} as any,
+    isReady: false as boolean,
     facts: {
       hasHighViralLoad: false as boolean,
       patientFound: false as boolean,
@@ -258,7 +269,7 @@ export default defineComponent({
     */
     async findAndSetPatient(id: number | undefined, npid: string | undefined) {
       this.localPatient = {} // Patient found without using DDE
-      await this.presentLoading()
+      this.isReady = false
 
       if (!this.facts.scannedNpid) this.facts.scannedNpid = npid || ''
       await this.resolveGlobalPropertyFacts()
@@ -269,7 +280,7 @@ export default defineComponent({
       } else {
         await this.handleSearchResults(Patientservice.findByNpid(npid as string))
       }
-      this.clearLoader()
+      this.isReady = true
       await this.onEvent(TargetEvent.ONLOAD)
     },
     /**
@@ -324,7 +335,7 @@ export default defineComponent({
         }
         this.facts.currentNpid = this.patient.getNationalID()
         await this.validateNpid()
-        this.clearLoader()
+        this.isReady = true
         await this.drawPatientCards()
       } else {
         // [DDE] a user might scan a deleted npid but might have a newer one.
@@ -499,8 +510,10 @@ export default defineComponent({
         .map(title => ({ title }))
 
       for (let x=0; x < this.cards.length; x++) {
-        const card = this.cards[x]
-        this.cards[x].data = await summaryEntries[card.title]()
+        const obj = summaryEntries[this.cards[x].title]()
+        if (typeof obj === 'object' && obj.then) {
+          obj.then((data: any) => this.cards[x].data = data)
+        } 
       }
     },
     async setVoidedNpidFacts(npid: string) {
@@ -543,14 +556,6 @@ export default defineComponent({
         this.facts.dde.voidedNpids.cols = cols
         this.facts.dde.voidedNpids.rows = rows
       }
-    },
-    async presentLoading() {
-      const loading = await loadingController
-        .create({
-          message: 'Please wait...',
-          backdropDismiss: false
-        })
-      await loading.present()
     },
     /**
      * Executes CONFIRMATION_PAGE GUIDELINES with given TargetEvent
