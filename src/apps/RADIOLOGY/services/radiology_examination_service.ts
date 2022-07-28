@@ -8,4 +8,8 @@ export class RadiologyExaminationService extends AppEncounterService {
     static getListOfRadiologyTests(id: string | number) {
         return super.getJson('radiology_set', { id })
     }
+
+    createOrder(params: any) {
+        return AppEncounterService.postJson('orders/radiology', params)
+    }
 }
