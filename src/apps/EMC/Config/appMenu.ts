@@ -116,7 +116,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'Clinic appointments',
             id: 'clinic_appointments',
-            img: 'reports/appointments.png'
+            img: 'reports/appointments.png',
+            url: '/emc/report/clinic/appointments'
           },
           {
             title: 'Defaulter list',

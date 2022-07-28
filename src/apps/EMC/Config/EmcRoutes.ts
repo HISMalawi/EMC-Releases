@@ -34,8 +34,19 @@ export default [
     component: () => import("@/apps/EMC/views/Staging.vue")
   },
   {
-    path: "/emc/reports",
-    name: "EMC Reports",
-    component: () => import("@/apps/EMC/views/reports/Reports.vue")
-  }
+    path: '/emc/report/clinic',
+    component: () => import('@/apps/EMC/views/reports/BaseReport.vue'),
+    children: [
+      {
+        name: 'clinic_appointments',
+        path: 'appointments',
+        component: () => import('@/apps/EMC/views/reports/clinic/ClinicAppointments.vue'),
+      },
+      {
+        name: 'clinic_archiving_candidates',
+        path: 'clinic_archiving_candidates',
+        component: () => import('@/apps/EMC/views/reports/clinic/ArchivedCandidates.vue'),
+      },
+    ]
+  },
 ];

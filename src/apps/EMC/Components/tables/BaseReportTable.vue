@@ -5,11 +5,11 @@
         <ion-grid>
           <ion-row>
             <ion-col size="1" class="ion-padding ion-margin-end">
-              <img :src="reportIcon" style="width: 80%;" />
+              <img :src="reportIcon" style="width: 100%;" />
             </ion-col>
             <ion-col>
               <h1>{{ title }}</h1>
-              <h5 class="bold">Date: {{ toStandardHisDisplayFormat(currentDate) }}</h5>
+              <h5 class="bold">Date: {{ toStandardHisDisplayFormat(date) }}</h5>
               <h5 class="bold" v-if="useDateRangeFilter">
                 Period: {{ toStandardHisDisplayFormat(period.startDate) + " - " + toStandardHisDisplayFormat(period.endDate) }}
               </h5>
@@ -100,19 +100,19 @@ export default defineComponent({
   emits: ["Regenerate", "onDateRangeChange", "onDateChange", "onDrillDown"],
   setup(props, { emit }) {
     const { toStandardHisDisplayFormat, toStandardHisFormat } = HisDate;
-    const currentDate = ref(PatientReportService.getSessionDate())
+    const date = ref(PatientReportService.getSessionDate())
     const period = reactive({
-      startDate: "",
-      endDate: "",
+      startDate: date.value,
+      endDate: date.value,
     })
 
     const filename = computed(() => {
-      return `${PatientReportService.getLocationName()} ${props.title} ${toStandardHisFormat(currentDate.value)}`;
+      return `${PatientReportService.getLocationName()} ${props.title} ${toStandardHisFormat(date.value)}`;
     })
 
     const actionBtns = computed<ActionButtonInterface[]>(() => {
       const btns = [
-        { label: "Refresh", action: () => emit("Regenerate") },
+        { label: "Refresh", action: () => emit("Regenerate", props.useDateRangeFilter ? period : date.value ) },
         ...props.actionButtons,
       ]
 
@@ -150,10 +150,10 @@ export default defineComponent({
       return [{
         label: "Date",
         type: "date",
-        defaultValue: currentDate.value,
-        action: async (date) => {
-          currentDate.value = date
-          emit("onDateChange", date)
+        defaultValue: date.value,
+        action: async (newDate) => {
+          date.value = newDate
+          emit("onDateChange", date.value)
         },
       }]
     })
@@ -161,7 +161,7 @@ export default defineComponent({
     return {
       actionBtns,
       customFilters,
-      currentDate,
+      date,
       period,
       dayjs,
       toStandardHisDisplayFormat,

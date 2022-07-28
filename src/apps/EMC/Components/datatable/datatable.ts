@@ -191,7 +191,7 @@ export const DataTable =  defineComponent({
     });
 
     return () => [
-      h(IonGrid, { class: "ion-padding-vertical", style: { width: '100%'}},
+      h(IonGrid, { class: "ion-padding-vertical", style: { width: '100%', fontWeight: 600 }},
         h(IonRow, [
           h(IonCol, { size: '3', style: { padding: '10px' } }, 
             h(IonSearchbar, {
@@ -264,7 +264,7 @@ export const DataTable =  defineComponent({
                   type: filter.type,
                   placeholder: filter.placeholder,
                   style: { width: '100%', height: '100%'}, 
-                  value: filterValue, 
+                  value: filterValue.value, 
                   onIonInput: async (e: Event) => {
                     filterValue.value = (e.target as HTMLInputElement).value;
                     if(filterValue.value && typeof filter.action === 'function') {
