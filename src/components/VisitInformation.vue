@@ -136,7 +136,7 @@ export default defineComponent({
           table.td(item.data.regimen, tdStyles),
           table.td(item.data['viral_load'], tdStyles),
           table.td(item.data['tb_status'], tdStyles),
-          table.td(item.data.outcome.match(/Unk/i) ? "" : item.data.outcome, tdStyles),
+          table.td(item.data.outcome.match(/Unk/i) ? "Unknown" : item.data.outcome, tdStyles),
           table.td(pillsDispensed, tdStyles),
           table.tdBtn('show more', async () => {
             (await modalController.create({
