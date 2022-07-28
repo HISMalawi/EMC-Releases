@@ -325,13 +325,13 @@ export default defineComponent({
         }
         this.facts.currentNpid = this.patient.getNationalID()
         await this.validateNpid()
-        this.onEvent(TargetEvent.ONLOAD).then(() => this.isReady = true)
         this.drawPatientCards()
       } else {
         // [DDE] a user might scan a deleted npid but might have a newer one.
         // The function below checks for newer version
         if (this.facts.scannedNpid) this.setVoidedNpidFacts(this.facts.scannedNpid)
       }
+      this.onEvent(TargetEvent.ONLOAD).then(() => this.isReady = true)
     },
     async validateNpid () {
       if(this.useDDE){
