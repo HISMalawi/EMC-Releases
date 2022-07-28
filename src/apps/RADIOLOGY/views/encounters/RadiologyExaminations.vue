@@ -16,7 +16,9 @@ import { FieldType } from '@/components/Forms/BaseFormElements';
 import Validation from "@/components/Forms/validations/StandardValidations";
 import { Field, Option } from "@/components/Forms/FieldInterface"
 import { RadiologyExaminationService } from "@/apps/RADIOLOGY/services/radiology_examination_service";
+import { RadiologyInternalSectionService } from "@/apps/RADIOLOGY/services/radiology_internal_sections_service";
 import { isEmpty } from 'lodash';
+import { alertConfirmation, toastDanger, toastWarning } from '@/utils/Alerts';
 
 export default defineComponent({
     mixins: [EncounterMixinVue],
@@ -37,6 +39,7 @@ export default defineComponent({
                     this.fields.push(this.listOfRadiologyTestsField())
                     this.fields.push(this.examinationField())
                     this.fields.push(this.detailedExaminationField())
+                    this.fields.push(this.referralField())
                 }
             },
             immediate: true
@@ -99,6 +102,55 @@ export default defineComponent({
                 condition: () => !isEmpty(this.detailedExaminationOptions),
                 validation: (v: Option) => Validation.required(v),
                 options: () => this.detailedExaminationOptions
+            }
+        },
+        referralField() {
+            let referralSections = [] as Option[]
+            return {
+                id: "referred_by",
+                helpText: "Referred from",
+                type: FieldType.TT_SELECT,
+                validation: (v: Option) => Validation.required(v),
+                options: async () => {
+                    if (isEmpty(referralSections)) {
+                        referralSections = (await RadiologyInternalSectionService.getInternalSections())
+                            .map((s: any) => ({
+                                value: s.id,
+                                label: s.name
+                            }))
+                    }
+                    return referralSections
+                },
+                config: {
+                    showKeyboard: true,
+                    footerBtns: [
+                        {
+                            name: 'Add Referral',
+                            slot: 'end',
+                            color: 'success',
+                            onClick: async (f: any, c: any, field: any) => {
+                                if (typeof field.filter != 'string' || field.filter.length < 3) {
+                                    return toastWarning(`Please enter a valid name`)
+                                }
+                                if (!isEmpty(field.filtered)) {
+                                    return toastWarning(`Can't add already existing referral location`)
+                                }
+                                if ((await alertConfirmation(`Do you want to add referral location?`))) {
+                                    const data = await RadiologyInternalSectionService.createInternalSection(field.filter)
+                                    if (data) {
+                                        field.filter = data.name
+                                        field.listData.push({
+                                            label: data.name,
+                                            value: data.id
+                                        })
+                                    } else {
+                                        toastDanger(`Unable to add ${field.filter}`)
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
             }
         },
         // getFields() {
