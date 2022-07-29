@@ -19,6 +19,7 @@ import { RadiologyExaminationService } from "@/apps/RADIOLOGY/services/radiology
 import { RadiologyInternalSectionService } from "@/apps/RADIOLOGY/services/radiology_internal_sections_service";
 import { isEmpty } from 'lodash';
 import { alertConfirmation, toastDanger, toastWarning } from '@/utils/Alerts';
+import PersonFieldHelper from '@/utils/HisFormHelpers/PersonFieldHelper';
 
 export default defineComponent({
     mixins: [EncounterMixinVue],
@@ -39,7 +40,9 @@ export default defineComponent({
                     this.fields.push(this.listOfRadiologyTestsField())
                     this.fields.push(this.examinationField())
                     this.fields.push(this.detailedExaminationField())
-                    this.fields.push(this.referralField())
+                    this.fields.push(this.referralTypeField())
+                    this.fields.push(this.internalReferralField())
+                    this.fields.push(this.externalReferralField())
                     this.fields.push(this.payingField())
                     this.fields.push(this.paymentTypeField())
                     this.fields.push(this.receiptField())
@@ -146,17 +149,48 @@ export default defineComponent({
                         obs: this.service.buildValueCoded('Detailed examination', v.label),
                     }
                 },
-                validation: (v: Option) => Validation.required(v),
+            validation: (v: Option) => Validation.required(v),
                 options: () => this.detailedExaminationOptions
             }
         },
-        referralField() {
+        referralTypeField() {
+            return {
+                id: 'referral_type',
+                helpText: 'Please select the referral type',
+                type: FieldType.TT_SELECT,
+                validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option) => {
+                    return {
+                        obs: this.service.buildValueText('Source of referral', v.label)
+                    }
+                },
+                options: () => {
+                    return this.mapStrToOptions([
+                        'External', 
+                        'Internal'
+                    ])
+                }
+            }
+        },
+        externalReferralField() {
+            const field: Field = PersonFieldHelper.getFacilityLocationField()
+            field.id = 'external_referral'
+            field.condition = (f: any) => f.referral_type.value === 'External'
+            field.computedValue = (v: Option) => {
+                return {
+                    obs: this.service.buildValueText('REFERRED FROM', v.label)
+                }
+            }
+            return field
+        },
+        internalReferralField() {
             let referralSections = [] as Option[]
             return {
                 id: "referred_by",
                 helpText: "Referred from",
                 type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
+                condition: (f: any) => f.referral_type.value === 'Internal',
                 computedValue: (v: Option) => {
                     return {
                         obs: this.service.buildValueText('REFERRED FROM', v.label)
