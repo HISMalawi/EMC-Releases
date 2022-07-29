@@ -67,12 +67,15 @@ export default defineComponent({
                 ? ['You must enter a decimal number']
                 : null
         },
-        async onFinish(f: any, computedValues: any) {
+        async onFinish(_: any, computedValues: any) {
             await this.service.createEncounter()
             await this.service.saveObservationList((await this.resolveObs(computedValues)))
             for(const v of Object.values(computedValues) as any) {
                 if (typeof v.order === 'function') {
-                    await this.service.createOrder(v.order(this.service.getEncounterID()))
+                    const res = await this.service.createOrder(v.order(this.service.getEncounterID()))
+=                    if (typeof res === 'object' && res.accession_number) {
+                        this.service.printExamination(res.accession_number)
+                    }
                 }
             }
             this.gotoPatientDashboard()
