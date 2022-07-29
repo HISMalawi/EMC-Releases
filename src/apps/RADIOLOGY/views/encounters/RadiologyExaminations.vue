@@ -73,7 +73,7 @@ export default defineComponent({
             for(const v of Object.values(computedValues) as any) {
                 if (typeof v.order === 'function') {
                     const res = await this.service.createOrder(v.order(this.service.getEncounterID()))
-=                    if (typeof res === 'object' && res.accession_number) {
+                    if (typeof res === 'object' && res.accession_number) {
                         this.service.printExamination(res.accession_number)
                     }
                 }
