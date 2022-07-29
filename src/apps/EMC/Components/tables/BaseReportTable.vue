@@ -5,7 +5,7 @@
         <ion-grid>
           <ion-row>
             <ion-col size="1" class="ion-padding ion-margin-end">
-              <img :src="reportIcon" style="width: 100%;" />
+              <img :src="`assets/images/${reportIcon}`" style="width: 100%;" />
             </ion-col>
             <ion-col>
               <h1 v-html="title"></h1>
@@ -67,7 +67,7 @@ export default defineComponent({
     },
     reportIcon: {
       type: String,
-      default: "assets/images/reports/report.png",
+      default: "reports/report.png",
     },
     columns: {
       type: Array as () => TableColumnInterface[],

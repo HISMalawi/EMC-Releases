@@ -1,7 +1,7 @@
 <template>
   <base-report-table
     :title="title"
-    report-icon="assets/images/reports/defaulter-list.png"
+    report-icon="reports/defaulter-list.png"
     :columns="columns"
     :rows="rows"
     :rowActionButtons="rowActionBtns"

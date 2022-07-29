@@ -1,7 +1,7 @@
 <template>
   <base-report-table
     title="Clinic Appointments Report"
-    report-icon="assets/images/reports/appointments.png"
+    report-icon="reports/appointments.png"
     :columns="columns"
     :rows="rows"
     :rowActionButtons="rowActionBtns"
