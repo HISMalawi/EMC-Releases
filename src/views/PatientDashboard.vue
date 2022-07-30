@@ -366,8 +366,10 @@ export default defineComponent({
             }
         }
     },
-    mounted() {
+    created() {
         this.initCards()
+    },
+    mounted() {
         this.patientId = parseInt(`${this.$route.params.id}`)
         if (this.patientId) {
             App.doAppManagementTasks().then(() =>{
@@ -526,8 +528,11 @@ export default defineComponent({
                     .then((task) => this.nextTask = task)
                 this.getPatientVisitDates(this.patientId)
                     .then((dates) => {
-                        this.onProgramVisitDates(dates)
+                        if (isEmpty(dates)) {
+                            this.tasksDisabled = false
+                        }
                         this.loadSavedEncounters()
+                        this.onProgramVisitDates(dates)
                     }).catch((e) => console.error(e))
             }).catch((e) => toastDanger(`${e}`))
         },
