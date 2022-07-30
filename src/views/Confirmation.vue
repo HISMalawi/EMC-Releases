@@ -30,23 +30,15 @@
     <ion-content>
       <ion-row>
         <ion-col size-md="4" size-sm="12" v-for="(card, index) in cards" :key="index">
-          <ion-card class="his-card">
-            <ion-card-header style="background: #708090 !important;">
-              <ion-card-title>{{ card.title.toUpperCase() }}</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <ul class="card-content"> 
-                <li class='li-item his-sm-text' v-for="(info, id) in card.data" :key="id" style="display: flex; justify-content: space-between;"> 
-                  <span v-if="info.label"> {{ info.label }} &nbsp;</span>
-                  <strong v-html="info.value"></strong>
-                </li>
-              </ul>
-            </ion-card-content>
-          </ion-card>
+          <confirmation-card
+            :key="`card-${index}`"
+            :title="card.title"
+            :items="card.data"
+            :isLoading="card.isLoading"
+          />
         </ion-col>
       </ion-row>
     </ion-content>
-
     <ion-footer>
       <ion-toolbar color="dark">
         <ion-button 
@@ -91,7 +83,7 @@
 import { isEmpty } from "lodash";
 import HisDate from "@/utils/Date"
 import HisApp from "@/apps/app_lib"
-import { defineComponent } from "vue";
+import { defineAsyncComponent, defineComponent } from "vue";
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { UserService } from "@/services/user_service";
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
@@ -109,10 +101,6 @@ import {
   IonRow,
   IonCol,
   IonButton,
-  IonCard,
-  IonCardContent,
-  IonCardTitle,
-  IonCardHeader,
   modalController
 } from "@ionic/vue";
 import {
@@ -132,7 +120,6 @@ import { AncPregnancyStatusService } from "@/apps/ANC/Services/anc_pregnancy_sta
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 import { isUnknownOrEmpty, isValueEmpty } from "@/utils/Strs";
 import  artGlobalProp from "@/apps/ART/art_global_props"
-
 export default defineComponent({
   name: "Patient Confirmation",
   components: {
@@ -145,21 +132,18 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonButton,
-    IonCard,
-    IonCardContent,
-    IonCardTitle,
-    IonCardHeader
+    ConfirmationCard: defineAsyncComponent(()=>import("@/components/Cards/PatientConfirmationCards.vue")),
   },
   data: () => ({
     app: {} as AppInterface,
     program: {} as any,
     patient: {} as any,
     localPatient: {} as any, // Patient found without dde
-    cards: [] as any[],
     ddeInstance: {} as any,
     useDDE: false as boolean,
     programInfo: {} as any,
     isReady: false as boolean,
+    cards: [] as any[],
     facts: {
       hasHighViralLoad: false as boolean,
       patientFound: false as boolean,
@@ -218,16 +202,19 @@ export default defineComponent({
   }),
   mounted() {
     const app = HisApp.getActiveApp()
-    if (app) this.app = app
-    this.ddeInstance = new PatientDemographicsExchangeService()
-    this.ddeInstance.loadDDEStatus().then(() => {
-      this.setGlobalPropertyFacts().then(() => {
-        const query = this.$route.query
-        if (!isEmpty(query) && (query.person_id || query.patient_barcode)) {
-          this.findAndSetPatient(query.person_id as any, query.patient_barcode as any)
-        }
+    if (app) {
+      this.app = app
+      this.ddeInstance = new PatientDemographicsExchangeService()
+      this.initCards()
+      this.ddeInstance.loadDDEStatus().then(() => {
+        this.setGlobalPropertyFacts().then(() => {
+          const query = this.$route.query
+          if (!isEmpty(query) && (query.person_id || query.patient_barcode)) {
+            this.findAndSetPatient(query.person_id as any, query.patient_barcode as any)
+          }
+        })
       })
-    })
+    }
   },
   computed: {
     demographics(): any {
@@ -243,6 +230,15 @@ export default defineComponent({
     }
   },
   methods: {
+    initCards() {
+      for(let i = 0; i < 6; i++) {
+        this.cards[i] = {
+          data: {},
+          title: '-',
+          isLoading: false 
+        }
+      }
+    },
     async setViralLoadStatus() {
       const orders = await OrderService.getOrders(this.patient.getID())      
       if(!isEmpty(orders)){
@@ -325,7 +321,7 @@ export default defineComponent({
         }
         this.facts.currentNpid = this.patient.getNationalID()
         await this.validateNpid()
-        this.drawPatientCards()
+        this.updateCards()
       } else {
         // [DDE] a user might scan a deleted npid but might have a newer one.
         // The function below checks for newer version
@@ -484,19 +480,32 @@ export default defineComponent({
      * The Application/Program determines which cards to
      * render on the view
      */
-    async drawPatientCards() {
-      if (!this.app.confirmationSummary) return
-      this.cards = []
-      const summaryEntries: Record<string, Function>
-        = await this.app.confirmationSummary(this.patient, this.programInfo, this.facts)
-      // Create phatom cards to avoid popip effect
-      this.cards = Object.keys(summaryEntries).map(title => ({ title }))
-
-      for (let x=0; x < this.cards.length; x++) {
-        const obj = summaryEntries[this.cards[x].title]()
-        if (typeof obj === 'object' && obj.then) {
-          obj.then((data: any) => this.cards[x].data = data)
-        } 
+    updateCards() {
+      if (typeof this.app.confirmationSummary != 'function') return
+      // Map card items to pre-created cards
+      const syncCards = (items: any) => {
+        Object.keys(items).forEach((title, i) => {
+          if (i > this.cards.length) return
+          this.cards[i].title = `${title}`.toUpperCase() 
+          const obj = items[title]()
+          // For cards that need to asynchronously load data from API
+          if (typeof obj === 'object' && obj.then) {
+            this.cards[i].isLoading = true
+            obj.then((data: any) => {
+              this.cards[i].isLoading = false
+              if (!isEmpty(data)) this.cards[i].data = data
+            }).catch(() => this.cards[i].isLoading = false)
+          } else {
+            // Default card data
+            this.cards[i].data = obj
+          }
+        })
+      }
+      const summary = this.app.confirmationSummary(this.patient, this.programInfo, this.facts)
+      if (typeof summary === 'object' && summary.then) {
+        summary.then(syncCards)
+      } else {
+        syncCards(summary)
       }
     },
     async setVoidedNpidFacts(npid: string) {
@@ -708,38 +717,10 @@ export default defineComponent({
 })
 </script>
 <style scoped>
-.card-content {
-  padding: 0;
-  height: 300px;
-  overflow: hidden;
-}
 .tool-bar-medium-card {
   padding: 0.3em;
 }
-ul {
-  padding: 0;
-}
-.li-item {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  line-height: 30px;
-  border-bottom: .1rem solid #cecece;
-}
-ion-card-header {
-  padding: 0.3em;
-  background: #3880ff;
-  color: white!important;
-}
-ion-card-title {
-  color: white;
-}
 ion-col p {
   margin: 0;
-}
-ion-card {
-  height: 35vh;
-  padding: 0; 
-  border-radius: 6px;
 }
 </style>
