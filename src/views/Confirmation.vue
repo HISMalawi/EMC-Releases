@@ -201,11 +201,11 @@ export default defineComponent({
     }
   }),
   mounted() {
+    this.initCards()
     const app = HisApp.getActiveApp()
     if (app) {
       this.app = app
       this.ddeInstance = new PatientDemographicsExchangeService()
-      this.initCards()
       this.ddeInstance.loadDDEStatus().then(() => {
         this.setGlobalPropertyFacts().then(() => {
           const query = this.$route.query
@@ -309,18 +309,20 @@ export default defineComponent({
             : results
           )
         this.setPatientFacts()
-        await this.setProgramFacts()
+        const factPromises = []
+        factPromises.push(this.setProgramFacts())
         if (this.useDDE) {
-          await this.setDDEFacts()
+          factPromises.push(this.setDDEFacts())
         } 
         if (this.facts.programName === 'ANC') {
-          await this.setAncFacts()
+          factPromises.push(this.setAncFacts())
         }
         if (this.facts.programName === 'ART') {
-          await this.setViralLoadStatus()
+          factPromises.push(this.setViralLoadStatus())
         }
         this.facts.currentNpid = this.patient.getNationalID()
-        await this.validateNpid()
+        factPromises.push(this.validateNpid())
+        await Promise.all(factPromises)
         this.updateCards()
       } else {
         // [DDE] a user might scan a deleted npid but might have a newer one.
