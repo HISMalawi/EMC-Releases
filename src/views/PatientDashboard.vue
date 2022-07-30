@@ -237,7 +237,7 @@ import TaskSelector from "@/components/DataViews/TaskSelectorModal.vue"
 import EncounterView from "@/components/DataViews/DashboardEncounterModal.vue"
 import CardDrilldown from "@/components/DataViews/DashboardTableModal.vue"
 import { WorkflowService } from "@/services/workflow_service"
-import { toastSuccess, alertConfirmation, toastDanger } from "@/utils/Alerts";
+import { toastSuccess, alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts";
 import _, { isArray, isEmpty, uniq } from "lodash"
 import {
     man,
@@ -331,14 +331,8 @@ export default defineComponent({
         patientProgram: {} as any,
         patientCardInfo: [] as Array<Option>,
         programCardInfo: [] as Array<Option> | [],
-        encounters: [] as Array<Encounter>,
-        medications: [] as any,
         visitDates: [] as Array<Option>,
         activeVisitDate: '' as string | number,
-        encountersCardItems: [] as Array<Option>,
-        medicationCardItems: [] as Array<Option>,
-        labOrderCardItems: [] as Array<Option>,
-        alertCardItems: [] as Array<Option>,
         patientCards: [] as Array<any>,
         appVersion: ProgramService.getFullVersion(),
         sessionEncounters: [] as Encounter[],
@@ -373,9 +367,9 @@ export default defineComponent({
         }
     },
     mounted() {
+        this.initCards()
         this.patientId = parseInt(`${this.$route.params.id}`)
         if (this.patientId) {
-            this.initCards()
             App.doAppManagementTasks().then(() =>{
                 this.app = App.getActiveApp()
                 if (this.appHasCustomContent) {
@@ -414,9 +408,15 @@ export default defineComponent({
                                 this.tasksDisabled = false
                             })
                     },
-                    onClick: (card: any) => this.openModal(
-                        card.items, 'Select Activities', EncounterView
-                    )
+                    onClick: (card: any) => {
+                        if (!card.isLoading) {
+                            this.openModal(
+                                card.items, 'Select Activities', EncounterView
+                            )
+                        } else {
+                            toastWarning('Please wait...')
+                        }
+                    } 
                 },
                 {
                     id: 'lab',
@@ -448,17 +448,21 @@ export default defineComponent({
                     isInit: false,
                     onVisitDate: (card: any) => {
                         if (card.isInit) return
-                        card.isLoading = true
-                        this.getPatientAlertCardInfo()
-                            .then((data) => {
-                                card.items = data
-                                card.isInit = true
-                                card.isLoading = false
-                            }).catch(() => {
-                                card.items = []
-                                card.isInit = true
-                                card.isLoading = false
-                            }) 
+                        const d  = this.getPatientAlertCardInfo()
+                        if(typeof d === 'object' && d.then) {
+                            card.isLoading = true
+                            this.getPatientAlertCardInfo()
+                                .then((data) => {
+                                    if (data) card.items = data
+                                    card.isInit = true
+                                    card.isLoading = false
+                                }).catch(() => {
+                                    card.items = []
+                                    card.isInit = true
+                                    card.isLoading = false
+                                }) 
+                        }
+                        if (d) card.items = d
                     },
                     onClick: () => { /* TODO, list all alerts */ }
                 },
@@ -476,17 +480,19 @@ export default defineComponent({
                                 card.items = this.getMedicationCardInfo(medications)
                                 card.isLoading = false
                             }).catch(() => {
+                                card.data
                                 card.items = []
                                 card.isLoading = false
                             })
                     },
                     onClick: (card: any) => {
+                        if (card.isLoading) return toastWarning('Please wait..')
                         const columns = ['Medication', 'Start date', 'End date', 'Amount given']
                         const rows = card.items.map((medication: any) => ([
-                            medication.drug.name, 
-                            this.toDate(medication.order.start_date),
-                            this.toDate(medication.order.auto_expire_date),
-                            medication.quantity
+                            medication.other.drug.name, 
+                            this.toDate(medication.other.order.start_date),
+                            this.toDate(medication.other.order.auto_expire_date),
+                            medication.other.quantity
                         ]))
                         this.openTableModal(columns, rows, 'Medication History')
                     }
@@ -602,6 +608,7 @@ export default defineComponent({
            if ('formatPatientProgramSummary' in this.app) {
              return this.app.formatPatientProgramSummary(info, this.patientId)
            }
+           return []
         },
         getActivitiesCardInfo(encounters: Array<Encounter>) {
             const items = encounters.map(async (encounter: Encounter) => {
@@ -657,6 +664,7 @@ export default defineComponent({
             return medications.map((medication: any) => ({
                 label: medication.drug.name,
                 value: this.toTime(medication.order.start_date),
+                other: medication
             }))
         },
         async getLabOrderCardInfo(date: string) {
