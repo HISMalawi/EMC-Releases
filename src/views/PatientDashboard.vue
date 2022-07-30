@@ -65,12 +65,14 @@
                             :key="cardIndex"
                             >
                             <primary-card
+                                :key="`mcard${cardIndex}`"
                                 :counter="card.items.length"
                                 :icon="card.icon"
                                 :title="card.label"
                                 :titleColor="card.color"
                                 :items="card.items"
-                                @click="card.onClick"
+                                :isLoading="card.isLoading"
+                                @click="card.onClick(card)"
                                 > 
                             </primary-card>
                         </ion-col>
@@ -167,12 +169,14 @@
                                     v-for="(card, cardIndex) in patientCards"
                                     :key="cardIndex">
                                     <primary-card
+                                        :key="`fcard${cardIndex}`"
                                         :counter="card.items.length"
                                         :icon="card.icon"
                                         :title="card.label"
                                         :titleColor="card.color"
                                         :items="card.items"
-                                        @click="card.onClick"
+                                        :isLoading="card.isLoading"
+                                        @click="card.onClick(card)"
                                         > 
                                     </primary-card>
                                 </ion-col>
@@ -276,7 +280,6 @@ import { PersonService } from "@/services/person_service"
 import { TaskInterface } from "@/apps/interfaces/TaskInterface"
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import App from "@/apps/app_lib"
-
 export default defineComponent({
     components: {
         IonSegment,
@@ -363,54 +366,170 @@ export default defineComponent({
         }
     },
     watch: {
-        "$route" : {
-            async handler({params}: any) {
-                if (!params) return
-
-                this.patientId = parseInt(params.id)
-
-                if (this.patientId) await this.init()
-            },
-            deep: true,
-            immediate: true
-        },
         activeVisitDate(date: string) {
-            if (!(this.appHasCustomContent)) this.loadCardData(date)
+            if (!(this.appHasCustomContent)) {
+                this.updateCardVisitData(date)
+            }
         }
     },
     mounted() {
-        // initialise empty cards on dashboard
-        this.updateCards()
+        this.patientId = parseInt(`${this.$route.params.id}`)
+        if (this.patientId) {
+            this.initCards()
+            App.doAppManagementTasks().then(() =>{
+                this.app = App.getActiveApp()
+                if (this.appHasCustomContent) {
+                    this.tasksDisabled = false
+                }
+                this.initData()
+            })
+        }
     },
     methods: {
-        async init() {
-            await App.doAppManagementTasks()
-            this.app = App.getActiveApp()
-            this.patient = await this.fetchPatient(this.patientId)
-            try {
-                this.patientProgram = await ProgramService.getProgramInformation(this.patientId)
-            } catch (e) {
-                console.warn(e)
-            }
-            this.programCardInfo = await this.getProgramCardInfo(this.patientProgram) || []
-            this.patientCardInfo = this.getPatientCardInfo(this.patient)
+        initCards() {
+            this.patientCards = [
+                {
+                    id: 'activities',
+                    items: [],
+                    label: 'Activities',
+                    icon: timeOutline,
+                    color: 'primary',
+                    isLoading: false,
+                    onVisitDate: (card: any, date: string) => {
+                        card.isLoading = true
+                        EncounterService.getEncounters(this.patientId, {date})
+                            .then((encounters) => {
+                                if (date === ProgramService.getSessionDate()) { 
+                                    this.sessionEncounters = encounters
+                                }
+                                this.tasksDisabled = false
+                                this.getActivitiesCardInfo(encounters)
+                                    .then((data) => {
+                                        card.items = data
+                                        card.isLoading = false
+                                    }).catch(() => card.isLoading = false)
+                            }).catch(() => {
+                                card.items = []
+                                card.isLoading = false
+                                this.tasksDisabled = false
+                            })
+                    },
+                    onClick: (card: any) => this.openModal(
+                        card.items, 'Select Activities', EncounterView
+                    )
+                },
+                {
+                    id: 'lab',
+                    items: [],
+                    label: 'Lab Orders',
+                    color: 'success',
+                    icon: timeOutline,
+                    isLoading: false,
+                    onVisitDate: (card: any, date: string) => {
+                        card.isLoading = true
+                        this.getLabOrderCardInfo(date)
+                            .then((data) => {
+                                card.items = data
+                                card.isLoading = false
+                            }).catch(() => {
+                                card.items = []
+                                card.isLoading = false
+                            })
+                    },
+                    onClick: () => this.$router.push(`/art/encounters/lab/${this.patient.getID()}`)
+                },
+                {
+                    id: 'alerts',
+                    items: [],
+                    label: 'Alerts',
+                    color: 'danger',
+                    icon: warningOutline,
+                    isLoading: false,
+                    isInit: false,
+                    onVisitDate: (card: any) => {
+                        if (card.isInit) return
+                        card.isLoading = true
+                        this.getPatientAlertCardInfo()
+                            .then((data) => {
+                                card.items = data
+                                card.isInit = true
+                                card.isLoading = false
+                            }).catch(() => {
+                                card.items = []
+                                card.isInit = true
+                                card.isLoading = false
+                            }) 
+                    },
+                    onClick: () => { /* TODO, list all alerts */ }
+                },
+                {
+                    id: 'medications',
+                    items: [],
+                    label: 'Medications',
+                    color: 'warning',
+                    icon: timeOutline,
+                    isLoading: false,
+                    onVisitDate: (card: any, date: string) => {
+                        card.isLoading = true
+                        DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
+                            .then((medications) => {
+                                card.items = this.getMedicationCardInfo(medications)
+                                card.isLoading = false
+                            }).catch(() => {
+                                card.items = []
+                                card.isLoading = false
+                            })
+                    },
+                    onClick: (card: any) => {
+                        const columns = ['Medication', 'Start date', 'End date', 'Amount given']
+                        const rows = card.items.map((medication: any) => ([
+                            medication.drug.name, 
+                            this.toDate(medication.order.start_date),
+                            this.toDate(medication.order.auto_expire_date),
+                            medication.quantity
+                        ]))
+                        this.openTableModal(columns, rows, 'Medication History')
+                    }
+                }
+            ]
+        },
+        initData() {
             this.currentDate = HisDate.currentDisplayDate()
             this.sessionDate = this.toDate(ProgramService.getSessionDate())
             this.isBDE = ProgramService.isBDE() || false
-            this.nextTask = await this.getNextTask(this.patientId)
-            this.onProgramVisitDates((await this.getPatientVisitDates(this.patientId)))
-            this.tasksDisabled = false
-            this.alertCardItems = await this.getPatientAlertCardInfo() || []
             this.programID = ProgramService.getProgramID()
-            await this.loadSavedEncounters()
-            this.updateCards()
+            this.fetchPatient(this.patientId).then((patient) => {
+                this.patient = patient
+                this.patientCardInfo = this.getPatientCardInfo(patient)
+                const setProgramInfo = (data: any) => {
+                    if (typeof data === 'object' && data.then) {
+                        this.getProgramCardInfo(this.patientProgram)
+                            .then((cardData: any) => this.programCardInfo = cardData)
+                    }
+                    this.programCardInfo = this.getProgramCardInfo(data)
+                }
+                ProgramService.getProgramInformation(this.patientId)
+                    .then((data) => {
+                        this.patientProgram = data
+                        setProgramInfo(this.patientProgram)
+                    }).catch(() => {
+                        this.patientProgram = []
+                        setProgramInfo(this.patientProgram)
+                    })
+                this.getNextTask(this.patientId)
+                    .then((task) => this.nextTask = task)
+                this.getPatientVisitDates(this.patientId)
+                    .then((dates) => {
+                        this.onProgramVisitDates(dates)
+                        this.loadSavedEncounters()
+                    }).catch((e) => console.error(e))
+            }).catch((e) => toastDanger(`${e}`))
         },
         async showLoader() {
-            const loading = await loadingController.create({
+            (await loadingController.create({
                 message: 'Please wait....',
                 backdropDismiss: false
-            })
-            await loading.present()
+            })).present()
         },
         clearLoader() {
             loadingController.getTop().then(v => v ? loadingController.dismiss() : null)
@@ -421,91 +540,18 @@ export default defineComponent({
         toTime(date: string | Date) {
             return HisDate.toStandardHisTimeFormat(date)
         },
-        async loadSavedEncounters() {
-            try {
-                this.savedEncounters = await EncounterService.getSavedEncounters(this.patientId)
-            } catch (e) {
-                console.warn(`Program might not support saved encounters`, e)
-            }
+        loadSavedEncounters() {
+            EncounterService.getSavedEncounters(this.patientId)
+                .then((encounters) => {
+                    this.savedEncounters = encounters
+                })
         },
-        async loadCardData(date: string) {
-            try {
-                await this.showLoader()
-                this.encounters = await EncounterService.getEncounters(this.patientId, {date})
-                this.tasksDisabled = false
-                this.clearLoader()
-                this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
-                this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
-                this.medicationCardItems = this.getMedicationCardInfo(this.medications)
-                this.labOrderCardItems = await this.getLabOrderCardInfo(date)
-                // Track encounters recorded on system session date
-                if (date === ProgramService.getSessionDate()) { 
-                   this.sessionEncounters = this.encounters
+        updateCardVisitData(visitDate: string) {
+            this.patientCards.forEach((card) => {
+                if (typeof card === 'object' && typeof card.onVisitDate === 'function') {
+                    card.onVisitDate(card, visitDate)
                 }
-                this.updateCards()
-            } catch(e) {
-                toastDanger(`${e}`)
-                this.clearLoader()
-                this.tasksDisabled = false
-            }
-        },
-        updateCards() {
-            this.patientCards = [
-                this.activitiesCard(),
-                this.labOrderCard(),
-                this.alertsCard(),
-                this.medicationCard(),
-            ]
-        },
-        activitiesCard() {
-            return {
-                label: 'Activities',
-                items: this.encountersCardItems,
-                icon: timeOutline,
-                color: 'primary',
-                onClick: () => this.openModal(
-                    this.encountersCardItems, 
-                    'Select Activities', 
-                    EncounterView
-                )
-            }
-        },
-        labOrderCard() {
-            const label = 'Lab Orders'
-            return {
-                label,
-                color: 'success',
-                icon: timeOutline,
-                items: this.labOrderCardItems,
-                onClick: () => this.$router.push(`/art/encounters/lab/${this.patient.getID()}`)
-            }
-        },
-        alertsCard() {
-            return {
-                label: 'Alerts',
-                color: 'danger',
-                icon: warningOutline,
-                items: this.alertCardItems,
-                onClick: () => { /* TODO, list all alerts */ }
-            }
-        },
-        medicationCard() {
-            return {
-                label: 'Medications',
-                color: 'warning',
-                icon: timeOutline,
-                items: this.medicationCardItems,
-                onClick: () => {
-                    const columns = ['Medication', 'Start date', 'End date', 'Amount given']
-                    const rows = this.medications.map((medication: any) => ([
-                        medication.drug.name, 
-                        this.toDate(medication.order.start_date),
-                        this.toDate(medication.order.auto_expire_date),
-                        medication.quantity
-                    ]))
-                    this.openTableModal(columns, rows, 'Medication History')
-                }
-            }
+            })
         },
         async fetchPatient(patientId: number | string){
             const patient: Patient = await Patientservice.findByID(patientId);
@@ -567,18 +613,19 @@ export default defineComponent({
                     id: encounter.encounter_id,
                     columns: ['Observation', 'Value', 'Time'],
                     onVoid: async (reason: any) => {
-                        try {
-                            await this.showLoader()
-                            await EncounterService.voidEncounter(encounter.encounter_id, reason)
-                            await this.loadSavedEncounters()
-                            loadingController.dismiss()
-                            /**Refresh card data*/
-                            await this.loadCardData(this.activeVisitDate as string)
-                            this.nextTask = await this.getNextTask(this.patientId)
-                            toastSuccess('Encounter has been voided!', 2000)
-                        } catch (e) {
-                            toastDanger(e)
-                        }
+                        await this.showLoader()
+                        EncounterService.voidEncounter(encounter.encounter_id, reason)
+                            .then(() => {
+                                this.clearLoader()
+                                this.loadSavedEncounters()
+                                this.updateCardVisitData(this.activeVisitDate as string)
+                                this.getNextTask(this.patientId)
+                                    .then((task) => this.nextTask = task)
+                                toastSuccess('Encounter has been voided!', 2000)
+                            }).catch((e) => {
+                                this.clearLoader()
+                                toastDanger(`${e}`, 32000)
+                            })
                     },
                     getRows: async () => {
                         const data = []
@@ -633,9 +680,9 @@ export default defineComponent({
             if (!app) return
 
             if (app.programID != this.programID) {
-                return this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
+                this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
             } else {
-                await this.init()
+                this.initData()
             }
         },
         /** 
@@ -700,7 +747,7 @@ export default defineComponent({
         },
         async openTableModal(columns: any, rows: any, title: string) {
             const date = this.toDate(this.activeVisitDate.toString())
-            const modal = await modalController.create({
+            const modal = (await modalController.create({
                 component: CardDrilldown,
                 backdropDismiss: false,
                 cssClass: "large-modal",
@@ -709,12 +756,15 @@ export default defineComponent({
                     rows,
                     title: `${title}: ${date}`
                 }
-            })
+            }))
             modal.present()
         },
-        async onCancel() {
-            const confirmation = await alertConfirmation('Are you sure you want to Finish?')         
-            if (confirmation) return this.$router.push({path: '/'})
+        onCancel() {
+            alertConfirmation('Are you sure you want to Finish?').then((ok) => {
+                if (ok) {
+                    this.$router.push({path: '/'})
+                }
+            })
         }
     }
 })
