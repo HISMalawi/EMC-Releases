@@ -489,7 +489,6 @@ export default defineComponent({
       this.cards = []
       const summaryEntries: Record<string, Function>
         = await this.app.confirmationSummary(this.patient, this.programInfo, this.facts)
-
       // Create phatom cards to avoid popip effect
       this.cards = Object.keys(summaryEntries).map(title => ({ title }))
 
