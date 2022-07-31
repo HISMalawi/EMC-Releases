@@ -140,7 +140,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'Regimen switch',
             id: 'regimen_switch',
-            img: 'reports/regimen-switch.png'
+            img: 'reports/regimen-switch.png',
+            url: '/emc/report/clinic/regimen_switch'
           },
           {
             title: 'Regimens and formulation - patient level',

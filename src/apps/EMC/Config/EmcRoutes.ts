@@ -57,6 +57,11 @@ export default [
         path: 'regimen_dispensation',
         component: () => import('@/apps/EMC/views/reports/clinic/RegimenDispensation.vue'),
       },
+      {
+        name: 'regimen_switch',
+        path: 'regimen_switch',
+        component: () => import('@/apps/EMC/views/reports/clinic/RegimenSwitch.vue'),
+      },
     ]
   },
 ];
