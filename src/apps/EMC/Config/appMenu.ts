@@ -128,7 +128,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'Missed appointments',
             id: 'missed_appointments',
-            img: 'reports/appointment-missed.png'
+            img: 'reports/appointment-missed.png',
+            url: '/emc/report/clinic/missed_appointments'
           },
           {
             title: 'Regimen dispensation',

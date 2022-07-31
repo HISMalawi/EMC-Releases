@@ -48,9 +48,9 @@ export default [
         component: () => import('@/apps/EMC/views/reports/clinic/DefaultersList.vue'),
       },
       {
-        name: 'clinic_archiving_candidates',
-        path: 'clinic_archiving_candidates',
-        component: () => import('@/apps/EMC/views/reports/clinic/ArchivedCandidates.vue'),
+        name: 'missed_appointments',
+        path: 'missed_appointments',
+        component: () => import('@/apps/EMC/views/reports/clinic/MissedAppointments.vue'),
       },
     ]
   },

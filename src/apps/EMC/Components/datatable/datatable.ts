@@ -1,4 +1,4 @@
-import { computed, DefineComponent, defineComponent, h, onMounted, PropType, reactive, ref, watch } from "vue";
+import { computed, withDirectives, defineComponent, h, onMounted, PropType, reactive, ref, watch } from "vue";
 import { TableColumnInterface, TableFilterInterface, ActionButtonInterface, RowActionButtonInterface, CustomFilterInterface } from "./types";
 import './datatable.css'
 import get from 'lodash/get';
@@ -287,7 +287,7 @@ export const DataTable =  defineComponent({
             ])
           ),
           h("tbody", { class: "table-body" }, isLoading.value
-            ? [...Array(10)].map(i =>
+            ? [...Array(10)].map((i: number) =>
               h("tr", { key: i },
                 h('td', { colspan: totalColumns.value },
                   h(IonSkeletonText, { animated: true, style: { width: '100%' } })
