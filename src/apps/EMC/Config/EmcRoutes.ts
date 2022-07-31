@@ -52,6 +52,11 @@ export default [
         path: 'missed_appointments',
         component: () => import('@/apps/EMC/views/reports/clinic/MissedAppointments.vue'),
       },
+      {
+        name: 'regimen_dispensation',
+        path: 'regimen_dispensation',
+        component: () => import('@/apps/EMC/views/reports/clinic/RegimenDispensation.vue'),
+      },
     ]
   },
 ];

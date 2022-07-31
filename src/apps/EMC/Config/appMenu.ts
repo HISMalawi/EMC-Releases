@@ -134,7 +134,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'Regimen dispensation',
             id: 'regimen_dispensation',
-            img: 'reports/regimen-give.png'
+            img: 'reports/regimen-give.png',
+            url: '/emc/report/clinic/regimen_dispensation'
           },
           {
             title: 'Regimen switch',
