@@ -368,7 +368,7 @@ export default defineComponent({
                 : 'N/A'
         },
         appHasCustomContent(): boolean {
-            return !_.isEmpty(this.app.customPatientDashboardContentComponent)
+            return !isEmpty(this.app.customPatientDashboardContentComponent)
                 ? true
                 : false
         },
