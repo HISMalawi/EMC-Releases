@@ -71,6 +71,11 @@ export default [
         name: 'incomplete_visits',
         path: 'incomplete_visits',
         component: () => import('@/apps/EMC/views/reports/clinic/IncompleteVisits.vue'),
+      },
+      {
+        name: 'clients_due_for_vl',
+        path: 'clients_due_for_vl',
+        component: () => import('@/apps/EMC/views/reports/clinic/ClientsDueForVL.vue'),
       }
     ]
   },

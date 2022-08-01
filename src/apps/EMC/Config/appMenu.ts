@@ -163,7 +163,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'Clients due for VL',
             id: 'clients_due_for_vl',
-            img: 'reports/viral_load.png'
+            img: 'reports/viral_load.png',
+            url: '/emc/report/clinic/clients_due_for_vl'
           }
         ]
       }
