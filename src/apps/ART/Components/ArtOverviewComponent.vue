@@ -67,7 +67,7 @@ export default defineComponent({
           color: "#434348"
         },
       ],
-      rows: [{}],
+      rows: [] as any,
       encounters: [
         {"HIV clinic registration": 9},
         {"HIV reception": 51},
@@ -86,6 +86,16 @@ export default defineComponent({
     IonRow,
     IonCol,
     ApexChart
+  },
+  created() {
+    this.rows = this.encounters.map(
+      (enc) => ({
+        encounter: Object.values(enc)[0],
+        female: '',
+        male: '',
+        me: '',
+        facility: ''
+    }))
   },
   mounted() {
     this.endDate = this.dayjs().subtract(1, "days").format("YYYY-MM-DD");
