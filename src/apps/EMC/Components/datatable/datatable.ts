@@ -3,14 +3,16 @@ import { TableColumnInterface, TableFilterInterface, ActionButtonInterface, RowA
 import './datatable.css'
 import get from 'lodash/get';
 import isEmpty from "lodash/isEmpty";
-import orderBy  from "lodash/orderBy";
+import orderBy from "lodash/orderBy";
 import range from "lodash/range";
 import { IonButton, IonCol, IonGrid, IonIcon, IonInput, IonItem, IonLabel, IonRow, IonSearchbar, IonSelect, IonSelectOption, IonSkeletonText } from "@ionic/vue";
 import { arrowDown, arrowUp, swapVertical, caretBack, caretForward, refresh, arrowForward } from "ionicons/icons";
 import dayjs from "dayjs";
 import DateRangePicker from "../inputs/DateRangePicker.vue";
+import EventBus from "@/utils/EventBus";
+import { DatatableEvents } from "./events";
 
-export const DataTable =  defineComponent({
+export const DataTable = defineComponent({
   name: "DataTable",
   props: {
     rows: {
@@ -38,10 +40,11 @@ export const DataTable =  defineComponent({
       default: () => []
     },
     color: {
-      type: String as PropType<"primary" | "secondary" | "tertiary" |"success" | "warning" | "danger" | "light" | "dark" | "medium" | "custom">,
+      type: String as PropType<"primary" | "secondary" | "tertiary" | "success" | "warning" | "danger" | "light" | "dark" | "medium" | "custom">,
     },
   },
-  setup(props, { emit, slots }) {
+  emits: ["customFilter", "queryChange"],
+  setup(props, { emit }) {
     const isLoading = ref(false);
     const totalColumns = computed(() => isEmpty(props.rowActionsButtons) ? props.columns.length : props.columns.length + 1);
     const tableRows = ref<any[]>([]);
@@ -63,15 +66,37 @@ export const DataTable =  defineComponent({
       }
     });
 
-    const paginationPages = computed(() => filters.pagination.enabled 
+    const customFiltersValues = reactive<Record<string, any>>(
+      props.customFilters.reduce((acc, filter) => {
+        acc[filter.id] = filter.value;
+        return acc;
+      }, {} as Record<string, any>)
+    );
+
+    watch(customFiltersValues, () => {
+      if (Object.values(customFiltersValues).every(value => {
+        if (typeof value === "object") {
+          return Object.values(value).every(v => !isEmpty(v));
+        }
+        return !isEmpty(value);
+      })) {
+        EventBus.emit(DatatableEvents.ON_CUSTOM_FILTER, customFiltersValues);
+      }
+    },
+      {
+        immediate: true,
+        deep: true
+      });
+
+    const paginationPages = computed(() => filters.pagination.enabled
       ? range(filters.pagination.start, filters.pagination.end + 1)
       : []
     )
 
     const filter = () => {
-      if(!filters.search) return filteredRows.value = tableRows.value; 
+      if (!filters.search) return filteredRows.value = tableRows.value;
       const filter = filters.search.toLowerCase();
-      filteredRows.value = tableRows.value.filter(row => Object.values(row).some((value: any) => 
+      filteredRows.value = tableRows.value.filter(row => Object.values(row).some((value: any) =>
         value && JSON.stringify(value).toLowerCase().includes(filter)
       ));
     }
@@ -102,7 +127,7 @@ export const DataTable =  defineComponent({
         paginationPages.value.includes(filters.pagination.page - 1) ||
         filters.pagination.page === 1
       ) && (
-        paginationPages.value.includes(filters.pagination.page + 1) ||
+          paginationPages.value.includes(filters.pagination.page + 1) ||
           filters.pagination.page === filters.pagination.totalPages
         )
     }
@@ -190,72 +215,71 @@ export const DataTable =  defineComponent({
     });
 
     return () => [
-      h(IonGrid, { class: "ion-padding-vertical", style: { width: '100%', fontWeight: 600 }},
+      h(IonGrid, { class: "ion-padding-vertical", style: { width: '100%', fontWeight: 500 } },
         h(IonRow, [
-          h(IonCol, { size: '3', style: { padding: '10px' } }, 
-            h(IonSearchbar, {
-              placeholder: 'Search here...',
-              class: 'box ion-no-padding',
-              value: filters.search,
-              onIonChange: (e: Event) => {
-                filters.search = (e.target as HTMLInputElement).value;
-                filters.pagination.page = 1;
-              },
-            })
-          ),
-          h(IonCol, { size: '4', style: { padding: '10px' } },
-            props.customFilters.map(filter => {
-              if(filter.type === 'dateRange'){
-                const range = reactive(filter.defaultValue || { startDate: "", endDate: "" });
-                return h(DateRangePicker, {
-                  range: range,
-                  onRangeChange: async (newRange: any) => {
-                    Object.assign(range, newRange);
-                    if(typeof filter.action === 'function') await filter.action(newRange);
-                  }
-                })
-              } else if (filter.type === 'select'){
-                h(IonItem, { class: "box", lines: "none", style: { display: 'inline-block', '--min-height': '11px', width: '220px', marginLeft: '.5rem' } }, [
-                  h(IonLabel, filter.label),
-                  h(IonSelect, { 
-                    value: filters.pagination.pageSize, 
-                    onIonChange: (e: Event) => {
-                      filters.pagination.pageSize = parseInt((e.target as HTMLInputElement).value)
-                      filters.pagination.page = 1
-                    } 
+          h(IonCol, { size: '7' },
+            h(IonRow, [
+              h(IonCol, { size: '4', class: "ion-margin-bottom" },
+                h(IonSearchbar, {
+                  placeholder: 'Search here...',
+                  class: 'box ion-no-padding',
+                  value: filters.search,
+                  onIonChange: (e: Event) => {
+                    filters.search = (e.target as HTMLInputElement).value;
+                    filters.pagination.page = 1;
                   },
-                  filter.options?.map((option, index) => 
-                    h(IonSelectOption, { value: option, key: index }, option)
-                  )),
-                ])
-              } else {
-                const filterValue = ref(filter.defaultValue || '')
-                return h(IonInput, { 
-                  class: 'box',
-                  type: filter.type,
-                  placeholder: filter.placeholder,
-                  style: { width: '100%', height: '100%'}, 
-                  value: filterValue.value, 
-                  onIonInput: async (e: Event) => {
-                    filterValue.value = (e.target as HTMLInputElement).value;
-                    if(filterValue.value && typeof filter.action === 'function') {
-                      await filter.action(filterValue.value)               
-                    } else {
-                      filters.search = filterValue.value
-                    }
-                  }
                 })
-              }
-            })
+              ),
+              ...props.customFilters.map(filter => {
+                if (filter.type === 'dateRange') {
+                  return h(IonCol, { size: 8 },
+                    h(DateRangePicker, {
+                      range: (computed(() => filter.value || { startDate: "", endDate: "" })).value,
+                      onRangeChange: async (newRange: any) => {
+                        customFiltersValues[filter.id] = newRange;
+                      }
+                    })
+                  )
+                } else if (filter.type === 'select') {
+                  return h(IonCol, { size: 4 },
+                    h(IonItem, { class: "box ion-padding-start", lines: "none", style: { display: 'inline-block', '--min-height': '11px', width: '100%' } }, [
+                      h(IonLabel, filter.label),
+                      h(IonSelect, {
+                        value: (computed(() => filter.value || "")).value,
+                        onIonChange: (e: Event) => {
+                          customFiltersValues[filter.id] = (e.target as HTMLInputElement).value;
+                        }
+                      },
+                        filter.options?.map((option, index) =>
+                          h(IonSelectOption, { value: option, key: index }, option)
+                        )),
+                    ])
+                  )
+                } else {
+                  return h(IonCol, { size: 4, class: 'ion-no-padding ion-no-margin' },
+                    h(IonInput, {
+                      class: 'box',
+                      type: filter.type,
+                      placeholder: filter.placeholder,
+                      style: { width: '100%', height: '100%' },
+                      value: (computed(() => filter.value || "")).value,
+                      onIonInput: async (e: Event) => {
+                        customFiltersValues[filter.id] = (e.target as HTMLInputElement).value;
+                      }
+                    })
+                  )
+                }
+              })
+            ])
           ),
           h(IonCol, { size: '5', class: "ion-padding-end" },
-            props.actionsButtons.map(btn => h(IonButton, { 
-              class: 'ion-float-right', 
-              color: btn.color || 'primary', 
+            props.actionsButtons.map(btn => h(IonButton, {
+              class: 'ion-float-right',
+              color: btn.color || 'primary',
               onClick: () => btn.action(activeRows.value, tableRows.value, filters)
             }, [
               btn.label,
-              btn.icon && h('span', {style: {  color: 'white', paddingLeft: '5px', paddingRight: '5px' }}, ' | '),
+              btn.icon && h('span', { style: { color: 'white', paddingLeft: '5px', paddingRight: '5px' } }, ' | '),
               btn.icon && h(IonIcon, { icon: btn.icon }),
             ]))
           )
@@ -299,17 +323,19 @@ export const DataTable =  defineComponent({
                 h('div', { class: 'no-data-table' }, 'No data available')
               ))
               : activeRows.value.map(row =>
-                h('tr', { key: row, onClick: async () => {
-                  const defualtActionBtn = props.rowActionsButtons.find(btn => btn.default)
-                  if(defualtActionBtn) await defualtActionBtn.action(row)
-                }}, [
+                h('tr', {
+                  key: row, onClick: async () => {
+                    const defualtActionBtn = props.rowActionsButtons.find(btn => btn.default)
+                    if (defualtActionBtn) await defualtActionBtn.action(row)
+                  }
+                }, [
                   ...props.columns.map(column => {
                     let value = get(row, column.path);
-                    if(column.date && value) value = dayjs(value).format('DD/MMM/YYYY');
+                    if (column.date && value) value = dayjs(value).format('DD/MMM/YYYY');
                     return h('td', { key: column.path }, value)
                   }),
-                  !isEmpty(props.rowActionsButtons) && h('td', props.rowActionsButtons.map(btn => 
-                    h(IonButton, { key: btn.icon, size: 'small', color: btn.color || 'primary',  onClick: () => btn.action(row)}, 
+                  !isEmpty(props.rowActionsButtons) && h('td', props.rowActionsButtons.map(btn =>
+                    h(IonButton, { key: btn.icon, size: 'small', color: btn.color || 'primary', onClick: () => btn.action(row) },
                       btn.icon ? h(IonIcon, { icon: btn.icon }) : btn.label || "Button"
                     )
                   ))
@@ -318,7 +344,7 @@ export const DataTable =  defineComponent({
           ),
         ])
       ),
-      h(IonGrid, { style: { width: '100%',textAlign: 'left', color: 'black' }, class: 'ion-padding' },
+      h(IonGrid, { style: { width: '100%', textAlign: 'left', color: 'black' }, class: 'ion-padding' },
         h(IonRow, [
           h(IonCol, { size: 4 }, [
             h(IonButton, {
@@ -350,8 +376,8 @@ export const DataTable =  defineComponent({
               IonIcon, { icon: caretForward }
             )),
           ]),
-          h(IonCol, { size: 4, style: {textAlign: 'center'} }, [
-            h(IonItem, { class: "box", lines: "none", style: { display: 'inline-block', '--min-height': '11px', width: '190px', marginLeft: '.5rem' }}, [
+          h(IonCol, { size: 4, style: { textAlign: 'center' } }, [
+            h(IonItem, { class: "box", lines: "none", style: { display: 'inline-block', '--min-height': '11px', width: '190px', marginLeft: '.5rem' } }, [
               h(IonLabel, { class: 'ion-margin-end' }, "Go to page"),
               h(IonInput, {
                 type: "number",
@@ -370,30 +396,28 @@ export const DataTable =  defineComponent({
             ]),
             h(IonItem, { class: "box", lines: "none", style: { display: 'inline-block', '--min-height': '11px', width: '220px', marginLeft: '.5rem' } }, [
               h(IonLabel, "Items per page"),
-              h(IonSelect, { 
-                value: filters.pagination.pageSize, 
+              h(IonSelect, {
+                value: filters.pagination.pageSize,
                 onIonChange: (e: Event) => {
                   filters.pagination.pageSize = parseInt((e.target as HTMLInputElement).value)
                   filters.pagination.page = 1
-                } 
-              },[
-                ...filters.pagination.pageSizeOptions.map((option, index) => 
+                }
+              }, [
+                ...filters.pagination.pageSizeOptions.map((option, index) =>
                   h(IonSelectOption, { value: option, key: index }, option)
                 ),
-                h(IonSelectOption, { value: totalFilteredRows.value}, "All")
+                h(IonSelectOption, { value: totalFilteredRows.value }, "All")
               ]),
             ]),
           ]),
           h(IonCol, { size: 4, style: { marginTop: '1rem', textAlign: 'right' } }, totalFilteredRows.value
-            ? `Showing ${
-                (computed(() => (filters.pagination.page === 1) ? 1 : (filters.pagination.page * filters.pagination.pageSize) - (filters.pagination.pageSize - 1)
-                )).value
-              } to ${
-                (computed(() => (filters.pagination.page === filters.pagination.totalPages)
-                  ? totalFilteredRows.value
-                  : filters.pagination.page * filters.pagination.pageSize
-                )).value
-              } of ${totalFilteredRows.value} entries`
+            ? `Showing ${(computed(() => (filters.pagination.page === 1) ? 1 : (filters.pagination.page * filters.pagination.pageSize) - (filters.pagination.pageSize - 1)
+            )).value
+            } to ${(computed(() => (filters.pagination.page === filters.pagination.totalPages)
+              ? totalFilteredRows.value
+              : filters.pagination.page * filters.pagination.pageSize
+            )).value
+            } of ${totalFilteredRows.value} entries`
             : "No data available"
           )
         ])

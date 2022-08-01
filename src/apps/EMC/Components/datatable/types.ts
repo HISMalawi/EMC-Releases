@@ -1,3 +1,5 @@
+import { Option } from "@/components/Forms/FieldInterface";
+
 export interface TableColumnInterface {
   label: string;
   path: string;
@@ -49,10 +51,9 @@ export interface RowActionButtonInterface {
 }
 
 export interface CustomFilterInterface {
+  id: string;
   label: string;
-  targetColumn?: string;
-  defaultValue?: any;
-  action?: (value: any) => Promise<void>;
+  value?: any;
   type: "text" | "number" | "date" | "select" | "dateRange";
   options?: string[];
   placeholder?: string;
