@@ -67,6 +67,11 @@ export default [
         path: 'pregnant_patients',
         component: () => import('@/apps/EMC/views/reports/clinic/PregnantPatients.vue'),
       },
+      {
+        name: 'incomplete_visits',
+        path: 'incomplete_visits',
+        component: () => import('@/apps/EMC/views/reports/clinic/IncompleteVisits.vue'),
+      }
     ]
   },
 ];

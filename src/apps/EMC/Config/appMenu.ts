@@ -157,7 +157,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'Incomplete visits',
             id: 'incomplete_visits',
-            img: 'reports/refill.png'
+            img: 'reports/refill.png',
+            url: '/emc/report/clinic/incomplete_visits'
           },
           {
             title: 'Clients due for VL',

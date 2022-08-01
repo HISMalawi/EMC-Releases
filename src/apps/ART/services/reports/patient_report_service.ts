@@ -69,4 +69,10 @@ export class PatientReportService extends ArtReportService {
             'start_date': this.date
         })
     }
+
+    getIncompleteVisits() {
+        return this.getReport('incomplete_visits', {
+            "tool_name": "INCOMPLETE VISITS",
+        })
+    }
 }

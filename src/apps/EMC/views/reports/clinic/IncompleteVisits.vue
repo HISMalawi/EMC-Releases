@@ -1,0 +1,58 @@
+<template>
+  <base-report-table
+    title="Incomplete Visits Clinic Report"
+    report-icon="reports/refill.png"
+    :columns="columns"
+    :rows="rows"
+    useDateRangeFilter
+    @regenerate="(period: any) => getData(period)"
+    @onDateRangeChange="(period: any) => getData(period)"
+  />
+</template>
+
+<script lang="ts">
+import { defineComponent, ref } from "vue";
+import { loader } from "@/utils/loader";
+import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
+import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
+import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
+import dayjs from "dayjs";
+
+export default defineComponent({
+  name: "IncompleteVisits",
+  components: { BaseReportTable },
+  setup() {
+    const rows = ref<any[]>([]);
+    const columns: TableColumnInterface[] = [
+      { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
+      { path: "national_id", label: "NHID" },
+      { path: "given_name", label: "First name", exportable: false },
+      { path: "family_name", label: "Last name", exportable: false },
+      { path: "gender", label: "Gender" },
+      { path: "birthdate", label: "Date of Birth", date: true },
+      { path: "dates", label: "Date(s)" }
+    ]
+
+    const getData = async (period: {startDate: string; endDate: string}) => {
+      await loader.show()
+      const report = new PatientReportService()
+      report.setStartDate(period.startDate)
+      report.setEndDate(period.endDate)
+      const data = await report.getIncompleteVisits()
+      rows.value = Object.values(data).map((d: any) => ({
+        ...d,
+        dates: d.dates.map((d: string) => {
+          return dayjs(d).format("DD/MMM/YYYY")
+        }).join(", ")
+      }))
+      await loader.hide();
+    }
+
+    return {
+      rows,
+      columns,
+      getData,
+    }
+  }
+})
+</script>
