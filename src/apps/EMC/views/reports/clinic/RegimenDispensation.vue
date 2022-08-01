@@ -46,7 +46,7 @@ export default defineComponent({
       report.setStartDate(period.startDate)
       report.setEndDate(period.endDate)
       const data: any = await report.getRegimenReport()
-      rows.value = Object.values(data).map((d: Record<string, any>) => {
+      rows.value = Object.values(data).map((d: any) => {
         let dispensationDate = ""
         const medications = d.medication.map((m: any) => {
           dispensationDate = m.start_date

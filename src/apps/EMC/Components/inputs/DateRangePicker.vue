@@ -19,6 +19,7 @@ import { computed, defineComponent, PropType, ref, watch } from "vue";
 import { IonGrid, IonInput, IonRow, IonCol, IonIcon } from "@ionic/vue";
 import { arrowForward } from "ionicons/icons";
 import dayjs from "dayjs";
+import { toastWarning } from "@/utils/Alerts";
 
 export default defineComponent({
   name: "DateRangePicker",
@@ -41,7 +42,11 @@ export default defineComponent({
     const end = ref(props.range.endDate);
 
     const isValidRange = (start: string, end: string) => {
-      return dayjs(start).isSame(end) || dayjs(start).isBefore(end);
+      if(dayjs(start).isSame(end) || dayjs(start).isBefore(end)){
+        return true;
+      }
+      toastWarning("Start date must be before or equal to end date");
+      return false;
     }
     const cRange = computed(() => {
       if(start.value && end.value && isValidRange(start.value, end.value)) {
