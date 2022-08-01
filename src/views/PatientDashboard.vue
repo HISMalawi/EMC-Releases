@@ -187,7 +187,7 @@
                                     v-for="(card, cardIndex) in patientCards"
                                     :key="cardIndex">
                                     <primary-card
-                                        :key="`fcard${cardIndex}`"
+                                        :key="card.label"
                                         :counter="card.items.length"
                                         :icon="card.icon"
                                         :title="card.label"
@@ -288,6 +288,7 @@ import App from "@/apps/app_lib"
 import PrimaryCard from "@/components/DataViews/DashboardPrimaryCard.vue"
 import VisitDatesCard from "@/components/DataViews/VisitDatesCard.vue"
 import Display from "@/composables/display"
+import FullToolbar from "@/components/PatientDashboard/Poc/FullToolbar.vue"
 
 export default defineComponent({
     components: {
@@ -303,10 +304,10 @@ export default defineComponent({
         IonGrid,
         IonRow,
         IonCol,
+        FullToolbar,
         PrimaryCard,
         VisitDatesCard,
-        FullToolbar: defineAsyncComponent(() => import("@/components/PatientDashboard/Poc/FullToolbar.vue")),
-        MinimalToolbar: defineAsyncComponent(() => import("@/components/PatientDashboard/Poc/MinimalToolbar.vue")),
+        MinimalToolbar: defineAsyncComponent(() => import("@/components/PatientDashboard/Poc/MinimalToolbar.vue"))
     },
     setup() {
         const screenBreakPoint = ref('' as 'lg' | 'sm')
@@ -380,9 +381,7 @@ export default defineComponent({
     },
     watch: {
         activeVisitDate(date: string) {
-            if (!(this.appHasCustomContent)) {
-                this.updateCardVisitData(date)
-            }
+            if (!(this.appHasCustomContent)) this.updateCardVisitData(date)
         }
     },
     created() {
@@ -406,11 +405,16 @@ export default defineComponent({
             this.patientCards = [
                 {
                     items: [],
+                    cache: {},
                     label: 'Activities',
-                    icon: timeOutline,
                     color: 'primary',
                     isLoading: false,
-                    onVisitDate: (card: any, date: string) => {
+                    icon: timeOutline,
+                    onVisitDate: (card: any, date: string, invalidateCache: boolean) => {
+                        if (card.cache[date] !=undefined && !invalidateCache) {
+                            card.items = card.cache[date]
+                            return
+                        }
                         card.isLoading = true
                         EncounterService.getEncounters(this.patientId, {date})
                             .then((encounters) => {
@@ -421,10 +425,12 @@ export default defineComponent({
                                 this.getActivitiesCardInfo(encounters)
                                     .then((data) => {
                                         card.items = data
+                                        card.cache[date] = card.items
                                         card.isLoading = false
                                     }).catch(() => card.isLoading = false)
                             }).catch(() => {
                                 card.items = []
+                                card.cache[date] = card.items
                                 card.isLoading = false
                                 this.tasksDisabled = false
                             })
@@ -441,18 +447,25 @@ export default defineComponent({
                 },
                 {
                     items: [],
-                    label: 'Lab Orders',
+                    cache: {},
                     color: 'success',
-                    icon: timeOutline,
                     isLoading: false,
-                    onVisitDate: (card: any, date: string) => {
+                    label: 'Lab Orders',
+                    icon: timeOutline,
+                    onVisitDate: (card: any, date: string, invalidateCache: boolean) => {
+                        if (card.cache[date] !=undefined && !invalidateCache) {
+                            card.items = card.cache[date]
+                            return
+                        }
                         card.isLoading = true
                         this.getLabOrderCardInfo(date)
                             .then((data) => {
                                 card.items = data
+                                card.cache[date] = card.items
                                 card.isLoading = false
                             }).catch(() => {
                                 card.items = []
+                                card.cache[date] = card.items
                                 card.isLoading = false
                             })
                     },
@@ -487,19 +500,26 @@ export default defineComponent({
                 },
                 {
                     items: [],
+                    cache: {},
                     label: 'Medications',
                     color: 'warning',
                     icon: timeOutline,
                     isLoading: false,
-                    onVisitDate: (card: any, date: string) => {
+                    onVisitDate: (card: any, date: string, invalidateCache: boolean) => {
+                        if (card.cache[date] !=undefined && !invalidateCache) {
+                            card.items = card.cache[date]
+                            return
+                        }
                         card.isLoading = true
                         DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
                             .then((medications) => {
                                 card.items = this.getMedicationCardInfo(medications)
+                                card.cache[date] = card.items
                                 card.isLoading = false
                             }).catch(() => {
                                 card.data
                                 card.items = []
+                                card.cache[date] = card.items
                                 card.isLoading = false
                             })
                     },
@@ -523,8 +543,6 @@ export default defineComponent({
             this.isBDE = ProgramService.isBDE() || false
             this.programID = ProgramService.getProgramID()
             this.fetchPatient(this.patientId).then((patient) => {
-                this.patient = patient
-                this.patientCardInfo = this.getPatientCardInfo(patient)
                 const setProgramInfo = (data: any) => {
                     if (typeof data === 'object' && data.then) {
                         this.getProgramCardInfo(this.patientProgram)
@@ -532,6 +550,8 @@ export default defineComponent({
                     }
                     this.programCardInfo = this.getProgramCardInfo(data)
                 }
+                this.patientCardInfo = this.getPatientCardInfo(patient)
+                this.patient = patient
                 ProgramService.getProgramInformation(this.patientId)
                     .then((data) => {
                         this.patientProgram = data
@@ -545,9 +565,7 @@ export default defineComponent({
                 this.getPatientVisitDates(this.patientId)
                     .then((dates) => {
                         this.visitDates = dates
-                        if (isEmpty(dates)) {
-                            this.tasksDisabled = false
-                        }
+                        if (isEmpty(dates)) this.tasksDisabled = false
                         this.loadSavedEncounters()
                     }).catch((e) => console.error(e))
             }).catch((e) => toastDanger(`${e}`))
@@ -573,10 +591,10 @@ export default defineComponent({
                     this.savedEncounters = encounters
                 })
         },
-        updateCardVisitData(visitDate: string) {
+        updateCardVisitData(visitDate: string, invalidateCache=false) {
             this.patientCards.forEach((card) => {
                 if (typeof card === 'object' && typeof card.onVisitDate === 'function') {
-                    card.onVisitDate(card, visitDate)
+                    card.onVisitDate(card, visitDate, invalidateCache)
                 }
             })
         },
@@ -638,7 +656,7 @@ export default defineComponent({
                             .then(() => {
                                 this.clearLoader()
                                 this.loadSavedEncounters()
-                                this.updateCardVisitData(this.activeVisitDate as string)
+                                this.updateCardVisitData(this.activeVisitDate as string, true)
                                 this.getNextTask(this.patientId)
                                     .then((task) => this.nextTask = task)
                                 toastSuccess('Encounter has been voided!', 2000)
