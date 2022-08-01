@@ -243,7 +243,7 @@ import EncounterView from "@/components/DataViews/DashboardEncounterModal.vue"
 import CardDrilldown from "@/components/DataViews/DashboardTableModal.vue"
 import { WorkflowService } from "@/services/workflow_service"
 import { toastSuccess, alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts";
-import _, { isArray, isEmpty, uniq } from "lodash"
+import { isArray, isEmpty } from "lodash"
 import {
     man,
     time,
@@ -310,15 +310,15 @@ export default defineComponent({
         MinimalToolbar: defineAsyncComponent(() => import("@/components/PatientDashboard/Poc/MinimalToolbar.vue"))
     },
     setup() {
-        const screenBreakPoint = ref('' as 'lg' | 'sm')
+        const screenBreakPoint = ref('lg' as 'lg' | 'sm')
         const { resolution } = Display()
         watch(() => resolution.value, (dimensions) => {
-            if (dimensions && dimensions.width <= 900) {
+            if (dimensions.width <= 900) {
                 screenBreakPoint.value = 'sm'
             } else {
                 screenBreakPoint.value = 'lg'
             }
-        }, { immediate: true, deep: true })
+        }, { deep: true })
         return {
             time,
             person,
@@ -560,14 +560,17 @@ export default defineComponent({
                         this.patientProgram = []
                         setProgramInfo(this.patientProgram)
                     })
-                this.getNextTask(this.patientId)
+                this.getNextTask()
                     .then((task) => this.nextTask = task)
                 this.getPatientVisitDates(this.patientId)
                     .then((dates) => {
                         this.visitDates = dates
-                        if (isEmpty(dates)) this.tasksDisabled = false
                         this.loadSavedEncounters()
-                    }).catch((e) => console.error(e))
+                        if (isEmpty(dates)) this.tasksDisabled = false
+                    }).catch((e) => {
+                        console.error(e)
+                        this.tasksDisabled = false
+                    })
             }).catch((e) => toastDanger(`${e}`))
         },
         async showLoader() {
@@ -612,8 +615,8 @@ export default defineComponent({
                 }
             }))
         },
-        getNextTask(patientId: number) {
-            return WorkflowService.getNextTaskParams(patientId)
+        getNextTask() {
+            return WorkflowService.getNextTaskParams(this.patientId)
         },
         goToNextTask() {
             nextTask(this.patientId, this.$router)
@@ -657,7 +660,7 @@ export default defineComponent({
                                 this.clearLoader()
                                 this.loadSavedEncounters()
                                 this.updateCardVisitData(this.activeVisitDate as string, true)
-                                this.getNextTask(this.patientId)
+                                this.getNextTask()
                                     .then((task) => this.nextTask = task)
                                 toastSuccess('Encounter has been voided!', 2000)
                             }).catch((e) => {
@@ -758,21 +761,20 @@ export default defineComponent({
                 this.openModal(tasks, 'Tasks for', TaskSelector, this.sessionDate)
             }
         },
-        async showOptions() {
+        showOptions() {
             if ('secondaryPatientActivites' in this.app) {
                 const other = this.app.secondaryPatientActivites
                 this.openModal(other, 'Select Activity', TaskSelector)
             }
         },
         async openModal(items: any, title: string, component: any, date='') {
-            const displayDate = date || this.toDate(this.activeVisitDate.toString())
-            const modal = await modalController.create({
+            (await modalController.create({
                 component: component,
                 backdropDismiss: false,
                 cssClass: "large-modal",
                 componentProps: {
                     items,
-                    title: `${title}: ${displayDate}`,
+                    title: `${title}: ${date || this.toDate(this.activeVisitDate.toString())}`,
                     taskParams: { 
                         patient: this.patient.getObj(),
                         program: this.patientProgram,
@@ -781,22 +783,19 @@ export default defineComponent({
                         savedEncounters: this.savedEncounters
                     }
                 }
-            })
-            modal.present()
+            })).present()
         },
         async openTableModal(columns: any, rows: any, title: string) {
-            const date = this.toDate(this.activeVisitDate.toString())
-            const modal = (await modalController.create({
+            (await modalController.create({
                 component: CardDrilldown,
                 backdropDismiss: false,
                 cssClass: "large-modal",
                 componentProps: {
                     columns,
                     rows,
-                    title: `${title}: ${date}`
+                    title: `${title}: ${this.toDate(this.activeVisitDate.toString())}`
                 }
-            }))
-            modal.present()
+            })).present()
         },
         onCancel() {
             alertConfirmation('Are you sure you want to Finish?').then((ok) => {
