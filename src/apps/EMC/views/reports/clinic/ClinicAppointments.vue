@@ -4,16 +4,15 @@
     report-icon="reports/appointments.png"
     :columns="columns"
     :rows="rows"
+    :date="date"
     :rowActionButtons="rowActionBtns"
-    @regenerate="(date: any) => getData(date)"
-    @on-date-change="(date: any) => getData(date)"
+    @custom-filter="getData"
   />
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
-import dayjs from "dayjs";
 import { loader } from "@/utils/loader";
 import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
@@ -23,7 +22,7 @@ export default defineComponent({
   name: "ClinicAppointments",
   components: { BaseReportTable },
   setup() {
-    const report = new PatientReportService();
+    const date = ref("");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
       { path: "arv_number", label: "ARV Number" },
@@ -33,9 +32,11 @@ export default defineComponent({
       { path: "birthdate", label: "Date of Birth", date: true },
     ]
 
-    const getData = async (date: string) => {
+    const getData = async (filters: Record<string, any>) => {
       await loader.show()
-      rows.value = await report.getBookedAppointments(date);
+      date.value = filters.date
+      const report = new PatientReportService();
+      rows.value = await report.getBookedAppointments(date.value);
       await loader.hide();
     }
 
@@ -43,9 +44,10 @@ export default defineComponent({
       { label: "Select", default: true, action: (r) => router.push(`/emc/patient/${r['person_id']}`) },
     ]
 
-    onMounted(async () => await getData(PatientReportService.getSessionDate()))
+    onMounted(async () => await getData({date: PatientReportService.getSessionDate()}))
 
     return {
+      date,
       rows,
       columns,
       rowActionBtns,

@@ -4,10 +4,10 @@
     report-icon="reports/viral_load.png"
     :columns="columns"
     :rows="rows"
+    :period="period"
     :rowActionButtons="rowActionBtns"
     useDateRangeFilter
-    @regenerate="(period: any) => getData(period)"
-    @onDateRangeChange="(period: any) => getData(period)"
+    @custom-filter="getData"
   />
 </template>
 
@@ -23,6 +23,7 @@ export default defineComponent({
   name: "ClientsDueForVL",
   components: { BaseReportTable },
   setup() {
+    const period = ref("-");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
       { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
@@ -35,11 +36,12 @@ export default defineComponent({
       { path: "mile_stone", label: "Milestone", date: true },
     ]
 
-    const getData = async (period: {startDate: string; endDate: string}) => {
+    const getData = async ({ dateRange }: Record<string, any>) => {
       await loader.show()
       const report = new PatientReportService()
-      report.setStartDate(period.startDate)
-      report.setEndDate(period.endDate)
+      report.setStartDate(dateRange.startDate)
+      report.setEndDate(dateRange.endDate)
+      period.value = report.getDateIntervalPeriod()
       rows.value = await report.getClientsDueForVl()
       await loader.hide();
     }
@@ -56,6 +58,7 @@ export default defineComponent({
       rows,
       columns,
       rowActionBtns,
+      period,
       getData,
     }
   }

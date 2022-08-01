@@ -9,6 +9,7 @@
     :custom-filters="filters"
     useDateRangeFilter
     @regenerate="() => regenerateReport()"
+    @custom-filter="fetchData"
   />
 </template>
 
@@ -17,9 +18,8 @@ import { computed, defineComponent, ref } from "vue";
 import { loader } from "@/utils/loader";
 import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
-import { CustomFilterInterface, DatatableEvents, RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
+import { CustomFilterInterface, RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { FORMULATIONS, RegimenReportService, REGIMENS } from "@/apps/ART/services/reports/regimen_report_service";
-import EventBus from "@/utils/EventBus";
 
 export default defineComponent({
   name: "RegimenFormulation",
@@ -42,8 +42,7 @@ export default defineComponent({
       { path: "mile_stone", label: "Milestone", date: true },
     ]
 
-    EventBus.on(DatatableEvents.ON_CUSTOM_FILTER, async (filters: Record<string, any>) => {
-      console.log("filters", filters)
+    const fetchData = async (filters: Record<string, any>) => {
       await loader.show();
       report.setStartDate(filters.dateRange.startDate)
       report.setEndDate(filters.dateRange.endDate)
@@ -52,7 +51,7 @@ export default defineComponent({
       formulation.value = filters.formulation
       rows.value = await report.getRegimenFormulationReport(regimen.value, formulation.value)
       await loader.hide();
-    })    
+    }  
 
     const regenerateReport = async () => {
       if(!period.value || !regimen.value || !formulation.value) return
@@ -93,6 +92,7 @@ export default defineComponent({
       rowActionBtns,
       filters,
       regenerateReport,
+      fetchData,
     }
   }
 })

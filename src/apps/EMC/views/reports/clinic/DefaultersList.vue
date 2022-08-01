@@ -4,10 +4,10 @@
     report-icon="reports/defaulter-list.png"
     :columns="columns"
     :rows="rows"
+    :period="period"
     :rowActionButtons="rowActionBtns"
     useDateRangeFilter
-    @regenerate="(period: any) => getData(period)"
-    @onDateRangeChange="(period: any) => getData(period)"
+    @custom-filter="getData"
   />
 </template>
 
@@ -20,9 +20,10 @@ import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Compo
 import { DefaulterReportService } from "@/apps/ART/services/reports/defaulters_report_service";
 
 export default defineComponent({
-  name: "ClinicAppointments",
+  name: "DefaultersList",
   components: { BaseReportTable },
   setup() {
+    const period = ref("");
     const title = ref("Clinic Defaulters List Report");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
@@ -35,12 +36,13 @@ export default defineComponent({
       { path: "defaulter_date", label: "Defaulted Date", date: true}
     ]
 
-    const getData = async (period: {startDate: string; endDate: string}) => {
+    const getData = async ({ dateRange }: Record<string, any>) => {
       await loader.show()
       const report = new DefaulterReportService()
       report.setIsPepfar(false)
-      report.setStartDate(period.startDate)
-      report.setEndDate(period.endDate)
+      report.setStartDate(dateRange.startDate)
+      report.setEndDate(dateRange.endDate)
+      period.value = report.getDateIntervalPeriod()
       rows.value = await report.getDefaulters()
       title.value = `Clinic Defaulters List Report <b>(${rows.value.length} Defaulters)</b>`
       await loader.hide();
@@ -55,6 +57,7 @@ export default defineComponent({
       title,
       columns,
       rowActionBtns,
+      period,
       getData,
     }
   }

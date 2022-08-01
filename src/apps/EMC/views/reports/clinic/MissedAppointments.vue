@@ -4,15 +4,11 @@
     report-icon="reports/appointment-missed.png"
     :columns="columns"
     :rows="rows"
+    :period="period"
     :rowActionButtons="rowActionBtns"
     useDateRangeFilter
-    @regenerate="(period: any) => getData(period)"
-    @onDateRangeChange="(period: any) => getData(period)"
-  >
-    <template #address="{value}">
-      <i v-html="value" />
-    </template>
-  </base-report-table>
+    @custom-filter=" getData"
+  />
 </template>
 
 <script lang="ts">
@@ -27,6 +23,7 @@ export default defineComponent({
   name: "ClinicAppointments",
   components: { BaseReportTable },
   setup() {
+    const period = ref("");
     const title = ref("Clinic Appointment missed report");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
@@ -41,11 +38,12 @@ export default defineComponent({
       { path: "address", label: "Contact Details", exportable: false }
     ]
 
-    const getData = async (period: {startDate: string; endDate: string}) => {
+    const getData = async ({ dateRange }: Record<string, any>) => {
       await loader.show()
       const report = new PatientReportService()
-      report.setStartDate(period.startDate)
-      report.setEndDate(period.endDate)
+      report.setStartDate(dateRange.startDate)
+      report.setEndDate(dateRange.endDate)
+      period.value = report.getDateIntervalPeriod()
       const data: any[] = await report.getMissedAppointments()
       rows.value = data.map(d => ({
         ...d,
@@ -70,6 +68,7 @@ export default defineComponent({
       title,
       columns,
       rowActionBtns,
+      period,
       getData,
     }
   }

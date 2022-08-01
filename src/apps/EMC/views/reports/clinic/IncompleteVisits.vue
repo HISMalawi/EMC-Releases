@@ -4,9 +4,9 @@
     report-icon="reports/refill.png"
     :columns="columns"
     :rows="rows"
+    :period="period"
     useDateRangeFilter
-    @regenerate="(period: any) => getData(period)"
-    @onDateRangeChange="(period: any) => getData(period)"
+    @custom-filter="getData"
   />
 </template>
 
@@ -22,6 +22,7 @@ export default defineComponent({
   name: "IncompleteVisits",
   components: { BaseReportTable },
   setup() {
+    const period = ref("");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
       { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
@@ -33,11 +34,12 @@ export default defineComponent({
       { path: "dates", label: "Date(s)" }
     ]
 
-    const getData = async (period: {startDate: string; endDate: string}) => {
+    const getData = async ({ dateRange }: Record<string, any>) => {
       await loader.show()
       const report = new PatientReportService()
-      report.setStartDate(period.startDate)
-      report.setEndDate(period.endDate)
+      report.setStartDate(dateRange.startDate)
+      report.setEndDate(dateRange.endDate)
+      period.value = report.getDateIntervalPeriod()
       const data = await report.getIncompleteVisits()
       rows.value = Object.values(data).map((d: any) => ({
         ...d,
@@ -51,6 +53,7 @@ export default defineComponent({
     return {
       rows,
       columns,
+      period,
       getData,
     }
   }

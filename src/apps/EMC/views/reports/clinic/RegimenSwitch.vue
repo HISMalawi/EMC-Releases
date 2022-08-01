@@ -2,10 +2,11 @@
   <base-report-table
     title="Clinic Regimen Switch Report"
     report-icon="reports/regimen-switch.png"
+    :period="period"
     :columns="columns"
     :rows="rows"
     useDateRangeFilter
-    @custom-filter="getData"
+    @custom-filter="fetchData"
   />
 </template>
 
@@ -34,7 +35,7 @@ export default defineComponent({
       { path: "dispensation_date", label: "Dispensation Date", date: true }
     ]
 
-    const getData = async (filters: Record<string, any>) => {
+    const fetchData =  async (filters: Record<string, any>) => {
       await loader.show()
       const report = new RegimenReportService()
       report.setStartDate(filters.dateRange.startDate)
@@ -59,7 +60,8 @@ export default defineComponent({
     return {
       rows,
       columns,
-      getData,
+      period,
+      fetchData,
     }
   }
 })

@@ -1,4 +1,4 @@
-import { computed, withDirectives, defineComponent, h, onMounted, PropType, reactive, ref, watch } from "vue";
+import { computed, defineComponent, h, onMounted, PropType, reactive, ref, watch } from "vue";
 import { TableColumnInterface, TableFilterInterface, ActionButtonInterface, RowActionButtonInterface, CustomFilterInterface } from "./types";
 import './datatable.css'
 import get from 'lodash/get';
@@ -6,11 +6,9 @@ import isEmpty from "lodash/isEmpty";
 import orderBy from "lodash/orderBy";
 import range from "lodash/range";
 import { IonButton, IonCol, IonGrid, IonIcon, IonInput, IonItem, IonLabel, IonRow, IonSearchbar, IonSelect, IonSelectOption, IonSkeletonText } from "@ionic/vue";
-import { arrowDown, arrowUp, swapVertical, caretBack, caretForward, refresh, arrowForward } from "ionicons/icons";
+import { arrowDown, arrowUp, swapVertical, caretBack, caretForward } from "ionicons/icons";
 import dayjs from "dayjs";
 import DateRangePicker from "../inputs/DateRangePicker.vue";
-import EventBus from "@/utils/EventBus";
-import { DatatableEvents } from "./events";
 
 export const DataTable = defineComponent({
   name: "DataTable",
@@ -80,7 +78,7 @@ export const DataTable = defineComponent({
         }
         return !isEmpty(value);
       })) {
-        EventBus.emit(DatatableEvents.ON_CUSTOM_FILTER, customFiltersValues);
+        emit("customFilter", customFiltersValues);
       }
     },
       {
@@ -256,12 +254,11 @@ export const DataTable = defineComponent({
                     ])
                   )
                 } else {
-                  return h(IonCol, { size: 4, class: 'ion-no-padding ion-no-margin' },
+                  return h(IonCol, { size: 4 },
                     h(IonInput, {
                       class: 'box',
                       type: filter.type,
                       placeholder: filter.placeholder,
-                      style: { width: '100%', height: '100%' },
                       value: (computed(() => filter.value || "")).value,
                       onIonInput: async (e: Event) => {
                         customFiltersValues[filter.id] = (e.target as HTMLInputElement).value;
@@ -410,7 +407,7 @@ export const DataTable = defineComponent({
               ]),
             ]),
           ]),
-          h(IonCol, { size: 4, style: { marginTop: '1rem', textAlign: 'right' } }, totalFilteredRows.value
+          h(IonCol, { size: 4, style: { marginTop: '1rem', textAlign: 'right', fontWeight: 500 } }, totalFilteredRows.value
             ? `Showing ${(computed(() => (filters.pagination.page === 1) ? 1 : (filters.pagination.page * filters.pagination.pageSize) - (filters.pagination.pageSize - 1)
             )).value
             } to ${(computed(() => (filters.pagination.page === filters.pagination.totalPages)

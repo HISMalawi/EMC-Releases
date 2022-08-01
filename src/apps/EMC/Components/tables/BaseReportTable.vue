@@ -12,7 +12,7 @@
               <h5 v-if="useDateRangeFilter">
                 Period: {{ period }}
               </h5>
-              <h5 v-else>Date: {{ date }}</h5>
+              <h5 v-else>Date: {{ dayjs(date).format("DD/MMM/YYYY") }}</h5>
               <h5 v-if="totalClients">Total Clients: {{ totalClients }}</h5>
             </ion-col>
           </ion-row>
@@ -27,6 +27,7 @@
           :row-actions-buttons="rowActionButtons" 
           :custom-filters="filters" 
           color="custom"
+          @custom-filter="onCustomFilter"
         />
       </ion-card-content>
     </ion-card>
@@ -161,9 +162,15 @@ export default defineComponent({
       return f;
     })
 
+    const onCustomFilter = (filters: Record<string, any>) => {
+      emit("customFilter", filters);
+    }
+
     return {
       actionBtns,
       filters,
+      onCustomFilter,
+      dayjs,
     }
   }
 })
