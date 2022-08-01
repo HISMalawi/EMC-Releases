@@ -146,7 +146,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'Regimens and formulation - patient level',
             id: 'regimen_formulation',
-            img: 'reports/medical.png'
+            img: 'reports/medical.png',
+            url: '/emc/report/clinic/regimen_formulation'
           },
           {
             title: 'Pregnant Patients',

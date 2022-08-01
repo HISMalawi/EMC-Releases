@@ -76,6 +76,11 @@ export default [
         name: 'clients_due_for_vl',
         path: 'clients_due_for_vl',
         component: () => import('@/apps/EMC/views/reports/clinic/ClientsDueForVL.vue'),
+      },
+      {
+        name: 'regimen_formulation',
+        path: 'regimen_formulation',
+        component: () => import('@/apps/EMC/views/reports/clinic/RegimenFormulation.vue'),
       }
     ]
   },

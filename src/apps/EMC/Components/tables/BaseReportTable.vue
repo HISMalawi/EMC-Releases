@@ -10,9 +10,10 @@
             <ion-col>
               <h1 v-html="title"></h1>
               <h5 v-if="useDateRangeFilter">
-                Period: {{ toStandardHisDisplayFormat(period.startDate) + " - " + toStandardHisDisplayFormat(period.endDate) }}
+                Period: {{ period }}
               </h5>
-              <h5 v-else>Date: {{ toStandardHisDisplayFormat(date) }}</h5>
+              <h5 v-else>Date: {{ date }}</h5>
+              <h5 v-if="totalClients">Total Clients: {{ totalClients }}</h5>
             </ion-col>
           </ion-row>
         </ion-grid>
@@ -24,7 +25,7 @@
           :columns="columns" 
           :actions-buttons="actionBtns" 
           :row-actions-buttons="rowActionButtons" 
-          :custom-filters="customFilters" 
+          :custom-filters="filters" 
           color="custom"
         />
       </ion-card-content>
@@ -46,7 +47,6 @@ import DataTable, {
   convertToCsv, 
   exportToCSV
 } from "@/apps/EMC/Components/datatable";
-import HisDate from "@/utils/Date";
 
 export default defineComponent({
   name: "BaseReportTable",
@@ -65,27 +65,39 @@ export default defineComponent({
       type: String,
       default: "Report",
     },
+    period: {
+      type: String,
+      default: "",
+    },
+    date: {
+      type: String,
+      default: "",
+    },
+    totalClients: {
+      type: Number,
+      default: 0,
+    },
     reportIcon: {
       type: String,
       default: "reports/report.png",
     },
     columns: {
-      type: Array as () => TableColumnInterface[],
+      type: Array as PropType<TableColumnInterface[]>,
       default: () => [],
     },
     rows: {
-      type: Array as () => any[],
+      type: Array as PropType<any[]>,
       default: () => [],
     },
     asyncRows: {
       type: Function as PropType<() => Promise<any[]>>,
     },
     actionButtons: {
-      type: Array as () => ActionButtonInterface[],
+      type: Array as PropType<ActionButtonInterface[]>,
       default: () => [],
     },
     rowActionButtons: {
-      type: Array as () => RowActionButtonInterface[],
+      type: Array as PropType<RowActionButtonInterface[]>,
       default: () => [],
     },
     canExportCsv: {
@@ -96,23 +108,20 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    customFilters: {
+      type: Array as PropType<CustomFilterInterface[]>,
+      default: () => [],
+    },
   },
-  emits: ["regenerate", "onDateRangeChange", "onDateChange", "onDrillDown"],
+  emits: ["regenerate", "customFilter", "onDrillDown"],
   setup(props, { emit }) {
-    const { toStandardHisDisplayFormat, toStandardHisFormat } = HisDate;
-    const date = ref(PatientReportService.getSessionDate())
-    const period = reactive({
-      startDate: "",
-      endDate: "",
-    })
-
     const filename = computed(() => {
-      return `${PatientReportService.getLocationName()} ${props.title} ${toStandardHisFormat(date.value)}`;
+      return `${PatientReportService.getLocationName()} ${props.title} ${dayjs().format("YYYY-MM-DD HH:mm:ss")}`;
     })
 
     const actionBtns = computed<ActionButtonInterface[]>(() => {
       const btns = [
-        { label: "Refresh", action: () => emit("regenerate", props.useDateRangeFilter ? period : date.value ) },
+        { label: "Refresh", action: () => emit("regenerate") },
         ...props.actionButtons,
       ]
 
@@ -120,8 +129,8 @@ export default defineComponent({
         btns.push({
           label: "CSV",
           color: "primary",
-          action: async (a, r) => {
-            const csvContent = convertToCsv(props.columns, r, props.useDateRangeFilter ? period : {})
+          action: async (a, rows) => {
+            const csvContent = convertToCsv(props.columns, rows, props.useDateRangeFilter ? props.period : {})
             exportToCSV(csvContent, filename.value)
           }
         })
@@ -129,42 +138,32 @@ export default defineComponent({
       return btns;
     })
 
-    const customFilters = computed<CustomFilterInterface[]>(() => {
+    const filters = computed<CustomFilterInterface[]>(() => {
+      const f = [...props.customFilters];
       if(props.useDateRangeFilter) {
-        return [
-          {
-            label: "Date Range",
-            type: "dateRange",
-            defaultValue: {
-              startDate: period.startDate,
-              endDate: period.endDate,
-            },
-            action: async (newPeriod) => {
-              Object.assign(period, newPeriod)
-              emit("onDateRangeChange", period)
-            },
+        f.push({
+          id: "dateRange",
+          label: "Date Range",
+          type: "dateRange",
+          value: {
+            startDate: props.period.split("-")[0],
+            endDate: props.period.split("-")[1],
           },
-        ]
+        })
+      } else {
+        f.push({
+          id: "date",
+          label: "Date",
+          type: "date",
+          value: props.date,
+        })
       }
-
-      return [{
-        label: "Date",
-        type: "date",
-        defaultValue: date.value,
-        action: async (newDate) => {
-          date.value = newDate
-          emit("onDateChange", date.value)
-        },
-      }]
+      return f;
     })
 
     return {
       actionBtns,
-      customFilters,
-      date,
-      period,
-      dayjs,
-      toStandardHisDisplayFormat,
+      filters,
     }
   }
 })
