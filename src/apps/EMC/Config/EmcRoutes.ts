@@ -62,6 +62,11 @@ export default [
         path: 'regimen_switch',
         component: () => import('@/apps/EMC/views/reports/clinic/RegimenSwitch.vue'),
       },
+      {
+        name: 'pregnant_patients',
+        path: 'pregnant_patients',
+        component: () => import('@/apps/EMC/views/reports/clinic/PregnantPatients.vue'),
+      },
     ]
   },
 ];

@@ -151,7 +151,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'Pregnant Patients',
             id: 'preganant_patients',
-            img: 'reports/pregnant.png'
+            img: 'reports/pregnant.png',
+            url: '/emc/report/clinic/pregnant_patients'
           },
           {
             title: 'Incomplete visits',
