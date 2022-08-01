@@ -46,7 +46,6 @@
                     v-bind:is="customDashboardContent"
                     :patient="patient"
                     :visitDate="activeVisitDate"
-                    @onProgramVisitDates="onProgramVisitDates"
                     >  
                 </component>
                 <ion-grid v-if="!appHasCustomContent && activeTab === 1">
@@ -178,7 +177,6 @@
                             v-bind:is="customDashboardContent"
                             :patient="patient"
                             :visitDate="activeVisitDate"
-                            @onProgramVisitDates="onProgramVisitDates"
                             >  
                         </component>
                         <!--Default patient dashboard content-->
@@ -388,6 +386,7 @@ export default defineComponent({
         }
     },
     created() {
+        this.app = App.getActiveApp()
         this.initCards()
     },
     mounted() {
@@ -545,11 +544,11 @@ export default defineComponent({
                     .then((task) => this.nextTask = task)
                 this.getPatientVisitDates(this.patientId)
                     .then((dates) => {
+                        this.visitDates = dates
                         if (isEmpty(dates)) {
                             this.tasksDisabled = false
                         }
                         this.loadSavedEncounters()
-                        this.onProgramVisitDates(dates)
                     }).catch((e) => console.error(e))
             }).catch((e) => toastDanger(`${e}`))
         },
@@ -588,18 +587,10 @@ export default defineComponent({
         async getPatientVisitDates(patientId: number) {
             const dates = await Patientservice.getPatientVisits(patientId, false)
             return dates.map((date: string) => ({
-                label: this.toDate(date), value: date
-            }))
-        },
-        onProgramVisitDates(dates: Option[]) {
-            const d = this.visitDates.concat(dates)
-                .map(d => d.value as string)
-                .sort((a, b) => new Date(a) > new Date(b) ? 0 : 1)
-            this.visitDates = uniq(d).map(d => ({ 
-                label: this.toDate(d), 
-                value: d,
+                label: this.toDate(date), 
+                value: date,
                 other: {
-                    isActive: d === ProgramService.getSessionDate()
+                    isActive: date === ProgramService.getSessionDate()
                 }
             }))
         },
