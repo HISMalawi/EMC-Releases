@@ -1,12 +1,6 @@
 <template>
-    <ion-page>
-        <full-toolbar
-            class="full-component-view"
-            :appVersion="appVersion"
-            :appIcon="app.applicationIcon"
-            :patientCardInfo="patientCardInfo"
-            :programCardInfo="programCardInfo"
-        />
+    <!--SMALL SCREENBREAKPOINT-->
+    <ion-page v-if="screenBreakPoint === 'sm'"> 
         <minimal-toolbar
             class="mobile-component-view"
             :title="patientName"
@@ -15,8 +9,7 @@
             :appIcon="app.applicationIcon"
             @onClickMenuItem="onActiveVisitDate"
         />
-
-        <ion-toolbar class="mobile-component-view"> 
+        <ion-toolbar v-if="screenBreakPoint === 'sm'" class="mobile-component-view"> 
             <ion-segment :value="activeTab" class="ion-justify-content-center">
                 <ion-segment-button value="1" @click="activeTab=1"> 
                     <ion-icon :icon="calendar"> </ion-icon>
@@ -36,8 +29,7 @@
                 </ion-segment-button>
             </ion-segment>
         </ion-toolbar>
-
-        <ion-toolbar class="mobile-component-view" v-if="nextTask.name"> 
+        <ion-toolbar class="mobile-component-view" v-if="nextTask.name && screenBreakPoint === 'sm'"> 
             <ion-button 
                 :style="{width: '100%'}" 
                 color="success"
@@ -46,10 +38,9 @@
                 <ion-icon :icon="alertCircle"> </ion-icon>
             </ion-button>
         </ion-toolbar>
-
         <ion-content id="main-content">
             <!-- Mobile dashboard view -->
-            <div class="mobile-component-view">
+            <div class="mobile-component-view" v-if="screenBreakPoint==='sm'">
                 <component
                     v-if="appHasCustomContent && activeTab === 1 && patientIsset" 
                     v-bind:is="customDashboardContent"
@@ -123,7 +114,36 @@
                     </div>
                 </ion-list>
             </div>
-            <!-- RENDER DEFAULT PATIENT DASHBOARD -->
+        </ion-content>
+        <ion-footer> 
+            <ion-toolbar color="dark" v-if="screenBreakPoint==='sm'"  class="mobile-component-view"> 
+                <ion-button color="primary" size="medium" slot="end" @click="showTasks"> 
+                    <ion-icon :icon="clipboard"> </ion-icon>
+                </ion-button>
+                <ion-button color="primary" size="medium" slot="end" @click="showOptions">
+                    <ion-icon :icon="folder"> </ion-icon>
+                </ion-button>
+                <ion-button color="primary" size="medium" slot="end" @click="changeApp"> 
+                    <ion-icon :icon="apps"> </ion-icon>
+                </ion-button>
+                <ion-button color="success" size="medium" slot="end" @click="onCancel">
+                    <ion-icon :icon="logOut"> </ion-icon>
+                </ion-button>
+            </ion-toolbar>
+        </ion-footer>
+    </ion-page>
+    <!-- END SMALL SCREEN BREAKPOINT-->
+
+    <!-- LARGE SCREEN BREAKPOINT -->
+    <ion-page v-if="screenBreakPoint === 'lg'"> 
+        <full-toolbar
+            class="full-component-view"
+            :appVersion="appVersion"
+            :appIcon="app.applicationIcon"
+            :patientCardInfo="patientCardInfo"
+            :programCardInfo="programCardInfo"
+        />
+        <ion-content id="main-content"> 
             <ion-grid v-if="!appHasCustomDashboard" class='full-component-view grid-custom vertically-align'>
                 <ion-row>
                     <ion-col size="2.4">
@@ -187,43 +207,30 @@
                 </ion-row>
             </ion-grid>
         </ion-content>
-        <ion-footer> 
-            <ion-toolbar color="dark">
-                <ion-button :disabled="tasksDisabled" class="full-component-view" color="primary" size="large" slot="end" @click="showTasks"> 
-                    <ion-icon :icon="clipboardOutline"> </ion-icon>
-                    Tasks
-                </ion-button>
-                <ion-button class="mobile-component-view" color="primary" size="medium" slot="end" @click="showTasks"> 
-                    <ion-icon :icon="clipboard"> </ion-icon>
-                </ion-button>
-                <ion-button class="full-component-view" color="primary" size="large" slot="end" @click="showOptions">
-                    <ion-icon :icon="folderOutline"> </ion-icon>
-                    Printouts/Other
-                </ion-button>
-                <ion-button class="mobile-component-view" color="primary" size="medium" slot="end" @click="showOptions">
-                    <ion-icon :icon="folder"> </ion-icon>
-                </ion-button>
-                <ion-button class="full-component-view" color="primary" size="large" slot="end" @click="changeApp"> 
-                    <ion-icon :icon="appsOutline"> </ion-icon>
-                    Applications
-                </ion-button>
-                <ion-button class="mobile-component-view" color="primary" size="medium" slot="end" @click="changeApp"> 
-                    <ion-icon :icon="apps"> </ion-icon>
-                </ion-button>
-                <ion-button class="full-component-view" color="success" size="large" slot="end" router-link="/">
-                    <ion-icon :icon="logOutOutline"> </ion-icon>
-                    Finish
-                </ion-button>
-                <ion-button class="mobile-component-view" color="success" size="medium" slot="end" @click="onCancel">
-                    <ion-icon :icon="logOut"> </ion-icon>
-                </ion-button>
-            </ion-toolbar>
-        </ion-footer>
+        <ion-toolbar color="dark"> 
+            <ion-button :disabled="tasksDisabled" color="primary" size="large" slot="end" @click="showTasks"> 
+                <ion-icon :icon="clipboardOutline"> </ion-icon>
+                Tasks
+            </ion-button>
+            <ion-button color="primary" size="large" slot="end" @click="showOptions">
+                <ion-icon :icon="folderOutline"> </ion-icon>
+                Printouts/Other
+            </ion-button>
+            <ion-button color="primary" size="large" slot="end" @click="changeApp"> 
+                <ion-icon :icon="appsOutline"> </ion-icon>
+                Applications
+            </ion-button>
+            <ion-button color="success" size="large" slot="end" router-link="/">
+                <ion-icon :icon="logOutOutline"> </ion-icon>
+                Finish
+            </ion-button>
+        </ion-toolbar>
     </ion-page>
+    <!--END LARGE SCREEN BREAKPOINT-->
 </template>
 <script lang="ts">
 import HisApp from "@/apps/app_lib"
-import { defineAsyncComponent, defineComponent } from 'vue'
+import { defineAsyncComponent, defineComponent, ref, watch } from 'vue'
 import HisDate from "@/utils/Date"
 import { Encounter } from "@/interfaces/encounter"
 import { Option } from "@/components/Forms/FieldInterface"
@@ -280,6 +287,10 @@ import { PersonService } from "@/services/person_service"
 import { TaskInterface } from "@/apps/interfaces/TaskInterface"
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import App from "@/apps/app_lib"
+import PrimaryCard from "@/components/DataViews/DashboardPrimaryCard.vue"
+import VisitDatesCard from "@/components/DataViews/VisitDatesCard.vue"
+import Display from "@/composables/display"
+
 export default defineComponent({
     components: {
         IonSegment,
@@ -294,12 +305,21 @@ export default defineComponent({
         IonGrid,
         IonRow,
         IonCol,
+        PrimaryCard,
+        VisitDatesCard,
         FullToolbar: defineAsyncComponent(() => import("@/components/PatientDashboard/Poc/FullToolbar.vue")),
         MinimalToolbar: defineAsyncComponent(() => import("@/components/PatientDashboard/Poc/MinimalToolbar.vue")),
-        VisitDatesCard: defineAsyncComponent(() => import("@/components/DataViews/VisitDatesCard.vue")),
-        PrimaryCard: defineAsyncComponent(() => import("@/components/DataViews/DashboardPrimaryCard.vue")),
     },
     setup() {
+        const screenBreakPoint = ref('' as 'lg' | 'sm')
+        const { resolution } = Display()
+        watch(() => resolution.value, (dimensions) => {
+            if (dimensions && dimensions.width <= 900) {
+                screenBreakPoint.value = 'sm'
+            } else {
+                screenBreakPoint.value = 'lg'
+            }
+        }, { immediate: true, deep: true })
         return {
             time,
             person,
@@ -313,7 +333,8 @@ export default defineComponent({
             appsOutline, 
             folderOutline,
             logOutOutline,
-            alertCircle
+            alertCircle,
+            screenBreakPoint
         }
     },
     data: () => ({
@@ -385,7 +406,6 @@ export default defineComponent({
         initCards() {
             this.patientCards = [
                 {
-                    id: 'activities',
                     items: [],
                     label: 'Activities',
                     icon: timeOutline,
@@ -421,7 +441,6 @@ export default defineComponent({
                     } 
                 },
                 {
-                    id: 'lab',
                     items: [],
                     label: 'Lab Orders',
                     color: 'success',
@@ -441,7 +460,6 @@ export default defineComponent({
                     onClick: () => this.$router.push(`/art/encounters/lab/${this.patient.getID()}`)
                 },
                 {
-                    id: 'alerts',
                     items: [],
                     label: 'Alerts',
                     color: 'danger',
@@ -469,7 +487,6 @@ export default defineComponent({
                     onClick: () => { /* TODO, list all alerts */ }
                 },
                 {
-                    id: 'medications',
                     items: [],
                     label: 'Medications',
                     color: 'warning',
