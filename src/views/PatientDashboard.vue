@@ -313,12 +313,12 @@ export default defineComponent({
         const screenBreakPoint = ref('lg' as 'lg' | 'sm')
         const { resolution } = Display()
         watch(() => resolution.value, (dimensions) => {
-            if (dimensions.width <= 900) {
+            if (dimensions && dimensions.width <= 900) {
                 screenBreakPoint.value = 'sm'
             } else {
                 screenBreakPoint.value = 'lg'
             }
-        }, { deep: true })
+        }, { immediate: true, deep: true })
         return {
             time,
             person,
