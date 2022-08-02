@@ -41,7 +41,7 @@ export const DataTable = defineComponent({
       type: String as PropType<"primary" | "secondary" | "tertiary" | "success" | "warning" | "danger" | "light" | "dark" | "medium" | "custom">,
     },
   },
-  emits: ["customFilter", "queryChange"],
+  emits: ["customFilter", "queryChange", "drilldown"],
   setup(props, { emit }) {
     const isLoading = ref(false);
     const totalColumns = computed(() => isEmpty(props.rowActionsButtons) ? props.columns.length : props.columns.length + 1);
@@ -102,11 +102,11 @@ export const DataTable = defineComponent({
     const sort = () => {
       if (isEmpty(filters.sort) || isEmpty(filteredRows)) return;
       const orders = filters.sort.map((sortConfig) => sortConfig.order);
-      console.log(orders);
       filteredRows.value = orderBy(
         filteredRows.value,
         filters.sort.map(({ columnId, caseSensitive }) => (row) => {
           const value = get(row, columnId);
+          if (columnId.match(/arv_number/i)) return parseInt(value.toString().split("-")[2]);
           if (typeof value === "number") return value;
           if (caseSensitive) return value !== null ? value : "";
           return value !== null ? value.toString().toLowerCase() : "";
@@ -331,7 +331,11 @@ export const DataTable = defineComponent({
                   ...props.columns.map(column => {
                     let value = get(row, column.path);
                     if (column.date && value) value = dayjs(value).format('DD/MMM/YYYY');
-                    return h('td', { key: column.path }, value)
+                    return h('td', { key: column.path }, 
+                      column.drillable && value
+                        ? h('a', { onClick: () => emit("drilldown", {column, row})}, value)
+                        : value
+                    )
                   }),
                   !isEmpty(props.rowActionsButtons) && h('td', props.rowActionsButtons.map(btn =>
                     h(IonButton, { key: btn.icon, size: 'small', color: btn.color || 'primary', onClick: () => btn.action(row) },

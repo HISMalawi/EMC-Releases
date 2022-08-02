@@ -9,6 +9,7 @@ export interface TableColumnInterface {
   date?: boolean;
   initialSortOrder?: sortType;
   sortCaseSensitive?: boolean;
+  drillable?: boolean;
 }
 
 export interface SortQueryInterface {
