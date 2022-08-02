@@ -1,7 +1,7 @@
 <template>
   <base-report-table
-    title="Clients Due For Viral Load Clinic Report"
-    report-icon="reports/viral_load.png"
+    title="Regimen Formulation: Patient Level Clinic Report"
+    report-icon="reports/medical.png"
     :period="period"
     :columns="columns"
     :rows="rows"
@@ -33,13 +33,8 @@ export default defineComponent({
     
     const columns: TableColumnInterface[] = [
       { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
-      { path: "given_name", label: "First name", exportable: false },
-      { path: "family_name", label: "Last name", exportable: false },
       { path: "gender", label: "Gender" },
       { path: "birthdate", label: "Date of Birth", date: true },
-      { path: "appointment_date", label: "App Date", date: true },
-      { path: "months_on_art", label: "Months on ART" },
-      { path: "mile_stone", label: "Milestone", date: true },
     ]
 
     const fetchData = async (filters: Record<string, any>) => {
