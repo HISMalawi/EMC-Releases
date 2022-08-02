@@ -721,9 +721,9 @@ export default defineComponent({
       }
     },
     async initFieldOnce(field: Field) {
-      if (typeof field.initOnce === 'function') {
+      if (typeof field.init === 'function') {
         if (!this.fieldsInitialisedOnce[field.id]) {
-          this.fieldsInitialisedOnce[`${field.id}`] = await field.initOnce(this.formData, this.computedFormData)
+          this.fieldsInitialisedOnce[`${field.id}`] = await field.init(this.formData, this.computedFormData)
         }
       }
     }

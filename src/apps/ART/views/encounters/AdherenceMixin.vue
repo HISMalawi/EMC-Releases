@@ -17,10 +17,6 @@ export default defineComponent({
         calculationAgreementObs: [] as any,
     }),
     methods: {
-        async initAdherence(patient: any, provider: number) {
-            this.adherence = new AdherenceService(patient.getID(), provider)
-            await this.adherence.loadPreviousDrugs()
-        },
         async saveAdherence() {
             await this.adherence.createEncounter()
             const data = await Promise.all([...this.drugObs, ...this.calculationAgreementObs])
@@ -95,13 +91,18 @@ export default defineComponent({
                 d.quantity, d.equivalent_daily_dose, d.order.start_date
             )
         },
-        getAdherenceFields(showFields=true): Array<Field> {
+        getAdherenceFields(checkDrugsBefore=false): Array<Field> {
             return [
                 {
                     id: 'pills_brought',
                     helpText: 'Pills remaining (brought to clinic)',
                     type: FieldType.TT_ADHERENCE_INPUT,
-                    condition: () => showFields,
+                    init: async () => {
+                        this.adherence = new AdherenceService(this.patientID, this.providerID)
+                        await this.adherence.loadPreviousDrugs()
+                        return true
+                    },
+                    condition: () => checkDrugsBefore ? this.adherence.receivedDrugsBefore() : true,
                     validation: (val: any) => {
                         if (Validation.required(val)) return ['No drugs available']
 
@@ -144,7 +145,7 @@ export default defineComponent({
                     id: "adherence_report",
                     helpText: "ART adherence",
                     type: FieldType.TT_TABLE_VIEWER,
-                    condition: () => showFields,
+                    condition: () => checkDrugsBefore ? this.adherence.receivedDrugsBefore() : true,
                     options: (d: any) => this.buildAdherenceReport(
                         d.pills_brought.map((i: Option) => ({ 
                             ...i.other, pillsBrought: i.value
@@ -160,7 +161,7 @@ export default defineComponent({
                     id: "agree_with_calculation",
                     helpText: "Agree with adherence calculation",
                     type: FieldType.TT_SELECT,
-                    condition: () => this.askReasonForPoorAdherence && showFields,
+                    condition: () => this.askReasonForPoorAdherence,
                     validation: (val: Option) => Validation.required(val),
                     unload: ({ value }: Option) => {
                         this.calculationAgreementObs = [ this.adherence.buildValueCoded(
