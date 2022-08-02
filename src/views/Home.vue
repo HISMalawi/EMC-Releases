@@ -23,15 +23,14 @@
                     }"
                     :src="barcodeLogo"/>
                 </ion-col>
-                <ion-col size-lg="7" size-sm="8"  v-if="!useVirtualInput"> 
-                  <input 
-                    :readonly="useVirtualInput" 
+                <ion-col size-lg="7" size-sm="8" v-if="activePlatformProfile.scanner === 'BARCODE_SCANNER'"> 
+                  <input
                     v-model="patientBarcode" 
                     class="barcode-input" 
                     ref="scanBarcode"
                   />
                 </ion-col>
-                 <ion-col v-if="useVirtualInput" size-lg="6" size-sm="6" style="text-align: center; margin: auto;line-height: 1.2;"> 
+                 <ion-col v-if="activePlatformProfile.scanner === 'CAMERA_SCANNER'" size-lg="6" size-sm="6" style="text-align: center; margin: auto;line-height: 1.2;"> 
                   <p>Click Here</p>
                   <p>To Scan QR code Or Barcode</p>
                   <p> using Camera</p>
@@ -215,7 +214,7 @@ export default defineComponent({
     HomeNotification
   },
   setup() {
-    const { useVirtualInput } = usePlatform()
+    const { activePlatformProfile } = usePlatform()
     const {
       notificationData, 
       notificationCount, 
@@ -234,7 +233,7 @@ export default defineComponent({
       statsChart,
       pieChart,
       settings,
-      useVirtualInput
+      activePlatformProfile
     }
   },
   data() {
@@ -338,7 +337,6 @@ export default defineComponent({
       auth.clearSession()
     },
     openCamera(){
-      if(this.useVirtualInput)
       this.$router.push('/camera_scanner')
     }
   },
