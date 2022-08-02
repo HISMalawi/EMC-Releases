@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import BarcodeInput from "@/components/BarcodeInput.vue"
 import {toastWarning} from "@/utils/Alerts"
 import router from '@/router/index';
@@ -56,11 +56,10 @@ import {
   IonToolbar,
   IonButton,
   IonFooter,
-  getPlatforms
 } from '@ionic/vue';
 import HisKeyboard from '@/components/Keyboard/HisKeyboard.vue';
 import {NUMBERS} from "@/components/Keyboard/HisKbConfigurations"
-import usePlatform from '@/composables/usePlatform';
+import usePlatform, { ScannerType } from '@/composables/usePlatform';
 
 export default defineComponent({
   name: 'HC location',
@@ -76,11 +75,13 @@ export default defineComponent({
     HisKeyboard
   },
   setup() {
-    const { useVirtualInput } = usePlatform()
+    const { activePlatformProfile } = usePlatform()
     const barcodeText = ref('')
     const clearValue = ref('')
     const kbText = ref('')
 
+    const useVirtual = computed(() => activePlatformProfile.value.scanner != ScannerType.BARCODE_SCANNER)
+  
     async function searchLocation() {
       if (!barcodeText.value.includes('$')) {
         barcodeText.value += '$'
@@ -117,7 +118,7 @@ export default defineComponent({
       onScan,
       onKbClick,
       searchLocation,
-      useVirtualInput,
+      useVirtual,
       kbText,
       clearValue,
       barcodeText,

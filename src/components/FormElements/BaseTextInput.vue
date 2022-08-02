@@ -5,12 +5,12 @@
     v-model="text"
     :type="type"
     :disabled="disabled"
-    :readonly="useVirtualInput"
+    :readonly="readOnly"
     autocapitalize="sentences"
   />
 </template>
 <script lang="ts">
-import { defineComponent } from "vue";
+import { computed, defineComponent } from "vue";
 import { IonInput } from "@ionic/vue";
 import usePlatform from "@/composables/usePlatform"
 
@@ -18,9 +18,10 @@ export default defineComponent({
   name: "HisInput",
   components: { IonInput },
   setup() {
-    const { useVirtualInput } = usePlatform()
+    const { activePlatformProfile } = usePlatform()
+    const readOnly = computed(() => activePlatformProfile.value.keyboard === 'HIS_KEYBOARD_ONLY')
     return {
-      useVirtualInput
+      readOnly
     }
   },
   data:() => ({

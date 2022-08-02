@@ -7,7 +7,7 @@
                     :key="index"
                     > 
                     <ion-input
-                        :readonly="platformType === 'mobile'"
+                        :readonly="activePlatformProfile.keyboard === 'HIS_KEYBOARD_ONLY'"
                         mode='md'
                         inputmode="numeric"
                         type="number"
@@ -70,7 +70,7 @@ export default defineComponent({
         }
     },
     setup(props, {emit}) {
-        const  { platformType } = Platform()
+        const  { activePlatformProfile } = Platform()
         onActivated(() => emit('onFieldActivated', this))
         const showKeyboard = ref(false)
         const activeIndex = ref('')
@@ -139,7 +139,7 @@ export default defineComponent({
         }, { deep: true, immediate: true })
 
         return {
-            platformType,
+            activePlatformProfile,
             keypress,
             activeIndex,
             onAddressClick,

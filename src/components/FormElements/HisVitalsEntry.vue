@@ -27,7 +27,7 @@
                 class='keypad-input'
                 v-if="keys.length > 0"
                 v-model="keys[activeField].value"
-                :readonly="useVirtualInput"
+                :readonly="activePlatformProfile.keyboard === 'HIS_KEYBOARD_ONLY'"
               />
               <table class="keypad">
                 <tr v-for="(row, rowIndex) in keyboard" :key="rowIndex">
@@ -112,9 +112,9 @@ export default defineComponent({
     keyboard: VITALS_KEYPAD,
   }),
   setup() {
-    const  { useVirtualInput } = usePlatform()
+    const  { activePlatformProfile } = usePlatform()
     return {
-      useVirtualInput
+      activePlatformProfile
     }
   },
   activated(){

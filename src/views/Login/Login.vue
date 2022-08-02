@@ -14,7 +14,7 @@
       </ion-toolbar>
     </ion-header>
     <ion-content fullscreen="false">
-      <inputs :useVirtualInput="useVirtualInput"/>
+      <inputs :useVirtualInput="useVirtualInputOnly"/>
     </ion-content>
     <ion-footer>
       <ion-toolbar>
@@ -30,14 +30,13 @@
             alt="PEPFAR logo"
           />
         </span>
-        <select v-model="platform" slot="end" class="devices">
+        <select v-model="activePlatformProfile" slot="end" class="devices">
           <option
-            v-for="(device, index) in devices" 
+            v-for="(profile, index) in deviceProfiles" 
             :key="index"
-            :value="device.value"
-            :selected="device.value === platform"
-          >
-            {{ device.label }}
+            :value="profile.value"
+            :selected="profile.isChecked">
+            {{ profile.label }}
           </option>
         </select>
         <ion-button
@@ -61,13 +60,14 @@ import {
   IonHeader,
   IonToolbar,
   IonTitle,
-  IonLabel
+  IonLabel,
 } from "@ionic/vue";
 import img from '@/utils/Img';
 import { onMounted, ref } from '@vue/runtime-core';
 import { AuthService } from '@/services/auth_service';
 import usePlatform from '@/composables/usePlatform';
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
+import { KeyboardType } from "@/composables/usePlatform"
 
 export default {
   name: "login",
@@ -83,19 +83,19 @@ export default {
     IonFooter,
   },
   setup() {
-    const { platformType, setPlatformType } = usePlatform()
-    const useVirtualInput = computed(() => platformType.value === 'mobile')
-    const platform = ref(platformType.value || 'Platform')
+    const {
+      activePlatformProfile,
+      platformProfiles
+    } = usePlatform()
     const version = ref('')
-    const devices = ref([
-      {label: 'Mobile', value: 'mobile'},
-      {label: "Desktop", value: "desktop"}
-    ])
-
-    watch(platform, p => {
-      if (['mobile', 'desktop'].includes(p)) setPlatformType(p as 'mobile' | 'desktop')  
-    })
-
+    const useVirtualInputOnly = computed(
+      () => activePlatformProfile.value.keyboard === KeyboardType.HIS_KEYBOARD_ONLY
+    )
+    const deviceProfiles = Object.keys(platformProfiles.value).map(key => ({
+      label: key,
+      value: { profileName: key, ...platformProfiles.value[key] },
+      isChecked: key === activePlatformProfile.value.profileName
+    }))
     onMounted(async () => {
       const auth = new AuthService()
       await auth.loadConfig()
@@ -105,10 +105,10 @@ export default {
       version.value = `${appV} / ${apiV}`
     })
     return {
-      devices,
       version,
-      platform,
-      useVirtualInput,
+      deviceProfiles,
+      useVirtualInputOnly,
+      activePlatformProfile,
       coatImg: img('login-logos/Malawi-Coat_of_arms_of_arms.png'),
       pepfarImg: img('login-logos/PEPFAR.png'),
       showConfig: localStorage.getItem("useLocalStorage") === "true"

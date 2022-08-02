@@ -5,8 +5,8 @@
     </ion-col>
     <ion-col size="10">
       <input 
-        :readonly="useVirtualInput" 
-        ref="barcode" 
+        :readonly="activePlatformProfile.keyboard === 'CAMERA_SCANNER'" 
+        ref="barcode"
         id="barcode-inputbox" 
         v-model="barcodeText"
       />
@@ -29,8 +29,8 @@ export default defineComponent({
   props: ['clearValue', 'virtualText'],
   setup() {
     const barcode = ref(null)
-    const { useVirtualInput, platformType } = usePlatform()
-    if (platformType.value === 'desktop') {
+    const { activePlatformProfile } = usePlatform() 
+    if (activePlatformProfile.value.keyboard === 'BARCODE_SCANNER') {
       setInterval(() => {
         try {
           barcode.value.focus()
@@ -41,7 +41,7 @@ export default defineComponent({
     }
     return  {
       barcode,
-      useVirtualInput
+      activePlatformProfile
     }
   },
   data: () => ({

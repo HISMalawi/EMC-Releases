@@ -1,6 +1,6 @@
 import { Service } from "./service";
 import ApiClient from "./api_client";
-import usePlatform from "@/composables/usePlatform";
+import usePlatform, { PrinterType, ScannerType } from "@/composables/usePlatform";
 import { toastWarning } from "@/utils/Alerts";
 import { EventChannels } from "@/utils/EventBus";
 import EventBus from "@/utils/EventBus";
@@ -17,8 +17,8 @@ export class PrintoutService extends Service {
     }
 
     async batchPrintLbls(urls: string[], showPrintImage = true) {
-        const { platformType } = usePlatform()
-        if (platformType.value === 'desktop') {
+        const { activePlatformProfile } = usePlatform()
+        if (activePlatformProfile.value.printer === PrinterType.WIRED_PRINTER) {
             const errors: string[] = []
             if(showPrintImage) EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')
             for(const url of urls) {
@@ -39,8 +39,8 @@ export class PrintoutService extends Service {
     }
 
     async printLbl(url: any, showPrintImage = true) {
-        const { platformType } = usePlatform()
-        if (platformType.value === 'desktop') {
+        const { activePlatformProfile } = usePlatform()
+        if (activePlatformProfile.value.printer === PrinterType.WIRED_PRINTER) {
             try {
                 if(showPrintImage)
                 EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')                

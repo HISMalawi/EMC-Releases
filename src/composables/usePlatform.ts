@@ -1,47 +1,67 @@
-import { getPlatforms } from "@ionic/vue";
-import { computed, ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 
 export enum PLATFORM_SESSION_KEY {
-  ACTIVE_PLATFORM = 'cur_platform'
+  ACTIVE_PLOFILE = 'active_profile',
+  PLATFORM_PROFILES = 'platformProfiles'
 }
 
-export const MOBILE_PLATFORMS = [
-  'ios',
-  'iphone',
-  'android',
-  'tablet',
-  'mobileweb',
-  'ipad'
-]
+export enum ScannerType {
+  BARCODE_SCANNER = 'BARCODE_SCANNER',
+  CAMERA_SCANNER = 'CAMERA_SCANNER'
+}
 
-export const DESKTOP_PLATFORMS = [
-  'desktop',
-  'electron'
-]
+export enum PrinterType {
+  WIRED_PRINTER = 'WIRED_PRINTER',
+  BLUETOOTH_PRINTER = 'BLUETOOTH_PRINTER'
+}
+
+export enum KeyboardType { 
+  HIS_KEYBOARD_ONLY = 'HIS_KEYBOARD_ONLY',
+  NATIVE_AND_HIS_KEYBOARD = 'NATIVE_AND_HIS_KEYBOARD'
+}
+
+export interface PlatformProfileInterface {
+  profileName? : string;
+  scanner: ScannerType;
+  printer: PrinterType;
+  keyboard: KeyboardType;
+}
 
 export default function usePlatform () {
-  const isPlatform = (platformList: string[]) => getPlatforms().map(p => platformList.includes(p)).some(Boolean)
+  const activePlatformProfile = ref({} as PlatformProfileInterface)
+  const platformProfiles = ref({} as Record<string, PlatformProfileInterface>)
+  const defaultProfile: string | null = localStorage.getItem(PLATFORM_SESSION_KEY.ACTIVE_PLOFILE)
+  
+  if (typeof defaultProfile === 'string') { 
+    activePlatformProfile.value = JSON.parse(defaultProfile)
+  } else {
+    activePlatformProfile.value = {
+      profileName: "EBN Type",
+      scanner: ScannerType.BARCODE_SCANNER,
+      printer: PrinterType.WIRED_PRINTER,
+      keyboard: KeyboardType.NATIVE_AND_HIS_KEYBOARD
+    }
+  }
+  const profiles: string | null = sessionStorage.getItem(PLATFORM_SESSION_KEY.PLATFORM_PROFILES)
 
-  const isMobile = () => isPlatform(MOBILE_PLATFORMS) || !isPlatform(DESKTOP_PLATFORMS)
+  if (typeof profiles === 'string') {
+    platformProfiles.value = JSON.parse(profiles)
+  } else {
+    platformProfiles.value = {
+      "EBN Type": {
+        scanner: ScannerType.BARCODE_SCANNER,
+        printer: PrinterType.WIRED_PRINTER,
+        keyboard: KeyboardType.NATIVE_AND_HIS_KEYBOARD
+      }
+    }
+  }
 
-  const isDesktop = () => isPlatform(DESKTOP_PLATFORMS) || !isMobile()
-
-  const configuredPlatform = localStorage.getItem(PLATFORM_SESSION_KEY.ACTIVE_PLATFORM)
-
-  const platformType = ref(configuredPlatform!=null ? configuredPlatform : isDesktop() ? 'desktop' : 'mobile')
-
-  const useVirtualInput = computed(() => platformType.value === 'mobile')
-
-  const setPlatformType = (platform: 'mobile' | 'desktop') => {
-    platformType.value = platform
-    localStorage.setItem(PLATFORM_SESSION_KEY.ACTIVE_PLATFORM, platform)
-  }  
+  watch(() => activePlatformProfile.value, profile => {
+    localStorage.setItem(PLATFORM_SESSION_KEY.ACTIVE_PLOFILE, JSON.stringify(profile))
+  })
 
   return {
-    platformType,
-    useVirtualInput,
-    isMobile,
-    isDesktop,
-    setPlatformType
+    activePlatformProfile,
+    platformProfiles
   }
 }
