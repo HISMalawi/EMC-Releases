@@ -1,7 +1,7 @@
 import jsPDF from "jspdf"
 import autoTable from 'jspdf-autotable'
 import { Filesystem, Directory } from "@capacitor/filesystem"
-import platform from "@/composables/usePlatform"
+import platform, { FileExportType } from "@/composables/usePlatform"
 import { toastDanger, toastSuccess, toastWarning } from "./Alerts"
 import writeBlob from "capacitor-blob-writer"; 
 import { PDFGenerator } from '@ionic-native/pdf-generator'
@@ -38,13 +38,13 @@ function exportMobile(file: string, data: any, type: 'blob' | 'text') {
 }
 
 export function toPDFfromHTML(html: string) {
-  const { platformType } = platform()
-  if (platformType.value === 'mobile') {
+  const { activePlatformProfile } = platform()
+  if (activePlatformProfile.value.fileExport === FileExportType.FILE_SYSTEM) {
     PDFGenerator.fromData(html, {
       documentSize: 'a4',
       type: 'share'
     }).catch((e) => toastDanger(e))
-  } else if (platformType.value === 'desktop') {
+  } else if (activePlatformProfile.value.fileExport === FileExportType.WEB) {
     const printW = open('', '', 'width:1024px, height:768px')
     if (printW) {
       printW?.document.write(html)
@@ -57,10 +57,10 @@ export function toPDFfromHTML(html: string) {
 
 export function toCsv(header: Array<any>, rows: Array<any>, fileName='document') {
   const csvContent = convertToCsv(header.concat(rows))
-  const { platformType } = platform()
+  const { activePlatformProfile } = platform()
   const fileWithExt = `${fileName}.csv`
 
-  if (platformType.value === 'desktop') {
+  if (activePlatformProfile.value.fileExport === FileExportType.WEB) {
     const csvData = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.setAttribute('id', 'csv')
@@ -69,7 +69,7 @@ export function toCsv(header: Array<any>, rows: Array<any>, fileName='document')
     document.body.appendChild(link);
     link.click();
     link.remove();
-  } else if (platformType.value === 'mobile') {
+  } else if (activePlatformProfile.value.fileExport === FileExportType.FILE_SYSTEM) {
     exportMobile(fileWithExt, csvContent, 'text')
   } else {
     toastWarning('Platform not supported')
@@ -98,11 +98,11 @@ export function toTablePDF(
       config.horizontalPageBreakRepeat = 0
     }
     autoTable(doc, config)
-    const { platformType } = platform()
+    const { activePlatformProfile } = platform()
     const path = `${fileName}.pdf`
-    if (platformType.value === 'desktop') { 
+    if (activePlatformProfile.value.fileExport === FileExportType.WEB) { 
       doc.save(path)
-    } else if (platformType.value === 'mobile') {
+    } else if (activePlatformProfile.value.fileExport === FileExportType.FILE_SYSTEM) {
       exportMobile(path, doc.output(), 'blob')
     } else {
       toastDanger('Platform not supported') 

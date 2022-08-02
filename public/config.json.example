@@ -1,25 +1,39 @@
 {
-	"apiURL": "0.0.0.0",
+	"apiURL": "localhost",
 	"apiPort": "3000",
 	"apiProtocol": "http",
 	"appConf": {
+		"devMode": true,
 		"enableVersionLocking": true,
 		"promptFullScreenDialog": false,
 		"showUpdateNotifications": true
 	},
 	"apps": [
+		{ "name": "EMC", "available": true },
 		{ "name": "ART", "available": true },
 		{ "name": "LOS", "available": true },
 		{ "name": "OPD", "available": true },
 		{ "name": "ANC", "available": true },
 		{ "name": "CxCa", "available": true},
 	],
-	"thirdpartyApps": [
-		{
-			"name": "pacs",
-			"url": "",
-			"applicationDescription": "Picture archieving system",
-			"comment": "redirecting to pacs image viewer; used in OPD"
+	"platformProfiles":  {
+		"Desktop": {
+			"fileExport": "WEB",
+			"scanner": "BARCODE_SCANNER",
+			"printer": "WIRED_PRINTER",
+			"keyboard": "BOTH_NATIVE_AND_HIS_KEYBOARD"
+		},
+		"OCOM Android" : {
+			"fileExport": "FILE_SYSTEM",
+			"scanner": "BARCODE_SCANNER",
+			"printer": "BLUETOOTH_PRINTER",
+			"keyboard": "HIS_KEYBOARD_ONLY"
+		},
+		"Android Tablet" : {
+			"fileExport": "FILE_SYSTEM",
+			"scanner": "CAMERA_SCANNER",
+			"printer": "BLUETOOTH_PRINTER",
+			"keyboard": "HIS_KEYBOARD_ONLY"
 		}
-	]
+	}
 }

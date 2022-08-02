@@ -5,6 +5,11 @@ export enum PLATFORM_SESSION_KEY {
   PLATFORM_PROFILES = 'platformProfiles'
 }
 
+export enum FileExportType {
+  WEB = 'WEB',
+  FILE_SYSTEM  = 'FILE_SYSTEM'
+}
+
 export enum ScannerType {
   BARCODE_SCANNER = 'BARCODE_SCANNER',
   CAMERA_SCANNER = 'CAMERA_SCANNER'
@@ -22,6 +27,7 @@ export enum KeyboardType {
 
 export interface PlatformProfileInterface {
   profileName? : string;
+  fileExport: FileExportType;
   scanner: ScannerType;
   printer: PrinterType;
   keyboard: KeyboardType;
@@ -36,19 +42,22 @@ export default function usePlatform () {
     activePlatformProfile.value = JSON.parse(defaultProfile)
   } else {
     activePlatformProfile.value = {
-      profileName: "EBN Type",
+      profileName: "Desktop",
+      fileExport: FileExportType.WEB,
       scanner: ScannerType.BARCODE_SCANNER,
       printer: PrinterType.WIRED_PRINTER,
       keyboard: KeyboardType.NATIVE_AND_HIS_KEYBOARD
     }
   }
+
   const profiles: string | null = sessionStorage.getItem(PLATFORM_SESSION_KEY.PLATFORM_PROFILES)
 
   if (typeof profiles === 'string') {
     platformProfiles.value = JSON.parse(profiles)
   } else {
     platformProfiles.value = {
-      "EBN Type": {
+      "Desktop": {
+        fileExport: FileExportType.WEB,
         scanner: ScannerType.BARCODE_SCANNER,
         printer: PrinterType.WIRED_PRINTER,
         keyboard: KeyboardType.NATIVE_AND_HIS_KEYBOARD
