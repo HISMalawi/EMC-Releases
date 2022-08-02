@@ -20,20 +20,20 @@
 		"Desktop": {
 			"fileExport": "WEB",
 			"scanner": "BARCODE_SCANNER",
-			"printer": "WIRED_PRINTER",
+			"printer": "WEB",
 			"keyboard": "BOTH_NATIVE_AND_HIS_KEYBOARD"
+		},
+		"Mobile" : {
+			"fileExport": "FILE_SYSTEM",
+			"scanner": "CAMERA_SCANNER",
+			"printer": "BLUETOOTH",
+			"keyboard": "HIS_KEYBOARD_ONLY"
 		},
 		"OCOM Android" : {
 			"fileExport": "FILE_SYSTEM",
 			"scanner": "BARCODE_SCANNER",
-			"printer": "BLUETOOTH_PRINTER",
+			"printer": "BLUETOOTH",
 			"keyboard": "HIS_KEYBOARD_ONLY"
 		},
-		"Android Tablet" : {
-			"fileExport": "FILE_SYSTEM",
-			"scanner": "CAMERA_SCANNER",
-			"printer": "BLUETOOTH_PRINTER",
-			"keyboard": "HIS_KEYBOARD_ONLY"
-		}
 	}
 }

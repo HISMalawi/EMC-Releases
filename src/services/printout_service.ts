@@ -15,11 +15,12 @@ export class PrintoutService extends Service {
     }
 
     private async _print(url: string) {
+        const { activePlatformProfile } = usePlatform()
         const preFetch = await Service.getText(url)
         if (!preFetch) throw 'Unable to print Label. Try again later'
-        if (usePlatform().platformType.value === 'desktop') {
+        if (activePlatformProfile.value.printer === PrinterType.WEB) {
             document.location = (await ApiClient.expandPath(url)) as any
-        } else {
+        } else if (activePlatformProfile.value.printer === PrinterType.BLUETOOTH) {
             let printer = await this.getDefaultPrinter();
             if(isEmpty(printer)) printer = await this.selectDefaultPrinter();
             if (!printer) throw 'No default printer selected!!!'
@@ -28,6 +29,8 @@ export class PrintoutService extends Service {
                     .then(() => BluetoothSerial.disconnect())
                     .catch((err) => { throw err })
             }, (err) => { throw err })
+        } else {
+            toastWarning('No printing profile for current platform')
         }
     }
 

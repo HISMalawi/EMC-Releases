@@ -16,8 +16,8 @@ export enum ScannerType {
 }
 
 export enum PrinterType {
-  WIRED_PRINTER = 'WIRED_PRINTER',
-  BLUETOOTH_PRINTER = 'BLUETOOTH_PRINTER'
+  WEB = 'WEB',
+  BLUETOOTH = 'BLUETOOTH'
 }
 
 export enum KeyboardType { 
@@ -45,7 +45,7 @@ export default function usePlatform () {
       profileName: "Desktop",
       fileExport: FileExportType.WEB,
       scanner: ScannerType.BARCODE_SCANNER,
-      printer: PrinterType.WIRED_PRINTER,
+      printer: PrinterType.WEB,
       keyboard: KeyboardType.NATIVE_AND_HIS_KEYBOARD
     }
   }
@@ -59,7 +59,7 @@ export default function usePlatform () {
       "Desktop": {
         fileExport: FileExportType.WEB,
         scanner: ScannerType.BARCODE_SCANNER,
-        printer: PrinterType.WIRED_PRINTER,
+        printer: PrinterType.WEB,
         keyboard: KeyboardType.NATIVE_AND_HIS_KEYBOARD
       }
     }
