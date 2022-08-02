@@ -28,6 +28,7 @@
           :custom-filters="filters" 
           color="custom"
           @custom-filter="onCustomFilter"
+          @drilldown="onDrilldown"
         />
       </ion-card-content>
     </ion-card>
@@ -114,7 +115,7 @@ export default defineComponent({
       default: () => [],
     },
   },
-  emits: ["regenerate", "customFilter", "onDrillDown"],
+  emits: ["regenerate", "customFilter", "drilldown"],
   setup(props, { emit }) {
     const filename = computed(() => {
       return `${PatientReportService.getLocationName()} ${props.title} ${dayjs().format("YYYY-MM-DD HH:mm:ss")}`;
@@ -166,10 +167,15 @@ export default defineComponent({
       emit("customFilter", filters);
     }
 
+    const onDrilldown = (data: {column: TableColumnInterface; row: any}) => {
+      emit("drilldown", data);
+    }
+
     return {
       actionBtns,
       filters,
       onCustomFilter,
+      onDrilldown,
       dayjs,
     }
   }

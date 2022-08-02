@@ -104,7 +104,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'SC ARVDISP',
             id: 'sc_arvdisp',
-            img: 'reports/previous.png'
+            img: 'reports/previous.png',
+            url: '/emc/report/pepfar/sc_arvdisp'
           }
         ]
       },

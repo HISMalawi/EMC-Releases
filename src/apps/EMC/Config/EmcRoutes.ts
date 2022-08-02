@@ -84,4 +84,15 @@ export default [
       }
     ]
   },
+  {
+    path: '/emc/report/pepfar',
+    component: () => import('@/apps/EMC/views/reports/BaseReport.vue'),
+    children: [
+      {
+        name: 'sc_arvdisp',
+        path: 'sc_arvdisp',
+        component: () => import('@/apps/EMC/views/reports/pepfar/SCARVDISP.vue'),
+      },
+    ]
+  },
 ];
