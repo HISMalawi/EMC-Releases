@@ -102,10 +102,12 @@ export const DataTable = defineComponent({
     const sort = () => {
       if (isEmpty(filters.sort) || isEmpty(filteredRows)) return;
       const orders = filters.sort.map((sortConfig) => sortConfig.order);
+      console.log(orders);
       filteredRows.value = orderBy(
         filteredRows.value,
         filters.sort.map(({ columnId, caseSensitive }) => (row) => {
           const value = get(row, columnId);
+          if (typeof value === "number") return value;
           if (caseSensitive) return value !== null ? value : "";
           return value !== null ? value.toString().toLowerCase() : "";
         }),
@@ -391,7 +393,7 @@ export const DataTable = defineComponent({
                 }
               }),
             ]),
-            h(IonItem, { class: "box", lines: "none", style: { display: 'inline-block', '--min-height': '11px', width: '220px', marginLeft: '.5rem' } }, [
+            h(IonItem, { class: "box", lines: "none", style: { display: 'inline-block', '--min-height': '11px', width: '240px', marginLeft: '.5rem' } }, [
               h(IonLabel, "Items per page"),
               h(IonSelect, {
                 value: filters.pagination.pageSize,
