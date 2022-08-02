@@ -7,6 +7,7 @@ import Summary from "@/components/HomeSummary.vue"
 import { PatientDemographicsExchangeService } from "@/services/patient_demographics_exchange_service"
 import dayjs from "dayjs"
 import { delayPromise } from "@/utils/Timers"
+import platform from '@/composables/usePlatform';
 
 export default {
   GlobalAppSettings: [
@@ -39,6 +40,17 @@ export default {
         {
           name: "IP Configuration",
           pathUrl: "/settings/host",
+        }
+      ]
+    },
+    {
+      name: 'Printer Settings',
+      icon: 'printer-settings.png',
+      condition: () => UserService.isAdmin() && platform().platformType.value === 'mobile',
+      files: [
+        {
+          name: "set default printer",
+          pathUrl: "/settings/printer",
         }
       ]
     },
