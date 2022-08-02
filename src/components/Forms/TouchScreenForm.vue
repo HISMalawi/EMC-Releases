@@ -156,6 +156,7 @@ export default defineComponent({
     computedFormData: {} as any,
     footerBtns: [] as Array<FormFooterBtns>,
     currentFields: [] as Array<Field>,
+    fieldsInitialisedOnce: {} as Record<string, boolean>,
     state: "" as
       | "init"
       | "onsubmit"
@@ -541,6 +542,7 @@ export default defineComponent({
           && this.currentField.id === field.id) {
           continue;
         }
+        await this.initFieldOnce(field)
         try {
           if (!(await this.checkFieldCondition(field))) {
             continue
@@ -645,6 +647,7 @@ export default defineComponent({
           && this.currentField.id === field.id) {
             continue;
           }
+        await this.initFieldOnce(field)
         try {
           if (!(await this.checkFieldCondition(field))) {
             continue
@@ -670,7 +673,7 @@ export default defineComponent({
       this.state = state;
       this.currentIndex = index;
       this.currentField = this.currentFields[this.currentIndex];
-      
+      await this.initFieldOnce(this.currentField)  
       // Set default helpText
       this.helpText = this.currentField.dynamicHelpText
         ? this.currentField.dynamicHelpText(this.formData)
@@ -715,6 +718,13 @@ export default defineComponent({
       if ("requireNext" in this.currentField 
         && !this.currentField.requireNext) {
         this.onNext();
+      }
+    },
+    async initFieldOnce(field: Field) {
+      if (typeof field.initOnce === 'function') {
+        if (!this.fieldsInitialisedOnce[field.id]) {
+          this.fieldsInitialisedOnce[`${field.id}`] = await field.initOnce(this.formData, this.computedFormData)
+        }
       }
     }
   }
