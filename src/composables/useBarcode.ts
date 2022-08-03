@@ -1,34 +1,21 @@
-import EventBus from '@/utils/EventBus';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
-
+import onScan from "onscan.js";
 
 export default function useBarcode() {
-  
-  const barcodeBuffer = ref<string[]>([]);
-  
-  watch(barcodeBuffer, (newValue) => {
-    if (newValue.length > 1 && newValue[newValue.length - 2] === 'Shift' && newValue[newValue.length - 1] === '4') {
-      const barcode = newValue
-        .map((v, i) => i > 0 && newValue[i - 1] === 'Shift' ? v.toUpperCase() : v)
-        .slice(0, newValue.length - 2)
-        .filter(v => v !== 'Shift')
-        .join('') + '$';
-      
-      EventBus.emit('barcode', barcode);
-
-    }
-  }, { immediate: true, deep: true });
-
+  const barcode = ref('');
 
   onMounted(() => {
-    window.addEventListener('keyup', (e: KeyboardEvent) =>  {
-      barcodeBuffer.value.push(e.key);
+    onScan.attachTo(document, {
+      reactToPaste: true,
+      onScan: function (sCode) {
+        barcode.value = sCode.replaceAll(/\$/gi, '');
+      },
     })
   })
 
   onBeforeUnmount(() => {
-    window.removeEventListener('keyup', () => {
-      barcodeBuffer.value = [];
-    });
+    onScan.detachFrom(document);
   })
+
+  return barcode;
 }
