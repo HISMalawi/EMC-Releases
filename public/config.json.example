@@ -18,18 +18,21 @@
 	],
 	"platformProfiles":  {
 		"Desktop": {
+			"profileName": "Desktop",
 			"fileExport": "WEB",
 			"scanner": "BARCODE_SCANNER",
 			"printer": "WEB",
 			"keyboard": "BOTH_NATIVE_AND_HIS_KEYBOARD"
 		},
 		"Mobile" : {
+			"profileName": "Mobile",
 			"fileExport": "FILE_SYSTEM",
 			"scanner": "CAMERA_SCANNER",
 			"printer": "BLUETOOTH",
 			"keyboard": "HIS_KEYBOARD_ONLY"
 		},
 		"OCOM Android" : {
+			"profileName": "Mobile",
 			"fileExport": "FILE_SYSTEM",
 			"scanner": "BARCODE_SCANNER",
 			"printer": "BLUETOOTH",

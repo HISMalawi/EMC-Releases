@@ -1,3 +1,5 @@
+import { isPlatform } from "@ionic/vue";
+import { isEmpty } from "lodash";
 import { onMounted, ref, watch } from "vue";
 
 export enum PLATFORM_SESSION_KEY {
@@ -53,30 +55,36 @@ const DefaultProfiles: Record<string, PlatformProfileInterface> = {
     keyboard: KeyboardType.HIS_KEYBOARD_ONLY
   }
 }
+const DefaultProfile = {
+  profileName: "Desktop",
+  fileExport: FileExportType.WEB,
+  scanner: ScannerType.BARCODE_SCANNER,
+  printer: PrinterType.WEB,
+  keyboard: KeyboardType.NATIVE_AND_HIS_KEYBOARD
+}
 
 export default function usePlatform () {
-  const activePlatformProfile = ref({} as PlatformProfileInterface)
+  const activePlatformProfile = ref(DefaultProfile as PlatformProfileInterface)
   const platformProfiles = ref({} as Record<string, PlatformProfileInterface>)
-  const defaultProfile: string | null = localStorage.getItem(PLATFORM_SESSION_KEY.ACTIVE_PLOFILE)
-  
-  if (typeof defaultProfile === 'string') { 
-    activePlatformProfile.value = JSON.parse(defaultProfile)
-  } else {
-    activePlatformProfile.value = {
-      profileName: "Desktop",
-      fileExport: FileExportType.WEB,
-      scanner: ScannerType.BARCODE_SCANNER,
-      printer: PrinterType.WEB,
-      keyboard: KeyboardType.NATIVE_AND_HIS_KEYBOARD
-    }
-  }
-
+  const configuredProfile: string | null = localStorage.getItem(PLATFORM_SESSION_KEY.ACTIVE_PLOFILE)  
   const profiles: string | null = sessionStorage.getItem(PLATFORM_SESSION_KEY.PLATFORM_PROFILES)
 
   if (typeof profiles === 'string') {
     platformProfiles.value = JSON.parse(profiles)
   } else {
     platformProfiles.value = DefaultProfiles
+  }
+
+  if (typeof configuredProfile === 'string') {
+    activePlatformProfile.value = JSON.parse(configuredProfile)
+  } else {
+    if (!isEmpty(platformProfiles.value)) {
+      if (isPlatform('mobile') && 'Mobile' in platformProfiles.value) {
+        activePlatformProfile.value = platformProfiles.value['Mobile']
+      } else if (isPlatform('desktop') && 'Desktop' in platformProfiles.value) {
+        activePlatformProfile.value = platformProfiles.value['Desktop']
+      }
+    }
   }
 
   watch(() => activePlatformProfile.value, profile => {

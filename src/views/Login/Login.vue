@@ -30,7 +30,7 @@
             alt="PEPFAR logo"
           />
         </span>
-        <ion-item style="width:45%" slot="end"> 
+        <ion-item class="his-sm-text" style="width:45%" slot="end"> 
           <ion-label>Device Profile</ion-label>
           <ion-select v-model="profile" :value="profile"> 
             <ion-select-option
@@ -99,7 +99,7 @@ export default {
       platformProfiles
     } = usePlatform()
     const version = ref('')
-    const profile = ref(activePlatformProfile.value.profileName as string)
+    const profile = ref('' as string)
     const useVirtualInputOnly = computed(
       () => activePlatformProfile.value.keyboard === KeyboardType.HIS_KEYBOARD_ONLY
     )
@@ -117,6 +117,7 @@ export default {
       auth.setActiveVersion(appV)
       const apiV = await auth.getApiVersion()
       version.value = `${appV} / ${apiV}`
+      profile.value = activePlatformProfile.value?.profileName || ''
     })
     return {
       version,
