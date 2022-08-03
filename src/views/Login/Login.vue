@@ -13,7 +13,7 @@
         </ion-label>
       </ion-toolbar>
     </ion-header>
-    <ion-content fullscreen="false">
+    <ion-content fullscreen="false" style="width=100%;">
       <inputs :useVirtualInput="useVirtualInputOnly"/>
     </ion-content>
     <ion-footer>
