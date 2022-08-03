@@ -22,7 +22,7 @@
 			"fileExport": "WEB",
 			"scanner": "BARCODE_SCANNER",
 			"printer": "WEB",
-			"keyboard": "BOTH_NATIVE_AND_HIS_KEYBOARD"
+			"keyboard": "NATIVE_AND_HIS_KEYBOARD"
 		},
 		"Mobile" : {
 			"profileName": "Mobile",
@@ -31,7 +31,7 @@
 			"printer": "BLUETOOTH",
 			"keyboard": "HIS_KEYBOARD_ONLY"
 		},
-		"OCOM Android" : {
+		"OCOM" : {
 			"profileName": "Mobile",
 			"fileExport": "FILE_SYSTEM",
 			"scanner": "BARCODE_SCANNER",
