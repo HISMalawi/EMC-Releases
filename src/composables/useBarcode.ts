@@ -5,18 +5,20 @@ export default function useBarcode() {
   const barcode = ref('');
 
   onMounted(() => {
-    console.log("useBarcode mounted");
-    onScan.attachTo(window.document, {
+    onScan.attachTo(document, {
       reactToPaste: true,
+      minLength: 1,
       onScan: function (sCode: string) {
-        console.log("onScan: " + sCode);
         barcode.value = sCode.replaceAll(/\$/gi, '');
+      },
+      onScanError(debug) {
+        console.log("onScanError: " + JSON.stringify(debug));
       },
     })
   })
 
   onBeforeUnmount(() => {
-    onScan.detachFrom(window.document);
+    onScan.detachFrom(document);
   })
 
   return barcode;

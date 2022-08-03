@@ -34,7 +34,6 @@ export default defineComponent({
     const barcode = useBarcode();
 
     watch(barcode, (newValue) => {
-      console.log('barcode changed', newValue);
       if (newValue) {
         emit('onScan', newValue)
         emit('onValue', newValue)
