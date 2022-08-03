@@ -34,39 +34,36 @@ export interface PlatformProfileInterface {
   printer: PrinterType;
   keyboard: KeyboardType;
 }
-
+// Incase we dont have profile in config.json, fallback to these ones
 const DefaultProfiles: Record<string, PlatformProfileInterface> = {
   "Desktop": {
+    profileName: 'Desktop',
     fileExport: FileExportType.WEB,
     scanner: ScannerType.BARCODE_SCANNER,
     printer: PrinterType.WEB,
     keyboard: KeyboardType.NATIVE_AND_HIS_KEYBOARD
   },
   "Mobile" : {
+    profileName: 'Mobile',
     fileExport: FileExportType.FILE_SYSTEM,
     scanner: ScannerType.CAMERA_SCANNER,
     printer: PrinterType.BLUETOOTH,
     keyboard: KeyboardType.HIS_KEYBOARD_ONLY
   },
-  "OCOM Android" : {
+  "OCOM" : {
+    profileName: 'OCOM',
     fileExport: FileExportType.FILE_SYSTEM,
     scanner: ScannerType.BARCODE_SCANNER,
     printer: PrinterType.BLUETOOTH,
     keyboard: KeyboardType.HIS_KEYBOARD_ONLY
   }
 }
-const DefaultProfile = {
-  profileName: "Desktop",
-  fileExport: FileExportType.WEB,
-  scanner: ScannerType.BARCODE_SCANNER,
-  printer: PrinterType.WEB,
-  keyboard: KeyboardType.NATIVE_AND_HIS_KEYBOARD
-}
 
 export default function usePlatform () {
-  const activePlatformProfile = ref(DefaultProfile as PlatformProfileInterface)
+  const activePlatformProfile = ref(DefaultProfiles['Desktop'] as PlatformProfileInterface)
   const platformProfiles = ref({} as Record<string, PlatformProfileInterface>)
-  const configuredProfile: string | null = localStorage.getItem(PLATFORM_SESSION_KEY.ACTIVE_PLOFILE)  
+  const configuredProfile: string | null = localStorage.getItem(PLATFORM_SESSION_KEY.ACTIVE_PLOFILE)
+  // Profiles in configuration file
   const profiles: string | null = sessionStorage.getItem(PLATFORM_SESSION_KEY.PLATFORM_PROFILES)
 
   if (typeof profiles === 'string') {
@@ -78,6 +75,7 @@ export default function usePlatform () {
   if (typeof configuredProfile === 'string') {
     activePlatformProfile.value = JSON.parse(configuredProfile)
   } else {
+    // Auto detect platform to set platform profile
     if (!isEmpty(platformProfiles.value)) {
       if (isPlatform('mobile') && 'Mobile' in platformProfiles.value) {
         activePlatformProfile.value = platformProfiles.value['Mobile']
