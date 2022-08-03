@@ -149,7 +149,7 @@
 
 <script lang="ts">
 import HisApp from "@/apps/app_lib"
-import { defineComponent } from "vue";
+import { defineComponent, onMounted } from "vue";
 import { barcode } from "ionicons/icons";
 import ApiClient from "@/services/api_client";
 import HisDate from "@/utils/Date"
@@ -191,6 +191,8 @@ import {
 import usePlatform from "@/composables/usePlatform";
 import { alertConfirmation } from "@/utils/Alerts";
 import HomeNotification from "@/components/HomeComponents/HomeNotifications.vue"
+import useBarcode from "@/composables/useBarcode";
+import EventBus from "@/utils/EventBus";
 
 export default defineComponent({
   name: "Home",
@@ -215,6 +217,7 @@ export default defineComponent({
     HomeNotification
   },
   setup() {
+    useBarcode();
     const { useVirtualInput } = usePlatform()
     const {
       notificationData, 
@@ -361,6 +364,12 @@ export default defineComponent({
       this.app = app
       this.loadApplicationData();
     }
+    EventBus.on("barcode", (barcode: string) => {
+      this.patientBarcode = barcode
+    })
+  },
+  beforeUnmount() {
+    EventBus.off("barcode")
   },
   watch: {
     patientBarcode: function() {
