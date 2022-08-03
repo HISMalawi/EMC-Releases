@@ -19,6 +19,8 @@ import { defineComponent } from 'vue';
 import {IonCol,IonRow, isPlatform} from "@ionic/vue";
 import { toastWarning } from "@/utils/Alerts"
 import ApiClient from "@/services/api_client"
+import Platform, { ScannerType } from "@/composables/usePlatform"
+
 export default defineComponent({
   name: 'BarcodeScan',
   components: {
@@ -30,7 +32,7 @@ export default defineComponent({
     isReadOnly: true
   }),
   mounted() {
-    if (isPlatform('desktop')) {
+    if (Platform().activePlatformProfile.value.scanner === ScannerType.BARCODE_SCANNER) {
       this.isReadOnly = false
       setTimeout(() => this.$refs.barcode.focus(), 500)
     }

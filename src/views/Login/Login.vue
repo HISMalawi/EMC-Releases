@@ -18,7 +18,7 @@
     </ion-content>
     <ion-footer>
       <ion-toolbar>
-        <span>
+        <span slot="start">
           <img
             id="coat"
             :src="coatImg"
@@ -30,29 +30,36 @@
             alt="PEPFAR logo"
           />
         </span>
-        <select v-model="activePlatformProfile" slot="end" class="devices">
-          <option
-            v-for="(profile, index) in deviceProfiles" 
-            :key="index"
-            :value="profile.value"
-            :selected="profile.isChecked">
-            {{ profile.label }}
-          </option>
-        </select>
-        <ion-button
-          slot="end"
-          class="config"
-          router-link="/settings/host"
-          v-if="showConfig">
-          Configuration
-        </ion-button>
+        <ion-item style="width:45%" slot="end"> 
+          <ion-label>Device Profile</ion-label>
+          <ion-select v-model="profile" :value="profile"> 
+            <ion-select-option
+              v-for="(p, index) in deviceProfiles" 
+              :key="index"
+              :value="p.label"
+            > 
+              {{ p.label }}
+            </ion-select-option>
+          </ion-select>
+          <ion-button
+            color="dark"
+            fill="outline"
+            size="large"
+            slot="end"
+            router-link="/settings/host">
+            Network
+          </ion-button>
+        </ion-item>
       </ion-toolbar>
     </ion-footer>
   </ion-page>
 </template>
 <script lang="ts">
 import Inputs from "./LoginCustomPage.vue";
-import { 
+import {
+  IonItem,
+  IonSelect,
+  IonSelectOption,
   IonButton, 
   IonPage, 
   IonContent, 
@@ -66,12 +73,14 @@ import img from '@/utils/Img';
 import { onMounted, ref } from '@vue/runtime-core';
 import { AuthService } from '@/services/auth_service';
 import usePlatform from '@/composables/usePlatform';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { KeyboardType } from "@/composables/usePlatform"
+import { find } from 'lodash';
 
 export default {
   name: "login",
   components: {
+    IonItem,
     Inputs,
     IonButton,
     IonTitle,
@@ -81,6 +90,8 @@ export default {
     IonToolbar,
     IonContent,
     IonFooter,
+    IonSelect,
+    IonSelectOption,
   },
   setup() {
     const {
@@ -88,14 +99,17 @@ export default {
       platformProfiles
     } = usePlatform()
     const version = ref('')
+    const profile = ref(activePlatformProfile.value.profileName as string)
     const useVirtualInputOnly = computed(
       () => activePlatformProfile.value.keyboard === KeyboardType.HIS_KEYBOARD_ONLY
     )
-    const deviceProfiles = Object.keys(platformProfiles.value).map(key => ({
+    const deviceProfiles: any = Object.keys(platformProfiles.value).map(key => ({
       label: key,
       value: { profileName: key, ...platformProfiles.value[key] },
-      isChecked: key === activePlatformProfile.value.profileName
     }))
+    watch(profile, (v: string) => {
+      activePlatformProfile.value = (find(deviceProfiles, { label: v }) || {}).value
+    })
     onMounted(async () => {
       const auth = new AuthService()
       await auth.loadConfig()
@@ -106,6 +120,7 @@ export default {
     })
     return {
       version,
+      profile,
       deviceProfiles,
       useVirtualInputOnly,
       activePlatformProfile,

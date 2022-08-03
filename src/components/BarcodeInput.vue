@@ -18,7 +18,7 @@
 import { defineComponent, ref } from 'vue';
 import {IonCol,IonRow} from "@ionic/vue";
 import handleVirtualInput from "@/components/Keyboard/KbHandler"
-import usePlatform from '@/composables/usePlatform';
+import usePlatform, { ScannerType } from '@/composables/usePlatform';
 
 export default defineComponent({
   name: 'BarcodeInput',
@@ -30,7 +30,7 @@ export default defineComponent({
   setup() {
     const barcode = ref(null)
     const { activePlatformProfile } = usePlatform() 
-    if (activePlatformProfile.value.keyboard === 'BARCODE_SCANNER') {
+    if (activePlatformProfile.value.scanner === ScannerType.BARCODE_SCANNER) {
       setInterval(() => {
         try {
           barcode.value.focus()

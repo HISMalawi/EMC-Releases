@@ -15,7 +15,7 @@
       </barcode-input>
     </ion-content>
     <his-keyboard
-      v-if="useVirtualInput"
+      v-if="useVirtual"
       :kbConfig="NUMBERS" 
       :onKeyPress="onKbClick"> 
     </his-keyboard>
@@ -80,7 +80,7 @@ export default defineComponent({
     const clearValue = ref('')
     const kbText = ref('')
 
-    const useVirtual = computed(() => activePlatformProfile.value.scanner != ScannerType.BARCODE_SCANNER)
+    const useVirtual = computed(() => activePlatformProfile.value.scanner === ScannerType.CAMERA_SCANNER)
   
     async function searchLocation() {
       if (!barcodeText.value.includes('$')) {

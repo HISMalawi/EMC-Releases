@@ -33,6 +33,27 @@ export interface PlatformProfileInterface {
   keyboard: KeyboardType;
 }
 
+const DefaultProfiles: Record<string, PlatformProfileInterface> = {
+  "Desktop": {
+    fileExport: FileExportType.WEB,
+    scanner: ScannerType.BARCODE_SCANNER,
+    printer: PrinterType.WEB,
+    keyboard: KeyboardType.NATIVE_AND_HIS_KEYBOARD
+  },
+  "Mobile" : {
+    fileExport: FileExportType.FILE_SYSTEM,
+    scanner: ScannerType.CAMERA_SCANNER,
+    printer: PrinterType.BLUETOOTH,
+    keyboard: KeyboardType.HIS_KEYBOARD_ONLY
+  },
+  "OCOM Android" : {
+    fileExport: FileExportType.FILE_SYSTEM,
+    scanner: ScannerType.BARCODE_SCANNER,
+    printer: PrinterType.BLUETOOTH,
+    keyboard: KeyboardType.HIS_KEYBOARD_ONLY
+  }
+}
+
 export default function usePlatform () {
   const activePlatformProfile = ref({} as PlatformProfileInterface)
   const platformProfiles = ref({} as Record<string, PlatformProfileInterface>)
@@ -55,14 +76,7 @@ export default function usePlatform () {
   if (typeof profiles === 'string') {
     platformProfiles.value = JSON.parse(profiles)
   } else {
-    platformProfiles.value = {
-      "Desktop": {
-        fileExport: FileExportType.WEB,
-        scanner: ScannerType.BARCODE_SCANNER,
-        printer: PrinterType.WEB,
-        keyboard: KeyboardType.NATIVE_AND_HIS_KEYBOARD
-      }
-    }
+    platformProfiles.value = DefaultProfiles
   }
 
   watch(() => activePlatformProfile.value, profile => {
