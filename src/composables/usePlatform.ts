@@ -72,7 +72,7 @@ export default function usePlatform () {
     platformProfiles.value = DefaultProfiles
   }
 
-  if (typeof configuredProfile === 'string') {
+  if (typeof configuredProfile === 'string' && `${configuredProfile}`.match(/\{.*\}/)) {
     activePlatformProfile.value = JSON.parse(configuredProfile)
   } else {
     // Auto detect platform to set platform profile
