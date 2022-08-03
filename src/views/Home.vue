@@ -148,8 +148,7 @@
 
 <script lang="ts">
 import HisApp from "@/apps/app_lib"
-import { defineComponent } from "vue";
-import { barcode } from "ionicons/icons";
+import { defineComponent, watch } from "vue";
 import ApiClient from "@/services/api_client";
 import HisDate from "@/utils/Date"
 import { AppInterface, FolderInterface } from "@/apps/interfaces/AppInterface";
@@ -190,6 +189,8 @@ import {
 import usePlatform from "@/composables/usePlatform";
 import { alertConfirmation } from "@/utils/Alerts";
 import HomeNotification from "@/components/HomeComponents/HomeNotifications.vue"
+import useBarcode from "@/composables/useBarcode";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "Home",
@@ -215,6 +216,15 @@ export default defineComponent({
   },
   setup() {
     const { activePlatformProfile } = usePlatform()
+    const barcode  = useBarcode();
+    const router = useRouter();
+
+    watch(barcode, (newValue) => {
+      if (newValue) {
+        router.push('/patients/confirm?patient_barcode='+newValue);
+      }
+    });
+
     const {
       notificationData, 
       notificationCount, 
@@ -246,7 +256,6 @@ export default defineComponent({
       appVersion: "",
       activeTab: 1,
       ready: false,
-      patientBarcode: "",
       overviewComponent: {} as any,
       isBDE: false,
     };
@@ -313,13 +322,6 @@ export default defineComponent({
         this.loadApplicationData();
       }
     },
-    checkForbarcode(){
-      if(this.patientBarcode.match(/.+\$$/i) != null){
-        const patientBarcode = this.patientBarcode.replaceAll(/\$/gi, '');
-        this.patientBarcode = '';
-        this.$router.push('/patients/confirm?patient_barcode='+patientBarcode);
-      }
-    },
     async signOut() {
       const ok = await alertConfirmation('Are you sure you want to logout ?')
       if (!ok) return
@@ -360,11 +362,6 @@ export default defineComponent({
       this.loadApplicationData();
     }
   },
-  watch: {
-    patientBarcode: function() {
-      this.checkForbarcode();
-    }
-  }
 });
 </script>
 
