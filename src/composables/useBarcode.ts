@@ -1,18 +1,28 @@
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import onScan from "onscan.js";
 
 export default function useBarcode() {
   const barcode = ref('');
+  const keyBuffer = ref<string[]>([]);
 
   onMounted(() => {
     onScan.attachTo(document, {
       reactToPaste: true,
       minLength: 1,
       onScan: function (sCode: string) {
-        barcode.value = sCode.replaceAll(/\$/gi, '');
+        const rawBarcode= keyBuffer.value.join('').replaceAll(/\$/gi, '');
+        barcode.value = rawBarcode.includes("-")
+          ? rawBarcode 
+          : sCode.replaceAll(/\$/gi, '');
+
+        keyBuffer.value = [];
       },
       onScanError(debug) {
         console.log("onScanError: " + JSON.stringify(debug));
+      },
+      onKeyDetect(keyCode, event) {
+        if(event.key.length === 1) keyBuffer.value.push(event.key);
+        console.log("onKeyDetect: " + keyCode, event.key);
       },
     })
   })

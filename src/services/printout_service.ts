@@ -1,6 +1,6 @@
 import { Service } from "./service";
 import ApiClient from "./api_client";
-import usePlatform, { PrinterType, ScannerType } from "@/composables/usePlatform";
+import usePlatform, { PrinterType } from "@/composables/usePlatform";
 import { toastWarning } from "@/utils/Alerts";
 import { EventChannels } from "@/utils/EventBus";
 import EventBus from "@/utils/EventBus";
