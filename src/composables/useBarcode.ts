@@ -7,7 +7,7 @@ export default function useBarcode() {
   onMounted(() => {
     onScan.attachTo(document, {
       reactToPaste: true,
-      onScan: function (sCode) {
+      onScan: function (sCode: string) {
         barcode.value = sCode.replaceAll(/\$/gi, '');
       },
     })
