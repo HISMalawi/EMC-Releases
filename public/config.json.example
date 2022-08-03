@@ -14,7 +14,7 @@
 		{ "name": "LOS", "available": true },
 		{ "name": "OPD", "available": true },
 		{ "name": "ANC", "available": true },
-		{ "name": "CxCa", "available": true},
+		{ "name": "CxCa", "available": true}
 	],
 	"platformProfiles":  {
 		"Desktop": {

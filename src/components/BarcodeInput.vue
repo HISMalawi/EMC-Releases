@@ -1,12 +1,11 @@
 <template>
-  <ion-row>
+  <ion-row v-on="cameraEvent">
     <ion-col size="2">
       <img id="barcode-img" src="/assets/images/barcode.svg"/>
     </ion-col>
     <ion-col size="10">
       <input 
-        :readonly="activePlatformProfile.keyboard === 'CAMERA_SCANNER'" 
-        ref="barcode"
+        :readonly="activePlatformProfile.keyboard === KeyboardType.HIS_KEYBOARD_ONLY" 
         id="barcode-inputbox" 
         v-model="barcodeText"
       />
@@ -14,11 +13,13 @@
   </ion-row>
 </template>
 
-<script>
-import { defineComponent, ref } from 'vue';
+<script lang="ts">
+import { computed, defineComponent, ref, watch } from 'vue';
 import {IonCol,IonRow} from "@ionic/vue";
 import handleVirtualInput from "@/components/Keyboard/KbHandler"
-import usePlatform, { ScannerType } from '@/composables/usePlatform';
+import usePlatform, { ScannerType, KeyboardType } from '@/composables/usePlatform';
+import useBarcode from '@/composables/useBarcode';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'BarcodeInput',
@@ -27,21 +28,31 @@ export default defineComponent({
     IonCol,
   },
   props: ['clearValue', 'virtualText'],
-  setup() {
-    const barcode = ref(null)
+  emits: ['onScan', 'onValue'],
+  setup(_props, { emit }) {
+    const router = useRouter();
+    const barcode = useBarcode();
+
+    watch(barcode, (newValue) => {
+      console.log('barcode changed', newValue);
+      if (newValue) {
+        emit('onScan', newValue)
+        emit('onValue', newValue)
+      }
+    })
+
     const { activePlatformProfile } = usePlatform() 
-    if (activePlatformProfile.value.scanner === ScannerType.BARCODE_SCANNER) {
-      setInterval(() => {
-        try {
-          barcode.value.focus()
-        } catch(e) {
-          //No focus
-        }
-      }, 1500)
-    }
+
+    const cameraEvent = computed(() =>
+      activePlatformProfile.value.scanner === ScannerType.CAMERA_SCANNER
+        ? { click: () => router.push('camera_scanner') }
+        : {}
+    )
+    
     return  {
-      barcode,
-      activePlatformProfile
+      KeyboardType,
+      activePlatformProfile,
+      cameraEvent,
     }
   },
   data: () => ({
