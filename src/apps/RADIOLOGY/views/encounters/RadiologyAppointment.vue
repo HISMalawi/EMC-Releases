@@ -70,6 +70,7 @@ export default defineComponent({
           },
           config: {
             patientAge: this.patient.getAge(),
+            hideRunoutDate: true,
             hiddenFooterBtns: [
               'Clear'
             ]
