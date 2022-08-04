@@ -35,6 +35,7 @@ export default defineComponent({
         service: {} as any,
         columns: [
             [
+                table.thTxt('Category'),
                 table.thTxt('Exam'),
                 table.thTxt('Total')
             ]
@@ -53,8 +54,9 @@ export default defineComponent({
                 req.then((data: any) => {
                     data.forEach((d: any) => {
                         this.rows.push([
-                            d.exam_value_coded,
-                            d.exam_total
+                            table.td(d.exam_name),
+                            table.td(d.exam_value_name),
+                            table.td(d.exam_total)
                         ])
                     })
                 }).catch((e: any) => toastDanger(`${e}`))
