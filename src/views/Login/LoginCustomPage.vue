@@ -104,12 +104,6 @@ export default defineComponent({
   created() {
     this.auth = new AuthService()
   },
-  setup() {
-    const { activePlatformProfile } = usePlatform();
-    return {
-      activePlatformProfile,
-    }
-  },
   methods: {
     renderKeyBoard(e: any) {
       this.focusInput = e.currentTarget;
@@ -190,8 +184,7 @@ export default defineComponent({
   },
   computed: {
     btnStyles(): string {
-      const leftRight = this.activePlatformProfile.profileName?.match(/Ocom/i) ? "" : "left: 0px; right: 0px;";
-      return `display: ${this.display}; top: ${this.keyboardTop}; ${leftRight}`;
+      return `display: ${this.display}; top: ${this.keyboardTop};`;
     },
   },
 });
@@ -229,6 +222,8 @@ export default defineComponent({
   word-wrap: normal !important;
   margin: 0 auto;
   max-width: 300px;
+  left: 0; 
+  right: 0;
 }
 
 .rows {

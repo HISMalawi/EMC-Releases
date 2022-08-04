@@ -50,13 +50,6 @@ const DefaultProfiles: Record<string, PlatformProfileInterface> = {
     printer: PrinterType.BLUETOOTH,
     keyboard: KeyboardType.HIS_KEYBOARD_ONLY
   },
-  "OCOM" : {
-    profileName: 'OCOM',
-    fileExport: FileExportType.FILE_SYSTEM,
-    scanner: ScannerType.BARCODE_SCANNER,
-    printer: PrinterType.BLUETOOTH,
-    keyboard: KeyboardType.HIS_KEYBOARD_ONLY
-  }
 }
 
 export default function usePlatform () {

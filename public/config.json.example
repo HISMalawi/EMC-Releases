@@ -31,12 +31,5 @@
 			"printer": "BLUETOOTH",
 			"keyboard": "HIS_KEYBOARD_ONLY"
 		},
-		"OCOM" : {
-			"profileName": "Mobile",
-			"fileExport": "FILE_SYSTEM",
-			"scanner": "BARCODE_SCANNER",
-			"printer": "BLUETOOTH",
-			"keyboard": "HIS_KEYBOARD_ONLY"
-		}
 	}
 }
