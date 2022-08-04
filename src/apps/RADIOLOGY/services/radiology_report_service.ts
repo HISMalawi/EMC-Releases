@@ -1,4 +1,5 @@
 import { Service } from "@/services/service"
+import HisDate from "@/utils/Date"
 
 export class RadiologyReportService extends Service {
     startDate: string
@@ -30,5 +31,10 @@ export class RadiologyReportService extends Service {
             'date': this.date,
             ...params
         })
+    }
+
+    periodStr() {
+        const d = (date: string) => HisDate.toStandardHisDisplayFormat(date)
+        return `${d(this.startDate)} - ${d(this.endDate)}`
     }
 }

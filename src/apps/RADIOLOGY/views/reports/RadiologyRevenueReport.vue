@@ -47,6 +47,7 @@ export default defineComponent({
             this.service = new RadiologyReportService(
                 'REVENUE COLLECTED', config.start_date, config.end_date,
             )
+            this.period = this.service.periodStr()
             const req = this.service.requestReport()
             if (typeof req === 'object' && req.then) {
                 req.then((data: any) => {
