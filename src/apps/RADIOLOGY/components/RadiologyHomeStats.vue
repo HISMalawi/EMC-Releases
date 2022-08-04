@@ -16,20 +16,38 @@ import { defineComponent, onMounted, ref } from 'vue'
 import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable" 
 import table from "@/components/DataViews/tables/ReportDataTable"
-//TODO: import service to get data
+import { RadiologyReportService } from "@/apps/RADIOLOGY/services/radiology_report_service"
+import { toastDanger } from '@/utils/Alerts'
+
 export default defineComponent({
     components: { ReportTable },
     setup() {
         const columns =  [
             [
-                table.thTxt('Task Type'),
+                table.thTxt('Task'),
                 table.thTxt('Me'),
                 table.thTxt('Today'),
             ] as ColumnInterface[]
         ]
-        const rows = ref([] as RowInterface[])
+        const rows = ref([] as any)
         onMounted(() => {
-            // Set rows here
+            const date = RadiologyReportService.getSessionDate()
+            const stats = new RadiologyReportService(
+                'DASHBOARD STATISTICS', date, date
+            )
+            const req = stats.requestReport()
+            if (typeof req === 'object' && req.then) {
+                req.then((data) => {
+                    data.forEach((item: any) => {
+                        rows.value.push([
+                            table.td(item.name),
+                            table.td(item.me),
+                            table.td(item.clinic)
+                        ])
+                    })
+                })
+                .catch(e => toastDanger(`${e}`))
+            }
         })
         return {
             columns,
