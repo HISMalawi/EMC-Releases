@@ -27,10 +27,11 @@ export enum FlowState {
     UPDATE_LOCAL_DDE_DIFFS = 'updateLocalDiffs',
     RESOLVE_DUPLICATE_NPIDS = 'resolveDuplicateNpids',
     ADD_AS_DRUG_REFILL = 'addAsDrugRefill',
+    ADD_AS_NEW_PATIENT = 'addAsNewPatient',
     ADD_AS_EXTERNAL_CONSULTATION = 'addAsExternalConsultation',
     INITIATE_ANC_PREGNANCY = 'initiateNewAncPregnancy',
     VIEW_MERGE_AUDIT_FOR_NPID = 'viewMergeAuditForNpid',
-    SEARCH_BY_NAME = 'searchByName'
+    SEARCH_BY_NAME = 'searchByName',
 }
 
 export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = {
@@ -319,112 +320,85 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             currentOutcome: (outcome: string) => outcome === 'Treatment stopped'
         }
     },
-    "[ART Transferred out patient visit purpose] Select purpose of visit if patient was transferred out": {
+    "[ART patient visit purpose] Select purpose of visit if patient is Transferred out or Drug refill": {
         priority: 3,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
-            alert: async () => {
-                const action = await infoActionSheet(
-                    'Purpose of visit',
-                    'Transferred out client',
-                    'Please select purspose of the visit',
-                    [
-                        { 
+            alert: async ({patientType, currentOutcome}: any) => {
+                let contextualBtn: any = []
+                if (patientType === 'External consultation' || currentOutcome === 'Patient transferred out') { 
+                    contextualBtn = [
+                        {
                             name: 'Drug refill', 
                             slot: 'start', 
                             color: 'primary'
                         },
                         { 
-                            name: 'Consultation', 
+                            name: 'New Patient',
+                            slot: 'end',
+                            color: 'primary'
+                        }
+                    ]
+                }  
+                if (patientType === 'Drug Refill') {
+                    contextualBtn = [
+                        { 
+                            name: 'External Consultation',
                             slot: 'start', 
                             color: 'primary'
                         },
                         { 
+                            name: 'New Patient',
+                            slot: 'end',
+                            color: 'primary'
+                        }
+                    ]
+                }
+                if (patientType === 'New patient') {
+                    contextualBtn = [
+                        { 
+                            name: 'External Consultation',
+                            slot: 'start', 
+                            color: 'primary'
+                        },
+                        {
+                            name: 'Drug refill', 
+                            slot: 'start', 
+                            color: 'primary'
+                        }
+                    ] 
+                }
+                const action = await infoActionSheet(
+                    'Purpose of visit',
+                    `Patient type: ${patientType} | State: ${currentOutcome}`,
+                    'Please select purspose of the visit',
+                    [
+                        ...contextualBtn,
+                        {
                             name: 'Continue',
                             slot: 'end',
                             color: 'success'
                         }
-                    ],
-                    'his-warning-color'
+                    ]
                 )
-                return action === 'Drug refill' 
-                    ? FlowState.ADD_AS_DRUG_REFILL 
-                    : action === 'Consultation' 
-                    ? FlowState.ADD_AS_EXTERNAL_CONSULTATION
-                    : FlowState.CONTINUE
+                switch(action) { 
+                    case 'Drug refill':
+                        return FlowState.ADD_AS_DRUG_REFILL
+                    case 'External Consultation':
+                        return FlowState.ADD_AS_EXTERNAL_CONSULTATION
+                    case 'New Patient':
+                        return FlowState.ADD_AS_NEW_PATIENT
+                    default: 
+                        return FlowState.CONTINUE
+                }
             }
         },
         conditions: {
-            currentOutcome: (outcome: string) => outcome === 'Patient transferred out',
-            programName: (name: string) => name === 'ART'
-        }
-    },
-    "[ART Drug refill visit purpose] Select purpose of visit for Drug Refill patients" : {
-        priority: 3,
-        targetEvent: TargetEvent.ON_CONTINUE,
-        actions: {
-            alert: async () => {
-                const action = await infoActionSheet(
-                    'Purpose of visit',
-                    'Drug refill client',
-                    'Please select purspose of the visit',
-                    [
-                        { 
-                            name: 'Consultation', 
-                            slot: 'start', 
-                            color: 'primary'
-                        },
-                        { 
-                            name: 'Drug Refill',
-                            slot: 'end',
-                            color: 'success'
-                        }
-                    ],
-                    'his-warning-color'
-                )
-                return action === 'Consultation'
-                    ? FlowState.ADD_AS_EXTERNAL_CONSULTATION
-                    : FlowState.CONTINUE
+            programName: (name: string) => name === 'ART',
+            patientType: (type: string, { currentOutcome }: any) => {
+                return ['Drug Refill', 'External consultation'].includes(type) ||
+                    currentOutcome === 'Patient transferred out'
             }
-        },
-        conditions: {
-            currentOutcome: (outcome: string) => outcome != 'Patient transferred out',
-            patientType: (pType: string) => pType === 'Drug Refill',
-            programName: (name: string) => name === 'ART'
-        }
-    },
-    "[ART External consultation visit purpose] Select purpose of visit if patient is External Consultation": {
-        priority: 3,
-        targetEvent: TargetEvent.ON_CONTINUE,
-        actions: {
-            alert: async () => {
-                const action = await infoActionSheet(
-                    'Purpose of visit',
-                    'External consultation client',
-                    'Please select purspose of the visit',
-                    [
-                        { 
-                            name: 'Drug refill', 
-                            slot: 'start', 
-                            color: 'primary'
-                        },
-                        { 
-                            name: 'External consultation',
-                            slot: 'end',
-                            color: 'success'
-                        }
-                    ],
-                    'his-warning-color'
-                )
-                return action === 'Drug refill'
-                    ? FlowState.ADD_AS_DRUG_REFILL
-                    : FlowState.CONTINUE
-            }
-        },
-        conditions: {
-            currentOutcome: (outcome: string) => outcome != 'Patient transferred out',
-            patientType: (pType: string) => pType === 'External consultation',
-            programName: (name: string) => name === 'ART'
         }
     },
     "Prompt patient enrollment in current programme if not enrolled" : {

@@ -1,7 +1,7 @@
 import { AppInterface } from "../interfaces/AppInterface";
 import AncRoutes from "./Config/AncRoutes";
 import HomePageStats from "@/apps/ANC/Components/HomeStats.vue"
-import { PRIMARY_ACTIVITIES } from "./Config/AncProgramActivites";
+import { PRIMARY_ACTIVITIES, SECONDARY_ACTIVITIES } from "./Config/AncProgramActivites";
 import { AppEncounterService } from "@/services/app_encounter_service";
 import { selectActivities } from '@/utils/WorkflowTaskHelper';
 import { Patientservice } from "@/services/patient_service";
@@ -20,7 +20,7 @@ const ANC: AppInterface = {
     applicationDescription: 'Antenatal Program',
     appRoutes: AncRoutes,
     primaryPatientActivites: PRIMARY_ACTIVITIES,
-    secondaryPatientActivites: [],
+    secondaryPatientActivites: SECONDARY_ACTIVITIES,
     programReports: REPORTS,
     homeOverviewComponent: HomePageStats,
     init: async () => await selectActivities(PRIMARY_ACTIVITIES),
