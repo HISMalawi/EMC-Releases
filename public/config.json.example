@@ -30,6 +30,6 @@
 			"scanner": "CAMERA_SCANNER",
 			"printer": "BLUETOOTH",
 			"keyboard": "HIS_KEYBOARD_ONLY"
-		},
+		}
 	}
 }
