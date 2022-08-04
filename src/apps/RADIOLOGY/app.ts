@@ -7,6 +7,11 @@ const RADIOLOGY: AppInterface = {
     applicationIcon: 'radiology_types.png',
     applicationDescription: "Radiology service",
     homeOverviewComponent: HomeStats,
+    configDefaultPatientDashboardCards: {
+        alertsEnabled: false,
+        medicationsEnabled: false,
+        labEnabled: false
+    },
     appRoutes: [
         {
             name: 'Examination',
