@@ -12,7 +12,7 @@ import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { delayPromise } from '@/utils/Timers'
 import { toastDanger } from '@/utils/Alerts'
-import { getPatient } from "@/composables/patientStore"
+import { getStorePatient } from "@/composables/patientStore"
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -36,13 +36,17 @@ export default defineComponent({
     }),
     watch: {
        '$route': {
-            async handler(route: any) {
+            handler(route: any) {
                 if(route.params.patient_id && this.patientID != route.params.patient_id) {
                     this.patientID = route.params.patient_id;
-                    this.patient = await getPatient(this.patientID);
-                    await this.setEncounterFacts()
-                    await this.checkEncounterGuidelines()
-                    this.ready = true;
+                    getStorePatient(this.patientID).then(patientData => {
+                        this.patient = patientData
+                        this.setEncounterFacts().then(() => {
+                            this.checkEncounterGuidelines().then(() => {
+                                this.ready = true
+                            })
+                        })
+                    })
                 }
             },
             immediate: true,

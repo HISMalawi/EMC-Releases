@@ -232,7 +232,6 @@ import { defineAsyncComponent, defineComponent, ref, watch } from 'vue'
 import HisDate from "@/utils/Date"
 import { Encounter } from "@/interfaces/encounter"
 import { Option } from "@/components/Forms/FieldInterface"
-import { Patient } from "@/interfaces/patient";
 import { Patientservice } from "@/services/patient_service"
 import { ProgramService } from "@/services/program_service"
 import { ObservationService } from "@/services/observation_service"
@@ -289,7 +288,7 @@ import PrimaryCard from "@/components/DataViews/DashboardPrimaryCard.vue"
 import VisitDatesCard from "@/components/DataViews/VisitDatesCard.vue"
 import Display from "@/composables/display"
 import FullToolbar from "@/components/PatientDashboard/Poc/FullToolbar.vue"
-import { getPatient } from "@/composables/patientStore"
+import { getStorePatient } from "@/composables/patientStore"
 
 export default defineComponent({
     components: {
@@ -543,7 +542,7 @@ export default defineComponent({
             this.sessionDate = this.toDate(ProgramService.getSessionDate())
             this.isBDE = ProgramService.isBDE() || false
             this.programID = ProgramService.getProgramID()
-            getPatient(this.patientId).then((patient) => {
+            getStorePatient(this.patientId).then((patient) => {
                 const setProgramInfo = (data: any) => {
                     if (typeof data === 'object' && data.then) {
                         this.getProgramCardInfo(this.patientProgram)

@@ -36,6 +36,7 @@ import { infoActionSheet } from "@/utils/ActionSheets"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import dayjs from "dayjs";
 import { delayPromise } from "@/utils/Timers";
+import { getStorePatient } from "@/composables/patientStore";
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
@@ -126,11 +127,7 @@ export default defineComponent({
     },
     async initEditMode(personId: number) {
         this.editPerson = personId
-        const person = await Patientservice.findByID(this.editPerson)
-        if (!person) {
-            return
-        }
-        this.patient = new Patientservice(person)
+        this.patient = await getStorePatient(this.editPerson)
         const {
             ancestryDistrict,
             ancestryTA,
