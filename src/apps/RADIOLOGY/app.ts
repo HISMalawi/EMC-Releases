@@ -9,8 +9,8 @@ const RADIOLOGY: AppInterface = {
     homeOverviewComponent: HomeStats,
     appRoutes: [
         {
-            name: 'Investigations',
-            path: '/radiology/investigations/:patient_id',
+            name: 'Examination',
+            path: '/radiology/examination/:patient_id',
             component: () => import('@/apps/RADIOLOGY/views/encounters/RadiologyExaminations.vue')
         },
         {
@@ -66,8 +66,8 @@ const RADIOLOGY: AppInterface = {
     ],
     primaryPatientActivites: [
         {
-            id: "Investigations",
-            name: "Investigations",
+            id: "Examination",
+            name: "Examination",
             icon: "radiology_types.png"
         }
     ],
