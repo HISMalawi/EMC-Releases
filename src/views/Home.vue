@@ -24,7 +24,7 @@
                     :src="barcodeLogo"/>
                 </ion-col>
                 <ion-col size-lg="7" size-sm="8" v-if="activePlatformProfile.scanner === 'BARCODE_SCANNER'"> 
-                  <p class="ion-margin-top">Scan QR code Or Barcode</p>
+                  <p class="vertically-align ion-padding-end ion-text-center">Scan QR code Or Barcode</p>
                 </ion-col>
                  <ion-col v-if="activePlatformProfile.scanner === 'CAMERA_SCANNER'" size-lg="6" size-sm="6" style="text-align: center; margin: auto;line-height: 1.2;"> 
                   <p>Click Here</p>
@@ -86,7 +86,7 @@
           >
         </home-folder>
         <home-folder 
-          v-if="activeTab == 3"
+          v-if="activeTab == 3 && app.globalPropertySettings"
           :items="app.globalPropertySettings" 
           >
         </home-folder>
