@@ -29,15 +29,6 @@ const RADIOLOGY: AppInterface = {
             component: () => import('@/apps/RADIOLOGY/views/reports/RadiologyReferralReport.vue')
         }
     ],
-    programPatientIdentifiers: {
-        'Exam Number': {
-            id: 20,
-            name: 'Radiology Study Number',
-            isPrimary: true,
-            useForSearch: true,
-            prefix: () => ''
-        }
-    },
     programReports: [
         {
             name: 'Daily Report',
