@@ -50,9 +50,10 @@ export class ObservationService extends ConceptService {
         })
     }
 
-    static async buildValueCoded(conceptName: string, valueCoded: string, date=this.getSessionDate()) {
+    static async buildValueCoded(conceptName: string, valueCoded: string | number, date=this.getSessionDate()) {
         const concept = await ConceptService.getConceptID(conceptName, true)
-        const coded = await ConceptService.getConceptID(valueCoded, true)
+        const coded = typeof valueCoded === 'number' ? valueCoded 
+            : await ConceptService.getConceptID(valueCoded, true)
         return {
             'concept_id': concept,
             'value_coded': coded,
