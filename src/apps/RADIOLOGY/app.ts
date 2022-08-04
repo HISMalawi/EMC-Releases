@@ -14,19 +14,19 @@ const RADIOLOGY: AppInterface = {
             component: () => import('@/apps/RADIOLOGY/views/encounters/RadiologyExaminations.vue')
         },
         {
-            name: 'examination monthly report',
-            path: '/radiology/report/examination/monthly',
-            component: () => import('@/apps/RADIOLOGY/views/reports/MonthlyExaminationReport.vue')
+            name: 'daily radiology report',
+            path: '/radiology/report/daily',
+            component: () => import('@/apps/RADIOLOGY/views/reports/RadiologyDailyReport.vue')
         },
         {
-            name: 'Film(s) used',
-            path: '/radiology/report/films/used',
-            component: () => import('@/apps/RADIOLOGY/views/reports/FilmsUsedReport.vue')
+            name: 'revenue radiology report',
+            path: '/radiology/report/revenue',
+            component: () => import('@/apps/RADIOLOGY/views/reports/RadiologyRevenueReport.vue')
         },
         {
-            name: 'Radiology report',
-            path: '/radiology/report',
-            component: () => import('@/apps/RADIOLOGY/views/reports/RadiologyReport.vue')
+            name: 'radiology referral report',
+            path: '/radiology/report/referral',
+            component: () => import('@/apps/RADIOLOGY/views/reports/RadiologyReferralReport.vue')
         }
     ],
     programPatientIdentifiers: {
@@ -40,35 +40,35 @@ const RADIOLOGY: AppInterface = {
     },
     programReports: [
         {
-            name: 'Examination',
+            name: 'Daily Report',
             icon: 'reports.png',
             defaultFilesIcon: 'reports.png',
             files: [
                 {
-                    name: 'Examinations(Monthly)',
-                    pathUrl: '/radiology/report/examination/monthly'
+                    name: 'Daily Report',
+                    pathUrl: '/radiology/report/daily'
                 }
             ]
         },
         {
-            name: 'Film(s)',
+            name: 'Revenue Collection Report',
             icon: 'reports.png',
             defaultFilesIcon: 'reports.png',
             files: [
                 {
-                    name: 'Film(s) Used',
-                    pathUrl: '/radiology/report/films/used'
+                    name: 'Revenue Collection',
+                    pathUrl: '/radiology/report/revenue'
                 }
             ]
         },
         {
-            name: 'Radiology',
+            name: 'Referral Report',
             icon: 'reports.png',
             defaultFilesIcon: 'reports.png',
             files: [
                 {
-                    name: 'Radiology Report',
-                    pathUrl: '/radiology/report'
+                    name: 'Referral Report',
+                    pathUrl: '/radiology/report/referral'
                 }
             ]
         }
