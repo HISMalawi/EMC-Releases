@@ -13,6 +13,7 @@
 		{ "name": "OPD", "available": true },
 		{ "name": "ANC", "available": true },
 		{ "name": "CxCa", "available": true},
+		{ "name": "Registration", "available": true}
 	],
 	"thirdpartyApps": [
 		{
