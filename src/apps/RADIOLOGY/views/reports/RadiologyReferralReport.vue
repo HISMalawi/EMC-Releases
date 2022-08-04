@@ -53,8 +53,8 @@ export default defineComponent({
                 req.then((data: any) => {
                     data.forEach((d: any) => {
                         this.rows.push([
-                            d.clinic,
-                            d.total
+                            table.td(d.clinic),
+                            table.td(d.total)
                         ])
                     })
                 }).catch((e: any) => toastDanger(`${e}`))
