@@ -216,7 +216,7 @@ export default defineComponent({
     const router = useRouter();
 
     watch(barcode, (newValue) => {
-      if (newValue.length > 5) {
+      if (newValue.length > 4) {
         router.push('/patients/confirm?patient_barcode='+newValue);
       }
     });
