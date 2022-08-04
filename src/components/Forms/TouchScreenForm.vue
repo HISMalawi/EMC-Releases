@@ -89,15 +89,21 @@ import {
 import { alertConfirmation, toastWarning } from "@/utils/Alerts";
 import InfoCard from "@/components/DataViews/HisFormInfoCard.vue"
 import {toastDanger} from "@/utils/Alerts"
+import LoadingFormElement from "@/components/Forms/LoaderFormPlaceholder.vue"
+import ErrorFormElement from "@/components/Forms/FormElementError.vue"
 /**
  * Build async components for all form elements
  */
 function buildAsyncComponents() {
   const components: any = {}
   COMPONENT_REFS.forEach((name: string) => {
-    components[name] = defineAsyncComponent(() => import(
-      /* webpackChunkName: "TouchFormElement"*/`@/components/FormElements/${name}.vue`)
-    )
+    components[name] = defineAsyncComponent({
+      loader: () => import( /* webpackChunkName: "TouchFormElement"*/`@/components/FormElements/${name}.vue`),
+      loadingComponent: LoadingFormElement,
+      errorComponent: ErrorFormElement,
+      delay: 200,
+      timeout: 50000,
+    })
   })
   return components
 }
