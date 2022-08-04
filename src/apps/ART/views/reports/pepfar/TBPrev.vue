@@ -93,7 +93,8 @@ export default defineComponent({
                     [
                         table.thTxt('ARV#'),
                         table.thTxt('Birthdate'),
-                        table.thTxt('TPT Initiation Date')
+                        table.thTxt('TPT Initiation Date'),
+                        table.thTxt('Outcome')
                     ]
                 ]
                 const asyncRows = () => {
@@ -101,7 +102,8 @@ export default defineComponent({
                         .map((p: any) => ([
                             table.td(p.arv_number),
                             table.tdDate(p.birthdate),
-                            table.tdDate(p.tpt_initiation_date)
+                            table.tdDate(p.tpt_initiation_date),
+                            table.td(p.outcome)
                         ]))
                 }
                 return table.tdLink(data.length, () => this.drilldownAsyncRows(context, columns, asyncRows))

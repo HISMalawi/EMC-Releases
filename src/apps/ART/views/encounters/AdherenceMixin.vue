@@ -26,18 +26,16 @@ export default defineComponent({
         },
         buildAdherenceReport(data: any) {
             const lastVisit = this.adherence.getReceiptDate()
-            const daysElapsed = this.adherence.calculateDaysElapsed(lastVisit)
-            const timeElapse = `
-                Last visit: ${HisDate.toStandardHisDisplayFormat(lastVisit)} 
-                (${daysElapsed} Days Elapsed)
-            `
+            const daysElapsed = this.adherence.calcTimeElapsed(lastVisit, 'day')
+            const timeElapse = ` Last visit: ${HisDate.toStandardHisDisplayFormat(lastVisit)} 
+                (${daysElapsed} Days Elapsed)`
             const rowColors = [{ indexes: [0, 3, 6], class: 'adherence-col-bg' }]
             const cellColors: any = []
             const columns = [timeElapse]
             const rows = [
                 ['Prescription'],
                 ['Tabs given'],
-                ['Tabs per day'],
+                ['Tabs per'],
                 ['Tabs remaining'],
                 ['Expected'],
                 ['Actual (counted)'],
@@ -47,17 +45,27 @@ export default defineComponent({
                 ['Art Adherence']
             ]        
             data.forEach((order: any, index: number) => {
-                const adherenceStatus = this.adherenceStatus(order)
+                const frequency = this.formatFrequency(order.frequency)
+                const expectedPills = this.calcPillsExpected(order)
+                const adherence = this.adherence.calculateAdherence(
+                    order.quantity, order.pillsBrought, expectedPills
+                )
+                const adherenceStatus = this.adherence.isAdherenceGood(adherence) 
+                    ? 'Good adherence' 
+                    : 'Explore problem'
+                const unAccountedDoses = this.adherence.calculateUnaccountedOrMissed(
+                    expectedPills, order.pillsBrought
+                )
                 columns.push(order.drug.name)
                 rows[0].push('')
                 rows[1].push(order.quantity)
-                rows[2].push(order.equivalent_daily_dose)
+                rows[2].push(`${order.equivalent_daily_dose} <b>${frequency}</b>`)
                 rows[3].push('')
-                rows[4].push(this.calcPillsExpected(order) < 0 ? 0 : this.calcPillsExpected(order))
+                rows[4].push(expectedPills < 0 ? 0 : expectedPills)
                 rows[5].push(order.pillsBrought)
                 rows[6].push('')
-                rows[7].push(this.calcUnaccountedDoses(order))
-                rows[8].push(`${this.calcAdherence(order)}%`)
+                rows[7].push(unAccountedDoses)
+                rows[8].push(`${adherence}%`)
                 rows[9].push(adherenceStatus)
 
                 cellColors.push({ 
@@ -74,21 +82,19 @@ export default defineComponent({
                 }      
             ]
         },
-        adherenceStatus(d: any) {
-            const adherence = this.calcAdherence(d)
-            return this.adherence.isAdherenceGood(adherence) ? 'Good adherence' : 'Explore problem'
-        },
-        calcAdherence(d: any) {
-            const exp = this.calcPillsExpected(d)
-            return this.adherence.calculateAdherence(d.quantity, d.pillsBrought, exp)
-        },
-        calcUnaccountedDoses(d: any) {
-            const exp = this.calcPillsExpected(d)
-            return this.adherence.calculateUnaccountedOrMissed(exp, d.pillsBrought)
+        formatFrequency(frequency: string) {
+            return `${frequency}`.match(/qod/i) 
+                    ? 'QOD'
+                    : `${frequency}`.match(/weekly/i) 
+                    ? 'QW'
+                    : frequency
         },
         calcPillsExpected(d: any) {
             return this.adherence.calculateExpected(
-                d.quantity, d.equivalent_daily_dose, d.order.start_date
+                d.quantity, 
+                d.equivalent_daily_dose, 
+                d.order.start_date,
+                this.formatFrequency(d.frequency) as 'QOD' | 'QW'
             )
         },
         getAdherenceFields(checkDrugsBefore=false): Array<Field> {
@@ -115,7 +121,9 @@ export default defineComponent({
                         data.forEach(async(val: Option) => {
                             const {drug, order } = val.other
                             const data = { ...val.other, pillsBrought: val.value }
-                            const adherence = this.calcAdherence(data)
+                            const adherence = this.adherence.calculateAdherence(
+                                data.quantity, data.pillsBrought, this.calcPillsExpected(data)
+                            )
                             this.drugObs.push(
                                 this.adherence.buildAdherenceObs(order.order_id, drug.drug_id, adherence)
                             )

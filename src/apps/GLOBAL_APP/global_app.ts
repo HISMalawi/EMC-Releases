@@ -244,6 +244,18 @@ export default {
       icon: "print.png"
     },
     {
+      id: 'guardian_edit',
+      name: 'Edit Guardians',
+      description: 'Edit guardian information',
+      action: ({ patient }: any, router: any) => {
+        router.push({
+          path: `/guardian/registration/${patient.patient_id}`, 
+          query: { 'edit_guardian': true}
+        })
+      },
+      icon: "print.png"
+    },
+    {
       id: "change_session_Date",
       name: "Change session date",
       action: ({ patient }: any, router: any) => {
@@ -283,6 +295,6 @@ export default {
         router.push({ path: `/lab/results/${patient.patient_id}`})
       },
       icon: "enter.png"
-    },
+    }
   ]
 }

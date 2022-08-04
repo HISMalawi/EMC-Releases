@@ -3,6 +3,7 @@ import { DrugInterface } from "@/interfaces/Drug"
 import HisDate from "@/utils/Date"
 import { isEmpty } from "lodash"
 import { BPManagementService } from "./htn_service"
+import dayjs from "dayjs"
 
 export class AdherenceService extends AppEncounterService {
     lastDrugs: Array<DrugInterface>
@@ -64,17 +65,19 @@ export class AdherenceService extends AppEncounterService {
         return Math.round(100 * (given - pills) / (given - expected));
     }
 
-    calculateExpected(given: number, equivalentDailyDose: number, startDate: string) {
-        const daysGone = this.calculateDaysElapsed(startDate);
+    calculateExpected(
+        given: number, 
+        equivalentDailyDose: number, 
+        startDate: string, 
+        frequency: 'QOD' | 'QW'
+    ) {
+        const timeUnit = frequency === 'QW' ? 'week' : 'day'
+        const daysGone = this.calcTimeElapsed(startDate, timeUnit);
         return (given - (daysGone * parseFloat(equivalentDailyDose.toString())));
     }
 
-    calculateDaysElapsed(date1: string) {
-        // Based on Old ART algorithm reused to maintain parity...
-        const date2 = AppEncounterService.getSessionDate()
-        const timeDiff = Math.abs(new Date(date2).getTime() - new Date(date1).getTime());
-        const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        return diffDays;
+    calcTimeElapsed(date1: string, timeUnit: 'week' | 'day') {
+        return dayjs(this.date).diff(date1, timeUnit)
     }
 
     calculateUnaccountedOrMissed(expected: string, actual: string) {

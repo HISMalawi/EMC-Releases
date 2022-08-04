@@ -1,7 +1,7 @@
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import MonthOptions from "@/utils/HisFormHelpers/MonthOptions"
 import { Field, Option } from "@/components/Forms/FieldInterface"
-import HisDate from "@/utils/Date"
+import HisDate, { STANDARD_DATE_FORMAT } from "@/utils/Date"
 import StandardValidations from "@/components/Forms/validations/StandardValidations"
 import { NUMBER_PAD_LO } from "@/components/Keyboard/KbLayouts"
 import { NUMBERS_WITHOUT_NA_UNKNOWN } from '../../components/Keyboard/HisKbConfigurations';
@@ -108,9 +108,9 @@ function appendLeadingZero(s: string) {
     return parseInt(s) < 10 ? `0${s}` : s
 }
 
-async function getDefaultDate(field: DateFieldInterface, datePart: 'Year' | 'Month' | 'Day') {
+async function getDefaultDate(form: any, field: DateFieldInterface, datePart: 'Year' | 'Month' | 'Day') {
     if (field.defaultValue) {
-        const date = await field.defaultValue()
+        const date = await field.defaultValue(form)
         if (date) {
             const [year, month, day] = date.split('-')
             switch(datePart) {
@@ -224,7 +224,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
  
     year.config = { ...year.config, ...field.config }
 
-    year.defaultValue = () => getDefaultDate(field, 'Year')
+    year.defaultValue = (f: any) => getDefaultDate(f, field, 'Year')
 
     year.condition = (f: any) => field.condition 
         ? field.condition(f) 
@@ -304,7 +304,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
 
     month.validation = (v: Option) => StandardValidations.required(v)
 
-    month.defaultValue = () => getDefaultDate(field, 'Month')
+    month.defaultValue = (f: any) => getDefaultDate(f, field, 'Month')
 
     // Add Unknown value to trigger default estimated Month
     if (estimateMonthOrDay) {
@@ -345,7 +345,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
         return validateMinMax(fullDate, field, f, c)
     }
 
-    day.defaultValue = () => getDefaultDate(field, 'Day')
+    day.defaultValue = (f: any) => getDefaultDate(f, field, 'Day')
 
     day.computedValue = (v: Option) => {
         const isEstimate = `${v.value}`.match(/unknown/i) ? true : false
@@ -375,21 +375,6 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     // on MonthlyDay component.
     if (!estimateMonthOrDay) day.config.keyboardActions = []
 
-    const validateValueEstimate = (v: Option, f: any, c: any) => {
-        if (StandardValidations.required(v)) {
-            return ['Please select an estimate']
-        }
-        if (isNaN(parseInt(v.value.toString()))) {
-            return ['Please enter a valid number']
-        }
-        const ageEstimateRegex = /^(12[0-7]|1[01][0-9]|[1-9]?[0-9])$/
-        if(!v.value.toString().match(ageEstimateRegex) ){
-            return ['Not a valid age estimate'] 
-        }
-        
-        return validateMinMax(fullDate, field, f, c)
-    }
-
     const valueEstimateCondition = (f: any, estimateType: EstimationFieldType) => {
         const conditions = [
             f[yearID].value === 'Unknown',
@@ -406,7 +391,14 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
         if (v && v.value > 300) {
             return ['Age estimate is too high and exceeding hard limit of 300']
         }
-        return validateValueEstimate(v, f, c)
+        if (isNaN(parseInt(v.value.toString()))) {
+            return ['Please enter a valid number']
+        }
+        const ageEstimateRegex = /^(12[0-7]|1[01][0-9]|[1-9]?[0-9])$/
+        if(!v.value.toString().match(ageEstimateRegex) ){
+            return ['Not a valid age estimate'] 
+        }
+        return validateMinMax(fullDate, field, f, c)
     }
 
     ageEstimate.condition = (form: any) => valueEstimateCondition(
@@ -430,17 +422,21 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     // DURATION ESTIMATE
     durationEstimate.proxyID = field.id
 
-    durationEstimate.validation = validateValueEstimate
+    durationEstimate.validation = (v: Option, f: any, c: any) => {
+        if (StandardValidations.required(v)) {
+            return ['Please select an estimate']
+        }
+        return validateMinMax(fullDate, field, f, c)
+    }
 
     durationEstimate.condition = (form: any) => valueEstimateCondition(
         form, EstimationFieldType.MONTH_ESTIMATE_FIELD
     ) 
 
     durationEstimate.computedValue = (val: Option) => {
-        const year = dayjs(Service.getSessionDate())
+        fullDate = dayjs(Service.getSessionDate())
             .subtract(val.value as number, 'day')
-            .year()
-        fullDate = `${year}-07-15`
+            .format(STANDARD_DATE_FORMAT)
         return field.computeValue(fullDate, true)
     }
 

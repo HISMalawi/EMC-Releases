@@ -363,6 +363,70 @@ export default {
             }
         }
     },
+    getPersonNameFromPersonObj(personObj: any, type: 'given_name' | 'family_name') {
+        if (personObj.names.length) {
+            return personObj.names[0][type]
+        }
+        return ''
+    },
+    getAttrFromPersonObj(personObj: any, type: 'Landmark Or Plot Number' | 'Cell Phone Number') {
+        if (Array.isArray(personObj.person_attributes) && personObj.person_attributes.length) {
+            return personObj.person_attributes.reduce((v: string, c: any) => {
+                if (c.type.name === type) {
+                    return c.value
+                }
+                return v
+            }, '')
+        }
+        return ''
+    },
+    getAddressFromPersonObj(personObj: any, 
+        type: 'home_region' | 
+        'home_district' | 
+        'home_region' | 
+        'home_village' | 
+        'home_traditional_authority' | 
+        'current_region' |
+        'current_traditional_authority' | 
+        'current_district') {
+        if (Array.isArray(personObj.addresses) && personObj.addresses.length) {
+            const address: any = personObj.addresses[0]
+            const addressMap: Record<string, string> = {
+                'home_district': 'address2', 
+                'home_village': 'neighborhood_cell',
+                'home_traditional_authority': 'county_district', 
+                'current_village': 'city_village',
+                'current_traditional_authority' : 'township_division',
+                'current_district': 'state_province'
+            }
+            return address[addressMap[type]]
+        }
+        return ''
+    },
+    mapPersonData(personObj: any) {
+        const givenName = this.getPersonNameFromPersonObj(personObj, 'given_name')
+        const familyName = this.getPersonNameFromPersonObj(personObj, 'family_name')
+        const homeDistrict = this.getAddressFromPersonObj(personObj, 'home_district')
+        const homeVillage = this.getAddressFromPersonObj(personObj, 'home_village')
+        const homeTA = this.getAddressFromPersonObj(personObj, 'home_traditional_authority')
+        return {
+            'id': personObj.person_id,
+            'name': `${givenName} ${familyName}`,
+            'given_name': givenName,
+            'family_name': familyName,
+            'gender': personObj.gender,
+            'birth_date': personObj.birthdate,
+            'birthdate_estimated': personObj.birthdate_estimated,
+            'home_district': homeDistrict,
+            'home_village': homeVillage,
+            'home_traditional_authority': homeTA,
+            'home_address': `${homeDistrict} ${homeVillage}`,
+            'current_district': this.getAddressFromPersonObj(personObj, 'current_district'),
+            'current_traditional_authority': this.getAddressFromPersonObj(personObj, 'current_traditional_authority'),
+            'cell_phone_number': this.getAttrFromPersonObj(personObj, 'Cell Phone Number'),
+            'landmark': this.getAttrFromPersonObj(personObj, 'Landmark Or Plot Number')
+        }
+    },
     getPersonAttributeOptions(person: any) {
         const patient = new Patientservice(person);
         const prop = (patient: any, prop: string) => prop in patient ? patient[prop]() : '-'

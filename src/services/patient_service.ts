@@ -157,6 +157,10 @@ export class Patientservice extends Service {
         return this.getInitialObs("Height")
     }
 
+    getRecentHeightObs() {
+        return ObservationService.getFirstObs(this.getID(), 'Height')
+    }
+
     async getRecentHeight() {
         const concept = await ConceptService.getConceptID('Height', true)
         const obs = await ObservationService.getObs({
@@ -212,7 +216,9 @@ export class Patientservice extends Service {
     }
 
     async getMedianWeightHeight() {
-        return Service.getJson(`patients/${this.getID()}/median_weight_height`)
+        return Service.getJson(`patients/${this.getID()}/median_weight_height`, {
+            date: Service.getSessionDate()
+        })
     }
 
     getObj() {

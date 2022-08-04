@@ -16,13 +16,15 @@ import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations";
 import { VitalsService } from "@/apps/ART/services/vitals_service";
-import { toastSuccess, toastWarning } from "@/utils/Alerts";
+import { alertConfirmation, toastSuccess, toastWarning } from "@/utils/Alerts";
 import EncounterMixinVue from "../../../../views/EncounterMixin.vue";
 import { BMIService } from "@/services/bmi_service";
 import { ProgramService } from "@/services/program_service";
 import ART_PROP from "@/apps/ART/art_global_props"
 import { find, isEmpty } from "lodash";
 import HisApp from "@/apps/app_lib"
+import { infoActionSheet } from "@/utils/ActionSheets"
+import dayjs from "dayjs";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -33,13 +35,16 @@ export default defineComponent({
     age: null as any,
     gender: null as any,
     hasBPinfo: false,
+    finalHeightValue: null as number | null,
     recentHeight: null,
+    recentHeightObsID: -1,
     HTNEnabled: false,
     optionWhiteList: [] as string[],
     hasHTNObs: false,
     vitals: {} as any,
     weightForHeight: {} as any,
-    medianWeightandHeight: {} as any
+    medianWeightandHeight: {} as any,
+    canEditHeight: false as boolean
   }),
   watch: {
     ready: {
@@ -59,8 +64,20 @@ export default defineComponent({
       if (optionWhiteList) this.optionWhiteList = optionWhiteList.split(',')
 
       if (this.canCheckWeightHeight()) {
-        const lastHeight = await patient.getRecentHeight();
-        this.recentHeight = lastHeight == -1 ? null : lastHeight;
+        const lastHeight = await patient.getRecentHeightObs();
+        if (!isEmpty(lastHeight)) {
+          const patientAgeAtPrevRecordedHeight = dayjs(lastHeight['obs_datetime'])
+            .diff(this.patient.getBirthdate(), 'year')
+          this.recentHeight = lastHeight['value_numeric'];
+          this.recentHeightObsID = lastHeight['obs_id'];
+          /**
+           * For a scenario where a patient's height was last updated when they were a minor
+           * and they return as an adult, provide an option to update their height.
+           */
+          this.canEditHeight = patientAgeAtPrevRecordedHeight < 18 || this.age < 18
+        } else {
+          this.canEditHeight = true
+        }
         if (this.age <= 14) {
           this.medianWeightandHeight = await patient.getMedianWeightHeight();
           this.weightForHeight = await ProgramService.getWeightForHeightValues();
@@ -75,8 +92,7 @@ export default defineComponent({
       this.fields = this.getFields();
     },
     getOptions() {
-      const recentHeight = this.recentHeight && this.age > 18? this.recentHeight : "";
-      const showHeight = !(recentHeight && this.age > 18);
+      const recentHeight = this.recentHeight && this.age > 18 ? this.recentHeight : "";
       const options = [
         {
           label: "Weight",
@@ -94,8 +110,8 @@ export default defineComponent({
             modifier: "CM",
             icon: "height",
             recentHeight: this.recentHeight,
-            visible: showHeight,
-            required: showHeight,
+            visible: this.canEditHeight,
+            required: this.canEditHeight
           },
         },
         { label: "BP", value: "", other: { modifier: "mmHG", icon: "bp" } },
@@ -155,7 +171,12 @@ export default defineComponent({
       const observations: any = await this.mapObs(
         this.sanitizeVitals(formData.vitals).filter(
           (element) => element.label !== "BP"
-        )
+        ).map((e: any) => {
+          if (e.label === 'Height' && e.other.visible && this.finalHeightValue) {
+            e.value = this.finalHeightValue
+          }
+          return e
+        })
       );
       if (this.HTNEnabled && !this.hasHTNObs && formData.on_htn_medication) {
         const obs = await this.vitals.buildValueText(
@@ -295,6 +316,46 @@ export default defineComponent({
           helpText: "Vitals entry",
           type: FieldType.TT_VITALS_ENTRY,
           validation: (value: any) => this.validateVitals(value),
+          beforeNext: async (val: Option[]) => {
+            const heightOption = find(val, { label: "Height" });
+            if (heightOption && this.recentHeight && heightOption.other.visible) {
+              const enteredHeight = parseInt(`${heightOption.value || 0}`);
+              const prevHeight = parseInt(`${this.recentHeight || 0}`);
+
+              /** Warn if inconsistent height is detected */
+              if (enteredHeight < prevHeight) {
+                const prevHeightBtnTxt = `Use ${prevHeight} CM`
+                const newHeightBtnTxt = `Use ${enteredHeight} CM`
+                const action = await infoActionSheet(
+                  `Previous Height "${prevHeight} CM"`,
+                  `Current Height "${enteredHeight} CM"`,
+                  `Inconsistent Height Reading (Height can not be lower than previous height of " ${this.recentHeight} "CM. Please SELECT the correct height.)`,
+                  [
+                    {
+                      name: prevHeightBtnTxt,
+                      slot: 'start',
+                      color: 'success'
+                    },
+                    {
+                      name: newHeightBtnTxt,
+                      slot: 'end',
+                      color: 'danger'
+                    }
+                  ]
+                )
+                if (action === newHeightBtnTxt && this.recentHeightObsID) {
+                  if ((await alertConfirmation(
+                    `Do you want to void height observation for ${prevHeight}`
+                  ))) {
+                    await VitalsService.voidObs(this.recentHeightObsID)
+                  }
+                } else {
+                  this.finalHeightValue = prevHeight
+                }
+              }
+            }
+            return true
+          },
           config: {
             hiddenFooterBtns : [
               'Clear'

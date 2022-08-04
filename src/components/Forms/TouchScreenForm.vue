@@ -501,6 +501,7 @@ export default defineComponent({
           this.state = 'onsubmit'
           await this.onFinish(formData ,computedData)
         }catch(e) { 
+          console.error(e)
           toastDanger(e) 
         }
       }
