@@ -289,6 +289,7 @@ import PrimaryCard from "@/components/DataViews/DashboardPrimaryCard.vue"
 import VisitDatesCard from "@/components/DataViews/VisitDatesCard.vue"
 import Display from "@/composables/display"
 import FullToolbar from "@/components/PatientDashboard/Poc/FullToolbar.vue"
+import { getPatient } from "@/composables/patientStore"
 
 export default defineComponent({
     components: {
@@ -542,7 +543,7 @@ export default defineComponent({
             this.sessionDate = this.toDate(ProgramService.getSessionDate())
             this.isBDE = ProgramService.isBDE() || false
             this.programID = ProgramService.getProgramID()
-            this.fetchPatient(this.patientId).then((patient) => {
+            getPatient(this.patientId).then((patient) => {
                 const setProgramInfo = (data: any) => {
                     if (typeof data === 'object' && data.then) {
                         this.getProgramCardInfo(this.patientProgram)
@@ -600,10 +601,6 @@ export default defineComponent({
                     card.onVisitDate(card, visitDate, invalidateCache)
                 }
             })
-        },
-        async fetchPatient(patientId: number | string){
-            const patient: Patient = await Patientservice.findByID(patientId);
-            return patient ? new Patientservice(patient): {}
         },
         async getPatientVisitDates(patientId: number) {
             const dates = await Patientservice.getPatientVisits(patientId, false)
