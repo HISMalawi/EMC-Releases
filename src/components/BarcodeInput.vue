@@ -31,7 +31,14 @@ export default defineComponent({
   emits: ['onScan', 'onValue'],
   setup(_props, { emit }) {
     const router = useRouter();
-    const barcode = useBarcode();
+    const { activePlatformProfile } = usePlatform()
+
+    const barcode = computed(() => {
+      if(activePlatformProfile.value.profileName?.match(/mobile/i)) {
+        return useBarcode()
+      }
+      return "" 
+    });
 
     watch(barcode, (newValue) => {
       if (newValue) {
@@ -40,7 +47,6 @@ export default defineComponent({
       }
     })
 
-    const { activePlatformProfile } = usePlatform() 
 
     const cameraEvent = computed(() =>
       activePlatformProfile.value.scanner === ScannerType.CAMERA_SCANNER
