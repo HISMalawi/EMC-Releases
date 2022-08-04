@@ -50,7 +50,11 @@ export default defineComponent({
             const req = this.service.requestReport()
             if (typeof req === 'object' && req.then) {
                 req.then((data: any) => {
-                    this.rows.push([ table.td(data.total_revenue) ])
+                    data.forEach((d: any) => {
+                        this.rows.push([ 
+                            table.td(d.total_revenue) 
+                        ])
+                    })
                 }).catch((e: any) => toastDanger(`${e}`))
             }
         }
