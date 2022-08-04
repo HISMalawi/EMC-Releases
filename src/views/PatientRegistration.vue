@@ -477,12 +477,13 @@ export default defineComponent({
     relationshipField(): Field {
         const IS_CXCA = this.app.applicationName === 'CxCa'
         const OPD = this.app.applicationName === 'OPD'
+        const Registration = this.app.applicationName === 'Registration'
         return {
             id: 'relationship',
             helpText: 'Register guardian?',
             type: FieldType.TT_SELECT,
             computedValue: (val: Option) => ({person: val.value}),
-            condition: () => this.editConditionCheck(['relationship']) && !IS_CXCA && !OPD,
+            condition: () => this.editConditionCheck(['relationship']) && !IS_CXCA && !OPD && !Registration,
             validation: (val: any) => Validation.required(val),
             options: () => this.mapToOption(['Yes', 'No'])
         }
