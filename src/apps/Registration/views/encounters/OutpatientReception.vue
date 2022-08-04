@@ -40,7 +40,7 @@ export default defineComponent({
             const registrationObs = await this.receptionService.saveObservationList(registrationData)
             if (!registrationObs) return toastWarning('Unable to save observations')
 
-            this.nextTask()        
+            this.$router.push(`/registration/encounters/patient_services/${this.patientID}`);
         },
         
         getFields(): Array<Field>{

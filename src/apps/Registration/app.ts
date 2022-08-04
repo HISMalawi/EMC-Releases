@@ -4,10 +4,10 @@ import { PRIMARY_ACTIVITIES} from '@/apps/Registration/config/programActivities'
 import { REPORTS } from '@/apps/Registration/config/programReports';
 import opdRoutes from '@/apps/Registration/config/routes';
 import { PatientProgramService } from '@/services/patient_program_service';
-import { AppEncounterService } from "@/services/app_encounter_service"
 import { RelationshipService } from '@/services/relationship_service';
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Patientservice } from '@/services/patient_service';
+import router from '@/router/index';
 
 declare global {
   interface Navigator {
@@ -18,7 +18,8 @@ declare global {
 async function onRegisterPatient(patientId: number) {
   const program = new PatientProgramService(patientId)
   await program.enrollProgram()
-
+  router.push('/registration/encounters/outpatient_reception/' + patientId);
+  return true
   // Create registration encounter
   //kept incase we may need to start saving this going forward
   // const encounter = new AppEncounterService(patientId, 5)
@@ -45,26 +46,7 @@ function confirmationSummary(patient: any, program: any) {
         value: patient.getNationalID(),
       }
     ]),
-   
-    'OUTCOME': () => ([
-      {
-        label: 'Current Outcome',
-        value: program.outcome || 'N/A'
-      }
-    ]),
-    'GUARDIAN': async () => {
-      const req = await RelationshipService
-        .getGuardianDetails(
-          patient.getID()
-        )
-      if (req) {
-        return req.map((r: any) => ({
-          label: r.name,
-          value: r.relationshipType,
-        }))
-      }
-      return []
-    }
+    
   }
 }
 

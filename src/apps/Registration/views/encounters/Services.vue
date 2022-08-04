@@ -49,7 +49,7 @@ export default defineComponent({
             return [
                 {
                     id: 'referral',
-                    helpText: 'Is the Patient a Referral Case From Another Health Facility?',
+                    helpText: 'Select service',
                     type: FieldType.TT_SELECT,
                     validation: (value: any) => Validation.required(value),
                     computedValue: (v: Option) => ({ obs: this.patientServicesService.buildValueText('Services ordered', v.value)}),
