@@ -8,6 +8,7 @@ import { RelationshipService } from '@/services/relationship_service';
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Patientservice } from '@/services/patient_service';
 import router from '@/router/index';
+import { AppEncounterService } from '@/services/app_encounter_service';
 
 declare global {
   interface Navigator {
@@ -18,16 +19,16 @@ declare global {
 async function onRegisterPatient(patientId: number) {
   const program = new PatientProgramService(patientId)
   await program.enrollProgram()
+  const encounter = new AppEncounterService(patientId, 5)
+
+  // Create registration encounter
+  await encounter.createEncounter()
+  await encounter.saveValueCodedObs(
+    'Type of patient', 'New Patient'
+  )
+
   router.push('/registration/encounters/outpatient_reception/' + patientId);
   return true
-  // Create registration encounter
-  //kept incase we may need to start saving this going forward
-  // const encounter = new AppEncounterService(patientId, 5)
-
-  // await encounter.createEncounter()
-  // await encounter.saveValueCodedObs(
-  //   'Type of patient', 'New Patient'
-  // )
 }
 
 async function formatPatientProgramSummary(_: any, patientId: number) {
