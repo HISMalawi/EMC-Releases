@@ -14,6 +14,11 @@ const RADIOLOGY: AppInterface = {
             component: () => import('@/apps/RADIOLOGY/views/encounters/RadiologyExaminations.vue')
         },
         {
+            name: 'Radiology Appointment',
+            path: '/radiology/appointment',
+            component: () => import('@/apps/RADIOLOGY/views/encounters/RadiologyAppointment.vue')
+        },
+        {
             name: 'daily radiology report',
             path: '/radiology/report/daily',
             component: () => import('@/apps/RADIOLOGY/views/reports/RadiologyDailyReport.vue')
@@ -69,8 +74,13 @@ const RADIOLOGY: AppInterface = {
             id: "Examination",
             name: "Examination",
             icon: "radiology_types.png"
+        },
+        {
+            id: "Radiology Appointment",
+            name: "Radiology Appointment",
+            icon: "appointment.png"
         }
     ],
-    secondaryPatientActivites: [],
+    secondaryPatientActivites: []
 }
 export default RADIOLOGY
