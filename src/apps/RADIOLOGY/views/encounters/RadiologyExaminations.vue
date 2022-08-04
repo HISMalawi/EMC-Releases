@@ -58,8 +58,8 @@ export default defineComponent({
         async getTestsOptions(id: string | number) {
             return (await RadiologyExaminationService.getListOfRadiologyTests(id))
                 .map((e: any) => ({
-                    value: e.concept_id,
-                    label: e.name
+                    label: e.name,
+                    value: e.concept_id
                 }))
         },
         validateAmount(val: string) {
@@ -90,7 +90,7 @@ export default defineComponent({
                 validation: (v: Option) => Validation.required(v),
                 computedValue: (v: Option) => {
                     return {
-                        obs: this.service.buildValueCoded('RADIOLOGY TEST', v.label),
+                        obs: this.service.buildValueCoded('RADIOLOGY TEST', v.value),
                         order: (encounterID: number) => {
                             const data: any = {
                                 'encounter_id': encounterID,
@@ -127,7 +127,7 @@ export default defineComponent({
                 validation: (v: Option) => Validation.required(v),
                 computedValue: (v: Option) => {
                     return {
-                        obs: this.service.buildValueCoded('Examination', v.label)
+                        obs: this.service.buildValueCoded('Examination', v.value)
                     }
                 },
                 condition: () => !isEmpty(this.examinationOptions),
@@ -149,7 +149,7 @@ export default defineComponent({
                 condition: () => !isEmpty(this.detailedExaminationOptions),
                 computedValue: (v: Option) => {
                     return {
-                        obs: this.service.buildValueCoded('Detailed examination', v.label),
+                        obs: this.service.buildValueCoded('Detailed examination', v.value),
                     }
                 },
             validation: (v: Option) => Validation.required(v),
