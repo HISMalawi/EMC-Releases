@@ -14,6 +14,6 @@ export default [
     OPD,
     ANC,
     CXCA,
-    RADIOLOGY
+    RADIOLOGY,
     Registration
 ]
