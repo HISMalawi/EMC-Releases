@@ -410,11 +410,7 @@ export default defineComponent({
                     color: 'primary',
                     isLoading: false,
                     icon: timeOutline,
-                    onVisitDate: (card: any, date: string, invalidateCache: boolean) => {
-                        if (card.cache[date] !=undefined && !invalidateCache) {
-                            card.items = card.cache[date]
-                            return
-                        }
+                    onVisitDate: (card: any, date: string) => {
                         card.isLoading = true
                         EncounterService.getEncounters(this.patientId, {date})
                             .then((encounters) => {
@@ -452,11 +448,7 @@ export default defineComponent({
                     isLoading: false,
                     label: 'Lab Orders',
                     icon: timeOutline,
-                    onVisitDate: (card: any, date: string, invalidateCache: boolean) => {
-                        if (card.cache[date] !=undefined && !invalidateCache) {
-                            card.items = card.cache[date]
-                            return
-                        }
+                    onVisitDate: (card: any, date: string) => {
                         card.isLoading = true
                         this.getLabOrderCardInfo(date)
                             .then((data) => {
@@ -505,11 +497,7 @@ export default defineComponent({
                     color: 'warning',
                     icon: timeOutline,
                     isLoading: false,
-                    onVisitDate: (card: any, date: string, invalidateCache: boolean) => {
-                        if (card.cache[date] !=undefined && !invalidateCache) {
-                            card.items = card.cache[date]
-                            return
-                        }
+                    onVisitDate: (card: any, date: string) => {
                         card.isLoading = true
                         DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
                             .then((medications) => {
@@ -597,6 +585,10 @@ export default defineComponent({
         updateCardVisitData(visitDate: string, invalidateCache=false) {
             this.patientCards.forEach((card) => {
                 if (typeof card === 'object' && typeof card.onVisitDate === 'function') {
+                    if (typeof card.cache === 'object' && card.cache[visitDate] && !invalidateCache) {
+                        card.items = card.cache[visitDate]
+                        return
+                    }
                     card.onVisitDate(card, visitDate, invalidateCache)
                 }
             })
