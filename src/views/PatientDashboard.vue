@@ -386,7 +386,128 @@ export default defineComponent({
     },
     created() {
         this.app = App.getActiveApp()
-        this.initCards()
+        this.patientCards = [
+            {
+                items: [],
+                cache: {},
+                label: 'Activities',
+                color: 'primary',
+                isLoading: false,
+                icon: timeOutline,
+                onVisitDate: (card: any, date: string) => {
+                    card.isLoading = true
+                    EncounterService.getEncounters(this.patientId, {date})
+                        .then((encounters) => {
+                            if (date === ProgramService.getSessionDate()) { 
+                                this.sessionEncounters = encounters
+                            }
+                            this.tasksDisabled = false
+                            this.getActivitiesCardInfo(encounters)
+                                .then((data) => {
+                                    card.items = data
+                                    card.cache[date] = card.items
+                                    card.isLoading = false
+                                }).catch(() => card.isLoading = false)
+                        }).catch(() => {
+                            card.items = []
+                            card.cache[date] = card.items
+                            card.isLoading = false
+                            this.tasksDisabled = false
+                        })
+                },
+                onClick: (card: any) => {
+                    if (!card.isLoading) {
+                        this.openModal(
+                            card.items, 'Select Activities', EncounterView
+                        )
+                    } else {
+                        toastWarning('Please wait...')
+                    }
+                } 
+            },
+            {
+                items: [],
+                cache: {},
+                color: 'success',
+                isLoading: false,
+                label: 'Lab Orders',
+                icon: timeOutline,
+                onVisitDate: (card: any, date: string) => {
+                    card.isLoading = true
+                    this.getLabOrderCardInfo(date)
+                        .then((data) => {
+                            card.items = data
+                            card.cache[date] = card.items
+                            card.isLoading = false
+                        }).catch(() => {
+                            card.items = []
+                            card.cache[date] = card.items
+                            card.isLoading = false
+                        })
+                },
+                onClick: () => this.$router.push(`/art/encounters/lab/${this.patient.getID()}`)
+            },
+            {
+                items: [],
+                label: 'Alerts',
+                color: 'danger',
+                icon: warningOutline,
+                isLoading: false,
+                isInit: false,
+                onVisitDate: (card: any) => {
+                    if (card.isInit) return
+                    const d  = this.getPatientAlertCardInfo()
+                    if(typeof d === 'object' && d.then) {
+                        card.isLoading = true
+                        this.getPatientAlertCardInfo()
+                            .then((data) => {
+                                if (data) card.items = data
+                                card.isInit = true
+                                card.isLoading = false
+                            }).catch(() => {
+                                card.items = []
+                                card.isInit = true
+                                card.isLoading = false
+                            }) 
+                    }
+                    if (d) card.items = d
+                },
+                onClick: () => { /* TODO, list all alerts */ }
+            },
+            {
+                items: [],
+                cache: {},
+                label: 'Medications',
+                color: 'warning',
+                icon: timeOutline,
+                isLoading: false,
+                onVisitDate: (card: any, date: string) => {
+                    card.isLoading = true
+                    DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
+                        .then((medications) => {
+                            card.items = this.getMedicationCardInfo(medications)
+                            card.cache[date] = card.items
+                            card.isLoading = false
+                        }).catch(() => {
+                            card.data
+                            card.items = []
+                            card.cache[date] = card.items
+                            card.isLoading = false
+                        })
+                },
+                onClick: (card: any) => {
+                    if (card.isLoading) return toastWarning('Please wait..')
+                    const columns = ['Medication', 'Start date', 'End date', 'Amount given']
+                    const rows = card.items.map((medication: any) => ([
+                        medication.other.drug.name, 
+                        this.toDate(medication.other.order.start_date),
+                        this.toDate(medication.other.order.auto_expire_date),
+                        medication.other.quantity
+                    ]))
+                    this.openTableModal(columns, rows, 'Medication History')
+                }
+            }
+        ]
     },
     mounted() {
         this.patientId = parseInt(`${this.$route.params.id}`)
@@ -401,130 +522,6 @@ export default defineComponent({
         }
     },
     methods: {
-        initCards() {
-            this.patientCards = [
-                {
-                    items: [],
-                    cache: {},
-                    label: 'Activities',
-                    color: 'primary',
-                    isLoading: false,
-                    icon: timeOutline,
-                    onVisitDate: (card: any, date: string) => {
-                        card.isLoading = true
-                        EncounterService.getEncounters(this.patientId, {date})
-                            .then((encounters) => {
-                                if (date === ProgramService.getSessionDate()) { 
-                                    this.sessionEncounters = encounters
-                                }
-                                this.tasksDisabled = false
-                                this.getActivitiesCardInfo(encounters)
-                                    .then((data) => {
-                                        card.items = data
-                                        card.cache[date] = card.items
-                                        card.isLoading = false
-                                    }).catch(() => card.isLoading = false)
-                            }).catch(() => {
-                                card.items = []
-                                card.cache[date] = card.items
-                                card.isLoading = false
-                                this.tasksDisabled = false
-                            })
-                    },
-                    onClick: (card: any) => {
-                        if (!card.isLoading) {
-                            this.openModal(
-                                card.items, 'Select Activities', EncounterView
-                            )
-                        } else {
-                            toastWarning('Please wait...')
-                        }
-                    } 
-                },
-                {
-                    items: [],
-                    cache: {},
-                    color: 'success',
-                    isLoading: false,
-                    label: 'Lab Orders',
-                    icon: timeOutline,
-                    onVisitDate: (card: any, date: string) => {
-                        card.isLoading = true
-                        this.getLabOrderCardInfo(date)
-                            .then((data) => {
-                                card.items = data
-                                card.cache[date] = card.items
-                                card.isLoading = false
-                            }).catch(() => {
-                                card.items = []
-                                card.cache[date] = card.items
-                                card.isLoading = false
-                            })
-                    },
-                    onClick: () => this.$router.push(`/art/encounters/lab/${this.patient.getID()}`)
-                },
-                {
-                    items: [],
-                    label: 'Alerts',
-                    color: 'danger',
-                    icon: warningOutline,
-                    isLoading: false,
-                    isInit: false,
-                    onVisitDate: (card: any) => {
-                        if (card.isInit) return
-                        const d  = this.getPatientAlertCardInfo()
-                        if(typeof d === 'object' && d.then) {
-                            card.isLoading = true
-                            this.getPatientAlertCardInfo()
-                                .then((data) => {
-                                    if (data) card.items = data
-                                    card.isInit = true
-                                    card.isLoading = false
-                                }).catch(() => {
-                                    card.items = []
-                                    card.isInit = true
-                                    card.isLoading = false
-                                }) 
-                        }
-                        if (d) card.items = d
-                    },
-                    onClick: () => { /* TODO, list all alerts */ }
-                },
-                {
-                    items: [],
-                    cache: {},
-                    label: 'Medications',
-                    color: 'warning',
-                    icon: timeOutline,
-                    isLoading: false,
-                    onVisitDate: (card: any, date: string) => {
-                        card.isLoading = true
-                        DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
-                            .then((medications) => {
-                                card.items = this.getMedicationCardInfo(medications)
-                                card.cache[date] = card.items
-                                card.isLoading = false
-                            }).catch(() => {
-                                card.data
-                                card.items = []
-                                card.cache[date] = card.items
-                                card.isLoading = false
-                            })
-                    },
-                    onClick: (card: any) => {
-                        if (card.isLoading) return toastWarning('Please wait..')
-                        const columns = ['Medication', 'Start date', 'End date', 'Amount given']
-                        const rows = card.items.map((medication: any) => ([
-                            medication.other.drug.name, 
-                            this.toDate(medication.other.order.start_date),
-                            this.toDate(medication.other.order.auto_expire_date),
-                            medication.other.quantity
-                        ]))
-                        this.openTableModal(columns, rows, 'Medication History')
-                    }
-                }
-            ]
-        },
         initData() {
             this.currentDate = HisDate.currentDisplayDate()
             this.sessionDate = this.toDate(ProgramService.getSessionDate())
@@ -594,14 +591,14 @@ export default defineComponent({
             })
         },
         async getPatientVisitDates(patientId: number) {
-            const dates = await Patientservice.getPatientVisits(patientId, false)
-            return dates.map((date: string) => ({
-                label: this.toDate(date), 
-                value: date,
-                other: {
-                    isActive: date === ProgramService.getSessionDate()
-                }
-            }))
+            return (await Patientservice.getPatientVisits(patientId, false))
+                .map((date: string) => ({
+                    label: this.toDate(date), 
+                    value: date,
+                    other: {
+                        isActive: date === ProgramService.getSessionDate()
+                    }
+                }))
         },
         getNextTask() {
             return WorkflowService.getNextTaskParams(this.patientId)
