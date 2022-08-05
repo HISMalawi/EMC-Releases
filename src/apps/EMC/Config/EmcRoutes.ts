@@ -97,7 +97,12 @@ export default [
         name: 'vl_coverage',
         path: 'vl_coverage',
         component: () => import('@/apps/EMC/views/reports/pepfar/VLCoverage.vue'),
-      }
+      },
+      {
+        name: 'tb_prev',
+        path: 'tb_prev',
+        component: () => import('@/apps/EMC/views/reports/pepfar/TBPrev.vue'),
+      },
     ]
   },
 ];

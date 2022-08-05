@@ -94,7 +94,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'TB Prev',
             id: 'tb_prev',
-            img: 'reports/previous.png'
+            img: 'reports/previous.png',
+            url: '/emc/report/pepfar/tb_prev'
           },
           {
             title: 'VL coverage',
