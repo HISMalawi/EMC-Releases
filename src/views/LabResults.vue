@@ -109,6 +109,9 @@ export default defineComponent({
                 return false
             }
         },
+        isMalariaResult(name: string) {
+            return name.match(/mrdt|malaria/i) ? true : false
+        },
         buildTestIndicatorFields(id: number, name: string, specimen: string, test: number): Array<Field> {
             const condition = (f: any) => [
                 this.selectedTest.value === test, 
@@ -119,8 +122,8 @@ export default defineComponent({
 
             const computedValue = (v: any, f: any) => {
                 if(v.value === 'Other' && name.match(/HIV viral load/i)) return {}
-                const type = f[`type_${id}`].value
-                const value = v.value.toString()
+                const type = this.isMalariaResult(name) ? 'text' : f[`type_${id}`].value
+                const value = this.isMalariaResult(name) ? "=" + v.value : v.value.toString()
                 const modifier = value.charAt(0)
                 const result = type === 'numeric' ? parseInt(value.substring(1)) : value.substring(1)
                 const test = f[`result_indicators`].filter((t: any) => t.value === id)[0]
@@ -145,7 +148,7 @@ export default defineComponent({
                     helpText: `Result type (${name})`,
                     type: FieldType.TT_SELECT,
                     group: 'test_indicator',
-                    condition,
+                    condition: (f: any) => condition(f) && !this.isMalariaResult(name),
                     appearInSummary: () => false,
                     validation: (v: Option) => Validation.required(v),
                     options: () => [
@@ -251,6 +254,39 @@ export default defineComponent({
                         f[`type_${id}`].value === 'text' && 
                         name.match(/HIV viral load/i)
                         && f[`VL_alpha_${id}`].value === 'Other'
+                    }
+                },
+                {
+                    id: `malaria_result_${id}`,
+                    helpText: `Select Test Result (${name})`,
+                    type: FieldType.TT_SELECT,
+                    group: 'test_indicator',
+                    computedValue,
+                    validation: (v: Option) => Validation.required(v),
+                    condition: (f: any) => condition(f) && this.isMalariaResult(name),
+                    options: () => {
+                        if(name.match(/mrdt/i)) {
+                            return [
+                                {
+                                    label: 'Positive',
+                                    value: 'positive'
+                                },
+                                {
+                                    label: 'Negative',
+                                    value: 'negative'
+                                }
+                            ]
+                        }
+                        return [
+                            {
+                                label: 'Parasites seen',
+                                value: 'parasites seen'
+                            },
+                            {
+                                label: 'No parasites seen',
+                                value: 'no parasites seen'
+                            }
+                        ]
                     }
                 },
             ]
