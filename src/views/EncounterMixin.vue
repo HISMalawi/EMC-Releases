@@ -85,10 +85,10 @@ export default defineComponent({
         },
         async checkEncounterGuidelines() {
             const findings = matchToGuidelines(this.facts, ENCOUNTER_GUIDELINES)
-            await delayPromise(200)
             for(const index in findings) {
                 const finding = findings[index]
                 if (finding?.actions?.alert) {
+                    await delayPromise(150)
                     const status = this.runflowState((await finding?.actions?.alert(this.facts)))
                     if (status === FlowState.EXIT) return
                 }
