@@ -108,7 +108,7 @@ export default defineComponent({
         ...computedObs, ...secondaryObs
       ])
 
-      if (this.askAdherence && !this.isNonePatientClient()) await this.saveAdherence();
+      if (!isEmpty(this.drugObs) && !this.isNonePatientClient()) await this.saveAdherence();
 
       if (!savedObs) return toastWarning("Unable to save patient observations");
 
