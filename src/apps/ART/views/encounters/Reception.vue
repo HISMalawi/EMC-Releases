@@ -29,7 +29,6 @@ export default defineComponent({
     reception: {} as any,
     activeField: "",
     hasARVNumber: true,
-    hasGuardian: false,
     suggestedNumber: "" as any,
     patientType: {} as any,
   }),
@@ -60,14 +59,14 @@ export default defineComponent({
 
         if (!arv) return toastWarning('Unable to save Arv number')
       }
-
       toastSuccess('Encounter created')
       const guardianPresent = find(formData.who_is_present, { value: 'Yes', label: 'Guardian present?'})
-      if (!this.hasGuardian && guardianPresent) {
-        this.$router.push(`/guardian/registration/${this.patientID}`)
-      } else {
-        this.nextTask()
+      if (guardianPresent) {
+        if (isEmpty((await this.patient.getGuardian()))) {
+          return this.$router.push(`/guardian/registration/${this.patientID}`)
+        } 
       }
+      this.nextTask()
     },
     getFields(): Array<Field> {
       return [
@@ -75,11 +74,6 @@ export default defineComponent({
           id: "who_is_present",
           helpText: "HIV reception",
           type: FieldType.TT_MULTIPLE_YES_NO,
-          init: async () => {
-            const guardian = await this.patient.getGuardian()
-            this.hasGuardian = !isEmpty(guardian)
-            return true
-          },
           validation: (val: any) => Validation.required(val) || Validation.neitherOr(val) || Validation.anyEmpty(val),
           computedValue: (d: Array<Option>) => {
             return {
