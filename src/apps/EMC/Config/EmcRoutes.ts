@@ -103,6 +103,11 @@ export default [
         path: 'tb_prev',
         component: () => import('@/apps/EMC/views/reports/pepfar/TBPrev.vue'),
       },
+      {
+        name: 'defaulters',
+        path: 'defaulters',
+        component: () => import('@/apps/EMC/views/reports/pepfar/DefaultersList.vue'),
+      },
     ]
   },
 ];

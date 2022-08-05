@@ -74,7 +74,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'Defaulter List',
             id: 'pepfar_defaulter_list',
-            img: 'reports/defaulter-list.png'
+            img: 'reports/defaulter-list.png',
+            url: '/emc/report/pepfar/defaulters'
           },
           {
             title: 'TX CURR MMD',
