@@ -36,7 +36,7 @@ import { infoActionSheet } from "@/utils/ActionSheets"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import dayjs from "dayjs";
 import { delayPromise } from "@/utils/Timers";
-import { getStorePatient, setPatientStoreService } from "@/composables/patientStore";
+import { getStorePatient, invalidatePatientCache, setPatientStoreService } from "@/composables/patientStore";
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
@@ -208,7 +208,7 @@ export default defineComponent({
                 this.editPersonData[attr] = person[attr]
             }
         }
-        setPatientStoreService({}) //Invalidate patient cache
+        invalidatePatientCache()
         if(!this.personAttribute) return this.fieldComponent = 'edit_user'
         this.$router.back()
     },
