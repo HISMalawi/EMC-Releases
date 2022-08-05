@@ -17,7 +17,6 @@ export async function getStorePatient(patientID: number) {
     return unref(patient)
 }
 
-
 export async function setPatientStoreService(patientObj: any) {
     patient.value = patientObj
 }

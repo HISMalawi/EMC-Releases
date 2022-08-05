@@ -23,8 +23,9 @@ export class PatientRegistrationService extends Service {
     async registerPatient(person: any, personAttributes: any) {
         await this.createPerson(person)
         await this.createPersonAttributes(personAttributes)
-        await this.createPatient()
+        const patient = await this.createPatient()
         await this.printPatient()
+        return patient
     }
 
     async registerGuardian(person: any) {

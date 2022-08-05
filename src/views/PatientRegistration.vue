@@ -36,7 +36,7 @@ import { infoActionSheet } from "@/utils/ActionSheets"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import dayjs from "dayjs";
 import { delayPromise } from "@/utils/Timers";
-import { getStorePatient } from "@/composables/patientStore";
+import { getStorePatient, setPatientStoreService } from "@/composables/patientStore";
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
@@ -167,13 +167,13 @@ export default defineComponent({
         person = this.presets.nationalIDStatus == "true" ? this.appendNationalIDData(person) : person
         const attributes: Array<any> = this.resolvePersonAttributes(computedData)
         const registration: any = new PatientRegistrationService()
-        await registration.registerPatient(person, attributes)
-
+        const patient = new Patientservice((await registration.registerPatient(person, attributes)))
         const patientID = registration.getPersonID()
 
+        setPatientStoreService(patient) // update patient store
+ 
         if(this.presets.nationalIDStatus == "true"){ 
-            const patient = await Patientservice.findByID(patientID)
-            this.patient = new Patientservice(patient)
+            this.patient = patient
             await this.patient.updateMWNationalId(this.presets.malawiNationalID)
         }
 
@@ -203,12 +203,12 @@ export default defineComponent({
 
         update.setPersonID(this.editPerson)
         await update.updatePerson(person)
-
         for(const attr in person) {
             if (attr in this.editPersonData) {
                 this.editPersonData[attr] = person[attr]
             }
         }
+        setPatientStoreService({}) //Invalidate patient cache
         if(!this.personAttribute) return this.fieldComponent = 'edit_user'
         this.$router.back()
     },
