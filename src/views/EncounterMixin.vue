@@ -1,9 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { Field, Option } from '@/components/Forms/FieldInterface'
-import { Patientservice } from "@/services/patient_service"
 import { ProgramService } from "@/services/program_service"
-import { PatientProgramService } from "@/services/patient_program_service"
 import { UserService } from "@/services/user_service"
 import { find, isEmpty } from "lodash"
 import { nextTask } from "@/utils/WorkflowTaskHelper"
@@ -12,7 +10,7 @@ import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { delayPromise } from '@/utils/Timers'
 import { toastDanger } from '@/utils/Alerts'
-import { getStorePatient } from "@/composables/patientStore"
+import { getPatientProgramStore, getStorePatient } from "@/composables/patientStore"
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -38,7 +36,7 @@ export default defineComponent({
        '$route': {
             handler(route: any) {
                 if(route.params.patient_id && this.patientID != route.params.patient_id) {
-                    this.patientID = route.params.patient_id;
+                    this.patientID = parseInt(route.params.patient_id);
                     getStorePatient(this.patientID).then(patientData => {
                         this.patient = patientData
                         this.setEncounterFacts().then(() => {
@@ -100,7 +98,7 @@ export default defineComponent({
         },
         async setEncounterFacts() {
             try {
-                const program = await new PatientProgramService(this.patientID).getProgram()
+                const program = await getPatientProgramStore(this.patientID)
                 this.facts.outcome = program.outcome
                 this.facts.outcomeStartDate = program.startDate
             } catch (e) {

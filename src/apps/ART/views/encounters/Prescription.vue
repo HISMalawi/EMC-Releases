@@ -23,6 +23,7 @@ import {
 import { HTN_SESSION_KEY } from '../../services/htn_service'
 import { ProgramService } from '@/services/program_service'
 import table from "@/components/DataViews/tables/ReportDataTable"
+import { invalidatePatientProgramCache } from '@/composables/patientStore'
 
 const MEDICATION_STYLE = { style : { fontSize:'1.3rem !important', borderBottom: 'solid 2px #ccc', color: 'black', background: 'white' }}
 
@@ -153,7 +154,7 @@ export default defineComponent({
             }
 
             toastSuccess('Drug order has been created')
-
+            invalidatePatientProgramCache()
             this.nextTask()
         },
         async onEvent(target: Target, targetEvent: TargetEvent) {
