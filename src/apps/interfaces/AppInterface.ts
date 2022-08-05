@@ -132,5 +132,5 @@ export interface AppInterface {
     /**
      * Summary data that is rendered on patient confirmation page
     */
-    readonly confirmationSummary?: (patient: any, program: any) => Record<string, Function>;
+    readonly confirmationSummary?: (patient: any, program: any) => Record<string, Function> | Promise<Record<string, Function>>;
 }
