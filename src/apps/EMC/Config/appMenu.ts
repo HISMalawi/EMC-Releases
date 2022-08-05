@@ -99,7 +99,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'VL coverage',
             id: 'vl_coverage',
-            img: 'reports/viral_load.png'
+            img: 'reports/viral_load.png',
+            url: '/emc/report/pepfar/vl_coverage'
           },
           {
             title: 'SC ARVDISP',

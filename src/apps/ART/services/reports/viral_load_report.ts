@@ -6,9 +6,10 @@ export class ViralLoadReportService extends ArtReportService {
         super()
     }
     
-    getVLCoverage() {
+    getVLCoverage(params = {} as Record<string, any>) {
         return this.getReport(`programs/${this.programID}/reports/viral_load_coverage`, {
-            'rebuild_outcomes': true
+            'rebuild_outcomes': true,
+            ...params
         })
     }
 

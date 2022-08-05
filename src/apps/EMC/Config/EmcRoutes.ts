@@ -93,6 +93,11 @@ export default [
         path: 'sc_arvdisp',
         component: () => import('@/apps/EMC/views/reports/pepfar/SCARVDISP.vue'),
       },
+      {
+        name: 'vl_coverage',
+        path: 'vl_coverage',
+        component: () => import('@/apps/EMC/views/reports/pepfar/VLCoverage.vue'),
+      }
     ]
   },
 ];
