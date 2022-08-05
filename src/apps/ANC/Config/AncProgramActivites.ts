@@ -3,6 +3,7 @@ import Apps from '@/apps/app_lib'
 import { alertConfirmation } from "@/utils/Alerts";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { AncLabResultService } from "@/apps/ANC/Services/anc_lab_result_service"
+import { AncSocialHistoryService } from "@/apps/ANC/Services/anc_social_history_service"
 import router from "@/router";
 
 /**
@@ -39,6 +40,15 @@ export const SECONDARY_ACTIVITIES: TaskInterface[] = [
             const lab = new AncLabResultService(patientID, -1)
             lab.date = visitDate
             await lab.printLabResults()
+        }
+    },
+    {
+        id: 'print_session_social_history',
+        name: 'Patient history (Print)',
+        icon: "barcode.svg",
+        action: ({ patientID }: any) => {
+            const social = new AncSocialHistoryService(patientID, -1)
+            social.printSocialHistory()
         }
     }
 ]
