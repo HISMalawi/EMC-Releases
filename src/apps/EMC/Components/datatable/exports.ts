@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { TableColumnInterface } from './types';
-import { isEmpty } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { Service } from '@/services/service';
 
 function sanitize(str: string) {
@@ -25,7 +25,7 @@ export function convertToCsv(columns: TableColumnInterface[], rows: any[], perio
   str += "\n";
   str += rows.map((r) => columns
     .filter((c) => c.exportable !== false)
-    .map((c) => sanitize(r[c.path]))
+    .map((c) => sanitize(get(r, c.path)))
     .join(",")
   ).join("\n");
 
