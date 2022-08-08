@@ -358,13 +358,7 @@ export default defineComponent({
         patientCards: [] as Array<any>,
         appVersion: ProgramService.getFullVersion(),
         sessionEncounters: [] as Encounter[],
-        savedEncounters: [] as string[],
-        cardConfig: {
-            labEnabled: true as boolean,
-            medicationsEnabled: true as boolean,
-            alertsEnabled: true as boolean,
-            activitiesEnabled: true as boolean,
-        }
+        savedEncounters: [] as string[]
     }),
     computed: {
         patientIsset(): boolean {
@@ -425,6 +419,8 @@ export default defineComponent({
                         })
                 },
                 onClick: (card: any) => {
+                    if (!card.isEnabled) 
+                        return
                     if (!card.isLoading) {
                         this.openModal(
                             card.items, 'Select Activities', EncounterView
@@ -455,7 +451,7 @@ export default defineComponent({
                             card.isLoading = false
                         })
                 },
-                onClick: () => this.$router.push(`/art/encounters/lab/${this.patient.getID()}`)
+                onClick: (card: any) => card.isEnabled && this.$router.push(`/art/encounters/lab/${this.patient.getID()}`)
             },
             {
                 items: [],
@@ -508,6 +504,8 @@ export default defineComponent({
                         })
                 },
                 onClick: (card: any) => {
+                    if (!card.isEnabled) 
+                        return
                     if (card.isLoading) return toastWarning('Please wait..')
                     const columns = ['Medication', 'Start date', 'End date', 'Amount given']
                     const rows = card.items.map((medication: any) => ([
@@ -597,7 +595,6 @@ export default defineComponent({
         },
         updateCardVisitData(visitDate: string, invalidateCache=false) {
             this.patientCards.forEach((card) => {
-                console.log(card)
                 if (card.isEnabled && typeof card.onVisitDate === 'function') {
                     if (typeof card.cache === 'object' && card.cache[visitDate] && !invalidateCache) {
                         card.items = card.cache[visitDate]
@@ -769,41 +766,37 @@ export default defineComponent({
                 this.openModal(other, 'Select Activity', TaskSelector)
             }
         },
-        async openModal(items: any, title: string, component: any, date='') {
+        async startModal(component: any, props: any) {
             (await modalController.create({
                 component: component,
                 backdropDismiss: false,
                 cssClass: "large-modal",
-                componentProps: {
-                    items,
-                    title: `${title}: ${date || this.toDate(this.activeVisitDate.toString())}`,
-                    taskParams: { 
-                        patient: this.patient.getObj(),
-                        program: this.patientProgram,
-                        visitDate: this.activeVisitDate,
-                        patientID: this.patientId,
-                        savedEncounters: this.savedEncounters
-                    }
-                }
+                componentProps: props
             })).present()
         },
-        async openTableModal(columns: any, rows: any, title: string) {
-            (await modalController.create({
-                component: CardDrilldown,
-                backdropDismiss: false,
-                cssClass: "large-modal",
-                componentProps: {
-                    columns,
-                    rows,
-                    title: `${title}: ${this.toDate(this.activeVisitDate.toString())}`
+        openModal(items: any, title: string, component: any, date='') {
+            this.startModal(component, {
+                items,
+                title: `${title}: ${date || this.toDate(this.activeVisitDate.toString())}`,
+                taskParams: { 
+                    patient: this.patient.getObj(),
+                    program: this.patientProgram,
+                    visitDate: this.activeVisitDate,
+                    patientID: this.patientId,
+                    savedEncounters: this.savedEncounters
                 }
-            })).present()
+            })
+        },
+        openTableModal(columns: any, rows: any, title: string) {
+            this.startModal(CardDrilldown, {
+                columns,
+                rows,
+                title: `${title}: ${this.toDate(this.activeVisitDate.toString())}`
+            })
         },
         onCancel() {
             alertConfirmation('Are you sure you want to Finish?').then((ok) => {
-                if (ok) {
-                    this.$router.push({path: '/'})
-                }
+                if (ok) this.$router.push({path: '/'})
             })
         }
     }
