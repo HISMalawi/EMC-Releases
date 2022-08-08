@@ -325,6 +325,7 @@ export default defineComponent({
       patientTypeService.setDate(form.initialVisitDate.value)
       registrationService.setDate(form.initialVisitDate.value)
       vitalsService.setDate(form.initialVisitDate.value)
+      PatientTypeService.setSessionDate(form.initialVisitDate.value)
       
       const {formData, computedFormData} = resolveFormValues(form)
       await patient.value?.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`)
