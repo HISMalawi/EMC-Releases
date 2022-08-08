@@ -6,9 +6,9 @@
         <br v-if="!inline"><br v-if="!inline">
         <ion-radio-group v-model="model.value" @ionChange="() => model.error = ''">
           <span class="ion-margin-start">Yes</span>
-          <ion-radio class="ion-margin-start" slot="start" color="primary" value="Yes" />
+          <ion-radio class="ion-margin-start" slot="start" color="primary" value="Yes" :disabled="disabled"/>
           <span class="ion-margin-start">No</span>
-          <ion-radio class="ion-margin-start" slot="start" color="primary" value="No" />
+          <ion-radio class="ion-margin-start" slot="start" color="primary" value="No" :disabled="disabled" />
         </ion-radio-group><br>
         <ion-note v-if="model.error" color="danger">{{ model.error }}</ion-note>
       </ion-col>
@@ -29,6 +29,10 @@ export default defineComponent({
       default: () => ({}),
     },
     inline: {
+      type: Boolean,
+      default: false,
+    },
+    disabled: {
       type: Boolean,
       default: false,
     },
