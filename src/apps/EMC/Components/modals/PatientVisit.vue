@@ -182,7 +182,7 @@ export default defineComponent({
 
     const form = reactive<DTForm>({
       visitDate: {
-        value: undefined as string | undefined,
+        value: dayjs().format('YYYY-MM-DD') as string | undefined,
         label: "Visit Date",
         required: true,
         validation: async (date: Option) => {
@@ -243,6 +243,11 @@ export default defineComponent({
         validation: async (date, form) => {
           if(dayjs(date.value).isBefore(dayjs(form.visitDate.value))) {
             return ["Appointment date cannot be before visit date"]
+          }
+          const arvs = parseInt(form.totalArvsGiven.value) || 0
+          const remainingDrugs = parseInt(form.pillCount.value) || 0
+          if(dayjs(date.value).isAfter(dayjs(form.visitDate.value).add(arvs + remainingDrugs, 'days'))) {
+            return ["Appointment date cannot be after drug run out date"]
           }
           return null
         }
