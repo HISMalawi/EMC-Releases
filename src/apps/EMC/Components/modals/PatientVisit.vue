@@ -547,7 +547,7 @@ export default defineComponent({
 
       await adherence.createEncounter()
       const adherenceObs = await Promise.all(prevDrugs.value.map(async (drug: any) => {
-        const expected = adherence.calculateExpected(drug.quantity, drug.equivalent_daily_dose, drug.order.start_date)
+        const expected = adherence.calculateExpected(drug.quantity, drug.equivalent_daily_dose, drug.order.start_date, drug.frequency)
         const adh = adherence.calculateAdherence(drug.quantity, formData.pillCount, expected)
         return [
           await adherence.buildAdherenceObs(drug.order_id, drug.drug_inventory_id, adh),
