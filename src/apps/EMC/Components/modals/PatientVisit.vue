@@ -67,7 +67,7 @@
           <NumberInput v-model="form.total3HPGiven" :form="form" :min="1"/>
         </ion-col>
         <ion-col size="6" class="ion-margin-vertical">
-          <yes-no-input v-model="form.patientPresent" inline />
+          <yes-no-input v-model="form.patientPresent" inline :disabled="form.patientPresent.disabled" />
         </ion-col>
         <ion-col size="6" class="ion-margin-vertical">
           <yes-no-input v-model="form.guardianPresent" inline />
@@ -95,8 +95,7 @@ import { computed, defineComponent, onMounted, PropType, reactive, ref, watch } 
 import { 
   IonCol, 
   IonGrid, 
-  IonRow, 
-  modalController, 
+  IonRow,  
   IonContent, 
   IonFooter, 
   IonHeader, 
@@ -377,6 +376,22 @@ export default defineComponent({
       }
     })
 
+    watch([form.weight, form.tbStatus], async () => {
+      if(form.weight.value) {
+        const regs = await RegimenService.getRegimensByWeight(form.weight.value)
+        if(!isEmpty(regs)) {
+          regimens.value = Object.keys(regs).map(key => ({
+            label: key, 
+            value: key, 
+            other: regs[key] 
+          }))
+        }
+
+        form.patientPresent.value = "Yes"
+        form.patientPresent.disabled = true
+      }
+    })
+
     const hasGiven3HP = computed(() => form.tbMed.value === '3HP (INH 300 / RFP 300)')
     const hasGivenRFP = computed(() => form.tbMed.value === '3HP (RFP + INH)')
     const hasGiven6H = computed(() => form.tbMed.value === '6H')
@@ -389,6 +404,7 @@ export default defineComponent({
       'TB Not Suspected',
       'TB Suspected'
     ]);
+
     const tbMeds = toOptions(['6H', '3HP (RFP + INH)', '3HP (INH 300 / RFP 300)'])
     
     const setPatientPresent = (state: "Yes" | "No") => {
@@ -558,11 +574,18 @@ export default defineComponent({
 
     onMounted (async () => {
       prevHeight.value = await props.patient.getRecentHeight()
-      prevDrugs.value = await DrugOrderService.getLastDrugsReceived(props.patient.getID())
-      const regs: Record<string, any[]> = await RegimenService.getRegimens(props.patient.getID())
-      if(!isEmpty(regs)) {
-        regimens.value = Object.keys(regs).map(key => ({ label: key, value: key, other: regs[key] }))
+      const recentWeight = await props.patient.getRecentWeight()
+      if (recentWeight) {
+        const regs = await RegimenService.getRegimensByWeight(recentWeight)
+        if(!isEmpty(regs)) {
+          regimens.value = Object.keys(regs).map(key => ({ 
+            label: key, 
+            value: key, 
+            other: regs[key] 
+          }))
+        }
       }
+      prevDrugs.value = await DrugOrderService.getLastDrugsReceived(props.patient.getID())
       contraIndications.value = ConceptService
         .getConceptsByCategory("contraindication", true)
         .map(concept => ({
