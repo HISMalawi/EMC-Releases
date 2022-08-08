@@ -144,7 +144,7 @@ export default defineComponent({
       }
     }
   },
-  async activated() {
+  async mounted() {
     this.$emit('onFieldActivated', this)
     const data = await PatientRadiologyService.getRadiologyList('Radiology Orders')
     this.listData = this.mapListToOptions(data)

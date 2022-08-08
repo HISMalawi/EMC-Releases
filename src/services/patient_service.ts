@@ -11,6 +11,7 @@ import { find, isEmpty } from 'lodash';
 import { isValueEmpty } from '@/utils/Strs';
 import { PatientIdentifierService } from './patient_identifier_service';
 import { PatientPrintoutService } from './patient_printout_service';
+import dayjs from 'dayjs';
 
 export class Patientservice extends Service {
     patient: Patient;
@@ -137,6 +138,10 @@ export class Patientservice extends Service {
         return ObservationService.getLastValueNumber(this.getID(), "Height")
     }
 
+    getRecentHeightObs() {
+        return ObservationService.getFirstObs(this.getID(), 'Height')
+    }
+
     async getRecentHeight() {
         return ObservationService.getFirstValueNumber(this.getID(), "Height") || -1
     }
@@ -187,7 +192,9 @@ export class Patientservice extends Service {
     }
 
     async getMedianWeightHeight() {
-        return Service.getJson(`patients/${this.getID()}/median_weight_height`)
+        return Service.getJson(`patients/${this.getID()}/median_weight_height`, {
+            date: Service.getSessionDate()
+        })
     }
 
     getObj() {
@@ -217,7 +224,7 @@ export class Patientservice extends Service {
     }
     
     getAge() {
-        return HisDate.getAgeInYears(this.patient.person.birthdate)
+        return dayjs(Service.getSessionDate()).diff(this.patient.person.birthdate, 'years')
     }
 
     getAgeInMonths() {

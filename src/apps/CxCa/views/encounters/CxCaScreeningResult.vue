@@ -75,7 +75,7 @@ export default defineComponent({
       }else if(method.match(/HPV DNA/i)){
         return ["HPV positive","HPV negative"];
       }else if(method.match(/Speculum/i)){
-        return ["Visible Lesion","No visible Lesion","Other Gynae"];
+        return ["Visible Lesion","No visible Lesion", "Suspect Cancer", "Other Gynae"];
       }
       return []
     },

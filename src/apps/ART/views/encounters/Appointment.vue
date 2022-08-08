@@ -57,7 +57,8 @@ export default defineComponent({
 
       toastSuccess('Encounter created')
       const printer = new PatientPrintoutService(this.patientID);
-      if(this.app.applicationName !== "CxCa") {
+      const appsThatDoNotPrint = ['CxCa', 'ANC']
+      if(!appsThatDoNotPrint.includes(this.app.applicationName)) {
         await printer.printVisitSummaryLbl();
       }
       this.nextTask()

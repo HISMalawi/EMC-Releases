@@ -2,6 +2,7 @@ import { TaskInterface } from "@/apps/interfaces/TaskInterface";
 import Apps from '@/apps/app_lib'
 import { alertConfirmation } from "@/utils/Alerts";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
+import { AncLabResultService } from "@/apps/ANC/Services/anc_lab_result_service"
 import router from "@/router";
 
 /**
@@ -28,6 +29,19 @@ function encounterWasSaved(savedEncounters: string[] | undefined, encounterName:
     }
     return false
 }
+
+export const SECONDARY_ACTIVITIES: TaskInterface[] = [
+    {
+        id: 'print_session_lab_results',
+        name: 'Lab results (Print)',
+        icon: "barcode.svg",
+        action: async ({ patientID, visitDate }: any) => {
+            const lab = new AncLabResultService(patientID, -1)
+            lab.date = visitDate
+            await lab.printLabResults()
+        }
+    }
+]
 
 export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     {
