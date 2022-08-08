@@ -357,7 +357,7 @@ export default defineComponent({
         activeVisitDate: '' as string | number,
         patientCards: [] as Array<any>,
         appVersion: ProgramService.getFullVersion(),
-        sessionEncounters: [] as Encounter[],
+        sessionEncounterMap: {} as Record<string, any>,
         savedEncounters: [] as string[]
     }),
     computed: {
@@ -401,16 +401,23 @@ export default defineComponent({
                     card.isLoading = true
                     EncounterService.getEncounters(this.patientId, {date})
                         .then((encounters) => {
-                            if (date === ProgramService.getSessionDate()) { 
-                                this.sessionEncounters = encounters
-                            }
-                            this.tasksDisabled = false
                             this.getActivitiesCardInfo(encounters)
                                 .then((data) => {
                                     card.items = data
                                     card.cache[date] = card.items
                                     card.isLoading = false
                                 }).catch(() => card.isLoading = false)
+                            // Preserve today's encounters (BY SESSION DATE) in a hash object
+                            if (date === ProgramService.getSessionDate() && !isEmpty(encounters)) {
+                                this.sessionEncounterMap = encounters.reduce((accum: any, encounter: Encounter) => {
+                                    accum[encounter.type.name.toLowerCase()] = encounter.observations
+                                        .reduce((concepts: any, obs: any) => concepts.concat(obs.concept.concept_names), [])
+                                        .map((concept: any) => concept.name.toLowerCase())
+                                    return accum
+                                }, {})
+                                console.timeEnd('Session encounter')
+                            }
+                            this.tasksDisabled = false
                         }).catch(() => {
                             card.items = []
                             card.cache[date] = card.items
@@ -732,28 +739,20 @@ export default defineComponent({
         */
         async showTasks() {
             if ('primaryPatientActivites' in this.app) {
-                // Group encounters by encounter type name with the value being observation concept names.
-                // Observations concept names are later used to identify if key data was recorded for the task to be marked as done
-                const encounters = this.sessionEncounters.reduce((accum: any, encounter: Encounter) => {
-                    accum[encounter.type.name.toLowerCase()] = encounter.observations
-                        .reduce((concepts: any, obs: any) => concepts.concat(obs.concept.concept_names), [])
-                        .map((concept: any) => concept.name.toLowerCase())
-                    return accum
-                }, {})
                 const tasks = [...this.app.primaryPatientActivites].map(
                     (task: TaskInterface) => {
                         const taskName = (task.encounterTypeName || task.name).toLowerCase()
                         // check if key concept names from a task are present in encounters
                         // to mark it as completed
-                        if (typeof task.taskCompletionChecklist === 'object') {
-                            task.taskCompleted = task.taskCompletionChecklist.every(
-                                item => isArray(encounters[taskName])
-                                    && encounters[taskName].includes(item.toLowerCase())
+                        if (typeof task.taskCompletionChecklist === 'object' && !isEmpty(this.sessionEncounterMap)) {
+                            task.taskCompleted = task.taskCompletionChecklist
+                                .every(item => isArray(this.sessionEncounterMap[taskName])
+                                    && this.sessionEncounterMap[taskName].includes(item.toLowerCase())
                             )
                         } else {
                             // for tasks that dont have key concepts defined, just check presence of 
                             // the encounter itself
-                            task.taskCompleted = !isEmpty(encounters[taskName])
+                            task.taskCompleted = !isEmpty(this.sessionEncounterMap[taskName])
                         }
                         return task
                     })
