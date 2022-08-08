@@ -378,7 +378,8 @@ export default defineComponent({
 
     watch([form.weight, form.tbStatus], async () => {
       if(form.weight.value) {
-        const regs = await RegimenService.getRegimensByWeight(form.weight.value)
+        const onTB = form.tbStatus.value && !form.tbStatus.value.match(/TB Not Suspected/i)
+        const regs = await RegimenService.getRegimensByWeight(form.weight.value, onTB)
         if(!isEmpty(regs)) {
           regimens.value = Object.keys(regs).map(key => ({
             label: key, 
