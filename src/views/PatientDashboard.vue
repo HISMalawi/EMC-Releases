@@ -532,6 +532,7 @@ export default defineComponent({
             App.doAppManagementTasks().then(() =>{
                 this.app = App.getActiveApp()
                 if (this.appHasCustomContent) {
+                    this.patientCards = []
                     this.tasksDisabled = false
                 }
                 this.initData()
