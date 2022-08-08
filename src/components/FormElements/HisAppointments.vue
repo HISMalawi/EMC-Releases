@@ -35,7 +35,7 @@
           </ion-col>
           <ion-col size="4" class="his-card">
             <ion-list>
-              <ion-item class="his-sm-text" v-if="rDate">
+              <ion-item class="his-sm-text" v-if="showMedicationRunoutDate && rDate">
                 <ion-label class="ion-text-wrap">
                   <b>Medication Run out Date</b>
                   <p/>
@@ -193,6 +193,9 @@ export default defineComponent({
     },
   },
   computed: {
+    showMedicationRunoutDate(): boolean {
+      return typeof this.config?.hideRunoutDate === 'boolean' ? !this.config?.hideRunoutDate : true;
+    },
     aDate(): string {
       return HisDate.toStandardHisDisplayFormat(this.startDate);
     },

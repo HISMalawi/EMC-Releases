@@ -4,6 +4,8 @@ import OPD from '@/apps/OPD/app';
 import ANC from '@/apps/ANC/app'
 import CXCA from '@/apps/CxCa/app';
 import { RouteRecordRaw } from 'vue-router';
+import RADIOLOGY from '@/apps/RADIOLOGY/app';
+import Registration from '@/apps/Registration/app';
 /**
  * Register Program Applications here that conform to the AppInterface
 */
@@ -12,7 +14,9 @@ const APPS = [
     LOS,
     OPD,
     ANC,
-    CXCA
+    CXCA,
+    RADIOLOGY,
+    Registration
 ]
 export function  AllAppRoutes() {
     return APPS.reduce((all, app) => 

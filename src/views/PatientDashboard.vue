@@ -56,6 +56,7 @@
                             >
                             <primary-card
                                 :key="`mcard${cardIndex}`"
+                                :isEnabled="card.isEnabled"
                                 :counter="card.items.length"
                                 :icon="card.icon"
                                 :title="card.label"
@@ -188,6 +189,7 @@
                                     :key="cardIndex">
                                     <primary-card
                                         :key="card.label"
+                                        :isEnabled="card.isEnabled"
                                         :counter="card.items.length"
                                         :icon="card.icon"
                                         :title="card.label"
@@ -356,7 +358,13 @@ export default defineComponent({
         patientCards: [] as Array<any>,
         appVersion: ProgramService.getFullVersion(),
         sessionEncounters: [] as Encounter[],
-        savedEncounters: [] as string[]
+        savedEncounters: [] as string[],
+        cardConfig: {
+            labEnabled: true as boolean,
+            medicationsEnabled: true as boolean,
+            alertsEnabled: true as boolean,
+            activitiesEnabled: true as boolean,
+        }
     }),
     computed: {
         patientIsset(): boolean {
@@ -394,6 +402,7 @@ export default defineComponent({
                 color: 'primary',
                 isLoading: false,
                 icon: timeOutline,
+                isEnabled: this.isCardEnabled('activitiesEnabled'),
                 onVisitDate: (card: any, date: string) => {
                     card.isLoading = true
                     EncounterService.getEncounters(this.patientId, {date})
@@ -432,6 +441,7 @@ export default defineComponent({
                 isLoading: false,
                 label: 'Lab Orders',
                 icon: timeOutline,
+                isEnabled: this.isCardEnabled('labEnabled'),
                 onVisitDate: (card: any, date: string) => {
                     card.isLoading = true
                     this.getLabOrderCardInfo(date)
@@ -454,6 +464,7 @@ export default defineComponent({
                 icon: warningOutline,
                 isLoading: false,
                 isInit: false,
+                isEnabled: this.isCardEnabled('alertsEnabled'),
                 onVisitDate: (card: any) => {
                     if (card.isInit) return
                     const d  = this.getPatientAlertCardInfo()
@@ -481,6 +492,7 @@ export default defineComponent({
                 color: 'warning',
                 icon: timeOutline,
                 isLoading: false,
+                isEnabled: this.isCardEnabled('medicationsEnabled'),
                 onVisitDate: (card: any, date: string) => {
                     card.isLoading = true
                     DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
@@ -558,6 +570,10 @@ export default defineComponent({
                     })
             }).catch((e) => toastDanger(`${e}`))
         },
+        isCardEnabled(setting: 'activitiesEnabled' | 'alertsEnabled' | 'medicationsEnabled' | 'labEnabled') {
+            const conf = this.app?.configDefaultPatientDashboardCards 
+            return conf && setting in conf  ? conf[setting] || false : true 
+        },
         async showLoader() {
             (await loadingController.create({
                 message: 'Please wait....',
@@ -581,7 +597,8 @@ export default defineComponent({
         },
         updateCardVisitData(visitDate: string, invalidateCache=false) {
             this.patientCards.forEach((card) => {
-                if (typeof card === 'object' && typeof card.onVisitDate === 'function') {
+                console.log(card)
+                if (card.isEnabled && typeof card.onVisitDate === 'function') {
                     if (typeof card.cache === 'object' && card.cache[visitDate] && !invalidateCache) {
                         card.items = card.cache[visitDate]
                         return

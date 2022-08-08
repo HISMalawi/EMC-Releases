@@ -140,8 +140,9 @@ export async function getPatientDashboardLabOrderCardItems(patientId: number, da
     return data
 }
 
-export function confirmationSummary(patient: Patientservice, program: any, facts: any) {
+export async function confirmationSummary(patient: Patientservice, program: any, facts: any) {
     const patientID = patient.getID()
+    const patientProgamInfo = await ProgramService.getProgramInformation(patientID)
     return {
         'PROGRAM INFORMATION': async () => {
             const data: any = []
@@ -150,15 +151,10 @@ export function confirmationSummary(patient: Patientservice, program: any, facts
               label: "Next Task",
               value: params.name ? `${params.name}` : 'NONE',
             })
-            await ProgramService.getProgramInformation(patientID)
-              .then(
-              (program) => {
-                data.push({
-                  label: "ART Duration",
-                  value: `${program.art_duration} month(s) `,
-                })
-              }
-            );
+            data.push({
+              label: "ART Duration",
+              value: `${patientProgamInfo.art_duration} month(s) `,
+            })
             await ProgramService.getFastTrackStatus(patientID).then(
               (task) => {
                 data.push({
@@ -217,7 +213,7 @@ export function confirmationSummary(patient: Patientservice, program: any, facts
             return [
                 { 
                     label: 'Current Outcome', 
-                    value: program.outcome || 'N/A'
+                    value: patientProgamInfo.current_outcome || 'N/A'
                 }
             ]
         },
