@@ -112,6 +112,11 @@ export default [
         name: "tx_rtt",
         path: "tx_rtt",
         component: () => import("@/apps/EMC/views/reports/pepfar/TXRTT.vue"),
+      },
+      {
+        name: "tx_ml",
+        path: "tx_ml",
+        component: () => import("@/apps/EMC/views/reports/pepfar/TXML.vue"),
       }
     ]
   },

@@ -1,8 +1,8 @@
 <template>
   <base-report-table
-    title="PEPFAR TX RTT Report"
-    subtitle="Clients that have their clinical dispensation visit falling in the reporting period and there is a difference of 30 or more days between their visit date and their previous appointment date / runout date"
-    report-icon="reports/restart.png"
+    title="PEPFAR TX ML Report"
+    subtitle="Clients that were Alive and on treatment before the reporting period and their “next appointment date / drug runout” date falls within the reporting period. 30 or more days have gone between their appointment date and the end of the reporting period without any clinical dispensation visit"
+    report-icon="reports/tx-ml.png"
     :columns="columns"
     :rows="rows"
     :period="period"
@@ -34,9 +34,12 @@ export default defineComponent({
       { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender" },
-      { path: "return_less_than_3_mo.total", label: "Returned <3 mo", drillable: true },
-      { path: "return_by_3_to_5_mo.total", label: "Returned 3-5 mo", drillable: true },
-      { path: "return_6_plus_mo.total", label: "Returned 6+ mo", drillable: true },
+      { path: "died.total", label: "Died", drillable: true },
+      { path: "iit_less_than_3_mo.total", label: "IIT <3 mo", drillable: true },
+      { path: "iit_3_to_5_mo.total", label: "IIT 3-5 mo", drillable: true },
+      { path: "iit_6_plus_mo.total", label: "IIT 6+ mo", drillable: true },
+      { path: "transferred_out.total", label: "Transferred out", drillable: true },
+      { path: "refused.total", label: "Refused (Stopped)", drillable: true },
     ]
 
     const makeCell = (patients: any[]) => ({
@@ -44,38 +47,29 @@ export default defineComponent({
       patients,
     })
 
-    const sortData = (ls: Array<any>, comparator: Function) => {
-      return ls.filter(i => comparator(i.months)).map(i => i.patient_id)
-    }
-
     const fetchData =  async ({ dateRange }: Record<string, any>) => {
       await loader.show()
       const report = new TxReportService()
       report.setStartDate(dateRange.startDate)
       report.setEndDate(dateRange.endDate)
       period.value = report.getDateIntervalPeriod()
-      const data: any = await report.getTxRttReport()
+      const data: any = await report.getTxMlReport()
       let index = 1;
       const rs: any[] = []
       for(const gender of ["F", "M"]) {
         for(const group of AGE_GROUPS){
-          const ageGroupExists = group in data;
-          const row: Record<string, any> = {
-            index: index++,
+          const exists = group in data && gender in data[group]
+          rs.push({
+            "index": index++,
             "age_group": group,
-            gender: gender === "F" ? "Female" : "Male",
-          }
-          if(ageGroupExists) {
-            const patients = data[group][gender];
-            row["return_less_than_3_mo"] = makeCell(sortData(patients, (months: number) => months < 3))
-            row["return_by_3_to_5_mo"] = makeCell(sortData(patients, (months: number) => months >= 3 && months < 6))
-            row["return_6_plus_mo"] = makeCell(sortData(patients, (months: number) => months >= 6))
-          } else {
-            row["return_less_than_3_mo"] = makeCell([])
-            row["return_by_3_to_5_mo"] = makeCell([])
-            row["return_6_plus_mo"] = makeCell([])
-          }
-          rs.push(row)
+            "gender": gender === "F" ? "Female" : "Male",
+            "died": exists ? makeCell(data[group][gender][0]) : makeCell([]),
+            "iit_less_than_3_mo": exists ? makeCell(data[group][gender][1]) : makeCell([]),
+            "iit_3_to_5_mo": exists ? makeCell(data[group][gender][2]) : makeCell([]),
+            "iit_6_plus_mo": exists ? makeCell(data[group][gender][3]) : makeCell([]),
+            "transferred_out": exists ? makeCell(data[group][gender][4]) : makeCell([]),
+            "refused": exists ? makeCell(data[group][gender][5]) : makeCell([]),
+          })
         }
       }
       rows.value = rs
