@@ -80,7 +80,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'TX CURR MMD',
             id: 'tx_curr_mmd',
-            img: 'reports/px.png'
+            img: 'reports/px.png',
+            url: '/emc/report/pepfar/tx_curr_mmd'
           },
           {
             title: 'TX ML',

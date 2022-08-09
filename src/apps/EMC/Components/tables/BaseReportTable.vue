@@ -5,7 +5,7 @@
         <ion-grid>
           <ion-row>
             <ion-col size="1" class="ion-padding ion-margin-end">
-              <img :src="`assets/images/${reportIcon}`" style="height: 5rem; width: 5rem;" />
+              <img :src="`assets/images/${reportIcon}`" :style="{height: subtitle ? 7 : 5 + 'rem', width: subtitle ? 7 : 5 + 'rem'}" />
             </ion-col>
             <ion-col>
               <h1 v-html="title"></h1>

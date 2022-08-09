@@ -117,6 +117,11 @@ export default [
         name: "tx_ml",
         path: "tx_ml",
         component: () => import("@/apps/EMC/views/reports/pepfar/TXML.vue"),
+      },
+      {
+        name: "tx_curr_mmd",
+        path: "tx_curr_mmd",
+        component: () => import("@/apps/EMC/views/reports/pepfar/TxCurrMMD.vue")
       }
     ]
   },

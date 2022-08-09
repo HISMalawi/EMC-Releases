@@ -1,8 +1,11 @@
 <template>
   <base-report-table
-    title="PEPFAR TX ML Report"
-    subtitle="Clients that were Alive and on treatment before the reporting period and their “next appointment date / drug runout” date falls within the reporting period. 30 or more days have gone between their appointment date and the end of the reporting period without any clinical dispensation visit"
-    report-icon="reports/tx-ml.png"
+    title="PEPFAR TX CURR MMD Report"
+    subtitle="Clients that are alive and on treatment in the reporting period and
+      the difference in days between their clinical dispensation visit and 
+      next appointment / drug-runout date is: 3 months (1 - 89 days), 
+      3 - 5 months (90 - 179 days), 6+ months (180 or more days)"
+    report-icon="reports/px.png"
     :columns="columns"
     :rows="rows"
     :period="period"
@@ -33,12 +36,9 @@ export default defineComponent({
       { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender" },
-      { path: "died.total", label: "Died", drillable: true },
-      { path: "iit_less_than_3_mo.total", label: "IIT <3 mo", drillable: true },
-      { path: "iit_3_to_5_mo.total", label: "IIT 3-5 mo", drillable: true },
-      { path: "iit_6_plus_mo.total", label: "IIT 6+ mo", drillable: true },
-      { path: "transferred_out.total", label: "Transferred out", drillable: true },
-      { path: "refused.total", label: "Refused (Stopped)", drillable: true },
+      { path: "underThree.total", label: "# of clients on <3 months of ARVs", drillable: true },
+      { path: "betweenThreeAndFive.total", label: "# of clients on 3 - 5 months of ARVs", drillable: true },
+      { path: "overSix.total", label: "# of clients on >= 6 months of ARVs", drillable: true },
     ]
 
     const makeCell = (patients: any[]) => ({
@@ -46,32 +46,59 @@ export default defineComponent({
       patients,
     })
 
-    const fetchData =  async ({ dateRange }: Record<string, any>) => {
+    const buildCells = (data: Record<string, any>) => {
+      const patients = Object.keys(data);
+      return {
+        "underThree": makeCell(patients.filter(id => data[id]["prescribed_days"] < 90)),
+        "betweenThreeAndFive": makeCell(patients.filter(id => data[id]["prescribed_days"] >= 90 && data[id]["prescribed_days"] <= 150)),
+        "overSix": makeCell(patients.filter(id => data[id]["prescribed_days"] > 150)),
+      }
+    }
+
+    const fetchData = async ({ dateRange }: Record<string, any>) => {
       await loader.show()
       const report = new TxReportService()
       report.setStartDate(dateRange.startDate)
       report.setEndDate(dateRange.endDate)
       period.value = report.getDateIntervalPeriod()
-      const data: any = await report.getTxMlReport()
-      let index = 1;
-      const rs: any[] = []
-      for(const gender of ["F", "M"]) {
-        for(const group of AGE_GROUPS){
-          const exists = group in data && gender in data[group]
-          rs.push({
-            "index": index++,
-            "age_group": group,
-            "gender": gender === "F" ? "Female" : "Male",
-            "died": exists ? makeCell(data[group][gender][0]) : makeCell([]),
-            "iit_less_than_3_mo": exists ? makeCell(data[group][gender][1]) : makeCell([]),
-            "iit_3_to_5_mo": exists ? makeCell(data[group][gender][2]) : makeCell([]),
-            "iit_6_plus_mo": exists ? makeCell(data[group][gender][3]) : makeCell([]),
-            "transferred_out": exists ? makeCell(data[group][gender][4]) : makeCell([]),
-            "refused": exists ? makeCell(data[group][gender][5]) : makeCell([]),
-          })
+      report.initArvRefillPeriod(true)
+      let fIndex = 1;
+      let mIndex = 21;
+      let minAge = 0;
+      let maxAge = 0;
+      const males: any[] = []
+      const females: any[] = []
+      for (const group of AGE_GROUPS) {
+        if (group === '<1 year') {
+          minAge = 0
+          maxAge = 0
+        } else if (group === '90 plus years') {
+          minAge = 90
+          maxAge = 1000
+        } else {
+          const [min, max] = group.split('-')
+          minAge = parseInt(min)
+          maxAge = parseInt(max)
         }
+        const data = await report.getTxCurrMMDReport(minAge, maxAge)
+        const hasMales = !!data && "Male" in data;
+        const hasFemales = !!data && "Female" in data;
+        males.push({ 
+          "index": mIndex++, 
+          "age_group": group,
+          "gender": "Male",
+          ...buildCells( hasMales ? data["Male"] : {} ) 
+        })
+
+        females.push({ 
+          "index": fIndex++, 
+          "age_group": group,
+          "gender": "Female",
+          ...buildCells( hasFemales ? data["Female"] : {} ) 
+        })
+        report.initArvRefillPeriod(false)
       }
-      rows.value = rs
+      rows.value = [...females, ...males]
       await loader.hide();
     }
 
