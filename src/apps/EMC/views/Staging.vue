@@ -32,7 +32,7 @@
             <span v-for="(entry, index) in selectedConditions" :key="index"> 
               <ion-chip color="danger" @click="() => entry.isChecked = false">{{entry.label}}</ion-chip>
             </span>
-            <div style="height: 320px; overflow-y: auto;" class="ion-margin-top ion-padding">
+            <div class="options ion-margin-top ion-padding">
               <ion-label v-for="entry in stagingCoditions" :key="entry.value" @click="() => entry.isChecked = !entry.isChecked">
                 <ion-checkbox class="ion-margin-end ion-float-left" v-model="entry.isChecked" @ionChange="onSelect" />
                 <span class="ion-margin-top" style="vertical-align: middle;">{{ entry.label }}</span>
@@ -255,6 +255,17 @@ export default defineComponent({
 
 <style scoped>
 ion-checkbox {
-    --size: 20px!important;
+  --size: 20px!important;
+}
+
+.options {
+  height: 400px; 
+  overflow-y: auto;
+}
+
+.options ion-label span:hover {
+  background-color: #ddd;
+  padding: 1rem;
+  cursor: pointer;
 }
 </style>

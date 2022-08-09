@@ -67,7 +67,7 @@
           <NumberInput v-model="form.total3HPGiven" :form="form" :min="1"/>
         </ion-col>
         <ion-col size="6" class="ion-margin-vertical">
-          <yes-no-input v-model="form.patientPresent" inline />
+          <yes-no-input v-model="form.patientPresent" inline :disabled="form.patientPresent.disabled" />
         </ion-col>
         <ion-col size="6" class="ion-margin-vertical">
           <yes-no-input v-model="form.guardianPresent" inline />
@@ -95,8 +95,7 @@ import { computed, defineComponent, onMounted, PropType, reactive, ref, watch } 
 import { 
   IonCol, 
   IonGrid, 
-  IonRow, 
-  modalController, 
+  IonRow,  
   IonContent, 
   IonFooter, 
   IonHeader, 
@@ -183,7 +182,7 @@ export default defineComponent({
 
     const form = reactive<DTForm>({
       visitDate: {
-        value: undefined as string | undefined,
+        value: dayjs().format('YYYY-MM-DD') as string | undefined,
         label: "Visit Date",
         required: true,
         validation: async (date: Option) => {
@@ -244,6 +243,11 @@ export default defineComponent({
         validation: async (date, form) => {
           if(dayjs(date.value).isBefore(dayjs(form.visitDate.value))) {
             return ["Appointment date cannot be before visit date"]
+          }
+          const arvs = parseInt(form.totalArvsGiven.value) || 0
+          const remainingDrugs = parseInt(form.pillCount.value) || 0
+          if(dayjs(date.value).isAfter(dayjs(form.visitDate.value).add(arvs + remainingDrugs, 'days'))) {
+            return ["Appointment date cannot be after drug run out date"]
           }
           return null
         }
@@ -377,6 +381,23 @@ export default defineComponent({
       }
     })
 
+    watch([form.weight, form.tbStatus], async () => {
+      if(form.weight.value) {
+        const onTB = form.tbStatus.value && !form.tbStatus.value.match(/TB Not Suspected/i)
+        const regs = await RegimenService.getRegimensByWeight(form.weight.value, onTB)
+        if(!isEmpty(regs)) {
+          regimens.value = Object.keys(regs).map(key => ({
+            label: key, 
+            value: key, 
+            other: regs[key] 
+          }))
+        }
+
+        form.patientPresent.value = "Yes"
+        form.patientPresent.disabled = true
+      }
+    })
+
     const hasGiven3HP = computed(() => form.tbMed.value === '3HP (INH 300 / RFP 300)')
     const hasGivenRFP = computed(() => form.tbMed.value === '3HP (RFP + INH)')
     const hasGiven6H = computed(() => form.tbMed.value === '6H')
@@ -389,6 +410,7 @@ export default defineComponent({
       'TB Not Suspected',
       'TB Suspected'
     ]);
+
     const tbMeds = toOptions(['6H', '3HP (RFP + INH)', '3HP (INH 300 / RFP 300)'])
     
     const setPatientPresent = (state: "Yes" | "No") => {
@@ -525,7 +547,7 @@ export default defineComponent({
 
       await adherence.createEncounter()
       const adherenceObs = await Promise.all(prevDrugs.value.map(async (drug: any) => {
-        const expected = adherence.calculateExpected(drug.quantity, drug.equivalent_daily_dose, drug.order.start_date)
+        const expected = adherence.calculateExpected(drug.quantity, drug.equivalent_daily_dose, drug.order.start_date, drug.frequency)
         const adh = adherence.calculateAdherence(drug.quantity, formData.pillCount, expected)
         return [
           await adherence.buildAdherenceObs(drug.order_id, drug.drug_inventory_id, adh),
@@ -558,11 +580,18 @@ export default defineComponent({
 
     onMounted (async () => {
       prevHeight.value = await props.patient.getRecentHeight()
-      prevDrugs.value = await DrugOrderService.getLastDrugsReceived(props.patient.getID())
-      const regs: Record<string, any[]> = await RegimenService.getRegimens(props.patient.getID())
-      if(!isEmpty(regs)) {
-        regimens.value = Object.keys(regs).map(key => ({ label: key, value: key, other: regs[key] }))
+      const recentWeight = await props.patient.getRecentWeight()
+      if (recentWeight) {
+        const regs = await RegimenService.getRegimensByWeight(recentWeight)
+        if(!isEmpty(regs)) {
+          regimens.value = Object.keys(regs).map(key => ({ 
+            label: key, 
+            value: key, 
+            other: regs[key] 
+          }))
+        }
       }
+      prevDrugs.value = await DrugOrderService.getLastDrugsReceived(props.patient.getID())
       contraIndications.value = ConceptService
         .getConceptsByCategory("contraindication", true)
         .map(concept => ({

@@ -174,7 +174,7 @@ export default defineComponent({
 
     const onFinish = async () => {
       await loader.show("Updating patient...");
-      if(!(await isValidForm(patient))) return
+      if(!(await isValidForm(patient))) return loader.hide();
       try {
         const { formData } = resolveFormValues(patient)
         const updatedPatient = {} as any;

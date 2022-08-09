@@ -13,6 +13,13 @@ export class RegimenService extends Service {
         return this.getJson(`programs/${this.getProgramID()}/regimens`, {'patient_id': patientId})
     }
 
+    static getRegimensByWeight(weight: number, onTbTreatment = false) {
+        return this.getJson(`programs/${this.getProgramID()}/regimens`, {
+            weight,
+            'tb_dosage': onTbTreatment,
+        })
+    }
+
     static getCustomIngridients() {
         return this.getJson(`programs/${this.getProgramID()}/custom_regimen_ingredients`)
     }

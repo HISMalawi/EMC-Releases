@@ -6,8 +6,8 @@
                     <center class="relation-category" :style="{color: '#3880ff'}"> Patient </center>
                     <ul class="his-sm-text"> 
                         <li>Name: <b>{{patient.name}}</b> </li>
-                        <li>Birthdate: <b>{{patient.birthdate}}</b> </li>
-                        <li>Home Address: <b>{{patient.homeAddress}}</b></li>
+                        <li>Birthdate: <b>{{patient.birth_date}}</b> </li>
+                        <li>Home Address: <b>{{patient.home_address}}</b></li>
                     </ul>
                 </div>
             </ion-col>
@@ -21,8 +21,8 @@
                     <center class="relation-category" :style="{color: '#3dc2ff'}"> Guardian </center>
                     <ul class="his-sm-text"> 
                         <li>Name: <b>{{guardian.name}}</b> </li>
-                        <li>Birthdate: <b>{{guardian.birthdate}}</b> </li>
-                        <li>Home Address: <b>{{guardian.homeAddress}}</b></li>
+                        <li>Birthdate: <b>{{guardian.birth_date}}</b> </li>
+                        <li>Home Address: <b>{{guardian.home_address}}</b></li>
                     </ul>
                 </div>
             </ion-col>

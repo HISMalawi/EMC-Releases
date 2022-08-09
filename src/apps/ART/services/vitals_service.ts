@@ -75,9 +75,6 @@ export class VitalsService extends AppEncounterService{
         name: "Height",
         validator: (val: Option) => {
           const errors = []
-          if(val.other?.recentHeight && parseInt(val.value.toString()) < val.other.recentHeight) {
-            errors.push([`The entered height is less that previous height ${val.other.recentHeight}cm`])
-          }
           errors.push(this.isNotEmptyandNumber(val))
           errors.push(this.checkMinMax(val, 40, 220))
           return this.mergeErrors(errors); 

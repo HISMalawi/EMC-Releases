@@ -3,6 +3,10 @@ import dayjs from "dayjs";
 export const STANDARD_DATE_FORMAT = 'YYYY-MM-DD'
 export const DISPLAY_DATE_FORMAT = 'DD/MMM/YYYY'
 
+function sessionDate() {
+    return sessionStorage.getItem('sessionDate') || dayjs().format(STANDARD_DATE_FORMAT)
+}
+
 function currentDisplayDate() {
     return dayjs().format(DISPLAY_DATE_FORMAT)
 }
@@ -36,12 +40,12 @@ function toStandardHisFormat(date: string | Date): string {
 }
 
 function estimateDateFromAge(age: number): string {
-    const date = dayjs().subtract(age, 'years')
+    const date = dayjs(sessionDate()).subtract(age, 'years')
     return date.format(STANDARD_DATE_FORMAT)
 }
 
 function getYearFromAge(age: number) {
-    return dayjs().subtract(age, 'years').year()
+    return dayjs(sessionDate()).subtract(age, 'years').year()
 }
 
 function getYear(date: string) {
@@ -59,7 +63,6 @@ function add(date: string, unit: any, value: number) {
 function subtract(date: string, unit: any, value: number) {
     return dayjs(date).subtract(value, unit);
 }
-function dateIsAfter(date: string) { return dayjs().isAfter(date) }
 
 function getCurrentYear() { return dayjs().year() }
 function getCurrentMonth() { return dayjs().month() }
@@ -145,7 +148,6 @@ export default {
     toStandardHisTimeFormat,
     toStandardHisDisplayFormat,
     currentDisplayDate,
-    dateIsAfter,
     stitchDate,
     toStandardHisFormat,
     estimateDateFromAge,

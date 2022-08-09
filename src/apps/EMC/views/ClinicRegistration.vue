@@ -322,8 +322,12 @@ export default defineComponent({
       const loader = await loadingController.create({ message: 'Saving...' })
       await loader.present()
       if(!(await isValidForm(form))) return
+      patientTypeService.setDate(form.initialVisitDate.value)
+      registrationService.setDate(form.initialVisitDate.value)
+      vitalsService.setDate(form.initialVisitDate.value)
+      PatientTypeService.setSessionDate(form.initialVisitDate.value)
+      
       const {formData, computedFormData} = resolveFormValues(form)
-      await ClinicRegistrationService.setSessionDate(formData.initialVisitDate)
       await patient.value?.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`)
 
       await patientTypeService.createEncounter()

@@ -142,7 +142,7 @@ function thNum(th: string | number | Date, params={} as any): ColumnInterface {
 
 function tdDate(td: string, params={} as any): RowInterface {
     const data = params
-    data.td = HisDate.toStandardHisDisplayFormat(td)
+    data.td = td ? HisDate.toStandardHisDisplayFormat(td) : ''
     return configCell(data)
 }
 

@@ -14,6 +14,7 @@ import HisStandardForm from "@/components/Forms/TouchScreenForm.vue";
 import EncounterMixinVue from '@/views/EncounterMixin.vue';
 import { PatientComplaintsService } from "@/apps/OPD/services/patient_complaints_service";
 import LabOrderModal from "@/components/DataViews/LabOrderModal.vue"
+import radiology from "@/apps/OPD/views/encounters/modals/radiology.vue"
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
@@ -21,6 +22,7 @@ import { modalController, IonPage } from '@ionic/vue';
 import { ObservationService } from "@/services/observation_service"
 import { EncounterService } from '@/services/encounter_service'
 import HisDate from "@/utils/Date"
+import OPD_GLOBAL_PROP from "@/apps/OPD/opd_global_props";
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
@@ -29,12 +31,17 @@ export default defineComponent({
     complaintsService: {} as any,
     todaysDate: ObservationService.getSessionDate(),
     presentingComplaints: "" as any,
+    isPacsEnabled: false,
+    radiologyBtnName: 'Radiology Order',
+    hasTriageComplaints: false,
   }),
   watch: {
     ready: {
       async handler(isReady: boolean) {
         if(isReady){
           this.complaintsService = new PatientComplaintsService(this.patientID, this.providerID)
+          this.isPacsEnabled = (await OPD_GLOBAL_PROP.isPACsEnabled())
+          this.hasTriageComplaints = await this.getTriagePresentingComplaints()
           this.fields = this.getFields()
         }
       },
@@ -52,6 +59,15 @@ export default defineComponent({
     async launchOrderSelection() {
       const modal = await modalController.create({
         component: LabOrderModal,
+        backdropDismiss: false,
+        cssClass: 'large-modal'
+      })
+      modal.present()
+      await modal.onDidDismiss()
+    },
+    async launchRadiologyOrderSelection() {
+      const modal = await modalController.create({
+        component: radiology,
         backdropDismiss: false,
         cssClass: 'large-modal'
       })
@@ -99,7 +115,7 @@ export default defineComponent({
         {
           id: "triage_complaints",
           helpText: "Triaging Complaints",
-          condition: () => this.getTriagePresentingComplaints(),
+          condition: () => this.hasTriageComplaints,
           type: FieldType.TT_TABLE_VIEWER,
           options: (d: any) => this.buildResults(),
           config: {
@@ -118,6 +134,7 @@ export default defineComponent({
             }))
           },
           config: {
+            hiddenFooterBtns: [ this.showRadiologyOdersBtn(), this.disableBackBtn()],
             footerBtns: [
               {
                 name: "Lab Order",
@@ -130,6 +147,17 @@ export default defineComponent({
                   return state.index === 1;
                 },
               },
+              {
+                name: this.radiologyBtnName,
+                size: "large",
+                slot: "end",
+                color: "primary",
+                visible: true,
+                onClick: async () => await this.launchRadiologyOrderSelection(),
+                visibleOnStateChange: (state: Record<string, any>) => {
+                  return state.index === 1;
+                },
+              }
             ],
           }
         },
@@ -145,6 +173,11 @@ export default defineComponent({
         },
       ]
     },
+    showRadiologyOdersBtn() {
+      if(this.isPacsEnabled) {
+        return ''
+      } else return this.radiologyBtnName
+    },
     buildSummaryResults(data: any) {
       const OPDComplaint = data.complaints.map((value: any)=>{
         return {
@@ -159,6 +192,11 @@ export default defineComponent({
         };
       })
       return OPDComplaint.concat(triageComplaint);
+    },
+    disableBackBtn() {
+      if(this.hasTriageComplaints) {
+        return ''
+      } else return 'Back'
     }
   }
 })
