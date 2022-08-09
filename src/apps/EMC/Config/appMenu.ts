@@ -90,7 +90,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'TX RTT',
             id: 'tx_rtt',
-            img: 'reports/restart.png'
+            img: 'reports/restart.png',
+            url: '/emc/report/pepfar/tx_rtt'
           },
           {
             title: 'TB Prev',

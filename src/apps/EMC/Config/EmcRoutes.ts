@@ -108,6 +108,11 @@ export default [
         path: 'defaulters',
         component: () => import('@/apps/EMC/views/reports/pepfar/DefaultersList.vue'),
       },
+      {
+        name: "tx_rtt",
+        path: "tx_rtt",
+        component: () => import("@/apps/EMC/views/reports/pepfar/TXRTT.vue"),
+      }
     ]
   },
 ];

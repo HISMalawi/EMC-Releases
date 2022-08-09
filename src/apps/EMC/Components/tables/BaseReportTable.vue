@@ -9,6 +9,7 @@
             </ion-col>
             <ion-col>
               <h1 v-html="title"></h1>
+              <h3 v-html="subtitle" v-if="subtitle" style="color:#818181;"></h3>
               <h5 v-if="useDateRangeFilter">
                 Period: {{ period }}
               </h5>
@@ -67,6 +68,10 @@ export default defineComponent({
       type: String,
       default: "Report",
     },
+    subtitle: {
+      type: String,
+      default: "",
+    },
     period: {
       type: String,
       default: "",
@@ -118,7 +123,7 @@ export default defineComponent({
   emits: ["regenerate", "customFilter", "drilldown"],
   setup(props, { emit }) {
     const filename = computed(() => {
-      return `${PatientReportService.getLocationName()} ${props.title} ${dayjs().format("YYYY-MM-DD HH:mm:ss")}`;
+      return `${PatientReportService.getLocationName()} ${props.title} ${ props.period ? props.period : props.date }`;
     })
 
     const actionBtns = computed<ActionButtonInterface[]>(() => {
