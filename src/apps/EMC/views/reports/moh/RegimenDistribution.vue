@@ -57,7 +57,7 @@ export default defineComponent({
               total: 0
             }
             for(const regimen of [...REGIMEN_WEIGHT_DISTRIBUTION, "N/A"]){
-              const d = rowData[gender].find((d: any) => Object.keys(d).every(i => i === regimen))
+              const d = rowData[gender].find((d: any) => Object.keys(d)[0] === regimen)
               if(d){
                 row[regimen] = d[regimen]
                 row.total += d[regimen]
