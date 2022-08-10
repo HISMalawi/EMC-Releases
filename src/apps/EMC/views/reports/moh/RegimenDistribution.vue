@@ -54,11 +54,16 @@ export default defineComponent({
             const row: Record<string, any> = {
               "weight_band": weight,
               gender: gender === "females" ? "Female" : "Male",
-              total: Object.values(rowData[gender].length ? rowData[gender][0] : {})
-                .reduce((accum: number, curr: any) => accum + curr, 0),
+              total: 0
             }
-            for(const r of [...REGIMEN_WEIGHT_DISTRIBUTION, "N/A"]){
-              row[r] = get(rowData, `${gender}[0].${r}`, 0)
+            for(const regimen of [...REGIMEN_WEIGHT_DISTRIBUTION, "N/A"]){
+              const d = rowData[gender].find((d: any) => Object.keys(d).every(i => i === regimen))
+              if(d){
+                row[regimen] = d[regimen]
+                row.total += d[regimen]
+              } else {
+                row[regimen] = 0
+              }
             }
             rs.push(row)
           }
