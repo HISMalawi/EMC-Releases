@@ -125,4 +125,15 @@ export default [
       }
     ]
   },
+  {
+    path: '/emc/report/moh',
+    component: () => import('@/apps/EMC/views/reports/BaseReport.vue'),
+    children: [
+      {
+        name: "tx_curr_mmd",
+        path: "tx_curr_mmd",
+        component: () => import("@/apps/EMC/views/reports/moh/TxCurrMMD.vue")
+      }
+    ]
+  }
 ];

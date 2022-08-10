@@ -52,7 +52,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'TX CURR MMD',
             id: 'emc_moh_tx_curr_mmd',
-            img: 'reports/px.png'
+            img: 'reports/px.png',
+            url: '/emc/report/moh/tx_curr_mmd'
           },
           {
             title: 'TPT new initiation',
