@@ -1,6 +1,6 @@
 import jsPDF from "jspdf"
 import autoTable from 'jspdf-autotable'
-import { Filesystem, Directory } from "@capacitor/filesystem"
+import { Filesystem, Directory, Encoding } from "@capacitor/filesystem"
 import platform, { FileExportType } from "@/composables/usePlatform"
 import { toastDanger, toastSuccess, toastWarning } from "./Alerts"
 import writeBlob from "capacitor-blob-writer"; 
@@ -28,6 +28,7 @@ function exportMobile(file: string, data: any, type: 'blob' | 'text') {
       path,
       data,
       directory: Directory.Documents,
+      encoding: Encoding.UTF8,
       recursive: true
     })
   }
