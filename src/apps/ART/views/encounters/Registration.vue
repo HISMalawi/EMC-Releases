@@ -447,7 +447,7 @@ export default defineComponent({
                     id: 'confirmatory_hiv_test_location',
                     helpText: 'Location of confirmatory HIV test',
                     type: FieldType.TT_SELECT,
-                    defaultValue: () => ClinicRegistrationService.getLocationName(),
+                    defaultValue: (d: any) => d.ever_registered_at_art_clinic.value === "Yes"? '' : ClinicRegistrationService.getLocationName(),
                     computedValue: (d: Option) => ({
                         tag:'reg',
                         obs: this.registration.buildValueText(
