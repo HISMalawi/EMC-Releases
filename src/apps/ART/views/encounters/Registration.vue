@@ -225,7 +225,6 @@ export default defineComponent({
                     id: 'location_of_art_initialization',
                     helpText: 'Location of ART initiation',
                     type: FieldType.TT_SELECT,
-                    defaultValue: () => ClinicRegistrationService.getLocationName(),
                     computedValue: ({label}: Option) => ({
                         tag:'reg',
                         obs: this.registration.buildValueText(
