@@ -57,8 +57,9 @@ export const menuItems: MenuItem[] = [
           },
           {
             title: 'TPT new initiation',
-            id: 'emc_moh_tpt',
-            img: 'reports/new_initiation.png'
+            id: 'tpt_initiation',
+            img: 'reports/new_initiation.png',
+            url: '/emc/report/moh/tpt_initiation'
           }
         ]
       },

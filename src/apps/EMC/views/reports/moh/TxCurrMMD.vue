@@ -28,7 +28,7 @@ import { Patientservice } from "@/services/patient_service";
 import dayjs from "dayjs";
 
 export default defineComponent({
-  name: "TBPrev",
+  name: "TxCurrMMD",
   components: { BaseReportTable },
   setup() {
     const period = ref("-");

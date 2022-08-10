@@ -133,6 +133,11 @@ export default [
         name: "tx_curr_mmd",
         path: "tx_curr_mmd",
         component: () => import("@/apps/EMC/views/reports/moh/TxCurrMMD.vue")
+      },
+      {
+        name: "tpt_initiation",
+        path: "tpt_initiation",
+        component: () => import("@/apps/EMC/views/reports/moh/TptInitiation.vue")
       }
     ]
   }
