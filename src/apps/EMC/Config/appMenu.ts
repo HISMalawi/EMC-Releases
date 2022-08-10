@@ -45,9 +45,10 @@ export const menuItems: MenuItem[] = [
             img: 'reports/vl.png'
           },
           {
-            title: 'Regimen distribution, Weight',
-            id: 'emc_regimen_distribution_weight',
-            img: 'reports/electronics.png'
+            title: 'Regimen distribution by Weight',
+            id: 'regimen_distribution_weight',
+            img: 'reports/electronics.png',
+            url: '/emc/report/moh/regimen_distribution_weight'
           },
           {
             title: 'TX CURR MMD',

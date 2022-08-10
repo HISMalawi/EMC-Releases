@@ -289,7 +289,7 @@ export const DataTable = defineComponent({
           h("thead", { class: props.color },
             h("tr", [
               ...props.columns.map(column =>
-                h("th", { key: column.label, onClick: () => updateSortQueries(column) },
+                h("th", { key: column.label, style: {minWidth: '190px'}, onClick: () => updateSortQueries(column) },
                   [
                     h("span", column.label),
                     h(IonIcon, {
@@ -331,7 +331,7 @@ export const DataTable = defineComponent({
                   ...props.columns.map(column => {
                     let value = get(row, column.path);
                     if (column.date && value) value = dayjs(value).format('DD/MMM/YYYY');
-                    return h('td', { key: column.path }, 
+                    return h('td', { key: column.path, style: {minWidth: '190px'} }, 
                       column.drillable && value
                         ? h('a', { onClick: () => emit("drilldown", {column, row})}, value)
                         : value
