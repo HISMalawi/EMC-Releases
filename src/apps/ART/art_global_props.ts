@@ -20,6 +20,7 @@ export enum ART_GLOBAL_PROP {
     CERVICAL_CANCER_SCREENING = 'activate.cervical.cancer.screening',
     CERVICAL_CANCER_AGE_BOUNDS = 'cervical.cancer.screening.age.bounds',
     CLINIC_HOLIDAYS = 'clinic.holidays',
+    EXCLUDE_EXTERNAL_AND_DRUG_REFILLS = 'can.remove.external.and.drug.refills.from.data.cleaning'
 }
 
 function cervicalCancerScreeningEnabled() {

@@ -84,6 +84,10 @@ export const PROPERTIES: FolderInterface[] = [
                 "Is this a military site?",
                 GLOBAL_PROP.MILITARY_SITE
             ),
+            globalPropConfig(
+                "(DATA CLEANING) Exclude External and Drug refill",
+                ART_GLOBAL_PROP.EXCLUDE_EXTERNAL_AND_DRUG_REFILLS
+            ),
             {
                 name: "Activate CxCa Screening",
                 pathUrl: "/art/preferences/cervical_cancer_screening"
