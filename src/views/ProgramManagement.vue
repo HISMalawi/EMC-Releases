@@ -22,7 +22,7 @@ import { find, findIndex, isEmpty } from 'lodash'
 import HisDate from "@/utils/Date"
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason"
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions"
-import { invalidatePatientProgramCache } from '@/composables/patientStore'
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -77,7 +77,7 @@ export default defineComponent({
                     await this.onProgramState(f)
                     break;
             }
-            invalidatePatientProgramCache()
+            Store.invalidate('PATIENT_PROGRAM')
         },
         async patientPrograms() {
             const programs = await this.patientProgram.getPrograms()

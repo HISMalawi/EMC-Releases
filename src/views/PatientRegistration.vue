@@ -36,7 +36,7 @@ import { infoActionSheet } from "@/utils/ActionSheets"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import dayjs from "dayjs";
 import { delayPromise } from "@/utils/Timers";
-import { getStorePatient, invalidatePatientCache, setPatientStoreService } from "@/composables/patientStore";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
@@ -127,7 +127,7 @@ export default defineComponent({
     },
     async initEditMode(personId: number) {
         this.editPerson = personId
-        this.patient = await getStorePatient(this.editPerson)
+        this.patient = await Store.get('ACTIVE_PATIENT', { patientID: this.editPerson})
         const {
             ancestryDistrict,
             ancestryTA,
@@ -170,7 +170,7 @@ export default defineComponent({
         const patient = new Patientservice((await registration.registerPatient(person, attributes)))
         const patientID = registration.getPersonID()
 
-        setPatientStoreService(patient) // update patient store
+        Store.set('ACTIVE_PATIENT', patient) // update patient store
  
         if(this.presets.nationalIDStatus == "true"){ 
             this.patient = patient
@@ -208,7 +208,7 @@ export default defineComponent({
                 this.editPersonData[attr] = person[attr]
             }
         }
-        invalidatePatientCache()
+        Store.invalidate('ACTIVE_PATIENT')
         if(!this.personAttribute) return this.fieldComponent = 'edit_user'
         this.$router.back()
     },

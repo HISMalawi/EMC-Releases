@@ -23,7 +23,7 @@ import {
 import { HTN_SESSION_KEY } from '../../services/htn_service'
 import { ProgramService } from '@/services/program_service'
 import table from "@/components/DataViews/tables/ReportDataTable"
-import { invalidatePatientProgramCache } from '@/composables/patientStore'
+import Store from "@/composables/ApiStore"
 
 const MEDICATION_STYLE = { style : { fontSize:'1.3rem !important', borderBottom: 'solid 2px #ccc', color: 'black', background: 'white' }}
 
@@ -152,9 +152,8 @@ export default defineComponent({
             if (this.facts.hangingPillsStatus) {
                 await this.prescription.createHangingPillsObs(this.facts.hangingPillsStatus)
             }
-
             toastSuccess('Drug order has been created')
-            invalidatePatientProgramCache()
+            Store.invalidate('PATIENT_PROGRAM')
             this.nextTask()
         },
         async onEvent(target: Target, targetEvent: TargetEvent) {

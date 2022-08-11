@@ -120,7 +120,7 @@ import { AncPregnancyStatusService } from "@/apps/ANC/Services/anc_pregnancy_sta
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 import { isUnknownOrEmpty, isValueEmpty } from "@/utils/Strs";
 import  artGlobalProp from "@/apps/ART/art_global_props"
-import { setPatientProgramStore, setPatientStoreService } from "@/composables/patientStore"
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -310,7 +310,7 @@ export default defineComponent({
             ? results[0]
             : results
           )
-        setPatientStoreService(this.patient)
+        Store.set('ACTIVE_PATIENT', this.patient)
         this.setPatientFacts()
         const factPromises = []
         factPromises.push(this.setProgramFacts())
@@ -445,7 +445,7 @@ export default defineComponent({
       try {
         this.program = new PatientProgramService(this.patient.getID())
         this.programInfo = await this.program.getProgram()
-        setPatientProgramStore(this.programInfo)
+        Store.set('PATIENT_PROGRAM', this.programInfo)
         const { program, outcome }: any =  this.programInfo
         this.facts.enrolledInProgram = !(isValueEmpty(program) || program.match(/n\/a/i))
         this.facts.currentOutcome = outcome

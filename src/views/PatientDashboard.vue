@@ -290,7 +290,7 @@ import PrimaryCard from "@/components/DataViews/DashboardPrimaryCard.vue"
 import VisitDatesCard from "@/components/DataViews/VisitDatesCard.vue"
 import Display from "@/composables/display"
 import FullToolbar from "@/components/PatientDashboard/Poc/FullToolbar.vue"
-import { getStorePatient } from "@/composables/patientStore"
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
     components: {
@@ -545,7 +545,7 @@ export default defineComponent({
             this.sessionDate = this.toDate(ProgramService.getSessionDate())
             this.isBDE = ProgramService.isBDE() || false
             this.programID = ProgramService.getProgramID()
-            getStorePatient(this.patientId).then((patient) => {
+            Store.get('ACTIVE_PATIENT', { patientID: this.patientId }).then((patient) => {
                 const setProgramInfo = (data: any) => {
                     if (typeof data === 'object' && data.then) {
                         this.getProgramCardInfo(this.patientProgram)
