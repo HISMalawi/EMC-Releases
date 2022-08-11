@@ -127,7 +127,7 @@ export default defineComponent({
     },
     async initEditMode(personId: number) {
         this.editPerson = personId
-        this.patient = await Store.get('ACTIVE_PATIENT', { patientID: this.editPerson})
+        this.patient = await Store.get('ACTIVE_PATIENT', { patientID: parseInt(`${this.editPerson}`)})
         const {
             ancestryDistrict,
             ancestryTA,

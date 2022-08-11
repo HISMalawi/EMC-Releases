@@ -201,6 +201,7 @@ import {
 } from "@ionic/vue";
 import usePlatform from "@/composables/usePlatform";
 import { alertConfirmation } from "@/utils/Alerts";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   name: "Home",
@@ -349,6 +350,7 @@ export default defineComponent({
       if (!ok) return
       const auth = new AuthService()
       try {
+        Store.invalidateAll()
         if((await GLOBAL_PROP.portalEnabled())) {
           const portalLocation = await GLOBAL_PROP.portalProperties();
           window.location = portalLocation;
