@@ -60,7 +60,13 @@ export default defineComponent({
                     
                     if (!this.value) this.value = '0'
 
-                    this.onKeyPress(parseInt(this.value))
+                    // Condition verifies number as interger and emits parsed integer
+                    if (`${parseInt(this.value)}` === this.value) {
+                        this.onKeyPress(parseInt(this.value))
+                    } else {
+                        // helps preserve floating point values 
+                        this.onKeyPress(this.value)
+                    }
                 } else {
                     this.value = handleVirtualInput(key, this.value)
                     this.onKeyPress(this.value)

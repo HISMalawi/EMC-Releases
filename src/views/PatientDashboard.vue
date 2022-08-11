@@ -65,6 +65,7 @@
                             :key="cardIndex"
                             >
                             <primary-card
+                                :isEnabled="card.isEnabled"
                                 :counter="card.items.length"
                                 :icon="card.icon"
                                 :title="card.label"
@@ -167,6 +168,7 @@
                                     v-for="(card, cardIndex) in patientCards"
                                     :key="cardIndex">
                                     <primary-card
+                                        :isEnabled="card.isEnabled"
                                         :counter="card.items.length"
                                         :icon="card.icon"
                                         :title="card.label"
@@ -343,7 +345,13 @@ export default defineComponent({
         patientCards: [] as Array<any>,
         appVersion: ProgramService.getFullVersion(),
         sessionEncounters: [] as Encounter[],
-        savedEncounters: [] as string[]
+        savedEncounters: [] as string[],
+        cardConfig: {
+            labEnabled: true as boolean,
+            medicationsEnabled: true as boolean,
+            alertsEnabled: true as boolean,
+            activitiesEnabled: true as boolean,
+        }
     }),
     computed: {
         patientIsset(): boolean {
@@ -390,6 +398,7 @@ export default defineComponent({
         async init() {
             await App.doAppManagementTasks()
             this.app = App.getActiveApp()
+            this.setProgramCardConfig()
             this.patient = await this.fetchPatient(this.patientId)
             try {
                 this.patientProgram = await ProgramService.getProgramInformation(this.patientId)
@@ -404,10 +413,22 @@ export default defineComponent({
             this.nextTask = await this.getNextTask(this.patientId)
             this.onProgramVisitDates((await this.getPatientVisitDates(this.patientId)))
             this.tasksDisabled = false
-            this.alertCardItems = await this.getPatientAlertCardInfo() || []
+            if (this.cardConfig.alertsEnabled) {
+                this.alertCardItems = await this.getPatientAlertCardInfo() || []
+            }
             this.programID = ProgramService.getProgramID()
             await this.loadSavedEncounters()
             this.updateCards()
+        },
+        setProgramCardConfig() {
+            if (this.app.configDefaultPatientDashboardCards) {
+                const isset = (prop: any) => typeof prop === 'boolean' ? prop : true
+                const c = this.app.configDefaultPatientDashboardCards
+                this.cardConfig.labEnabled = isset(c.labEnabled)
+                this.cardConfig.medicationsEnabled = isset(c.medicationsEnabled)
+                this.cardConfig.activitiesEnabled = isset(c.activitiesEnabled)
+                this.cardConfig.alertsEnabled = isset(c.alertsEnabled)
+            }
         },
         async showLoader() {
             const loading = await loadingController.create({
@@ -432,13 +453,19 @@ export default defineComponent({
         async loadCardData(date: string) {
             try {
                 await this.showLoader()
-                this.encounters = await EncounterService.getEncounters(this.patientId, {date})
-                this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
-                this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
+                if (this.cardConfig.activitiesEnabled) {
+                    this.encounters = await EncounterService.getEncounters(this.patientId, {date})
+                    this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
+                }
                 this.tasksDisabled = false
                 loadingController.dismiss()
-                this.medicationCardItems = this.getMedicationCardInfo(this.medications)
-                this.labOrderCardItems = await this.getLabOrderCardInfo(date)
+                if (this.cardConfig.medicationsEnabled) {
+                    this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
+                    this.medicationCardItems = this.getMedicationCardInfo(this.medications)
+                }
+                if (this.cardConfig.labEnabled) {
+                    this.labOrderCardItems = await this.getLabOrderCardInfo(date)
+                }
                 // Track encounters recorded on system session date
                 if (date === ProgramService.getSessionDate()) { 
                    this.sessionEncounters = this.encounters
@@ -464,9 +491,10 @@ export default defineComponent({
                 items: this.encountersCardItems,
                 icon: timeOutline,
                 color: 'primary',
-                onClick: () => this.openModal(
-                    this.encountersCardItems, 
-                    'Select Activities', 
+                isEnabled: this.cardConfig.activitiesEnabled,
+                onClick: () => this.cardConfig.activitiesEnabled && this.openModal(
+                    this.encountersCardItems,
+                    'Select Activities',
                     EncounterView
                 )
             }
@@ -478,7 +506,8 @@ export default defineComponent({
                 color: 'success',
                 icon: timeOutline,
                 items: this.labOrderCardItems,
-                onClick: () => this.$router.push(`/art/encounters/lab/${this.patient.getID()}`)
+                isEnabled: this.cardConfig.labEnabled,
+                onClick: () => this.cardConfig.labEnabled && this.$router.push(`/art/encounters/lab/${this.patient.getID()}`)
             }
         },
         alertsCard() {
@@ -487,6 +516,7 @@ export default defineComponent({
                 color: 'danger',
                 icon: warningOutline,
                 items: this.alertCardItems,
+                isEnabled: this.cardConfig.alertsEnabled,
                 onClick: () => { /* TODO, list all alerts */ }
             }
         },
@@ -496,7 +526,9 @@ export default defineComponent({
                 color: 'warning',
                 icon: timeOutline,
                 items: this.medicationCardItems,
+                isEnabled: this.cardConfig.medicationsEnabled,
                 onClick: () => {
+                    if (!this.cardConfig.medicationsEnabled) return
                     const columns = ['Medication', 'Start date', 'End date', 'Amount given']
                     const rows = this.medications.map((medication: any) => ([
                         medication.drug.name, 

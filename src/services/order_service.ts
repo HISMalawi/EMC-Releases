@@ -85,12 +85,12 @@ export class OrderService extends Service {
             return false
         });
         if(malariaOrders.length > 0) {
-            const isPositive = malariaOrders[0].tests.some(test => {
+            const isNegative = malariaOrders[0].tests.some(test => {
                 return test.result.some(result => {
-                    return result.value.toString().match(/positive/i)
+                    return result.value.toString().match(/negative|no/i)
                 })
             })
-            return isPositive ? 'Positive' : 'Negative'
+            return isNegative ? 'Negative' : 'Positive'
         } 
         return "No"
     }

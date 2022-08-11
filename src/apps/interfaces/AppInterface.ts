@@ -112,6 +112,15 @@ export interface AppInterface {
     */
     readonly init?: (context: string) => void;
     /**
+     * Specify which cards are accessible or not
+     */
+    readonly configDefaultPatientDashboardCards? : {
+        activitiesEnabled?: boolean;
+        alertsEnabled?: boolean;
+        medicationsEnabled?: boolean;
+        labEnabled?: boolean;
+    };
+    /**
      * Parse summary data object based on program specific definition and
      * return generic object to be displayed on patient dashboard
      */
@@ -123,5 +132,5 @@ export interface AppInterface {
     /**
      * Summary data that is rendered on patient confirmation page
     */
-    readonly confirmationSummary?: (patient: any, program: any) => Record<string, Function>;
+    readonly confirmationSummary?: (patient: any, program: any) => Record<string, Function> | Promise<Record<string, Function>>;
 }
