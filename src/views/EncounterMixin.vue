@@ -11,6 +11,7 @@ import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { delayPromise } from '@/utils/Timers'
 import { toastDanger } from '@/utils/Alerts'
 import { getPatientProgramStore, getStorePatient } from "@/composables/patientStore"
+import { getProviders } from "@/composables/providerStore"
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -113,7 +114,7 @@ export default defineComponent({
                 ? this.$route.name.toString().toUpperCase()
                 : 'N/A'
             if (ProgramService.isBDE()) {
-                this.providers = await UserService.getUsers()
+                this.providers = await getProviders()
                 this.facts.providers = this.providers
                     .sort((a: any, b: any) => {
                         const usernameA = a.username.toUpperCase()
