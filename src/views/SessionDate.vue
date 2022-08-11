@@ -12,6 +12,7 @@ import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { infoActionSheet } from "@/utils/ActionSheets"
 import { delayPromise } from "@/utils/Timers"
 import { nextTask } from "@/utils/WorkflowTaskHelper"
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -86,10 +87,11 @@ export default defineComponent({
         async resetSessionDate() {
             try {
                 await Service.resetSessionDate()
+                Store.invalidate('PROVIDERS')
                 toastSuccess(`Session date has been reset to ${this.formatDate(this.apiDate)}`)
                 this.redirect()
             } catch (e) {
-                toastWarning(e)
+                toastWarning(`${e}`)
             }
         },
         redirect() {
@@ -110,7 +112,7 @@ export default defineComponent({
                     this.redirect()
                 }
             } catch(e) {
-                toastWarning(e)
+                toastWarning(`${e}`)
             }
         },
         formatDate(date: string) {
