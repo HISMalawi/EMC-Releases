@@ -35,5 +35,5 @@ npm-debug.log*
 /node_modules/*
 /public/HEAD
 HEAD
-
+HEAD.txt
 resources/android/**/*

@@ -140,9 +140,17 @@ export class AuthService {
     }
 
     async getHeadVersion(): Promise<string> {
-        const res = await fetch('HEAD', { method: 'GET' })
-        const version = await res?.text()
-        return version && version.length <= 25 ? version : '-'
+        const req = async (file: string) => {
+            try {
+                const res = await (await fetch(file, { method: 'GET' }))?.text()
+                return res && res.length <= 25 ? res : '-'
+            } catch (e) {
+                console.error(`${e}`)
+            }
+            return '-'
+        } 
+        const version = await req('HEAD')
+        return version != '-' ? version : (await req('HEAD.txt')) 
     }
 
     versionLockingIsEnabled() {
