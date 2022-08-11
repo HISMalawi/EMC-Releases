@@ -220,7 +220,7 @@
                 <ion-icon :icon="appsOutline"> </ion-icon>
                 Applications
             </ion-button>
-            <ion-button color="success" size="large" slot="end" router-link="/">
+            <ion-button @click="onCancel" color="success" size="large" slot="end">
                 <ion-icon :icon="logOutOutline"> </ion-icon>
                 Finish
             </ion-button>
@@ -796,7 +796,11 @@ export default defineComponent({
         },
         onCancel() {
             alertConfirmation('Are you sure you want to Finish?').then((ok) => {
-                if (ok) this.$router.push({path: '/'})
+                if (ok) {
+                    Store.invalidate('ACTIVE_PATIENT')
+                    Store.invalidate('PATIENT_PROGRAM')
+                    this.$router.push({path: '/'})
+                }
             })
         }
     }

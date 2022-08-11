@@ -36,10 +36,9 @@ export default {
         if (name in storeDefs) {
             const s = states.value[name] || {}
             const p = params || {}
-            if (!this.isset(name) || (typeof storeDefs[name]?.isInvalidCache === 'function' 
-                && storeDefs[name]?.isInvalidCache(p, s))) {
+            if (!this.isset(name) || (typeof storeDefs[name]?.canUseCache === 'function' 
+                && storeDefs[name]?.canUseCache(p, s))) {
                 states.value[name] = await storeDefs[name]?.dataRequest(p)
-                console.log('Reset Store for ' + name)
             }
             return states.value[name]
         } else {
