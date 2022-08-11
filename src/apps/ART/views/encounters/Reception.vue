@@ -21,6 +21,7 @@ import { toastWarning, toastSuccess } from "@/utils/Alerts"
 import EncounterMixinVue from '../../../../views/EncounterMixin.vue'
 import HisApp from "@/apps/app_lib"
 import { find, isEmpty } from "lodash";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -56,8 +57,8 @@ export default defineComponent({
 
       if (formData.capture_arv && formData.capture_arv.value === 'Yes') {
         const arv = await this.reception.createArvNumber(computedData.arv_number)
-
         if (!arv) return toastWarning('Unable to save Arv number')
+        Store.invalidate('ACTIVE_PATIENT')
       }
       toastSuccess('Encounter created')
       const guardianPresent = find(formData.who_is_present, { value: 'Yes', label: 'Guardian present?'})
