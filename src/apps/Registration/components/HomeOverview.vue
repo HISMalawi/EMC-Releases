@@ -1,50 +1,73 @@
 <template>
-  <ion-grid>
-    <ion-row>
-      <ion-col v-for="stat in patientSummaryStats" :key="stat.label">
-        <opd-stat-card
-          :label="stat.label"
-          :value="stat.value"
-          :color="stat.color ?? ''"
+    <div class="overview">
+        <report-table
+            :rows="rows"
+            :columns="columns"
+            :config="{
+                tableCssTheme: 'art-report-theme',
+                skeletonTextRows: 5,
+                showIndex: false
+            }"
         />
-      </ion-col>
-    </ion-row>
-    
-  </ion-grid>
+    </div>
 </template>
-
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
-import { IonGrid, IonRow, IonCol} from "@ionic/vue";
-import OpdStatCard from '@/apps/Registration/components/OpdStatCard.vue'
+import { defineComponent, onMounted, ref } from 'vue'
+import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
+import { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable" 
+import table from "@/components/DataViews/tables/ReportDataTable"
+import { RegistrationReportService } from "@/apps/Registration/services/registration_report_service"
+import { toastDanger } from '@/utils/Alerts'
 
 export default defineComponent({
-  components: {
-    OpdStatCard,
-    IonGrid, 
-    IonRow, 
-    IonCol,
-  },
-  setup() {
-    const patientSummaryStats = computed(() => {
-      return  [
-        { label: 'Registered today', value: '-', color: 'lightyellow' },
-        { label: 'Returning today', value:'-', color: 'lightyellow' },
-        { label: 'Referred today', value: '-', color: 'lightyellow' },
-        { label: 'Total', value: '-', color: 'yellowgreen' },
-      ]
-    })
-    
-    return {
-      patientSummaryStats
+    components: { ReportTable },
+    setup() {
+        const columns =  [
+            [
+                table.thTxt('Task'),
+                table.thTxt('Me'),
+                table.thTxt('Today'),
+            ] as ColumnInterface[]
+        ]
+        const rows = ref([] as any)
+        onMounted(() => {
+            const stats = new RegistrationReportService()
+            const req = stats.requestReport()
+            if (typeof req === 'object' && req.then) {
+              
+                req.then((data) => {
+                  ['Newly Registered Patients', 'Returning Patients'].forEach(element => {
+                   const newData = data[element];
+                    rows.value.push([
+                            table.td(element),
+                            table.td(newData.me),
+                            table.td(newData.total)
+                        ])
+                    delete data[element]; 
+                  });
+                  
+                    Object.keys(data).forEach((item: any) => {
+                        rows.value.push([
+                            table.td(item),
+                            table.td(data[item].me),
+                            table.td(data[item].total)
+                        ])
+                    })
+                })
+                .catch(e => toastDanger(`${e}`))
+            }
+        })
+        return {
+            columns,
+            rows
+        }
     }
-  },
 })
 </script>
-
 <style scoped>
-ion-col {
-  padding: 0; 
-  margin: 0.5rem .1rem;
-}
+    .overview {
+        margin: 10px;
+        max-height: 60vh;
+        overflow-x: auto;
+    }
 </style>
