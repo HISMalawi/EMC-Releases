@@ -42,8 +42,9 @@ export const menuItems: MenuItem[] = [
           },
           {
             title: 'Viral load',
-            id: 'emc_viral_load',
-            img: 'reports/vl.png'
+            id: 'viral_load',
+            img: 'reports/vl.png',
+            url: '/emc/report/moh/viral_load'
           },
           {
             title: 'Regimen distribution by Weight',

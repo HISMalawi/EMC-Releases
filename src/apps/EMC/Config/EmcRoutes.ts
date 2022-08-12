@@ -149,6 +149,11 @@ export default [
         path: "survival_analysis",
         component: () => import("@/apps/EMC/views/reports/moh/SurvivalAnalysis.vue")
       },
+      {
+        name: "viral_load",
+        path: "viral_load",
+        component: () => import("@/apps/EMC/views/reports/moh/ViralLoad.vue")
+      }
     ]
   }
 ];

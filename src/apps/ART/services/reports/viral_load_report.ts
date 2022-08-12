@@ -25,4 +25,8 @@ export class ViralLoadReportService extends ArtReportService {
             'patient_ids': patientIds
         })
     }
+
+    getViralLoad(params = {} as Record<string, any>) {
+        return this.getReport(`programs/${this.programID}/reports/vl_disaggregated`, params)
+    }
 }
