@@ -143,7 +143,12 @@ export default [
         name: "regimen_distribution_weight",
         path: "regimen_distribution_weight",
         component: () => import("@/apps/EMC/views/reports/moh/RegimenDistribution.vue")
-      }
+      },
+      {
+        name: "survival_analysis",
+        path: "survival_analysis",
+        component: () => import("@/apps/EMC/views/reports/moh/SurvivalAnalysis.vue")
+      },
     ]
   }
 ];

@@ -53,7 +53,7 @@ export interface RowActionButtonInterface {
 
 export interface CustomFilterInterface {
   id: string;
-  label: string;
+  label?: string;
   value?: any;
   type: "text" | "number" | "date" | "select" | "dateRange";
   options?: string[];

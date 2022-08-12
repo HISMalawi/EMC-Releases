@@ -37,7 +37,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'Survival analysis',
             id: 'emc_survival_analysis',
-            img: 'reports/refill.png'
+            img: 'reports/refill.png',
+            url: '/emc/report/moh/survival_analysis'
           },
           {
             title: 'Viral load',

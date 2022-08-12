@@ -10,9 +10,8 @@
             <ion-col>
               <h1 v-html="title"></h1>
               <h3 v-html="subtitle" v-if="subtitle" style="color:#818181;"></h3>
-              <h5 v-if="useDateRangeFilter">
-                Period: {{ period }}
-              </h5>
+              <h5 v-if="useDateRangeFilter"> Period: {{ period }} </h5>
+              <h5 v-else-if="useQuarterFilter"> Quarter: {{ quarter }} </h5>
               <h5 v-else>Date: {{ dayjs(date).format("DD/MMM/YYYY") }}</h5>
               <h5 v-if="totalClients">Total Clients: {{ totalClients }}</h5>
             </ion-col>
@@ -50,6 +49,7 @@ import DataTable, {
   convertToCsv, 
   exportToCSV
 } from "@/apps/EMC/Components/datatable";
+import { ArtReportService } from "@/apps/ART/services/reports/art_report_service";
 
 export default defineComponent({
   name: "BaseReportTable",
@@ -77,6 +77,10 @@ export default defineComponent({
       default: "",
     },
     date: {
+      type: String,
+      default: "",
+    },
+    quarter: {
       type: String,
       default: "",
     },
@@ -115,6 +119,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    useQuarterFilter: {
+      type: Boolean,
+      default: false,
+    },
     customFilters: {
       type: Array as PropType<CustomFilterInterface[]>,
       default: () => [],
@@ -128,7 +136,7 @@ export default defineComponent({
 
     const actionBtns = computed<ActionButtonInterface[]>(() => {
       const btns = [
-        { label: "Refresh", action: () => emit("regenerate") },
+        { label: "Refresh/Rebuild", color: 'success', action: () => emit("regenerate") },
         ...props.actionButtons,
       ]
 
@@ -137,8 +145,24 @@ export default defineComponent({
           label: "CSV",
           color: "primary",
           action: async (a, rows) => {
-            const csvContent = convertToCsv(props.columns, rows, props.useDateRangeFilter ? props.period : {})
-            exportToCSV(csvContent, filename.value)
+            let period = props.period;
+            if (props.useQuarterFilter) {
+              const [qtrName, year] = props.quarter.split(" ");
+              const {start, end } = ArtReportService.buildQtrObj(qtrName, parseInt(year));
+              period = `${start} - ${end}`;
+            }
+            exportToCSV(
+              convertToCsv(
+                props.columns, 
+                rows, 
+                props.useDateRangeFilter 
+                  ? props.period 
+                  : props.useQuarterFilter
+                    ? period
+                    : {}
+              ), 
+              filename.value
+            );
           }
         })
       }
@@ -156,6 +180,14 @@ export default defineComponent({
             startDate: props.period.split("-")[0],
             endDate: props.period.split("-")[1],
           },
+        })
+      } else if(props.useQuarterFilter) {
+        f.push({
+          id: "quarter",
+          label: "Quarter:",
+          type: "select",
+          value: props.quarter,
+          options: ArtReportService.getReportQuarters().map(q => q.name),
         })
       } else {
         f.push({
