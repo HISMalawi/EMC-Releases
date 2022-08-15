@@ -3,6 +3,8 @@ import LOS from "@/apps/LOS/app";
 import EMC from "@/apps/EMC/app";
 import ANC from '@/apps/ANC/app';
 import CXCA from '@/apps/CxCa/app';
+import RADIOLOGY from '@/apps/RADIOLOGY/app';
+import Registration from '@/apps/Registration/app';
 import OPD from "./OPD/app";
 
 /**
@@ -14,5 +16,7 @@ export default [
     OPD,
     ANC,
     CXCA,
+    RADIOLOGY,
+    Registration,
     EMC,
 ]

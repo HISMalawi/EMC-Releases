@@ -1,5 +1,9 @@
 <template>
-    <div class="card">
+    <div class="card" 
+        :class="{ 
+            'inactive' : !isEnabled, 
+            'clickable': isEnabled
+        }">
         <ion-item :color="titleColor" lines="none" class="his-md-text title-card"> 
             <ion-badge slot="start" class="his-sm-text" color="light"><b>{{ counter }}</b></ion-badge>
             <ion-label> {{title}} </ion-label> 
@@ -41,6 +45,10 @@ export default defineComponent({
         time
     }),
     props: {
+        isEnabled: {
+            type: Boolean,
+            default: () => true
+        },
         counter: {
             type: Number,
             required: false
@@ -82,5 +90,8 @@ export default defineComponent({
     padding: 5px;
     width: 100%;
     color: white;
+}
+.inactive {
+  opacity: 0.5;
 }
 </style>
