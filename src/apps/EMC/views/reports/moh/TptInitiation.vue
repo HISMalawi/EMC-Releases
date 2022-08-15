@@ -35,16 +35,11 @@ export default defineComponent({
       { path: "Location", label: "District" },
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender" },
-      { path: "3hp_started_new_art.total", label: "3H (Started New on ART)", drillable: true },
-      { path: "6hp_started_new_art.total", label: "6H (Started New on ART)", drillable: true },
-      { path: "3hp_started_previous_art.total", label: "3H (Started Previously on ART)", drillable: true },
-      { path: "6hp_started_previous_art.total", label: "6H (Started Previously on ART)", drillable: true },
+      { path: "3hp_started_new_art", label: "3H (Started New on ART)", drillable: true },
+      { path: "6hp_started_new_art", label: "6H (Started New on ART)", drillable: true },
+      { path: "3hp_started_previous_art", label: "3H (Started Previously on ART)", drillable: true },
+      { path: "6hp_started_previous_art", label: "6H (Started Previously on ART)", drillable: true },
     ]
-
-    const makeCell = (patients: any[]) => ({
-      total: patients.length,
-      patients,
-    })
 
     const fetchData =  async ({ dateRange }: Record<string, any>) => {
       await loader.show()
@@ -61,11 +56,10 @@ export default defineComponent({
             index: index++,
             "age_group": group,
             gender: gender === "F" ? "Female" : "Male",
-            "3hp_started_new_art": makeCell(data[group]["3HP_new"][gender]),
-            "6hp_started_new_art": makeCell(data[group]["6H_new"][gender]),
-            "3hp_started_previous_art": makeCell(data[group]["3HP_prev"][gender]),
-            "6hp_started_previous_art": makeCell(data[group]["6H_prev"][gender]),
-            ...data
+            "3hp_started_new_art": data[group]["3HP_new"][gender],
+            "6hp_started_new_art": data[group]["6H_new"][gender],
+            "3hp_started_previous_art": data[group]["3HP_prev"][gender],
+            "6hp_started_previous_art": data[group]["6H_prev"][gender],
           })
         }
       }
@@ -92,8 +86,7 @@ export default defineComponent({
         { path: "art_start_date", label: "Art Start Date", date: true },
         { path: "tpt_start_date", label: "TPT Start Date", date: true }
       ]
-      const column = data.column.path.split(".")[0]
-      const rows = data.row[column].patients
+      const rows = get(data, `row.${data.column.path}`, [])
 
       await modal.show(DrilldownTableVue, {
         title: `${data.row.age_group} ${data.column.label} ${data.row.gender}s`,

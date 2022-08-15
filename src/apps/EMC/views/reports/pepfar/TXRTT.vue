@@ -34,15 +34,10 @@ export default defineComponent({
       { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender" },
-      { path: "return_less_than_3_mo.total", label: "Returned <3 mo", drillable: true },
-      { path: "return_by_3_to_5_mo.total", label: "Returned 3-5 mo", drillable: true },
-      { path: "return_6_plus_mo.total", label: "Returned 6+ mo", drillable: true },
+      { path: "return_less_than_3_mo", label: "Returned <3 mo", drillable: true },
+      { path: "return_by_3_to_5_mo", label: "Returned 3-5 mo", drillable: true },
+      { path: "return_6_plus_mo", label: "Returned 6+ mo", drillable: true },
     ]
-
-    const makeCell = (patients: any[]) => ({
-      total: patients.length,
-      patients,
-    })
 
     const sortData = (ls: Array<any>, comparator: Function) => {
       return ls.filter(i => comparator(i.months)).map(i => i.patient_id)
@@ -59,23 +54,15 @@ export default defineComponent({
       const rs: any[] = []
       for(const gender of ["F", "M"]) {
         for(const group of AGE_GROUPS){
-          const ageGroupExists = group in data;
-          const row: Record<string, any> = {
+          const patients = get(data, `${group}.${gender}`, []);
+          rs.push({
             index: index++,
             "age_group": group,
             gender: gender === "F" ? "Female" : "Male",
-          }
-          if(ageGroupExists) {
-            const patients = data[group][gender];
-            row["return_less_than_3_mo"] = makeCell(sortData(patients, (months: number) => months < 3))
-            row["return_by_3_to_5_mo"] = makeCell(sortData(patients, (months: number) => months >= 3 && months < 6))
-            row["return_6_plus_mo"] = makeCell(sortData(patients, (months: number) => months >= 6))
-          } else {
-            row["return_less_than_3_mo"] = makeCell([])
-            row["return_by_3_to_5_mo"] = makeCell([])
-            row["return_6_plus_mo"] = makeCell([])
-          }
-          rs.push(row)
+            "return_less_than_3_mo": sortData(patients, (months: number) => months < 3),
+            "return_by_3_to_5_mo": sortData(patients, (months: number) => months >= 3 && months < 6),
+            "return_6_plus_mo": sortData(patients, (months: number) => months >= 6),
+          })
         }
       }
       rows.value = rs
@@ -89,8 +76,7 @@ export default defineComponent({
         { path: "gender", label: "Gender" },
         { path: "address", label: "Address" }
       ]
-      const column = data.column.path.split(".")[0]
-      const patients = data.row[column].patients
+      const patients = data.row[data.column.path]
       const rows: any[] = []
       for(const patient of patients) {
         const data = await Patientservice.findByID(patient)

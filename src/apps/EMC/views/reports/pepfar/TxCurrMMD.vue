@@ -36,22 +36,17 @@ export default defineComponent({
       { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender" },
-      { path: "underThree.total", label: "# of clients on <3 months of ARVs", drillable: true },
-      { path: "betweenThreeAndFive.total", label: "# of clients on 3 - 5 months of ARVs", drillable: true },
-      { path: "overSix.total", label: "# of clients on >= 6 months of ARVs", drillable: true },
+      { path: "underThree", label: "# of clients on <3 months of ARVs", drillable: true },
+      { path: "betweenThreeAndFive", label: "# of clients on 3 - 5 months of ARVs", drillable: true },
+      { path: "overSix", label: "# of clients on >= 6 months of ARVs", drillable: true },
     ]
-
-    const makeCell = (patients: any[]) => ({
-      total: patients.length,
-      patients,
-    })
 
     const buildCells = (data: Record<string, any>) => {
       const patients = Object.keys(data);
       return {
-        "underThree": makeCell(patients.filter(id => data[id]["prescribed_days"] < 90)),
-        "betweenThreeAndFive": makeCell(patients.filter(id => data[id]["prescribed_days"] >= 90 && data[id]["prescribed_days"] <= 150)),
-        "overSix": makeCell(patients.filter(id => data[id]["prescribed_days"] > 150)),
+        "underThree": patients.filter(id => data[id]["prescribed_days"] < 90),
+        "betweenThreeAndFive": patients.filter(id => data[id]["prescribed_days"] >= 90 && data[id]["prescribed_days"] <= 150),
+        "overSix": patients.filter(id => data[id]["prescribed_days"] > 150),
       }
     }
 
@@ -109,8 +104,7 @@ export default defineComponent({
         { path: "gender", label: "Gender" },
         { path: "address", label: "Address" }
       ]
-      const column = data.column.path.split(".")[0]
-      const patients = data.row[column].patients
+      const patients = data.row[data.column.path]
       const rows: any[] = []
       for(const patient of patients) {
         const data = await Patientservice.findByID(patient)

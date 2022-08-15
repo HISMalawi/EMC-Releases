@@ -332,8 +332,8 @@ export const DataTable = defineComponent({
                     let value = get(row, column.path);
                     if (column.date && value) value = dayjs(value).format('DD/MMM/YYYY');
                     return h('td', { key: column.path, style: {minWidth: '190px'} }, 
-                      column.drillable && value
-                        ? h('a', { onClick: () => emit("drilldown", {column, row})}, value)
+                      column.drillable && !isEmpty(value)
+                        ? h('a', { onClick: () => emit("drilldown", {column, row})}, Array.isArray(value) ? value.length : value)
                         : value
                     )
                   }),

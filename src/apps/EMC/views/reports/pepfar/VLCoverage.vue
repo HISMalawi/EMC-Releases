@@ -20,6 +20,7 @@ import { modal } from "@/utils/modal";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
 import { ViralLoadReportService } from "@/apps/ART/services/reports/viral_load_report";
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
+import { get } from "lodash";
 
 export default defineComponent({
   name: "VLCoverage",
@@ -49,23 +50,19 @@ export default defineComponent({
       report.setEndDate(dateRange.endDate)
       period.value = report.getDateIntervalPeriod()
       const data: any = await report.getVLCoverage({ application: "emastercard" })
-      const gender = ["F", "M"]
       let index = 1;
       const rs: any[] = []
-      for(const g of gender) {
-        for(const ageGroup of AGE_GROUPS){
-          const patients = data[ageGroup]
-          const ageGroupExists = ageGroup in data
+      for(const gender of ["F", "M"]) {
+        for(const group of AGE_GROUPS){
           rs.push({
             index: index++,
-            "age_group": ageGroup,
-            gender: g === "F" ? "Female" : "Male",
-            "tx_curr": filterPateints(patients['tx_curr'], g).length,
-            "due_for_vl": ageGroupExists ? filterPateints(patients['due_for_vl'], g).length : 0,
-            "drawn": ageGroupExists ? filterPateints([...patients['drawn']["routine"], ...patients['drawn']["targeted"]], g).length : 0,
-            "high_vl": ageGroupExists ? filterPateints([...patients['high_vl']["routine"], ...patients['high_vl']["targeted"]], g).length : 0,
-            "low_vl": ageGroupExists ? filterPateints([...patients['low_vl']["routine"], ...patients['low_vl']["targeted"]], g).length : 0,
-            patients
+            "age_group": group,
+            gender: gender === "F" ? "Female" : "Male",
+            "tx_curr": filterPateints(get(data, `${group}.tx_curr`, []), gender),
+            "due_for_vl": filterPateints(get(data, `${group}.due_for_vl`, []), gender),
+            "drawn": filterPateints([...get(data, `${group}.drawn.routine`, []), ...get(data, `${group}.drawn.targeted`, [])], gender),
+            "high_vl": filterPateints([...get(data, `${group}.high_vl.routine`, []), ...get(data, `${group}.high_vl.targeted`, [])], gender),
+            "low_vl": filterPateints([...get(data, `${group}.low_vl.routine`, []), ...get(data, `${group}.low_vl.targeted`, [])], gender),
           })
         }
       }
@@ -79,14 +76,8 @@ export default defineComponent({
         { path: "birthdate", label: "Date of Birth", date: true },
         { path: "gender", label: "Gender"},
       ]
-      const patients = data.column.path.match(/drawn|high_vl|low_vl/) 
-        ? [...data.row.patients[data.column.path]['routine'], ...data.row.patients[data.column.path]['targeted']]
-        : data.row.patients[data.column.path]
-
-      const rows = filterPateints(
-        patients, 
-        data.row.gender === "Female" ? "F": "M"
-      )
+      
+      const rows = data.row[data.column.path]
 
       await modal.show(DrilldownTableVue, {
         title: `${data.row.age_group} ${data.column.label} ${data.row.gender}s`,

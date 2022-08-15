@@ -22,6 +22,7 @@ import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
 import { TxReportService } from "@/apps/ART/services/reports/tx_report_service";
 import { Patientservice } from "@/services/patient_service";
+import { get } from "lodash";
 
 export default defineComponent({
   name: "TBPrev",
@@ -33,18 +34,13 @@ export default defineComponent({
       { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender" },
-      { path: "died.total", label: "Died", drillable: true },
-      { path: "iit_less_than_3_mo.total", label: "IIT <3 mo", drillable: true },
-      { path: "iit_3_to_5_mo.total", label: "IIT 3-5 mo", drillable: true },
-      { path: "iit_6_plus_mo.total", label: "IIT 6+ mo", drillable: true },
-      { path: "transferred_out.total", label: "Transferred out", drillable: true },
-      { path: "refused.total", label: "Refused (Stopped)", drillable: true },
+      { path: "died", label: "Died", drillable: true },
+      { path: "iit_less_than_3_mo", label: "IIT <3 mo", drillable: true },
+      { path: "iit_3_to_5_mo", label: "IIT 3-5 mo", drillable: true },
+      { path: "iit_6_plus_mo", label: "IIT 6+ mo", drillable: true },
+      { path: "transferred_out", label: "Transferred out", drillable: true },
+      { path: "refused", label: "Refused (Stopped)", drillable: true },
     ]
-
-    const makeCell = (patients: any[]) => ({
-      total: patients.length,
-      patients,
-    })
 
     const fetchData =  async ({ dateRange }: Record<string, any>) => {
       await loader.show()
@@ -57,17 +53,16 @@ export default defineComponent({
       const rs: any[] = []
       for(const gender of ["F", "M"]) {
         for(const group of AGE_GROUPS){
-          const exists = group in data && gender in data[group]
           rs.push({
             "index": index++,
             "age_group": group,
             "gender": gender === "F" ? "Female" : "Male",
-            "died": exists ? makeCell(data[group][gender][0]) : makeCell([]),
-            "iit_less_than_3_mo": exists ? makeCell(data[group][gender][1]) : makeCell([]),
-            "iit_3_to_5_mo": exists ? makeCell(data[group][gender][2]) : makeCell([]),
-            "iit_6_plus_mo": exists ? makeCell(data[group][gender][3]) : makeCell([]),
-            "transferred_out": exists ? makeCell(data[group][gender][4]) : makeCell([]),
-            "refused": exists ? makeCell(data[group][gender][5]) : makeCell([]),
+            "died": get(data, `${group}.${gender}[0]`, []),
+            "iit_less_than_3_mo": get(data, `${group}.${gender}[1]`, []),
+            "iit_3_to_5_mo": get(data, `${group}.${gender}[2]`, []),
+            "iit_6_plus_mo": get(data, `${group}.${gender}[3]`, []),
+            "transferred_out": get(data, `${group}.${gender}[4]`, []),
+            "refused": get(data, `${group}.${gender}[5]`, []),
           })
         }
       }
@@ -82,8 +77,7 @@ export default defineComponent({
         { path: "gender", label: "Gender" },
         { path: "address", label: "Address" }
       ]
-      const column = data.column.path.split(".")[0]
-      const patients = data.row[column].patients
+      const patients = data.row[data.column.path]
       const rows: any[] = []
       for(const patient of patients) {
         const data = await Patientservice.findByID(patient)

@@ -7,7 +7,6 @@
     :period="period"
     useDateRangeFilter
     @custom-filter="fetchData"
-    @drilldown="onDrilldown"
     @regenerate="onRegenerate"
   />
 </template>
@@ -17,11 +16,8 @@ import { defineComponent, ref } from "vue";
 import { loader } from "@/utils/loader";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
-import { modal } from "@/utils/modal";
-import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
 import { RegimenReportService, REGIMEN_WEIGHT_DISTRIBUTION, WEIGHT_BAND } from "@/apps/ART/services/reports/regimen_report_service";
 import dayjs from "dayjs";
-import { get } from "lodash";
 
 export default defineComponent({
   name: "RegimenDistribution",
@@ -83,31 +79,11 @@ export default defineComponent({
       }
     }
 
-    const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
-      const columns: TableColumnInterface[] = [
-        { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
-        { path: "birthdate", label: "Date of Birth", date: true },
-        { path: "gender", label: "Gender"},
-        { path: "dispensation_date", label: "Dispensation Date", date: true },
-        { path: "art_start_date", label: "Art Start Date", date: true },
-        { path: "tpt_start_date", label: "TPT Start Date", date: true }
-      ]
-      const column = data.column.path.split(".")[0]
-      const rows = data.row[column].patients
-
-      await modal.show(DrilldownTableVue, {
-        title: `${data.row.age_group} ${data.column.label} ${data.row.gender}s`,
-        columns,
-        rows,
-      })
-    }
-
     return {
       rows,
       columns,
       period,
       fetchData,
-      onDrilldown,
       onRegenerate,
     }
   }
