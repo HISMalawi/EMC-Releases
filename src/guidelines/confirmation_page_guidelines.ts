@@ -101,7 +101,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE] Do not proceed if NPID is not found and Provide history of voided NPIDS" : {
-        priority: 1,
+        priority: 2,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async (facts: any) => {
