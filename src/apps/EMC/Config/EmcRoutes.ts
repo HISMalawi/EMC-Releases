@@ -155,5 +155,16 @@ export default [
         component: () => import("@/apps/EMC/views/reports/moh/ViralLoad.vue")
       }
     ]
+  },
+  {
+    path: '/emc/tools',
+    component: () => import('@/apps/EMC/views/reports/BaseReport.vue'),
+    children: [
+      {
+        name: "data_cleaning",
+        path: "data_cleaning",
+        component: () => import("@/apps/EMC/views/tools/DataCleaning.vue")
+      },
+    ]
   }
 ];

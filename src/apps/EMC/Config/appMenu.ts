@@ -1,4 +1,4 @@
-import { search, pieChart, people, speedometer, checkmarkDone } from "ionicons/icons";
+import { search, pieChart, people, speedometer, checkmarkDone, archive } from "ionicons/icons";
 import { MenuItem } from '../interfaces/menu';
 
 export const menuItems: MenuItem[] = [
@@ -184,10 +184,32 @@ export const menuItems: MenuItem[] = [
     ]
   },
   {
-    title: "Data cleaning tools",
-    id: "data_cleaning_tools",
-    url: "/emc/cleaningtools",
-    icon: checkmarkDone,
+    title: "Data Management",
+    id: "data_management",
+    icon: archive,
+    children: [
+      {
+        title: "Data Cleaning",
+        id: "data_cleaning",
+        img: 'clean.jpg',
+        url: '/emc/tools/data_cleaning'
+      },
+      {
+        title: "Patient Merging",
+        id: "patient_merging",
+        img: 'merge.png',
+      },
+      {
+        title: "Patient Visit Stats",
+        id: "data_cleaning",
+        img: 'reports/line-chart.png',
+      },
+      {
+        title: "Data Cleaning Verificaton",
+        id: "cleaning_verification",
+        img: 'Checkmark.svg',
+      }
+    ]
   },
   {
     title: "Users",
