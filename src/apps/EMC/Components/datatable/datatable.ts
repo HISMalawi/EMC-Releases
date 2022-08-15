@@ -106,10 +106,10 @@ export const DataTable = defineComponent({
         filteredRows.value,
         filters.sort.map(({ columnId, caseSensitive }) => (row) => {
           const value = get(row, columnId);
-          if (columnId.match(/arv_number/i)) return parseInt(value.toString().split("-")[2]);
+          if (value && columnId.match(/arv_number/i)) return parseInt(value.toString().split("-")[2]);
           if (typeof value === "number") return value;
-          if (caseSensitive) return value !== null ? value : "";
-          return value !== null ? value.toString().toLowerCase() : "";
+          if (caseSensitive) return value ? value : "";
+          return value ? value.toString().toLowerCase() : "";
         }),
         orders as any
       );
@@ -241,7 +241,7 @@ export const DataTable = defineComponent({
                     })
                   )
                 } else if (filter.type === 'select') {
-                  return h(IonCol, { size: 4 },
+                  return h(IonCol, { size: filter.gridSize || 4 },
                     h(IonItem, { class: "box ion-padding-start", lines: "none", style: { display: 'inline-block', '--min-height': '11px', width: '100%' } }, [
                       h(IonLabel, filter.label),
                       h(IonSelect, {
@@ -251,7 +251,7 @@ export const DataTable = defineComponent({
                         }
                       },
                         filter.options?.map((option, index) =>
-                          h(IonSelectOption, { value: option, key: index }, option)
+                          h(IonSelectOption, { value: option, key: index }, option.toLowerCase())
                         )),
                     ])
                   )

@@ -55,6 +55,7 @@ export interface CustomFilterInterface {
   id: string;
   label?: string;
   value?: any;
+  gridSize?: number; // numbers between 1 and 12
   type: "text" | "number" | "date" | "select" | "dateRange";
   options?: string[];
   placeholder?: string;
