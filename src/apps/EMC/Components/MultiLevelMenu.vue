@@ -21,7 +21,7 @@
             <template v-for="subItem of item.children" :key="subItem.id">
               <template v-if="!subItem.children">
                 <ion-menu-toggle auto-hide="true">
-                  <ion-item button :router-link="subItem.url">
+                  <ion-item button :router-link="subItem.url" :style="{ paddingLeft:  '16px' }">
                     <img v-if="subItem.img" :src="`/assets/images/${subItem.img}`" class="ion-margin-end icon" />
                     <ion-icon v-if="subItem.icon" slot="start" :icon="subItem.icon"></ion-icon>
                     <ion-label >{{ subItem.title }}</ion-label>
@@ -29,7 +29,7 @@
                 </ion-menu-toggle>
               </template>
               <template v-else>
-                <ion-item button detail :detail-icon="subItem.isExpanded ? chevronDown : chevronForward" :style="{ paddingLeft: paddingLeft + 'px' }" class="header" @click="toggle(subItem)">
+                <ion-item button detail :detail-icon="subItem.isExpanded ? chevronDown : chevronForward" :style="{ paddingLeft: '16px' }" class="header" @click="toggle(subItem)">
                   <img v-if="subItem.img" :src="`/assets/images/${subItem.img}`" class="ion-margin-end icon" />
                   <ion-icon v-if="subItem.icon" slot="start" :icon="subItem.icon"></ion-icon>
                   <ion-label >{{ subItem.title }}</ion-label>
@@ -37,7 +37,7 @@
                 <div :style="{ height: subItem.isExpanded ? (optionHeight * subItem.children.length) + 'px' : '0px' }" class="options">
                   <template v-for="subItem2 of subItem.children" :key="subItem2.id">
                     <ion-menu-toggle auto-hide="true">
-                      <ion-item button :style="{ paddingLeft: paddingLeft * 2 + 'px' }" routerLinkActive="active" :router-link="subItem2.url">
+                      <ion-item button :style="{ paddingLeft: '32px' }" routerLinkActive="active" :router-link="subItem2.url">
                         <img v-if="subItem2.img" :src="`/assets/images/${subItem2.img}`" class="ion-margin-end icon" />
                         <ion-icon v-if="subItem2.icon" slot="start" :icon="subItem2.icon" ></ion-icon>
                         <ion-label >{{ subItem2.title }}</ion-label>
@@ -77,7 +77,6 @@ export default defineComponent({
   },
   setup(props) {
     const optionHeight = ref(50)
-    const paddingLeft = ref(16)
     const activeChildrenLength = ref(0)
     const menuList = ref([...props.items])
     const toggle = (item: MenuItem) => {
@@ -88,7 +87,6 @@ export default defineComponent({
     return {
       activeChildrenLength,
       optionHeight,
-      paddingLeft,
       menuList,
       toggle,
       chevronDown, 
