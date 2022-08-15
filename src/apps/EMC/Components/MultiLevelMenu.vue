@@ -4,7 +4,7 @@
       <template v-for="item of menuList" :key="item.id">
         <template v-if="!item.children">
           <ion-menu-toggle auto-hide="true">
-            <ion-item button detail :router-link="item.url">
+            <ion-item button :router-link="item.url">
               <img v-if="item.img" :src="`/assets/images/${item.img}`" class="ion-margin-end icon" />
               <ion-icon v-if="item.icon" slot="start" :icon="item.icon"></ion-icon>
               <ion-label >{{ item.title }}</ion-label>
@@ -12,7 +12,7 @@
           </ion-menu-toggle>
         </template>
         <template v-else>
-          <ion-item button detail class="header" @click="() => item.isExpanded = !item.isExpanded">
+          <ion-item button detail :detail-icon="item.isExpanded ? chevronDown : chevronForward" class="header" @click="() => item.isExpanded = !item.isExpanded">
             <img v-if="item.img" :src="`/assets/images/${item.img}`" class="ion-margin-end icon" />
             <ion-icon v-if="item.icon" slot="start" :icon="item.icon"></ion-icon>
             <ion-label >{{ item.title }}</ion-label>
@@ -21,7 +21,7 @@
             <template v-for="subItem of item.children" :key="subItem.id">
               <template v-if="!subItem.children">
                 <ion-menu-toggle auto-hide="true">
-                  <ion-item button detail :router-link="subItem.url">
+                  <ion-item button :router-link="subItem.url">
                     <img v-if="subItem.img" :src="`/assets/images/${subItem.img}`" class="ion-margin-end icon" />
                     <ion-icon v-if="subItem.icon" slot="start" :icon="subItem.icon"></ion-icon>
                     <ion-label >{{ subItem.title }}</ion-label>
@@ -29,7 +29,7 @@
                 </ion-menu-toggle>
               </template>
               <template v-else>
-                <ion-item button detail :style="{ paddingLeft: paddingLeft + 'px' }" class="header" @click="toggle(subItem)">
+                <ion-item button detail :detail-icon="subItem.isExpanded ? chevronDown : chevronForward" :style="{ paddingLeft: paddingLeft + 'px' }" class="header" @click="toggle(subItem)">
                   <img v-if="subItem.img" :src="`/assets/images/${subItem.img}`" class="ion-margin-end icon" />
                   <ion-icon v-if="subItem.icon" slot="start" :icon="subItem.icon"></ion-icon>
                   <ion-label >{{ subItem.title }}</ion-label>
@@ -37,7 +37,7 @@
                 <div :style="{ height: subItem.isExpanded ? (optionHeight * subItem.children.length) + 'px' : '0px' }" class="options">
                   <template v-for="subItem2 of subItem.children" :key="subItem2.id">
                     <ion-menu-toggle auto-hide="true">
-                      <ion-item button detail :style="{ paddingLeft: paddingLeft * 2 + 'px' }" routerLinkActive="active" :router-link="subItem2.url">
+                      <ion-item button :style="{ paddingLeft: paddingLeft * 2 + 'px' }" routerLinkActive="active" :router-link="subItem2.url">
                         <img v-if="subItem2.img" :src="`/assets/images/${subItem2.img}`" class="ion-margin-end icon" />
                         <ion-icon v-if="subItem2.icon" slot="start" :icon="subItem2.icon" ></ion-icon>
                         <ion-label >{{ subItem2.title }}</ion-label>
@@ -58,6 +58,7 @@
 import { IonItem, IonList, IonLabel, IonIcon, IonMenuToggle } from "@ionic/vue";
 import { defineComponent, PropType, ref } from "vue";
 import { MenuItem } from "../interfaces/menu";
+import { chevronDown, chevronForward } from "ionicons/icons";
 
 export default defineComponent({
   name: "MultiLevelMenu",
@@ -90,6 +91,8 @@ export default defineComponent({
       paddingLeft,
       menuList,
       toggle,
+      chevronDown, 
+      chevronForward,
     }
   },
 })
@@ -124,7 +127,7 @@ export default defineComponent({
 .custom-side-menu ion-list.accordion-menu ion-item {
   --background: $header-color-bg;
   color: var(--ion-color-medium);
-  font-weight: normal;
+  font-weight: bold;
   font-size: 14px;
 }
 
