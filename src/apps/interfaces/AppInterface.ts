@@ -67,7 +67,7 @@ export interface AppInterface {
      * Flag that helps indicate whether the app is a POC App or other.
      * Pcs Apps will use the same generic workflow
      */
-    readonly isPocApp: boolean;
+    readonly isPocApp?: boolean;
     /**
      * Define the landing page for the app
      */
