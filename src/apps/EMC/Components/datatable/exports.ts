@@ -23,9 +23,12 @@ export function convertToCsv(columns: TableColumnInterface[], rows: any[], perio
     .join(",");
 
   str += "\n";
-  str += rows.map((r) => columns
-    .filter((c) => c.exportable !== false)
-    .map((c) => sanitize(get(r, c.path)))
+  str += rows.map((row) => columns
+    .filter(column => column.exportable !== false)
+    .map(column => {
+      const value = get(row, column.path);
+      return sanitize(column.drillable && Array.isArray(value) ? value.length : value);
+    })
     .join(",")
   ).join("\n");
 

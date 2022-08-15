@@ -334,7 +334,9 @@ export const DataTable = defineComponent({
                     return h('td', { key: column.path, style: {minWidth: '190px'} }, 
                       column.drillable && !isEmpty(value)
                         ? h('a', { onClick: () => emit("drilldown", {column, row})}, Array.isArray(value) ? value.length : value)
-                        : value
+                        : Array.isArray(value) 
+                          ? value.length 
+                          : value
                     )
                   }),
                   !isEmpty(props.rowActionsButtons) && h('td', props.rowActionsButtons.map(btn =>
