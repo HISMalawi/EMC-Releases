@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, reactive, ref } from "vue";
+import { computed, defineComponent, PropType } from "vue";
 import { IonCard, IonCardContent, IonCardHeader, IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
 import dayjs from "dayjs";
@@ -144,22 +144,23 @@ export default defineComponent({
         btns.push({
           label: "CSV",
           color: "primary",
-          action: async (a, rows) => {
-            let period = props.period;
+          action: async (_a, rows) => {
+            const period = {} as any;
+            if (props.useDateRangeFilter) {
+              period.startDate = props.period.split(" - ")[0] || "";
+              period.endDate = props.period.split(" - ")[1] || "";
+            } 
             if (props.useQuarterFilter) {
               const [qtrName, year] = props.quarter.split(" ");
               const {start, end } = ArtReportService.buildQtrObj(qtrName, parseInt(year));
-              period = `${start} - ${end}`;
+              period.startDate = start;
+              period.endDate = end;
             }
             exportToCSV(
               convertToCsv(
                 props.columns, 
                 rows, 
-                props.useDateRangeFilter 
-                  ? props.period 
-                  : props.useQuarterFilter
-                    ? period
-                    : {}
+                period,
               ), 
               filename.value
             );
