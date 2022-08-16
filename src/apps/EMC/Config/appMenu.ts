@@ -208,6 +208,7 @@ export const menuItems: MenuItem[] = [
         title: "Data Cleaning Verificaton",
         id: "cleaning_verification",
         img: 'Checkmark.svg',
+        url: '/emc/tools/cleaning_verification'
       }
     ]
   },

@@ -165,6 +165,11 @@ export default [
         path: "data_cleaning",
         component: () => import("@/apps/EMC/views/tools/DataCleaning.vue")
       },
+      {
+        name: "cleaning_verification",
+        path: "cleaning_verification",
+        component: () => import("@/apps/EMC/views/tools/DataVerification.vue")
+      }
     ]
   }
 ];
