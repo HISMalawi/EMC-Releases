@@ -1,3 +1,4 @@
+import { UserService } from "@/services/user_service";
 import { search, pieChart, people, speedometer, checkmarkDone, archive } from "ionicons/icons";
 import { MenuItem } from '../interfaces/menu';
 
@@ -177,7 +178,7 @@ export const menuItems: MenuItem[] = [
             title: 'Clients due for VL',
             id: 'clients_due_for_vl',
             img: 'reports/viral_load.png',
-            url: '/emc/report/clinic/clients_due_for_vl'
+            url: '/emc/report/clinic/clients_due_for_vl',
           }
         ]
       }
@@ -192,7 +193,7 @@ export const menuItems: MenuItem[] = [
         title: "Data Cleaning",
         id: "data_cleaning",
         img: 'clean.jpg',
-        url: '/emc/tools/data_cleaning'
+        url: '/emc/tools/data_cleaning',
       },
       {
         title: "Patient Merging",
@@ -219,5 +220,8 @@ export const menuItems: MenuItem[] = [
     id: "users",
     url: "/emc/users",
     icon: people,
+    condition() {
+      return UserService.isAdmin();
+    },
   },
 ];

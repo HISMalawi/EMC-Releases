@@ -2,52 +2,58 @@
   <div class="custom-side-menu">
     <ion-list class="accordion-menu">
       <template v-for="item of menuList" :key="item.id">
-        <template v-if="!item.children">
-          <ion-menu-toggle auto-hide="true">
-            <ion-item button :router-link="item.url">
+        <template v-if="showItem(item)">
+          <template v-if="!item.children">
+            <ion-menu-toggle auto-hide="true">
+              <ion-item button :router-link="item.url">
+                <img v-if="item.img" :src="`/assets/images/${item.img}`" class="ion-margin-end icon" />
+                <ion-icon v-if="item.icon" slot="start" :icon="item.icon"></ion-icon>
+                <ion-label >{{ item.title }}</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+          </template>
+          <template v-else>
+            <ion-item button detail :detail-icon="item.isExpanded ? chevronDown : chevronForward" class="header" @click="() => item.isExpanded = !item.isExpanded">
               <img v-if="item.img" :src="`/assets/images/${item.img}`" class="ion-margin-end icon" />
               <ion-icon v-if="item.icon" slot="start" :icon="item.icon"></ion-icon>
               <ion-label >{{ item.title }}</ion-label>
             </ion-item>
-          </ion-menu-toggle>
-        </template>
-        <template v-else>
-          <ion-item button detail :detail-icon="item.isExpanded ? chevronDown : chevronForward" class="header" @click="() => item.isExpanded = !item.isExpanded">
-            <img v-if="item.img" :src="`/assets/images/${item.img}`" class="ion-margin-end icon" />
-            <ion-icon v-if="item.icon" slot="start" :icon="item.icon"></ion-icon>
-            <ion-label >{{ item.title }}</ion-label>
-          </ion-item>
-          <div :style="{ height: item.isExpanded ? (optionHeight * (item.children.length + activeChildrenLength)) + 'px' : '0px' }" class="options">
-            <template v-for="subItem of item.children" :key="subItem.id">
-              <template v-if="!subItem.children">
-                <ion-menu-toggle auto-hide="true">
-                  <ion-item button :router-link="subItem.url" :style="{ paddingLeft:  '16px' }">
-                    <img v-if="subItem.img" :src="`/assets/images/${subItem.img}`" class="ion-margin-end icon" />
-                    <ion-icon v-if="subItem.icon" slot="start" :icon="subItem.icon"></ion-icon>
-                    <ion-label >{{ subItem.title }}</ion-label>
-                  </ion-item>
-                </ion-menu-toggle>
-              </template>
-              <template v-else>
-                <ion-item button detail :detail-icon="subItem.isExpanded ? chevronDown : chevronForward" :style="{ paddingLeft: '16px' }" class="header" @click="toggle(subItem)">
-                  <img v-if="subItem.img" :src="`/assets/images/${subItem.img}`" class="ion-margin-end icon" />
-                  <ion-icon v-if="subItem.icon" slot="start" :icon="subItem.icon"></ion-icon>
-                  <ion-label >{{ subItem.title }}</ion-label>
-                </ion-item>
-                <div :style="{ height: subItem.isExpanded ? (optionHeight * subItem.children.length) + 'px' : '0px' }" class="options">
-                  <template v-for="subItem2 of subItem.children" :key="subItem2.id">
+            <div :style="{ height: item.isExpanded ? (optionHeight * (getActiveChildrens(item) + activeChildrenLength)) + 'px' : '0px' }" class="options">
+              <template v-for="subItem of item.children" :key="subItem.id">
+                <template v-if="showItem(subItem)">
+                  <template v-if="!subItem.children">
                     <ion-menu-toggle auto-hide="true">
-                      <ion-item button :style="{ paddingLeft: '32px' }" routerLinkActive="active" :router-link="subItem2.url">
-                        <img v-if="subItem2.img" :src="`/assets/images/${subItem2.img}`" class="ion-margin-end icon" />
-                        <ion-icon v-if="subItem2.icon" slot="start" :icon="subItem2.icon" ></ion-icon>
-                        <ion-label >{{ subItem2.title }}</ion-label>
+                      <ion-item button :router-link="subItem.url" :style="{ paddingLeft:  '16px' }">
+                        <img v-if="subItem.img" :src="`/assets/images/${subItem.img}`" class="ion-margin-end icon" />
+                        <ion-icon v-if="subItem.icon" slot="start" :icon="subItem.icon"></ion-icon>
+                        <ion-label >{{ subItem.title }}</ion-label>
                       </ion-item>
                     </ion-menu-toggle>
                   </template>
-                </div>
+                  <template v-else>
+                    <ion-item button detail :detail-icon="subItem.isExpanded ? chevronDown : chevronForward" :style="{ paddingLeft: '16px' }" class="header" @click="toggle(subItem)">
+                      <img v-if="subItem.img" :src="`/assets/images/${subItem.img}`" class="ion-margin-end icon" />
+                      <ion-icon v-if="subItem.icon" slot="start" :icon="subItem.icon"></ion-icon>
+                      <ion-label >{{ subItem.title }}</ion-label>
+                    </ion-item>
+                    <div :style="{ height: subItem.isExpanded ? (optionHeight * subItem.children.length) + 'px' : '0px' }" class="options">
+                      <template v-for="subItem2 of subItem.children" :key="subItem2.id">
+                        <template v-if="showItem(subItem2)">
+                          <ion-menu-toggle auto-hide="true">
+                            <ion-item button :style="{ paddingLeft: '32px' }" routerLinkActive="active" :router-link="subItem2.url">
+                              <img v-if="subItem2.img" :src="`/assets/images/${subItem2.img}`" class="ion-margin-end icon" />
+                              <ion-icon v-if="subItem2.icon" slot="start" :icon="subItem2.icon" ></ion-icon>
+                              <ion-label >{{ subItem2.title }}</ion-label>
+                            </ion-item>
+                          </ion-menu-toggle>
+                        </template>
+                      </template>
+                    </div>
+                  </template>
+                </template>
               </template>
-            </template>
-          </div>
+            </div>
+          </template>
         </template>
       </template>
     </ion-list>
@@ -79,18 +85,32 @@ export default defineComponent({
     const optionHeight = ref(50)
     const activeChildrenLength = ref(0)
     const menuList = ref([...props.items])
+    
+    const showItem = (item: MenuItem) => {
+      if(typeof item.condition === 'function') return item.condition()
+      return item.condition !== false 
+    }
+
+    const getActiveChildrens = (item: MenuItem) => {
+      return item.children?.filter(child => showItem(child)).length || 0
+    } 
+
     const toggle = (item: MenuItem) => {
       item.isExpanded = !item.isExpanded;
-      activeChildrenLength.value = item.isExpanded ? item.children!.length : 0;
+      activeChildrenLength.value = item.isExpanded 
+        ? getActiveChildrens(item)
+        : 0;
     }
 
     return {
       activeChildrenLength,
       optionHeight,
       menuList,
-      toggle,
       chevronDown, 
       chevronForward,
+      toggle,
+      showItem,
+      getActiveChildrens,
     }
   },
 })

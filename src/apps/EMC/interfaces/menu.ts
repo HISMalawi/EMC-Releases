@@ -6,4 +6,5 @@ export interface MenuItem {
   img?: string;
   children?: MenuItem[];
   isExpanded?: boolean;
+  condition?: boolean | (() => Promise<boolean> | boolean);
 }
