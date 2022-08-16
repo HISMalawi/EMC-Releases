@@ -35,15 +35,16 @@ export default defineComponent({
 
     const loadUsers = async () => {
       UserService.getAllUsers({paginate: false}).then(users => {
-        rows.value = users.map((user: any) => {
-          return {
-            "given_name": get(user, 'person.names[0].given_name', 'Unknown'),
-            "family_name": get(user, 'person.names[0].family_name', 'Unknown'),
-            "role": user.roles.map((r: any) => r.role).join(', '),
-            ...user,
-          }
-        })
-        console.log(rows.value)
+        rows.value = users
+          .filter((user: any) => user.username !== 'admin')
+          .map((user: any) => {
+            return {
+              "given_name": get(user, 'person.names[0].given_name', 'Unknown'),
+              "family_name": get(user, 'person.names[0].family_name', 'Unknown'),
+              "role": user.roles.map((r: any) => r.role).join(', '),
+              ...user,
+            }
+          })
       })
     }
 
