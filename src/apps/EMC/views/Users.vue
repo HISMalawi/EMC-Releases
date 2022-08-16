@@ -17,7 +17,7 @@ import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { UserService } from "@/services/user_service";
 import get from "lodash/get";
-import { toastSuccess } from "@/utils/Alerts";
+import { alertConfirmation, toastSuccess, toastWarning } from "@/utils/Alerts";
 import { personRemove, personAdd, pencil } from "ionicons/icons";
 
 export default defineComponent({
@@ -34,9 +34,10 @@ export default defineComponent({
     ]
 
     const loadUsers = async () => {
-      UserService.getAllUsers({paginate: false}).then(users => {
+      UserService.getAllUsers({paginate: false}).then(async(users) => {
+        const authUser = await UserService.getCurrentUser();
         rows.value = users
-          .filter((user: any) => user.username !== 'admin')
+          .filter((user: any) => user['person_id'] !== authUser!['person_id'])
           .map((user: any) => {
             return {
               "given_name": get(user, 'person.names[0].given_name', 'Unknown'),
@@ -53,7 +54,7 @@ export default defineComponent({
         label: "Edit", 
         icon: pencil,
         action: (row) => {
-          toastSuccess("Edit user not implemented yet");
+          toastSuccess(`Edit user not implemented yet: ${JSON.stringify(row)}`);
         } 
       },
       {
@@ -61,11 +62,12 @@ export default defineComponent({
         color: "danger",
         icon: personRemove,
         condition: (row) => row.deactivated_on === null,
-        action: (row) => {
-          UserService.deactivateUser(row['person_id']).then(() => {
+        action: async (row) => {
+          if(!(await alertConfirmation("Are you sure you want to deactivate this user?"))) return
+          await UserService.deactivateUser(row['user_id']).then(() => {
             toastSuccess("User deactivated");
-          }).catch(() => {
-            toastSuccess("User deactivation failed");
+          }).catch((e) => {
+            toastWarning(`Deactivation Error: ${e}`);
           }).finally(() => {
             loadUsers();
           });
@@ -77,7 +79,7 @@ export default defineComponent({
         icon: personAdd,
         condition: (row) => row.deactivated_on !== null,
         action: (row) => {
-          UserService.activateUser(row['person_id']).then(() => {
+          UserService.activateUser(row['user_id']).then(() => {
             toastSuccess("User activated");
           }).catch(() => {
             toastSuccess("User activation failed");
