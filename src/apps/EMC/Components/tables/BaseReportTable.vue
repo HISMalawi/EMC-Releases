@@ -12,7 +12,7 @@
               <h3 v-html="subtitle" v-if="subtitle" style="color:#818181;"></h3>
               <h5 v-if="useDateRangeFilter"> Period: {{ period }} </h5>
               <h5 v-else-if="useQuarterFilter"> Quarter: {{ quarter }} </h5>
-              <h5 v-else>Date: {{ dayjs(date).format("DD/MMM/YYYY") }}</h5>
+              <h5 v-else-if="useDateFilter">Date: {{ dayjs(date).format("DD/MMM/YYYY") }}</h5>
               <h5 v-if="totalClients">Total Clients: {{ totalClients }}</h5>
             </ion-col>
           </ion-row>
@@ -115,11 +115,23 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    canExportPDF: {
+      type: Boolean,
+      default: true,
+    },
+    showRefreshButton: {
+      type: Boolean,
+      default: true,
+    },
     useDateRangeFilter: {
       type: Boolean,
       default: false,
     },
     useQuarterFilter: {
+      type: Boolean,
+      default: false,
+    },
+    useDateFilter: {
       type: Boolean,
       default: false,
     },
@@ -135,10 +147,11 @@ export default defineComponent({
     })
 
     const actionBtns = computed<ActionButtonInterface[]>(() => {
-      const btns = [
-        { label: "Refresh/Rebuild", color: 'success', action: () => emit("regenerate") },
-        ...props.actionButtons,
-      ]
+      const btns = [...props.actionButtons];
+
+      if(props.showRefreshButton){
+        btns.push({ label: "Refresh/Rebuild", color: 'success', action: () => emit("regenerate") });
+      }
 
       if (props.canExportCsv) {
         btns.push({
@@ -190,7 +203,7 @@ export default defineComponent({
           value: props.quarter,
           options: ArtReportService.getReportQuarters().map(q => q.name),
         })
-      } else {
+      } else if (props.useDateFilter) {
         f.push({
           id: "date",
           label: "Date",

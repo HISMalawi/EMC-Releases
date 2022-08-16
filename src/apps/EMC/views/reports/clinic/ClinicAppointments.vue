@@ -5,6 +5,7 @@
     :columns="columns"
     :rows="rows"
     :date="date"
+    useDateFilter="true"
     :rowActionButtons="rowActionBtns"
     @custom-filter="getData"
   />
