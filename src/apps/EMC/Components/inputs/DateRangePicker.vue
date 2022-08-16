@@ -1,7 +1,7 @@
 <template>
   <ion-grid class='ion-no-padding ion-no-margin' :style="{height: '100%'}">
     <ion-row>
-      <ion-col size="5">
+      <ion-col size="6">
         <ion-input v-model="start" type="date" class="box" :style="{ width: '100%', height: '100%'}"  />
       </ion-col>
       <ion-col size="1" style="display: flex; justify-content:center" >
@@ -21,6 +21,11 @@ import { arrowForward } from "ionicons/icons";
 import dayjs from "dayjs";
 import { toastWarning } from "@/utils/Alerts";
 
+export interface DateRange {
+  startDate: string;
+  endDate: string;
+}
+
 export default defineComponent({
   name: "DateRangePicker",
   components: {
@@ -32,7 +37,7 @@ export default defineComponent({
   },
   props: {
     range: {
-      type: Object as PropType<{ startDate: string; endDate: string }>,
+      type: Object as PropType<DateRange>,
       default: () => ({ startDate: "", endDate: "" }),
     }
   },
