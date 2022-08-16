@@ -174,6 +174,11 @@ export default [
         name: "patient_visit_stats",
         path: "patient_visit_stats",
         component: () => import("@/apps/EMC/views/tools/PatientVisitStats.vue")
+      },
+      {
+        name: "patient_merging",
+        path: "patient_merging",
+        component: () => import("@/apps/EMC/views/tools/PatientMerging.vue")
       }
     ]
   }

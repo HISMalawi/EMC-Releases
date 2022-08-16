@@ -198,6 +198,7 @@ export const menuItems: MenuItem[] = [
         title: "Patient Merging",
         id: "patient_merging",
         img: 'merge.png',
+        url: '/emc/tools/patient_merging'
       },
       {
         title: "Patient Visit Stats",
