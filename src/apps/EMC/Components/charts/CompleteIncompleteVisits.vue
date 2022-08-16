@@ -20,7 +20,7 @@ import HisDate from "@/utils/Date";
 import { IonCard, IonCardHeader, IonCardContent, IonTitle } from "@ionic/vue";
 
 export default defineComponent({
-  name: "VisitStatsChart",
+  name: "CompleteIncompleteVisits",
   props: {
     visits: {
       type: Object as PropType<Record<string, number[]>>,

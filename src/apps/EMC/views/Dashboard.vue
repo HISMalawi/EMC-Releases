@@ -67,7 +67,7 @@
 <script lang="ts">
 import { computed, defineComponent, onMounted, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import VisitStatsChart from "../Components/VisitStatsChart.vue";
+import VisitStatsChart from "../Components/charts/CompleteIncompleteVisits.vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import DashboardCard from "../Components/DashboardCard.vue";
 import { people, calendar, alarm, hourglass, time } from "ionicons/icons";
