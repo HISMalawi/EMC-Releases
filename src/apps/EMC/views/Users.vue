@@ -5,6 +5,7 @@
     :columns="columns"
     :rows="rows"
     :rowActionButtons="rowActionBtns"
+    :action-buttons="actionBtns"
     :canExportCsv="false"
     :canExportPDF="false"
     :showRefreshButton="false"
@@ -14,7 +15,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
-import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
+import { ActionButtonInterface, RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { UserService } from "@/services/user_service";
 import get from "lodash/get";
 import { alertConfirmation, toastSuccess, toastWarning } from "@/utils/Alerts";
@@ -90,6 +91,13 @@ export default defineComponent({
       },
     ]
 
+    const actionBtns: ActionButtonInterface[] = [
+      {
+        label: "Add New User",
+        action: () => toastSuccess("Add new user form development in progress")
+      }
+    ]
+
     onMounted(async () => {
       loadUsers()
     })
@@ -98,6 +106,7 @@ export default defineComponent({
       rows,
       columns,
       rowActionBtns,
+      actionBtns,
     }
   }
 })
