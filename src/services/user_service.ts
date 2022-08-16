@@ -65,8 +65,8 @@ export class UserService extends Service {
       );
       return roles.length > 0;
 	}
-  static getAllUsers() {
-    return this.getJson('users', { 'page_size': 100})
+  static getAllUsers(params = {} as Record<string, any>) {
+    return this.getJson('users', { 'page_size': 100, ...params })
   }
 
   static getAllRoles() {
