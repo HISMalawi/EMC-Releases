@@ -201,8 +201,9 @@ export const menuItems: MenuItem[] = [
       },
       {
         title: "Patient Visit Stats",
-        id: "data_cleaning",
+        id: "patient_visit_stats",
         img: 'reports/line-chart.png',
+        url: '/emc/tools/patient_visit_stats'
       },
       {
         title: "Data Cleaning Verificaton",
