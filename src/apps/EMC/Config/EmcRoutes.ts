@@ -169,6 +169,11 @@ export default [
         name: "cleaning_verification",
         path: "cleaning_verification",
         component: () => import("@/apps/EMC/views/tools/DataVerification.vue")
+      },
+      {
+        name: "patient_visit_stats",
+        path: "patient_visit_stats",
+        component: () => import("@/apps/EMC/views/tools/PatientVisitStats.vue")
       }
     ]
   }
