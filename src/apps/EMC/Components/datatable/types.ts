@@ -49,6 +49,7 @@ export interface RowActionButtonInterface {
   action: (row: any) => any;
   color?: string;
   default?: boolean;
+  condition?: (row: any) => boolean;
 }
 
 export interface CustomFilterInterface {

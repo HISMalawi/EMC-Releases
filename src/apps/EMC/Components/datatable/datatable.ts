@@ -339,11 +339,14 @@ export const DataTable = defineComponent({
                           : value
                     )
                   }),
-                  !isEmpty(props.rowActionsButtons) && h('td', props.rowActionsButtons.map(btn =>
-                    h(IonButton, { key: btn.icon, size: 'small', color: btn.color || 'primary', onClick: () => btn.action(row) },
-                      btn.icon ? h(IonIcon, { icon: btn.icon }) : btn.label || "Button"
-                    )
-                  ))
+                  !isEmpty(props.rowActionsButtons) && h('td', props.rowActionsButtons.map(btn => {
+                    const canShowBtn = typeof btn.condition === 'function' ? btn.condition(row) : true;
+                    return canShowBtn 
+                      ? h(IonButton, { key: btn.icon, size: 'small', color: btn.color || 'primary', onClick: () => btn.action(row) },
+                        btn.icon ? h(IonIcon, { icon: btn.icon }) : btn.label || "Button"
+                      )
+                      : null
+                  }))
                 ])
               )
           ),
