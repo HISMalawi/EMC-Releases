@@ -5,7 +5,7 @@
     :columns="columns"
     :rows="rows"
     :rowActionButtons="rowActionBtns"
-    :canExportCSV="false"
+    :canExportCsv="false"
     :canExportPDF="false"
     :showRefreshButton="false"
   />
@@ -13,13 +13,12 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
-import { loader } from "@/utils/loader";
-import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
-import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
 import { UserService } from "@/services/user_service";
 import get from "lodash/get";
+import { toastSuccess } from "@/utils/Alerts";
+import { personRemove, personAdd, pencil } from "ionicons/icons";
 
 export default defineComponent({
   name: "Users",
@@ -34,14 +33,6 @@ export default defineComponent({
       { path: "deactivated_on", label: "Deactivated On", date: true },
     ]
 
-    const rowActionBtns: RowActionButtonInterface[] = [{ 
-      label: "Select", 
-      default: true, 
-      action: (row) => {
-        router.push(`/emc/patient/${row['patient_id']}`)
-      } 
-    }]
-
     const loadUsers = async () => {
       UserService.getAllUsers({paginate: false}).then(users => {
         rows.value = users.map((user: any) => {
@@ -55,6 +46,46 @@ export default defineComponent({
         console.log(rows.value)
       })
     }
+
+    const rowActionBtns: RowActionButtonInterface[] = [
+      { 
+        label: "Edit", 
+        icon: pencil,
+        action: (row) => {
+          toastSuccess("Edit user not implemented yet");
+        } 
+      },
+      {
+        label: "Deactivate",
+        color: "danger",
+        icon: personRemove,
+        condition: (row) => row.deactivated_on === null,
+        action: (row) => {
+          UserService.deactivateUser(row['person_id']).then(() => {
+            toastSuccess("User deactivated");
+          }).catch(() => {
+            toastSuccess("User deactivation failed");
+          }).finally(() => {
+            loadUsers();
+          });
+        }
+      },
+      {
+        label: "Activate",
+        color: "warning",
+        icon: personAdd,
+        condition: (row) => row.deactivated_on !== null,
+        action: (row) => {
+          UserService.activateUser(row['person_id']).then(() => {
+            toastSuccess("User activated");
+          }).catch(() => {
+            toastSuccess("User activation failed");
+          }).finally(() => {
+            loadUsers();
+          });
+        }
+      },
+    ]
 
     onMounted(async () => {
       loadUsers()
