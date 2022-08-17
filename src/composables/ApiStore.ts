@@ -27,6 +27,7 @@ const storeDefs: any = {
         }
     },
     'PROVIDERS': {
+        canUseCache: () => true,
         dataRequest: () => UserService.getUsers()
     }
 }
