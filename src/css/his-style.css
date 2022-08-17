@@ -47,6 +47,7 @@
     border-width: thin;
     border-style: solid;
     border-radius: 3px;
+    font-weight: 400;
 }
 
 .box-input-error {
