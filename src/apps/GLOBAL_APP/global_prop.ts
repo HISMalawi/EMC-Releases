@@ -51,6 +51,10 @@ function siteCode() {
     return GlobalPropertyService.get(GLOBAL_PROP.SITE_PREFIX)
 }
 
+function setSiteUUID(uuid: string) {
+    return GlobalPropertyService.set(GLOBAL_PROP.SITE_UUID, uuid)
+}
+
 function setSitePrefix(prefix: string) {
     return GlobalPropertyService.set(GLOBAL_PROP.SITE_PREFIX, prefix)
 }
@@ -76,5 +80,6 @@ export default {
     setSitePrefix,
     setPortalIP,
     setPortalEnabled,
+    setSiteUUID,
     malawiNationalIDScannerEnabled
 }

@@ -1,5 +1,5 @@
 import { UserService } from "@/services/user_service";
-import { search, pieChart, people, speedometer, checkmarkDone, archive } from "ionicons/icons";
+import { search, pieChart, people, speedometer, settings, archive } from "ionicons/icons";
 import { MenuItem } from '../interfaces/menu';
 
 export const menuItems: MenuItem[] = [
@@ -223,5 +223,25 @@ export const menuItems: MenuItem[] = [
     condition() {
       return UserService.isAdmin();
     },
+  },
+  {
+    title: "Settings",
+    id: "settings",
+    icon: settings,
+    condition: () => UserService.isAdmin(),
+    children: [
+      {
+        title: "Site Settings",
+        id: "site_settings",
+        img: 'location.png',
+        url: '/emc/settings/site_settings'
+      },
+      {
+        title: "Network Settings",
+        id: "network_settings",
+        img: 'portal.png',
+        // url: '/emc/settings/site_settings'
+      }
+    ]
   },
 ];

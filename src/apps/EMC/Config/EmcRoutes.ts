@@ -191,5 +191,9 @@ export default [
         component: () => import("@/apps/EMC/views/tools/PatientMerging.vue")
       }
     ]
-  }
+  },
+  {
+    path: '/emc/settings/site_settings',
+    component: () => import('@/apps/EMC/views/settings/SiteSettings.vue'),
+  },
 ];
