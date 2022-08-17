@@ -101,6 +101,7 @@ export default defineComponent({
         value: get(props.user, 'username', ''),
         label: 'Username',
         required: true,
+        disabled: !isEmpty(props.user),
         validation:async (username) => {
           if(`${username.value}`.length < 4){
             return ['Username must be at least 4 characters long']

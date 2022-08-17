@@ -57,14 +57,13 @@ export default defineComponent({
 
     const rowActionBtns: RowActionButtonInterface[] = [
       { 
-        label: "Edit", 
         icon: pencil,
-        action: (row) => {
-          toastSuccess(`Edit user not implemented yet: ${JSON.stringify(row)}`);
-        } 
+        action: async (user) => {
+          await modal.show(UserModalVue, {user})
+          await loadUsers();
+        }
       },
       {
-        label: "Deactivate",
         color: "danger",
         icon: personRemove,
         condition: (row) => row.deactivated_on === null,
@@ -80,7 +79,6 @@ export default defineComponent({
         }
       },
       {
-        label: "Activate",
         color: "warning",
         icon: personAdd,
         condition: (row) => row.deactivated_on !== null,
