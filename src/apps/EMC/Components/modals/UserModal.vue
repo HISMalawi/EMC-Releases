@@ -132,7 +132,7 @@ export default defineComponent({
         }
       },
       roles: {
-        value: props.user.roles || [],
+        value: get(props.user, 'roles[0].role', ''),
         label: 'Roles',
         required: true,
       },
