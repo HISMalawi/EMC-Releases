@@ -20,6 +20,9 @@ import { UserService } from "@/services/user_service";
 import get from "lodash/get";
 import { alertConfirmation, toastSuccess, toastWarning } from "@/utils/Alerts";
 import { personRemove, personAdd, pencil } from "ionicons/icons";
+import { modal } from "@/utils/modal";
+import UserModalVue from "../Components/modals/UserModal.vue";
+import { loader } from "@/utils/loader";
 
 export default defineComponent({
   name: "Users",
@@ -35,6 +38,7 @@ export default defineComponent({
     ]
 
     const loadUsers = async () => {
+      loader.show();
       UserService.getAllUsers({paginate: false}).then(async(users) => {
         const authUser = await UserService.getCurrentUser();
         rows.value = users
@@ -48,6 +52,7 @@ export default defineComponent({
             }
           })
       })
+      .finally(() => loader.hide());
     }
 
     const rowActionBtns: RowActionButtonInterface[] = [
@@ -94,7 +99,10 @@ export default defineComponent({
     const actionBtns: ActionButtonInterface[] = [
       {
         label: "Add New User",
-        action: () => toastSuccess("Add new user form development in progress")
+        action: async () => {
+          await modal.show(UserModalVue)
+          await loadUsers();
+        }
       }
     ]
 
