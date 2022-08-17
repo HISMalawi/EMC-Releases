@@ -1,16 +1,10 @@
 <template>
   <ion-content class="ion-padding">
     <ion-list>
-      <ion-item detail button>
-        <ion-label>View Profile</ion-label>
+      <ion-item button @click="$router.push('/emc/profile')">
+        <ion-label>Profile</ion-label>
       </ion-item>
-      <ion-item detail button>
-        <ion-label>Edit Profile</ion-label>
-      </ion-item>
-      <ion-item detail button>
-        <ion-label>Change Password</ion-label>
-      </ion-item>
-      <ion-item lines="none" detail button @click="signOut">
+      <ion-item lines="none" button @click="signOut">
         <ion-label>Logout</ion-label>
       </ion-item>
     </ion-list>
