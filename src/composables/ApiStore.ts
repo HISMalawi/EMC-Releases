@@ -36,7 +36,7 @@ export default {
         if (name in storeDefs) {
             const s = states.value[name] || {}
             const p = params || {}
-            if (!this.isset(name) || (typeof storeDefs[name]?.canUseCache === 'function' 
+            if (isEmpty(s) || !(typeof storeDefs[name]?.canUseCache === 'function' 
                 && storeDefs[name]?.canUseCache(p, s))) {
                 states.value[name] = await storeDefs[name]?.dataRequest(p)
             }
