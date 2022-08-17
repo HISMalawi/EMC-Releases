@@ -14,6 +14,7 @@
       <ion-input
         class="ion-no-margin ion-no-padding"
         v-model="model.value"
+        :type="password ? 'password' : 'text'"
         :placeholder="model.placeholder"
         :disabled="model.disabled || isUnknown"
         @ionFocus="model.error = ''"
@@ -53,6 +54,10 @@ export default defineComponent({
     suffix: {
       type: String,
       default: ""
+    },
+    password: {
+      type: Boolean,
+      default: false
     },
   },
   components: {
