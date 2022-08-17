@@ -11,16 +11,17 @@ import { defineComponent } from "vue";
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { Patientservice } from "@/services/patient_service"
-import { toastDanger, toastWarning } from "@/utils/Alerts"
+import { toastWarning } from "@/utils/Alerts"
 import { AppInterface, ProgramIdentifierInterface } from "@/apps/interfaces/AppInterface";
 import { Field, Option } from "@/components/Forms/FieldInterface"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import HisApp from "@/apps/app_lib"
-import { filter, get, isEmpty } from "lodash"
+import { isEmpty } from "lodash"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { ProgramService } from "@/services/program_service";
-import { loadingController, modalController } from "@ionic/core";
+import { loadingController } from "@ionic/core";
 import { GlobalPropertyService } from "@/services/global_property_service";
+import { CHARACTERS_AND_NUMBERS_LO } from "@/components/Keyboard/KbLayouts";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -86,8 +87,8 @@ export default defineComponent({
             : null
         ]),
         config: {
-          initialKb: '0-9',
           casing: 'uppercase',
+          customKeyboard: [CHARACTERS_AND_NUMBERS_LO, [['Delete']]],
           prependValue: (f: any) => {
             programIdentifer = f.identifier_type.other
             return programIdentifer.prefix()
@@ -189,7 +190,7 @@ export default defineComponent({
           await this.patient.updateARVNumber(formData.arv_number.value)
           this.selectPatient(this.patient.getID())
         } catch (error) {
-          toastWarning(error.toString())
+          toastWarning(`${error}`)
         }
       } else {
         const patient = new Patientservice(this.people[0])

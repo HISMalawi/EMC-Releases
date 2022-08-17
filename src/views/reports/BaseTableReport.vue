@@ -220,7 +220,7 @@ export default defineComponent({
   }),
   methods: {
     getFileName() {
-      return `${this.title}-${this.period}`
+      return `${Service.getLocationName()} ${this.title} ${this.period}`
     },
     async onFinish(formData: any, computedData: any) {
       this.formData = formData

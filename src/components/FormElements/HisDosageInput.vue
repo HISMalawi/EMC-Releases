@@ -105,7 +105,7 @@ export default defineComponent({
       })
     },
     async launchKeyPad(item: Option, prop: string) {
-        const modal = await modalController.create({
+       (await modalController.create({
             component: KeyPad,
             backdropDismiss: false,
             cssClass: 'keypad-modal',
@@ -117,8 +117,7 @@ export default defineComponent({
                     item.other[prop] = val
                 }
             }
-        })
-        modal.present()
+        })).present()
     }
   }
 })

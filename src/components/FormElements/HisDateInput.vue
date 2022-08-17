@@ -86,24 +86,27 @@ export default defineComponent({
             }
         },
         add(unit: string) {
-            this.date = HisDate.add(`${this.date}`, unit, 1)
+            this.date = HisDate.add(this.fmt(this.date), unit, 1)
         },
         subtract(unit: string) {
-           this.date = HisDate.subtract(`${this.date}`, unit, 1)
+           this.date = HisDate.subtract(this.fmt(this.date), unit, 1)
         },
         today() {
             this.date = new Date(Service.getSessionDate())
+        },
+        fmt(d: any) {
+            return HisDate.toStandardHisFormat(d)
         }
     },
     computed: {
         getYear(): any {
-            return HisDate.getYear(`${this.date}`);
+            return HisDate.getYear(this.fmt(this.date));
         },
         getMonth(): any {
-            return HisDate.getMonth(`${this.date}`);
+            return HisDate.getMonth(this.fmt(this.date));
         },
         getDay(): any {
-            return HisDate.getDay(`${this.date}`);
+            return HisDate.getDay(this.fmt(this.date));
         }
     },
     watch: {
