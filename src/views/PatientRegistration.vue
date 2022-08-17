@@ -75,7 +75,6 @@ export default defineComponent({
     '$route': {
         async handler({query}: any) {
            this.ddeInstance = new PatientDemographicsExchangeService()
-           await this.ddeInstance.loadDDEStatus()
            if (query.edit_person) {
                 this.ddeIsReassign = query.dde_reassign
                 this.ddeDocID = query.doc_id
@@ -86,7 +85,6 @@ export default defineComponent({
                 this.presets = query
             }
             this.fields = this.getFields()
-            this.isMilitarySite = await GLOBAL_PROP.militarySiteEnabled()
         },
         immediate: true,
         deep: true
@@ -392,6 +390,10 @@ export default defineComponent({
             id: 'occupation',
             helpText: 'Occupation',
             type: FieldType.TT_SELECT,
+            init: async () => {
+               this.isMilitarySite = await GLOBAL_PROP.militarySiteEnabled()
+               return true 
+            },
             computedValue: (val: Option) => ({person: val.value}),
             condition: () => this.editConditionCheck(['occupation']) && this.isMilitarySite,
             validation: (val: any) => Validation.required(val),
@@ -490,6 +492,12 @@ export default defineComponent({
             id: 'results',
             helpText: 'Search results',
             type: FieldType.TT_PERSON_RESULT_VIEW,
+            init: async () => {
+                if (!this.isEditMode()) {
+                    await this.ddeInstance.loadDDEStatus()
+                }
+                return true
+            },
             dynamicHelpText: (form: any) => {
                 return this.presets.nationalIDStatus == "true" ?
                  `Search results for "${this.presets.given_name} ${this.presets.family_name} | ${this.presets.gender}"` : 
@@ -679,6 +687,12 @@ export default defineComponent({
             id: 'edit_user',
             helpText: 'Edit Demographics',
             type: FieldType.TT_TABLE_VIEWER,
+            init: async () => {
+                if (this.isEditMode()) {
+                    await this.ddeInstance.loadDDEStatus()
+                }
+                return true
+            },
             condition: () => this.isEditMode(),
             options: async () => {
                 const editButton = (attribute: string) => ({
