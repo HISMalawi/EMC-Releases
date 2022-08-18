@@ -400,12 +400,9 @@ export default defineComponent({
                     card.isLoading = true
                     EncounterService.getEncounters(this.patientId, {date})
                         .then((encounters) => {
-                            this.getActivitiesCardInfo(encounters)
-                                .then((data) => {
-                                    card.items = data
-                                    card.cache[date] = card.items
-                                    card.isLoading = false
-                                }).catch(() => card.isLoading = false)
+                            card.items = this.getActivitiesCardInfo(encounters)
+                            card.cache[date] = card.items
+                            card.isLoading = false
                             // Preserve today's encounters (BY SESSION DATE) in a hash object
                             if (date === ProgramService.getSessionDate() && !isEmpty(encounters)) {
                                 this.sessionEncounterMap = encounters.reduce((accum: any, encounter: Encounter) => {
@@ -645,12 +642,12 @@ export default defineComponent({
            return []
         },
         getActivitiesCardInfo(encounters: Array<Encounter>) {
-            const items = encounters.map(async (encounter: Encounter) => {
+           return encounters.map((encounter: Encounter) => {
                 return {
                 label: encounter.type.name,
                 value: this.toTime(encounter.encounter_datetime),
                 other: {
-                    provider: await PersonService.getPersonFullName(encounter.provider_id),
+                    provider: PersonService.getPersonFullName(encounter.provider_id),
                     id: encounter.encounter_id,
                     columns: ['Observation', 'Value', 'Time'],
                     onVoid: async (reason: any) => {
@@ -692,7 +689,6 @@ export default defineComponent({
                 }
                 }
             })
-            return Promise.all(items)
         },
         getMedicationCardInfo(medications: any) {
             return medications.map((medication: any) => ({
