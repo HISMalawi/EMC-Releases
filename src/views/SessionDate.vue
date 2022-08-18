@@ -10,7 +10,6 @@ import { generateDateFields } from "@/utils/HisFormHelpers/MultiFieldDateHelper"
 import HisDate from "@/utils/Date"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { infoActionSheet } from "@/utils/ActionSheets"
-import { delayPromise } from "@/utils/Timers"
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import Store from "@/composables/ApiStore"
 
@@ -52,7 +51,6 @@ export default defineComponent({
         }, '')
     },
     async mounted() {
-        await delayPromise(200)
         await this.showBdeNotice()
     },
     methods: {
@@ -64,7 +62,6 @@ export default defineComponent({
             const sessionDate = HisDate.toStandardHisDisplayFormat(
                 Service.getSessionDate()
             )
-            await delayPromise(200)
             const action = await infoActionSheet(
                 'BDE Notice',
                 `The system is currently in Back Data Entry Mode(BDE). \

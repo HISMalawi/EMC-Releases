@@ -7,7 +7,6 @@ import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { ENCOUNTER_GUIDELINES, FlowState } from "@/guidelines/encounter_guidelines"
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
-import { delayPromise } from '@/utils/Timers'
 import { toastDanger } from '@/utils/Alerts'
 import Store from "@/composables/ApiStore"
 
@@ -86,7 +85,6 @@ export default defineComponent({
             for(const index in findings) {
                 const finding = findings[index]
                 if (finding?.actions?.alert) {
-                    await delayPromise(150)
                     const status = this.runflowState((await finding?.actions?.alert(this.facts)))
                     if (status === FlowState.EXIT) return
                 }
