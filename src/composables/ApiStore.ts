@@ -15,10 +15,9 @@ export default {
      */
     async get(name: string, params={} as any) {
         if (name in DEFS) {
-            const s = STATES.value[name] || {}
             const p = params || {}
             if (typeof DEFS[name]?.canReloadCache === 'function' && 
-                DEFS[name]?.canReloadCache(p, s)) {
+                DEFS[name]?.canReloadCache(p, STATES.value[name])) {
                 STATES.value[name] = await DEFS[name]?.get(p)
             }
             return STATES.value[name]
