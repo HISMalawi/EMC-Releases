@@ -8,12 +8,38 @@ import { GlobalPropertyService } from "@/services/global_property_service"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { toastSuccess } from "@/utils/Alerts"
 import Validation from "@/components/Forms/validations/StandardValidations"
+import Store from "@/composables/ApiStore"
+import {GLOBAL_PROP} from "@/apps/GLOBAL_APP/global_prop"
+import {ART_GLOBAL_PROP} from "@/apps/ART/art_global_props"
+
 export default defineComponent({
   components: { HisStandardForm },
   methods: {
     onFinish(formData: any) {
       GlobalPropertyService.set(this.property , formData.preference)
-      .then(() => toastSuccess('Property set'))
+      .then(() => {
+        switch(this.property) {
+          case GLOBAL_PROP.DDE_ENABLED:
+            Store.invalidate('IS_DDE_ENABLED')
+            break;
+          case ART_GLOBAL_PROP.DRUG_MANAGEMENT:
+            Store.invalidate('IS_ART_DRUG_MANAGEMENT_ENABLED')
+            break
+          case GLOBAL_PROP.MILITARY_SITE:
+            Store.invalidate('IS_MILITARY_SITE')
+            break;
+          case ART_GLOBAL_PROP.FAST_TRACK:
+            Store.invalidate('IS_ART_FAST_TRACK_ENABLED')
+            break;
+          case ART_GLOBAL_PROP.HTN_ENHANCEMENT:
+            Store.invalidate('IS_ART_HTN_ENABLED')
+            break;
+          case ART_GLOBAL_PROP.FILING_NUMBERS:
+            Store.invalidate('IS_ART_FILING_NUMBER_ENABLED')
+            break;
+        }
+        toastSuccess('Property set')
+      })
       .then(() => this.$router.push('/'))
     },
     async getFields  (){

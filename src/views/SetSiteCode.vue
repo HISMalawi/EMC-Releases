@@ -13,6 +13,7 @@ import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { toastSuccess } from "@/utils/Alerts";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -20,11 +21,14 @@ export default defineComponent({
     onFinish(formData: any) {
       const sitePrefix = `${formData.site_code.value}`.toUpperCase();
       GLOBAL_PROP.setSitePrefix(sitePrefix)
-        .then(() => toastSuccess("Property set"))
+        .then(() => {
+          Store.invalidate('SITE_PREFIX')
+          toastSuccess("Property set")
+        })
         .then(() => this.$router.push("/"));
     },
     async setFields() {
-      const val = await GLOBAL_PROP.sitePrefix()
+      const val = await Store.get('SITE_PREFIX')
       this.fields = [
         {
           id: "site_code",
@@ -33,10 +37,10 @@ export default defineComponent({
           type: FieldType.TT_TEXT,
           validation(value: any): null | Array<string> {
             return !value ? ["Value is required"] : null;
-          },
-        },
-      ];
-    },
+          }
+        }
+      ]
+    }
   },
   data() {
     return {
