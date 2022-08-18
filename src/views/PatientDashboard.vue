@@ -414,7 +414,6 @@ export default defineComponent({
                                         .map((concept: any) => concept.name.toLowerCase())
                                     return accum
                                 }, {})
-                                console.timeEnd('Session encounter')
                             }
                         }).catch(() => {
                             card.items = []
