@@ -40,10 +40,10 @@ export default defineComponent({
   components: { BaseReportTable },
   setup() {
     const report = new DisaggregatedReportService()
-    const cohortData = reactive({} as Record<string, any>);
+    let cohortData = reactive({} as Record<string, any>);
     const period = ref("-");
-    const sortIndexes = reactive({} as Record<string, any[]>);
-    const aggregations = reactive([] as any[]);
+    let sortIndexes = reactive({} as Record<string, any[]>);
+    let aggregations = reactive([] as any[]);
     
     const rows = computed(() => 
       Object.keys(sortIndexes).sort((a, b) => parseInt(a) - parseInt(b))
@@ -221,9 +221,12 @@ export default defineComponent({
     }
 
     const onRegenerate = async () => {
+      sortIndexes = {}
+      aggregations = []
+      cohortData = {}
       const [ start, end ] = period.value.split('-')
       if(start && end ) {
-        fetchData({dateRange: {
+        await fetchData({dateRange: {
           startDate: dayjs(start).format("YYYY-MM-DD"), 
           endDate: dayjs(end).format("YYYY-MM-DD")
         }}, true)
