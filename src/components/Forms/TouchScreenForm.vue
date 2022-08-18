@@ -101,7 +101,7 @@ function buildAsyncComponents() {
       loader: () => import( /* webpackChunkName: "TouchFormElement"*/`@/components/FormElements/${name}.vue`),
       loadingComponent: LoadingFormElement,
       errorComponent: ErrorFormElement,
-      delay: 200,
+      delay: 150,
       timeout: 50000,
     })
   })

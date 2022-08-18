@@ -35,7 +35,7 @@ export default defineComponent({
     animation-timing-function: linear;
     background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
     background-size: 1000px 104px;
-    height: 60vh;
+    height: 10vh;
     position: relative;
     overflow: hidden;
 }
