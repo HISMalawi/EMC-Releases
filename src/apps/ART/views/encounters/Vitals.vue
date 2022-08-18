@@ -20,11 +20,11 @@ import { alertConfirmation, toastSuccess, toastWarning } from "@/utils/Alerts";
 import EncounterMixinVue from "../../../../views/EncounterMixin.vue";
 import { BMIService } from "@/services/bmi_service";
 import { ProgramService } from "@/services/program_service";
-import ART_PROP from "@/apps/ART/art_global_props"
 import { find, isEmpty } from "lodash";
 import HisApp from "@/apps/app_lib"
 import { infoActionSheet } from "@/utils/ActionSheets"
 import dayjs from "dayjs";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -88,7 +88,7 @@ export default defineComponent({
           this.hasHTNObs = data && data.length > 0;
         }
       )
-      this.HTNEnabled = await ART_PROP.htnEnabled()
+      this.HTNEnabled = await Store.get('IS_ART_HTN_ENABLED')
       this.fields = this.getFields();
     },
     getOptions() {
