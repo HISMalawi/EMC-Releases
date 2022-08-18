@@ -4,6 +4,45 @@ import RadioSheet from "@/components/DataViews/actionsheet/RadioActionSheet.vue"
 import ListSheet from "@/components/DataViews/actionsheet/InfoListActionSheet.vue"
 import { modalController } from "@ionic/vue";
 
+/**
+ * Ionic 5 has a bug where when you open a modal using modalController.create() it creates duplicate modals on the same div.
+ * This issue mostly happens when openning another modal immediately after closing the previous one.
+ * This function is a workaround to detect duplicate elements and remove them. 
+ * 
+ * We query the DOM exponetially every X amount of milliseconds to check for duplicate elements in the modal.
+ */
+function sanitizeModal() {
+    const detectDuplicateModal = (retryCount: number, sleep: number) => {
+        setTimeout(() => {
+            const modals = document.getElementsByClassName("modal-wrapper")
+            if (modals.length) {
+                const modal = modals[0]
+                const headers = modal.getElementsByTagName('ion-header')
+                if (headers.length >= 2) {
+                    headers[1].remove()
+                } else {
+                    if (retryCount < 20) { 
+                        detectDuplicateModal(retryCount+1, sleep + 100)
+                    }
+                }
+                const content = modal.getElementsByTagName('ion-content')
+                if (content.length >= 2) {
+                    content[1].remove()
+                }
+                const footer = modal.getElementsByTagName('ion-footer')
+                if (footer.length >= 2) {
+                    if (footer[1].parentElement) footer[1].parentElement.remove()
+                }
+            } else {
+                if (retryCount < 5) { 
+                    detectDuplicateModal(retryCount+1, sleep + 100)
+                }
+            }
+        }, sleep)
+    }
+    detectDuplicateModal(0, 0)
+}
+
 export async function tableActionSheet(
     title: string,
     subtitle: string,
@@ -27,7 +66,8 @@ export async function tableActionSheet(
             color
         }
         })
-        modal.present()
+        await modal.present()
+        sanitizeModal()
         const { data } = await modal.onDidDismiss()
         return data.action
     }
@@ -51,7 +91,8 @@ export async function listActionSheet(
             color
         }
         })
-        modal.present()
+        await modal.present()
+        sanitizeModal()
         const { data } = await modal.onDidDismiss()
         return data.action
     }
@@ -75,7 +116,8 @@ export async function infoActionSheet(
             color
         }
         })
-        modal.present()
+        await modal.present()
+        sanitizeModal()
         const { data } = await modal.onDidDismiss()
         return data.action
     }
@@ -100,7 +142,8 @@ export async function optionsActionSheet(
             actionButtons
         }
         })
-        modal.present()
+        await modal.present()
+        sanitizeModal()
         const { data } = await modal.onDidDismiss()
         return data
     }
