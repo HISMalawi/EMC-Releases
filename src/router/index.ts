@@ -175,6 +175,11 @@ const routes: Array<RouteRecordRaw> = [
     component: HostConfig,
   },
   {
+    name: "DT API host settings",
+    path: '/settings/network_settings',
+    component: () => import('@/views/DTNetworkSettings.vue'),
+  },
+  {
     path: "/lab/results/:patient_id",
     name: "Lab Results",
     component: LabResults,
@@ -203,7 +208,7 @@ router.beforeEach((to, from, next) => {
   toastController.getTop().then(v => v ? toastController.dismiss() : null)
   popoverController.getTop().then(v => v ? popoverController.dismiss() : null)
   
-  const whitelistedUri = ['/login', '/settings/host']
+  const whitelistedUri = ['/login', '/settings/host', '/settings/network_settings']
   if (!sessionStorage.getItem('apiKey') && !whitelistedUri.includes(to.path)) {
     next('/login')
   }

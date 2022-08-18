@@ -244,4 +244,8 @@ export class Service {
         }
         return apps
     }
+
+    static isUsingLocalStorage() {
+        return localStorage.getItem("useLocalStorage") === "true"
+    }
 }

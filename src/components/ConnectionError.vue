@@ -11,7 +11,7 @@
         </ul> 
       </p>
       <ion-button 
-        router-link='/settings/host' 
+        @click="goToSettings"
         color="warning"> 
         New Config
       </ion-button>
@@ -24,14 +24,29 @@
 <script lang='ts'>
 import { defineComponent } from 'vue'
 import { IonButton } from "@ionic/vue"
+import usePlatform from '@/composables/usePlatform'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
     components: { IonButton },
     setup() {
-        const refresh = () => location.reload()
-        return {
-            refresh
-        }
+      const router = useRouter()
+      const { platformType } = usePlatform()
+
+      const goToSettings = () => {
+        console.log('goToSettings')
+        const url = platformType.value === 'desktop' 
+          ? '/settings/network_settings' 
+          : '/settings/host'
+        console.log(platformType.value, url)
+        router.push(url)
+      }
+      const refresh = () => location.reload()
+      
+      return {
+          refresh,
+          goToSettings,
+      }
     }
 })
 </script>

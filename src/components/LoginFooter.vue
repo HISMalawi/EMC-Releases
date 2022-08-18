@@ -20,7 +20,7 @@
     </ion-item>
     <ion-button
       slot="end"
-      router-link="/settings/host"
+      :router-link="settingsUrl"
       v-if="showConfigBtn"
     >
       Configuration
@@ -32,7 +32,7 @@
 <script lang="ts">
 import usePlatform from '@/composables/usePlatform'
 import img from '@/utils/Img'
-import { defineComponent, ref, watch } from 'vue'
+import { computed, defineComponent, ref, watch } from 'vue'
 import { IonFooter, IonToolbar, IonButton, IonSelect, IonSelectOption } from "@ionic/vue";
 
 export default defineComponent({
@@ -49,6 +49,9 @@ export default defineComponent({
   setup() {
     const { platformType, setPlatformType } = usePlatform()
     const platform = ref(platformType.value || "Platform")
+    const settingsUrl = computed(() => platformType.value === "desktop" ?
+      "/settings/network_settings" : "/settings/host"
+    )
     const platformOptions = ref([
       "mobile", "desktop"
     ])
@@ -63,6 +66,7 @@ export default defineComponent({
       pepfarImg: img("login-logos/PEPFAR.png"),
       platformOptions,
       platform,
+      settingsUrl,
     }
   },
 })
