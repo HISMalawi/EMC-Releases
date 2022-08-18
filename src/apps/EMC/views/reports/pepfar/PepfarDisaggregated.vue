@@ -165,12 +165,6 @@ export default defineComponent({
       period.value = report.getDateIntervalPeriod()
       const initialised = await report.init()
       if (!initialised) return toastWarning('Unable to initialise report')
-      // const categories: Category[] = [
-      //   {index: 1, gender: "F", altGender: "Female", ageGroups: AGE_GROUPS },
-      //   {index: 2, gender: "M", altGender: "Male", ageGroups: AGE_GROUPS },
-      //   {index: 4, gender: "F", altGender: "FP", ageGroups: ['All'], altAgeGroup: 'Pregnant' },
-      //   {index: 6, gender: "F", altGender: "FBf", ageGroups: ['All'], altAgeGroup: 'Breastfeeding' },
-      // ]
 
       await buildRows({index: 1, gender: "F", altGender: "Female", ageGroups: AGE_GROUPS })
       await buildRows({index: 2, gender: "M", altGender: "Male", ageGroups: AGE_GROUPS })
