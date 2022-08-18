@@ -20,6 +20,7 @@ import { addWorkflowTask, nextTask, selectActivities } from "@/utils/WorkflowTas
 import dayjs from "dayjs";
 import { Service } from "@/services/service";
 import { Patientservice } from '@/services/patient_service';
+import Store from "@/composables/ApiStore"
 
 async function enrollInArtProgram(patientID: number, patientType: string, clinic: string) {
     const program = new PatientProgramService(patientID)
@@ -37,7 +38,7 @@ async function enrollInArtProgram(patientID: number, patientType: string, clinic
  * Present a modal to show drug chart
  */
 async function showStockManagementChart() {
-    if((await ART_GLOBAL_PROP.drugManagementEnabled())){
+    if((await Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED'))){
         const drugModal = await modalController.create({
             component: DrugModalVue,
             cssClass: "large-modal",

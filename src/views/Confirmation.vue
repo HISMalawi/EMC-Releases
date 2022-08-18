@@ -119,7 +119,6 @@ import { delayPromise } from "@/utils/Timers";
 import { AncPregnancyStatusService } from "@/apps/ANC/Services/anc_pregnancy_status_service"
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 import { isUnknownOrEmpty, isValueEmpty } from "@/utils/Strs";
-import  artGlobalProp from "@/apps/ART/art_global_props"
 import Store from "@/composables/ApiStore"
 
 export default defineComponent({
@@ -208,13 +207,11 @@ export default defineComponent({
     if (app) {
       this.app = app
       this.ddeInstance = new PatientDemographicsExchangeService()
-      this.ddeInstance.loadDDEStatus().then(() => {
-        this.setGlobalPropertyFacts().then(() => {
-          const query = this.$route.query
-          if (!isEmpty(query) && (query.person_id || query.patient_barcode)) {
-            this.findAndSetPatient(query.person_id as any, query.patient_barcode as any)
-          }
-        })
+      this.setGlobalPropertyFacts().then(() => {
+        const query = this.$route.query
+        if (!isEmpty(query) && (query.person_id || query.patient_barcode)) {
+          this.findAndSetPatient(query.person_id as any, query.patient_barcode as any)
+        }
       })
     }
   },
@@ -391,10 +388,10 @@ export default defineComponent({
         .map((id: any) => id.type.name)
     },
     async setGlobalPropertyFacts() {
-      this.facts.globalProperties.ddeEnabled = this.ddeInstance.isEnabled()
-      this.useDDE = this.ddeInstance.isEnabled()
+      this.facts.globalProperties.ddeEnabled = await Store.get('IS_DDE_ENABLED')
+      this.useDDE = this.facts.globalProperties.ddeEnabled
       if (this.app.applicationName === 'ART') {
-        this.facts.globalProperties.useFilingNumbers = await artGlobalProp.filingNumbersEnabled()
+        this.facts.globalProperties.useFilingNumbers = await Store.get('IS_ART_FILING_NUMBER_ENABLED')
       }
     },
     async setAncFacts() {

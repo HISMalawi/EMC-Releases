@@ -12,9 +12,8 @@ import {
     getPatientDashboardAlerts,
     getPatientDashboardLabOrderCardItems,
 } from "@/apps/ART/Config/ArtAppScripts"
-import { ART_GLOBAL_PROP } from "./art_global_props";
-import ART_PROP from "./art_global_props";
-import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
+
+import Store from "@/composables/ApiStore"
 
 const ART: AppInterface = {
     init,
@@ -39,7 +38,7 @@ const ART: AppInterface = {
             name: 'ARV Number',
             isPrimary: true,
             useForSearch: true,
-            prefix: async () => `${(await GLOBAL_PROP.sitePrefix())}-ARV-`
+            prefix: async () => `${(await Store.get('SITE_PREFIX'))}-ARV-`
         },
         'Filing number': {
             id: 17,
@@ -48,14 +47,14 @@ const ART: AppInterface = {
             useForSearch: true,
             prefix: async () => {
                 try {
-                    const [active] = (await ART_PROP.filingNumberPrefix()).split(',')
+                    const [active] = (await Store.get('ART_FILING_NUMBER_PREFIX')).split(',')
                     return active
                 } catch (e) {
                     console.warn(e)
                     return ''
                 }
             },
-            globalPropertySetting: `${ART_GLOBAL_PROP.FILING_NUMBERS}=true`,
+            visible: () => Store.get('IS_ART_FILING_NUMBER_ENABLED')
         },
         'Archived filing number': {
             id: 18,
@@ -64,14 +63,14 @@ const ART: AppInterface = {
             useForSearch: true,
             prefix: async () => {
                 try {
-                    const [_, domarnt] = (await ART_PROP.filingNumberPrefix()).split(',')
+                    const [_, domarnt] = (await Store.get('ART_FILING_NUMBER_PREFIX')).split(',')
                     return domarnt
                 } catch (e) {
                     console.warn(e)
                     return ''
                 }
             },
-            globalPropertySetting: `${ART_GLOBAL_PROP.FILING_NUMBERS}=true`,
+            visible: () => Store.get('IS_ART_FILING_NUMBER_ENABLED')
         }
     },
 }

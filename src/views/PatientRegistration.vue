@@ -69,7 +69,8 @@ export default defineComponent({
     isMilitarySite: false,
     presets: {} as any,
     registrationSummary: {} as any,
-    form: {} as Record<string, Option> | Record<string, null>
+    form: {} as Record<string, Option> | Record<string, null>,
+    ddeEnabled: false as boolean,
   }),
   watch: {
     '$route': {
@@ -218,7 +219,7 @@ export default defineComponent({
     },
     async confirmPatient() {
         // Attempt to assign or reassign a patient's NPID if they dont have a valid one
-        if (this.ddeInstance.isEnabled() && (!this.patient.getDocID() 
+        if (this.ddeEnabled && (!this.patient.getDocID() 
             || (this.patient.getDocID() && this.patient.getNationalID().match(/unknown/i)))) {
                 try {
                     await this.patient.assignNpid()
@@ -493,8 +494,8 @@ export default defineComponent({
             helpText: 'Search results',
             type: FieldType.TT_PERSON_RESULT_VIEW,
             init: async () => {
-                if (!this.isEditMode()) {
-                    await this.ddeInstance.loadDDEStatus()
+                if (!this.isEditMode()) { 
+                    this.ddeEnabled = await Store.get('IS_DDE_ENABLED')
                 }
                 return true
             },
@@ -524,7 +525,7 @@ export default defineComponent({
                     }
                 }
                 // DDE enabled search
-                if (this.ddeInstance.isEnabled()) {
+                if (this.ddeEnabled) {
                     const patients = await this.ddeInstance.searchDemographics(payload)
                     return patients.map((item: any) => {
                         const itemData = PersonField.getPersonAttributeOptions(item)
@@ -594,7 +595,7 @@ export default defineComponent({
             helpText: 'Possible Duplicate(s)',
             type: FieldType.TT_PERSON_MATCH_VIEW,
             condition: async (_: any, c: any) => {
-                if (this.ddeInstance.isEnabled() && !this.editPerson) {
+                if (this.ddeEnabled && !this.editPerson) {
                     createdPerson = PersonField.resolvePerson(c)
                     duplicatePatients = await this.ddeInstance
                         .checkPotentialDuplicates(createdPerson)
@@ -679,7 +680,6 @@ export default defineComponent({
                     }
                 ]
             }
-
         }
     },
     personIndexField(): Field {
@@ -689,7 +689,7 @@ export default defineComponent({
             type: FieldType.TT_TABLE_VIEWER,
             init: async () => {
                 if (this.isEditMode()) {
-                    await this.ddeInstance.loadDDEStatus()
+                    this.ddeEnabled = await Store.get('IS_DDE_ENABLED')
                 }
                 return true
             },
@@ -748,7 +748,7 @@ export default defineComponent({
                             visible: {
                                 default: () => false,
                                 onload: () => (
-                                    this.ddeInstance.isEnabled()
+                                    this.ddeEnabled
                                     && this.ddeIsReassign
                                     && !this.hasIncompleteData
                                 )

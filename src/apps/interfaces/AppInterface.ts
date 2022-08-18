@@ -37,6 +37,7 @@ export interface ProgramIdentifierInterface {
     useForSearch: boolean;
     prefix: () => Promise<string> | string;
     validation?: (value: Option) => string[] | null
+    visible?: () => boolean | Promise<boolean>;
     globalPropertySetting?: string;
 }
 
