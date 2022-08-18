@@ -208,7 +208,7 @@
             </ion-grid>
         </ion-content>
         <ion-toolbar color="dark"> 
-            <ion-button :disabled="tasksDisabled" color="primary" size="large" slot="end" @click="showTasks"> 
+            <ion-button color="primary" size="large" slot="end" @click="showTasks"> 
                 <ion-icon :icon="clipboardOutline"> </ion-icon>
                 Tasks
             </ion-button>
@@ -341,7 +341,6 @@ export default defineComponent({
     data: () => ({
         activeTab: 1 as number,
         app: {} as any,
-        tasksDisabled: true as boolean,
         dashboardComponent: {} as any,
         isBDE: false as boolean,
         currentDate: '',
@@ -417,12 +416,10 @@ export default defineComponent({
                                 }, {})
                                 console.timeEnd('Session encounter')
                             }
-                            this.tasksDisabled = false
                         }).catch(() => {
                             card.items = []
                             card.cache[date] = card.items
                             card.isLoading = false
-                            this.tasksDisabled = false
                         })
                 },
                 onClick: (card: any) => {
@@ -533,7 +530,6 @@ export default defineComponent({
                 this.app = App.getActiveApp()
                 if (this.appHasCustomContent) {
                     this.patientCards = []
-                    this.tasksDisabled = false
                 }
                 this.initData()
             })
@@ -569,10 +565,8 @@ export default defineComponent({
                     .then((dates) => {
                         this.visitDates = dates
                         this.loadSavedEncounters()
-                        if (isEmpty(dates)) this.tasksDisabled = false
                     }).catch((e) => {
                         console.error(e)
-                        this.tasksDisabled = false
                     })
             }).catch((e) => toastDanger(`${e}`))
         },
