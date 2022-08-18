@@ -32,8 +32,9 @@ export const menuItems: MenuItem[] = [
           },
           {
             title: 'Cohort Disagreggated',
-            id: 'emc_moh_disaggregated',
-            img: 'reports/split.png'
+            id: 'cohort_disaggregated',
+            img: 'reports/split.png',
+            url: '/emc/report/moh/cohort_disaggregated'
           },
           {
             title: 'Survival analysis',

@@ -163,6 +163,11 @@ export default [
         name: "viral_load",
         path: "viral_load",
         component: () => import("@/apps/EMC/views/reports/moh/ViralLoad.vue")
+      },
+      {
+        name: "cohort_disaggregated",
+        path: "cohort_disaggregated",
+        component: () => import("@/apps/EMC/views/reports/moh/CohortDisaggregated.vue")
       }
     ]
   },
