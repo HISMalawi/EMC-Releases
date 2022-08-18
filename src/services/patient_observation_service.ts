@@ -46,7 +46,7 @@ export class PatientObservationService extends Patientservice {
   }
 
   async getInitialTBStatus() {
-    const obs = await ObservationService.getLastValueCoded(this.getID(), "TB status")
+    const obs = await ObservationService.getLastValueCoded(this.getID(), "Initial TB status")
     if (obs) return ObservationService.getConceptName(obs)
   }
 

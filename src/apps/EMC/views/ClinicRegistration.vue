@@ -41,7 +41,7 @@
               <NumberInput v-model="form.initialHeight" :form="form" :min="1" allowUnknown />
             </ion-col>
             <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <SelectInput v-model="form.initialTBStatus" :form="form" :options="tbStatusOptions" />
+              <SelectInput v-model="form.initialTBStatus" :form="form" :options="initialTbStatusOptions" />
             </ion-col>
           </template>
           <ion-col size="12" class="ion-margin-top ion-margin-bottom">
@@ -85,7 +85,7 @@ import { ClinicRegistrationService } from "@/apps/ART/services/registration_serv
 import SelectInput from "../Components/inputs/SelectInput.vue";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import NumberInput from "../Components/inputs/NumberInput.vue";
-import { tbStatusOptions, HIVTestOptions } from '@/apps/EMC/utils/DTFormElements'
+import { initialTbStatusOptions, HIVTestOptions } from '@/apps/EMC/utils/DTFormElements'
 import dayjs from "dayjs";
 import { VitalsService } from "@/apps/ART/services/vitals_service";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
@@ -246,7 +246,7 @@ export default defineComponent({
         placeholder: 'select TB status',
         computedValue: (status: string) => ({
           tag: 'registration',
-          obs: registrationService.buildValueCoded("TB Status", status)
+          obs: registrationService.buildValueCoded("Initial TB Status", status)
         }),
         validation: async (status: Option, f: DTForm) => {
           return f.everRegisteredAtClinic.value === 'Yes' && StandardValidations.required(status)
@@ -363,7 +363,7 @@ export default defineComponent({
       patientDob,
       form,
       sitePrefix,
-      tbStatusOptions,
+      initialTbStatusOptions,
       HIVTestOptions,
       getFacilities,
       onClear,

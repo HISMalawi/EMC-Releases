@@ -26,6 +26,15 @@ export const tbStatusOptions: Option[] = [
   ])
 ]
 
+export const initialTbStatusOptions: Option[] = [
+  ...toOptions([
+    "Current",
+    "Last 2 years",
+    "More than 2 years",
+    "Never"
+  ])
+]
+
 export const HIVTestOptions = [
   { label: 'Rapid antibody test', value: 'HIV rapid test'},
   { label: 'DNA PCR', value: 'HIV DNA polymerase chain reaction'},
