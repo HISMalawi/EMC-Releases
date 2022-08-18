@@ -84,7 +84,7 @@ export default defineComponent({
     const passwordForm = reactive<DTForm>({
       password: {
         value: "",
-        label: 'Password',
+        label: 'New Password',
         required: true,
         validation:async ({value}) => {
           if(value && `${value}`.length < 6){
@@ -95,7 +95,7 @@ export default defineComponent({
       },
       confirmPassword: {
         value: "",
-        label: 'Confirm Password',
+        label: 'Confirm New Password',
         required: true,
         validation: async ({value}, form) => {
           if (value && value !== form.password.value) {
