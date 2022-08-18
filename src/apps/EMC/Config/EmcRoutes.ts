@@ -132,6 +132,11 @@ export default [
         name: "tx_curr_mmd",
         path: "tx_curr_mmd",
         component: () => import("@/apps/EMC/views/reports/pepfar/TxCurrMMD.vue")
+      },
+      {
+        path: "pepfar_disaggregated",
+        name: "pepfar_disaggregated",
+        component: () => import("@/apps/EMC/views/reports/pepfar/PepfarDisaggregated.vue")
       }
     ]
   },

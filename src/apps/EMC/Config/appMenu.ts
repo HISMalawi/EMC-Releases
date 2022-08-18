@@ -76,7 +76,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'PEPFAR Disagreggated Report',
             id: 'pepfar_disaggregated',
-            img: 'reports/split.png'
+            img: 'reports/split.png',
+            url: '/emc/report/pepfar/pepfar_disaggregated'
           },
           {
             title: 'Defaulter List',
