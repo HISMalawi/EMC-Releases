@@ -3,43 +3,49 @@ import { isEmpty } from "lodash";
 import { ref } from "vue";
 import { PatientProgramService } from "@/services/patient_program_service";
 import { UserService } from "@/services/user_service";
+import { AuthService } from "@/services/auth_service";
 
 const states = ref({} as any)
-const storeDefs: any = {
+
+function isCacheEnabled() {
+    return new AuthService().getAppConf('dataCaching')
+}
+
+const DEFS: any = {
     'ACTIVE_PATIENT': {
-        canUseCache: (params: any, state: any) => {
-            return typeof params.patientID === 'number' && 
-                typeof state?.getID === 'function' && 
-                state.getID() === params.patientID
-        },
-        dataRequest: async (params: any) => {
+        get: async (params: any) => {
             const res = await Patientservice.findByID(params.patientID)
             return res ? new Patientservice(res) : {}    
-        } 
-    },
-    'PATIENT_PROGRAM': { 
-        canUseCache: (params: any, state: any) => {
-            return state?.programID === PatientProgramService.getProgramID() 
-                && state.patientID === params.patientID
         },
-        dataRequest: async (params: any) => {
-            return new PatientProgramService(params.patientID).getProgram()
+        canReloadCache: (params: any, state: any) => {
+            return !isCacheEnabled() || !(!isEmpty(state) && 
+                typeof params.patientID === 'number' && 
+                typeof state?.getID === 'function' && 
+                state.getID() === params.patientID)
+        }
+    },
+    'PATIENT_PROGRAM': {
+        get: async (params: any) => new PatientProgramService(params.patientID).getProgram(),
+        canReloadCache: (params: any, state: any) => {
+            return !isCacheEnabled() || !(!isEmpty(state) && 
+                state?.programID === PatientProgramService.getProgramID() && 
+                state.patientID === params.patientID)
         }
     },
     'PROVIDERS': {
-        canUseCache: () => true,
-        dataRequest: () => UserService.getUsers()
+        get: () => UserService.getUsers(),
+        canReloadCache: () => !isCacheEnabled()
     }
 }
 
 export default {
     async get(name: string, params={} as any) {
-        if (name in storeDefs) {
+        if (name in DEFS) {
             const s = states.value[name] || {}
             const p = params || {}
-            if (isEmpty(s) || !(typeof storeDefs[name]?.canUseCache === 'function' 
-                && storeDefs[name]?.canUseCache(p, s))) {
-                states.value[name] = await storeDefs[name]?.dataRequest(p)
+            if (typeof DEFS[name]?.canReloadCache === 'function' && 
+                DEFS[name]?.canReloadCache(p, s)) {
+                states.value[name] = await DEFS[name]?.get(p)
             }
             return states.value[name]
         } else {

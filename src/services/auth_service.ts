@@ -151,7 +151,7 @@ export class AuthService {
         return  typeof val === 'boolean' ? val : true
     }
 
-    getAppConf(confKey: 'promptFullScreenDialog' | 'showUpdateNotifications' | 'enableVersionLocking') {
+    getAppConf(confKey: 'promptFullScreenDialog' | 'showUpdateNotifications' | 'enableVersionLocking' | 'dataCaching') {
         const conf: any = sessionStorage.getItem('appConf')
         if (conf) {
             try {
