@@ -18,9 +18,6 @@ export default {
             if (typeof DEFS[name]?.canReloadCache === 'function' && 
                 DEFS[name]?.canReloadCache(p, STATES.value[name])) {
                 STATES.value[name] = await DEFS[name]?.get(p)
-                console.log('Caching', name)
-            } else {
-                console.log('Loading cache', name)
             }
             return STATES.value[name]
         } else {
@@ -28,18 +25,15 @@ export default {
         }
     },
     set(name: string, data: any) {
-        console.log('Add to cache', name)
         STATES.value[name] = data
         return STATES.value[name]
     },
     invalidate(name: string) { 
         STATES.value[name] = undefined
-        console.log('Invalidated', name)
     },
     invalidateAll() {
         Object.keys(STATES.value).forEach(k => {
             STATES.value[k] = undefined
-            console.log('invalidated', k)
         })
     }
 }
