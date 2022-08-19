@@ -173,6 +173,11 @@ export default [
         name: "cohort_disaggregated",
         path: "cohort_disaggregated",
         component: () => import("@/apps/EMC/views/reports/moh/CohortDisaggregated.vue")
+      },
+      {
+        name: "cohort",
+        path: "cohort",
+        component: () => import("@/apps/EMC/views/reports/moh/Cohort.vue")
       }
     ]
   },

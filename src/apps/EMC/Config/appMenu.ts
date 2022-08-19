@@ -27,8 +27,9 @@ export const menuItems: MenuItem[] = [
         children: [
           {
             title: 'Cohort',
-            id: 'emc_cohort',
-            img: 'reports/cohort.png'
+            id: 'cohort',
+            img: 'reports/cohort.png',
+            url: '/emc/report/moh/cohort',
           },
           {
             title: 'Cohort Disagreggated',
