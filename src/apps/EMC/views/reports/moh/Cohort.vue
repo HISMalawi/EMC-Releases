@@ -23,7 +23,7 @@
         <ion-col size="6" :offset="quarter === 'Custom' ? 0 : 4">
           <ion-button class="ion-float-end" color="primary">Export CSV</ion-button>
           <ion-button class="ion-float-end" color="primary">Export PDF</ion-button>
-          <ion-button class="ion-float-end" color="secondary">Disaggregated</ion-button>
+          <ion-button class="ion-float-end" color="secondary" @click="disaggregateReport">Disaggregated</ion-button>
           <ion-button class="ion-float-end" color="warning" @click="fetchData(true)">Fresh Report</ion-button>
           <ion-button class="ion-float-end" color="success" @click="fetchData">Archived Report</ion-button>
         </ion-col>
@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref } from "vue";
+import { defineComponent, reactive, ref, watch } from "vue";
 import { loader } from "@/utils/loader";
 import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { modal } from "@/utils/modal";
@@ -61,6 +61,7 @@ import CohortFt from "@/apps/ART/views/reports/moh/CohortReport/CohortFT.vue"
 import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonCol, IonRow, IonItem, IonLabel, IonGrid } from "@ionic/vue";
 import Url from "@/utils/Url";
+import router from "@/router";
 
 export default defineComponent({
   name: "Cohort",
@@ -92,14 +93,24 @@ export default defineComponent({
       ...ArtReportService.getReportQuarters(6).map(q => ({label: q.name, value: q.name, other: q}))
     ]
 
+    watch(quarter, () => {
+      if(quarter.value === 'Custom') {
+        Object.assign(dateRange, {
+          startDate: "",
+          endDate: ""
+        });
+      } 
+    })
+
     const onDateRangeChange = (range: DateRange) => {
       Object.assign(dateRange, range);
     }
 
-    const onQuarterChange = () => {
-      if (quarter.value !== 'Custom') {
-        dateRange.startDate = "";
-        dateRange.endDate = "";
+    const disaggregateReport = () => {
+      if (disaggregatedParams.value) {
+        router.push(`/emc/report/moh/cohort_disaggregated?${disaggregatedParams.value}`);
+      } else {
+        toastWarning('Please select a period');
       }
     }
 
@@ -188,7 +199,7 @@ export default defineComponent({
       fetchData,
       onDrillDown,
       onDateRangeChange,
-      onQuarterChange,
+      disaggregateReport,
     }
   }
 })
