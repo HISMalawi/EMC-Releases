@@ -542,8 +542,13 @@ export default defineComponent({
                     if (typeof data === 'object' && data.then) {
                         this.getProgramCardInfo(this.patientProgram)
                             .then((cardData: any) => this.programCardInfo = cardData)
+                            .catch(e => console.error(e))
                     }
-                    this.programCardInfo = this.getProgramCardInfo(data)
+                    const cardData = this.getProgramCardInfo(data)
+                    if (typeof cardData === 'object' && cardData.then) {
+                        cardData.then(d => this.programCardInfo = d)
+                            .catch(e => console.error(e))
+                    }
                 }
                 this.patientCardInfo = this.getPatientCardInfo(patient)
                 this.patient = patient
@@ -635,7 +640,7 @@ export default defineComponent({
                 { label: "Phone#", value: patient.getPhoneNumber()}
             ]
         },
-        getProgramCardInfo(info: any) {
+        async getProgramCardInfo(info: any) {
            if ('formatPatientProgramSummary' in this.app) {
              return this.app.formatPatientProgramSummary(info, this.patientId)
            }

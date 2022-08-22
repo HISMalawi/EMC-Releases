@@ -5,7 +5,7 @@
 	"appConf": {
 		"promptFullScreenDialog": false,
 		"showUpdateNotifications": true,
-		"dataCaching": false
+		"dataCaching": true
 	},
 	"apps": [
 		{ "name": "ART", "available": true },
