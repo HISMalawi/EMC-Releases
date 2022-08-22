@@ -67,10 +67,10 @@
 <script lang="ts">
 import {  computed, defineComponent, onMounted, reactive, ref, watch } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import { IonGrid, IonRow, IonCol, IonButton, IonTitle, loadingController } from "@ionic/vue";
+import { IonGrid, IonRow, IonCol, IonButton, IonTitle } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
-import {  alertConfirmation, toastSuccess, toastWarning } from "@/utils/Alerts";
+import {  alertConfirmation, toastSuccess } from "@/utils/Alerts";
 import { Option } from "@/components/Forms/FieldInterface";
 import { STANDARD_DATE_FORMAT } from "@/utils/Date";
 import { LocationService } from "@/services/location_service";
@@ -91,6 +91,7 @@ import { VitalsService } from "@/apps/ART/services/vitals_service";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
 import { isValidForm, resolveFormValues, resolveObs } from "../utils/form";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
+import { loader } from "@/utils/loader";
 
 export default defineComponent({
   components: {
@@ -129,7 +130,8 @@ export default defineComponent({
         label: 'ARV Number',
         placeholder: "Enter ARV Number",
         required: true,
-        validation: async (arvNumber: Option) => {
+        validation: async (arvNumber, form) => {
+          if(form.arvNumber.disabled) return null
           const patients = await Patientservice.findByOtherID(4, `${sitePrefix.value}-ARV-${arvNumber.value}`);
           return isEmpty(patients) ?  null : ['ARV Number already exists'];
         },
@@ -319,16 +321,17 @@ export default defineComponent({
     }
 
     const onSubmit = async () => {
-      const loader = await loadingController.create({ message: 'Saving...' })
-      await loader.present()
       if(!(await isValidForm(form))) return
+      loader.show()
       patientTypeService.setDate(form.initialVisitDate.value)
       registrationService.setDate(form.initialVisitDate.value)
       vitalsService.setDate(form.initialVisitDate.value)
       PatientTypeService.setSessionDate(form.initialVisitDate.value)
       
       const {formData, computedFormData} = resolveFormValues(form)
-      await patient.value?.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`)
+      if(!form.arvNumber.disabled && formData.arvNumber) {
+        await patient.value?.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`)
+      }
 
       await patientTypeService.createEncounter()
       const pTypeObs = await resolveObs(computedFormData, 'patient type')
@@ -344,7 +347,7 @@ export default defineComponent({
         await vitalsService.saveObservationList(vitalsObs)
       }
 
-      await loader.dismiss()
+      await loader.hide()
       await toastSuccess('Saved successfully')
       router.push(`/emc/staging/${patientId.value}`)
     }
@@ -353,8 +356,14 @@ export default defineComponent({
       const data = await Patientservice.findByID(patientId.value)
       patient.value = new Patientservice(data)
       sitePrefix.value = await GLOBAL_PROP.sitePrefix();
-      const suggestedNumber = await ProgramService.getNextSuggestedARVNumber();
-      form.arvNumber.value = suggestedNumber.arv_number.replace(/^\D+|\s/g, "");
+      const arvNumber = patient.value.getArvNumber()
+      if(arvNumber && arvNumber !== 'Unknown') {
+        form.arvNumber.value = arvNumber.split('-')[2]
+        form.arvNumber.disabled = true
+      } else {
+        const suggestedNumber = await ProgramService.getNextSuggestedARVNumber();
+        form.arvNumber.value = suggestedNumber.arv_number.replace(/^\D+|\s/g, "");
+      }
     }) 
  
     return {
