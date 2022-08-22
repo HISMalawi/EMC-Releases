@@ -543,11 +543,12 @@ export default defineComponent({
                         this.getProgramCardInfo(this.patientProgram)
                             .then((cardData: any) => this.programCardInfo = cardData)
                             .catch(e => console.error(e))
-                    }
-                    const cardData = this.getProgramCardInfo(data)
-                    if (typeof cardData === 'object' && cardData.then) {
-                        cardData.then(d => this.programCardInfo = d)
-                            .catch(e => console.error(e))
+                    } else {
+                        const cardData = this.getProgramCardInfo(data)
+                        if (typeof cardData === 'object' && cardData.then) {
+                            cardData.then(d => this.programCardInfo = d)
+                                .catch(e => console.error(e))
+                        }
                     }
                 }
                 this.patientCardInfo = this.getPatientCardInfo(patient)
