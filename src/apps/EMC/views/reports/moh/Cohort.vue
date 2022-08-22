@@ -22,7 +22,7 @@
         </ion-col>
         <ion-col size="6" :offset="quarter === 'Custom' ? 0 : 4">
           <ion-button class="ion-float-end" color="primary">Export CSV</ion-button>
-          <ion-button class="ion-float-end" color="primary">Export PDF</ion-button>
+          <ion-button class="ion-float-end" color="primary" @click="printSpec" >Print Report</ion-button>
           <ion-button class="ion-float-end" color="secondary" @click="disaggregateReport">Disaggregated</ion-button>
           <ion-button class="ion-float-end" color="warning" @click="fetchData(true)">Fresh Report</ion-button>
           <ion-button class="ion-float-end" color="success" @click="fetchData">Archived Report</ion-button>
@@ -188,6 +188,25 @@ export default defineComponent({
       }
     }
 
+    const printSpec = async () => {
+      const printW = open('', '', 'width:1024px, height:768px')
+      const content = document.getElementById('report-content')
+      if (content && printW) {
+        printW.document.write(`
+            <html>
+              <head>
+                <title>Print Cohort</title>
+                <link rel="stylesheet" media="print" href="/assets/css/cohort.css" />
+              </head>
+              <body>
+                ${content.innerHTML}
+              </body>
+            </html>
+          `)
+          setTimeout(() => { printW.print(); printW.close() }, 3500)
+      }
+    }
+
     return {
       period,
       quarter,
@@ -200,6 +219,7 @@ export default defineComponent({
       onDrillDown,
       onDateRangeChange,
       disaggregateReport,
+      printSpec,
     }
   }
 })
