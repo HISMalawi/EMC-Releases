@@ -1,5 +1,5 @@
 import { computed, defineComponent, h, onMounted, PropType, reactive, ref, watch } from "vue";
-import { TableColumnInterface, TableFilterInterface, ActionButtonInterface, RowActionButtonInterface, CustomFilterInterface } from "./types";
+import { TableColumnInterface, TableFilterInterface, ActionButtonInterface, RowActionButtonInterface, CustomFilterInterface, TableConfigInterface } from "./types";
 import './datatable.css'
 import get from 'lodash/get';
 import isEmpty from "lodash/isEmpty";
@@ -40,6 +40,10 @@ export const DataTable = defineComponent({
     color: {
       type: String as PropType<"primary" | "secondary" | "tertiary" | "success" | "warning" | "danger" | "light" | "dark" | "medium" | "custom">,
     },
+    config: {
+      type: Object as PropType<TableConfigInterface>,
+      default: () => ({})
+    }
   },
   emits: ["customFilter", "queryChange", "drilldown"],
   setup(props, { emit }) {
@@ -71,20 +75,22 @@ export const DataTable = defineComponent({
       }, {} as Record<string, any>)
     );
 
-    watch(customFiltersValues, () => {
-      if (Object.values(customFiltersValues).every(value => {
-        if (typeof value === "object") {
-          return Object.values(value).every(v => !isEmpty(v));
+    const emitCustomFilters = () => {
+      if(props.customFilters.every(f => {
+        if(f.required === false) return true
+        if(typeof customFiltersValues[f.id] === 'object') {
+          return Object.values(customFiltersValues[f.id]).every(v => !isEmpty(v))
         }
-        return !isEmpty(value);
-      })) {
+        return !isEmpty(customFiltersValues[f.id])
+      })){
         emit("customFilter", customFiltersValues);
       }
-    },
-      {
-        immediate: true,
-        deep: true
-      });
+    }
+
+    watch(customFiltersValues, () => props.config.showSubmitButton === false && emitCustomFilters(), {
+      immediate: true,
+      deep: true
+    });
 
     const paginationPages = computed(() => filters.pagination.enabled
       ? range(filters.pagination.start, filters.pagination.end + 1)
@@ -232,7 +238,7 @@ export const DataTable = defineComponent({
               ),
               ...props.customFilters.map(filter => {
                 if (filter.type === 'dateRange') {
-                  return h(IonCol, { size: 8 },
+                  return h(IonCol, { size: filter.gridSize || 6 },
                     h(DateRangePicker, {
                       range: (computed(() => filter.value || { startDate: "", endDate: "" })).value,
                       onRangeChange: async (newRange: any) => {
@@ -268,7 +274,10 @@ export const DataTable = defineComponent({
                     })
                   )
                 }
-              })
+              }),
+              props.customFilters.length > 0 && props.config.showSubmitButton !== false &&  h(IonCol, {size: 3, class: "ion-margin-bottom"},
+                h(IonButton, { color: "primary", onClick: emitCustomFilters }, 'Submit')
+              ) 
             ])
           ),
           h(IonCol, { size: '5', class: "ion-padding-end" },
