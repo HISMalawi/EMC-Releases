@@ -172,8 +172,6 @@ export default defineComponent({
       }},
     ])
 
-    console.log(patientInfo.value)
-
     const setHIVTestDate = async () => {
       const date = await props.patient.getHIVTestDate()
       if(date) hivTestDate.value = HisDate.toStandardHisDisplayFormat(date)
