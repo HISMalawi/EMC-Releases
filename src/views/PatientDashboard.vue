@@ -438,7 +438,10 @@ export default defineComponent({
                 label: 'Lab Orders',
                 icon: timeOutline,
                 isEnabled: this.isCardEnabled('labEnabled'),
-                onVisitDate: (card: any, date: string) => {
+                onVisitDate: (card: any, date: string, invalidateCache: boolean, voidedEncounter: string) => {
+                    if (invalidateCache && voidedEncounter === 'LAB ORDERS') {
+                        Store.invalidate('PATIENT_LAB_ORDERS')
+                    }
                     card.isLoading = true
                     this.getLabOrderCardInfo(date)
                         .then((data) => {
@@ -597,14 +600,14 @@ export default defineComponent({
                     this.savedEncounters = encounters
                 })
         },
-        updateCardVisitData(visitDate: string, invalidateCache=false) {
+        updateCardVisitData(visitDate: string, invalidateCache=false, voidedEncounter='') {
             this.patientCards.forEach((card) => {
                 if (card.isEnabled && typeof card.onVisitDate === 'function') {
                     if (typeof card.cache === 'object' && card.cache[visitDate] && !invalidateCache) {
                         card.items = card.cache[visitDate]
                         return
                     }
-                    card.onVisitDate(card, visitDate, invalidateCache)
+                    card.onVisitDate(card, visitDate, invalidateCache, voidedEncounter)
                 }
             })
         },
@@ -662,7 +665,7 @@ export default defineComponent({
                             .then(() => {
                                 this.clearLoader()
                                 this.loadSavedEncounters()
-                                this.updateCardVisitData(this.activeVisitDate as string, true)
+                                this.updateCardVisitData(this.activeVisitDate as string, true, encounter.type.name)
                                 this.getNextTask()
                                     .then((task) => this.nextTask = task)
                                 toastSuccess('Encounter has been voided!', 2000)
