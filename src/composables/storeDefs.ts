@@ -77,6 +77,10 @@ const DEFS: Record<string, StoreDef> = {
         get: () => GLOBAL_PROP.ddeEnabled(),
         canReloadCache: (_: any, s: any) => !isCacheEnabled() || typeof s != 'boolean'
     },
+    'ART_AUTO_3HP_SELECTION': {
+        get: () =>  ART_PROP.threeHPAutoSelectEnabled(),
+        canReloadCache: (_: any, s: any) => !isCacheEnabled() || typeof s != 'boolean'
+    },
     'IS_ART_FAST_TRACK_ENABLED': {
         get: () => ART_PROP.fastTrackEnabled(),
         canReloadCache: (_: any, s: any) => !isCacheEnabled() || typeof s != 'boolean'

@@ -35,6 +35,7 @@ import { PrescriptionService } from "../../services/prescription_service";
 import { DispensationService } from "../../services/dispensation_service";
 import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { AppEncounterService } from "@/services/app_encounter_service";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   mixins: [AdherenceMixinVue],
@@ -578,7 +579,7 @@ export default defineComponent({
           init: async () => {
             this.guardianVisit = (await this.consultation.getClient()) === "No";
             this.currentWeight = Number((await this.patient.getRecentWeight()))
-            this.autoSelect3HP = await ART_PROP.threeHPAutoSelectEnabled()
+            this.autoSelect3HP = await Store.get('ART_AUTO_3HP_SELECTION')
             this.isDrugRefillPatient = await PatientTypeService.isDrugRefillPatient(this.patientID)
             return true
           },

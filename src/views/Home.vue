@@ -163,7 +163,6 @@
 import HisApp from "@/apps/app_lib"
 import { defineAsyncComponent, defineComponent } from "vue";
 import { barcode } from "ionicons/icons";
-import ApiClient from "@/services/api_client";
 import HisDate from "@/utils/Date"
 import { AppInterface, FolderInterface } from "@/apps/interfaces/AppInterface";
 import { Service } from "@/services/service"
