@@ -9,10 +9,8 @@ import TSLoginForm from "@/components/Forms/TSLoginForm.vue";
 import { IonPage } from "@ionic/vue";
 import { onMounted, ref } from "@vue/runtime-core";
 import { AuthService, InvalidCredentialsError } from "@/services/auth_service";
-import usePlatform from "@/composables/usePlatform";
 import { defineComponent } from "vue";
 import DTLoginForm from "@/components/Forms/DesktopForms/DTLoginForm.vue";
-import HisApp from "@/apps/app_lib";
 import { useRouter } from "vue-router";
 import { toastDanger, toastWarning } from "@/utils/Alerts";
 
