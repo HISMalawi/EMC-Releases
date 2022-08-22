@@ -5,6 +5,7 @@ import { AuthService } from "@/services/auth_service";
 import { isEmpty } from "lodash";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
 import ART_PROP from "@/apps/ART/art_global_props";
+import { LocationService } from "@/services/location_service";
 
 interface StoreDef {
     // Define logic for retrieving data to cache.
@@ -22,6 +23,12 @@ function isCacheEnabled() {
  * Defined cachable items here.
 */
 const DEFS: Record<string, StoreDef> = {
+    'CURRENT_LOCATION' : {
+        get: async () => {
+            return LocationService.getLocation((await GLOBAL_PROP.healthCenterID()))
+        },
+        canReloadCache: (_: any, s: any) => !isCacheEnabled() || isEmpty(s)
+    },
     'ACTIVE_HOME_TAB': {
         get: () => 1,
         canReloadCache: (_: any, s: any) => typeof s != 'number'

@@ -301,17 +301,8 @@ export default defineComponent({
       this.showSegmentBackArrow = false
       Store.set('ACTIVE_HOME_TAB', this.activeTab)
     },
-    fetchLocationID: async function () {
-      const centerID = await GLOBAL_PROP.healthCenterID()
-
-      if (centerID) this.fetchLocationName(centerID);
-    },
-    async fetchLocationName(locationID: string) {
-      const response = await ApiClient.get("locations/" + locationID);
-
-      if (!response || response.status !== 200) return;
-
-      const data = await response.json();
+    async setLocation() {
+      const data = await Store.get('CURRENT_LOCATION') 
       this.facilityName = data.name;
       this.createSessionLocationName(data);
     },
@@ -325,7 +316,7 @@ export default defineComponent({
       this.isBDE = Service.isBDE() === true
       this.userLocation = sessionStorage.userLocation;
       this.userName = sessionStorage.username;
-      this.fetchLocationID();
+      this.setLocation();
       this.sessionDate = HisDate.toStandardHisDisplayFormat(
         Service.getSessionDate()
       )
