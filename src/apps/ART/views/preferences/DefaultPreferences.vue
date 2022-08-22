@@ -20,6 +20,9 @@ import { isEmpty } from "lodash"
 import { GlobalPropertyService } from '@/services/global_property_service';
 import { toastSuccess } from '@/utils/Alerts';
 import { IonPage } from "@ionic/vue"
+import {
+    getFacilities
+} from '@/utils/HisFormHelpers/LocationFieldOptions'
 
 export default defineComponent({
 	components: { HisStandardForm, IonPage },
@@ -30,6 +33,7 @@ export default defineComponent({
 	created() {
 		this.preference = this.$route.name as string
 		this.fields = [
+			...this.getTargetLab(),
 			...this.getBPThresholdPreferences(),
 			...this.getFilingNumberLimitPreferences(),
 			...this.getAppointmentLimitPreferences(),
@@ -49,6 +53,22 @@ export default defineComponent({
 				toastSuccess('Property has been updated', 2000)
 			}
 			this.$router.back()
+		},
+		getTargetLab() {
+			return [{
+				id: ART_GLOBAL_PROP.TARGET_LAB,
+				helpText: 'Please select target lab',
+				type: FieldType.TT_SELECT,
+				computedValue: (v: Option) => v.value,
+				defaultValue: () => ART_PROP.targetLab(),
+				validation: (val: any) => Validation.required(val),
+				condition: () => this.isProp('target_lab'),
+				options: (_: any, filter='') => getFacilities(filter),
+				config: {
+					showKeyboard: true,
+					isFilterDataViaApi: true
+				}
+			}]
 		},
 		getCxCaScreeningPreference() {
 			const prop = 'cervical_cancer'
