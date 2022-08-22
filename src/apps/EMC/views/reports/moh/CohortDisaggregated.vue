@@ -13,19 +13,22 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref } from "vue";
+import { computed, defineComponent, onMounted, reactive, ref } from "vue";
 import { loader } from "@/utils/loader";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { modal } from "@/utils/modal";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
-import { REGIMENS, REGIMEN_WEIGHT_DISTRIBUTION, WEIGHT_BAND } from "@/apps/ART/services/reports/regimen_report_service";
+import { REGIMENS } from "@/apps/ART/services/reports/regimen_report_service";
 import dayjs from "dayjs";
 import { DisaggregatedReportService } from "@/apps/ART/services/reports/disaggregated_service";
 import { toastWarning } from "@/utils/Alerts";
 import { get, isEmpty } from "lodash";
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
 import { Patientservice } from "@/services/patient_service";
+import { useRoute } from "vue-router";
+import { empty } from "rxjs";
+import Url from "@/utils/Url";
 
 interface Category {
   index: number;
@@ -194,12 +197,12 @@ export default defineComponent({
       }
     }
 
-    const fetchData =  async ({ dateRange }: Record<string, any>, regenerate=false) => {
+    const fetchData =  async ({ dateRange }: Record<string, any>, regenerate=false, quarter="Custom") => {
       await loader.show()
       report.setStartDate(dateRange.startDate)
       report.setEndDate(dateRange.endDate)
       report.setRebuildOutcome(regenerate)
-      report.setQuarter("Custom")     
+      report.setQuarter(quarter)     
       period.value = report.getDateIntervalPeriod()
       const initialised = await report.init()
       if (!initialised) return toastWarning('Unable to initialise report')
@@ -259,6 +262,17 @@ export default defineComponent({
         rows,
       })
     }
+
+    onMounted(() => {
+      const { 'start_date': startDate, 'end_date': endDate, quarter } = useRoute().query
+      if(startDate && endDate && quarter) {
+        const dateRange = {
+          startDate: dayjs(startDate.toString()).format("YYYY-MM-DD"), 
+          endDate: dayjs(endDate.toString()).format("YYYY-MM-DD")
+        }
+        fetchData({dateRange}, false, quarter.toString())    
+      }
+    })
 
     return {
       rows,
