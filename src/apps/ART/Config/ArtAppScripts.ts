@@ -21,6 +21,35 @@ import dayjs from "dayjs";
 import { Service } from "@/services/service";
 import { Patientservice } from '@/services/patient_service';
 import Store from "@/composables/ApiStore"
+import ART_PROP from "@/apps/ART/art_global_props";
+import { StoreDef, isCacheEnabled } from "@/apps/GLOBAL_APP/global_store";
+
+export const appStore: Record<string, StoreDef> = {
+    'ART_AUTO_3HP_SELECTION': {
+        get: () =>  ART_PROP.threeHPAutoSelectEnabled(),
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
+    },
+    'IS_ART_FAST_TRACK_ENABLED': {
+        get: () => ART_PROP.fastTrackEnabled(),
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
+    },
+    'IS_ART_HTN_ENABLED' : {
+        get: () => ART_PROP.htnEnabled(),
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
+    },
+    'IS_ART_FILING_NUMBER_ENABLED': {
+        get: () => ART_PROP.filingNumbersEnabled(),
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
+    },
+    'ART_FILING_NUMBER_PREFIX': {
+        get: () => ART_PROP.filingNumberPrefix(),
+        canReloadCache: data => !isCacheEnabled()  || typeof data.state != 'string'
+    },
+    'IS_ART_DRUG_MANAGEMENT_ENABLED': {
+        get: () => ART_PROP.drugManagementEnabled(),
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
+    }
+}
 
 async function enrollInArtProgram(patientID: number, patientType: string, clinic: string) {
     const program = new PatientProgramService(patientID)

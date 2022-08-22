@@ -22,14 +22,14 @@ function applyGlobalConfig(app: AppInterface) {
         ...GlobalApp.GlobalProgramActivities,
         ..._app.secondaryPatientActivites
     ]
-    if (_app.globalPropertySettings) {
-        _app.globalPropertySettings = [
-            ...GlobalApp.GlobalAppSettings,
-            ..._app.globalPropertySettings
-        ]
-    } else {
-        _app.globalPropertySettings = GlobalApp.GlobalAppSettings
+    _app.appStore = {
+        ...GlobalApp.GlobalStore,
+        ...(_app.appStore || {})
     }
+    _app.globalPropertySettings = [
+        ...GlobalApp.GlobalAppSettings,
+        ...(_app.globalPropertySettings || [])
+    ]
     return _app
 }
 

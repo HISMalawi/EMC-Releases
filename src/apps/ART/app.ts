@@ -6,6 +6,7 @@ import {PROPERTIES} from "@/apps/ART/Config/ArtGlobalPropertySettings"
 import { PRIMARY_ACTIVITIES, SECONDARY_ACTIVITIES } from "@/apps/ART/Config/ArtProgramActivities"
 import { 
     init, 
+    appStore,
     confirmationSummary,
     onRegisterPatient,
     formatPatientProgramSummary,
@@ -26,6 +27,7 @@ const ART: AppInterface = {
     secondaryPatientActivites: SECONDARY_ACTIVITIES,
     globalPropertySettings: PROPERTIES,
     programReports: REPORTS,
+    appStore,
     homeOverviewComponent,
     confirmationSummary,
     formatPatientProgramSummary,
@@ -72,6 +74,6 @@ const ART: AppInterface = {
             },
             visible: () => Store.get('IS_ART_FILING_NUMBER_ENABLED')
         }
-    },
+    }
 }
 export default ART

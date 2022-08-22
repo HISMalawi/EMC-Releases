@@ -4,15 +4,14 @@ import { Patientservice } from "@/services/patient_service";
 import { AuthService } from "@/services/auth_service";
 import { isEmpty } from "lodash";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
-import ART_PROP from "@/apps/ART/art_global_props";
 import { LocationService } from "@/services/location_service";
 
-interface CacheReloadParams  {
+export interface CacheReloadParams  {
     params: any;
     state: any;
 }
 
-interface StoreDef {
+export interface StoreDef {
     // Define logic for retrieving data to cache.
     get: (params: any) => any;
     // Define condition for whether to retrieve data from cache or not
@@ -20,7 +19,7 @@ interface StoreDef {
 }
 
 // caching can be an optional feature, use this detect if its enabled
-function isCacheEnabled() {
+export function isCacheEnabled() {
     return new AuthService().getAppConf('dataCaching')
 }
 
@@ -72,33 +71,9 @@ const DEFS: Record<string, StoreDef> = {
         get: () => GLOBAL_PROP.militarySiteEnabled(),
         canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
     },
-    'IS_ART_DRUG_MANAGEMENT_ENABLED': {
-        get: () => ART_PROP.drugManagementEnabled(),
-        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
-    },
     'IS_DDE_ENABLED': { 
         get: () => GLOBAL_PROP.ddeEnabled(),
         canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
-    },
-    'ART_AUTO_3HP_SELECTION': {
-        get: () =>  ART_PROP.threeHPAutoSelectEnabled(),
-        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
-    },
-    'IS_ART_FAST_TRACK_ENABLED': {
-        get: () => ART_PROP.fastTrackEnabled(),
-        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
-    },
-    'IS_ART_HTN_ENABLED' : {
-        get: () => ART_PROP.htnEnabled(),
-        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
-    },
-    'IS_ART_FILING_NUMBER_ENABLED': {
-        get: () => ART_PROP.filingNumbersEnabled(),
-        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
-    },
-    'ART_FILING_NUMBER_PREFIX': {
-        get: () => ART_PROP.filingNumberPrefix(),
-        canReloadCache: data => !isCacheEnabled()  || typeof data.state != 'string'
     }
 }
 export default DEFS

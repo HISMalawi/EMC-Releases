@@ -1,5 +1,6 @@
 import { ref } from "vue";
-import DEFS from "@/composables/storeDefs"
+import GlobalStore from "@/apps/GLOBAL_APP/global_store"
+import App from "@/apps/app_lib"
 
 // Track all cached items in this reactive object
 const STATES = ref({} as any)
@@ -13,11 +14,12 @@ export default {
      * @returns 
      */
     async get(name: string, params={} as any) {
-        if (name in DEFS) {
+        const Store = App.getActiveApp()?.appStore || GlobalStore
+        if (name in Store) {
             const p = params || {}
-            if (typeof DEFS[name]?.canReloadCache === 'function' && 
-                DEFS[name]?.canReloadCache({ params: p, state: STATES.value[name]})) {
-                STATES.value[name] = await DEFS[name]?.get(p)
+            if (typeof Store[name]?.canReloadCache === 'function' && 
+            Store[name]?.canReloadCache({ params: p, state: STATES.value[name]})) {
+                STATES.value[name] = await Store[name]?.get(p)
             }
             return STATES.value[name]
         } else {

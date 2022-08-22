@@ -7,8 +7,10 @@ import Summary from "@/components/HomeSummary.vue"
 import { PatientDemographicsExchangeService } from "@/services/patient_demographics_exchange_service"
 import dayjs from "dayjs"
 import { delayPromise } from "@/utils/Timers"
+import GLOBAL_STORE from "@/apps/GLOBAL_APP/global_store"
 
 export default {
+  GlobalStore: GLOBAL_STORE,
   GlobalAppSettings: [
     {
       name: 'Session Management',
