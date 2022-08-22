@@ -248,4 +248,8 @@ export class Service {
     static isUsingLocalStorage() {
         return localStorage.getItem("useLocalStorage") === "true"
     }
+
+    static isPocSite() {
+        return sessionStorage.isPocSite !== "false"
+    }
 }
