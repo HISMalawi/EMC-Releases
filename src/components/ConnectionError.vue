@@ -24,21 +24,16 @@
 <script lang='ts'>
 import { defineComponent } from 'vue'
 import { IonButton } from "@ionic/vue"
-import usePlatform from '@/composables/usePlatform'
 import { useRouter } from 'vue-router'
 
 export default defineComponent({
     components: { IonButton },
     setup() {
       const router = useRouter()
-      const { platformType } = usePlatform()
-
       const goToSettings = () => {
-        console.log('goToSettings')
-        const url = platformType.value === 'desktop' 
-          ? '/settings/network_settings' 
-          : '/settings/host'
-        console.log(platformType.value, url)
+        const url = sessionStorage.isPocSite !== "false"
+          ? '/settings/host'
+          : '/settings/network_settings'
         router.push(url)
       }
       const refresh = () => location.reload()
