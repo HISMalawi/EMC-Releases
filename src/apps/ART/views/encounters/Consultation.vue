@@ -46,7 +46,6 @@ export default defineComponent({
     weightTrail: [] as any,
     customRegimens: [] as any,
     labOrders: [] as any,
-    isDrugRefillPatient: false as boolean,
     weightLossPercentageNum: 0 as number,
     lostTenPercentBodyWeight: false as boolean,
     CxCaEnabled: false as boolean,
@@ -70,13 +69,13 @@ export default defineComponent({
     lastDrugsReceived: [] as any,
     sideEffectsHistory: {} as any,
     onPermanentFPMethods: false,
-    guardianVisit: false,
     reasonForDecliningTPTObs: {} as any,
     malawiSideEffectReasonObs: [] as any,
     otherSideEffectReasonObs: [] as any,
     wasTransferredIn: false as boolean,
     dateStartedArt: '' as string,
     clientHadAHysterectomy: false as any,
+    isNoneClientPatient: false as boolean
   }),
   watch: {
     ready: {
@@ -109,7 +108,7 @@ export default defineComponent({
         ...computedObs, ...secondaryObs
       ])
 
-      if (!isEmpty(this.drugObs) && !this.isNonePatientClient()) await this.saveAdherence();
+      if (!isEmpty(this.drugObs) && !this.isNoneClientPatient) await this.saveAdherence();
 
       if (!savedObs) return toastWarning("Unable to save patient observations");
 
@@ -559,9 +558,6 @@ export default defineComponent({
         this.toOption('NONE OF THE ABOVE')
       ], prechecked)
     },
-    isNonePatientClient() {
-      return this.guardianVisit || this.isDrugRefillPatient
-    },
     async getVlLabData() {
       const orders = await OrderService.getOrdersIncludingGivenResultStatus(this.patientID);
       return OrderService.formatLabs(orders);
@@ -577,10 +573,17 @@ export default defineComponent({
           helpText: "Medication to prescribe during this visit",
           type: FieldType.TT_MULTIPLE_SELECT,
           init: async () => {
-            this.guardianVisit = (await this.consultation.getClient()) === "No";
-            this.currentWeight = Number((await this.patient.getRecentWeight()))
-            this.autoSelect3HP = await Store.get('ART_AUTO_3HP_SELECTION')
-            this.isDrugRefillPatient = await PatientTypeService.isDrugRefillPatient(this.patientID)
+            const isGuardian = (await this.consultation.getClient()) === "No";
+            if (isGuardian) {
+              this.isNoneClientPatient = true
+            } else {
+              this.isNoneClientPatient = (await PatientTypeService.isDrugRefillPatient(this.patientID))
+                ? true : false
+            }
+            if (this.isNoneClientPatient) {
+              this.currentWeight = Number((await this.patient.getRecentWeight()))
+              this.autoSelect3HP = await Store.get('ART_AUTO_3HP_SELECTION')
+            }
             return true
           },
           validation: (data: any) => Validation.required(data),
@@ -595,7 +598,7 @@ export default defineComponent({
           options: (formData: any, c: Array<Option>, cd: any, l: any) => {
             return !isEmpty(l) ? l : this.medicationOrderOptions(formData)
           },
-          condition: () => this.isNonePatientClient(),
+          condition: () => this.isNoneClientPatient,
           exitsForm: () => true
         },
         /**
@@ -1320,6 +1323,13 @@ export default defineComponent({
           proxyID: "prescription",
           helpText: "Medication to prescribe during this visit",
           type: FieldType.TT_MULTIPLE_SELECT,
+          init: async () => {
+            if (!this.isNoneClientPatient) {
+              this.currentWeight = Number((await this.patient.getRecentWeight()))
+              this.autoSelect3HP = await Store.get('ART_AUTO_3HP_SELECTION')
+            }
+            return true
+          },
           condition: (f: any) => !f.refer_to_clinician || `${f.refer_to_clinician.value}`.match(/no/i),
           validation: (data: Option) => Validation.required(data),
           computedValue: (v: Option[]) => ({
