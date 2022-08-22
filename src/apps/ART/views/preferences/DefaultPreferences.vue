@@ -21,7 +21,7 @@ import { GlobalPropertyService } from '@/services/global_property_service';
 import { toastSuccess } from '@/utils/Alerts';
 import { IonPage } from "@ionic/vue"
 import {
-    getFacilities
+    getLabFacilities
 } from '@/utils/HisFormHelpers/LocationFieldOptions'
 
 export default defineComponent({
@@ -63,7 +63,7 @@ export default defineComponent({
 				defaultValue: () => ART_PROP.targetLab(),
 				validation: (val: any) => Validation.required(val),
 				condition: () => this.isProp('target_lab'),
-				options: (_: any, filter='') => getFacilities(filter),
+				options: (_: any, filter='') => getLabFacilities(filter),
 				config: {
 					showKeyboard: true,
 					isFilterDataViaApi: true
