@@ -1,34 +1,41 @@
 <template>
-<Layout>
-  <ion-grid>
-    <ion-row>
-      <ion-col size="10" offset="1" class=" ion-padding" >
-        <div class="his-card">
-          <h2>Network Settings / API Host configuration</h2>
-          <ion-row>
-            <ion-col size="12" class="ion-margin-vertical">
-              <SelectInput v-model="form.protocol" :options="protocols" />
-            </ion-col>
-            <ion-col size="12" class="ion-margin-vertical">
-              <TextInput v-model="form.ipAddress" />
-            </ion-col>
-            <ion-col size="12" class="ion-margin-vertical">
-              <TextInput v-model="form.port" />
-            </ion-col>
-            <ion-col size="12" class="ion-margin-vertical">
-              <IonButton class="ion-margin-top ion-float-end" @click="submit">Submit</IonButton>
-            </ion-col>
-          </ion-row>
-        </div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-</Layout>
+  <ion-page>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Network Settings / API Host configuration</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="10" offset="1" class=" ion-padding" >
+            <div class="his-card">
+              <ion-row>
+                <ion-col size="12" class="ion-margin-vertical">
+                  <SelectInput v-model="form.protocol" :options="protocols" />
+                </ion-col>
+                <ion-col size="12" class="ion-margin-vertical">
+                  <TextInput v-model="form.ipAddress" />
+                </ion-col>
+                <ion-col size="12" class="ion-margin-vertical">
+                  <TextInput v-model="form.port" />
+                </ion-col>
+                <ion-col size="12" class="ion-margin-vertical">
+                  <IonButton class="ion-margin-top ion-float-end" color="success" @click="submit">Submit</IonButton>
+                  <IonButton class="ion-margin-top ion-float-end" @click="$router.back()">Back</IonButton>
+                </ion-col>
+              </ion-row>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-content>
+  </ion-page>
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted, reactive } from "vue";
-import { IonButton, IonCol, IonGrid, IonRow } from "@ionic/vue";
+import { IonButton, IonCol, IonContent, IonGrid, IonHeader, IonPage, IonRow, IonTitle, IonToolbar } from "@ionic/vue";
 import TextInput from "@/apps/EMC/Components/inputs/TextInput.vue";
 import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
 import { DTForm } from "@/apps/EMC/interfaces/dt_form_field";
@@ -52,7 +59,11 @@ export default defineComponent({
     IonCol,  
     TextInput,
     SelectInput,
-    Layout
+    IonPage,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
   },
 
   setup(){
