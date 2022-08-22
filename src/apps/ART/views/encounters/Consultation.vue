@@ -559,8 +559,7 @@ export default defineComponent({
       ], prechecked)
     },
     async getVlLabData() {
-      const orders = await OrderService.getOrdersIncludingGivenResultStatus(this.patientID);
-      return OrderService.formatLabs(orders);
+      return OrderService.formatLabs((await Store.get('GET_LAB_ORDERS_WITH_GIVEN_RESULT_STATUS', { patientID: this.patientID })));
     },
     isANCclient() {
       return ProgramService.getSuspendedProgram() === 'ANC'

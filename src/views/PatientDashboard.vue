@@ -794,6 +794,7 @@ export default defineComponent({
                 if (ok) {
                     Store.invalidate('ACTIVE_PATIENT')
                     Store.invalidate('PATIENT_PROGRAM')
+                    Store.invalidate('PATIENT_LAB_ORDERS')
                     this.$router.push({path: '/'})
                 }
             })

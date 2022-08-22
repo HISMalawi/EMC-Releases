@@ -21,6 +21,7 @@ import { find, isEmpty } from 'lodash';
 import HisDate from "@/utils/Date"
 import { Service } from "@/services/service"
 import { OrderService } from '@/services/order_service';
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -58,6 +59,7 @@ export default defineComponent({
                 this.labResult.setResultDate(c.result_date)
                 await this.labResult.createEncounter()
                 await this.labResult.createLabResult(measures)
+                Store.invalidate('PATIENT_LAB_ORDERS')
                 this.testOptions = []
                 this.selectedTest = {}
                 this.testIndicators = []

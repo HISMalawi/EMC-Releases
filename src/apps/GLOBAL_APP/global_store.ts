@@ -5,6 +5,7 @@ import { AuthService } from "@/services/auth_service";
 import { isEmpty } from "lodash";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
 import { LocationService } from "@/services/location_service";
+import { OrderService } from "@/services/order_service";
 
 export interface CacheReloadParams  {
     params: any;
@@ -74,6 +75,18 @@ const DEFS: Record<string, StoreDef> = {
     'IS_DDE_ENABLED': { 
         get: () => GLOBAL_PROP.ddeEnabled(),
         canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
+    },
+    'PATIENT_LAB_ORDERS': {
+        get: (params: any) => {
+            if (typeof params.patientID === 'number') {
+                return OrderService.getOrders(params.patientID)
+            }
+            return []
+        },
+        canReloadCache: ({params, state}) => {
+            return !isCacheEnabled() || !(params.patientID && Array.isArray(state) && state.length
+                && state[0].patient_id === params.patientID)
+        }
     }
 }
 export default DEFS

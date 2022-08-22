@@ -48,6 +48,33 @@ export const appStore: Record<string, StoreDef> = {
     'IS_ART_DRUG_MANAGEMENT_ENABLED': {
         get: () => ART_PROP.drugManagementEnabled(),
         canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
+    },
+    'GET_LAB_ORDERS_WITH_GIVEN_RESULT_STATUS': {
+        get: async (params: any) => {
+            const data = (await Store.get('PATIENT_LAB_ORDERS', {patientID: params.patientID }))
+                .map(async (order: Order) => {
+                    const remappedOrder: any = { ...order, 'result_given': false }
+                    const obsResultID = order.tests.filter(order => order.result != null)
+                        .map((tests: any) => tests.result)
+                        .reduce((results: any, result: any) => [...results, ...result], [])
+                        .reduce((_: any, result: any) => result.id, null)
+                    try {
+                        remappedOrder['result_given'] = !obsResultID ? 'N/A'
+                            : await (await ObservationService.get(obsResultID as number))
+                                .children.reduce(async (status: string, obs: any) => {
+                                    return (await ConceptService.getConceptID('Result Given to Client')) === obs.concept_id
+                                    && (await ConceptService.getConceptName(obs.value_coded)) === 'Yes'
+                                        ? 'Yes'
+                                        : status
+                                }, 'No')
+                    } catch (e) {
+                        console.error(e)
+                    }
+                    return remappedOrder
+                })
+            return await Promise.all(data)
+        },
+        canReloadCache: () => true
     }
 }
 
@@ -146,8 +173,9 @@ export function formatPatientProgramSummary(data: any) {
  * @param date 
  * @returns 
  */
-export async function getPatientDashboardLabOrderCardItems(patientId: number, date: string) {
-    const data = (await OrderService.getOrders(patientId)).reduce((results: any, order: any) => {
+export async function getPatientDashboardLabOrderCardItems(patientId: number) {
+    const data = (await Store.get('PATIENT_LAB_ORDERS', { patientID: patientId }))
+        .reduce((results: any, order: any) => {
         const tresults = order.tests.filter(
             (t: any) => t.name.match(/HIV/i) && !isEmpty(t.result))
             .map((t: any) => t?.result)
@@ -171,6 +199,7 @@ export async function getPatientDashboardLabOrderCardItems(patientId: number, da
 }
 
 export async function confirmationSummary(patient: Patientservice, program: any, facts: any) {
+    Store.invalidate('PATIENT_LAB_ORDERS')
     const patientID = patient.getID()
     const patientProgamInfo = await ProgramService.getProgramInformation(patientID)
     return {
@@ -227,7 +256,7 @@ export async function confirmationSummary(patient: Patientservice, program: any,
         'ALERTS': () => getPatientDashboardAlerts(patient),
         'LAB ORDERS': async () => {
             const data: any = []
-            await OrderService.getOrders(patient.getID())
+            await Store.get('PATIENT_LAB_ORDERS', { patientID })
                 .then((orders) => {
                     const VLOrders = OrderService.getViralLoadOrders(orders);
                     for(let i = 0; i < 2 && i < VLOrders.length; i++) {
