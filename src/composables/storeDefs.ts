@@ -26,6 +26,10 @@ const DEFS: Record<string, StoreDef> = {
         get: () => 1,
         canReloadCache: (_: any, s: any) => typeof s != 'number'
     },
+    'ACTIVE_HOME_SUB_TAB_NAME': {
+        get: () => '',
+        canReloadCache: (_: any, s: any) => typeof s != 'string' || s === ''
+    },
     'ACTIVE_PATIENT': {
         get: async (params: any) => {
             const res = await Patientservice.findByID(params.patientID)

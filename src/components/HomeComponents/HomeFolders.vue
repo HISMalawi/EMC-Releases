@@ -28,6 +28,9 @@ import {
     IonCol
 } from "@ionic/vue";
 import { arrowBack } from 'ionicons/icons';
+import Store from "@/composables/ApiStore"
+import { find } from 'lodash';
+
 export default defineComponent({
     emits: ['onSublist'],
     setup() {
@@ -58,12 +61,24 @@ export default defineComponent({
     watch: {
         resetList: {
             handler() {
+                Store.set('ACTIVE_HOME_SUB_TAB_NAME', '')
                 this.setItems(this.items)  
             }
         },
         items: {
             async handler(items: FolderInterface[]) {
-                if (items) this.setItems(items)
+                if (items) {
+                    const viewable = await this.filterViewable(items)
+                    // Recall previously selected item list
+                    const activeItemName: string = await Store.get('ACTIVE_HOME_SUB_TAB_NAME')
+                    if (typeof activeItemName === 'string' && activeItemName != '') {
+                        const item = find(viewable, { name: activeItemName })
+                        if (item) this.onClick(item)
+                    } else {
+                        Store.invalidate('ACTIVE_HOME_SUB_TAB_NAME')
+                        this.viewableItems = viewable
+                    }
+                }
             },
             immediate: true,
             deep: true
@@ -89,6 +104,7 @@ export default defineComponent({
             } else if (item.pathName) {
                 this.$router.push({ name: item.pathName })
             } else if (item.files) {
+                Store.set('ACTIVE_HOME_SUB_TAB_NAME', item.name)
                 this.defaultIcon = 'sys-setting.png'
                 if (item.defaultFilesIcon) {
                     this.defaultIcon = item.defaultFilesIcon
