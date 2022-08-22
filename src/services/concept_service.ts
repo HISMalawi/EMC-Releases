@@ -58,7 +58,7 @@ export class ConceptService extends Service {
         const concepts = ConceptNameDictionary.filter(item => {
            if (!strictMode) return item.name.match(new RegExp(conceptName, 'i'))
 
-           return item.name === conceptName
+           return item.name.toLowerCase() === conceptName.toLowerCase()
         })
         return this.resolveConcept(concepts, conceptName)
     }
