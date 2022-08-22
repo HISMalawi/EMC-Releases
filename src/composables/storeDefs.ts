@@ -22,6 +22,10 @@ function isCacheEnabled() {
  * Defined cachable items here.
 */
 const DEFS: Record<string, StoreDef> = {
+    'ACTIVE_HOME_TAB': {
+        get: () => 1,
+        canReloadCache: (_: any, s: any) => typeof s != 'number'
+    },
     'ACTIVE_PATIENT': {
         get: async (params: any) => {
             const res = await Patientservice.findByID(params.patientID)

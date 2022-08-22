@@ -299,6 +299,7 @@ export default defineComponent({
         this.resetAdmin += 1
       }
       this.showSegmentBackArrow = false
+      Store.set('ACTIVE_HOME_TAB', this.activeTab)
     },
     fetchLocationID: async function () {
       const centerID = await GLOBAL_PROP.healthCenterID()
@@ -368,6 +369,7 @@ export default defineComponent({
     }
   },
   async created() {
+    this.activeTab = await Store.get('ACTIVE_HOME_TAB')
     const { loadNotifications } = Notification()
     await loadNotifications()
     setInterval(() => {

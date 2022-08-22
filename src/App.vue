@@ -59,8 +59,8 @@ export default defineComponent({
 
     nprogress.configure({ 
       easing: 'ease', 
-      speed: 150, 
-      trickleSpeed: 3
+      speed: 170, 
+      trickleSpeed: 4
     })
 
     watch(route, (route) => 
