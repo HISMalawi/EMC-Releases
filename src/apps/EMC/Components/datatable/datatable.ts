@@ -275,7 +275,7 @@ export const DataTable = defineComponent({
                   )
                 }
               }),
-              props.customFilters.length > 0 && props.config.showSubmitButton !== false &&  h(IonCol, {size: 3, class: "ion-margin-bottom"},
+              props.customFilters.length > 0 && props.config.showSubmitButton !== false &&  h(IonCol, {size: 2, class: "ion-margin-bottom"},
                 h(IonButton, { color: "primary", onClick: emitCustomFilters }, 'Submit')
               ) 
             ])
