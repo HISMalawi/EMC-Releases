@@ -7,11 +7,16 @@ import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
 import ART_PROP from "@/apps/ART/art_global_props";
 import { LocationService } from "@/services/location_service";
 
+interface CacheReloadParams  {
+    params: any;
+    state: any;
+}
+
 interface StoreDef {
     // Define logic for retrieving data to cache.
     get: (params: any) => any;
     // Define condition for whether to retrieve data from cache or not
-    canReloadCache: (params: any, state: any) => boolean;
+    canReloadCache: (params: CacheReloadParams) => boolean;
 }
 
 // caching can be an optional feature, use this detect if its enabled
@@ -24,25 +29,23 @@ function isCacheEnabled() {
 */
 const DEFS: Record<string, StoreDef> = {
     'CURRENT_LOCATION' : {
-        get: async () => {
-            return LocationService.getLocation((await GLOBAL_PROP.healthCenterID()))
-        },
-        canReloadCache: (_: any, s: any) => !isCacheEnabled() || isEmpty(s)
+        get: async () => LocationService.getLocation((await GLOBAL_PROP.healthCenterID())),
+        canReloadCache: data => !isCacheEnabled() || isEmpty(data.state)
     },
     'ACTIVE_HOME_TAB': {
         get: () => 1,
-        canReloadCache: (_: any, s: any) => typeof s != 'number'
+        canReloadCache: data => typeof data.state != 'number'
     },
     'ACTIVE_HOME_SUB_TAB_NAME': {
         get: () => '',
-        canReloadCache: (_: any, s: any) => typeof s != 'string' || s === ''
+        canReloadCache: data => typeof data.state != 'string' || data.state === ''
     },
     'ACTIVE_PATIENT': {
         get: async (params: any) => {
             const res = await Patientservice.findByID(params.patientID)
             return res ? new Patientservice(res) : {}    
         },
-        canReloadCache: (params: any, state: any) => {
+        canReloadCache: ({state, params}) => {
             return !isCacheEnabled() || !(!isEmpty(state) && 
                 typeof params.patientID === 'number' && 
                 typeof state?.getID === 'function' && 
@@ -51,7 +54,7 @@ const DEFS: Record<string, StoreDef> = {
     },
     'PATIENT_PROGRAM': {
         get: async (params: any) => new PatientProgramService(params.patientID).getProgram(),
-        canReloadCache: (params: any, state: any) => {
+        canReloadCache: ({state, params}) => {
             return !isCacheEnabled() || !(!isEmpty(state) && 
                 state?.programID === PatientProgramService.getProgramID() && 
                 state.patientID === params.patientID)
@@ -59,43 +62,43 @@ const DEFS: Record<string, StoreDef> = {
     },
     'PROVIDERS': {
         get: () => UserService.getUsers(),
-        canReloadCache: (_: any, s: any) => !isCacheEnabled() || isEmpty(s)
+        canReloadCache: data => !isCacheEnabled() || isEmpty(data.state)
     },
     'SITE_PREFIX': {
         get: () => GLOBAL_PROP.sitePrefix(),
-        canReloadCache: (_: any, s: any) => !isCacheEnabled() || typeof s !== 'string' 
+        canReloadCache: data => !isCacheEnabled() || typeof data.state !== 'string' 
     },
     'IS_MILITARY_SITE': {
         get: () => GLOBAL_PROP.militarySiteEnabled(),
-        canReloadCache: (_: any, s: any) => !isCacheEnabled() || typeof s != 'boolean'
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
     },
     'IS_ART_DRUG_MANAGEMENT_ENABLED': {
         get: () => ART_PROP.drugManagementEnabled(),
-        canReloadCache: (_: any, s: any) => !isCacheEnabled() || typeof s != 'boolean'
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
     },
     'IS_DDE_ENABLED': { 
         get: () => GLOBAL_PROP.ddeEnabled(),
-        canReloadCache: (_: any, s: any) => !isCacheEnabled() || typeof s != 'boolean'
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
     },
     'ART_AUTO_3HP_SELECTION': {
         get: () =>  ART_PROP.threeHPAutoSelectEnabled(),
-        canReloadCache: (_: any, s: any) => !isCacheEnabled() || typeof s != 'boolean'
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
     },
     'IS_ART_FAST_TRACK_ENABLED': {
         get: () => ART_PROP.fastTrackEnabled(),
-        canReloadCache: (_: any, s: any) => !isCacheEnabled() || typeof s != 'boolean'
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
     },
     'IS_ART_HTN_ENABLED' : {
         get: () => ART_PROP.htnEnabled(),
-        canReloadCache: (_: any, s: any) => !isCacheEnabled() || typeof s != 'boolean'
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
     },
     'IS_ART_FILING_NUMBER_ENABLED': {
         get: () => ART_PROP.filingNumbersEnabled(),
-        canReloadCache: (_: any, s: any) => !isCacheEnabled() || typeof s != 'boolean'
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
     },
     'ART_FILING_NUMBER_PREFIX': {
         get: () => ART_PROP.filingNumberPrefix(),
-        canReloadCache: (_: any, s: any) => !isCacheEnabled()  || typeof s != 'string'
+        canReloadCache: data => !isCacheEnabled()  || typeof data.state != 'string'
     }
 }
 export default DEFS

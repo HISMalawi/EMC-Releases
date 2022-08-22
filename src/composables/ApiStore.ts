@@ -16,7 +16,7 @@ export default {
         if (name in DEFS) {
             const p = params || {}
             if (typeof DEFS[name]?.canReloadCache === 'function' && 
-                DEFS[name]?.canReloadCache(p, STATES.value[name])) {
+                DEFS[name]?.canReloadCache({ params: p, state: STATES.value[name]})) {
                 STATES.value[name] = await DEFS[name]?.get(p)
             }
             return STATES.value[name]
