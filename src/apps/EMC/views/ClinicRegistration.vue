@@ -92,6 +92,7 @@ import StandardValidations from "@/components/Forms/validations/StandardValidati
 import { isValidForm, resolveFormValues, resolveObs } from "../utils/form";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { loader } from "@/utils/loader";
+import { PatientProgramService } from "@/services/patient_program_service";
 
 export default defineComponent({
   components: {
@@ -346,6 +347,11 @@ export default defineComponent({
         const vitalsObs = await resolveObs(computedFormData, 'vitals')
         await vitalsService.saveObservationList(vitalsObs)
       }
+
+      // enroll patient into HIV program
+      const patientProgram =  new PatientProgramService(patient.value!.getID())
+      patientProgram.setProgramDate(formData.initialVisitDate)
+      await patientProgram.enrollProgram();
 
       await loader.hide()
       await toastSuccess('Saved successfully')
