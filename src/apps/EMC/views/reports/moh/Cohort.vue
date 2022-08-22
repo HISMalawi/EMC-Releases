@@ -21,7 +21,7 @@
           />  
         </ion-col>
         <ion-col size="6" :offset="quarter === 'Custom' ? 0 : 4">
-          <ion-button class="ion-float-end" color="primary">Export CSV</ion-button>
+          <ion-button class="ion-float-end" color="primary" @click="exportToCsv" >Export CSV</ion-button>
           <ion-button class="ion-float-end" color="primary" @click="printSpec" >Print Report</ion-button>
           <ion-button class="ion-float-end" color="secondary" @click="disaggregateReport">Disaggregated</ion-button>
           <ion-button class="ion-float-end" color="warning" @click="fetchData(true)">Fresh Report</ion-button>
@@ -62,6 +62,8 @@ import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonCol, IonRow, IonItem, IonLabel, IonGrid } from "@ionic/vue";
 import Url from "@/utils/Url";
 import router from "@/router";
+import { toCsv } from "@/utils/Export";
+import { Service } from "@/services/service";
 
 export default defineComponent({
   name: "Cohort",
@@ -83,8 +85,8 @@ export default defineComponent({
     const period = ref<string>('');
     const disaggregatedParams = ref<string>();
     const dateRange = reactive({} as DateRange);
-    const indicators = ref({} as any);
-    const cohort = ref({} as any);
+    const indicators = ref({} as Record<string, any>);
+    const cohort = ref({} as Record<string, any>);
     const reportID = ref<string>('');
     const clinicName = MohCohortReportService.getLocationName();
     const report = new MohCohortReportService();
@@ -207,6 +209,24 @@ export default defineComponent({
       }
     }
 
+    const exportToCsv = () => {
+      const headers = ['Indicator', 'Value']
+      const rows = Object.keys(indicators.value).map(k => [k, indicators.value[k]])
+      const reportTitle = `${Service.getLocationName()} cohort report ${period.value}`
+      toCsv([headers], [
+        ...rows,
+        [`Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}`],
+        ['Quarter: ' + (quarter.value?.match(/custom/i) 
+          ? `${dateRange.startDate} - ${dateRange.endDate}` 
+          : quarter.value)
+        ],
+        [`HIS-Core Version: ${Service.getCoreVersion()}`],
+        [`API Version: ${Service.getApiVersion()}`],
+        [`Site: ${Service.getLocationName()}`],
+        [`Site UUID: ${Service.getSiteUUID()}`]
+      ], reportTitle)
+    }
+
     return {
       period,
       quarter,
@@ -220,6 +240,7 @@ export default defineComponent({
       onDateRangeChange,
       disaggregateReport,
       printSpec,
+      exportToCsv,
     }
   }
 })
