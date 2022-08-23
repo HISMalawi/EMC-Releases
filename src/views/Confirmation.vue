@@ -550,7 +550,7 @@ export default defineComponent({
     */
     async onEvent(targetEvent: TargetEvent, callback={}) {
       const findings = matchToGuidelines(
-        this.facts, CONFIRMATION_PAGE_GUIDELINES, '', targetEvent
+        this.facts, CONFIRMATION_PAGE_GUIDELINES, '', targetEvent, 'weight'
       )
       for(const index in findings) {
         const finding = findings[index]
