@@ -132,6 +132,11 @@ export default [
         name: "tx_curr_mmd",
         path: "tx_curr_mmd",
         component: () => import("@/apps/EMC/views/reports/pepfar/TxCurrMMD.vue")
+      },
+      {
+        path: "pepfar_disaggregated",
+        name: "pepfar_disaggregated",
+        component: () => import("@/apps/EMC/views/reports/pepfar/PepfarDisaggregated.vue")
       }
     ]
   },
@@ -163,6 +168,16 @@ export default [
         name: "viral_load",
         path: "viral_load",
         component: () => import("@/apps/EMC/views/reports/moh/ViralLoad.vue")
+      },
+      {
+        name: "cohort_disaggregated",
+        path: "cohort_disaggregated",
+        component: () => import("@/apps/EMC/views/reports/moh/CohortDisaggregated.vue")
+      },
+      {
+        name: "cohort",
+        path: "cohort",
+        component: () => import("@/apps/EMC/views/reports/moh/Cohort.vue")
       }
     ]
   },

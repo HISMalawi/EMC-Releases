@@ -27,13 +27,15 @@ export const menuItems: MenuItem[] = [
         children: [
           {
             title: 'Cohort',
-            id: 'emc_cohort',
-            img: 'reports/cohort.png'
+            id: 'cohort',
+            img: 'reports/cohort.png',
+            url: '/emc/report/moh/cohort',
           },
           {
             title: 'Cohort Disagreggated',
-            id: 'emc_moh_disaggregated',
-            img: 'reports/split.png'
+            id: 'cohort_disaggregated',
+            img: 'reports/split.png',
+            url: '/emc/report/moh/cohort_disaggregated'
           },
           {
             title: 'Survival analysis',
@@ -75,7 +77,8 @@ export const menuItems: MenuItem[] = [
           {
             title: 'PEPFAR Disagreggated Report',
             id: 'pepfar_disaggregated',
-            img: 'reports/split.png'
+            img: 'reports/split.png',
+            url: '/emc/report/pepfar/pepfar_disaggregated'
           },
           {
             title: 'Defaulter List',

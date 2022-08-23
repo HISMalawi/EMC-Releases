@@ -3,7 +3,8 @@
     <ion-list class="his-card ion-margin-end">
       <ion-item v-for="(option, i) in entries" :key="i" :lines="i === entries.length - 1 ? 'none': ''">
         <div :style="{width: '100%', display: 'flex', justifyContent: 'space-between'}">
-          <span>{{ option.label }}: </span>
+          <span v-if="option.label">{{ option.label }}: </span>
+          <span v-else></span>
           <span v-if="option.other && typeof option.other.onClickHandler === 'function'" @click="option.other.onClickHandler">
             <a><b>{{ option.value || 'N/A' }}</b></a>
           </span>
@@ -21,6 +22,7 @@ import { PatientObservationService } from '@/services/patient_observation_servic
 import HisDate from "@/utils/Date";
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash';
+import router from '@/router';
 
 export default defineComponent({
   components: {
@@ -159,12 +161,15 @@ export default defineComponent({
       { label: "Initial TB Status", value: initTBStatus.value },
       { label: "Pregnant at Initiation", value: pregnantAtInitiation.value },
       { label: "Breastfeeding at Initiation", value: breastFeedingAtInitiation.value },
-      { label: "TI", value: receivedART.value },
+      { label: "TI", value: receivedART.value  },
       { label: "Agrees to follow up", value: agreesToFollowUp.value },
       { label: "Reason for starting ART", value: reasonForStartingART.value },
       { label: "HIV test date", value: hivTestDate.value },
       { label: "HIV test place", value: hivTestPlace.value },
       { label: "Staging codition", value: stagingCondition.value },
+      { label: "", value: "Edit Clinic Registration/Staging conditions", other: {
+        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+      }},
     ])
 
     const setHIVTestDate = async () => {

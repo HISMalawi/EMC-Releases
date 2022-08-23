@@ -1,5 +1,3 @@
-import { Option } from "@/components/Forms/FieldInterface";
-
 export interface TableColumnInterface {
   label: string;
   path: string;
@@ -60,4 +58,9 @@ export interface CustomFilterInterface {
   type: "text" | "number" | "date" | "select" | "dateRange";
   options?: string[];
   placeholder?: string;
+  required?: boolean;
+}
+
+export interface TableConfigInterface {
+  showSubmitButton?: boolean;
 }

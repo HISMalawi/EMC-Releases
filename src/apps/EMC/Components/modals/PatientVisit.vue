@@ -72,10 +72,10 @@
         <ion-col size="6" class="ion-margin-vertical">
           <yes-no-input v-model="form.guardianPresent" inline />
         </ion-col>
-        <ion-col size="6" class="ion-margin-vertical">
+        <ion-col size="6" class="ion-margin-vertical" v-if="prevDrugs.length > 0">
           <NumberInput v-model="form.pillCount" :form="form" :min="1"/>
         </ion-col>
-        <ion-col size="6" class="ion-margin-vertical">
+        <ion-col :size="prevDrugs.length > 0 ? 6 : 12" class="ion-margin-vertical">
           <DateInput v-model="form.nextAppointmentDate" :form="form" />
         </ion-col>
       </ion-row>   
@@ -273,8 +273,8 @@ export default defineComponent({
       pillCount: {
         value: undefined as number  | undefined,
         label: "Pill Count",
-        required: true,
-        validation: async (pills: Option) => StandardValidations.isNumber(pills)
+        required: prevDrugs.value.length > 0,
+        validation: async (pills: Option) => prevDrugs.value.length > 0 && StandardValidations.isNumber(pills)
       },
       regimen: {
         value: undefined as string | undefined,
@@ -545,16 +545,18 @@ export default defineComponent({
       const receptionObs = await resolveObs(computedFormData, 'reception')
       await reception.saveObservationList(receptionObs)
 
-      await adherence.createEncounter()
-      const adherenceObs = await Promise.all(prevDrugs.value.map(async (drug: any) => {
-        const expected = adherence.calculateExpected(drug.quantity, drug.equivalent_daily_dose, drug.order.start_date, drug.frequency)
-        const adh = adherence.calculateAdherence(drug.quantity, formData.pillCount, expected)
-        return [
-          await adherence.buildAdherenceObs(drug.order_id, drug.drug_inventory_id, adh),
-          await adherence.buildPillCountObs(drug.order_id, formData.pillCount)
-        ]
-      }))
-      await adherence.saveObservationList(adherenceObs.flat(1))
+      if(prevDrugs.value.length > 0) {
+        await adherence.createEncounter()
+        const adherenceObs = await Promise.all(prevDrugs.value.map(async (drug: any) => {
+          const expected = adherence.calculateExpected(drug.quantity, drug.equivalent_daily_dose, drug.order.start_date, drug.frequency)
+          const adh = adherence.calculateAdherence(drug.quantity, formData.pillCount, expected)
+          return [
+            await adherence.buildAdherenceObs(drug.order_id, drug.drug_inventory_id, adh),
+            await adherence.buildPillCountObs(drug.order_id, formData.pillCount)
+          ]
+        }))
+        await adherence.saveObservationList(adherenceObs.flat(1))
+      }
 
       await appointment.createEncounter()
       const appointmentObs = await resolveObs(computedFormData, 'appointment')
@@ -592,6 +594,7 @@ export default defineComponent({
         }
       }
       prevDrugs.value = await DrugOrderService.getLastDrugsReceived(props.patient.getID())
+      form.pillCount.required = prevDrugs.value.length > 0
       contraIndications.value = ConceptService
         .getConceptsByCategory("contraindication", true)
         .map(concept => ({
@@ -623,6 +626,7 @@ export default defineComponent({
       modal,
       hasContraindications,
       hasSideEffects,
+      prevDrugs,
       onSubmit,
       setPatientPresent,
       setGuardianPresent,

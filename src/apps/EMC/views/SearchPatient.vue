@@ -10,12 +10,15 @@
             v-model="searchText"
             v-on:keyup.enter="searchPatient"
           />
-          <ion-item class="ion-margin-end box" lines="none">
-            <ion-label class="ion-padding-end">Select Gender </ion-label>
-            <ion-select v-model="gender">
-              <ion-select-option value="M">Male</ion-select-option>
-              <ion-select-option value="F">Female</ion-select-option>
-            </ion-select>
+          <ion-item lines="none" class="ion-margin-end box">
+            <ion-label>
+              Select Gender:
+            </ion-label>
+            <select v-model="gender" id="selectInput">
+              <option v-for="(option, index) of genderOptions" :key="index" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
           </ion-item>
           <ion-button class="searchBtn" @click="searchPatient">Search</ion-button>
           <ion-button class="searchBtn" @click="resetQuery" color="secondary">Reset</ion-button>
@@ -43,13 +46,14 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import { IonGrid, IonRow, IonCol, loadingController, IonItem, IonInput, IonSelect, IonSelectOption, IonSearchbar, IonLabel, IonButton } from "@ionic/vue";
+import { IonGrid, IonRow, IonCol, loadingController, IonItem, IonSearchbar, IonLabel, IonButton } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import { toastWarning } from "@/utils/Alerts";
 import ReportDataTable from "@/components/DataViews/tables/ReportDataTable.vue";
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 import { useRouter } from "vue-router";
+import { genderOptions } from "../utils/DTFormElements";
 
 export default defineComponent({
   components: {
@@ -61,13 +65,12 @@ export default defineComponent({
     IonLabel,
     IonButton,
     IonSearchbar,
-    IonSelect,
-    IonSelectOption,
     ReportDataTable
   },
   setup() {
     const router = useRouter()
     const searchText = ref("");
+    const selectInput = ref(document.getElementById('selectInput'))
     const gender = ref("");
     const tableRows = ref<RowInterface[][]>([])
     const tableColumns: ColumnInterface[][] = [[
@@ -163,6 +166,8 @@ export default defineComponent({
       tableRows,
       tableColumns,
       tableConfig,
+      genderOptions,
+      selectInput,
       searchPatient,
       resetQuery
     };
@@ -176,6 +181,13 @@ export default defineComponent({
   border-width: thin;
   border-style: solid;
   border-radius: 3px;
+  font-size: large;
+  height: 54px;
+}
+
+select {
+  background-color: white;
+  border: none; 
 }
 
 .searchBtn {
