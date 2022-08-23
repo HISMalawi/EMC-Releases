@@ -293,26 +293,27 @@ export default defineComponent({
     },
 
     async getTBStats(): Promise<Option[]> {
-      const stats = await ObservationService.getFirstValueCoded(
+      const stats: any[] | undefined = await ObservationService.getAllValueCoded(
         this.patientId,
         "Who stages criteria present"
       );
+      const exists = (v: string) => !Array.isArray(stats) ? 'N/A' : stats.includes(v) ? 'Yes' : 'No'
       return [
         {
           label: "Pulmonary TB within the last 2 years",
-          value: stats && stats.match(/last/i) ? "Yes" : "N/A",
+          value: exists('Tuberculosis (PTB or EPTB) within the last 2 years'),
         },
         {
           label: "Extra pulmonary TB (EPTB)",
-          value: stats && stats.match(/eptb/i) ? "Yes" : "N/A",
+          value: exists('Extrapulmonary tuberculosis (EPTB)'),
         },
         {
           label: "Pulmonary TB (current)",
-          value: stats && stats.match(/current/i) ? "Yes" : "N/A",
+          value: exists('Pulmonary tuberculosis (current)'),
         },
         {
-          label: "Kaposi's sarcoma:",
-          value: stats && stats.match(/kepos/i) ? "Yes" : "N/A",
+          label: "Kaposis sarcoma",
+          value: exists('Kaposis sarcoma')
         },
       ];
     },
