@@ -9,6 +9,7 @@
   <div class="ion-margin-top outer-input-box box-input" :class="{'box-input-error': model.error }">
     <div class="inner-input-box">
       <div style="display: flex;" @click="onShowOptions">
+        <ion-label v-if="showPlaceholder" class="input-placeholder" contenteditable>{{ model.placeholder || 'select option' }}</ion-label>
         <ion-chip v-for="(tag, index) of tags" :key="index">
           <ion-label>{{ tag.label }}</ion-label>
           <ion-icon :icon="closeCircle" color="danger" @click="diselect(tag)" style="z-index: 100"></ion-icon>
@@ -98,6 +99,10 @@ export default defineComponent({
     const tags = computed<Option[]>(() => {
       if(props.multiple) return filteredOptions.value.filter(({ isChecked }) => isChecked)
       return selectedOption.value ? [ selectedOption.value ] : []
+    })
+
+    const showPlaceholder = computed(() => {
+      return !filter.value && isEmpty(tags.value) &&  !showOptions.value
     })
 
     const model = computed<DTFormField>({
@@ -206,6 +211,7 @@ export default defineComponent({
       closeCircle,
       selectedOption,
       showOptions,
+      showPlaceholder,
       filteredOptions,
       filter,
       tags,
@@ -257,8 +263,11 @@ export default defineComponent({
   justify-content: flex-end;
   z-index: 100;
 }
-
 .input-option-checkbox {
   --size: 18px !important;
+}
+.input-placeholder {
+  color: #a0a0a0;
+  margin: 0.5rem;
 }
 </style>
