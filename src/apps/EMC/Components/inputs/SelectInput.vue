@@ -6,7 +6,18 @@
       <ion-checkbox v-model="isCustom" @ionChange="model.value = ''"></ion-checkbox>
     </span>
   </ion-label>
-  <div class="ion-margin-top outer-input-box box-input" :class="{'box-input-error': model.error }">
+  <ion-input
+    v-if="isCustom"
+    class="ion-margin-top"
+    :class="model.error ? 'box-input-error'  : 'box-input'"
+    v-model="customOption"
+    :placeholder="model.placeholder || model.label"
+    :disabled="model.disabled"
+    @ionFocus="() => model.error = ''"
+    @ionBlur="validate"
+    @ionInput="onCustomValue"
+  />
+  <div v-else class="ion-margin-top outer-input-box box-input" :class="{'box-input-error': model.error }">
     <div class="inner-input-box">
       <div style="display: flex; flex-wrap: wrap;" @click="onShowOptions">
         <ion-label v-if="showPlaceholder" class="input-placeholder" contenteditable>{{ model.placeholder || 'select option' }}</ion-label>
@@ -100,6 +111,7 @@ export default defineComponent({
   emits: ["update:modelValue"],
   setup(props, { emit}) {
     const isCustom = ref(false);
+    const customOption = ref('')
     const selectedOption = ref<Option>();
     const showOptions = ref(false)
     const filter = ref('')
@@ -191,6 +203,13 @@ export default defineComponent({
       return model.value.error = "";
     };
 
+    const onCustomValue = () => {
+      model.value.value = {
+        label: customOption.value,
+        value: customOption.value
+      }
+    }
+
     const onSelect = (item: Option) => {  
       if(!props.multiple) selectedOption.value = item
       filter.value = ''
@@ -235,7 +254,9 @@ export default defineComponent({
       onShowOptions,
       diselect,
       pushMoreOptions,
+      onCustomValue,
       model,
+      customOption,
       isCustom,
       chevronDown,
       chevronUp,
