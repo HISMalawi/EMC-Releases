@@ -1,6 +1,7 @@
 import { GlobalPropertyService } from "@/services/global_property_service"
 
 export enum ART_GLOBAL_PROP {
+    TARGET_LAB = 'target.lab',
     EXTENDED_LABS = 'extended_labs',
     VL_ROUTINE_CHECK = 'activate.vl.routine.check',
     PILLS_REMAINING = 'ask.pills.remaining.at.home',
@@ -21,6 +22,10 @@ export enum ART_GLOBAL_PROP {
     CERVICAL_CANCER_AGE_BOUNDS = 'cervical.cancer.screening.age.bounds',
     CLINIC_HOLIDAYS = 'clinic.holidays',
     EXCLUDE_EXTERNAL_AND_DRUG_REFILLS = 'can.remove.external.and.drug.refills.from.data.cleaning'
+}
+
+function targetLab() {
+    return GlobalPropertyService.get(ART_GLOBAL_PROP.TARGET_LAB)
 }
 
 function cervicalCancerScreeningEnabled() {
@@ -125,6 +130,7 @@ function setFilingNumberLimit(limit: string) {
 }
 
 export default {
+    targetLab,
     cervicalCancerScreeningAgeBounds,
     systolicThreshold,
     diastolicThreshold,

@@ -17,6 +17,11 @@ export default [
         component: () => import("@/apps/ART/views/preferences/AllPreferences.vue")
     },
     {
+        name: 'target_lab',
+        path: "/art/preferences/target_lab",
+        component: () => import("@/apps/ART/views/preferences/DefaultPreferences.vue")
+    },
+    {
         name: ART_GLOBAL_PROP.CLINIC_HOLIDAYS,
         path: "/art/preferences/clinic_holidays",
         component: () => import("@/apps/ART/views/preferences/DefaultPreferences.vue")
