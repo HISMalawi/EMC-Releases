@@ -8,7 +8,7 @@
   </ion-label>
   <div class="ion-margin-top outer-input-box box-input" :class="{'box-input-error': model.error }">
     <div class="inner-input-box">
-      <div style="display: flex;" @click="showOptions = true">
+      <div style="display: flex;" @click="onShowOptions">
         <ion-chip v-for="(tag, index) of tags" :key="index">
           <ion-label>{{ tag.label }}</ion-label>
         </ion-chip>
@@ -25,7 +25,10 @@
           <ion-label>{{ option.label }}</ion-label>
         </ion-item>
       </ion-list>
-      <ion-icon :icon="showOptions ? chevronUp : chevronDown" class="input-icon"></ion-icon>
+      <div class="input-icon">
+        <ion-icon :icon="close" v-if="filter || tags.length > 0" @click="onReset"></ion-icon>
+        <ion-icon :icon="showOptions ? chevronUp : chevronDown"></ion-icon>
+      </div>
     </div>
   </div>
   <ion-note v-if="model.error" color="danger">{{ model.error }}</ion-note>
@@ -35,7 +38,7 @@ import { IonCheckbox, IonIcon, IonInput, IonLabel, IonNote } from "@ionic/vue";
 import { computed, defineComponent, onBeforeMount, onMounted, PropType, ref, watch } from "vue";
 import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 import { Option } from '@/components/Forms/FieldInterface';
-import { chevronDown, chevronUp } from "ionicons/icons"
+import { chevronDown, chevronUp, close } from "ionicons/icons"
 import { genderOptions, tbStatusOptions } from "../../utils/DTFormElements";
 import { toastSuccess } from "@/utils/Alerts";
 import { isEmpty } from "lodash";
@@ -101,6 +104,11 @@ export default defineComponent({
       set: (value) => emit("update:modelValue", value)
     })
 
+    const onShowOptions = () => {
+      showOptions.value = true
+      model.value.error = ''
+    }
+
     const setDefaults = () => {
       if(isEmpty(model.value.value)) return
       if (Array.isArray(model.value.value) && props.multiple) {
@@ -136,6 +144,12 @@ export default defineComponent({
       })
       
       filteredOptions.value = filtered
+    }
+
+    const onReset = () => {
+      filter.value = '';
+      selectedOption.value = undefined;
+      filteredOptions.value.forEach(option => option.isChecked = false)
     }
 
     const validate = async () => {
@@ -175,10 +189,13 @@ export default defineComponent({
     return {
       validate,
       onSelect,
+      onReset,
+      onShowOptions,
       model,
       isCustom,
       chevronDown,
       chevronUp,
+      close,
       selectedOption,
       showOptions,
       filteredOptions,
@@ -212,7 +229,7 @@ export default defineComponent({
   width: 100%;
   max-height: 25rem;
   overflow-y: auto;
-  z-index: 1000;
+  z-index: 100;
   border-radius: 0.25rem;
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
@@ -224,9 +241,13 @@ export default defineComponent({
   top: 0;
   right: 0;
   height: 2.5rem;
-  width: 1rem;
+  width: 2rem;
   color: rgb(138, 138, 138);
   padding-right: .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 100;
 }
 
 .input-option-checkbox {
