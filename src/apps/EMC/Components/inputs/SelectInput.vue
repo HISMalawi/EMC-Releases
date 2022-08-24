@@ -23,7 +23,7 @@
         <ion-label v-if="showPlaceholder" class="input-placeholder" contenteditable>{{ model.placeholder || 'select option' }}</ion-label>
         <ion-chip v-for="(tag, index) of tags" :key="index">
           <ion-label>{{ tag.label }}</ion-label>
-          <ion-icon :icon="closeCircle" color="danger" @click="diselect(tag)" style="z-index: 100"></ion-icon>
+          <ion-icon :icon="closeCircle" color="danger" @click="diselect(tag)" style="z-index: 90"></ion-icon>
         </ion-chip>
         <ion-input v-if="searchable" v-model="filter" class="search-input" ref="searchInput" />
       </div>
@@ -315,7 +315,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  z-index: 100;
+  z-index: 90;
 }
 .input-option-checkbox {
   --size: 18px !important;
