@@ -32,7 +32,7 @@
 </template>
 <script lang="ts">
 import { IonCheckbox, IonIcon, IonInput, IonLabel, IonNote } from "@ionic/vue";
-import { computed, defineComponent, onBeforeMount, onMounted, PropType, ref } from "vue";
+import { computed, defineComponent, onBeforeMount, onMounted, PropType, ref, watch } from "vue";
 import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 import { Option } from '@/components/Forms/FieldInterface';
 import { chevronDown, chevronUp } from "ionicons/icons"
@@ -73,7 +73,7 @@ export default defineComponent({
     },
     multiple: {
       type: Boolean,
-      default: false
+      default: true
     }
   },
   components: {
@@ -89,15 +89,54 @@ export default defineComponent({
     const selectedOption = ref<Option>();
     const showOptions = ref(false)
     const filter = ref('')
-    const filteredOptions = ref<Option[]>(tbStatusOptions)
+    const filteredOptions = ref<Option[]>([])
+
     const tags = computed<Option[]>(() => {
       if(props.multiple) return filteredOptions.value.filter(({ isChecked }) => isChecked)
       return selectedOption.value ? [ selectedOption.value ] : []
     })
+
     const model = computed<DTFormField>({
-      get: () => props.modelValue,
+      get: () => props.modelValue as DTFormField,
       set: (value) => emit("update:modelValue", value)
     })
+
+    const setDefaults = () => {
+      if(isEmpty(model.value.value)) return
+      if (Array.isArray(model.value.value) && props.multiple) {
+        return model.value.value.forEach((option: Option) => {
+          const index = filteredOptions.value.findIndex(({ value }: Option) => value === option.value)
+          if(index === -1) {
+            filteredOptions.value.push({...option, isChecked: true})
+          } else {
+            filteredOptions.value[index].isChecked = true
+          }
+        })
+      }
+      const defaultOption = filteredOptions.value.find(option => option.value === model.value.value)
+      if (defaultOption) {
+        selectedOption.value = defaultOption
+      }else {
+        selectedOption.value = {
+          label: model.value.value,
+          value: model.value.value
+        }
+      }
+    }
+
+    const filterOptions = async () => {
+      const filtered = typeof props.asyncOptions === 'function' 
+        ? await props.asyncOptions(filter.value)
+        : props.options.filter(({label}) => label.toLowerCase().includes(filter.value.toLowerCase()))
+
+      tags.value.forEach(tag => {
+        const index = filtered.findIndex(f => f.value === tag.value)
+        if(index === -1) filtered.push(tag)
+        else filtered[index].isChecked = true
+      })
+      
+      filteredOptions.value = filtered
+    }
 
     const validate = async () => {
       if (model.value.required && isEmpty(model.value.value)) {
@@ -114,28 +153,20 @@ export default defineComponent({
 
     const onSelect = (item: Option) => {  
       if(!props.multiple) selectedOption.value = item
+      filter.value = ''
     }
 
-    onMounted(() => {
-      if (model.value.value) {
-        const defaultOption = props.options.find(option => option.value === model.value.value)
-        if (defaultOption) {
-          selectedOption.value = defaultOption
-        }else {
-          selectedOption.value = {
-            label: model.value.value,
-            value: model.value.value
-          }
-        }
-      } else {
-        model.value.value = 0
-      }
+    watch(filter, async() => await filterOptions())
 
+    onMounted(async () => {
+      await filterOptions()
+      setDefaults()
       addEventListener('click', (e: any) => {
         const isClosest = e.target.closest('.inner-input-box')
         if(!isClosest && showOptions) {
           showOptions.value = false;
           model.value.value = props.multiple ? tags.value : !isEmpty(tags.value) ? tags.value[0] : undefined
+          filter.value = ''
           validate()
         }
       })
@@ -179,7 +210,7 @@ export default defineComponent({
 .input-options {
   position: absolute;
   width: 100%;
-  max-height: 24rem;
+  max-height: 25rem;
   overflow-y: auto;
   z-index: 1000;
   border-radius: 0.25rem;
