@@ -11,6 +11,7 @@
       <div style="display: flex;" @click="onShowOptions">
         <ion-chip v-for="(tag, index) of tags" :key="index">
           <ion-label>{{ tag.label }}</ion-label>
+          <ion-icon :icon="closeCircle" color="danger" @click="diselect(tag)" style="z-index: 100"></ion-icon>
         </ion-chip>
         <ion-input v-if="searchable" v-model="filter" class="search-input" />
       </div>
@@ -38,7 +39,7 @@ import { IonCheckbox, IonIcon, IonInput, IonLabel, IonNote } from "@ionic/vue";
 import { computed, defineComponent, onBeforeMount, onMounted, PropType, ref, watch } from "vue";
 import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 import { Option } from '@/components/Forms/FieldInterface';
-import { chevronDown, chevronUp, close } from "ionicons/icons"
+import { chevronDown, chevronUp, close, closeCircle } from "ionicons/icons"
 import { genderOptions, tbStatusOptions } from "../../utils/DTFormElements";
 import { toastSuccess } from "@/utils/Alerts";
 import { isEmpty } from "lodash";
@@ -76,7 +77,7 @@ export default defineComponent({
     },
     multiple: {
       type: Boolean,
-      default: true
+      default: false
     }
   },
   components: {
@@ -152,6 +153,11 @@ export default defineComponent({
       filteredOptions.value.forEach(option => option.isChecked = false)
     }
 
+    const diselect = (tag: Option) => {
+      if(props.multiple) return tag.isChecked = false
+      return selectedOption.value = undefined
+    }
+
     const validate = async () => {
       if (model.value.required && isEmpty(model.value.value)) {
         return model.value.error = "This field is required";
@@ -191,11 +197,13 @@ export default defineComponent({
       onSelect,
       onReset,
       onShowOptions,
+      diselect,
       model,
       isCustom,
       chevronDown,
       chevronUp,
       close,
+      closeCircle,
       selectedOption,
       showOptions,
       filteredOptions,
