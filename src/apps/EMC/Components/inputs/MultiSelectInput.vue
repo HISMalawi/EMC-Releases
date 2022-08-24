@@ -9,13 +9,18 @@
   <div class="ion-margin-top outer-input-box box-input" :class="{'box-input-error': model.error }">
     <div class="inner-input-box">
       <div style="display: flex;" @click="showOptions = true">
-        <ion-chip v-for="(tag, index) of tags" :key="index" color="secondary">
+        <ion-chip v-for="(tag, index) of tags" :key="index">
           <ion-label>{{ tag.label }}</ion-label>
         </ion-chip>
         <ion-input v-if="searchable" v-model="filter" class="search-input" />
       </div>
       <ion-list class="input-options" v-if="showOptions">
-        <ion-item v-for="(option, index) of filteredOptions" :key="index" :lines="index+1 === filteredOptions.length ? 'none': ''">
+        <ion-item 
+          v-for="(option, index) of filteredOptions" 
+          :key="index" 
+          :lines="index + 1 === filteredOptions.length ? 'none': ''"
+          @click="onSelect(option)"
+        >
           <ion-checkbox class="input-option-checkbox" slot="start" v-model="option.isChecked" v-if="multiple"></ion-checkbox>
           <ion-label>{{ option.label }}</ion-label>
         </ion-item>
@@ -33,6 +38,7 @@ import { Option } from '@/components/Forms/FieldInterface';
 import { chevronDown, chevronUp } from "ionicons/icons"
 import { genderOptions, tbStatusOptions } from "../../utils/DTFormElements";
 import { toastSuccess } from "@/utils/Alerts";
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   name: "MultiSelectInput",
@@ -67,7 +73,7 @@ export default defineComponent({
     },
     multiple: {
       type: Boolean,
-      default: true
+      default: false
     }
   },
   components: {
@@ -82,16 +88,19 @@ export default defineComponent({
     const isCustom = ref(false);
     const selectedOption = ref<Option>();
     const showOptions = ref(false)
-    const tags = ref<Option[]>(genderOptions)
     const filter = ref('')
     const filteredOptions = ref<Option[]>(tbStatusOptions)
-    const model = computed({
+    const tags = computed<Option[]>(() => {
+      if(props.multiple) return filteredOptions.value.filter(({ isChecked }) => isChecked)
+      return selectedOption.value ? [ selectedOption.value ] : []
+    })
+    const model = computed<DTFormField>({
       get: () => props.modelValue,
       set: (value) => emit("update:modelValue", value)
     })
 
     const validate = async () => {
-      if (model.value.required && !model.value.value) {
+      if (model.value.required && isEmpty(model.value.value)) {
         return model.value.error = "This field is required";
       }
       if (model.value.validation) {
@@ -103,9 +112,8 @@ export default defineComponent({
       return model.value.error = "";
     };
 
-    const diselectOption = (item: Option) => {
-      item.isChecked = false
-      toastSuccess("item has been removed successfully")
+    const onSelect = (item: Option) => {  
+      if(!props.multiple) selectedOption.value = item
     }
 
     onMounted(() => {
@@ -125,17 +133,17 @@ export default defineComponent({
 
       addEventListener('click', (e: any) => {
         const isClosest = e.target.closest('.inner-input-box')
-        if(!isClosest && showOptions) showOptions.value = false
+        if(!isClosest && showOptions) {
+          showOptions.value = false;
+          model.value.value = props.multiple ? tags.value : !isEmpty(tags.value) ? tags.value[0] : undefined
+          validate()
+        }
       })
     });
 
-    onBeforeMount(() => {
-      removeEventListener('click', e => console.log(e))
-    })
-
     return {
       validate,
-      diselectOption,
+      onSelect,
       model,
       isCustom,
       chevronDown,
