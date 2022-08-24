@@ -91,7 +91,6 @@ export default defineComponent({
     const isCustom = ref(false);
     const selectedOption = ref<Option>();
     const showOptions = ref(false)
-    const searchInput = ref(null as any)
     const filter = ref('')
     const filteredOptions = ref<Option[]>([])
 
