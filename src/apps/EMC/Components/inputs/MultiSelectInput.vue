@@ -16,17 +16,21 @@
         </ion-chip>
         <ion-input v-if="searchable" v-model="filter" class="search-input" ref="searchInput" />
       </div>
-      <ion-list class="input-options" v-if="showOptions">
-        <ion-item 
-          v-for="(option, index) of filteredOptions" 
-          :key="index" 
-          :lines="index + 1 === filteredOptions.length ? 'none': ''"
-          @click="onSelect(option)"
-        >
-          <ion-checkbox class="input-option-checkbox" slot="start" v-model="option.isChecked" v-if="multiple"></ion-checkbox>
-          <ion-label>{{ option.label }}</ion-label>
-        </ion-item>
-      </ion-list>
+      <div class="input-options ion-content-scroll-host" v-if="showOptions">
+        <ion-list>
+          <ion-item 
+            v-for="(option, index) of filteredOptions" 
+            :key="index" 
+            @click="onSelect(option)"
+          >
+            <ion-checkbox class="input-option-checkbox" slot="start" v-model="option.isChecked" v-if="multiple"></ion-checkbox>
+            <ion-label>{{ option.label }}</ion-label>
+          </ion-item>
+        </ion-list>
+        <ion-infinite-scroll @ionInfinite="pushMoreOptions($event)" threshold="100px" :disabled="!infiniteScrolling" >
+          <ion-infinite-scroll-content loading-spinner="crescent" loading-text="Loading more data..." />
+        </ion-infinite-scroll>
+      </div>
       <div class="input-icon">
         <ion-icon :icon="close" v-if="filter || tags.length > 0" @click="onReset"></ion-icon>
         <ion-icon :icon="showOptions ? chevronUp : chevronDown"></ion-icon>
@@ -36,12 +40,12 @@
   <ion-note v-if="model.error" color="danger">{{ model.error }}</ion-note>
 </template>
 <script lang="ts">
-import { IonCheckbox, IonIcon, IonInput, IonLabel, IonNote } from "@ionic/vue";
+import { IonCheckbox, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonInput, IonLabel, IonNote } from "@ionic/vue";
 import { computed, defineComponent, onBeforeUnmount, onMounted, PropType, ref, watch } from "vue";
 import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 import { Option } from '@/components/Forms/FieldInterface';
 import { chevronDown, chevronUp, close, closeCircle } from "ionicons/icons"
-import { isEmpty } from "lodash";
+import { filter, isEmpty } from "lodash";
 
 export default defineComponent({
   name: "MultiSelectInput",
@@ -59,7 +63,7 @@ export default defineComponent({
       default: () => [],
     },
     asyncOptions: {
-      type: Function as PropType<(filter: string) => Promise<Option[]>>,
+      type: Function as PropType<(filter: string, page: number) => Promise<Option[]>>,
       required: false,
     },
     allowCustom: {
@@ -77,6 +81,10 @@ export default defineComponent({
     multiple: {
       type: Boolean,
       default: false
+    },
+    infiniteScrolling: {
+      type: Boolean,
+      default: true
     }
   },
   components: {
@@ -85,6 +93,8 @@ export default defineComponent({
     IonNote,
     IonIcon,
     IonCheckbox,
+    IonInfiniteScroll, 
+    IonInfiniteScrollContent
   },
   emits: ["update:modelValue"],
   setup(props, { emit}) {
@@ -93,6 +103,7 @@ export default defineComponent({
     const showOptions = ref(false)
     const filter = ref('')
     const filteredOptions = ref<Option[]>([])
+    const currentPage = ref(1)
 
     const tags = computed<Option[]>(() => {
       if(props.multiple) return filteredOptions.value.filter(({ isChecked }) => isChecked)
@@ -138,7 +149,7 @@ export default defineComponent({
 
     const filterOptions = async () => {
       const filtered = typeof props.asyncOptions === 'function' 
-        ? await props.asyncOptions(filter.value)
+        ? await props.asyncOptions(filter.value, currentPage.value)
         : props.options.filter(({label}) => label.toLowerCase().includes(filter.value.toLowerCase()))
 
       tags.value.forEach(tag => {
@@ -148,6 +159,22 @@ export default defineComponent({
       })
       
       filteredOptions.value = filtered
+    }
+
+    const pushMoreOptions = async (event: any) => {
+      if(props.infiniteScrolling && typeof props.asyncOptions === 'function'){
+        currentPage.value++;
+        const data = await props.asyncOptions(filter.value, currentPage.value);
+        if (data.length > 0) {
+          filteredOptions.value = [
+            ...filteredOptions.value, 
+            ...data.filter(entry => !filteredOptions.value.find(item => item.value === entry.value))
+          ];
+        } else {
+          event.target.disabled = true
+        }        
+      }
+      event.target.complete();
     }
 
     const validate = async () => {
@@ -179,7 +206,10 @@ export default defineComponent({
       filteredOptions.value.forEach(option => option.isChecked = false)
     }
 
-    watch(filter, async() => await filterOptions())
+    watch(filter, async() => {
+      currentPage.value++;
+      await filterOptions()
+    })
 
     onMounted(async () => {
       await filterOptions()
@@ -203,6 +233,7 @@ export default defineComponent({
       onReset,
       onShowOptions,
       diselect,
+      pushMoreOptions,
       model,
       isCustom,
       chevronDown,
@@ -243,6 +274,7 @@ export default defineComponent({
   width: 100%;
   max-height: 25rem;
   overflow-y: auto;
+  background-color: #fff;
   z-index: 100;
   border-radius: 0.25rem;
   border-top-left-radius: 0px;
