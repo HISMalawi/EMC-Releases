@@ -8,13 +8,13 @@
   </ion-label>
   <div class="ion-margin-top outer-input-box box-input" :class="{'box-input-error': model.error }">
     <div class="inner-input-box">
-      <div style="display: flex;" @click="onShowOptions">
+      <div style="display: flex; flex-wrap: wrap;" @click="onShowOptions">
         <ion-label v-if="showPlaceholder" class="input-placeholder" contenteditable>{{ model.placeholder || 'select option' }}</ion-label>
         <ion-chip v-for="(tag, index) of tags" :key="index">
           <ion-label>{{ tag.label }}</ion-label>
           <ion-icon :icon="closeCircle" color="danger" @click="diselect(tag)" style="z-index: 100"></ion-icon>
         </ion-chip>
-        <ion-input v-if="searchable" v-model="filter" class="search-input" />
+        <ion-input v-if="searchable" v-model="filter" class="search-input" ref="searchInput" />
       </div>
       <ion-list class="input-options" v-if="showOptions">
         <ion-item 
@@ -37,12 +37,10 @@
 </template>
 <script lang="ts">
 import { IonCheckbox, IonIcon, IonInput, IonLabel, IonNote } from "@ionic/vue";
-import { computed, defineComponent, onBeforeMount, onMounted, PropType, ref, watch } from "vue";
+import { computed, defineComponent, onBeforeUnmount, onMounted, PropType, ref, watch } from "vue";
 import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 import { Option } from '@/components/Forms/FieldInterface';
 import { chevronDown, chevronUp, close, closeCircle } from "ionicons/icons"
-import { genderOptions, tbStatusOptions } from "../../utils/DTFormElements";
-import { toastSuccess } from "@/utils/Alerts";
 import { isEmpty } from "lodash";
 
 export default defineComponent({
@@ -93,6 +91,7 @@ export default defineComponent({
     const isCustom = ref(false);
     const selectedOption = ref<Option>();
     const showOptions = ref(false)
+    const searchInput = ref(null as any)
     const filter = ref('')
     const filteredOptions = ref<Option[]>([])
 
@@ -152,17 +151,6 @@ export default defineComponent({
       filteredOptions.value = filtered
     }
 
-    const onReset = () => {
-      filter.value = '';
-      selectedOption.value = undefined;
-      filteredOptions.value.forEach(option => option.isChecked = false)
-    }
-
-    const diselect = (tag: Option) => {
-      if(props.multiple) return tag.isChecked = false
-      return selectedOption.value = undefined
-    }
-
     const validate = async () => {
       if (model.value.required && isEmpty(model.value.value)) {
         return model.value.error = "This field is required";
@@ -181,6 +169,17 @@ export default defineComponent({
       filter.value = ''
     }
 
+    const diselect = (tag: Option) => {
+      if(props.multiple) return tag.isChecked = false
+      return selectedOption.value = undefined
+    }
+
+    const onReset = () => {
+      filter.value = '';
+      selectedOption.value = undefined;
+      filteredOptions.value.forEach(option => option.isChecked = false)
+    }
+
     watch(filter, async() => await filterOptions())
 
     onMounted(async () => {
@@ -188,7 +187,7 @@ export default defineComponent({
       setDefaults()
       addEventListener('click', (e: any) => {
         const isClosest = e.target.closest('.inner-input-box')
-        if(!isClosest && showOptions) {
+        if(!isClosest && showOptions.value) {
           showOptions.value = false;
           model.value.value = props.multiple ? tags.value : !isEmpty(tags.value) ? tags.value[0] : undefined
           filter.value = ''
@@ -196,6 +195,8 @@ export default defineComponent({
         }
       })
     });
+
+    onBeforeUnmount(() => removeEventListener('click', e => console.log(e)))
 
     return {
       validate,
@@ -223,7 +224,7 @@ export default defineComponent({
 <style scoped>
 .outer-input-box {
   width: 100%; 
-  height: 2.5rem; 
+  height: fit-content; 
   background-color: #fff;
 }
 
