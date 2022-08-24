@@ -34,7 +34,7 @@ export function resolveFormValues(form: DTForm, underscoreKeys = false) {
   for (const key in form) {
     if(form[key].value) {
       const fKey = underscoreKeys ? toUnderscores(key) : key
-      formData[fKey] = typeof form[key].value === 'object' ? form[key].value.value : form[key].value
+      formData[fKey] = form[key].value
       if(typeof form[key].computedValue === 'function') {
         computedFormData[fKey] = form[key].computedValue!(form[key].value)
       }
