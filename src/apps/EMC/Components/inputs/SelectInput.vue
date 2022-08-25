@@ -25,7 +25,7 @@
           <ion-label>{{ tag.label }}</ion-label>
           <ion-icon :icon="closeCircle" color="danger" @click="diselect(tag)" style="z-index: 90"></ion-icon>
         </ion-chip>
-        <ion-input v-if="searchable" v-model="filter" class="search-input" ref="searchInput" />
+        <ion-input :disabled="searchable" v-model="filter" class="search-input" ref="searchInput" />
       </div>
       <div class="input-options ion-content-scroll-host" v-if="showOptions">
         <ion-list>
@@ -45,7 +45,7 @@
       </div>
       <div class="input-icon">
         <ion-icon :icon="close" v-if="filter || tags.length > 0" @click="onReset"></ion-icon>
-        <ion-icon :icon="showOptions ? chevronUp : chevronDown"></ion-icon>
+        <ion-icon :icon="showOptions ? chevronUp : chevronDown" @click="showOptions = !showOptions"></ion-icon>
       </div>
     </div>
   </div>
@@ -211,7 +211,10 @@ export default defineComponent({
     }
 
     const onSelect = (item: Option) => {  
-      if(!props.multiple) selectedOption.value = item
+      if(!props.multiple) {
+        selectedOption.value = item
+        showOptions.value = false;
+      }
       filter.value = ''
     }
 
