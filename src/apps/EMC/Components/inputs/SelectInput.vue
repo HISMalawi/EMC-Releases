@@ -45,7 +45,7 @@
       </div>
       <div class="input-icon">
         <ion-icon :icon="close" v-if="filter || tags.length > 0" @click="onReset"></ion-icon>
-        <ion-icon :icon="showOptions ? chevronUp : chevronDown" @click="showOptions = !showOptions"></ion-icon>
+        <ion-icon :icon="showOptions ? chevronUp : chevronDown" @click="showOptions ? onCloseOptions() : onShowOptions()"></ion-icon>
       </div>
     </div>
   </div>
@@ -132,11 +132,6 @@ export default defineComponent({
       set: (value) => emit("update:modelValue", value)
     })
 
-    const onShowOptions = () => {
-      showOptions.value = true
-      model.value.error = ''
-    }
-
     const setDefaults = () => {
       if(isEmpty(model.value.value)) return
       if (Array.isArray(model.value.value) && props.multiple) {
@@ -203,6 +198,18 @@ export default defineComponent({
       return model.value.error = "";
     };
 
+    const onCloseOptions = () => {
+      showOptions.value = false;
+      model.value.value = props.multiple ? tags.value : !isEmpty(tags.value) ? tags.value[0] : undefined
+      filter.value = ''
+      validate()
+    }
+
+    const onShowOptions = () => {
+      showOptions.value = true
+      model.value.error = ''
+    }
+
     const onCustomValue = () => {
       model.value.value = {
         label: customOption.value,
@@ -213,7 +220,7 @@ export default defineComponent({
     const onSelect = (item: Option) => {  
       if(!props.multiple) {
         selectedOption.value = item
-        showOptions.value = false;
+        onCloseOptions()
       }
       filter.value = ''
     }
@@ -240,10 +247,7 @@ export default defineComponent({
       addEventListener('click', (e: any) => {
         const isClosest = e.target.closest('.inner-input-box')
         if(!isClosest && showOptions.value) {
-          showOptions.value = false;
-          model.value.value = props.multiple ? tags.value : !isEmpty(tags.value) ? tags.value[0] : undefined
-          filter.value = ''
-          validate()
+          onCloseOptions()
         }
       })
     });
@@ -255,6 +259,7 @@ export default defineComponent({
       onSelect,
       onReset,
       onShowOptions,
+      onCloseOptions,
       diselect,
       pushMoreOptions,
       onCustomValue,
