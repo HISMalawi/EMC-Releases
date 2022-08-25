@@ -117,8 +117,6 @@ export default defineComponent({
     const registrationService = new ClinicRegistrationService(patientId.value, -1)
     const vitalsService = new VitalsService(patientId.value, -1)
     const patientTypeService = new PatientTypeService(patientId.value, -1);
-
-
     const today = dayjs().format(STANDARD_DATE_FORMAT)
     const patientDob = computed(() => {
       const date = patient.value?.getBirthdate() 
@@ -188,11 +186,10 @@ export default defineComponent({
       artInitiationLocation: {
         value: '',
         label: 'Location of ART Initiation',
-        computedValue: async (location: string) => {
-          const facility = await LocationService.getFacilities({'location_id': location})
+        computedValue: async (facility: Option) => {
           return {
             tag:'registration',
-            obs: registrationService.buildValueText('Location of ART initiation', facility.name)
+            obs: registrationService.buildValueText('Location of ART initiation', facility.label)
           }
         },
         validation: async (location: Option, f: DTForm) => {
@@ -247,9 +244,9 @@ export default defineComponent({
         value: '',
         label: 'Initial TB Status',
         placeholder: 'select TB status',
-        computedValue: (status: string) => ({
+        computedValue: (status: Option) => ({
           tag: 'registration',
-          obs: registrationService.buildValueCoded("TB Status", status)
+          obs: registrationService.buildValueCoded("TB Status", status.label)
         }),
         validation: async (status: Option, f: DTForm) => {
           return f.everRegisteredAtClinic.value === 'Yes' && StandardValidations.required(status)
@@ -260,10 +257,10 @@ export default defineComponent({
         label: 'Confirmatory Test',
         placeholder: 'Select confirmatory test',
         required: true,
-        computedValue(test: string){
+        computedValue(test: Option){
           return {
             tag: 'registration',
-            obs: registrationService.buildValueCoded('Confirmatory hiv test type', test)
+            obs: registrationService.buildValueCoded('Confirmatory hiv test type', test.value)
           }
         }
       },
@@ -274,12 +271,11 @@ export default defineComponent({
         validation: async (location: Option, f: DTForm) => {
           return f.confirmatoryTest.value !== 'Not done' && StandardValidations.required(location)
         },
-        computedValue: async (location: string) => {
-          const facility = await LocationService.getFacilities({'location_id': location})
+        computedValue(facility: Option){
           return {
             tag: 'registration',
             obs: registrationService.buildValueText(
-              'Confirmatory HIV test location', facility.name
+              'Confirmatory HIV test location', facility.label
             )
           }
         }
