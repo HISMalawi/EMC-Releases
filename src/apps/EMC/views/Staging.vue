@@ -28,18 +28,7 @@
             </ion-col>
           </template>
           <ion-col size="12" class="ion-margin-top ion-padding-top" >
-            <ion-label class="bold ion-padding-bottom">Select Staging Conditions</ion-label><br>
-            <span v-for="(entry, index) in selectedConditions" :key="index"> 
-              <ion-chip color="danger" @click="() => entry.isChecked = false">{{entry.label}}</ion-chip>
-            </span>
-            <div class="options ion-margin-top ion-padding">
-              <ion-label v-for="entry in stagingCoditions" :key="entry.value" @click="() => entry.isChecked = !entry.isChecked">
-                <ion-checkbox class="ion-margin-end ion-float-left" v-model="entry.isChecked" @ionChange="onSelect" />
-                <span class="ion-margin-top" style="vertical-align: middle;">{{ entry.label }}</span>
-                <br><br>
-              </ion-label>
-            </div>
-            <ion-note v-if="form.whoConditions.error" color="danger">{{ form.whoConditions.error }}</ion-note>
+            <SelectInput v-model="form.whoConditions" :options="stagingCoditions" searchable multiple />
           </ion-col>
         </ion-row>
           <ion-button class="ion-margin-top ion-float-end" size="large" @click="onSubmit" color="success">Finish</ion-button>
@@ -53,7 +42,7 @@
 <script lang="ts">
 import {  computed, defineComponent, onMounted, reactive, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import { IonGrid, IonRow, IonCol, IonButton, IonTitle, loadingController, IonLabel, IonCheckbox, IonNote } from "@ionic/vue";
+import { IonGrid, IonRow, IonCol, IonButton, IonTitle } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import {  alertConfirmation, toastSuccess } from "@/utils/Alerts";
 import { Option } from "@/components/Forms/FieldInterface";
@@ -69,7 +58,7 @@ import dayjs from "dayjs";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
 import { isValidForm, resolveFormValues, resolveObs } from "../utils/form";
 import { StagingService } from "@/apps/ART/services/staging_service";
-import { LocationService } from "@/services/location_service";
+import { loader } from "@/utils/loader";
 
 export default defineComponent({
   components: {
@@ -78,14 +67,11 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonButton,
-    IonLabel,
-    IonCheckbox,
     IonTitle,
     TextInput,
     DateInput,
     YesNoInput,
     SelectInput,
-    IonNote,
   },
   setup() {
     const route = useRoute()
@@ -110,8 +96,8 @@ export default defineComponent({
         label: 'Reason for Starting',
         placeholder: "Select Reason for Starting",
         required: true,
-        computedValue: (reason: string) => ({
-          obs: stagingService.value?.buildReasonForArtObs(reason)
+        computedValue: (reason: Option) => ({
+          obs: stagingService.value?.buildReasonForArtObs(reason.label)
         })
       },
       whoStage: {
@@ -119,8 +105,8 @@ export default defineComponent({
         label: 'Select Stage',
         placeholder: "Select Stage",
         required: true,
-        computedValue: (stage: string) => ({
-          obs: stagingService.value?.buildWhoStageObs(stage)
+        computedValue: (stage: Option) => ({
+          obs: stagingService.value?.buildWhoStageObs(stage.label)
         }),
       },
       cd4countAvailable: {
@@ -156,39 +142,31 @@ export default defineComponent({
         validation: async (cd4Count: Option, f: DTForm) => {
           return f.cd4countAvailable.value === 'Yes' && StandardValidations.validateSeries([
             () => StandardValidations.required(cd4Count),
-            () => stagingService.value?.cd4CountIsValid(cd4Count.value.toString()) ? ['Please start with either modifier first: >, <, or ='] : null
+            () => stagingService.value?.cd4CountIsValid(cd4Count.value.toString()) 
+              ? null
+              : ['Please start with a modifier. e.g. >, <, or =']
           ])
         }
       },
       cd4CountLocation: {
         value: '',
         label: 'CD4 Count location',
-        computedValue: async (location: string) => {
-          const facility = await LocationService.getFacilities({'location_id': location})
-          return {
-            obs: StagingService.buildValueText('Cd4 count location', facility.name)
-          }
-        },
+        computedValue: (facility: Option) => ({
+          obs: StagingService.buildValueText('Cd4 count location', facility.label)
+        }),
         validation: async (location: Option, f: DTForm) => {
           return f.cd4countAvailable.value === 'Yes' && StandardValidations.required(location)
         }
       },
       whoConditions: {
-        value: 'who criteria obs',
-        validation: async () => {
-          return selectedConditions.value.length === 0
-          ? ['Please select at least one staging condition'] 
-          : null
-        },
-        computedValue: () => ({
-          obs: selectedConditions.value.map(x => stagingService.value?.buildWhoCriteriaObs(x.label))
+        value: '',
+        required: true,
+        label: "Select Staging Conditions",
+        computedValue: (conditions: Option[]) => ({
+          obs: conditions.map(x => stagingService.value?.buildWhoCriteriaObs(x.label))
         })
       }
     });
-
-    const onSelect = (e: Event) => {
-      selectedConditions.value = stagingCoditions.value.filter(c => c.isChecked)
-    }
 
     const onClear = async () => {
       const confirm = await alertConfirmation('Are you sure you want to clear all fields?')
@@ -201,17 +179,14 @@ export default defineComponent({
     }
 
     const onSubmit = async () => {
-      const loader = await loadingController.create({ message: 'Saving...' })
-      await loader.present()
-      if(!(await isValidForm(form))) return await loader.dismiss()
-
+      if(!(await isValidForm(form))) return
+      loader.show()
       const { computedFormData} = resolveFormValues(form)
-
       await stagingService.value?.createEncounter()
       const obs = await resolveObs(computedFormData)
       await stagingService.value?.saveObservationList(obs)
 
-      await loader.dismiss()
+      await loader.hide()
       await toastSuccess('Saved successfully')
       await StagingService.resetSessionDate()
       router.push(`/emc/patient/${patientId.value}`)
@@ -247,7 +222,6 @@ export default defineComponent({
       getFacilities,
       onClear,
       onSubmit,
-      onSelect,
     };
   },
 });
