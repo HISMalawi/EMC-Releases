@@ -241,6 +241,8 @@ export default defineComponent({
       await filterOptions()
     })
 
+    watch([() => props.options, () => props.asyncOptions], async () => filterOptions())
+
     onMounted(async () => {
       await filterOptions()
       setDefaults()
