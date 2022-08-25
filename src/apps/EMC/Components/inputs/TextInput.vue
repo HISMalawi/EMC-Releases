@@ -91,7 +91,16 @@ export default defineComponent({
       return model.value.error = "";
     };
 
-    watch(isUnknown, (newValue) => model.value.value = newValue ? "Unknown" : "");
+    watch(isUnknown, (newValue) => {
+      if(newValue) {
+        model.value.value = "Unknown"
+        model.value.error = ''
+        model.value.disabled = true;
+      } else {
+        model.value.value = ""
+        model.value.disabled = false;
+      }
+    });
     watch(props.modelValue, newModel => {
       if (newModel.value === "Unknown") {
         if(!isUnknown.value) {
