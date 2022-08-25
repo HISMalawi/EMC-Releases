@@ -85,6 +85,7 @@ import SelectInput from "../Components/inputs/SelectInput.vue";
 import { getLandmarks, getVillagesByName } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { isValidForm, resolveFormValues } from "../utils/form";
 import { toUnderscores } from "@/utils/Strs";
+import { loader } from "@/utils/loader";
 
 export default defineComponent({
   components: {
@@ -110,20 +111,20 @@ export default defineComponent({
       givenName: {
         label: "First Name",
         value: "",
-        placeholder: "First Name",
+        placeholder: "Enter First Name",
         required: true,
         error: "",
       },
       familyName: {
         label: "last Name",
         value: "",
-        placeholder: "Last Name",
+        placeholder: "Enter Last Name",
         required: true
       },
       middleName: {
         label: "middle Name",
         value: "",
-        placeholder: "middle Name",
+        placeholder: "Enter middle Name",
       },
       gender: {
         value: '',
@@ -134,14 +135,13 @@ export default defineComponent({
       birthdate: {
         value: '',
         label: 'Date of Birth',
-        placeholder: 'Date of Birth',
         required: true,
       },
       cellPhoneNumber: {
         value: '',
         required: true,
         label: "Cellphone Number",
-        placeholder: "cellphone number e.g. 0991234567",
+        placeholder: "Enter cellphone number e.g. 0991234567",
         validation: async (phone: Option) => phone.value !== 'Unknown' && Validation.isMWPhoneNumber(phone)
       },
       homeVillage: {
@@ -162,19 +162,20 @@ export default defineComponent({
       givenName: {
         label: "First Name",
         value: "",
-        placeholder: "First Name",
+        placeholder: "Enter First Name",
         required: true,
       },
       familyName: {
         label: "Last Name",
         value: "",
-        placeholder: "Last Name",
+        placeholder: "Enter Last Name",
         required: true,
       },
       cellPhoneNumber: {
         value: '',
         required: true,
         label: "Cellphone Number",
+        placeholder: "Enter cellphone number e.g. 0991234567",
         validation: async (phone: Option) => phone.value !== 'Unknown' && Validation.isMWPhoneNumber(phone)
       },
     })
@@ -199,8 +200,7 @@ export default defineComponent({
     })
 
     const onClear = async () => {
-      const confirm = await alertConfirmation('Are you sure you want to clear all fields?')
-      if(confirm) {
+      if((await alertConfirmation('Are you sure you want to clear all fields?'))) {
         for(const key in patient) {
           patient[key].value = undefined
           patient[key].error = ""
@@ -214,21 +214,19 @@ export default defineComponent({
 
     const resolvePerson = (client: DTForm, other = {} as Record<string, any>) => {
       const person: Record<string, any> = {
-        ...other,
         'facility_name': null,
         'occupation': null,
       }
       for (const key in client) {
         person[toUnderscores(key)] = client[key]
       }
-      return person
+      return {...person, ...other}
     }
 
-    const resolveAddress = async (villageId?: number) => {
-      const village = villageId ? await LocationService.getVillage(villageId) : {}
+    const resolveAddress = async (village?: Option) => {
       const TA = isEmpty(village)
         ? null
-        : await LocationService.getTraditionalAuthorityById(village.traditional_authority_id)
+        : await LocationService.getTraditionalAuthorityById(village!.other.traditional_authority_id)
       
       const district = isEmpty(TA) 
         ? null
@@ -237,30 +235,26 @@ export default defineComponent({
       return {
         'home_district': isEmpty(district) ?  "N/A" : district[0].name,
         'home_traditional_authority': isEmpty(TA) ? "N/A" : TA[0].name ,
-        'home_village': village.name || "N/A",
+        'home_village': village?.label || "N/A",
         'current_district': isEmpty(district) ? "N/A" : district[0].name,
         'current_traditional_authority': isEmpty(TA) ? "N/A" : TA[0].name,
-        'current_village': village.value || "N/A" 
+        'current_village': village?.label || "N/A" 
       }
     }
 
     const onFinish = async () => {
-      const loader = await loadingController.create({
-        message: 'Processing data...'
-      });
-      await loader.present();
-      if(!(await isValidForm(patient) || (!guardianAbsent.value && await isValidForm(guardian)))) {
-        return await loader.dismiss()
-      } 
+      if(!(await isValidForm(patient) || (!guardianAbsent.value && await isValidForm(guardian)))) return
+      loader.show("Saving...") 
       try {
-        const { formData: patientData } = resolveFormValues(patient)
+        const patientData = resolveFormValues(patient).formData
         const registrationService = new PatientRegistrationService()
         const address = await resolveAddress(patientData.homeVillage)
         const person = resolvePerson(patientData, {
-          birthdate :patientData.birthdate,
           ...address,
           'isPatient': true,
           'patient_type': null,
+          'gender': patientData.gender.value,
+          'landmark': patientData.landmark.value,
           'birthdate_estimated': isBirthdateEstimated.value ? "Yes" : "No",
           'relationship': guardianAbsent.value ? "No" : "Yes",
         })
@@ -286,11 +280,11 @@ export default defineComponent({
           const guardianId = registrationService.getPersonID()      
           await RelationsService.createRelation(patientId, guardianId, 13)
         }
-        await loader.dismiss()
+        loader.hide()
         router.push(`/emc/registration/${patientId}/true`)
       } catch (error) {
         console.log(error)
-        await loader.dismiss()
+        loader.hide()
       }
     }
  
