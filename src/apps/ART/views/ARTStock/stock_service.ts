@@ -16,7 +16,7 @@ const finalList: Drug[] = [
 	},
 	{
 		drugID: 1044,
-		shortName: "ABC 120 /3TC 300mg",
+		shortName: "ABC 120 /3TC 60mg",
 		fullName: "Abacavir and Lamivudine 120mg pack of 60 tablets",
 		packSizes: [60],
 		categories: ['p']
