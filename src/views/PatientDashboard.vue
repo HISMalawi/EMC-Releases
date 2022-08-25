@@ -792,15 +792,11 @@ export default defineComponent({
                 title: `${title}: ${this.toDate(this.activeVisitDate.toString())}`
             })
         },
-        onCancel() {
-            alertConfirmation('Are you sure you want to Finish?').then((ok) => {
-                if (ok) {
-                    Store.invalidate('ACTIVE_PATIENT')
-                    Store.invalidate('PATIENT_PROGRAM')
-                    Store.invalidate('PATIENT_LAB_ORDERS')
-                    this.$router.push({path: '/'})
-                }
-            })
+        onCancel() {            
+            Store.invalidate('ACTIVE_PATIENT')
+            Store.invalidate('PATIENT_PROGRAM')
+            Store.invalidate('PATIENT_LAB_ORDERS')
+            this.$router.push({path: '/'})
         }
     }
 })
