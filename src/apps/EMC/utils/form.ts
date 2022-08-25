@@ -2,10 +2,11 @@ import { ObsValue, ObservationService } from "@/services/observation_service"
 import { DTForm } from "../interfaces/dt_form_field"
 import { Option } from "@/components/Forms/FieldInterface";
 import { toUnderscores } from "@/utils/Strs";
+import { isEmpty } from "lodash";
 
 export async function isValidForm (form: DTForm) {
   for (const key in form) {
-    if (form[key].required && !form[key].value) {
+    if (form[key].required && isEmpty(form[key].value)) {
       form[key].error = "This field is required";
       continue;
     }
