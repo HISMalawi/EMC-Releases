@@ -2,14 +2,13 @@
     <!--SMALL SCREENBREAKPOINT-->
     <ion-page v-if="screenBreakPoint === 'sm'"> 
         <minimal-toolbar
-            class="mobile-component-view"
             :title="patientName"
             :menuTitle="visitDatesTitle"
             :menuItems="visitDates"
             :appIcon="app.applicationIcon"
             @onClickMenuItem="onActiveVisitDate"
         />
-        <ion-toolbar v-if="screenBreakPoint === 'sm'" class="mobile-component-view"> 
+        <ion-toolbar v-if="screenBreakPoint === 'sm'"> 
             <ion-segment :value="activeTab" class="ion-justify-content-center">
                 <ion-segment-button value="1" @click="activeTab=1"> 
                     <ion-icon :icon="calendar"> </ion-icon>
@@ -29,7 +28,7 @@
                 </ion-segment-button>
             </ion-segment>
         </ion-toolbar>
-        <ion-toolbar class="mobile-component-view" v-if="nextTask.name && screenBreakPoint === 'sm'"> 
+        <ion-toolbar v-if="nextTask.name && screenBreakPoint === 'sm'"> 
             <ion-button 
                 :style="{width: '100%'}" 
                 color="success"
@@ -40,7 +39,7 @@
         </ion-toolbar>
         <ion-content id="main-content">
             <!-- Mobile dashboard view -->
-            <div class="mobile-component-view" v-if="screenBreakPoint==='sm'">
+            <div v-if="screenBreakPoint==='sm'">
                 <component
                     v-if="appHasCustomContent && activeTab === 1 && patientIsset" 
                     v-bind:is="customDashboardContent"
@@ -116,7 +115,7 @@
             </div>
         </ion-content>
         <ion-footer> 
-            <ion-toolbar color="dark" v-if="screenBreakPoint==='sm'"  class="mobile-component-view"> 
+            <ion-toolbar color="dark" v-if="screenBreakPoint==='sm'"> 
                 <ion-button color="primary" size="medium" slot="end" @click="showTasks"> 
                     <ion-icon :icon="clipboard"> </ion-icon>
                 </ion-button>
@@ -137,14 +136,13 @@
     <!-- LARGE SCREEN BREAKPOINT -->
     <ion-page v-if="screenBreakPoint === 'lg'"> 
         <full-toolbar
-            class="full-component-view"
             :appVersion="appVersion"
             :appIcon="app.applicationIcon"
             :patientCardInfo="patientCardInfo"
             :programCardInfo="programCardInfo"
         />
         <ion-content id="main-content"> 
-            <ion-grid v-if="!appHasCustomDashboard" class='full-component-view grid-custom vertically-align'>
+            <ion-grid v-if="!appHasCustomDashboard" class='grid-custom vertically-align'>
                 <ion-row>
                     <ion-col size="2.4">
                         <visit-dates-card :title="visitDatesTitle" :items="visitDates" @onselect="onActiveVisitDate"> </visit-dates-card>
@@ -243,7 +241,7 @@ import TaskSelector from "@/components/DataViews/TaskSelectorModal.vue"
 import EncounterView from "@/components/DataViews/DashboardEncounterModal.vue"
 import CardDrilldown from "@/components/DataViews/DashboardTableModal.vue"
 import { WorkflowService } from "@/services/workflow_service"
-import { toastSuccess, alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts";
+import { toastSuccess, toastDanger, toastWarning } from "@/utils/Alerts";
 import { isArray, isEmpty } from "lodash"
 import {
     man,
@@ -347,7 +345,6 @@ export default defineComponent({
         sessionDate: '',
         nextTask: {} as any,
         patientId: 0,
-        programID : 0,
         patient: {} as any,
         patientProgram: {} as any,
         patientCardInfo: [] as Array<Option>,
@@ -539,7 +536,6 @@ export default defineComponent({
             this.currentDate = HisDate.currentDisplayDate()
             this.sessionDate = this.toDate(ProgramService.getSessionDate())
             this.isBDE = ProgramService.isBDE() || false
-            this.programID = ProgramService.getProgramID()
             Store.get('ACTIVE_PATIENT', { patientID: this.patientId }).then((patient) => {
                 const setProgramInfo = (data: any) => {
                     if (typeof data === 'object' && data.then) {
@@ -726,7 +722,7 @@ export default defineComponent({
 
             if (!app) return
 
-            if (app.programID != this.programID) {
+            if (app.programID != ProgramService.getProgramID()) {
                 this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
             } else {
                 this.initData()
@@ -809,12 +805,6 @@ export default defineComponent({
         height: 100%!important;
         margin: 1.2em;
     }
-    .full-component-view {
-        display: block;
-    }
-    .mobile-component-view {
-        display: none;
-    }
     .next-task {
         margin-top: -8px;
         font-weight: 600;
@@ -830,16 +820,6 @@ export default defineComponent({
         height: 75vh;
         padding: 1.0%;
     }
-
-    @media (max-width:900px) {
-        .full-component-view {
-            display: none;
-        }
-        .mobile-component-view {
-            display: block;
-        }
-    }
-
     @media (min-width: 1278px) {
         .next-task {
             font-size: 1.0em;
