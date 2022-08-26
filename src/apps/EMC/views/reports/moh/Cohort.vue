@@ -11,7 +11,7 @@
             @rangeChange="onDateRangeChange" 
           />  
         </ion-col>
-        <ion-col size="6" :offset="quarter.value?.label === 'Custom' ? 0 : 4">
+        <ion-col :size="quarter.value?.label === 'Custom' ? 6 : 10">
           <ion-button class="ion-float-end" color="primary" @click="exportToCsv" >Export CSV</ion-button>
           <ion-button class="ion-float-end" color="primary" @click="printSpec" >Print Report</ion-button>
           <ion-button class="ion-float-end" color="secondary" @click="disaggregateReport">Disaggregated</ion-button>
@@ -25,7 +25,7 @@
           <cohort-v :indicators="indicators" style="font-weight: 600"> </cohort-v>
           <div id="report-content">
             <cohort-h :reportparams="period" :clinicName="clinicName"></cohort-h>
-            <cohort-ft @onClickIndicator="onDrillDown" :indicators="indicators"> </cohort-ft>
+            <cohort-ft @onClickIndicator="onDrilldown" :indicators="indicators"> </cohort-ft>
           </div>
         </ion-col>
       </ion-row>
@@ -36,12 +36,11 @@
 <script lang="ts">
 import { defineComponent, reactive, ref, watch } from "vue";
 import { loader } from "@/utils/loader";
-import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { modal } from "@/utils/modal";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
 import dayjs from "dayjs";
 import { toastWarning } from "@/utils/Alerts";
-import { isEmpty } from "lodash";
+import { find, isEmpty } from "lodash";
 import DateRangePicker, { DateRange } from "@/apps/EMC/Components/inputs/DateRangePicker.vue";
 import { ArtReportService } from "@/apps/ART/services/reports/art_report_service";
 import { Option } from "@/components/Forms/FieldInterface";
@@ -57,6 +56,7 @@ import { toCsv } from "@/utils/Export";
 import { Service } from "@/services/service";
 import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
 import { DTFormField } from "@/apps/EMC/interfaces/dt_form_field";
+import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
 
 export default defineComponent({
   name: "Cohort",
@@ -107,9 +107,32 @@ export default defineComponent({
         toastWarning('Please select a period');
       }
     }
+    
+    const onDrilldown = async (indicatorName: string) => {
+      const columns: TableColumnInterface[] = [
+        { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
+        { path: "given_name", label: "First Name"},
+        { path: "family_name", label: "Last Name"},
+        { path: "birthdate", label: "Date of Birth", date: true },
+        { path: "gender", label: "Gender" },
+        { path: "outcome", label: "Outcome" }
+      ]
+      const indicator = find(cohort.value, {name: indicatorName})
+      if(!indicator) return
+      const rows: any[] = await report.getCohortDrillDown(indicator.id)
+      console.log(indicatorName, rows)
+      const rowActionButtons: RowActionButtonInterface[] = [{
+        label: "select",
+        action: (r) => router.push(`/emc/patient/${r['person_id']}`)
+      }]
 
-    const onDrillDown = (indicator: string) => {
-      console.log(indicator);
+      await modal.show(DrilldownTableVue, {
+        title: `Clients Drill down`,
+        rowActionButtons,
+        columns,
+        rows,
+
+      })
     }
 
     const setReportPeriod = (quarter: string, startDate: string, endDate: string) => {
@@ -227,7 +250,7 @@ export default defineComponent({
       indicators,
       componentKey,
       fetchData,
-      onDrillDown,
+      onDrilldown,
       onDateRangeChange,
       disaggregateReport,
       printSpec,
