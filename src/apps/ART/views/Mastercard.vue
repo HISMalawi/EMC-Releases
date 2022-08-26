@@ -22,21 +22,20 @@ import { defineComponent } from "vue";
 import HisDate from "@/utils/Date";
 import { Encounter } from "@/interfaces/encounter";
 import { Option } from "@/components/Forms/FieldInterface";
-import { Patient } from "@/interfaces/patient";
 import { Patientservice } from "@/services/patient_service";
 import { ObservationService } from "@/services/observation_service";
 import InformationHeader from "@/components/InformationHeader.vue";
 import VisitInformation from "@/components/VisitInformation.vue";
-import MastercardDetails from "@/components/MastercardDetails.vue";
 import HisFooter from "@/components/HisDynamicNavFooter.vue";
-import { isArray, isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 import { IonPage, IonContent, modalController } from "@ionic/vue";
 import { EncounterService } from "@/services/encounter_service";
 import { RelationshipService } from "@/services/relationship_service";
-import { alertConfirmation } from "@/utils/Alerts";
+import { alertConfirmation, toastDanger } from "@/utils/Alerts";
 import { ProgramService } from "@/services/program_service";
 import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { NavBtnInterface } from "@/components/HisDynamicNavFooterInterface";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   components: {
@@ -47,58 +46,32 @@ export default defineComponent({
     HisFooter,
   },
   data: () => ({
-    isBDE: false as boolean,
-    currentDate: "",
-    sessionDate: "",
-    nextTask: {} as any,
     patientId: 0 as any,
-    programID: 0,
     patient: {} as any,
     patientProgram: {} as Array<Option>,
     patientCardInfo: [] as any,
-    programCardInfo: [] as Array<Option> | [],
     encounters: [] as Array<Encounter>,
-    medications: [] as any,
-    labOrders: [] as any,
     visitDates: [] as Array<Option> as any,
-    activeVisitDate: "" as string | number,
-    encountersCardItems: [] as Array<Option>,
-    medicationCardItems: [] as Array<Option>,
-    labOrderCardItems: [] as Array<Option>,
-    alertCardItems: [] as Array<Option>,
     btns: [] as Array<NavBtnInterface>,
     guardians: "",
   }),
-  computed: {
-    visitDatesTitle(): string {
-      return `${this.visitDates.length} Visits`;
-    },
-  },
-  watch: {
-    $route: {
-      async handler({ params }: any) {
-        if (!params) return;
-
-        this.patientId = parseInt(params.patient_id);
-
-        if (this.patientId) this.init();
-      },
-      deep: true,
-      immediate: true,
-    },
-    async activeVisitDate(date: string) {
-      this.encounters = await EncounterService.getEncounters(this.patientId, {
-        date,
-      });
-    },
+  created() {
+    this.btns.push(this.getFinishBtn())
+    this.patientId = parseInt(`${this.$route.params.patient_id}`)
+    if (this.patientId) {
+      Store.get('ACTIVE_PATIENT', { patientID: this.patientId })
+        .then((patient) => {
+          this.patient = patient
+          this.getGuardian().then(guardians => {
+            this.guardians = guardians
+            this.getPatientCardInfo(this.patient)
+              .then(data => this.patientCardInfo = data)
+              .catch(e => toastDanger(`${e}`))
+          }).catch(e => toastDanger(`${e}`))
+      }).catch(e => toastDanger(`${e}`))
+    }
   },
   methods: {
-    async init() {
-      this.patient = await this.fetchPatient(this.patientId);
-      this.guardians = await this.getGuardian();
-      this.patientCardInfo = await this.getPatientCardInfo(this.patient);
-      this.btns.push(this.getFinishBtn());
-    },
     async getGuardian() {
       const relationship = await RelationshipService.getGuardianDetails(
         this.patientId
@@ -145,10 +118,6 @@ export default defineComponent({
         },
       };
     },
-    async fetchPatient(patientId: number | string) {
-      const patient: Patient = await Patientservice.findByID(patientId);
-      return patient ? new Patientservice(patient) : {};
-    },
     getProp(data: any, prop: string): string {
       return prop in data ? data[prop]() : "-";
     },
@@ -174,10 +143,6 @@ export default defineComponent({
       );
       return { ...programInfo, drugs: drugInformation };
     },
-    onActiveVisitDate(data: Option) {
-      this.activeVisitDate = data.value;
-    },
-
     async getPatientCardInfo(patient: Patientservice) {
       const { toStandardHisDisplayFormat } = HisDate;
       let dateOfTest = await ObservationService.getAll(
@@ -316,28 +281,6 @@ export default defineComponent({
           value: exists('Kaposis sarcoma')
         },
       ];
-    },
-
-    async openModal(items: any, title: string, component: any) {
-      const date = HisDate.toStandardHisDisplayFormat(
-        this.activeVisitDate.toString()
-      );
-      const modal = await modalController.create({
-        component: component,
-        backdropDismiss: false,
-        cssClass: "custom-modal",
-        componentProps: {
-          items,
-          title: `${title}: ${date}`,
-          taskParams: {
-            patient: this.patient.getObj(),
-            program: this.patientProgram,
-            visitDate: this.activeVisitDate,
-            patientID: this.patientId,
-          },
-        },
-      });
-      modal.present();
     },
     printLabel(date: any) {
       new PatientPrintoutService(this.patientId).printVisitSummaryLbl(date);
