@@ -55,10 +55,8 @@ export default defineComponent({
     tbStats: [] as Array<any>
   }),
   created() {
+    this.setPatientCards()
     this.patientId = parseInt(`${this.$route.params.patient_id}`)
-    if (this.patientId) {
-      this.setPatientCards()
-    }
     this.btns.push({
       name: "Finish",
       color: "success",
@@ -75,15 +73,17 @@ export default defineComponent({
     })
   },
   async mounted() {
-    for(const item of this.patientCardInfo) {
-      if (typeof item.init === 'function') {
-        await item.init()
+    if (this.patientId) {
+      for(const item of this.patientCardInfo) {
+        if (typeof item.init === 'function') {
+          await item.init()
+        }
+        if (typeof item.asyncValue === 'function') {
+          item.asyncValue(item).then((value: any) => item.value = value || '')
+        } else if (typeof item.staticValue === 'function') {
+          item.value = item.staticValue()
+        } 
       }
-      if (typeof item.asyncValue === 'function') {
-        item.asyncValue(item).then((value: any) => item.value = value || '')
-      } else if (typeof item.staticValue === 'function') {
-        item.value = item.staticValue()
-      } 
     }
   },
   methods: {
