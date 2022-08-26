@@ -35,7 +35,7 @@ import HisDate from "@/utils/Date";
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, modalController } from '@ionic/vue';
 import dayjs from 'dayjs';
 import { computed, defineComponent, PropType, reactive, ref } from 'vue';
-import ViralLoadInput from '@/apps/EMC/Components/modals/ViralLoadInput.vue';
+import ViralLoadResult from '@/apps/EMC/Components/modals/ViralLoadResult.vue';
 import OutcomeStatus from '@/apps/EMC/Components/modals/OutcomeStatus.vue';
 import PatientVisit from '@/apps/EMC/Components/modals/PatientVisit.vue';
 import { PatientObservationService } from '@/services/patient_observation_service';
@@ -92,7 +92,7 @@ export default defineComponent({
       },
       {
         label: "Enter VL Results",
-        action: async () => modal.show(ViralLoadInput, {
+        action: async () => modal.show(ViralLoadResult, {
           patient: props.patient,
         })
       }
