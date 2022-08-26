@@ -48,47 +48,17 @@ export default defineComponent({
   }),
   watch: {
     ready: {
-      async handler(ready) {
-        if (ready) await this.init(this.patient)
+      handler(ready) {
+        if (ready) this.init()
       },
       immediate: true
     }
   },
   methods: {
-    async init(patient: any) {
-      const optionWhiteList = this.$route.query.vital_options as string
-      this.vitals = new VitalsService(patient.getID(), this.providerID);
-      this.age = patient.getAge();
-      this.gender = patient.getGender();
-
-      if (optionWhiteList) this.optionWhiteList = optionWhiteList.split(',')
-
-      if (this.canCheckWeightHeight()) {
-        const lastHeight = await patient.getRecentHeightObs();
-        if (!isEmpty(lastHeight)) {
-          const patientAgeAtPrevRecordedHeight = dayjs(lastHeight['obs_datetime'])
-            .diff(this.patient.getBirthdate(), 'year')
-          this.recentHeight = lastHeight['value_numeric'];
-          this.recentHeightObsID = lastHeight['obs_id'];
-          /**
-           * For a scenario where a patient's height was last updated when they were a minor
-           * and they return as an adult, provide an option to update their height.
-           */
-          this.canEditHeight = patientAgeAtPrevRecordedHeight < 18 || this.age < 18
-        } else {
-          this.canEditHeight = true
-        }
-        if (this.age <= 14) {
-          this.medianWeightandHeight = await patient.getMedianWeightHeight();
-          this.weightForHeight = await ProgramService.getWeightForHeightValues();
-        }
-      }
-      await VitalsService.getAll(patient.getID(), "Treatment status").then(
-        (data: any) => {
-          this.hasHTNObs = data && data.length > 0;
-        }
-      )
-      this.HTNEnabled = await Store.get('IS_ART_HTN_ENABLED')
+    init() {
+      this.vitals = new VitalsService(this.patientID, this.providerID);
+      this.age = this.patient.getAge();
+      this.gender = this.patient.getGender();
       this.fields = this.getFields();
     },
     getOptions() {
@@ -287,18 +257,27 @@ export default defineComponent({
       });
     },
     getFields(): Array<Field> {
-      const HTNEnabled = this.HTNEnabled;
-      const hasHTNObs = this.hasHTNObs;
       return [
         {
           id: "on_htn_medication",
           helpText: "Already taking drugs for blood pressure?",
           type: FieldType.TT_SELECT,
+          init: async () => {
+            this.HTNEnabled = await Store.get('IS_ART_HTN_ENABLED')
+            if (this.HTNEnabled) {
+              await VitalsService.getAll(this.patientID, "Treatment status").then(
+                (data: any) => {
+                  this.hasHTNObs = data && data.length > 0;
+                }
+              )
+            }
+            return true
+          },
           validation: (val: any) => Validation.required(val),
           condition: () => {
             // This page is reused in other programs that's why we're adding
             // an ART check. 
-            return HTNEnabled && !hasHTNObs && this.app?.applicationName === 'ART';
+            return this.HTNEnabled && !this.hasHTNObs && this.app?.applicationName === 'ART';
           },
           options: () => [
             {
@@ -315,6 +294,31 @@ export default defineComponent({
           id: "vitals",
           helpText: "Vitals entry",
           type: FieldType.TT_VITALS_ENTRY,
+          init: async () => {
+            const optionWhiteList = this.$route.query.vital_options as string
+            if (optionWhiteList) this.optionWhiteList = optionWhiteList.split(',')
+            if (this.canCheckWeightHeight()) {
+              const lastHeight = await this.patient.getRecentHeightObs();
+              if (!isEmpty(lastHeight)) {
+                const patientAgeAtPrevRecordedHeight = dayjs(lastHeight['obs_datetime'])
+                  .diff(this.patient.getBirthdate(), 'year')
+                this.recentHeight = lastHeight['value_numeric'];
+                this.recentHeightObsID = lastHeight['obs_id'];
+                /**
+                 * For a scenario where a patient's height was last updated when they were a minor
+                 * and they return as an adult, provide an option to update their height.
+                 */
+                this.canEditHeight = patientAgeAtPrevRecordedHeight < 18 || this.age < 18
+              } else {
+                this.canEditHeight = true
+              }
+              if (this.age <= 14) {
+                this.medianWeightandHeight = await this.patient.getMedianWeightHeight();
+                this.weightForHeight = await ProgramService.getWeightForHeightValues();
+              }
+            }
+            return true
+          },
           validation: (value: any) => this.validateVitals(value),
           beforeNext: async (val: Option[]) => {
             const heightOption = find(val, { label: "Height" });
