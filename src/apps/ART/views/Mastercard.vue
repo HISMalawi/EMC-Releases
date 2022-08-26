@@ -53,34 +53,206 @@ export default defineComponent({
     encounters: [] as Array<Encounter>,
     visitDates: [] as Array<Option> as any,
     btns: [] as Array<NavBtnInterface>,
+    tbStats: [] as Array<any>,
     guardians: "",
   }),
   created() {
-    this.btns.push(this.getFinishBtn())
     this.patientId = parseInt(`${this.$route.params.patient_id}`)
     if (this.patientId) {
-      Store.get('ACTIVE_PATIENT', { patientID: this.patientId })
-        .then((patient) => {
-          this.patient = patient
-          this.getGuardian().then(guardians => {
-            this.guardians = guardians
-            this.getPatientCardInfo(this.patient)
-              .then(data => this.patientCardInfo = data)
-              .catch(e => toastDanger(`${e}`))
-          }).catch(e => toastDanger(`${e}`))
-      }).catch(e => toastDanger(`${e}`))
+      this.setPatientCards()
+    }
+    this.btns.push(this.getFinishBtn())
+  },
+  async mounted() {
+    for(const item of this.patientCardInfo) {
+      if (typeof item.init === 'function') {
+        await item.init()
+      }
+      if (typeof item.asyncValue === 'function') {
+        item.asyncValue().then((value: any) => item.value = value || '')
+      } else if (typeof item.staticValue === 'function') {
+        item.value = item.staticValue()
+      } 
     }
   },
   methods: {
-    async getGuardian() {
-      const relationship = await RelationshipService.getGuardianDetails(
-        this.patientId
-      );
-      return relationship
-        .map((r: any) => {
-          return ` ${r.name} (${r.relationshipType})`;
-        })
-        .join(" ");
+    setPatientCards() {
+      this.patientCardInfo = [
+        { 
+          label: "ARV Number", 
+          value: '...',
+          staticValue: () => this.patient.getArvNumber(),
+          init: async () => {
+            this.patient = await Store.get('ACTIVE_PATIENT', { patientID: this.patientId })
+          },
+          other: {
+            editable: true,
+            category: "arv_number"
+          }
+        },
+        { 
+          label: "National Patient ID", 
+          value: '...',
+          staticValue: () => this.patient.getNationalID() 
+        },
+        {
+          label: "Given Name",
+          value: '...',
+          staticValue: () => this.patient.getGivenName(),
+          other: {
+            editable: true,
+            attribute: "given_name",
+            category: "demographics",
+          }
+        },
+        {
+          label: "Family Name",
+          value: '...',
+          staticValue: () => this.patient.getFamilyName(),
+          other: {
+            editable: true,
+            attribute: "family_name",
+            category: "demographics",
+          },
+        },
+        {
+          label: "Age",
+          value: '...',
+          staticValue: () => this.patient.getAge(),
+          other: {
+            editable: true,
+            attribute: "year_birth_date",
+            category: "demographics",
+          }
+        },
+        {
+          label: "Sex",
+          value: '...',
+          staticValue: () => this.patient.getGender(),
+          other: {
+            editable: true,
+            attribute: "gender",
+            category: "demographics",
+          }
+        },
+        {
+          label: "Location",
+          value: '...',
+          staticValue: () => this.patient.getCurrentVillage(),
+          other: {
+            editable: true,
+            attribute: "home_region",
+            category: "demographics",
+          }
+        },
+        { 
+          label: "Landmark",
+          value: '...', 
+          staticValue: () => this.patient.getAttribute(19) 
+        },
+        {
+          label: "Guardian",
+          value: '...',
+          asyncValue: async () => {
+            const relationship = await RelationshipService.getGuardianDetails(this.patientId)
+            return relationship 
+              ? relationship.map((r: any) => ` ${r.name} (${r.relationshipType})`).join(" ")
+              : 'add'
+          }
+        },
+        { 
+          label: "Init W(KG)", 
+          value: '...',
+          asyncValue: () => this.patient.getInitialWeight() 
+        },
+        { 
+          label: "Init H(CM)", 
+          value: '...',
+          asyncValue: () => this.patient.getInitialHeight() 
+        },
+        { 
+          label: "BMI(CM)", 
+          value: '...',
+          asyncValue: () => this.patient.getInitialBMI() 
+        },
+        { 
+          label: "TI", 
+          value:  '...',
+          asyncValue: () => ObservationService.getFirstValueCoded(
+            this.patientId, "Ever received ART"
+          )
+        },
+        { 
+          label: "Agrees to follow up", 
+          value: '...',
+          asyncValue: () => ObservationService.getFirstValueCoded(
+            this.patientId, "Agrees to followup"
+          ) 
+        },
+        { 
+          label: "Reason for starting ART", 
+          value: '...',
+          asyncValue: () => ObservationService.getFirstValueCoded(
+            this.patientId, "Reason for ART eligibility"
+          )
+        },
+        { 
+          label: "HIV test date", 
+          value: '...',
+          asyncValue: async () => {
+            const date = await ObservationService.getFirstValueDatetime(
+              this.patientId, 'Confirmatory HIV test date'
+            )
+            return date ? HisDate.toStandardHisDisplayFormat(date) : ''
+          }
+        },
+        { 
+          label: "HIV test place", 
+          value: "...",
+          asyncValue: () => ObservationService.getFirstValueText(
+            this.patientId,
+            "Confirmatory HIV test location"
+          )
+        },
+        { 
+          label: "Date of starting first line ART", 
+          value: '...',
+          asyncValue: async () => {
+            const date = await ObservationService.getFirstValueDatetime(
+              this.patientId, 'Date ART started'
+            )
+            return date ? HisDate.toStandardHisDisplayFormat(date) : ''
+          }
+        },
+        {
+          label: "Pulmonary TB within the last 2 years",
+          value: '...',
+          init: async () => {
+            this.tbStats = (await ObservationService.getAllValueCoded(
+              this.patientId, "Who stages criteria present"
+            )) || []
+          },
+          staticValue: () => this.hasTbStat('Tuberculosis (PTB or EPTB) within the last 2 years')
+        },
+        {
+          label: "Extra pulmonary TB (EPTB)",
+          value:'...',
+          staticValue: () => this.hasTbStat('Extrapulmonary tuberculosis (EPTB)')
+        },
+        {
+          label: "Pulmonary TB (current)",
+          value: '-',
+          staticValue: () => this.hasTbStat('Pulmonary tuberculosis (current)')
+        },
+        {
+          label: "Kaposis sarcoma",
+          value: '...',
+          staticValue: () => this.hasTbStat('Kaposis sarcoma')
+        }
+      ]
+    },
+    hasTbStat(conceptName: string) {
+      return this.tbStats.includes(conceptName) ? 'Yes' : 'No'
     },
     updateDemographics(attribute: string) {
       this.$router.push({
@@ -142,145 +314,6 @@ export default defineComponent({
         this.patientId, date
       );
       return { ...programInfo, drugs: drugInformation };
-    },
-    async getPatientCardInfo(patient: Patientservice) {
-      const { toStandardHisDisplayFormat } = HisDate;
-      let dateOfTest = await ObservationService.getAll(
-        this.patientId,
-        "Confirmatory HIV test date"
-      );
-      if (dateOfTest) {
-        dateOfTest = toStandardHisDisplayFormat(dateOfTest[0].value_datetime);
-      }
-      const placeOfTest = await ObservationService.getFirstValueText(
-        this.patientId,
-        "Confirmatory HIV test location"
-      );
-
-      let startDate = await ObservationService.getAll(
-        this.patientId,
-        "Date ART started"
-      );
-
-      startDate = !isEmpty(startDate)
-        ? toStandardHisDisplayFormat(startDate[0].value_datetime)
-        : "N/A";
-
-      const TI = await ObservationService.getFirstValueCoded(
-        this.patientId,
-        "Ever received ART"
-      );
-      const agreesToFollowUp = await ObservationService.getFirstValueCoded(
-        this.patientId,
-        "Agrees to followup"
-      );
-      const reasonForStarting = await ObservationService.getFirstValueCoded(
-        this.patientId,
-        "Reason for ART eligibility"
-      );
-
-      return [
-        { 
-          label: "ARV Number", 
-          value: this.patient.getArvNumber(),
-          other: {
-            editable: true,
-            category: "arv_number"
-          }
-        },
-        { label: "National Patient ID", value: patient.getNationalID() },
-        {
-          label: "Given Name",
-          value: patient.getGivenName(),
-          other: {
-            editable: true,
-            attribute: "given_name",
-            category: "demographics",
-          },
-        },
-        {
-          label: "Family Name",
-          value: patient.getFamilyName(),
-          other: {
-            editable: true,
-            attribute: "family_name",
-            category: "demographics",
-          },
-        },
-        {
-          label: "Age",
-          value: patient.getAge(),
-          other: {
-            editable: true,
-            attribute: "year_birth_date",
-            category: "demographics",
-          },
-        },
-        {
-          label: "Sex",
-          value: patient.getGender(),
-          other: {
-            editable: true,
-            attribute: "gender",
-            category: "demographics",
-          },
-        },
-        {
-          label: "Location",
-          value: patient.getCurrentVillage(),
-          other: {
-            editable: true,
-            attribute: "home_region",
-            category: "demographics",
-          },
-        },
-        { label: "Landmark", value: patient.getAttribute(19) },
-        {
-          label: "Guardian",
-          value: this.guardians ? this.guardians : "add",
-          other: {
-            editable: !this.guardians,
-            attribute: "",
-            category: "guardian",
-          },
-        },
-        { label: "Init W(KG)", value: await patient.getInitialWeight() },
-        { label: "Init H(CM)", value: await patient.getInitialHeight() },
-        { label: "BMI(CM)", value: await patient.getInitialBMI() },
-        { label: "TI", value: TI },
-        { label: "Agrees to follow up", value: agreesToFollowUp },
-        { label: "Reason for starting ART", value: reasonForStarting },
-        { label: "HIV test date", value: `${dateOfTest ? dateOfTest : ""}` },
-        { label: "HIV test place", value: `${placeOfTest ? placeOfTest : ""}` },
-        { label: "Date of starting first line ART", value: startDate },
-        ...(await this.getTBStats()),
-      ] as Option[];
-    },
-
-    async getTBStats(): Promise<Option[]> {
-      const stats: any[] | undefined = await ObservationService.getAllValueCoded(
-        this.patientId,
-        "Who stages criteria present"
-      );
-      const exists = (v: string) => !Array.isArray(stats) ? 'N/A' : stats.includes(v) ? 'Yes' : 'No'
-      return [
-        {
-          label: "Pulmonary TB within the last 2 years",
-          value: exists('Tuberculosis (PTB or EPTB) within the last 2 years'),
-        },
-        {
-          label: "Extra pulmonary TB (EPTB)",
-          value: exists('Extrapulmonary tuberculosis (EPTB)'),
-        },
-        {
-          label: "Pulmonary TB (current)",
-          value: exists('Pulmonary tuberculosis (current)'),
-        },
-        {
-          label: "Kaposis sarcoma",
-          value: exists('Kaposis sarcoma')
-        },
-      ];
     },
     printLabel(date: any) {
       new PatientPrintoutService(this.patientId).printVisitSummaryLbl(date);
