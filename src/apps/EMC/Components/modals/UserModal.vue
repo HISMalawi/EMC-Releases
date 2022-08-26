@@ -132,7 +132,7 @@ export default defineComponent({
         }
       },
       roles: {
-        value: props.user.roles.map((r) => ({ label: r.role, value: r.role, other: r})),
+        value: props.user?.roles?.map((r) => ({ label: r.role, value: r.role, other: r})) || [],
         label: 'Roles',
         placeholder: "Select Roles",
         required: true,
