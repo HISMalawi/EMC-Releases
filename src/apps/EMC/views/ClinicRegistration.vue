@@ -111,6 +111,7 @@ export default defineComponent({
     const route = useRoute()
     const router = useRouter()
     const patientId = ref(parseInt(route.params.id.toString() || ''))
+    const isNewPatient = route.params.new.toString().match(/true/i) ? true : false
     const patient = ref<Patientservice>()
     const sitePrefix = ref("");
     const registrationService = new ClinicRegistrationService(patientId.value, -1)
@@ -343,9 +344,11 @@ export default defineComponent({
       }
 
       // enroll patient into HIV program
-      const patientProgram =  new PatientProgramService(patient.value!.getID())
-      patientProgram.setProgramDate(formData.initialVisitDate)
-      await patientProgram.enrollProgram();
+      if(isNewPatient) {
+        const patientProgram =  new PatientProgramService(patient.value!.getID())
+        patientProgram.setProgramDate(formData.initialVisitDate)
+        await patientProgram.enrollProgram();
+      }
 
       await loader.hide()
       await toastSuccess('Saved successfully')
