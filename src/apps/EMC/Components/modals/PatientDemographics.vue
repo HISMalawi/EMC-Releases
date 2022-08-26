@@ -27,7 +27,7 @@
             :allowEstimation="true"
             :estimationLabel="'Estimate Age'"
             minDate="1900-01-01"
-            @isEstimated="(estimate) => isBirthdateEstimated = estimate"/>
+            @isEstimated="(estimate: boolean) => isBirthdateEstimated = estimate"/>
         </ion-col>
         <ion-col size="12" class="ion-margin-top ion-margin-bottom">
           <SelectInput v-model="patient.gender" :options="genderOptions" />
@@ -39,7 +39,7 @@
           <SelectInput v-model="patient.homeVillage" :asyncOptions="getVillagesByName" allowCustom searchable />
         </ion-col>
         <ion-col size="12" class="ion-margin-top ion-margin-bottom">
-          <SelectInput v-model="patient.landmark" :options="landmarks" allowCustom searchable />
+          <SelectInput v-model="patient.landmark" :asyncOptions="getLandmarks" allowCustom searchable />
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -70,6 +70,7 @@ import { Patientservice } from "@/services/patient_service";
 import { loader } from "@/utils/loader";
 import EventBus from "@/utils/EventBus";
 import { EmcEvents } from "../../interfaces/emc_event";
+import { genderOptions } from "../../utils/DTFormElements";
 
 export default defineComponent({
   components: {
@@ -88,11 +89,6 @@ export default defineComponent({
   },
   setup(props) {
     const isBirthdateEstimated = ref(false);
-    const landmarks = getLandmarks();
-    const genderOptions: Option[] = [
-      { label: "Male", value: "M" },
-      { label: "Female", value: "F" }
-    ]
     const patient = reactive<DTForm>({
       givenName: {
         label: "First Name",
@@ -149,18 +145,14 @@ export default defineComponent({
       modalController.dismiss(data);
     };
 
-
-    const resolveAddress = async (villageId: number) => {
-      const villages = await LocationService.getVillage(villageId)
+    const resolveAddress = async (village: Option) => {
       const address = {
         'current_district': "N/A",
         'current_traditional_authority': "N/A",
-        'current_village': "N/A" 
+        'current_village': village.label 
       }
 
-      if(villages.length > 0) {
-        address['current_village'] = villages[0].name
-        const TA = await LocationService.getTraditionalAuthorityById(villages[0].traditional_authority_id)
+      const TA = await LocationService.getTraditionalAuthorityById(village.other.traditional_authority_id)
         if(TA.length > 0) {
           address['current_traditional_authority'] = TA[0].name
           const district = await LocationService.getDistrictByID(TA[0].district_id)
@@ -168,7 +160,6 @@ export default defineComponent({
             address['current_district'] = district[0].name
           }
         }
-      } 
       return address;
     }
 
@@ -183,7 +174,7 @@ export default defineComponent({
         if(formData.middleName !== props.patientService.getMiddleName()) updatedPatient["middle_name"] = formData.middleName;
         if(formData.birthdate !== props.patientService.getBirthdate()) updatedPatient["birthdate"] = formData.birthdate;
         if(formData.cellPhoneNumber !== props.patientService.getPhoneNumber()) updatedPatient["cell_phone_number"] = formData.cellPhoneNumber;
-        if(formData.landmark !== props.patientService.getClosestLandmark()) updatedPatient["landmark"] = formData.landmark;
+        if(formData.landmark.label !== props.patientService.getClosestLandmark()) updatedPatient["landmark"] = formData.landmark.label;
         if(formData.homeVillage !== props.patientService.getCurrentVillage()) {
           Object.assign(updatedPatient, {
             ...updatedPatient,
@@ -206,7 +197,7 @@ export default defineComponent({
  
     return {
       patient,
-      landmarks,
+      getLandmarks,
       genderOptions,
       isBirthdateEstimated,
       closeModal,

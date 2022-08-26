@@ -23,6 +23,7 @@ import { personRemove, personAdd, pencil } from "ionicons/icons";
 import { modal } from "@/utils/modal";
 import UserModalVue from "../Components/modals/UserModal.vue";
 import { loader } from "@/utils/loader";
+import { User } from "@/interfaces/user";
 
 export default defineComponent({
   name: "Users",
@@ -39,27 +40,25 @@ export default defineComponent({
 
     const loadUsers = async () => {
       loader.show();
-      UserService.getAllUsers({paginate: false}).then(async(users) => {
-        const authUser = await UserService.getCurrentUser();
-        rows.value = users
-          .filter((user: any) => user['person_id'] !== authUser!['person_id'])
-          .map((user: any) => {
-            return {
-              "given_name": get(user, 'person.names[0].given_name', 'Unknown'),
-              "family_name": get(user, 'person.names[0].family_name', 'Unknown'),
-              "role": user.roles.map((r: any) => r.role).join(', '),
-              ...user,
-            }
-          })
-      })
-      .finally(() => loader.hide());
+      const users: User[] = await UserService.getAllUsers({paginate: false})
+      const authUser = await UserService.getCurrentUser();
+      rows.value = users.filter((user: any) => user['person_id'] !== authUser!['person_id'])
+        .map((user: any) => {
+          return {
+            "given_name": get(user, 'person.names[0].given_name', 'Unknown'),
+            "family_name": get(user, 'person.names[0].family_name', 'Unknown'),
+            "role": user.roles.map((r: any) => r.role).join(', '),
+            ...user,
+          }
+        })
+      loader.hide();
     }
 
     const rowActionBtns: RowActionButtonInterface[] = [
       { 
         icon: pencil,
         action: async (user) => {
-          await modal.show(UserModalVue, {user})
+          await modal.show(UserModalVue, { user })
           await loadUsers();
         }
       },
@@ -105,7 +104,7 @@ export default defineComponent({
     ]
 
     onMounted(async () => {
-      loadUsers()
+      await loadUsers()
     })
 
     return {

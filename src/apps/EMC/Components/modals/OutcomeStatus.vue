@@ -19,7 +19,7 @@
         </ion-col>
       </ion-row>
       <template v-else>
-        <ion-row class="his-card" style="margin-bottom: .4rem;">
+        <ion-row v-if="outcomes" class="his-card" style="margin-bottom: .4rem;">
           <outcome-form :outcomes="outcomes" @saveOutcome="saveOutcome" />
         </ion-row>    
         <ion-row class="his-card" style="padding: 0 !important;" :style="{ minHeight: totalStates ? '0' : '30vh'}" >
@@ -62,6 +62,8 @@ import EnrollmentForm from "../EnrollmentForm.vue";
 import OutcomeForm from "../OutcomeForm.vue";
 import { loader } from "@/utils/loader";
 import { modal } from "@/utils/modal";
+import EventBus from "@/utils/EventBus";
+import { EmcEvents } from "../../interfaces/emc_event";
 
 export default defineComponent({
   components: {
@@ -91,24 +93,25 @@ export default defineComponent({
     const program = ref<Record<string, any>>();
     const isEnrolled = computed(() => !isEmpty(program.value));
     const enrollDate = ref('');
-    const outcomes = ref<Option[]>([]);
+    const outcomes = ref<Option[]>();
     const totalStates = computed(() => program.value?.patient_states?.length ?? 0);
     const enrollmentStatus = computed(() => isEnrolled.value && enrollDate.value 
       ? `Patient enrolled in this porgram on ${ toStandardHisDisplayFormat(enrollDate.value) }`
       : 'Patient is not enrolled in this program'
     );
 
-    const saveOutcome = async (outcome: {date: string; status: number; nextFacility?: string}) => {
+    const saveOutcome = async ({ date, status, nextFacility}: any) => {
       loader.show();
-      patientProgram.setStateDate(outcome.date);
-      patientProgram.setStateId(outcome.status);
-      if(outcome.nextFacility) {
-        await patientProgram.transferOutEncounter({ name: outcome.nextFacility });
+      patientProgram.setStateDate(date);
+      patientProgram.setStateId(status.value);
+      if(nextFacility) {
+        await patientProgram.transferOutEncounter(nextFacility.other);
       }
       await patientProgram.updateState();
       await loader.hide()
       await toastSuccess('Outcome saved successfully', 1000);
       await modal.hide();
+      EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA);
     }
 
     const enrollProgram = async (date: string) => {
@@ -118,6 +121,7 @@ export default defineComponent({
       await loader.hide();
       await toastSuccess("Program enrolled successfully", 1000);
       await modal.hide();
+      EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA);
     }
 
     const voidProgram = async () => {
@@ -125,6 +129,7 @@ export default defineComponent({
       await patientProgram.voidProgram('duplicate / system error');
       await toastSuccess('Patient voided from program successfully', 1000);
       await modal.hide();
+      EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA);
     }
 
     const voidOutcome = async ({stateId, index}: any) => {
@@ -132,6 +137,7 @@ export default defineComponent({
       await patientProgram.voidState('duplicate / system error');
       toastSuccess('Outcome voided successfully');
       program.value?.patient_states.splice(index, 1);
+      EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA);
     }
 
     onMounted (async () => {

@@ -5,7 +5,7 @@
         <p>Add New Outcome</p>
       </ion-col>  
       <ion-col size="6" class="ion-margin-top-vertical">
-        <SelectInput v-model="form.status" :form="form" :options="outcomes" />
+        <SelectInput v-model="form.status" :form="form" :options="outcomes" searchable />
       </ion-col>
       <ion-col size="6" class="ion-margin-top-vertical">
         <DateInput v-model="form.date" :form="form" :max-date="today" />
@@ -31,8 +31,7 @@ import DateInput from "./inputs/DateInput.vue";
 import SelectInput from "./inputs/SelectInput.vue";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
 import { Option } from "@/components/Forms/FieldInterface";
-import { LocationService } from "@/services/location_service";
-import { isEmpty } from "lodash";
+import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 
 export default defineComponent({
   name: "OutcomeForm",
@@ -51,9 +50,8 @@ export default defineComponent({
     SelectInput,
   },
   emits: ["saveOutcome"],
-  setup(props, { emit }) {
+  setup(_props, { emit }) {
     const today = dayjs().format("YYYY-MM-DD");
-    const transferredId = computed(() => props.outcomes.find(o => o.label === "Patient transferred out")?.value)
     const form = reactive<DTForm>({
       date: {
         value: "",
@@ -69,13 +67,13 @@ export default defineComponent({
         value: "",
         label: "Next Facility",
         validation: async (facility, form) => {
-          return form.status.value === transferredId.value && 
+          return form.status.value.label === "Patient transferred out" && 
             StandardValidations.required(facility);
         }
       },
     })
 
-    const isTransferredOut = computed(() => form.status.value === transferredId.value);
+    const isTransferredOut = computed(() => form.status.value?.label === "Patient transferred out");
 
     const onReset = () => {
       for (const key in form) {
@@ -86,18 +84,10 @@ export default defineComponent({
 
     const onSave = async () => {
       if(await isValidForm(form)) {
-        const { formData } = resolveFormValues(form);
-        emit("saveOutcome", formData);
+        const data = resolveFormValues(form).formData;
+        console.log(data)
+        emit("saveOutcome", data);
       }
-    }
-
-    const getFacilities = async (filter=''): Promise<Option[]> => {
-      const facilities = await LocationService.getFacilities({name: filter})
-      return facilities.filter((f: any) => !isEmpty(f))
-        .map((facility: any) => ({
-          label: facility.name,
-          value: facility.name
-      }))
     }
 
     return {

@@ -4,27 +4,20 @@
       <ion-row class="his-card">
         <ion-col size="10" style="display: flex; justify-content: flex-start">
           <ion-searchbar 
-            style="width: 450px" 
-            class="box-input ion-no-padding ion-margin-end"
+            style="width: 350px; height: 2.75rem;" 
+            class="box-input ion-no-padding ion-margin-end ion-margin-vertical"
             placeholder="Search by Name or ARV Number"
             v-model="searchText"
             v-on:keyup.enter="searchPatient"
           />
-          <ion-item lines="none" class="ion-margin-end box">
-            <ion-label>
-              Select Gender:
-            </ion-label>
-            <select v-model="gender" id="selectInput">
-              <option v-for="(option, index) of genderOptions" :key="index" :value="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </ion-item>
-          <ion-button class="searchBtn" @click="searchPatient">Search</ion-button>
-          <ion-button class="searchBtn" @click="resetQuery" color="secondary">Reset</ion-button>
+          <div style="max-width: 250px" class="ion-margin-end">
+            <SelectInput v-model="gender" :options="genderOptions" ></SelectInput>
+          </div>
+          <ion-button class="ion-margin-vertical" @click="searchPatient">Search</ion-button>
+          <ion-button class="ion-margin-vertical" @click="resetQuery" color="secondary">Reset</ion-button>
         </ion-col>
         <ion-col>
-          <ion-button class="searchBtn" href="/emc/patient/registration" color="success" style="float: right;">
+          <ion-button class="ion-margin-vertical" href="/emc/patient/registration" color="success" style="float: right;">
             Add New Patient
           </ion-button>
         </ion-col>
@@ -32,10 +25,12 @@
       <ion-row class="his-card ion-margin-top" style="padding: 0 !important">
         <ion-col size="12" style="min-height: 320px;" class="ion-no-padding">
           <h1 class="ion-margin">Patients Search Results</h1>
-          <report-data-table
+          <data-table 
             :rows="tableRows"
             :columns="tableColumns"
             :config="tableConfig"
+            :row-actions-buttons="TableRowActions"
+            color="custom"
           />
         </ion-col>
       </ion-row>
@@ -44,16 +39,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, reactive, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import { IonGrid, IonRow, IonCol, loadingController, IonItem, IonSearchbar, IonLabel, IonButton } from "@ionic/vue";
+import { IonGrid, IonRow, IonCol, IonSearchbar, IonButton } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
-import { toastWarning } from "@/utils/Alerts";
-import ReportDataTable from "@/components/DataViews/tables/ReportDataTable.vue";
-import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
+import { alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts";
 import { useRouter } from "vue-router";
 import { genderOptions } from "../utils/DTFormElements";
+import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
+import { DTFormField } from "../interfaces/dt_form_field";
+import { loader } from "@/utils/loader";
+import DataTable, { RowActionButtonInterface, TableColumnInterface, TableConfigInterface } from "../Components/datatable";
+import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 
 export default defineComponent({
   components: {
@@ -61,29 +59,27 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    IonItem,
-    IonLabel,
+    SelectInput,
     IonButton,
     IonSearchbar,
-    ReportDataTable
+    DataTable,
   },
   setup() {
     const router = useRouter()
     const searchText = ref("");
     const selectInput = ref(document.getElementById('selectInput'))
-    const gender = ref("");
-    const tableRows = ref<RowInterface[][]>([])
-    const tableColumns: ColumnInterface[][] = [[
-      table.thTxt('ARV Number'),
-      table.thTxt('First Name'),
-      table.thTxt('Last Name'),
-      table.thTxt('Gender'),
-      table.thTxt('Date of Birth'),
-      table.thTxt('Actions', {colspan: 2}),
-    ]]
-    const tableConfig = { 
-      showIndex: false,
-      tableCssTheme: "emc-datatable-theme"
+    const gender = reactive<DTFormField>({ value: "", placeholder: "select gender"});
+    const tableRows = ref<any[]>([])
+    const tableColumns: TableColumnInterface[] = [
+      { label: 'ARV Number', path: 'arv_number'},
+      { path: "given_name", label: "First name" },
+      { path: "family_name", label: "Last name" },
+      { path: "gender", label: "Gender" },
+      { path: "birthdate", label: "Date of Birth", date: true },
+    ]
+    const tableConfig: TableConfigInterface = { 
+      showSearchField: false,
+      showSubmitButton: false
     }
 
     const parseSearchText = async (nameOrArvNumber: string) => {
@@ -121,36 +117,30 @@ export default defineComponent({
 
     const searchPatient = async () => {
       if (searchText.value) {
-        const loader = await loadingController.create({});
-        loader.present();
+        loader.show()
         try {
           const { type, value } = await parseSearchText(searchText.value);
           const results: any[] = (type === "name")
-            ? await Patientservice.search(buildSearchByNameQuery(value, gender.value))
+            ? await Patientservice.search(buildSearchByNameQuery(value, gender.value.value))
             : (type === 'arv_number')
             ? await Patientservice.findByOtherID(4, value)
             : []
+          await loader.hide()
           tableRows.value = results.map(r => {
             const patient = new Patientservice(r)
-            return [
-              table.td(patient.getArvNumber() || 'N/A'),
-              table.td(patient.getGivenName()),
-              table.td(patient.getFamilyName()),
-              table.td(patient.getGender()),
-              table.tdDate(patient.getBirthdate().toString()),
-              table.tdBtn('Select', () => router.push({
-                name: "EMC Mastercard", params: {
-                  patientId: patient.getID()
-                }
-              })),
-              table.tdBtn('Void', () => console.log(patient), {}, 'danger')
-            ]
+            return {
+              "arv_number": patient.getArvNumber(),
+              "given_name": patient.getGivenName(),
+              "family_name": patient.getFamilyName(),
+              "gender": patient.getGender(),
+              "birthdate": patient.getBirthdate(),
+              "personId": patient.getID()
+            }
           })
         } catch (error) {
           toastWarning(`${error}`)
-        } finally {
-          loader.dismiss()
-        }
+          await loader.hide()
+        } 
       }
     };
 
@@ -160,6 +150,18 @@ export default defineComponent({
       tableRows.value = []
     }
 
+    const TableRowActions: RowActionButtonInterface[] = [
+      { label: "Select", action: (p) => router.push(`/emc/patient/${p.personId}`) },
+      { label: "void", color: 'danger', action: async (p) => popVoidReason(async (reason: string) => {
+        try {
+          await Patientservice.voidPatient(p.personId, reason)
+          await searchPatient()
+        } catch (e) {
+          toastDanger(`${e}`)
+        }
+      }, 'void-modal')}
+    ]
+
     return {
       searchText,
       gender,
@@ -168,6 +170,7 @@ export default defineComponent({
       tableConfig,
       genderOptions,
       selectInput,
+      TableRowActions,
       searchPatient,
       resetQuery
     };
@@ -176,27 +179,6 @@ export default defineComponent({
 </script>
 
 <style>
-.box {
-  border-color: #a3a3a3;
-  border-width: thin;
-  border-style: solid;
-  border-radius: 3px;
-  font-size: large;
-  height: 54px;
-}
-
-select {
-  background-color: white;
-  border: none; 
-}
-
-.searchBtn {
-  height: 50px !important;
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-right: .5rem;
-}
-
 .sc-ion-searchbar-md-h{
   --box-shadow: none !important;
 }

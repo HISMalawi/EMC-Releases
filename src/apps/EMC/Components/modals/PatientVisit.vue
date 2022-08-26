@@ -27,7 +27,7 @@
             <yes-no-input v-model="form.isBreastfeeding"  inline />
           </ion-col>
         </template>
-        <ion-col :size="hasContraindications ? 6 : 12 " class="ion-margin-vertical" >
+        <ion-col size="6" class="ion-margin-vertical" >
           <yes-no-input v-model="form.hasContraindications"  inline />
           <multi-column-view :items="contraIndications" :numberOfColumns="2" v-slot="{ entries }" v-if="hasContraindications">
             <ion-item lines="none" v-for="entry in entries" :key="entry.value">
@@ -36,7 +36,7 @@
             </ion-item>
           </multi-column-view>
         </ion-col>
-        <ion-col class="ion-padding-start" size="6" v-if="hasContraindications">
+        <ion-col class="ion-padding-start" size="6">
           <yes-no-input v-model="form.hasSideEffects" inline />
           <multi-column-view :items="sideEffects" :numberOfColumns="2" v-slot="{ entries }" v-if="hasSideEffects">
             <ion-item lines="none" v-for="entry in entries" :key="entry.value">
@@ -301,7 +301,7 @@ export default defineComponent({
           obs: prescription.buildValueCoded("Medication orders", "INH")
         }),
         validation: async (drugs: Option, form: any) => {
-          return (form.tbMed.value === '6H' || form.tbMed.value?.label === '3HP (RFP + INH)') && 
+          return (form.tbMed.value?.label === '6H' || form.tbMed.value?.label === '3HP (RFP + INH)') && 
             StandardValidations.isNumber(drugs)
         }
       },
@@ -313,7 +313,7 @@ export default defineComponent({
           obs: prescription.buildValueCoded("Medication orders", "3HP (RFP + INH)")
         }),
         validation: async (drugs: Option, form: any) => {
-          return form.tbMed.value === '3HP (RFP + INH)' && 
+          return form.tbMed.value?.label === '3HP (RFP + INH)' && 
             StandardValidations.isNumber(drugs)
         }
       },
@@ -325,14 +325,14 @@ export default defineComponent({
           obs: prescription.buildValueCoded("Medication orders", "INH 300 / RFP 300 (3HP)")
         }),
         validation: async (drugs: Option, form: any) => {
-          return form.tbMed.value === '3HP (INH 300 / RFP 300)' && 
+          return form.tbMed.value?.label === '3HP (INH 300 / RFP 300)' && 
             StandardValidations.isNumber(drugs)
         }
       },
       totalArvsGiven: {
         value: undefined as number  | undefined,
         label: "Total ARVs Given",
-        validation: async (drugs: Option, form: any) => form.regimen.value && StandardValidations.isNumber(drugs)
+        validation: async (drugs: Option, form: any) => !isEmpty(form.regimen.value) && StandardValidations.isNumber(drugs)
       },
       tbMed: {
         value: undefined as string | undefined,
@@ -342,28 +342,29 @@ export default defineComponent({
       hasContraindications: {
         value: undefined as "Yes" | "No"  | undefined,
         label: "Has Side Effects / Contraindications ?",
-        validation: async (state: Option) => {
-          if(state.value === "Yes" && contraIndications.value.some(x => !x.isChecked))
-            return ["Please select at least one side effect"]
-          return StandardValidations.required(state)
-        }
+        validation: async (state: Option, form: any) => StandardValidations.validateSeries([
+          ()  => StandardValidations.required(state),
+          () => (state.value === "Yes" && contraIndications.value.some(x => x.isChecked)) 
+            ? null
+            : ["Please select at least one side effect"]
+        ])
       },
       hasSideEffects: {
         value: undefined as "Yes" | "No"  | undefined,
         label: "Has Other Side Effects ?",
-        validation: async (state: Option, form: any) => {
-          if(form.hasContraindications.value === "No") return null
-          if(state.value === "Yes" && sideEffects.value.some(x => !x.isChecked))
-            return ["Please select at least one side effect"]
-          return StandardValidations.required(state)
-        }
+        validation: async (state: Option, form: any) => StandardValidations.validateSeries([
+          ()  => StandardValidations.required(state),
+          () => (state.value === "Yes" && sideEffects.value.some(x => x.isChecked)) 
+            ? null
+            : ["Please select at least one side effect"]
+        ])
       },
       tbStatus: {
-        value: undefined as string | undefined,
+        value: undefined as Option | undefined,
         label: "TB Status",
-        computedValue: (status: string) => ({
+        computedValue: (status: Option) => ({
           tag: 'consultation',
-          obs: consultations.buildValueCoded('TB Status', status)
+          obs: consultations.buildValueCoded('TB Status', status.value)
         }),
         validation: async (state) => StandardValidations.required(state)
       },
@@ -383,7 +384,7 @@ export default defineComponent({
 
     watch([form.weight, form.tbStatus], async () => {
       if(form.weight.value) {
-        const onTB = form.tbStatus.value && !form.tbStatus.value.match(/TB Not Suspected/i)
+        const onTB = !isEmpty(form.tbStatus.value) && !form.tbStatus.value.label.match(/TB Not Suspected/i)
         const regs = await RegimenService.getRegimensByWeight(form.weight.value, onTB)
         if(!isEmpty(regs)) {
           regimens.value = Object.keys(regs).map(key => ({
@@ -398,9 +399,9 @@ export default defineComponent({
       }
     })
 
-    const hasGiven3HP = computed(() => form.tbMed.value === '3HP (INH 300 / RFP 300)')
-    const hasGivenRFP = computed(() => form.tbMed.value === '3HP (RFP + INH)')
-    const hasGiven6H = computed(() => form.tbMed.value === '6H')
+    const hasGiven3HP = computed(() => form.tbMed.value?.label === '3HP (INH 300 / RFP 300)')
+    const hasGivenRFP = computed(() => form.tbMed.value?.label === '3HP (RFP + INH)')
+    const hasGiven6H = computed(() => form.tbMed.value?.label === '6H')
     const hasContraindications = computed(() => form.hasContraindications.value === 'Yes')
     const hasSideEffects = computed(() => form.hasSideEffects.value === 'Yes')
 
@@ -445,8 +446,8 @@ export default defineComponent({
     }
 
     const getTbSymptomsObs = async () => {
-      return await Promise.all(ConceptService.getConceptsByCategory("tb_symptom", true).map(async (concept) => {
-        return await consultations.buildGroupValueCoded(concept.name, concept.name, "No")
+      return Promise.all(ConceptService.getConceptsByCategory("tb_symptom", true).map(async (concept) => {
+        return consultations.buildGroupValueCoded(concept.name, concept.name, "No")
       }))
     }
 
@@ -496,8 +497,8 @@ export default defineComponent({
       await prescription.createEncounter()
       const drugOrders: any[] = []
       let duration = 0
-      if(formData.regimen && formData.totalArvsGiven) {
-        const arvDrugs: any[] = regimens.value.find(x => x.label === formData.regimen)?.other || []
+      if(!isEmpty(formData.regimen) && formData.totalArvsGiven) {
+        const arvDrugs: any[] = formData.regimen.other
         duration = Math.min(...arvDrugs.map(drug =>(formData.totalArvsGiven / (drug.am + drug.pm)) + 2))
         arvDrugs.forEach((drug: any) => drugOrders.push(
           toDrugOrder(drug, formData.totalArvsGiven, duration, formData.visitDate)
@@ -576,6 +577,7 @@ export default defineComponent({
         for(const key in form) {
           form[key].value = ''
           form[key].error = ''
+          form[key].disabled = false;
         }
       }
     }

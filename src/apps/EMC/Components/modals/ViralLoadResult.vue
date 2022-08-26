@@ -181,19 +181,20 @@ export default defineComponent({
       if(!(await isValidForm(form))) return loader.hide();
       try {
         const { formData } = resolveFormValues(form);
-
         await LabOrderService.setSessionDate(formData.orderDate)
         const orderService = new LabOrderService(props.patient.getID(), -1)
         const vlConceptId = await ConceptService.getConceptID("HIV viral load")
         const encounter = await orderService.createEncounter();
         if(!encounter) throw new Error('Unable to create lab order encounter');
         const formattedOrders  = await OrderService.buildLabOrders(encounter, [{
-          ...formData,
+          'specimenConcept': formData.specimenConcept.value,
+          'reason': formData.reason.value,
           'concept_id': vlConceptId
         }]);
         const orders = await  OrderService.saveOrdersArray(encounter.encounter_id, formattedOrders);
         if(!orders) throw new Error('Unable to save lab orders');
 
+        await PatientLabResultService.setSessionDate(formData.resultDate)
         const resultService = new PatientLabResultService(props.patient.getID())
         resultService.setTestID(orders[0].tests[0].id)
         resultService.setResultDate(formData.resultDate)
@@ -204,10 +205,11 @@ export default defineComponent({
             "concept_id": vlConceptId,
           },
           "value": ldl.value ? "LDL" : parseInt(formData.result),
-          "value_modifier": ldl.value ? "=" : formData.modifier,
+          "value_modifier": ldl.value ? "=" : formData.modifier.value,
           "value_type": ldl.value ? "text" : "numeric"
         }])
 
+        await PatientLabResultService.resetSessionDate()
         await loader.hide()
         await modal.hide()
         EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA)

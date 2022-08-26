@@ -68,6 +68,12 @@ export const DataTable = defineComponent({
       }
     });
 
+    const showFilterSection = computed(() => {
+      return props.config.showSearchField !== false ||
+        props.customFilters.length > 0 ||
+        props.actionsButtons.length > 0
+    })
+
     const customFiltersValues = reactive<Record<string, any>>(
       props.customFilters.reduce((acc, filter) => {
         acc[filter.id] = filter.value;
@@ -221,11 +227,11 @@ export const DataTable = defineComponent({
     });
 
     return () => [
-      h(IonGrid, { class: "ion-padding-vertical", style: { width: '100%', fontWeight: 500 } },
+      showFilterSection.value && h(IonGrid, { class: "ion-padding-vertical", style: { width: '100%', fontWeight: 500 } },
         h(IonRow, [
           h(IonCol, { size: '7' },
             h(IonRow, [
-              h(IonCol, { size: '4', class: "ion-margin-bottom" },
+              props.config.showSearchField !== false && h(IonCol, { size: '4', class: "ion-margin-bottom" },
                 h(IonSearchbar, {
                   placeholder: 'Search here...',
                   class: 'box ion-no-padding',

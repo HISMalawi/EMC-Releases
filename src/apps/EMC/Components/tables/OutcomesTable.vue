@@ -1,18 +1,22 @@
 <template>
   <p class="ion-padding-horizontal ion-margin-vertical bold ion-margin-top">Previous Outcomes</p>
-  <report-table
+  <data-table 
     :rows="rows"
     :columns="columns"
     :config="tableConfig"
+    :row-actions-buttons="TableRowActions"
+    color="custom"
   />
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, reactive, ref } from "vue";
-import table, { ColumnInterface, RowInterface } from '@/components/DataViews/tables/ReportDataTable';
-import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
-import HisDate from "@/utils/Date";
+import { computed, defineComponent, PropType } from "vue";
 import { alertConfirmation } from "@/utils/Alerts";
+import DataTable, { 
+  RowActionButtonInterface, 
+  TableColumnInterface, 
+  TableConfigInterface 
+} from "../datatable";
 
 export default defineComponent({
   name: "OutcomesTable",
@@ -23,38 +27,39 @@ export default defineComponent({
     },
   },
   components: {
-    ReportTable,
+    DataTable,
   },
   emits: ["voidOutcome"],
   setup(props, { emit }) {
-    const columns = ref<ColumnInterface[][]>([[
-      table.thTxt("Outcome"),
-      table.thTxt("Start Date"),
-      table.thTxt("End Date"),
-      table.thTxt("Void"),
-    ]]);
+    const columns: TableColumnInterface[] = [
+      { path: 'name', label: "Outcome"},
+      { path: 'start_date', label: "Start Date", date: true },
+      { path: 'end_date', label: "End Date", date: true },
+    ];
 
-    const tableConfig = reactive({
-      showIndex: false,
-      tableCssTheme: "emc-datatable-theme"
-    })
+    const tableConfig: TableConfigInterface = {
+      showSearchField: false,
+      showSubmitButton: false
+    }
 
-    const rows = computed<RowInterface[][]>(() => props.patientStates.map((state: any, index: number) => [
-      table.td(state.name),
-      table.td(HisDate.toStandardHisDisplayFormat(state.start_date)),
-      table.td(HisDate.toStandardHisDisplayFormat(state.end_date)),
-      table.tdBtn('x', async () => {
-        const confirm = await alertConfirmation(`Are you sure you want to void this outcome?`);
-        if(confirm) {
-          emit("voidOutcome", {stateId: state.patient_state_id, index});
+    const rows = computed<any[]>(() => props.patientStates.map((state: any, index: number) => ({
+      ...state,
+      index
+    })));
+
+    const TableRowActions: RowActionButtonInterface[] = [
+      { label: "void", color: 'danger', action: async (row) => {
+        if(!(await alertConfirmation("Are you sure you want to void this outcome?"))){
+          emit("voidOutcome", {stateId: row.patient_state_id, index: row.index});
         }
-      }, {}, 'danger')
-    ]) || []);
+      }}
+    ]
 
     return {
       rows,
       columns,
       tableConfig,
+      TableRowActions,
     };
   }
 })
