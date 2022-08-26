@@ -23,7 +23,7 @@
           <TextInput v-model="form.confirmPassword" :form="form" password />
         </ion-col>
         <ion-col size="12" class="ion-margin-vertical">
-          <SelectInput v-model="form.roles" :options="roles" />
+          <SelectInput v-model="form.roles" :options="roles" multiple searchable />
         </ion-col>
         <ion-col size="12" class="ion-margin-vertical">
           <TextInput v-model="form.givenName" />
@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, PropType, reactive } from "vue";
+import { computed, defineComponent, onMounted, PropType, reactive, ref } from "vue";
 import { IonButton, IonPage, IonHeader, IonToolbar, IonContent, IonButtons, IonFooter, IonTitle, IonIcon } from "@ionic/vue";
 import { close } from "ionicons/icons";
 import { modal } from "@/utils/modal";
@@ -81,7 +81,7 @@ export default defineComponent({
     },
   },
   setup(props){
-    const roles = reactive<Option[]>([]);
+    const roles = ref<Option[]>([]);
     const title = computed(() => {
       return isEmpty(props.user) ? "Add New User" : "Edit User"
     })
@@ -132,8 +132,9 @@ export default defineComponent({
         }
       },
       roles: {
-        value: get(props.user, 'roles[0].role', ''),
+        value: props.user.roles.map((r) => ({ label: r.role, value: r.role, other: r})),
         label: 'Roles',
+        placeholder: "Select Roles",
         required: true,
       },
     });
@@ -142,11 +143,13 @@ export default defineComponent({
       if(!(await isValidForm(form))) return
       loader.show();
       const { formData } = resolveFormValues(form, true);
+      const user = {...formData, roles: formData.roles.map((r: Option) => r.label)} 
+      console.log(formData, user)
       if(isEmpty(props.user)){
-        await UserService.createUser({...formData, roles: [formData.roles]});
+        await UserService.createUser(user);
         toastSuccess('User created successfully');
       } else {
-        await UserService.updateUser(props.user['user_id'], {...formData, roles: [formData.roles]});
+        await UserService.updateUser(props.user['user_id'], user);
         toastSuccess('User updated successfully');
       }
       loader.hide();
@@ -155,11 +158,11 @@ export default defineComponent({
 
     onMounted(() => {
       UserService.getAllRoles().then((userRoles: Role[]) => {
-        Object.assign(roles, userRoles.map(r => ({
+        roles.value = userRoles.map(r => ({
           value: r.role,
           label: r.role,
           other: r,
-        })));
+        }));
       });
     })
 

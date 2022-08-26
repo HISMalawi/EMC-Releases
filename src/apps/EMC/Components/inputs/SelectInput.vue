@@ -222,6 +222,7 @@ export default defineComponent({
         selectedOption.value = item
         onCloseOptions()
       }
+      model.value.value = props.multiple ? tags.value : !isEmpty(tags.value) ? tags.value[0] : undefined
       filter.value = ''
     }
 
