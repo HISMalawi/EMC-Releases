@@ -246,7 +246,7 @@ export default defineComponent({
         placeholder: 'select TB status',
         computedValue: (status: Option) => ({
           tag: 'registration',
-          obs: registrationService.buildValueCoded("TB Status", status.label)
+          obs: registrationService.buildValueCoded("TB Status at Initiation", status.label)
         }),
         validation: async (status: Option, f: DTForm) => {
           return f.everRegisteredAtClinic.value === 'Yes' && StandardValidations.required(status)

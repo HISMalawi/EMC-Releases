@@ -645,6 +645,31 @@ export default [
    },
    {
       "categories": [],
+      "concept_id": 10583,
+      "name": "TB Status at Initiation"
+   },
+   {
+      "categories": [],
+      "concept_id": 10584,
+      "name": "Current"
+   },
+   {
+      "categories": [],
+      "concept_id": 10585,
+      "name": "Last 2 years"
+   },
+   {
+      "categories": [],
+      "concept_id": 10586,
+      "name": "More than 2 years"
+   },
+   {
+      "categories": [],
+      "concept_id": 10587,
+      "name": "Never"
+   },
+   {
+      "categories": [],
       "concept_id": 9195,
       "name": "Discuss with spouse"
    },
