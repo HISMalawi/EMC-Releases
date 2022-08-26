@@ -23,7 +23,7 @@ export default defineComponent({
     }),
     watch: {
         ready: {
-            async handler(ready: any){
+            handler(ready: any){
                 if (ready) {
                     this.dispensation = new DispensationService(this.patientID, this.providerID)
                     this.fields = this.getFields()
