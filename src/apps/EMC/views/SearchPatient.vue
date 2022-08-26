@@ -4,27 +4,20 @@
       <ion-row class="his-card">
         <ion-col size="10" style="display: flex; justify-content: flex-start">
           <ion-searchbar 
-            style="width: 450px" 
-            class="box-input ion-no-padding ion-margin-end"
+            style="width: 350px; height: 2.75rem;" 
+            class="box-input ion-no-padding ion-margin-end ion-margin-vertical"
             placeholder="Search by Name or ARV Number"
             v-model="searchText"
             v-on:keyup.enter="searchPatient"
           />
-          <ion-item lines="none" class="ion-margin-end box">
-            <ion-label>
-              Select Gender:
-            </ion-label>
-            <select v-model="gender" id="selectInput">
-              <option v-for="(option, index) of genderOptions" :key="index" :value="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </ion-item>
-          <ion-button class="searchBtn" @click="searchPatient">Search</ion-button>
-          <ion-button class="searchBtn" @click="resetQuery" color="secondary">Reset</ion-button>
+          <div style="max-width: 250px" class="ion-margin-end">
+            <SelectInput v-model="gender" :options="genderOptions" ></SelectInput>
+          </div>
+          <ion-button class="ion-margin-vertical" @click="searchPatient">Search</ion-button>
+          <ion-button class="ion-margin-vertical" @click="resetQuery" color="secondary">Reset</ion-button>
         </ion-col>
         <ion-col>
-          <ion-button class="searchBtn" href="/emc/patient/registration" color="success" style="float: right;">
+          <ion-button class="ion-margin-vertical" href="/emc/patient/registration" color="success" style="float: right;">
             Add New Patient
           </ion-button>
         </ion-col>
@@ -44,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, reactive, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonGrid, IonRow, IonCol, loadingController, IonItem, IonSearchbar, IonLabel, IonButton } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
@@ -54,6 +47,9 @@ import ReportDataTable from "@/components/DataViews/tables/ReportDataTable.vue";
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 import { useRouter } from "vue-router";
 import { genderOptions } from "../utils/DTFormElements";
+import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
+import { DTFormField } from "../interfaces/dt_form_field";
+import { loader } from "@/utils/loader";
 
 export default defineComponent({
   components: {
@@ -61,8 +57,7 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    IonItem,
-    IonLabel,
+    SelectInput,
     IonButton,
     IonSearchbar,
     ReportDataTable
@@ -71,7 +66,7 @@ export default defineComponent({
     const router = useRouter()
     const searchText = ref("");
     const selectInput = ref(document.getElementById('selectInput'))
-    const gender = ref("");
+    const gender = reactive<DTFormField>({ value: "", placeholder: "select gender"});
     const tableRows = ref<RowInterface[][]>([])
     const tableColumns: ColumnInterface[][] = [[
       table.thTxt('ARV Number'),
@@ -121,15 +116,15 @@ export default defineComponent({
 
     const searchPatient = async () => {
       if (searchText.value) {
-        const loader = await loadingController.create({});
-        loader.present();
+        loader.show()
         try {
           const { type, value } = await parseSearchText(searchText.value);
           const results: any[] = (type === "name")
-            ? await Patientservice.search(buildSearchByNameQuery(value, gender.value))
+            ? await Patientservice.search(buildSearchByNameQuery(value, gender.value.value))
             : (type === 'arv_number')
             ? await Patientservice.findByOtherID(4, value)
             : []
+          await loader.hide()
           tableRows.value = results.map(r => {
             const patient = new Patientservice(r)
             return [
@@ -148,9 +143,8 @@ export default defineComponent({
           })
         } catch (error) {
           toastWarning(`${error}`)
-        } finally {
-          loader.dismiss()
-        }
+          await loader.hide()
+        } 
       }
     };
 
@@ -176,27 +170,6 @@ export default defineComponent({
 </script>
 
 <style>
-.box {
-  border-color: #a3a3a3;
-  border-width: thin;
-  border-style: solid;
-  border-radius: 3px;
-  font-size: large;
-  height: 54px;
-}
-
-select {
-  background-color: white;
-  border: none; 
-}
-
-.searchBtn {
-  height: 50px !important;
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-right: .5rem;
-}
-
 .sc-ion-searchbar-md-h{
   --box-shadow: none !important;
 }
