@@ -42,7 +42,6 @@ import { DTForm } from "@/apps/EMC/interfaces/dt_form_field";
 import { isValidForm, resolveFormValues } from "@/apps/EMC/utils/form";
 import { loader } from "@/utils/loader";
 import { toastWarning } from "@/utils/Alerts";
-import Layout from "@/apps/EMC/Components/Layout.vue";
 import { Service } from "@/services/service";
 import { Option } from "@/components/Forms/FieldInterface";
 import ApiClient from "@/services/api_client";
