@@ -228,7 +228,7 @@ export default defineComponent({
 
     watch(ldl, (isLDL) => {
       if(isLDL) {
-        form.modifier.value = 0;
+        form.modifier.value = "";
         form.result.value = undefined;
         form.modifier.error = ''
         form.result.error = ''

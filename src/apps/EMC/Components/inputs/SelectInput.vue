@@ -25,7 +25,7 @@
           <ion-label>{{ tag.label }}</ion-label>
           <ion-icon :icon="closeCircle" color="danger" @click="diselect(tag)" style="z-index: 90"></ion-icon>
         </ion-chip>
-        <ion-input :disabled="!searchable" v-model="filter" class="search-input" ref="searchInput" />
+        <ion-input :disabled="!searchable || model.disabled" v-model="filter" class="search-input" ref="searchInput" />
       </div>
       <div class="input-options" v-if="showOptions">
         <ion-list>
@@ -206,6 +206,7 @@ export default defineComponent({
     }
 
     const onShowOptions = () => {
+      if(model.value.disabled) return
       showOptions.value = true
       model.value.error = ''
     }
