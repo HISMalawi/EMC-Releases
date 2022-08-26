@@ -41,17 +41,15 @@
     </ion-content>
     <ion-footer>
       <ion-toolbar color="dark">
-        <ion-button 
-          :disabled="!isReady" 
-          color="danger" 
-          size="large" 
+        <ion-button
+          color="danger"
+          size="large"
           router-link="/"
           >
-          <ion-spinner v-if="!isReady" name="crescent"/>
           Cancel
         </ion-button>
         <ion-button
-          v-if="facts.patientFound && isAdmin"
+          :disabled="!(facts.patientFound && isAdmin)"
           color="danger left"
           size="large"
           @click="onVoid"
@@ -64,14 +62,12 @@
           @click="onInitiateNewAncPregnancy">
           New Pregnancy
         </ion-button>
-        <ion-button 
-          v-if="facts.patientFound"
-          slot="end" 
-          :disabled="!isReady"
-          color="success" 
-          size="large" 
+        <ion-button
+          :disabled="!facts.patientFound"
+          slot="end"
+          color="success"
+          size="large"
           @click="nextTask">
-          <ion-spinner v-if="!isReady" name="crescent"/>
           Continue
         </ion-button>
       </ion-toolbar>
@@ -92,7 +88,6 @@ import { PatientProgramService } from "@/services/patient_program_service"
 import { alertConfirmation, toastDanger, toastSuccess, toastWarning } from "@/utils/Alerts"
 import { Patient } from "@/interfaces/patient"
 import {
-  IonSpinner,
   IonContent,
   IonHeader,
   IonFooter,
@@ -124,7 +119,6 @@ import Store from "@/composables/ApiStore"
 export default defineComponent({
   name: "Patient Confirmation",
   components: {
-    IonSpinner,
     IonContent,
     IonHeader,
     IonFooter,
@@ -706,6 +700,9 @@ export default defineComponent({
       await type.savePatientType(patientType)
     },
     async onVoid() {
+      if (!this.isReady) {
+        return toastWarning('Please wait...')
+      }
       popVoidReason(async (reason: string) => {
         try {
           await Patientservice.voidPatient(this.patient.getID(), reason)
@@ -716,6 +713,9 @@ export default defineComponent({
       }, 'void-modal')
     },
     nextTask() {
+      if (!this.isReady) {
+        return toastWarning('Please wait...')
+      }
       this.onEvent(TargetEvent.ON_CONTINUE, () => {
         nextTask(this.patient.getID(), this.$router)
       })
