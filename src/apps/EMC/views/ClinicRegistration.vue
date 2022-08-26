@@ -47,7 +47,7 @@
           <ion-col size="12" class="ion-margin-top ion-margin-bottom">
             <SelectInput v-model="form.confirmatoryTest" :form="form" :options="HIVTestOptions" />
           </ion-col>
-          <template v-if="form.confirmatoryTest.value !== 'Not done'">
+          <template v-if="form.confirmatoryTest.value.label !== 'Not done'">
             <ion-col size="6" class="ion-margin-top ion-margin-bottom">
               <SelectInput v-model="form.confirmatoryTestLocation" :form="form" :asyncOptions="getFacilities" allowCustom searchable />
             </ion-col>
@@ -73,7 +73,6 @@ import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import {  alertConfirmation, toastSuccess } from "@/utils/Alerts";
 import { Option } from "@/components/Forms/FieldInterface";
 import { STANDARD_DATE_FORMAT } from "@/utils/Date";
-import { LocationService } from "@/services/location_service";
 import { isEmpty } from "lodash";
 import { useRoute, useRouter } from "vue-router";
 import { DTForm } from "../interfaces/dt_form_field";
@@ -269,7 +268,7 @@ export default defineComponent({
         label: 'Location of Confirmatory',
         placeholder: 'Select location',
         validation: async (location: Option, f: DTForm) => {
-          return f.confirmatoryTest.value !== 'Not done' && StandardValidations.required(location)
+          return f.confirmatoryTest.value.label !== 'Not done' && StandardValidations.required(location)
         },
         computedValue(facility: Option){
           return {
@@ -284,7 +283,7 @@ export default defineComponent({
         value: '',
         label: 'Confirmatory HIV Test Date',
         validation: async (date: Option, f: DTForm) => {
-          return f.confirmatoryTest.value !== 'Not done' && StandardValidations.required(date)
+          return f.confirmatoryTest.value.label !== 'Not done' && StandardValidations.required(date)
         },
         computedValue: (date: string) => ({
           tag: 'registration',
@@ -307,8 +306,7 @@ export default defineComponent({
     });
 
     const onClear = async () => {
-      const confirm = await alertConfirmation('Are you sure you want to clear all fields?')
-      if(confirm) {
+      if((await alertConfirmation('Are you sure you want to clear all fields?'))) {
         for(const key in form) {
           if(key === 'patientType') continue;
           form[key].value = undefined
