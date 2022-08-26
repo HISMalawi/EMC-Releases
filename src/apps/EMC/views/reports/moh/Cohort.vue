@@ -120,14 +120,13 @@ export default defineComponent({
       const indicator = find(cohort.value, {name: indicatorName})
       if(!indicator) return
       const rows: any[] = await report.getCohortDrillDown(indicator.id)
-      console.log(indicatorName, rows)
       const rowActionButtons: RowActionButtonInterface[] = [{
         label: "select",
         action: (r) => router.push(`/emc/patient/${r['person_id']}`)
       }]
 
       await modal.show(DrilldownTableVue, {
-        title: `Clients Drill down`,
+        title: indicator['indicator_name'] || "Drill down",
         rowActionButtons,
         columns,
         rows,
