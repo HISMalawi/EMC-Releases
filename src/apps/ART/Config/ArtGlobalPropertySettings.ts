@@ -89,6 +89,10 @@ export const PROPERTIES: FolderInterface[] = [
                 ART_GLOBAL_PROP.EXCLUDE_EXTERNAL_AND_DRUG_REFILLS
             ),
             {
+                name: "Target lab",
+                pathUrl: "/art/preferences/target_lab"
+            },
+            {
                 name: "Activate CxCa Screening",
                 pathUrl: "/art/preferences/cervical_cancer_screening"
             },

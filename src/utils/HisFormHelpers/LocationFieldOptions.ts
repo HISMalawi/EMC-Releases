@@ -12,6 +12,14 @@ export async function getFacilities(filter=''): Promise<Option[]> {
         }))
 }
 
+export async function getLabFacilities(filter=''): Promise<Option[]> {
+    const facilities = await LocationService.getLabs({'search_name': filter})
+    return facilities.map((facility: any) => ({
+            label: facility,
+            value: facility
+        }))
+}
+
 export async function getFacilityWards(filter=''): Promise<Option[]> {
     const wards = await LocationService.getFacilities({
         name: filter,

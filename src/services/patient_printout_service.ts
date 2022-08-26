@@ -23,8 +23,8 @@ export class PatientPrintoutService extends PrintoutService {
         return this.printPatientLbl('filing_number')
     }
 
-    printNidLbl() {
-        return this.printPatientLbl('national_health_id')
+    printNidLbl(useQR=false) {
+        return this.printPatientLbl(`national_health_id?qr_code=${useQR}`)
     }
 
     printVisitSummaryLbl(date = PrintoutService.getSessionDate() ) {

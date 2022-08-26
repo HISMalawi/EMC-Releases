@@ -14,6 +14,10 @@ export class LocationService extends Service {
         })
     }
 
+    static getLabs(params={} as Record<string, string | number>) {
+        return super.getJson(`/programs/${Service.getProgramID()}/lab_tests/labs`, params)
+    }
+
     static getFacilities(params={} as Record<string, string | number>) {
         return super.getJson('/locations', params)
     }
