@@ -28,10 +28,9 @@ import InformationHeader from "@/components/InformationHeader.vue";
 import VisitInformation from "@/components/VisitInformation.vue";
 import HisFooter from "@/components/HisDynamicNavFooter.vue";
 import { isEmpty } from "lodash";
-import { IonPage, IonContent, modalController } from "@ionic/vue";
-import { EncounterService } from "@/services/encounter_service";
+import { IonPage, IonContent } from "@ionic/vue";
 import { RelationshipService } from "@/services/relationship_service";
-import { alertConfirmation, toastDanger } from "@/utils/Alerts";
+import { alertConfirmation } from "@/utils/Alerts";
 import { ProgramService } from "@/services/program_service";
 import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { NavBtnInterface } from "@/components/HisDynamicNavFooterInterface";
@@ -53,15 +52,27 @@ export default defineComponent({
     encounters: [] as Array<Encounter>,
     visitDates: [] as Array<Option> as any,
     btns: [] as Array<NavBtnInterface>,
-    tbStats: [] as Array<any>,
-    guardians: "",
+    tbStats: [] as Array<any>
   }),
   created() {
     this.patientId = parseInt(`${this.$route.params.patient_id}`)
     if (this.patientId) {
       this.setPatientCards()
     }
-    this.btns.push(this.getFinishBtn())
+    this.btns.push({
+      name: "Finish",
+      color: "success",
+      size: "large",
+      slot: "end",
+      visible: true,
+      onClick: () => {
+        alertConfirmation("Are you sure you want to exit?").then(ok => {
+          if (ok) {
+            return this.$router.push(`/patient/dashboard/${this.patientId}`)
+          }
+        })
+      }
+    })
   },
   async mounted() {
     for(const item of this.patientCardInfo) {
@@ -69,7 +80,7 @@ export default defineComponent({
         await item.init()
       }
       if (typeof item.asyncValue === 'function') {
-        item.asyncValue().then((value: any) => item.value = value || '')
+        item.asyncValue(item).then((value: any) => item.value = value || '')
       } else if (typeof item.staticValue === 'function') {
         item.value = item.staticValue()
       } 
@@ -153,11 +164,18 @@ export default defineComponent({
         {
           label: "Guardian",
           value: '...',
-          asyncValue: async () => {
-            const relationship = await RelationshipService.getGuardianDetails(this.patientId)
-            return relationship 
-              ? relationship.map((r: any) => ` ${r.name} (${r.relationshipType})`).join(" ")
-              : 'add'
+          asyncValue: async (item: any) => {
+            const relations = await RelationshipService.getGuardianDetails(this.patientId)
+            if (isEmpty(relations)) {
+              item.other.editable = true
+              return 'add'
+            }
+            return relations.map((r: any) => ` ${r.name} (${r.relationshipType})`).join(" ")
+          },
+          other: {
+            editable: false,
+            attribute: "",
+            category: "guardian",
           }
         },
         { 
@@ -273,25 +291,6 @@ export default defineComponent({
     },
     updateARVNumber() {
       this.$router.push({name: "Edit ARV Number"})
-    },
-    getFinishBtn(): NavBtnInterface {
-      return {
-        name: "Finish",
-        color: "success",
-        size: "large",
-        slot: "end",
-        visible: true,
-        onClick: async () => {
-          const confirmation = await alertConfirmation(
-            "Are you sure you want to exit?"
-          );
-          if (confirmation)
-            return this.$router.push(`/patient/dashboard/${this.patientId}`);
-        },
-      };
-    },
-    getProp(data: any, prop: string): string {
-      return prop in data ? data[prop]() : "-";
     },
     async getPatientVisitDates() {
       const dates = await Patientservice.getPatientVisits(this.patientId, true);
