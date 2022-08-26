@@ -167,7 +167,7 @@ export default defineComponent({
       { label: "HIV test date", value: hivTestDate.value },
       { label: "HIV test place", value: hivTestPlace.value },
       { label: "Staging codition", value: stagingCondition.value },
-      { label: "", value: "Edit Clinic Registration/Staging conditions", other: {
+      { label: "", value: "Edit Clinic Registration/Staging conditions details", other: {
         onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
       }},
     ])
