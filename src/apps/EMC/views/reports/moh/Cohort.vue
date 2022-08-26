@@ -3,24 +3,15 @@
     <ion-grid>
       <ion-row>
         <ion-col size="2">
-          <ion-item lines="none" class="box">
-            <ion-label>
-              Select Quarter:
-            </ion-label>
-            <select v-model="quarter" ref="selectInput">
-              <option v-for="(option, index) of quarters" :key="index" :value="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </ion-item>  
+          <SelectInput v-model="quarter" :options="quarters" /> 
         </ion-col>
-        <ion-col size="4" v-if="quarter === 'Custom'">
+        <ion-col size="4" v-if="quarter.value?.label === 'Custom'">
           <DateRangePicker
             :range="dateRange" 
             @rangeChange="onDateRangeChange" 
           />  
         </ion-col>
-        <ion-col size="6" :offset="quarter === 'Custom' ? 0 : 4">
+        <ion-col size="6" :offset="quarter.value?.label === 'Custom' ? 0 : 4">
           <ion-button class="ion-float-end" color="primary" @click="exportToCsv" >Export CSV</ion-button>
           <ion-button class="ion-float-end" color="primary" @click="printSpec" >Print Report</ion-button>
           <ion-button class="ion-float-end" color="secondary" @click="disaggregateReport">Disaggregated</ion-button>
@@ -59,15 +50,17 @@ import CohortH from "@/apps/ART/views/reports/moh/CohortReport/CohortHeader.vue"
 import CohortV from "@/apps/ART/views/reports/moh/CohortReport/CohortValidation.vue"
 import CohortFt from "@/apps/ART/views/reports/moh/CohortReport/CohortFT.vue"
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import { IonCol, IonRow, IonItem, IonLabel, IonGrid } from "@ionic/vue";
+import { IonCol, IonRow, IonGrid } from "@ionic/vue";
 import Url from "@/utils/Url";
 import router from "@/router";
 import { toCsv } from "@/utils/Export";
 import { Service } from "@/services/service";
+import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
+import { DTFormField } from "@/apps/EMC/interfaces/dt_form_field";
 
 export default defineComponent({
   name: "Cohort",
-  components: { 
+  components: {
     DateRangePicker,
     CohortH,
     CohortV,
@@ -75,13 +68,12 @@ export default defineComponent({
     Layout,
     IonCol,
     IonRow,
-    IonItem,
-    IonLabel,
     IonGrid,
+    SelectInput
   },
   setup () {
     const componentKey = ref(0);
-    const quarter = ref<string>();
+    const quarter = reactive<DTFormField>({value: '', placeholder: "Select Quarter"});
     const period = ref<string>('');
     const disaggregatedParams = ref<string>();
     const dateRange = reactive({} as DateRange);
@@ -96,7 +88,7 @@ export default defineComponent({
     ]
 
     watch(quarter, () => {
-      if(quarter.value === 'Custom') {
+      if(quarter.value?.label === 'Custom') {
         Object.assign(dateRange, {
           startDate: "",
           endDate: ""
@@ -137,7 +129,7 @@ export default defineComponent({
     }
 
     const fetchData = async (regenerate = false) => {
-      if((!quarter.value && isEmpty(dateRange)) || (quarter.value === "Custom" && isEmpty(dateRange))) {
+      if((isEmpty(quarter.value) && isEmpty(dateRange)) || (quarter.value === "Custom" && isEmpty(dateRange))) {
         return toastWarning("Please select report period");
       }
 
@@ -149,18 +141,17 @@ export default defineComponent({
       cohort.value = {};
       report.setRegenerate(regenerate);
 
-      if(quarter.value === "Custom") {
+      if(quarter.value?.label === "Custom") {
         startDate = dateRange.startDate;
         endDate = dateRange.endDate;
         setReportPeriod(quarter.value, startDate, endDate);
         period.value = `Custom ${report.getDateIntervalPeriod()}`;
         data = report.datePeriodRequestParams();
       } else {
-        const qtr = quarters.find(q => q.value === quarter.value);
-        startDate = dayjs(qtr?.other?.start).format("YYYY-MM-DD");
-        endDate = dayjs(qtr?.other?.end).format("YYYY-MM-DD");
-        setReportPeriod(quarter.value!, startDate, endDate);
-        period.value = quarter.value!;
+        startDate = dayjs(quarter.value?.other.start).format("YYYY-MM-DD");
+        endDate = dayjs(quarter.value?.other.end).format("YYYY-MM-DD");
+        setReportPeriod(quarter.value?.label, startDate, endDate);
+        period.value = quarter.value?.label;
         data = report.qaurterRequestParams();
       }
 
