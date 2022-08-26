@@ -20,8 +20,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import HisDate from "@/utils/Date";
-import { Encounter } from "@/interfaces/encounter";
-import { Option } from "@/components/Forms/FieldInterface";
 import { Patientservice } from "@/services/patient_service";
 import { ObservationService } from "@/services/observation_service";
 import InformationHeader from "@/components/InformationHeader.vue";
@@ -47,10 +45,7 @@ export default defineComponent({
   data: () => ({
     patientId: 0 as any,
     patient: {} as any,
-    patientProgram: {} as Array<Option>,
     patientCardInfo: [] as any,
-    encounters: [] as Array<Encounter>,
-    visitDates: [] as Array<Option> as any,
     btns: [] as Array<NavBtnInterface>,
     tbStats: [] as Array<any>
   }),
@@ -228,8 +223,7 @@ export default defineComponent({
           label: "HIV test place", 
           value: "...",
           asyncValue: () => ObservationService.getFirstValueText(
-            this.patientId,
-            "Confirmatory HIV test location"
+            this.patientId, "Confirmatory HIV test location"
           )
         },
         { 
