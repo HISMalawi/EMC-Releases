@@ -49,7 +49,7 @@ export default defineComponent({
 
     const TableRowActions: RowActionButtonInterface[] = [
       { label: "void", color: 'danger', action: async (row) => {
-        if(!(await alertConfirmation("Are you sure you want to void this outcome?"))){
+        if((await alertConfirmation("Are you sure you want to void this outcome?"))){
           emit("voidOutcome", {stateId: row.patient_state_id, index: row.index});
         }
       }}
