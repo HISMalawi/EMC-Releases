@@ -84,7 +84,6 @@ import NavButton from "@/components/Buttons/ActionSideButton.vue"
 import ResetButton from "@/components/Buttons/ResetButton.vue"
 import ArtDispensationModal from "@/components/DataViews/ArtDispensationModal.vue"
 import FieldMixinVue from './FieldMixin.vue'
-import ART_PROP from "@/apps/ART/art_global_props";
 import {
     IonRow,
     IonCol
@@ -122,7 +121,9 @@ export default defineComponent({
   methods: {
     async init() {
         this.$emit('onFieldActivated', this)
-        this.isStockManagementEnabled = await ART_PROP.drugManagementEnabled()
+        if (typeof this.config?.isDrugManagementEnabled === 'function') {
+            this.isStockManagementEnabled = this.config?.isDrugManagementEnabled()
+        }
         this.listData = await this.options(this.fdata)
     },
     async onScan(barcode: string) {
