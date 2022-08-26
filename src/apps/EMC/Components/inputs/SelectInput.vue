@@ -27,7 +27,7 @@
         </ion-chip>
         <ion-input :disabled="!searchable" v-model="filter" class="search-input" ref="searchInput" />
       </div>
-      <div class="input-options ion-content-scroll-host" v-if="showOptions">
+      <div class="input-options" v-if="showOptions">
         <ion-list>
           <ion-item 
             v-for="(option, index) of filteredOptions" 
@@ -39,9 +39,9 @@
             <ion-label>{{ option.label }}</ion-label>
           </ion-item>
         </ion-list>
-        <ion-infinite-scroll @ionInfinite="pushMoreOptions($event)" threshold="100px" :disabled="!infiniteScrolling" >
+        <!-- <ion-infinite-scroll @ionInfinite="pushMoreOptions($event)" threshold="100px" :disabled="!infiniteScrolling" >
           <ion-infinite-scroll-content loading-spinner="crescent" loading-text="Loading more data..." />
-        </ion-infinite-scroll>
+        </ion-infinite-scroll> -->
       </div>
       <div class="input-icon">
         <ion-icon :icon="close" v-if="filter || tags.length > 0" @click="onReset"></ion-icon>
@@ -105,8 +105,8 @@ export default defineComponent({
     IonNote,
     IonIcon,
     IonCheckbox,
-    IonInfiniteScroll, 
-    IonInfiniteScrollContent
+    // IonInfiniteScroll, 
+    // IonInfiniteScrollContent
   },
   emits: ["update:modelValue"],
   setup(props, { emit}) {
