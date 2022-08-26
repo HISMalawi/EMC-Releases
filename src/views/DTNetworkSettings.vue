@@ -113,11 +113,11 @@ export default defineComponent({
       if(!(await isValidForm(form))) return
       loader.show();
       const {protocol, ipAddress, port} = resolveFormValues(form).formData;
-      ApiClient.setLocalStorage(protocol, ipAddress, port);
+      ApiClient.setLocalStorage(protocol.value, ipAddress, port);
       const res = await ApiClient.healthCheck();
       await loader.hide();
       if(!(res && res.status === 200)) {
-        toastWarning(`Unable to connect to: ${protocol}://${ipAddress}: ${port}`)
+        toastWarning(`Unable to connect to: ${protocol.value}://${ipAddress}: ${port}`)
         clearLocalStorage()
         return;
       }

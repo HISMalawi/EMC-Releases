@@ -91,7 +91,7 @@ export default defineComponent({
       if(!(await isValidForm(nameForm))) return
       loader.show();
       const data = resolveFormValues(nameForm, true).formData;
-      await GLOBAL_PROP.setHealthCenterID(data.name);
+      await GLOBAL_PROP.setHealthCenterID(data.name.label);
       toastSuccess('Site name updated successfully');
       loader.hide();
     }
