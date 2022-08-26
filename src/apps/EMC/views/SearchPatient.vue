@@ -25,10 +25,12 @@
       <ion-row class="his-card ion-margin-top" style="padding: 0 !important">
         <ion-col size="12" style="min-height: 320px;" class="ion-no-padding">
           <h1 class="ion-margin">Patients Search Results</h1>
-          <report-data-table
+          <data-table 
             :rows="tableRows"
             :columns="tableColumns"
             :config="tableConfig"
+            :row-actions-buttons="TableRowActions"
+            color="custom"
           />
         </ion-col>
       </ion-row>
@@ -39,17 +41,17 @@
 <script lang="ts">
 import { defineComponent, reactive, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import { IonGrid, IonRow, IonCol, loadingController, IonItem, IonSearchbar, IonLabel, IonButton } from "@ionic/vue";
+import { IonGrid, IonRow, IonCol, IonSearchbar, IonButton } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
-import { toastWarning } from "@/utils/Alerts";
-import ReportDataTable from "@/components/DataViews/tables/ReportDataTable.vue";
-import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
+import { alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts";
 import { useRouter } from "vue-router";
 import { genderOptions } from "../utils/DTFormElements";
 import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
 import { DTFormField } from "../interfaces/dt_form_field";
 import { loader } from "@/utils/loader";
+import DataTable, { RowActionButtonInterface, TableColumnInterface, TableConfigInterface } from "../Components/datatable";
+import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 
 export default defineComponent({
   components: {
@@ -60,25 +62,24 @@ export default defineComponent({
     SelectInput,
     IonButton,
     IonSearchbar,
-    ReportDataTable
+    DataTable,
   },
   setup() {
     const router = useRouter()
     const searchText = ref("");
     const selectInput = ref(document.getElementById('selectInput'))
     const gender = reactive<DTFormField>({ value: "", placeholder: "select gender"});
-    const tableRows = ref<RowInterface[][]>([])
-    const tableColumns: ColumnInterface[][] = [[
-      table.thTxt('ARV Number'),
-      table.thTxt('First Name'),
-      table.thTxt('Last Name'),
-      table.thTxt('Gender'),
-      table.thTxt('Date of Birth'),
-      table.thTxt('Actions', {colspan: 2}),
-    ]]
-    const tableConfig = { 
-      showIndex: false,
-      tableCssTheme: "emc-datatable-theme"
+    const tableRows = ref<any[]>([])
+    const tableColumns: TableColumnInterface[] = [
+      { label: 'ARV Number', path: 'arv_number'},
+      { path: "given_name", label: "First name" },
+      { path: "family_name", label: "Last name" },
+      { path: "gender", label: "Gender" },
+      { path: "birthdate", label: "Date of Birth", date: true },
+    ]
+    const tableConfig: TableConfigInterface = { 
+      showSearchField: false,
+      showSubmitButton: false
     }
 
     const parseSearchText = async (nameOrArvNumber: string) => {
@@ -127,19 +128,14 @@ export default defineComponent({
           await loader.hide()
           tableRows.value = results.map(r => {
             const patient = new Patientservice(r)
-            return [
-              table.td(patient.getArvNumber() || 'N/A'),
-              table.td(patient.getGivenName()),
-              table.td(patient.getFamilyName()),
-              table.td(patient.getGender()),
-              table.tdDate(patient.getBirthdate().toString()),
-              table.tdBtn('Select', () => router.push({
-                name: "EMC Mastercard", params: {
-                  patientId: patient.getID()
-                }
-              })),
-              table.tdBtn('Void', () => console.log(patient), {}, 'danger')
-            ]
+            return {
+              "arv_number": patient.getArvNumber(),
+              "given_name": patient.getGivenName(),
+              "family_name": patient.getFamilyName(),
+              "gender": patient.getGender(),
+              "birthdate": patient.getBirthdate(),
+              "personId": patient.getID()
+            }
           })
         } catch (error) {
           toastWarning(`${error}`)
@@ -154,6 +150,18 @@ export default defineComponent({
       tableRows.value = []
     }
 
+    const TableRowActions: RowActionButtonInterface[] = [
+      { label: "Select", action: (p) => router.push(`/emc/patient/${p.personId}`) },
+      { label: "void", color: 'danger', action: async (p) => popVoidReason(async (reason: string) => {
+        try {
+          await Patientservice.voidPatient(p.personId, reason)
+          await searchPatient()
+        } catch (e) {
+          toastDanger(`${e}`)
+        }
+      }, 'void-modal')}
+    ]
+
     return {
       searchText,
       gender,
@@ -162,6 +170,7 @@ export default defineComponent({
       tableConfig,
       genderOptions,
       selectInput,
+      TableRowActions,
       searchPatient,
       resetQuery
     };
