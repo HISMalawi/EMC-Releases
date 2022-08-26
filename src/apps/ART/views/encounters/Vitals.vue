@@ -263,21 +263,21 @@ export default defineComponent({
           helpText: "Already taking drugs for blood pressure?",
           type: FieldType.TT_SELECT,
           init: async () => {
-            this.HTNEnabled = await Store.get('IS_ART_HTN_ENABLED')
-            if (this.HTNEnabled) {
-              await VitalsService.getAll(this.patientID, "Treatment status").then(
-                (data: any) => {
-                  this.hasHTNObs = data && data.length > 0;
-                }
-              )
+            if (this.app?.applicationName === 'ART') {
+              this.HTNEnabled = await Store.get('IS_ART_HTN_ENABLED')
+              if (this.HTNEnabled) {
+                await VitalsService.getAll(this.patientID, "Treatment status").then(
+                  (data: any) => {
+                    this.hasHTNObs = data && data.length > 0;
+                  }
+                )
+              }
             }
             return true
           },
           validation: (val: any) => Validation.required(val),
           condition: () => {
-            // This page is reused in other programs that's why we're adding
-            // an ART check. 
-            return this.HTNEnabled && !this.hasHTNObs && this.app?.applicationName === 'ART';
+            return this.HTNEnabled && !this.hasHTNObs;
           },
           options: () => [
             {
