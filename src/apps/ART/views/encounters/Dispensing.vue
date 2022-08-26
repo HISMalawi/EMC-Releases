@@ -1,5 +1,9 @@
 <template>
-    <his-standard-form :skipSummary="true" :cancelDestinationPath="cancelDestination" :fields="fields"/>
+    <his-standard-form 
+        :fields="fields"
+        :skipSummary="true" 
+        :cancelDestinationPath="cancelDestination" 
+    />
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
@@ -10,6 +14,7 @@ import { DispensationService } from "@/apps/ART/services/dispensation_service"
 import {isEmpty } from 'lodash'
 import EncounterMixinVue from '../../../../views/EncounterMixin.vue'
 import HisDate from "@/utils/Date"
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
     mixins: [EncounterMixinVue],
@@ -21,7 +26,9 @@ export default defineComponent({
             async handler(ready: any){
                 if (ready) {
                     this.dispensation = new DispensationService(this.patientID, this.providerID)
-                    await this.dispensation.loadDrugManagementEnabled()
+                    this.dispensation.setIsDrugManagementEnabled(
+                        (await Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED'))
+                    )
                     await this.dispensation.loadCurrentDrugOrder()
                     await this.dispensation.loadDrugHistory()
                     this.fields = this.getFields()
@@ -32,8 +39,7 @@ export default defineComponent({
     },
     methods: {
         saveDispensations(item: Option) {
-            const dispensations = this.buildDispensations(item)
-            return this.dispensation.saveDispensations(dispensations)    
+            return this.dispensation.saveDispensations(this.buildDispensations(item))    
         },
         buildDispensations(item: Option) {
             if (!isEmpty(item.other?.dispenses)) {
@@ -145,6 +151,7 @@ export default defineComponent({
                         return false
                     },
                     config: {
+                        isDrugManagementEnabled: () => this.dispensation.useDrugManagement,
                         medicationHistory: this.buildMedicationHistory(),
                         toolbarInfo: [
                             { label: 'Name', value: this.patient.getFullName() },
