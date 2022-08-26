@@ -63,4 +63,5 @@ export interface CustomFilterInterface {
 
 export interface TableConfigInterface {
   showSubmitButton?: boolean;
+  showSearchField?: boolean;
 }
