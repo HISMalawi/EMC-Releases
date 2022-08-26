@@ -8,11 +8,23 @@
       @updateARVNumber="updateARVNumber"
     ></information-header>
     <ion-content>
-      <visit-information
-        :getVisitDates="getPatientVisitDates"
-        @onPrint="printLabel"
-        style="font-size: 11px"
-      ></visit-information>
+      <report-table
+        v-if="visitDatesInitialised"
+        :paginated="true"
+        :rows="rows"
+        :columns="columns"
+        :rowsPerPage="itemsPerPage"
+        :newPage="currentPage"
+        :asyncRowParser="onNewRow"
+        @onPagination="(p) => totalPages = p.length"
+      ></report-table>
+      <preloader v-if="!visitDatesInitialised" :itemCount="5"/>
+      <pagination
+        :perPage="itemsPerPage"
+        :maxVisibleButtons="20"
+        :totalPages="totalPages"
+        @onChangePage="(p) => currentPage = p"
+        />
     </ion-content>
     <his-footer :btns="btns" />
   </ion-page>
@@ -20,43 +32,82 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import HisDate from "@/utils/Date";
-import { Encounter } from "@/interfaces/encounter";
-import { Option } from "@/components/Forms/FieldInterface";
 import { Patientservice } from "@/services/patient_service";
 import { ObservationService } from "@/services/observation_service";
 import InformationHeader from "@/components/InformationHeader.vue";
-import VisitInformation from "@/components/VisitInformation.vue";
 import HisFooter from "@/components/HisDynamicNavFooter.vue";
 import { isEmpty } from "lodash";
 import { IonPage, IonContent } from "@ionic/vue";
 import { RelationshipService } from "@/services/relationship_service";
-import { alertConfirmation } from "@/utils/Alerts";
+import { alertConfirmation, toastDanger } from "@/utils/Alerts";
 import { ProgramService } from "@/services/program_service";
 import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { NavBtnInterface } from "@/components/HisDynamicNavFooterInterface";
 import Store from "@/composables/ApiStore"
+import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
+import table, { ColumnInterface } from "@/components/DataViews/tables/ReportDataTable"
+import Pagination from "@/components/Pagination.vue"
+import Preloader from "@/components/TextSkeleton.vue"
 
 export default defineComponent({
   components: {
+    Preloader,
+    Pagination,
     IonPage,
+    ReportTable,
     IonContent,
-    VisitInformation,
-    InformationHeader,
     HisFooter,
+    InformationHeader
   },
   data: () => ({
     patientId: 0 as any,
     patient: {} as any,
-    patientProgram: {} as Array<Option>,
     patientCardInfo: [] as any,
-    encounters: [] as Array<Encounter>,
-    visitDates: [] as Array<Option> as any,
     btns: [] as Array<NavBtnInterface>,
-    tbStats: [] as Array<any>
+    itemsPerPage: 10 as number,
+    currentPage: 0 as number,
+    totalPages: 0 as number,
+    pages: [] as any,
+    visitDates: [] as string[],
+    tbStats: [] as Array<any>,
+    visitDatesInitialised: false as boolean,
+    firstVisitPageInitialised: false as boolean,
+    columns: [[
+      table.thTxt('VISIT DATE', {sortable: false}),
+      table.thTxt('WEIGHT (Kg)', {sortable: false}),
+      table.thTxt('REG', {sortable: false}),
+      table.thTxt('VIRAL LOAD', {sortable: false}),
+      table.thTxt('TB STATUS', {sortable: false}),
+      table.thTxt('OUTCOME', {sortable: false}),
+      table.thTxt('PILLS DISPENSED', {sortable: false}),
+      table.thTxt('ACTIONS', {sortable: false})
+    ]] as ColumnInterface[][],
+    rows: [] as any
   }),
   created() {
     this.setPatientCards()
     this.patientId = parseInt(`${this.$route.params.patient_id}`)
+    Patientservice.getPatientVisits(this.patientId, true)
+      .then(dates =>  {
+        this.visitDatesInitialised = true
+        this.visitDates = dates
+        this.rows = dates.map((date) => {
+          return [
+            table.tdBtn(date, () => this.printLabel(date)),
+            table.td('...'),
+            table.td('...'),
+            table.td('...'),
+            table.td('...'),
+            table.td('...'),
+            table.td('...'),
+            table.td('...')
+          ]
+        })
+      }).catch((e) =>{
+        this.visitDatesInitialised = true
+        toastDanger(`${e}`)
+        console.error(e)
+      })
     this.btns.push({
       name: "Finish",
       color: "success",
@@ -228,8 +279,7 @@ export default defineComponent({
           label: "HIV test place", 
           value: "...",
           asyncValue: () => ObservationService.getFirstValueText(
-            this.patientId,
-            "Confirmatory HIV test location"
+            this.patientId, "Confirmatory HIV test location"
           )
         },
         { 
@@ -269,6 +319,28 @@ export default defineComponent({
         }
       ]
     },
+    async onNewRow(row: any) {
+      if (row[1] && row[1].td !='...') 
+        return row
+      const date = row[0].td
+      const data = await ProgramService.getCurrentProgramInformation(this.patientId, date)
+      const drugs = await ProgramService.getMastercardDrugInformation(
+        this.patientId, date
+      );
+      const pillsDispensed = (drugs?.pills_given || []).map((d: any) =>  {
+        return `${d['short_name'] || d['name']} <b>(${d.quantity || '?'})</b>`
+      }).join('<br/>')
+      return [
+        table.tdBtn(date, () => this.printLabel(date)),
+        table.td(data.weight),
+        table.td(data.regimen),
+        table.td(data.viral_load),
+        table.td(data.tb_status),
+        table.td(data.outcome.match(/Unk/i) ? "Unknown" : data.outcome),
+        table.td(pillsDispensed),
+        table.tdBtn('More', () => console.log('Wii!'))
+      ]
+    },
     hasTbStat(conceptName: string) {
       return this.tbStats.includes(conceptName) ? 'Yes' : 'No'
     },
@@ -291,28 +363,6 @@ export default defineComponent({
     },
     updateARVNumber() {
       this.$router.push({name: "Edit ARV Number"})
-    },
-    async getPatientVisitDates() {
-      const dates = await Patientservice.getPatientVisits(this.patientId, true);
-      const f = dates.map(async (date: string) => {
-        const d = await this.getExtras(date);
-        return {
-          label: HisDate.toStandardHisDisplayFormat(date),
-          value: date,
-          data: d,
-        };
-      });
-      const y = await Promise.all(f);
-      return y;
-    },
-    async getExtras(date: any) {
-      const programInfo = await ProgramService.getCurrentProgramInformation(
-        this.patientId, date
-      );
-      const drugInformation = await ProgramService.getMastercardDrugInformation(
-        this.patientId, date
-      );
-      return { ...programInfo, drugs: drugInformation };
     },
     printLabel(date: any) {
       new PatientPrintoutService(this.patientId).printVisitSummaryLbl(date);

@@ -114,6 +114,9 @@ export default defineComponent({
     asyncRows: {
         type: Function
     },
+    asyncRowParser: {
+        type: Function
+    },
     rowParser: {
         type: Function
     },
@@ -278,13 +281,20 @@ export default defineComponent({
     },
     async setPage(index: number) {
         this.activeRows = []
-        const pageRows = this.paginatedRows[index]
+        const pageRows: any = this.paginatedRows[index]
         if (!pageRows) return
         try {
-            this.isLoading = true
-            this.activeRows = typeof this.rowParser === 'function'
-                ? await this.rowParser(pageRows)
-                : pageRows
+            if (typeof this.asyncRowParser === 'function') {
+                this.activeRows = pageRows
+                for (const i in pageRows) {
+                    this.activeRows[i as any] = await this.asyncRowParser(pageRows[index])
+                }
+            } else {
+               this.isLoading = true
+               this.activeRows = typeof this.rowParser === 'function'
+                    ? await this.rowParser(pageRows)
+                    : pageRows
+            }
         } catch (e) {
             toastDanger(e)
             this.errorMessage = `${e}`
