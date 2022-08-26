@@ -10,7 +10,7 @@
             v-model="searchText"
             v-on:keyup.enter="searchPatient"
           />
-          <div style="max-width: 250px" class="ion-margin-end">
+          <div style="max-width: 250px" class="ion-margin-end ion-margin-vertical">
             <SelectInput v-model="gender" :options="genderOptions" ></SelectInput>
           </div>
           <ion-button class="ion-margin-vertical" @click="searchPatient">Search</ion-button>

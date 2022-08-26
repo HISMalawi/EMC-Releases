@@ -8,8 +8,8 @@
   </ion-label>
   <ion-input
     v-if="isCustom"
-    class="ion-margin-top"
-    :class="model.error ? 'box-input-error'  : 'box-input'"
+    class="box-input"
+    :class="{'box-input-error': model.error, 'ion-margin-top': model.label }"
     v-model="customOption"
     :placeholder="model.placeholder || model.label"
     :disabled="model.disabled"
@@ -17,7 +17,7 @@
     @ionBlur="validate"
     @ionInput="onCustomValue"
   />
-  <div v-else class="ion-margin-top outer-input-box box-input" :class="{'box-input-error': model.error }">
+  <div v-else class="outer-input-box box-input" :class="{'box-input-error': model.error, 'ion-margin-top': model.label }">
     <div class="inner-input-box">
       <div style="display: flex; flex-wrap: wrap;" @click="onShowOptions">
         <ion-label v-if="showPlaceholder" class="input-placeholder" contenteditable>{{ model.placeholder || 'select option' }}</ion-label>
