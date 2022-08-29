@@ -352,6 +352,7 @@ export default defineComponent({
             ? results[0]
             : results
           )
+        this.updateCards()
         Store.set('ACTIVE_PATIENT', this.patient)
         this.setPatientFacts()
         const factPromises = []
@@ -365,7 +366,6 @@ export default defineComponent({
         if (this.facts.programName === 'ART') {
           factPromises.push(this.setViralLoadStatus())
         }
-        this.updateCards()
         this.facts.currentNpid = this.patient.getNationalID()
         factPromises.push(this.validateNpid())
         await Promise.all(factPromises)
