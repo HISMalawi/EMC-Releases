@@ -36,7 +36,7 @@ import { ObservationService } from "@/services/observation_service";
 import InformationHeader from "@/components/InformationHeader.vue";
 import HisFooter from "@/components/HisDynamicNavFooter.vue";
 import { isEmpty } from "lodash";
-import { IonPage, IonContent } from "@ionic/vue";
+import { IonPage, IonContent, modalController } from "@ionic/vue";
 import { RelationshipService } from "@/services/relationship_service";
 import { alertConfirmation, toastDanger } from "@/utils/Alerts";
 import { ProgramService } from "@/services/program_service";
@@ -47,6 +47,7 @@ import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import table, { ColumnInterface } from "@/components/DataViews/tables/ReportDataTable"
 import Pagination from "@/components/Pagination.vue"
 import Preloader from "@/components/TextSkeleton.vue"
+import MastercardDetails from "@/components/MastercardDetails.vue";
 
 export default defineComponent({
   components: {
@@ -319,6 +320,59 @@ export default defineComponent({
         }
       ]
     },
+    buildDetails(data: Record<string, any>) {
+      const fmtTurple = (turple: Array<[string, number]>) => turple.map(([t, v]: any) => `${t} (${v})`).join('/')
+      return [
+        {
+          label: 'Outcome',
+          value: data.outcome
+        },
+        {
+          label: 'Outcome Date',
+          value: data.outcome_date
+        },
+        {
+          label: 'Side effects',
+          value: data.side_effects
+        },
+        {
+          label: 'Viral load',
+          value: data.viral_load
+        },
+        {
+          label: 'Pills Brought',
+          value: fmtTurple(data.pills_brought)
+        },
+        {
+          label: 'Pills dispensed',
+          value: fmtTurple(data.pills_dispensed)
+        },
+        {
+          label: "Regimen",
+          value: data.regimen
+        },
+        {
+          label: 'Adherence',
+          value: fmtTurple(data.adherence)
+        },
+        {
+          label: 'TB Status',
+          value: data.tb_status
+        },
+        {
+          label: 'Height (cm)',
+          value: data.height
+        },
+        {
+          label: 'Weight (Kg)',
+          value: data.weight
+        },
+        {
+          label: 'BMI',
+          value: data.bmi
+        }
+      ]
+    },
     async onNewRow(row: any) {
       const r = [...row]
       if (r[1] && r[1].td !='...') {
@@ -336,7 +390,18 @@ export default defineComponent({
       r[4] = table.td(data.tb_status)
       r[5] = table.td(data.outcome.match(/Unk/i) ? "Unknown" : data.outcome)
       r[6] = table.td(pillsDispensed)
-      r[7] = table.tdBtn('More', () => console.log('Wii!'))
+      r[7] = table.tdBtn('More', async () => {
+         (await modalController.create({
+                component: MastercardDetails,
+                backdropDismiss: false,
+                cssClass: "large-modal",
+                componentProps: {
+                  title: date,
+                  visitData: this.buildDetails(data)  
+                }
+              })
+            ).present()
+      })
       return r
     },
     hasTbStat(conceptName: string) {
