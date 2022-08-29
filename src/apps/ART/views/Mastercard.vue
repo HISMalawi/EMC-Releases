@@ -94,7 +94,7 @@ export default defineComponent({
         this.rows = dates.map((date) => {
           return [
             table.tdBtn(HisDate.toStandardHisDisplayFormat(date), 
-              () => this.printLabel(date)),
+              () => new PatientPrintoutService(this.patientId).printVisitSummaryLbl(date)),
             table.td('...'),
             table.td('...'),
             table.td('...'),
@@ -395,16 +395,16 @@ export default defineComponent({
       r[5] = table.td(data.outcome.match(/Unk/i) ? "Unknown" : data.outcome)
       r[6] = table.td(pillsDispensed)
       r[7] = table.tdBtn('More', async () => {
-         (await modalController.create({
-                component: MastercardDetails,
-                backdropDismiss: false,
-                cssClass: "large-modal",
-                componentProps: {
-                  title: date,
-                  visitData: this.buildDetails(data)  
-                }
-              })
-            ).present()
+        (await modalController.create({
+          component: MastercardDetails,
+          backdropDismiss: false,
+          cssClass: "large-modal",
+          componentProps: {
+            title: date,
+            visitData: this.buildDetails(data)  
+          }
+        })
+        ).present()
       })
       return r
     },
@@ -430,9 +430,6 @@ export default defineComponent({
     },
     updateARVNumber() {
       this.$router.push({name: "Edit ARV Number"})
-    },
-    printLabel(date: any) {
-      new PatientPrintoutService(this.patientId).printVisitSummaryLbl(date);
     }
   }
 });
