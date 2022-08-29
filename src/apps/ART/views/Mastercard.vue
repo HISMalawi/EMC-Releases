@@ -71,7 +71,6 @@ export default defineComponent({
     visitDates: [] as string[],
     tbStats: [] as Array<any>,
     visitDatesInitialised: false as boolean,
-    firstVisitPageInitialised: false as boolean,
     columns: [[
       table.thTxt('VISIT DATE'),
       table.thTxt('WEIGHT (Kg)'),
