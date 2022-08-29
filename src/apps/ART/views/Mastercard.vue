@@ -73,14 +73,14 @@ export default defineComponent({
     visitDatesInitialised: false as boolean,
     firstVisitPageInitialised: false as boolean,
     columns: [[
-      table.thTxt('VISIT DATE', {sortable: false}),
-      table.thTxt('WEIGHT (Kg)', {sortable: false}),
-      table.thTxt('REG', {sortable: false}),
-      table.thTxt('VIRAL LOAD', {sortable: false}),
-      table.thTxt('TB STATUS', {sortable: false}),
-      table.thTxt('OUTCOME', {sortable: false}),
-      table.thTxt('PILLS DISPENSED', {sortable: false}),
-      table.thTxt('ACTIONS', {sortable: false})
+      table.thTxt('VISIT DATE'),
+      table.thTxt('WEIGHT (Kg)'),
+      table.thTxt('REG'),
+      table.thTxt('VIRAL LOAD'),
+      table.thTxt('TB STATUS'),
+      table.thTxt('OUTCOME'),
+      table.thTxt('PILLS DISPENSED'),
+      table.thTxt('ACTIONS')
     ]] as ColumnInterface[][],
     rows: [] as any
   }),
@@ -93,7 +93,8 @@ export default defineComponent({
         this.visitDates = dates
         this.rows = dates.map((date) => {
           return [
-            table.tdBtn(date, () => this.printLabel(date)),
+            table.tdBtn(HisDate.toStandardHisDisplayFormat(date), 
+              () => this.printLabel(date)),
             table.td('...'),
             table.td('...'),
             table.td('...'),
@@ -309,7 +310,7 @@ export default defineComponent({
         },
         {
           label: "Pulmonary TB (current)",
-          value: '-',
+          value: "...",
           staticValue: () => this.hasTbStat('Pulmonary tuberculosis (current)')
         },
         {
@@ -320,26 +321,24 @@ export default defineComponent({
       ]
     },
     async onNewRow(row: any) {
-      if (row[1] && row[1].td !='...') 
-        return row
-      const date = row[0].td
+      const r = [...row]
+      if (r[1] && r[1].td !='...') {
+        return r
+      }
+      const date = r[0].td
       const data = await ProgramService.getCurrentProgramInformation(this.patientId, date)
-      const drugs = await ProgramService.getMastercardDrugInformation(
-        this.patientId, date
-      );
+      const drugs = await ProgramService.getMastercardDrugInformation(this.patientId, date)
       const pillsDispensed = (drugs?.pills_given || []).map((d: any) =>  {
         return `${d['short_name'] || d['name']} <b>(${d.quantity || '?'})</b>`
       }).join('<br/>')
-      return [
-        table.tdBtn(date, () => this.printLabel(date)),
-        table.td(data.weight),
-        table.td(data.regimen),
-        table.td(data.viral_load),
-        table.td(data.tb_status),
-        table.td(data.outcome.match(/Unk/i) ? "Unknown" : data.outcome),
-        table.td(pillsDispensed),
-        table.tdBtn('More', () => console.log('Wii!'))
-      ]
+      r[1] = table.td(data.weight)
+      r[2] = table.td(data.regimen)
+      r[3] = table.td(data.viral_load)
+      r[4] = table.td(data.tb_status)
+      r[5] = table.td(data.outcome.match(/Unk/i) ? "Unknown" : data.outcome)
+      r[6] = table.td(pillsDispensed)
+      r[7] = table.tdBtn('More', () => console.log('Wii!'))
+      return r
     },
     hasTbStat(conceptName: string) {
       return this.tbStats.includes(conceptName) ? 'Yes' : 'No'

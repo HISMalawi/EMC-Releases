@@ -287,7 +287,7 @@ export default defineComponent({
             if (typeof this.asyncRowParser === 'function') {
                 this.activeRows = pageRows
                 for (const i in pageRows) {
-                    this.activeRows[i as any] = await this.asyncRowParser(pageRows[index])
+                    this.activeRows[i as any] = await this.asyncRowParser(pageRows[i])
                 }
             } else {
                this.isLoading = true
