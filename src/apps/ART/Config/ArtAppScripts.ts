@@ -198,62 +198,83 @@ export async function getPatientDashboardLabOrderCardItems(patientId: number) {
     return data
 }
 
-export async function confirmationSummary(patient: Patientservice, program: any, facts: any) {
+export function confirmationSummary(patient: Patientservice) {
     Store.invalidate('PATIENT_LAB_ORDERS')
-    const patientID = patient.getID()
-    const patientProgamInfo = await ProgramService.getProgramInformation(patientID)
+    const patientID = !isEmpty(patient) ? patient?.getID() : -1
+    let programInfo: any = null
     return {
-        'PROGRAM INFORMATION': async () => {
-            const data: any = []
-            const params = await WorkflowService.getNextTaskParams(patientID)
-            data.push({
-              label: "Next Task",
-              value: params.name ? `${params.name}` : 'NONE',
-            })
-            data.push({
-              label: "ART Duration",
-              value: `${patientProgamInfo.art_duration} month(s) `,
-            })
-            await ProgramService.getFastTrackStatus(patientID).then(
-              (task) => {
-                data.push({
-                  label: "On Fast Track",
-                  value: task["Continue FT"] === true ? "Yes" : "No",
-                });
-              }
-            );
-            const appointMentObs: Observation[] 
-                = await ObservationService.getObservations(
-                patientID, ConceptService.getCachedConceptID('appointment date')
-            );
-            if (appointMentObs.length > 0) {
-              const nextAPPT = HisDate.toStandardHisDisplayFormat(appointMentObs[0].value_datetime);
-              data.push({
-                label: "Next Appointment",
-                value: nextAPPT,
-              });
-            }
-            return data
-        },
-        'PATIENT IDENTIFIERS': async () => {
-            const identifiers = [{
-                label: "ARV Number",
-                value: patient.getArvNumber(),
+        'PROGRAM INFORMATION' : () => [
+            {
+                label: 'Next Task',
+                value: '...',
+                asyncValue: async () => {
+                    const params = await WorkflowService.getNextTaskParams(patientID)
+                    return params.name ? `${params.name}` : 'NONE'
+                }
             },
             {
-                label: "NPID",
-                value: patient.getNationalID(),
-            }]
-
-            if(facts.globalProperties.useFilingNumbers){
-                identifiers.push({
-                    label: "Filing Number",
-                    value: patient.getFilingNumber()
-                })
+                label: 'ART Duration',
+                value: '...',
+                init: async () => {
+                    programInfo = await ProgramService.getProgramInformation(patientID)
+                },
+                asyncValue: async () => {
+                    return programInfo.art_duration
+                }
+            },
+            {
+                label: 'Fast Track',
+                value: '...',
+                asyncValue: async () => {
+                    const task = await ProgramService.getFastTrackStatus(patientID)
+                    return task["Continue FT"] === true ? "Yes" : "No"
+                }
+            },
+            {
+                label: 'Next Appointment',
+                value: '...',
+                asyncValue: async () => {
+                    const date = await ObservationService.getFirstValueDatetime(
+                        patientID, 'appointment date'
+                    );
+                    return date ? HisDate.toStandardHisDisplayFormat(date) : ''
+                }
             }
-            return identifiers;
-        },
-        'ALERTS': () => getPatientDashboardAlerts(patient),
+        ],
+        'PATIENT IDENTIFIERS': () => [
+            {
+                label: 'ARV Number',
+                value: '...',
+                staticValue: () => patient.getArvNumber(),
+            },
+            {
+                label: 'NPID',
+                value: '...',
+                staticValue: () => patient.getNationalID(),
+            },
+            {
+                label: 'Filing Number',
+                value: '...',
+                staticValue: () => patient.getFilingNumber()
+            }
+        ],
+        'ALERTS': () => [
+            {
+                label: 'Side effects',
+                value: '...',
+                asyncValue: async () => { 
+                    return (await PatientAlerts.alertSideEffects(patientID)).length
+                }
+            }, 
+            {
+                label: 'Patient BMI is',
+                value: '...',
+                asyncValue: async () => {
+                    const bmi = await patient.getBMI()
+                    return bmi.result
+                }
+            }
+        ],
         'LAB ORDERS': async () => {
             const data: any = []
             await Store.get('PATIENT_LAB_ORDERS', { patientID })
@@ -268,36 +289,30 @@ export async function confirmationSummary(patient: Patientservice, program: any,
                 });
             return data
         },
-        'OUTCOME': () => {
-            return [
-                { 
-                    label: 'Current Outcome', 
-                    value: patientProgamInfo.current_outcome || 'N/A'
-                }
-            ]
-        },
+        'OUTCOME': () => [
+            {
+                label: 'Current Outcome',
+                value: '...',
+                staticValue: () => programInfo.current_outcome || 'N/A'
+            }
+        ],
         'GUARDIAN': async () => {
-            const req = await RelationshipService
-                .getGuardianDetails(
-                    patient.getID()
-                )
-            if (req && req.length > 0) {
-                const data: any = [];
+            const data: any = []
+            const req = (await RelationshipService.getGuardianDetails(patientID) || [])
+            if (req.length) {
                 req.forEach(element => {
-                   data.push( {
+                    data.push( {
                         label: element.name,
                         value: element.relationshipType
-                   }) 
-                   data.push({
-
+                    }) 
+                    data.push({
                         label: "Phone",
                         value: element.phoneNumber
-                   })
-                });
+                    })
+                })
                 return data
-            } 
+            }
             return []
-        }
+        } 
     }
 }
-

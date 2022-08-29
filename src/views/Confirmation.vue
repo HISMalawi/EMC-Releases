@@ -32,8 +32,8 @@
         <ion-col size-md="4" size-sm="12" v-for="(card, index) in cards" :key="index">
           <confirmation-card
             :key="`card-${index}`"
-            :title="card.title"
-            :items="card.data"
+            :title="card.label"
+            :items="card.values"
             :isLoading="card.isLoading"
           />
         </ion-col>
@@ -130,7 +130,7 @@ export default defineComponent({
     ConfirmationCard: defineAsyncComponent(()=>import("@/components/Cards/PatientConfirmationCards.vue")),
   },
   data: () => ({
-    app: {} as AppInterface,
+    app: {} as any,
     program: {} as any,
     patient: {} as any,
     localPatient: {} as any, // Patient found without dde
@@ -195,11 +195,13 @@ export default defineComponent({
       } as any
     }
   }),
-  mounted() {
+  created() {
     this.initCards()
-    const app = HisApp.getActiveApp()
-    if (app) {
-      this.app = app
+    this.app = HisApp.getActiveApp() || {}
+  },
+  mounted() {
+    if (this.app) {
+      this.updateCards()
       this.ddeInstance = new PatientDemographicsExchangeService()
       this.setGlobalPropertyFacts().then(() => {
         const query = this.$route.query
@@ -224,11 +226,60 @@ export default defineComponent({
   },
   methods: {
     initCards() {
-      for(let i = 0; i < 6; i++) {
+      for(let i=0; i < 6; i++) {
         this.cards[i] = {
-          data: {},
-          title: '-',
-          isLoading: false 
+          label: '-',
+          isLoading: true,
+          values: []
+        }
+      }
+    },
+    async updateCards() {
+      if (typeof this.app.confirmationSummary === 'function') {
+        const cardItems: any = this.app.confirmationSummary(
+          this.patient, this.program, this.facts
+        )
+        const keys: any = Object.keys(cardItems)
+        for(let i = 0; i < this.cards.length; i++) {
+          const cardData = keys[i] ? cardItems[keys[i]]() : []
+          this.cards[i] = {
+            label: keys[i] || '-',
+            isLoading: false,
+            values: cardData
+          }
+          if (typeof cardData === 'object' && cardData.then) {
+            this.cards[i].isLoading = true
+            if (!isEmpty(this.patient)) {
+              cardData.then((data: any) => {
+                this.cards[i].isLoading = false
+                this.cards[i].values = data
+              }).catch((e: any) => {
+                this.cards[i].isLoading = false
+                console.error(`${e}`)
+              })
+            }
+          } else {
+            // Render static label value pairs
+            for (let c=0; c < cardData.length; ++c) {
+              const val = cardData[c]
+              this.cards[i].values[c] = val
+              if (!isEmpty(this.patient)) {
+                if (typeof val.init === 'function') {
+                  await val.init()
+                }
+                if (typeof val.asyncValue === 'function') {
+                  val.asyncValue().then((val: any) => {
+                    this.cards[i].values[c].value = val
+                  }).catch((e: any) => {
+                    this.cards[i].values[c].value = '_ERROR_'  
+                    console.error(`${e}`)
+                  })
+                } else if (typeof val.staticValue === 'function') {
+                  this.cards[i].values[c].value = val.staticValue()
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -314,10 +365,10 @@ export default defineComponent({
         if (this.facts.programName === 'ART') {
           factPromises.push(this.setViralLoadStatus())
         }
+        this.updateCards()
         this.facts.currentNpid = this.patient.getNationalID()
         factPromises.push(this.validateNpid())
         await Promise.all(factPromises)
-        this.updateCards()
       } else {
         // [DDE] a user might scan a deleted npid but might have a newer one.
         // The function below checks for newer version
@@ -471,38 +522,6 @@ export default defineComponent({
         this.facts.dde.hasDemographicConflict = !isEmpty(localAndRemoteDiffs)
       } catch (e) {
         console.warn(e)
-      }
-    },
-    /**
-     * The Application/Program determines which cards to
-     * render on the view
-     */
-    updateCards() {
-      if (typeof this.app.confirmationSummary != 'function') return
-      // Map card items to pre-created cards
-      const syncCards = (items: any) => {
-        Object.keys(items).forEach((title, i) => {
-          if (i > this.cards.length) return
-          this.cards[i].title = `${title}`.toUpperCase() 
-          const obj = items[title]()
-          // For cards that need to asynchronously load data from API
-          if (typeof obj === 'object' && obj.then) {
-            this.cards[i].isLoading = true
-            obj.then((data: any) => {
-              this.cards[i].isLoading = false
-              if (!isEmpty(data)) this.cards[i].data = data
-            }).catch(() => this.cards[i].isLoading = false)
-          } else {
-            // Default card data
-            this.cards[i].data = obj
-          }
-        })
-      }
-      const summary = this.app.confirmationSummary(this.patient, this.programInfo, this.facts)
-      if (typeof summary === 'object' && summary.then) {
-        summary.then(syncCards)
-      } else {
-        syncCards(summary)
       }
     },
     async setVoidedNpidFacts(npid: string) {
