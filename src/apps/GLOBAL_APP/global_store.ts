@@ -21,7 +21,7 @@ export interface StoreDef {
 
 // caching can be an optional feature, use this detect if its enabled
 export function isCacheEnabled() {
-    return new AuthService().getAppConf('dataCaching')
+    return new AuthService().cachingIsEnabled()
 }
 
 /**
