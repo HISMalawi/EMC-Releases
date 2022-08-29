@@ -86,6 +86,7 @@ export default defineComponent({
             this.barcode = id;
             this.activeField = "select drugs";
           },
+          condition: (val: any) => val.transfer_origination.value === "DHA"
         },
         {
           id: "select drugs",
