@@ -344,6 +344,7 @@ export default defineComponent({
         currentDate: '',
         sessionDate: '',
         nextTask: {} as any,
+        programId: 0 as any,
         patientId: 0,
         patient: {} as any,
         patientProgram: {} as any,
@@ -524,6 +525,7 @@ export default defineComponent({
         if (this.patientId) {
             App.doAppManagementTasks().then(() =>{
                 this.app = App.getActiveApp()
+                this.programId = this.app.programID
                 if (this.appHasCustomContent) {
                     this.patientCards = []
                 }
@@ -719,10 +721,9 @@ export default defineComponent({
         },
         async changeApp() {
             const app = await HisApp.selectApplication('PatientDashboard', true);
-
             if (!app) return
-
-            if (app.programID != ProgramService.getProgramID()) {
+            if (app.programID != this.programId) {
+                this.programId = app.programID
                 this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
             } else {
                 this.initData()
