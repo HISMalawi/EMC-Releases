@@ -348,6 +348,10 @@ export default defineComponent({
           value: fmtTurple(data.pills_dispensed)
         },
         {
+          label: 'Visit by',
+          value: data.visit_by
+        },
+        {
           label: "Regimen",
           value: data.regimen
         },
