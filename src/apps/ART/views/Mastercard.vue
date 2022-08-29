@@ -9,7 +9,6 @@
     ></information-header>
     <ion-content>
       <report-table
-        v-if="visitDatesInitialised"
         :paginated="true"
         :rows="rows"
         :columns="columns"
