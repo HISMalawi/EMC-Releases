@@ -62,11 +62,13 @@ export default defineComponent({
                         ])
                         total += d.exam_total;
                     })
-                    this.rows.push([
-                            table.td('Total'),
-                            table.td('All'),
-                            table.td(total),
-                    ])
+                    if (total > 0) {
+                        this.rows.push([
+                                table.td('Total'),
+                                table.td('All'),
+                                table.td(total),
+                        ])
+                    }
                 }).catch((e: any) => toastDanger(`${e}`))
             }
         }
