@@ -1,12 +1,4 @@
 <template>
-    <ion-button 
-        color="light"
-        v-if="showingChildNodes"
-        @click="onBack"
-        >
-        <ion-icon :icon="arrowBack"> </ion-icon>
-        Back 
-    </ion-button>
     <ion-grid> 
         <ion-row>
             <ion-col 
@@ -31,28 +23,32 @@ import TaskCard from "@/components/DataViews/TaskCard.vue";
 import { FolderInterface } from "@/apps/interfaces/AppInterface"
 import img from '@/utils/Img'
 import {
-    IonButton,
     IonGrid,
-    IonIcon,
     IonRow,
     IonCol
 } from "@ionic/vue";
 import { arrowBack } from 'ionicons/icons';
+import Store from "@/composables/ApiStore"
+import { find } from 'lodash';
+
 export default defineComponent({
+    emits: ['onSublist'],
     setup() {
         return {
             arrowBack
         }
     },
     components: { 
-        IonIcon,
         TaskCard,
-        IonButton,
         IonGrid,
         IonRow,
         IonCol
     },
     props: {
+        resetList: {
+            type: Number,
+            required: true
+        },
         items: {
             type: Object as PropType<FolderInterface[]>,
             required: true
@@ -60,13 +56,29 @@ export default defineComponent({
     },
     data: () => ({
         defaultIcon: 'sys-setting.png' as string,
-        viewableItems: [] as any,
-        showingChildNodes: false as boolean
+        viewableItems: [] as any
     }),
     watch: {
+        resetList: {
+            handler() {
+                Store.set('ACTIVE_HOME_SUB_TAB_NAME', '')
+                this.setItems(this.items)  
+            }
+        },
         items: {
             async handler(items: FolderInterface[]) {
-                if (items) this.setItems(items)
+                if (items) {
+                    const viewable = await this.filterViewable(items)
+                    // Recall previously selected item list
+                    const activeItemName: string = await Store.get('ACTIVE_HOME_SUB_TAB_NAME')
+                    if (typeof activeItemName === 'string' && activeItemName != '') {
+                        const item = find(viewable, { name: activeItemName })
+                        if (item) this.onClick(item)
+                    } else {
+                        Store.invalidate('ACTIVE_HOME_SUB_TAB_NAME')
+                        this.viewableItems = viewable
+                    }
+                }
             },
             immediate: true,
             deep: true
@@ -85,24 +97,21 @@ export default defineComponent({
             return (await Promise.all(verified)).filter((i: any) => i.canShow)
         },
         async onClick(item: any){
-            if (item.files) {
-                this.showingChildNodes = true
-                this.defaultIcon = 'sys-setting.png'
-                if (item.defaultFilesIcon) {
-                    this.defaultIcon = item.defaultFilesIcon
-                }
-                this.setItems(item.files)
+            if (item.pathUrl) {
+                this.$router.push(item.pathUrl)
             } else if (typeof item.action === 'function') {
                 item.action()
             } else if (item.pathName) {
                 this.$router.push({ name: item.pathName })
-            } else if (item.pathUrl) {
-                this.$router.push(item.pathUrl)
+            } else if (item.files) {
+                Store.set('ACTIVE_HOME_SUB_TAB_NAME', item.name)
+                this.defaultIcon = 'sys-setting.png'
+                if (item.defaultFilesIcon) {
+                    this.defaultIcon = item.defaultFilesIcon
+                }
+                this.$emit('onSublist')
+                this.setItems(item.files)
             }
-        },
-        onBack() {
-            this.showingChildNodes = false
-            this.setItems(this.items)
         },
         itemIcon(item: any) {
             return img(item.icon ? item.icon : this.defaultIcon)

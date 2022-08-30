@@ -22,6 +22,7 @@ export interface EstimationInterface {
 export interface DateFieldInterface {
     id: string;
     helpText: string;
+    init?: (f: any, c: any) => boolean | Promise<boolean>;
     summaryLabel?: string;
     condition?: Function;
     required?: boolean;
@@ -212,6 +213,8 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
         }, []).join('-')
     }
 
+    if (typeof field.init === 'function') year.init = field.init
+    
     // YEAR CONFIG
     year.updateHelpTextOnValue = (data: any) => `${year.helpText} (${buildHelpTextDate(data?.label, 'year')})`
 

@@ -22,8 +22,8 @@
     <ion-content>
       <keep-alive>
         <component
-          :key="currentField.id"
           v-bind:is="currentField.type"
+          :key="currentField.id"
           :config="currentField.config"
           :options="currentField.options"
           :preset="currentField.preset"
@@ -60,8 +60,8 @@
   </ion-page>
 </template>
 <script lang='ts'>
-import { defineComponent, PropType } from "vue";
-import { BaseFormComponents } from "@/components/Forms/BaseFormElements";
+import { defineComponent, PropType, defineAsyncComponent } from "vue";
+import { COMPONENT_REFS } from "@/components/Forms/BaseFormElements";
 import { findIndex, isEmpty } from "lodash";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import { 
@@ -89,6 +89,24 @@ import {
 import { alertConfirmation, toastWarning } from "@/utils/Alerts";
 import InfoCard from "@/components/DataViews/HisFormInfoCard.vue"
 import {toastDanger} from "@/utils/Alerts"
+import LoadingFormElement from "@/components/Forms/LoaderFormPlaceholder.vue"
+import ErrorFormElement from "@/components/Forms/FormElementError.vue"
+/**
+ * Build async components for all form elements
+ */
+function buildAsyncComponents() {
+  const components: any = {}
+  COMPONENT_REFS.forEach((name: string) => {
+    components[name] = defineAsyncComponent({
+      loader: () => import( /* webpackChunkName: "TouchFormElement"*/`@/components/FormElements/${name}.vue`),
+      loadingComponent: LoadingFormElement,
+      errorComponent: ErrorFormElement,
+      delay: 150,
+      timeout: 50000,
+    })
+  })
+  return components
+}
 
 export default defineComponent({
   name: "TouchscreenForm",
@@ -104,7 +122,7 @@ export default defineComponent({
     IonTitle,
     IonCol,
     IonRow,
-    ...BaseFormComponents,
+    ...buildAsyncComponents(),
   },
   emits: [
     'onFinish',
@@ -144,6 +162,7 @@ export default defineComponent({
     computedFormData: {} as any,
     footerBtns: [] as Array<FormFooterBtns>,
     currentFields: [] as Array<Field>,
+    fieldsInitialisedOnce: {} as Record<string, boolean>,
     state: "" as
       | "init"
       | "onsubmit"
@@ -225,6 +244,7 @@ export default defineComponent({
       }
       const i = findIndex(this.currentFields, { id: name });
       if (i >= 0 && i <= this.currentFields.length) {
+        this.setActiveFieldComputedValue()
         this.setActiveField(i)
         this.$emit('onIndex', i)
       }
@@ -529,6 +549,7 @@ export default defineComponent({
           && this.currentField.id === field.id) {
           continue;
         }
+        await this.initFieldOnce(field)
         try {
           if (!(await this.checkFieldCondition(field))) {
             continue
@@ -618,24 +639,8 @@ export default defineComponent({
       if (proxyID) this.formData[proxyID] = value
 
       this.formData[id] = value;
-
-      let computeValue: any = null
-
-      if (this.currentField.computedValue) {
-        //Avoid sending null values to avoid crashing the callback
-        if (value) {
-          computeValue = this.currentField.computedValue(
-            value, this.formData, this.computedFormData
-          );
-        }
-        if (proxyID) {
-          this.computedFormData[proxyID] = computeValue
-        } else {
-          this.computedFormData[id] = computeValue
-        }
-      }
       if (typeof this.currentField.updateHelpTextOnValue === 'function') {
-        this.helpText = this.currentField.updateHelpTextOnValue(value, computeValue) 
+        this.helpText = this.currentField.updateHelpTextOnValue(value, this.formData)
       }
     },
     /**
@@ -649,6 +654,7 @@ export default defineComponent({
           && this.currentField.id === field.id) {
             continue;
           }
+        await this.initFieldOnce(field)
         try {
           if (!(await this.checkFieldCondition(field))) {
             continue
@@ -659,9 +665,11 @@ export default defineComponent({
         if (typeof this.currentField.exitsForm === 'function' 
           && this.currentField.exitsForm(this.formData, this.computedFormData)) 
           break
-        await this.setActiveField(i, "next");
+        this.setActiveFieldComputedValue()
+        this.setActiveField(i, "next");
         return;
       }
+      this.setActiveFieldComputedValue()
       await this.onFinishAction()
     },
     /**
@@ -672,7 +680,7 @@ export default defineComponent({
       this.state = state;
       this.currentIndex = index;
       this.currentField = this.currentFields[this.currentIndex];
-      
+      await this.initFieldOnce(this.currentField)  
       // Set default helpText
       this.helpText = this.currentField.dynamicHelpText
         ? this.currentField.dynamicHelpText(this.formData)
@@ -699,11 +707,31 @@ export default defineComponent({
       this.footerBtns.push(this.getNextBtn(ftBtns?.nextBtn));
       this.footerBtns.push(this.getFinishBtn(ftBtns?.finishBtn));
     },
+    setActiveFieldComputedValue() {
+      if (typeof this.currentField === 'object' && typeof this.currentField.computedValue === 'function') {
+        const fieldID = this.currentField.proxyID || this.currentField.id
+        const formValue = this.formData[fieldID]
+        if (formValue != null || !formValue) {
+          this.computedFormData[fieldID] = this.currentField.computedValue(
+            formValue, this.formData, this.computedFormData
+          )
+        } else {
+          this.computedFormData[fieldID] = null
+        }
+      }
+    },
     onFieldValue(value: Option | Array<Option>) {
       this.setActiveFieldValue(value);
       if ("requireNext" in this.currentField 
         && !this.currentField.requireNext) {
         this.onNext();
+      }
+    },
+    async initFieldOnce(field: Field) {
+      if (typeof field.init === 'function') {
+        if (!this.fieldsInitialisedOnce[field.id]) {
+          this.fieldsInitialisedOnce[`${field.id}`] = await field.init(this.formData, this.computedFormData)
+        }
       }
     }
   }

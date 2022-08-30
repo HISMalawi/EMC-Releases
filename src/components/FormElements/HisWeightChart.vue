@@ -3,13 +3,13 @@
         <div class="view-port-content">
             <ion-row class='parent-row'>
                 <ion-col size="7"> 
-                    <apexchart
+                    <ApexChart
                         :width="width"
                         :height="height"
                         :type="type"
                         :options="chartOptions"
                         :series="series"
-                    ></apexchart>
+                    />
                 </ion-col>
                 <ion-col size="5">
                     <ion-list >
@@ -65,8 +65,11 @@ import {
     IonItem,
     IonChip
 } from "@ionic/vue"
+import ApexChart from "vue3-apexcharts";
+
 export default defineComponent({
    components: { 
+        ApexChart,
         ViewPort,
         IonCol,
         IonRow,
@@ -118,6 +121,9 @@ export default defineComponent({
         }
       }
     }),
+    mounted() {
+        this.$emit('onFieldActivated', this)
+    },
     activated(){
         this.$emit('onFieldActivated', this)
     },

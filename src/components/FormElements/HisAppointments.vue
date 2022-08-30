@@ -108,6 +108,9 @@ export default defineComponent({
       weekdays: 'WWW',
     }
   }),
+  mounted() {
+    this.$emit('onFieldActivated', this)
+  },
   activated(){
     this.$emit('onFieldActivated', this)
   },

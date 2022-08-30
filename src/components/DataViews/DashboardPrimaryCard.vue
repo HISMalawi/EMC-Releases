@@ -8,7 +8,8 @@
             <ion-badge slot="start" class="his-sm-text" color="light"><b>{{ counter }}</b></ion-badge>
             <ion-label> {{title}} </ion-label> 
         </ion-item>
-        <ion-list>
+        <text-skeleton v-if="isLoading" :itemCount="5"/>
+        <ion-list v-if="!isLoading">
             <ion-item v-for="(item, index) in items" :key="index">
                 <ion-label :class="item?.other?.wrapTxt ? 'ion-text-wrap' : ''" v-html="item.label"></ion-label>
                 <ion-chip  class="his-sm-text" v-if="item.value" slot='end'>
@@ -24,6 +25,7 @@
 import { defineComponent, PropType } from 'vue'
 import { Option } from "@/components/Forms/FieldInterface"
 import { time } from "ionicons/icons";
+import TextSkeleton from "@/components/TextSkeleton.vue"
 import { 
     IonLabel, 
     IonList, 
@@ -34,6 +36,7 @@ import {
 } from "@ionic/vue";
 export default defineComponent({
     components: {
+        TextSkeleton,
         IonLabel, 
         IonList, 
         IonItem,
@@ -52,6 +55,9 @@ export default defineComponent({
         counter: {
             type: Number,
             required: false
+        },
+        isLoading: {
+            type: Boolean
         },
         icon: {
             type: Object   

@@ -69,7 +69,7 @@ export class ConsultationService extends AppEncounterService {
   }
 
   getClient() {
-    return AppEncounterService.getFirstValueCoded(this.patientID, 'Patient Present');
+    return AppEncounterService.getFirstValueCoded(this.patientID, 'Patient present');
   }
 
   async clientDueForCxCa() {

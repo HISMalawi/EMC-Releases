@@ -15,6 +15,7 @@ import { selectActivities } from '@/utils/WorkflowTaskHelper';
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Patientservice } from '@/services/patient_service';
 import { ObservationService } from '@/services/observation_service';
+import Store from "@/composables/ApiStore"
 
 declare global {
   interface Navigator {
@@ -36,8 +37,7 @@ async function onRegisterPatient(patientId: number) {
 }
 
 async function formatPatientProgramSummary(_: any, patientId: number) {
-  const p = await Patientservice.findByID(patientId)
-  const patient = new Patientservice(p)
+  const patient: Patientservice = await Store.get('ACTIVE_PATIENT', { patientID: patientId })
   const hivStatus = await ObservationService.getFirstValueText(patient.getID(), 'HIV Status')
   return [
     { label: 'Malawi National ID', value: patient.getMWNationalID() },

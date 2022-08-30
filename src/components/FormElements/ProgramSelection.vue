@@ -81,9 +81,11 @@ export default defineComponent({
         listData: [] as Array<Option>,
         activeProgram: {} as any,
     }),
-    async activated() {
-        this.$emit('onFieldActivated', this)
-        this.listData = await this.options(this.fdata)
+    mounted() {
+        this.init()
+    },
+    activated() {
+        this.init()
     },
     computed: {
         states(): Array<any> {
@@ -91,6 +93,10 @@ export default defineComponent({
         }
     },
     methods: {
+        async init() {
+            this.$emit('onFieldActivated', this)
+            this.listData = await this.options(this.fdata)
+        },
         formatDate(date: string) {
             return !date ? 'N/A' : HisDate.toStandardHisDisplayFormat(date)
         },

@@ -103,6 +103,9 @@ export default defineComponent({
       }))
     }
   },
+  mounted() {
+    this.$emit('onFieldActivated', this)
+  },
   activated(){
     this.$emit('onFieldActivated', this)
   }

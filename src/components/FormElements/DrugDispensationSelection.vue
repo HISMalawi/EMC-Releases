@@ -18,7 +18,7 @@
                 </ion-col>
                 <ion-col size="10"> 
                     <!--- HISTORY START--->
-                    <div class="his-card history" v-if="tab === 'history'"> 
+                    <div class="his-card history" v-if="tab === 'history'">
                         <table class="his-table">
                             <tr>
                                 <th> Medication</th>
@@ -84,11 +84,12 @@ import NavButton from "@/components/Buttons/ActionSideButton.vue"
 import ResetButton from "@/components/Buttons/ResetButton.vue"
 import ArtDispensationModal from "@/components/DataViews/ArtDispensationModal.vue"
 import FieldMixinVue from './FieldMixin.vue'
-import ART_PROP from "@/apps/ART/art_global_props";
 import {
     IonRow,
     IonCol
 } from "@ionic/vue"
+import { isEmpty } from 'lodash'
+import { toastDanger } from '@/utils/Alerts'
 
 export default defineComponent({
   components: { 
@@ -101,24 +102,42 @@ export default defineComponent({
   },
   mixins: [FieldMixinVue],
   data: () => ({
-    tab: 'prescribe',
-    isStockManagementEnabled:false,
-    listData: [] as any
+    tab: 'prescribe' as 'prescribe' | 'history',
+    listData: [] as any,
+    medicationHistory: [] as any,
+    isStockManagementEnabled:false
   }),
-  async activated() {
-    this.$emit('onFieldActivated', this)
-    this.isStockManagementEnabled = await ART_PROP.drugManagementEnabled()
-    this.listData = await this.options(this.fdata)
+  mounted() {
+    this.init()
   },
-  computed: {
-    medicationHistory(): Array<any> {
-        if (this.config && this.config.medicationHistory) {
-            return this.config.medicationHistory
+  activated() {
+    this.init()
+  },
+  watch: {
+    tab : {
+        handler(tab: string) {
+            if (tab === 'history' && isEmpty(this.medicationHistory)) {
+                if (typeof this.config.medicationHistory === 'function') {
+                    this.config.medicationHistory().then((data: any) => {
+                        if (data) {
+                            this.medicationHistory = data
+                        } 
+                    }).catch((e: any) => {
+                        toastDanger(`${e}`)
+                    })
+                }
+            }
         }
-        return []
     }
   },
   methods: {
+    async init() {
+        this.$emit('onFieldActivated', this)
+        if (typeof this.config?.isDrugManagementEnabled === 'function') {
+            this.isStockManagementEnabled = this.config?.isDrugManagementEnabled()
+        }
+        this.listData = await this.options(this.fdata)
+    },
     async onScan(barcode: string) {
         const [ drugId, quantity ] = barcode.split('-')
         /** Find the drug matching the one detected on the barcode */

@@ -37,9 +37,17 @@ export default defineComponent({
             return this.listData.filter((item) => item?.other?.type != 'title-section')
         }
     },
-    async activated() {
-        this.$emit('onFieldActivated', this)
-        this.listData = this.options(this.fdata)
+    methods: {
+        init() {
+            this.$emit('onFieldActivated', this)
+            this.listData = this.options(this.fdata)
+        }
+    },
+    mounted() {
+        this.init()
+    },
+    activated() {
+        this.init()
     }
 })
 </script>

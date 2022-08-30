@@ -36,6 +36,7 @@ import { infoActionSheet } from "@/utils/ActionSheets"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import dayjs from "dayjs";
 import { delayPromise } from "@/utils/Timers";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
@@ -68,13 +69,13 @@ export default defineComponent({
     isMilitarySite: false,
     presets: {} as any,
     registrationSummary: {} as any,
-    form: {} as Record<string, Option> | Record<string, null>
+    form: {} as Record<string, Option> | Record<string, null>,
+    ddeEnabled: false as boolean,
   }),
   watch: {
     '$route': {
         async handler({query}: any) {
            this.ddeInstance = new PatientDemographicsExchangeService()
-           await this.ddeInstance.loadDDEStatus()
            if (query.edit_person) {
                 this.ddeIsReassign = query.dde_reassign
                 this.ddeDocID = query.doc_id
@@ -85,7 +86,6 @@ export default defineComponent({
                 this.presets = query
             }
             this.fields = this.getFields()
-            this.isMilitarySite = await GLOBAL_PROP.militarySiteEnabled()
         },
         immediate: true,
         deep: true
@@ -126,11 +126,7 @@ export default defineComponent({
     },
     async initEditMode(personId: number) {
         this.editPerson = personId
-        const person = await Patientservice.findByID(this.editPerson)
-        if (!person) {
-            return
-        }
-        this.patient = new Patientservice(person)
+        this.patient = await Store.get('ACTIVE_PATIENT', { patientID: parseInt(`${this.editPerson}`)})
         const {
             ancestryDistrict,
             ancestryTA,
@@ -170,13 +166,13 @@ export default defineComponent({
         person = this.presets.nationalIDStatus == "true" ? this.appendNationalIDData(person) : person
         const attributes: Array<any> = this.resolvePersonAttributes(computedData)
         const registration: any = new PatientRegistrationService()
-        await registration.registerPatient(person, attributes)
-
+        const patient = new Patientservice((await registration.registerPatient(person, attributes)))
         const patientID = registration.getPersonID()
 
+        Store.set('ACTIVE_PATIENT', patient) // update patient store
+ 
         if(this.presets.nationalIDStatus == "true"){ 
-            const patient = await Patientservice.findByID(patientID)
-            this.patient = new Patientservice(patient)
+            this.patient = patient
             await this.patient.updateMWNationalId(this.presets.malawiNationalID)
         }
 
@@ -206,12 +202,12 @@ export default defineComponent({
 
         update.setPersonID(this.editPerson)
         await update.updatePerson(person)
-
         for(const attr in person) {
             if (attr in this.editPersonData) {
                 this.editPersonData[attr] = person[attr]
             }
         }
+        Store.invalidate('ACTIVE_PATIENT')
         if(!this.personAttribute) return this.fieldComponent = 'edit_user'
         this.$router.back()
     },
@@ -223,7 +219,7 @@ export default defineComponent({
     },
     async confirmPatient() {
         // Attempt to assign or reassign a patient's NPID if they dont have a valid one
-        if (this.ddeInstance.isEnabled() && (!this.patient.getDocID() 
+        if (this.ddeEnabled && (!this.patient.getDocID() 
             || (this.patient.getDocID() && this.patient.getNationalID().match(/unknown/i)))) {
                 try {
                     await this.patient.assignNpid()
@@ -395,6 +391,10 @@ export default defineComponent({
             id: 'occupation',
             helpText: 'Occupation',
             type: FieldType.TT_SELECT,
+            init: async () => {
+               this.isMilitarySite = await GLOBAL_PROP.militarySiteEnabled()
+               return true 
+            },
             computedValue: (val: Option) => ({person: val.value}),
             condition: () => this.editConditionCheck(['occupation']) && this.isMilitarySite,
             validation: (val: any) => Validation.required(val),
@@ -493,6 +493,12 @@ export default defineComponent({
             id: 'results',
             helpText: 'Search results',
             type: FieldType.TT_PERSON_RESULT_VIEW,
+            init: async () => {
+                if (!this.isEditMode()) { 
+                    this.ddeEnabled = await Store.get('IS_DDE_ENABLED')
+                }
+                return true
+            },
             dynamicHelpText: (form: any) => {
                 return this.presets.nationalIDStatus == "true" ?
                  `Search results for "${this.presets.given_name} ${this.presets.family_name} | ${this.presets.gender}"` : 
@@ -519,7 +525,7 @@ export default defineComponent({
                     }
                 }
                 // DDE enabled search
-                if (this.ddeInstance.isEnabled()) {
+                if (this.ddeEnabled) {
                     const patients = await this.ddeInstance.searchDemographics(payload)
                     return patients.map((item: any) => {
                         const itemData = PersonField.getPersonAttributeOptions(item)
@@ -589,7 +595,7 @@ export default defineComponent({
             helpText: 'Possible Duplicate(s)',
             type: FieldType.TT_PERSON_MATCH_VIEW,
             condition: async (_: any, c: any) => {
-                if (this.ddeInstance.isEnabled() && !this.editPerson) {
+                if (this.ddeEnabled && !this.editPerson) {
                     createdPerson = PersonField.resolvePerson(c)
                     duplicatePatients = await this.ddeInstance
                         .checkPotentialDuplicates(createdPerson)
@@ -674,7 +680,6 @@ export default defineComponent({
                     }
                 ]
             }
-
         }
     },
     personIndexField(): Field {
@@ -682,6 +687,12 @@ export default defineComponent({
             id: 'edit_user',
             helpText: 'Edit Demographics',
             type: FieldType.TT_TABLE_VIEWER,
+            init: async () => {
+                if (this.isEditMode()) {
+                    this.ddeEnabled = await Store.get('IS_DDE_ENABLED')
+                }
+                return true
+            },
             condition: () => this.isEditMode(),
             options: async () => {
                 const editButton = (attribute: string) => ({
@@ -737,7 +748,7 @@ export default defineComponent({
                             visible: {
                                 default: () => false,
                                 onload: () => (
-                                    this.ddeInstance.isEnabled()
+                                    this.ddeEnabled
                                     && this.ddeIsReassign
                                     && !this.hasIncompleteData
                                 )

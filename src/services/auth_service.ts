@@ -145,13 +145,18 @@ export class AuthService {
         return version && version.length <= 25 ? version : '-'
     }
 
+    cachingIsEnabled() {
+        const val = this.getAppConf('dataCaching')
+        return typeof val === 'boolean' ? val : true
+    }
+
     versionLockingIsEnabled() {
         const val = this.getAppConf('enableVersionLocking')
         // Version locking is enabled by default if no config isset
         return  typeof val === 'boolean' ? val : true
     }
 
-    getAppConf(confKey: 'promptFullScreenDialog' | 'showUpdateNotifications' | 'enableVersionLocking') {
+    getAppConf(confKey: 'promptFullScreenDialog' | 'showUpdateNotifications' | 'enableVersionLocking' | 'dataCaching') {
         const conf: any = sessionStorage.getItem('appConf')
         if (conf) {
             try {

@@ -15,6 +15,7 @@ import { LocationService } from "@/services/location_service";
 import { Option } from "@/components/Forms/FieldInterface";
 import Validation from "@/components/Forms/validations/StandardValidations";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -22,7 +23,10 @@ export default defineComponent({
     onFinish(formData: any) {
       const siteLocation = formData.location.value;
       GLOBAL_PROP.setHealthCenterID(siteLocation)
-        .then(() => toastSuccess("Property set"))
+        .then(() => {
+          Store.invalidate('CURRENT_LOCATION')
+          toastSuccess("Property set")
+        })
         .then(() => this.$router.push("/"));
     },
     async getFields() {

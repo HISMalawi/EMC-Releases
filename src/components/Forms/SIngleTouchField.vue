@@ -44,9 +44,10 @@
     </ion-page>
 </template>
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType, defineAsyncComponent } from 'vue'
 import { Field, Option } from "@/components/Forms/FieldInterface"
 import { toastDanger, toastWarning } from "@/utils/Alerts";
+import { COMPONENT_REFS } from "@/components/Forms/BaseFormElements";
 import {
     IonToolbar,
     IonContent,
@@ -57,18 +58,16 @@ import {
     IonFooter,
     modalController
 } from "@ionic/vue"
-import BarcodeInput from "@/components/FormElements/HisBarcodeInput.vue"
-import SingleSelect from "@/components/FormElements/HisSelect.vue";
-import SingleSelectCards from "@/components/FormElements/HisCardSelector.vue";
-import MultipleSelect from "@/components/FormElements/HisMultipleSelect.vue";
-import TextInput from "@/components/FormElements/HisTextInput.vue"
-import NumberInput from "@/components/FormElements/HisNumberInput.vue"
-import MonthlyDays from "@/components/FormElements/HisMonthlyDays.vue"
-import YesNo from "@/components/FormElements/YesNoSelect.vue"
-import MultiYesNo from "@/components/FormElements/MultiYesNoSelect.vue"
-import IPAddressInput from "@/components/FormElements/HisIPAddress.vue"
-import DateInput from "@/components/FormElements/HisDateInput.vue"
-import HisAgeInput from "@/components/FormElements/HisAgeInput.vue"
+
+function buildAsyncComponents() {
+  const components: any = {}
+  COMPONENT_REFS.forEach((name: string) => {
+    components[name] = defineAsyncComponent(() => import(
+      /* webpackChunkName: "TouchFormElement"*/`@/components/FormElements/${name}.vue`)
+    )
+  })
+  return components
+}
 
 export default defineComponent({
     name: 'SingleFieldTouchForm',
@@ -80,18 +79,7 @@ export default defineComponent({
         IonButton,
         IonHeader,
         IonTitle,
-        TextInput,
-        SingleSelect,
-        MultipleSelect,
-        NumberInput,
-        MonthlyDays,
-        BarcodeInput,
-        YesNo,
-        MultiYesNo,
-        SingleSelectCards,
-        DateInput,
-        IPAddressInput,
-        HisAgeInput
+        ...buildAsyncComponents()
     },
     props: {
         dismissType: {

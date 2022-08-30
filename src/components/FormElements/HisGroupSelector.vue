@@ -106,6 +106,10 @@ export default defineComponent({
         }
     },
     methods: {
+        init() {
+            this.$emit('onFieldActivated', this) 
+            this.initiateList()
+        },
         async initiateList() {
             this.listData = (await this.options(this.fdata, this.cdata))
                 .map((o: Option) => {
@@ -116,9 +120,11 @@ export default defineComponent({
                 })
         }
     },
-    async activated() {
-        this.$emit('onFieldActivated', this) 
-        this.initiateList()
+    mounted() {
+        this.init()
+    },
+    activated() {
+        this.init()       
     }
 })
 </script>

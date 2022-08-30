@@ -37,8 +37,6 @@ export default defineComponent({
                 this.canShowStagingFields = false
                 this.registration = new ClinicRegistrationService(this.patientID, this.providerID)
                 this.vitals = new VitalsService(this.patientID, this.providerID)
-                await this.initStaging(this.patient)
-
                 this.showStagingWeightChart = false
                 this.fields = this.getRegistrationFields()
             },
@@ -305,6 +303,10 @@ export default defineComponent({
                     id: 'height',
                     helpText: 'Height (CM)',
                     type: FieldType.TT_NUMBER,
+                    init: async () => {
+                        await this.initStaging(this.patient)
+                        return true
+                    },
                     condition: (f: any) => f.has_transfer_letter.value === 'Yes',
                     computedValue: ({ value }: Option) => ({
                         tag:'vitals',

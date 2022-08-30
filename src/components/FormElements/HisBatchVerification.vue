@@ -72,12 +72,18 @@ export default defineComponent({
     selectedDrug: null as any,
     stockService: {} as any,
   }),
-  async activated() {
-    this.$emit("onFieldActivated", this);
-    this.stockService = new StockService();
-    await this.setDefaultValue();
+  mounted() {
+    this.init()
+  },
+  activated() {
+    this.init()
   },
   methods: {
+    async init() {
+      this.$emit("onFieldActivated", this);
+      this.stockService = new StockService();
+      await this.setDefaultValue();
+    },
     async setDefaultValue() {
       if (!isEmpty(this.drugs)) {
         return
