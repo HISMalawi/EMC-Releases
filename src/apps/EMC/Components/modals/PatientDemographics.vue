@@ -36,10 +36,10 @@
           <TextInput v-model="patient.cellPhoneNumber" allowUnknown />
         </ion-col>
         <ion-col size="12" class="ion-margin-top ion-margin-bottom">
-          <SelectInput v-model="patient.homeVillage" :asyncOptions="getVillagesByName" allowCustom searchable />
+          <SelectInput v-model="patient.homeVillage" :asyncOptions="getVillagesByName" allowCustom />
         </ion-col>
         <ion-col size="12" class="ion-margin-top ion-margin-bottom">
-          <SelectInput v-model="patient.landmark" :asyncOptions="getLandmarks" allowCustom searchable />
+          <SelectInput v-model="patient.landmark" :asyncOptions="getLandmarks" allowCustom />
         </ion-col>
       </ion-row>
     </ion-grid>

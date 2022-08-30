@@ -24,11 +24,11 @@
               <text-input v-model="form.cd4Count"  />
             </ion-col>
             <ion-col size="12" class="ion-margin-top ion-margin-bottom">
-              <SelectInput v-model="form.cd4CountLocation" :asyncOptions="getFacilities" allowCustom searchable />
+              <SelectInput v-model="form.cd4CountLocation" :asyncOptions="getFacilities" allowCustom />
             </ion-col>
           </template>
           <ion-col size="12" class="ion-margin-top ion-padding-top" >
-            <SelectInput v-model="form.whoConditions" :options="stagingCoditions" searchable multiple />
+            <SelectInput v-model="form.whoConditions" :options="stagingCoditions" multiple />
           </ion-col>
         </ion-row>
           <ion-button class="ion-margin-top ion-float-end" size="large" @click="onSubmit" color="success">Finish</ion-button>

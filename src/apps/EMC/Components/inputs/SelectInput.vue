@@ -19,13 +19,18 @@
   />
   <div v-else class="outer-input-box box-input" :class="{'box-input-error': model.error, 'ion-margin-top': model.label }">
     <div class="inner-input-box">
-      <div style="display: flex; flex-wrap: wrap;" @click="onShowOptions">
-        <ion-label v-if="showPlaceholder" class="input-placeholder" contenteditable>{{ model.placeholder || 'select option' }}</ion-label>
+      <div style="display: flex; flex-wrap: wrap; width: 100%;" @click="onShowOptions">
         <ion-chip v-for="(tag, index) of tags" :key="index">
           <ion-label>{{ tag.label }}</ion-label>
           <ion-icon :icon="closeCircle" color="danger" @click="diselect(tag)" style="z-index: 90"></ion-icon>
         </ion-chip>
-        <ion-input :disabled="!searchable || model.disabled" v-model="filter" class="search-input" ref="searchInput" />
+        <ion-input 
+          :disabled="model.disabled" 
+          :placeholder="showPlaceholder ? (model.placeholder || 'select option') : '' " 
+          v-model="filter" 
+          class="search-input" 
+          ref="searchInput" 
+        />
       </div>
       <div class="input-options" v-if="showOptions">
         <ion-list>
@@ -79,10 +84,6 @@ export default defineComponent({
       required: false,
     },
     allowCustom: {
-      type: Boolean,
-      default: false
-    },
-    searchable: {
       type: Boolean,
       default: false
     },

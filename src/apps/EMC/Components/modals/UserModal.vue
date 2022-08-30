@@ -23,7 +23,7 @@
           <TextInput v-model="form.confirmPassword" :form="form" password />
         </ion-col>
         <ion-col size="12" class="ion-margin-vertical">
-          <SelectInput v-model="form.roles" :options="roles" multiple searchable />
+          <SelectInput v-model="form.roles" :options="roles" multiple />
         </ion-col>
         <ion-col size="12" class="ion-margin-vertical">
           <TextInput v-model="form.givenName" />

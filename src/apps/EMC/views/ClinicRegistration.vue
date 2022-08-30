@@ -29,7 +29,7 @@
           </template>
           <template v-if="form.everRegisteredAtClinic.value === 'Yes'">
             <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <SelectInput v-model="form.artInitiationLocation" :form="form" :asyncOptions="getFacilities" allowCustom searchable />
+              <SelectInput v-model="form.artInitiationLocation" :form="form" :asyncOptions="getFacilities" allowCustom />
             </ion-col>
             <ion-col size="6" class="ion-margin-top ion-margin-bottom">
               <DateInput v-model="form.artStartDate" :form="form" :min-date="patientDob" :max-date="today" />
@@ -49,7 +49,7 @@
           </ion-col>
           <template v-if="form.confirmatoryTest.value.label !== 'Not done'">
             <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <SelectInput v-model="form.confirmatoryTestLocation" :form="form" :asyncOptions="getFacilities" allowCustom searchable />
+              <SelectInput v-model="form.confirmatoryTestLocation" :form="form" :asyncOptions="getFacilities" allowCustom />
             </ion-col>
             <ion-col size="6" class="ion-margin-top ion-margin-bottom">
               <DateInput v-model="form.confirmatoryTestDate" :form="form" :min-date="patientDob" :max-date="today" />

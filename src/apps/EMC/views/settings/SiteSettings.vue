@@ -7,7 +7,7 @@
           <h2>Site Settings</h2>
           <ion-row>
             <ion-col size="11" class="ion-margin-vertical">
-              <SelectInput v-model="nameForm.name" :asyncOptions="getFacilities" searchable />
+              <SelectInput v-model="nameForm.name" :asyncOptions="getFacilities" />
             </ion-col>
             <ion-col size="1" class="ion-margin-vertical">
               <br>
