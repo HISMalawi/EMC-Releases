@@ -25,7 +25,6 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import HisDate from "@/utils/Date"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { IonPage } from "@ionic/vue"
-import { isEmpty } from 'lodash'
 
 export default defineComponent({
     mixins: [ReportMixin],
@@ -34,7 +33,7 @@ export default defineComponent({
         title: 'Booked clients',
         date: '' as string,
         rows: [] as Array<any>,
-        appointments: [] as any,
+        appointments: {} as Record<string, any>,
         columns: [
             [
                 table.thTxt('ARV#'),
@@ -53,25 +52,34 @@ export default defineComponent({
             {
                 id: 'date',
                 helpText: 'Select date',
-                type: FieldType.TT_APPOINTMENT_PICKER,
+                type: FieldType.TT_DATE_PICKER,
                 defaultValue: () => PatientReportService.getSessionDate(),
                 validation: (val: any) => Validation.required(val),
-                onValue: async (date: string, context: any) => {
-                    const data = await this.report.getBookedAppointments(date)
-                    this.appointments = !isEmpty(data) ? data : []
-                    context.appointmentCounter = this.appointments.length
+                onValue: async (date: string) => {
+                    this.report.setStartDate(date)
+                    if (!this.appointments[date]) {
+                        this.appointments[date] = (await this.report.getBookedAppointments(date)) || []
+                    }
                     return true
+                },
+                config: {
+                    infoItems: (date: string) => {
+                        return [{
+                            label: 'Appointments',
+                            value: this.appointments[date]?.length || 0
+                        }]
+                   } 
                 }
             }
         ]
     },
     methods: {
-        async onPeriod(form: any) {
+        onPeriod(form: any) {
             this.rows = []
             this.period = HisDate.toStandardHisDisplayFormat(form.date)
-            this.setRows(this.appointments)
+            this.setRows(this.appointments[form.date])
         },
-        async setRows(data: Array<any>) {
+        setRows(data: Array<any>) {
             this.sortByArvNumber(data).forEach((data: any) => {
                 this.rows.push([
                     this.tdARV(data.arv_number || 'N/A'),
