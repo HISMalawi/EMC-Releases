@@ -215,9 +215,7 @@ export default {
       name: "National Health ID (Print)",
       description: "Print Patient National Health ID",
       action({ patient }: any) {
-        const app = App.getActiveApp()?.applicationName || ''
-        const lbl = new PatientPrintoutService(patient.patient_id)
-        return lbl.printNidLbl(['RADIOLOGY', 'Registration'].includes(app))
+        return new PatientPrintoutService(patient.patient_id).printNidLbl()
       },
       icon: "barcode.svg"
     },
