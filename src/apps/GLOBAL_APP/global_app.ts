@@ -223,7 +223,8 @@ export default {
       id: "lab activities",
       name: "Lab activities",
       description: "Do lab orders",
-      icon: 'lab.png'
+      icon: 'lab.png',
+      condition: () => App.getActiveApp()?.applicationName !== "RADIOLOGY"
     },
     {
       id: "demographics",
