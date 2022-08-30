@@ -13,7 +13,6 @@ import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import EncounterMixinVue from "@/views/EncounterMixin.vue";
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { RadiologyExaminationService } from "../services/radiology_examination_service";
-import { ConceptService } from "@/services/concept_service";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -26,7 +25,7 @@ export default defineComponent({
             this.fields = [
                 {
                     id: "patient_radiology_orders",
-                    helpText: "Radiology orders",
+                    helpText: "Radiology activities",
                     type: FieldType.TT_DATA_TABLE,
                     config: {
                         columns: () => [
@@ -38,17 +37,14 @@ export default defineComponent({
                             ]
                         ],
                         rows: async () => {
-                            const data = (await service.getPatientExaminations() || []).map(async (order: any) => {
+                            return (await service.getPatientExaminations() || []).map((order: any) => {
                                 return [
                                     table.td(order.accession_number),
-                                    table.td((await ConceptService.getConceptName(order.concept_id))),
-                                    table.tdDate(order.start_date),
-                                    table.tdBtn('Print', () => {
-                                        service.printExamination(order.accession_number)
-                                    })
+                                    table.td(order.examination_name),
+                                    table.tdDate(order.order_date),
+                                    table.tdBtn('Print', () => service.printExamination(order.accession_number))
                                 ]
                             })
-                            return Promise.all(data)
                         },
                         hiddenFooterBtns: ["Clear", 'Cancel'],
                     }
