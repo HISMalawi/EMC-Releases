@@ -51,6 +51,7 @@
             type="password"
             v-model="password"
             placeholder="Password"
+            @keyup.enter="login"
             :max="100"
             :min="5"
             required
