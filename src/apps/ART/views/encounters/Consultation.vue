@@ -75,7 +75,8 @@ export default defineComponent({
     wasTransferredIn: false as boolean,
     dateStartedArt: '' as string,
     clientHadAHysterectomy: false as any,
-    isNoneClientPatient: false as boolean
+    isNoneClientPatient: false as boolean,
+    tptStatus: {} as Record<string, any>
   }),
   watch: {
     ready: {
@@ -500,6 +501,7 @@ export default defineComponent({
     },
     medicationOrderOptions(formData: any, prechecked=[] as Option[]): Option[] {
       const completed3HP = this.didCompleted3HP(formData)
+      const everTakenTpt = this.tptStatus.tpt !== null
       const autoSelect3HP = this.tptAutoSelectionMode(formData)
 
       const disableOption = (text: string) => ({
@@ -532,20 +534,23 @@ export default defineComponent({
         this.toOption('3HP (RFP + INH)', {
           appendOptionParams: () => {
             if (completed3HP) return disableOption('Completed 3HP')
-
             if (this.TBSuspected) return disableOption('TB Suspect')
-
-            if (this.currentWeight < 20) return disableOption('Weight below regulation') 
+            if (this.currentWeight < 20) return disableOption('Weight below regulation')
+            if (everTakenTpt && this.tptStatus.tpt !== '3HP (RFP + INH)' && !this.tptStatus.completed) {
+              return disableOption(`On ${this.tptStatus.tpt} treatment`)
+            }
+            if (this.tptStatus.tpt === '3HP (RFP + INH)' && !this.tptStatus.completed) return { isChecked: true }
           }
         }),
         this.toOption('INH 300 / RFP 300 (3HP)', {
           appendOptionParams: () => { 
             if (completed3HP) return disableOption('Completed 3HP')
-
             if (this.TBSuspected) return disableOption('TB Suspect')
-
             if (this.currentWeight < 30) return disableOption('Weight below regulation') 
-
+            if (everTakenTpt && this.tptStatus.tpt !== 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) {
+              return disableOption(`On ${this.tptStatus.tpt} treatment`)
+            }
+            if (this.tptStatus.tpt === 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) return { isChecked: true }
             return { isChecked: autoSelect3HP }
           }
         }),
@@ -553,6 +558,10 @@ export default defineComponent({
           appendOptionParams: () => {
             if (completed3HP) return disableOption('Completed 3HP')
             if (this.TBSuspected) return disableOption('TB Suspect')
+            if (everTakenTpt && this.tptStatus.tpt !== 'IPT' && !this.tptStatus.completed) {
+              return disableOption(`On ${this.tptStatus.tpt} treatment`)
+            }
+            if (this.tptStatus.tpt === 'IPT' && !this.tptStatus.completed) return { isChecked: true }
           }
         }),
         this.toOption('NONE OF THE ABOVE')
@@ -1257,10 +1266,8 @@ export default defineComponent({
           init: async () => {
             this.hasTbHistoryObs = await this.consultation.hasTreatmentHistoryObs()
             if (this.hasTbHistoryObs) {
-              this.completed3HP = await this.consultation.patientCompleted3HP()
-            }
-            if (!this.completed3HP) {
-              this.completed3HP = await this.consultation.hasCompleteTptDispensations()
+              this.tptStatus = await this.consultation.getTptTreatmentStatus()
+              this.completed3HP = this.tptStatus.tpt !== null && this.tptStatus.completed
             }
             return true
           },
@@ -1326,6 +1333,10 @@ export default defineComponent({
             if (!this.isNoneClientPatient) {
               this.currentWeight = Number((await this.patient.getRecentWeight()))
               this.autoSelect3HP = await Store.get('ART_AUTO_3HP_SELECTION')
+              if (isEmpty(this.tptStatus)){
+                this.tptStatus = await this.consultation.getTptTreatmentStatus()
+                this.completed3HP = this.tptStatus.tpt !== null && this.tptStatus.completed
+              }
             }
             return true
           },
