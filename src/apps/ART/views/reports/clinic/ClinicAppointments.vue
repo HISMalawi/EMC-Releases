@@ -19,7 +19,7 @@
 import { defineComponent } from 'vue'
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service"
 import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
-import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
+import ReportTemplate from "@/views/reports/BaseTableReport.vue"
 import { FieldType } from '@/components/Forms/BaseFormElements'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import HisDate from "@/utils/Date"
