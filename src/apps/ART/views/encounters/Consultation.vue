@@ -1267,10 +1267,8 @@ export default defineComponent({
           type: FieldType.TT_SELECT,
           init: async () => {
             this.hasTbHistoryObs = await this.consultation.hasTreatmentHistoryObs()
-            if (this.hasTbHistoryObs) {
-              this.tptStatus = await this.consultation.getTptTreatmentStatus()
-              this.completed3HP = this.tptStatus.tpt !== null && this.tptStatus.completed
-            }
+            this.tptStatus = await this.consultation.getTptTreatmentStatus()
+            this.completed3HP = this.tptStatus.tpt !== null && this.tptStatus.completed
             return true
           },
           validation: (data: any) => Validation.required(data),
@@ -1335,10 +1333,6 @@ export default defineComponent({
             if (!this.isNoneClientPatient) {
               this.currentWeight = Number((await this.patient.getRecentWeight()))
               this.autoSelect3HP = await Store.get('ART_AUTO_3HP_SELECTION')
-              if (isEmpty(this.tptStatus)){
-                this.tptStatus = await this.consultation.getTptTreatmentStatus()
-                this.completed3HP = this.tptStatus.tpt !== null && this.tptStatus.completed
-              }
             }
             return true
           },
