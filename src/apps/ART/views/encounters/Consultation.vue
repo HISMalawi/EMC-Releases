@@ -500,7 +500,7 @@ export default defineComponent({
       })
     },
     medicationOrderOptions(formData: any, prechecked=[] as Option[]): Option[] {
-      const completed3HP = this.didCompleted3HP(formData)
+      const completedTpt = this.didCompleted3HP(formData)
       const everTakenTpt = this.tptStatus.tpt !== null
       const autoSelect3HP = this.tptAutoSelectionMode(formData)
 
@@ -533,7 +533,7 @@ export default defineComponent({
         }),
         this.toOption('3HP (RFP + INH)', {
           appendOptionParams: () => {
-            if (completed3HP) return disableOption('Completed 3HP')
+            if (completedTpt) return disableOption(`Completed ${this.tptStatus.tpt} treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
             if (this.currentWeight < 20) return disableOption('Weight below regulation')
             if (everTakenTpt && this.tptStatus.tpt !== '3HP (RFP + INH)' && !this.tptStatus.completed) {
@@ -544,7 +544,7 @@ export default defineComponent({
         }),
         this.toOption('INH 300 / RFP 300 (3HP)', {
           appendOptionParams: () => { 
-            if (completed3HP) return disableOption('Completed 3HP')
+            if (completedTpt) return disableOption(`Completed ${this.tptStatus.tpt} treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
             if (this.currentWeight < 30) return disableOption('Weight below regulation') 
             if (everTakenTpt && this.tptStatus.tpt !== 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) {
@@ -556,7 +556,7 @@ export default defineComponent({
         }),
         this.toOption('IPT', {
           appendOptionParams: () => {
-            if (completed3HP) return disableOption('Completed 3HP')
+            if (completedTpt) return disableOption(`Completed ${this.tptStatus.tpt} treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
             if (everTakenTpt && this.tptStatus.tpt !== 'IPT' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
