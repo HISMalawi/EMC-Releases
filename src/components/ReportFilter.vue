@@ -12,13 +12,18 @@
             </select>
         </ion-col>
         <ion-col>
-            <ion-input
-                :disabled="disableSearchFilter"
-                class="input_display"
-                :value="searchFilter"
-                @click="launchSearcher"
-                placeholder="Search here...">
-            </ion-input>
+            <ion-item lines="none"> 
+                <ion-input
+                    :disabled="disableSearchFilter"
+                    class="input_display"
+                    :value="searchFilter"
+                    @click="launchSearcher"
+                    placeholder="Search here...">
+                </ion-input>
+                <ion-button v-if="searchFilter" class="reset_button" size="large" @click="reset()" color="secondary">
+                    Reset
+                </ion-button>
+            </ion-item>
         </ion-col>
     </ion-row>
 </template>
@@ -27,7 +32,9 @@ import { defineComponent, ref, watch } from 'vue'
 import {
     IonCol,
     IonRow,
+    IonButton,
     IonInput,
+    IonItem,
     modalController
 } from "@ionic/vue"
 import TouchField from "@/components/Forms/SIngleTouchField.vue"
@@ -37,9 +44,11 @@ import { FieldType } from "@/components/Forms/BaseFormElements";
 export default defineComponent({
     emits: [ 'onItemsPerPage', 'onSearchFilter' ],
     components: { 
+        IonItem,
         IonCol, 
         IonRow, 
-        IonInput 
+        IonInput,
+        IonButton
     },
     props: {
         totalRowCount: {
@@ -77,6 +86,15 @@ export default defineComponent({
           modal.present();
         }
 
+        function onSearchFilter(value: string) {
+            emit('onSearchFilter', value)
+        }
+
+        function reset() {
+            searchFilter.value = ''
+            onSearchFilter('')
+        }
+
         function launchSearcher() {
            launchKeyboard({
                 id: 'search',
@@ -86,7 +104,7 @@ export default defineComponent({
             }, 
             (data: any) => {
                 searchFilter.value = data ? data.value : ''
-                emit('onSearchFilter', searchFilter.value)
+                onSearchFilter(searchFilter.value)
             })
         }
 
@@ -98,6 +116,7 @@ export default defineComponent({
         })
 
         return {
+            reset,
             itemsPerPage,
             searchFilter,
             launchKeyboard,
@@ -107,9 +126,14 @@ export default defineComponent({
 })
 </script>
 <style scoped>
+    .reset_button {
+        height: 5vh;
+    }
     .input_display {
+        text-align: left;
         font-size: var(--his-sm-font-size);
-        width: 300px;
+        width: 30vw;
+        height: 5vh;
         margin-bottom: 2%;
         border: solid 1px #9d9b9b;
         border-radius: 5px;
