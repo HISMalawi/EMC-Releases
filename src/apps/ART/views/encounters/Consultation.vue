@@ -591,6 +591,8 @@ export default defineComponent({
             if (this.isNoneClientPatient) {
               this.currentWeight = Number((await this.patient.getRecentWeight()))
               this.autoSelect3HP = await Store.get('ART_AUTO_3HP_SELECTION')
+              this.tptStatus = await this.consultation.getTptTreatmentStatus()
+              this.completed3HP = this.tptStatus.tpt !== null && this.tptStatus.completed
             }
             return true
           },
