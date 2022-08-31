@@ -140,7 +140,7 @@ export default defineComponent({
       this.active.columns = item.other.columns;
       this.active.onVoid = item.other.onVoid
       this.active.rows = await item.other.getRows()
-      this.active.provider = item.other.provider
+      this.active.provider = await item.other.provider
     },
   },
 });

@@ -13,32 +13,28 @@
 
 <script lang="ts">
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
-import { defineComponent, ref, watch } from 'vue';
+import { defineAsyncComponent, defineComponent, ref, watch } from 'vue';
 import ApiClient, { ApiBusEvents } from "@/services/api_client"
 import EventBus from "@/utils/EventBus"
 import { EventChannels } from "@/utils/EventBus"
 import { toastWarning, alertConfirmation } from './utils/Alerts';
 import { useRoute } from 'vue-router';
-import ConnectionError from "@/components/ConnectionError.vue"
-import UpdateNotification from "@/components/UpdateNotification.vue"
 /** Nprogress */
 import 'nprogress/nprogress.css'
 import nprogress from 'nprogress'
 import router from '@/router/index';
 import { loadingController } from "@ionic/vue"
 import { AuthService } from './services/auth_service';
-import FullScreenNotice from "@/components/FullScreenModifier.vue"
-import ModalContainer from "@/components/ModalContainer.vue"
 
 export default defineComponent({
   name: 'App',
   components: {
-    FullScreenNotice,
-    ModalContainer,
     IonApp,
     IonRouterOutlet,
-    ConnectionError,
-    UpdateNotification
+    ModalContainer: defineAsyncComponent(() => import("@/components/ModalContainer.vue")),
+    FullScreenNotice: defineAsyncComponent(() => import("@/components/FullScreenModifier.vue")),
+    ConnectionError: defineAsyncComponent(() => import("@/components/ConnectionError.vue")),
+    UpdateNotification: defineAsyncComponent(() => import("@/components/UpdateNotification.vue"))
   },
   setup() {
     const apiOk = ref(true)
@@ -63,8 +59,8 @@ export default defineComponent({
 
     nprogress.configure({ 
       easing: 'ease', 
-      speed: 870, 
-      trickleSpeed:5
+      speed: 330, 
+      trickleSpeed: 8
     })
 
     watch(route, (route) => 

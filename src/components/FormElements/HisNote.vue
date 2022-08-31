@@ -44,11 +44,17 @@ export default defineComponent({
         capsOn: false as boolean,
         layout: NOTE_PAD_KEYBOARD as Array<any>,
     }),
-    async activated(){
-        this.$emit('onFieldActivated', this)
-        await this.setDefaultValue()
+    mounted() {
+        this.init()
+    },
+    activated(){
+        this.init()
     },
     methods: {
+        async init() {
+            this.$emit('onFieldActivated', this)
+            await this.setDefaultValue()
+        },
         async setDefaultValue() {
             if (this.defaultValue && !this.value) {
                 const defaults: any = await this.defaultValue(this.fdata, this.cdata)

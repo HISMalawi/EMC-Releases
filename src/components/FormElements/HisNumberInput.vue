@@ -22,17 +22,21 @@ export default defineComponent({
         keyboard: NUMBERS_ONLY,
     }),
     activated() {
-        this.$emit('onFieldActivated', this)
-        if (typeof this.config.noChars === 'boolean') {
-            this.keyboard = this.config.noChars ? NUMBERS_ONLY : NUMBERS_WITH_ESTIMATE
-        }
+        this.init()
     },
     async mounted() {
-        this.setDefaultValue()
-        if(this.config.keypad) this.keyboard = this.config.keypad
+        await this.init()
         await this.setDefaultValue()
     },
     methods: {
+        init() {
+            this.$emit('onFieldActivated', this)
+            if (typeof this.config.noChars === 'boolean') {
+                this.keyboard = this.config.noChars ? NUMBERS_ONLY : NUMBERS_WITH_ESTIMATE
+            } else if (this.config.keypad) {
+                this.keyboard = this.config.keypad
+            }
+        },
         async setDefaultValue() {
             if (typeof this.defaultValue === 'function') {
                 const defaults = await this.defaultValue(this.fdata, this.cdata)

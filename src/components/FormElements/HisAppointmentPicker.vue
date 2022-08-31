@@ -67,6 +67,9 @@ export default defineComponent({
       this.date = await this.defaultValue()
     }
   },
+  mounted() {
+    this.$emit('onFieldActivated', this)
+  },
   activated(){
     this.$emit('onFieldActivated', this)
   }

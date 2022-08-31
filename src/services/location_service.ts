@@ -6,6 +6,10 @@ export class LocationService extends Service {
         super()
     }
 
+    static getLocation(locationID: number) {
+        return this.getJson(`locations/${locationID}`)
+    }
+
     static createAddress(type: string, name: string, parentLocation: number) {
         return this.postJson('addresses', {
             'address_type': type,

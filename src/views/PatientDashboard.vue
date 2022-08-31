@@ -1,22 +1,14 @@
 <template>
-    <ion-page>
-        <full-toolbar
-            class="full-component-view"
-            :appVersion="appVersion"
-            :appIcon="app.applicationIcon"
-            :patientCardInfo="patientCardInfo"
-            :programCardInfo="programCardInfo"
-        />
+    <!--SMALL SCREENBREAKPOINT-->
+    <ion-page v-if="screenBreakPoint === 'sm'"> 
         <minimal-toolbar
-            class="mobile-component-view"
             :title="patientName"
             :menuTitle="visitDatesTitle"
             :menuItems="visitDates"
             :appIcon="app.applicationIcon"
             @onClickMenuItem="onActiveVisitDate"
         />
-
-        <ion-toolbar class="mobile-component-view"> 
+        <ion-toolbar v-if="screenBreakPoint === 'sm'"> 
             <ion-segment :value="activeTab" class="ion-justify-content-center">
                 <ion-segment-button value="1" @click="activeTab=1"> 
                     <ion-icon :icon="calendar"> </ion-icon>
@@ -36,8 +28,7 @@
                 </ion-segment-button>
             </ion-segment>
         </ion-toolbar>
-
-        <ion-toolbar class="mobile-component-view" v-if="nextTask.name"> 
+        <ion-toolbar v-if="nextTask.name && screenBreakPoint === 'sm'"> 
             <ion-button 
                 :style="{width: '100%'}" 
                 color="success"
@@ -46,16 +37,14 @@
                 <ion-icon :icon="alertCircle"> </ion-icon>
             </ion-button>
         </ion-toolbar>
-
         <ion-content id="main-content">
             <!-- Mobile dashboard view -->
-            <div class="mobile-component-view">
+            <div v-if="screenBreakPoint==='sm'">
                 <component
                     v-if="appHasCustomContent && activeTab === 1 && patientIsset" 
                     v-bind:is="customDashboardContent"
                     :patient="patient"
                     :visitDate="activeVisitDate"
-                    @onProgramVisitDates="onProgramVisitDates"
                     >  
                 </component>
                 <ion-grid v-if="!appHasCustomContent && activeTab === 1">
@@ -65,13 +54,15 @@
                             :key="cardIndex"
                             >
                             <primary-card
+                                :key="`mcard${cardIndex}`"
                                 :isEnabled="card.isEnabled"
                                 :counter="card.items.length"
                                 :icon="card.icon"
                                 :title="card.label"
                                 :titleColor="card.color"
                                 :items="card.items"
-                                @click="card.onClick"
+                                :isLoading="card.isLoading"
+                                @click="card.onClick(card)"
                                 > 
                             </primary-card>
                         </ion-col>
@@ -122,8 +113,36 @@
                     </div>
                 </ion-list>
             </div>
-            <!-- RENDER DEFAULT PATIENT DASHBOARD -->
-            <ion-grid v-if="!appHasCustomDashboard" class='full-component-view grid-custom vertically-align'>
+        </ion-content>
+        <ion-footer> 
+            <ion-toolbar color="dark" v-if="screenBreakPoint==='sm'"> 
+                <ion-button color="primary" size="medium" slot="end" @click="showTasks"> 
+                    <ion-icon :icon="clipboard"> </ion-icon>
+                </ion-button>
+                <ion-button color="primary" size="medium" slot="end" @click="showOptions">
+                    <ion-icon :icon="folder"> </ion-icon>
+                </ion-button>
+                <ion-button color="primary" size="medium" slot="end" @click="changeApp"> 
+                    <ion-icon :icon="apps"> </ion-icon>
+                </ion-button>
+                <ion-button color="success" size="medium" slot="end" @click="onCancel">
+                    <ion-icon :icon="logOut"> </ion-icon>
+                </ion-button>
+            </ion-toolbar>
+        </ion-footer>
+    </ion-page>
+    <!-- END SMALL SCREEN BREAKPOINT-->
+
+    <!-- LARGE SCREEN BREAKPOINT -->
+    <ion-page v-if="screenBreakPoint === 'lg'"> 
+        <full-toolbar
+            :appVersion="appVersion"
+            :appIcon="app.applicationIcon"
+            :patientCardInfo="patientCardInfo"
+            :programCardInfo="programCardInfo"
+        />
+        <ion-content id="main-content"> 
+            <ion-grid v-if="!appHasCustomDashboard" class='grid-custom vertically-align'>
                 <ion-row>
                     <ion-col size="2.4">
                         <visit-dates-card :title="visitDatesTitle" :items="visitDates" @onselect="onActiveVisitDate"> </visit-dates-card>
@@ -157,7 +176,6 @@
                             v-bind:is="customDashboardContent"
                             :patient="patient"
                             :visitDate="activeVisitDate"
-                            @onProgramVisitDates="onProgramVisitDates"
                             >  
                         </component>
                         <!--Default patient dashboard content-->
@@ -168,13 +186,15 @@
                                     v-for="(card, cardIndex) in patientCards"
                                     :key="cardIndex">
                                     <primary-card
+                                        :key="card.label"
                                         :isEnabled="card.isEnabled"
                                         :counter="card.items.length"
                                         :icon="card.icon"
                                         :title="card.label"
                                         :titleColor="card.color"
                                         :items="card.items"
-                                        @click="card.onClick"
+                                        :isLoading="card.isLoading"
+                                        @click="card.onClick(card)"
                                         > 
                                     </primary-card>
                                 </ion-col>
@@ -185,49 +205,33 @@
                 </ion-row>
             </ion-grid>
         </ion-content>
-        <ion-footer> 
-            <ion-toolbar color="dark">
-                <ion-button :disabled="tasksDisabled" class="full-component-view" color="primary" size="large" slot="end" @click="showTasks"> 
-                    <ion-icon :icon="clipboardOutline"> </ion-icon>
-                    Tasks
-                </ion-button>
-                <ion-button class="mobile-component-view" color="primary" size="medium" slot="end" @click="showTasks"> 
-                    <ion-icon :icon="clipboard"> </ion-icon>
-                </ion-button>
-                <ion-button class="full-component-view" color="primary" size="large" slot="end" @click="showOptions">
-                    <ion-icon :icon="folderOutline"> </ion-icon>
-                    Printouts/Other
-                </ion-button>
-                <ion-button class="mobile-component-view" color="primary" size="medium" slot="end" @click="showOptions">
-                    <ion-icon :icon="folder"> </ion-icon>
-                </ion-button>
-                <ion-button class="full-component-view" color="primary" size="large" slot="end" @click="changeApp"> 
-                    <ion-icon :icon="appsOutline"> </ion-icon>
-                    Applications
-                </ion-button>
-                <ion-button class="mobile-component-view" color="primary" size="medium" slot="end" @click="changeApp"> 
-                    <ion-icon :icon="apps"> </ion-icon>
-                </ion-button>
-                <ion-button class="full-component-view" color="success" size="large" slot="end" router-link="/">
-                    <ion-icon :icon="logOutOutline"> </ion-icon>
-                    Finish
-                </ion-button>
-                <ion-button class="mobile-component-view" color="success" size="medium" slot="end" @click="onCancel">
-                    <ion-icon :icon="logOut"> </ion-icon>
-                </ion-button>
-            </ion-toolbar>
-        </ion-footer>
+        <ion-toolbar color="dark"> 
+            <ion-button color="primary" size="large" slot="end" @click="showTasks"> 
+                <ion-icon :icon="clipboardOutline"> </ion-icon>
+                Tasks
+            </ion-button>
+            <ion-button color="primary" size="large" slot="end" @click="showOptions">
+                <ion-icon :icon="folderOutline"> </ion-icon>
+                Printouts/Other
+            </ion-button>
+            <ion-button color="primary" size="large" slot="end" @click="changeApp"> 
+                <ion-icon :icon="appsOutline"> </ion-icon>
+                Applications
+            </ion-button>
+            <ion-button @click="onCancel" color="success" size="large" slot="end">
+                <ion-icon :icon="logOutOutline"> </ion-icon>
+                Finish
+            </ion-button>
+        </ion-toolbar>
     </ion-page>
+    <!--END LARGE SCREEN BREAKPOINT-->
 </template>
 <script lang="ts">
 import HisApp from "@/apps/app_lib"
-import { defineComponent } from 'vue'
-import PrimaryCard from "@/components/DataViews/DashboardPrimaryCard.vue"
-import VisitDatesCard from "@/components/DataViews/VisitDatesCard.vue"
+import { defineAsyncComponent, defineComponent, ref, watch } from 'vue'
 import HisDate from "@/utils/Date"
 import { Encounter } from "@/interfaces/encounter"
 import { Option } from "@/components/Forms/FieldInterface"
-import { Patient } from "@/interfaces/patient";
 import { Patientservice } from "@/services/patient_service"
 import { ProgramService } from "@/services/program_service"
 import { ObservationService } from "@/services/observation_service"
@@ -237,10 +241,8 @@ import TaskSelector from "@/components/DataViews/TaskSelectorModal.vue"
 import EncounterView from "@/components/DataViews/DashboardEncounterModal.vue"
 import CardDrilldown from "@/components/DataViews/DashboardTableModal.vue"
 import { WorkflowService } from "@/services/workflow_service"
-import { toastSuccess, alertConfirmation, toastDanger } from "@/utils/Alerts";
-import _, { isArray, isEmpty, uniq } from "lodash"
-import MinimalToolbar from "@/components/PatientDashboard/Poc/MinimalToolbar.vue"
-import FullToolbar from "@/components/PatientDashboard/Poc/FullToolbar.vue"
+import { toastSuccess, toastDanger, toastWarning } from "@/utils/Alerts";
+import { isArray, isEmpty } from "lodash"
 import {
     man,
     time,
@@ -282,15 +284,16 @@ import { PersonService } from "@/services/person_service"
 import { TaskInterface } from "@/apps/interfaces/TaskInterface"
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import App from "@/apps/app_lib"
+import PrimaryCard from "@/components/DataViews/DashboardPrimaryCard.vue"
+import VisitDatesCard from "@/components/DataViews/VisitDatesCard.vue"
+import Display from "@/composables/display"
+import FullToolbar from "@/components/PatientDashboard/Poc/FullToolbar.vue"
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
     components: {
         IonSegment,
         IonSegmentButton,
-        FullToolbar,
-        MinimalToolbar,
-        VisitDatesCard,
-        PrimaryCard,
         IonChip,
         IonPage,
         IonIcon,
@@ -301,8 +304,21 @@ export default defineComponent({
         IonGrid,
         IonRow,
         IonCol,
+        FullToolbar,
+        PrimaryCard,
+        VisitDatesCard,
+        MinimalToolbar: defineAsyncComponent(() => import("@/components/PatientDashboard/Poc/MinimalToolbar.vue"))
     },
     setup() {
+        const screenBreakPoint = ref('lg' as 'lg' | 'sm')
+        const { resolution } = Display()
+        watch(() => resolution.value, (dimensions) => {
+            if (dimensions && dimensions.width <= 900) {
+                screenBreakPoint.value = 'sm'
+            } else {
+                screenBreakPoint.value = 'lg'
+            }
+        }, { immediate: true, deep: true })
         return {
             time,
             person,
@@ -316,42 +332,30 @@ export default defineComponent({
             appsOutline, 
             folderOutline,
             logOutOutline,
-            alertCircle
+            alertCircle,
+            screenBreakPoint
         }
     },
     data: () => ({
         activeTab: 1 as number,
         app: {} as any,
-        tasksDisabled: true as boolean,
         dashboardComponent: {} as any,
         isBDE: false as boolean,
         currentDate: '',
         sessionDate: '',
         nextTask: {} as any,
+        programId: 0 as any,
         patientId: 0,
-        programID : 0,
         patient: {} as any,
         patientProgram: {} as any,
         patientCardInfo: [] as Array<Option>,
         programCardInfo: [] as Array<Option> | [],
-        encounters: [] as Array<Encounter>,
-        medications: [] as any,
         visitDates: [] as Array<Option>,
         activeVisitDate: '' as string | number,
-        encountersCardItems: [] as Array<Option>,
-        medicationCardItems: [] as Array<Option>,
-        labOrderCardItems: [] as Array<Option>,
-        alertCardItems: [] as Array<Option>,
         patientCards: [] as Array<any>,
         appVersion: ProgramService.getFullVersion(),
-        sessionEncounters: [] as Encounter[],
-        savedEncounters: [] as string[],
-        cardConfig: {
-            labEnabled: true as boolean,
-            medicationsEnabled: true as boolean,
-            alertsEnabled: true as boolean,
-            activitiesEnabled: true as boolean,
-        }
+        sessionEncounterMap: {} as Record<string, any>,
+        savedEncounters: [] as string[]
     }),
     computed: {
         patientIsset(): boolean {
@@ -363,7 +367,7 @@ export default defineComponent({
                 : 'N/A'
         },
         appHasCustomContent(): boolean {
-            return !_.isEmpty(this.app.customPatientDashboardContentComponent)
+            return !isEmpty(this.app.customPatientDashboardContentComponent)
                 ? true
                 : false
         },
@@ -375,67 +379,212 @@ export default defineComponent({
         }
     },
     watch: {
-        "$route" : {
-            async handler({params}: any) {
-                if (!params) return
-
-                this.patientId = parseInt(params.id)
-
-                if (this.patientId) await this.init()
-            },
-            deep: true,
-            immediate: true
-        },
         activeVisitDate(date: string) {
-            if (!(this.appHasCustomContent)) this.loadCardData(date)
+            if (!(this.appHasCustomContent)) this.updateCardVisitData(date)
         }
     },
+    created() {
+        this.app = App.getActiveApp()
+        this.patientCards = [
+            {
+                items: [],
+                cache: {},
+                label: 'Activities',
+                color: 'primary',
+                isLoading: false,
+                icon: timeOutline,
+                isEnabled: this.isCardEnabled('activitiesEnabled'),
+                onVisitDate: (card: any, date: string) => {
+                    card.isLoading = true
+                    EncounterService.getEncounters(this.patientId, {date})
+                        .then((encounters) => {
+                            card.items = this.getActivitiesCardInfo(encounters)
+                            card.cache[date] = card.items
+                            card.isLoading = false
+                            // Preserve today's encounters (BY SESSION DATE) in a hash object
+                            if (date === ProgramService.getSessionDate() && !isEmpty(encounters)) {
+                                this.sessionEncounterMap = encounters.reduce((accum: any, encounter: Encounter) => {
+                                    accum[encounter.type.name.toLowerCase()] = encounter.observations
+                                        .reduce((concepts: any, obs: any) => concepts.concat(obs.concept.concept_names), [])
+                                        .map((concept: any) => concept.name.toLowerCase())
+                                    return accum
+                                }, {})
+                            }
+                        }).catch(() => {
+                            card.items = []
+                            card.cache[date] = card.items
+                            card.isLoading = false
+                        })
+                },
+                onClick: (card: any) => {
+                    if (!card.isEnabled) 
+                        return
+                    if (!card.isLoading) {
+                        this.openModal(
+                            card.items, 'Select Activities', EncounterView
+                        )
+                    } else {
+                        toastWarning('Please wait...')
+                    }
+                } 
+            },
+            {
+                items: [],
+                cache: {},
+                color: 'success',
+                isLoading: false,
+                label: 'Lab Orders',
+                icon: timeOutline,
+                isEnabled: this.isCardEnabled('labEnabled'),
+                onVisitDate: (card: any, date: string, invalidateCache: boolean, voidedEncounter: string) => {
+                    if (invalidateCache && voidedEncounter === 'LAB ORDERS') {
+                        Store.invalidate('PATIENT_LAB_ORDERS')
+                    }
+                    card.isLoading = true
+                    this.getLabOrderCardInfo(date)
+                        .then((data) => {
+                            card.items = data
+                            card.cache[date] = card.items
+                            card.isLoading = false
+                        }).catch(() => {
+                            card.items = []
+                            card.cache[date] = card.items
+                            card.isLoading = false
+                        })
+                },
+                onClick: (card: any) => card.isEnabled && this.$router.push(`/art/encounters/lab/${this.patient.getID()}`)
+            },
+            {
+                items: [],
+                label: 'Alerts',
+                color: 'danger',
+                icon: warningOutline,
+                isLoading: false,
+                isInit: false,
+                isEnabled: this.isCardEnabled('alertsEnabled'),
+                onVisitDate: (card: any) => {
+                    if (card.isInit) return
+                    const d  = this.getPatientAlertCardInfo()
+                    if(typeof d === 'object' && d.then) {
+                        card.isLoading = true
+                        this.getPatientAlertCardInfo()
+                            .then((data) => {
+                                if (data) card.items = data
+                                card.isInit = true
+                                card.isLoading = false
+                            }).catch(() => {
+                                card.items = []
+                                card.isInit = true
+                                card.isLoading = false
+                            }) 
+                    }
+                    if (d) card.items = d
+                },
+                onClick: () => { /* TODO, list all alerts */ }
+            },
+            {
+                items: [],
+                cache: {},
+                label: 'Medications',
+                color: 'warning',
+                icon: timeOutline,
+                isLoading: false,
+                isEnabled: this.isCardEnabled('medicationsEnabled'),
+                onVisitDate: (card: any, date: string) => {
+                    card.isLoading = true
+                    DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
+                        .then((medications) => {
+                            card.items = this.getMedicationCardInfo(medications)
+                            card.cache[date] = card.items
+                            card.isLoading = false
+                        }).catch(() => {
+                            card.data
+                            card.items = []
+                            card.cache[date] = card.items
+                            card.isLoading = false
+                        })
+                },
+                onClick: (card: any) => {
+                    if (!card.isEnabled) 
+                        return
+                    if (card.isLoading) return toastWarning('Please wait..')
+                    const columns = ['Medication', 'Start date', 'End date', 'Amount given']
+                    const rows = card.items.map((medication: any) => ([
+                        medication.other.drug.name, 
+                        this.toDate(medication.other.order.start_date),
+                        this.toDate(medication.other.order.auto_expire_date),
+                        medication.other.quantity
+                    ]))
+                    this.openTableModal(columns, rows, 'Medication History')
+                }
+            }
+        ]
+    },
     mounted() {
-        // initialise empty cards on dashboard
-        this.updateCards()
+        this.patientId = parseInt(`${this.$route.params.id}`)
+        if (this.patientId) {
+            App.doAppManagementTasks().then(() =>{
+                this.app = App.getActiveApp()
+                this.programId = this.app.programID
+                if (this.appHasCustomContent) {
+                    this.patientCards = []
+                }
+                this.initData()
+            })
+        }
     },
     methods: {
-        async init() {
-            await App.doAppManagementTasks()
-            this.app = App.getActiveApp()
-            this.setProgramCardConfig()
-            this.patient = await this.fetchPatient(this.patientId)
-            try {
-                this.patientProgram = await ProgramService.getProgramInformation(this.patientId)
-            } catch (e) {
-                console.warn(e)
-            }
-            this.programCardInfo = await this.getProgramCardInfo(this.patientProgram) || []
-            this.patientCardInfo = this.getPatientCardInfo(this.patient)
+        initData() {
             this.currentDate = HisDate.currentDisplayDate()
             this.sessionDate = this.toDate(ProgramService.getSessionDate())
             this.isBDE = ProgramService.isBDE() || false
-            this.nextTask = await this.getNextTask(this.patientId)
-            this.onProgramVisitDates((await this.getPatientVisitDates(this.patientId)))
-            this.tasksDisabled = false
-            if (this.cardConfig.alertsEnabled) {
-                this.alertCardItems = await this.getPatientAlertCardInfo() || []
-            }
-            this.programID = ProgramService.getProgramID()
-            await this.loadSavedEncounters()
-            this.updateCards()
+            Store.get('ACTIVE_PATIENT', { patientID: this.patientId }).then((patient) => {
+                const setProgramInfo = (data: any) => {
+                    if (typeof data === 'object' && data.then) {
+                        this.getProgramCardInfo(this.patientProgram)
+                            .then((cardData: any) => this.programCardInfo = cardData)
+                            .catch(e => console.error(e))
+                    } else {
+                        const cardData = this.getProgramCardInfo(data)
+                        if (typeof cardData === 'object' && cardData.then) {
+                            cardData.then(d => this.programCardInfo = d)
+                                .catch(e => console.error(e))
+                        }
+                    }
+                }
+                this.patientCardInfo = this.getPatientCardInfo(patient)
+                this.patient = patient
+                ProgramService.getProgramInformation(this.patientId)
+                    .then((data) => {
+                        this.patientProgram = data
+                        setProgramInfo(this.patientProgram)
+                    }).catch(() => {
+                        this.patientProgram = []
+                        setProgramInfo(this.patientProgram)
+                    })
+                this.getNextTask()
+                    .then((task) => this.nextTask = task)
+                this.getPatientVisitDates(this.patientId)
+                    .then((dates) => {
+                        this.visitDates = dates
+                        this.loadSavedEncounters()
+                    }).catch((e) => {
+                        console.error(e)
+                    })
+            }).catch((e) => toastDanger(`${e}`))
         },
-        setProgramCardConfig() {
-            if (this.app.configDefaultPatientDashboardCards) {
-                const isset = (prop: any) => typeof prop === 'boolean' ? prop : true
-                const c = this.app.configDefaultPatientDashboardCards
-                this.cardConfig.labEnabled = isset(c.labEnabled)
-                this.cardConfig.medicationsEnabled = isset(c.medicationsEnabled)
-                this.cardConfig.activitiesEnabled = isset(c.activitiesEnabled)
-                this.cardConfig.alertsEnabled = isset(c.alertsEnabled)
-            }
+        isCardEnabled(setting: 'activitiesEnabled' | 'alertsEnabled' | 'medicationsEnabled' | 'labEnabled') {
+            const conf = this.app?.configDefaultPatientDashboardCards 
+            return conf && setting in conf  ? conf[setting] || false : true 
         },
         async showLoader() {
-            const loading = await loadingController.create({
+            (await loadingController.create({
                 message: 'Please wait....',
                 backdropDismiss: false
-            })
-            await loading.present()
+            })).present()
+        },
+        clearLoader() {
+            loadingController.getTop().then(v => v ? loadingController.dismiss() : null)
         },
         toDate(date: string | Date) {
             return HisDate.toStandardHisDisplayFormat(date)
@@ -443,127 +592,35 @@ export default defineComponent({
         toTime(date: string | Date) {
             return HisDate.toStandardHisTimeFormat(date)
         },
-        async loadSavedEncounters() {
-            try {
-                this.savedEncounters = await EncounterService.getSavedEncounters(this.patientId)
-            } catch (e) {
-                console.warn(`Program might not support saved encounters`, e)
-            }
+        loadSavedEncounters() {
+            EncounterService.getSavedEncounters(this.patientId)
+                .then((encounters) => {
+                    this.savedEncounters = encounters
+                })
         },
-        async loadCardData(date: string) {
-            try {
-                await this.showLoader()
-                if (this.cardConfig.activitiesEnabled) {
-                    this.encounters = await EncounterService.getEncounters(this.patientId, {date})
-                    this.encountersCardItems = await this.getActivitiesCardInfo(this.encounters)
+        updateCardVisitData(visitDate: string, invalidateCache=false, voidedEncounter='') {
+            this.patientCards.forEach((card) => {
+                if (card.isEnabled && typeof card.onVisitDate === 'function') {
+                    if (typeof card.cache === 'object' && card.cache[visitDate] && !invalidateCache) {
+                        card.items = card.cache[visitDate]
+                        return
+                    }
+                    card.onVisitDate(card, visitDate, invalidateCache, voidedEncounter)
                 }
-                this.tasksDisabled = false
-                loadingController.dismiss()
-                if (this.cardConfig.medicationsEnabled) {
-                    this.medications = await DrugOrderService.getOrderByPatient(this.patientId, {'start_date': date})
-                    this.medicationCardItems = this.getMedicationCardInfo(this.medications)
-                }
-                if (this.cardConfig.labEnabled) {
-                    this.labOrderCardItems = await this.getLabOrderCardInfo(date)
-                }
-                // Track encounters recorded on system session date
-                if (date === ProgramService.getSessionDate()) { 
-                   this.sessionEncounters = this.encounters
-                }
-                this.updateCards()
-            } catch(e) {
-                toastDanger(`${e}`)
-                this.tasksDisabled = false
-                loadingController.getTop().then(v => v ? loadingController.dismiss() : null)
-            }
-        },
-        updateCards() {
-            this.patientCards = [
-                this.activitiesCard(),
-                this.labOrderCard(),
-                this.alertsCard(),
-                this.medicationCard(),
-            ]
-        },
-        activitiesCard() {
-            return {
-                label: 'Activities',
-                items: this.encountersCardItems,
-                icon: timeOutline,
-                color: 'primary',
-                isEnabled: this.cardConfig.activitiesEnabled,
-                onClick: () => this.cardConfig.activitiesEnabled && this.openModal(
-                    this.encountersCardItems,
-                    'Select Activities',
-                    EncounterView
-                )
-            }
-        },
-        labOrderCard() {
-            const label = 'Lab Orders'
-            return {
-                label,
-                color: 'success',
-                icon: timeOutline,
-                items: this.labOrderCardItems,
-                isEnabled: this.cardConfig.labEnabled,
-                onClick: () => this.cardConfig.labEnabled && this.$router.push(`/art/encounters/lab/${this.patient.getID()}`)
-            }
-        },
-        alertsCard() {
-            return {
-                label: 'Alerts',
-                color: 'danger',
-                icon: warningOutline,
-                items: this.alertCardItems,
-                isEnabled: this.cardConfig.alertsEnabled,
-                onClick: () => { /* TODO, list all alerts */ }
-            }
-        },
-        medicationCard() {
-            return {
-                label: 'Medications',
-                color: 'warning',
-                icon: timeOutline,
-                items: this.medicationCardItems,
-                isEnabled: this.cardConfig.medicationsEnabled,
-                onClick: () => {
-                    if (!this.cardConfig.medicationsEnabled) return
-                    const columns = ['Medication', 'Start date', 'End date', 'Amount given']
-                    const rows = this.medications.map((medication: any) => ([
-                        medication.drug.name, 
-                        this.toDate(medication.order.start_date),
-                        this.toDate(medication.order.auto_expire_date),
-                        medication.quantity
-                    ]))
-                    this.openTableModal(columns, rows, 'Medication History')
-                }
-            }
-        },
-        async fetchPatient(patientId: number | string){
-            const patient: Patient = await Patientservice.findByID(patientId);
-            return patient ? new Patientservice(patient): {}
+            })
         },
         async getPatientVisitDates(patientId: number) {
-            const dates = await Patientservice.getPatientVisits(patientId, false)
-            return dates.map((date: string) => ({
-                label: this.toDate(date), value: date
-            }))
+            return (await Patientservice.getPatientVisits(patientId, false))
+                .map((date: string) => ({
+                    label: this.toDate(date), 
+                    value: date,
+                    other: {
+                        isActive: date === ProgramService.getSessionDate()
+                    }
+                }))
         },
-        onProgramVisitDates(dates: Option[]) {
-            const d = this.visitDates.concat(dates)
-                .map(d => d.value as string)
-                .sort((a, b) => new Date(a) > new Date(b) ? 0 : 1)
-            this.visitDates = uniq(d).map(d => ({ 
-                label: this.toDate(d), 
-                value: d,
-                other: {
-                    isActive: d === ProgramService.getSessionDate()
-                }
-            }))
-        },
-        getNextTask(patientId: number) {
-            return WorkflowService.getNextTaskParams(patientId)
+        getNextTask() {
+            return WorkflowService.getNextTaskParams(this.patientId)
         },
         goToNextTask() {
             nextTask(this.patientId, this.$router)
@@ -585,33 +642,35 @@ export default defineComponent({
                 { label: "Phone#", value: patient.getPhoneNumber()}
             ]
         },
-        getProgramCardInfo(info: any) {
+        async getProgramCardInfo(info: any) {
            if ('formatPatientProgramSummary' in this.app) {
              return this.app.formatPatientProgramSummary(info, this.patientId)
            }
+           return []
         },
         getActivitiesCardInfo(encounters: Array<Encounter>) {
-            const items = encounters.map(async (encounter: Encounter) => {
+           return encounters.map((encounter: Encounter) => {
                 return {
                 label: encounter.type.name,
                 value: this.toTime(encounter.encounter_datetime),
                 other: {
-                    provider: await PersonService.getPersonFullName(encounter.provider_id),
+                    provider: PersonService.getPersonFullName(encounter.provider_id),
                     id: encounter.encounter_id,
                     columns: ['Observation', 'Value', 'Time'],
                     onVoid: async (reason: any) => {
-                        try {
-                            await this.showLoader()
-                            await EncounterService.voidEncounter(encounter.encounter_id, reason)
-                            await this.loadSavedEncounters()
-                            loadingController.dismiss()
-                            /**Refresh card data*/
-                            await this.loadCardData(this.activeVisitDate as string)
-                            this.nextTask = await this.getNextTask(this.patientId)
-                            toastSuccess('Encounter has been voided!', 2000)
-                        } catch (e) {
-                            toastDanger(e)
-                        }
+                        await this.showLoader()
+                        EncounterService.voidEncounter(encounter.encounter_id, reason)
+                            .then(() => {
+                                this.clearLoader()
+                                this.loadSavedEncounters()
+                                this.updateCardVisitData(this.activeVisitDate as string, true, encounter.type.name)
+                                this.getNextTask()
+                                    .then((task) => this.nextTask = task)
+                                toastSuccess('Encounter has been voided!', 2000)
+                            }).catch((e) => {
+                                this.clearLoader()
+                                toastDanger(`${e}`, 32000)
+                            })
                     },
                     getRows: async () => {
                         const data = []
@@ -637,12 +696,12 @@ export default defineComponent({
                 }
                 }
             })
-            return Promise.all(items)
         },
         getMedicationCardInfo(medications: any) {
             return medications.map((medication: any) => ({
                 label: medication.drug.name,
                 value: this.toTime(medication.order.start_date),
+                other: medication
             }))
         },
         async getLabOrderCardInfo(date: string) {
@@ -662,13 +721,12 @@ export default defineComponent({
         },
         async changeApp() {
             const app = await HisApp.selectApplication('PatientDashboard', true);
-
             if (!app) return
-
-            if (app.programID != this.programID) {
-                return this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
+            if (app.programID != this.programId) {
+                this.programId = app.programID
+                this.$router.push(`/patients/confirm?patient_barcode=${this.patient.getNationalID()}`)
             } else {
-                await this.init()
+                this.initData()
             }
         },
         /** 
@@ -677,77 +735,65 @@ export default defineComponent({
         */
         async showTasks() {
             if ('primaryPatientActivites' in this.app) {
-                // Group encounters by encounter type name with the value being observation concept names.
-                // Observations concept names are later used to identify if key data was recorded for the task to be marked as done
-                const encounters = this.sessionEncounters.reduce((accum: any, encounter: Encounter) => {
-                    accum[encounter.type.name.toLowerCase()] = encounter.observations
-                        .reduce((concepts: any, obs: any) => concepts.concat(obs.concept.concept_names), [])
-                        .map((concept: any) => concept.name.toLowerCase())
-                    return accum
-                }, {})
                 const tasks = [...this.app.primaryPatientActivites].map(
                     (task: TaskInterface) => {
                         const taskName = (task.encounterTypeName || task.name).toLowerCase()
                         // check if key concept names from a task are present in encounters
                         // to mark it as completed
-                        if (typeof task.taskCompletionChecklist === 'object') {
-                            task.taskCompleted = task.taskCompletionChecklist.every(
-                                item => isArray(encounters[taskName])
-                                    && encounters[taskName].includes(item.toLowerCase())
+                        if (typeof task.taskCompletionChecklist === 'object' && !isEmpty(this.sessionEncounterMap)) {
+                            task.taskCompleted = task.taskCompletionChecklist
+                                .every(item => isArray(this.sessionEncounterMap[taskName])
+                                    && this.sessionEncounterMap[taskName].includes(item.toLowerCase())
                             )
                         } else {
                             // for tasks that dont have key concepts defined, just check presence of 
                             // the encounter itself
-                            task.taskCompleted = !isEmpty(encounters[taskName])
+                            task.taskCompleted = !isEmpty(this.sessionEncounterMap[taskName])
                         }
                         return task
                     })
                 this.openModal(tasks, 'Tasks for', TaskSelector, this.sessionDate)
             }
         },
-        async showOptions() {
+        showOptions() {
             if ('secondaryPatientActivites' in this.app) {
                 const other = this.app.secondaryPatientActivites
                 this.openModal(other, 'Select Activity', TaskSelector)
             }
         },
-        async openModal(items: any, title: string, component: any, date='') {
-            const displayDate = date || this.toDate(this.activeVisitDate.toString())
-            const modal = await modalController.create({
+        async startModal(component: any, props: any) {
+            (await modalController.create({
                 component: component,
                 backdropDismiss: false,
                 cssClass: "large-modal",
-                componentProps: {
-                    items,
-                    title: `${title}: ${displayDate}`,
-                    taskParams: { 
-                        patient: this.patient.getObj(),
-                        program: this.patientProgram,
-                        visitDate: this.activeVisitDate,
-                        patientID: this.patientId,
-                        savedEncounters: this.savedEncounters
-                    }
+                componentProps: props
+            })).present()
+        },
+        openModal(items: any, title: string, component: any, date='') {
+            this.startModal(component, {
+                items,
+                title: `${title}: ${date || this.toDate(this.activeVisitDate.toString())}`,
+                taskParams: { 
+                    patient: this.patient.getObj(),
+                    program: this.patientProgram,
+                    visitDate: this.activeVisitDate,
+                    patientID: this.patientId,
+                    savedEncounters: this.savedEncounters
                 }
             })
-            modal.present()
         },
-        async openTableModal(columns: any, rows: any, title: string) {
-            const date = this.toDate(this.activeVisitDate.toString())
-            const modal = await modalController.create({
-                component: CardDrilldown,
-                backdropDismiss: false,
-                cssClass: "large-modal",
-                componentProps: {
-                    columns,
-                    rows,
-                    title: `${title}: ${date}`
-                }
+        openTableModal(columns: any, rows: any, title: string) {
+            this.startModal(CardDrilldown, {
+                columns,
+                rows,
+                title: `${title}: ${this.toDate(this.activeVisitDate.toString())}`
             })
-            modal.present()
         },
-        async onCancel() {
-            const confirmation = await alertConfirmation('Are you sure you want to Finish?')         
-            if (confirmation) return this.$router.push({path: '/'})
+        onCancel() {            
+            Store.invalidate('ACTIVE_PATIENT')
+            Store.invalidate('PATIENT_PROGRAM')
+            Store.invalidate('PATIENT_LAB_ORDERS')
+            this.$router.push({path: '/'})
         }
     }
 })
@@ -759,12 +805,6 @@ export default defineComponent({
     .info-card-item {
         height: 100%!important;
         margin: 1.2em;
-    }
-    .full-component-view {
-        display: block;
-    }
-    .mobile-component-view {
-        display: none;
     }
     .next-task {
         margin-top: -8px;
@@ -781,16 +821,6 @@ export default defineComponent({
         height: 75vh;
         padding: 1.0%;
     }
-
-    @media (max-width:900px) {
-        .full-component-view {
-            display: none;
-        }
-        .mobile-component-view {
-            display: block;
-        }
-    }
-
     @media (min-width: 1278px) {
         .next-task {
             font-size: 1.0em;

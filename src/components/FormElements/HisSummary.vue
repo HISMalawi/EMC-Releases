@@ -21,9 +21,17 @@ export default defineComponent({
     data: () => ({
         listData: [] as Array<Option[]>
     }),
-    async activated() {
-        this.$emit('onFieldActivated', this)
-        this.listData = this.options(this.fdata, this.cdata)
+    methods: {
+        init() {
+            this.$emit('onFieldActivated', this)
+            this.listData = this.options(this.fdata, this.cdata)
+        }
+    },
+    mounted() {
+        this.init()
+    },
+    activated() {
+        this.init()        
     },
 })
 </script>

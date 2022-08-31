@@ -105,12 +105,18 @@ export default defineComponent({
         selected: '' as string,
         listData: [] as Option[]
     }),
-    async activated() {
-        this.$emit('onFieldActivated', this)
-        this.listData = await this.options(this.fdata)
-        if (this.listData.length) this.selected = this.listData[0].label
+    mounted() {
+        this.init()
+    },
+    activated() {
+        this.init()
     },
     methods: {
+        async init() {
+            this.$emit('onFieldActivated', this)
+            this.listData = await this.options(this.fdata)
+            if (this.listData.length) this.selected = this.listData[0].label
+        },
         warn(message: string) {
            toastWarning(message)
         },

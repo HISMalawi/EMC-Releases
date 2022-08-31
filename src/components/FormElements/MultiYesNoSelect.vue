@@ -83,12 +83,18 @@ export default defineComponent({
       return this.listData.length > 6 ? '6' : '12'
     }
   },
-  async activated() {
-    this.$emit('onFieldActivated', this)
-    const values = this.listData.filter(i => i.value != '')
-    this.listData = await this.options(this.fdata, values);
+  mounted() {
+    this.init()
+  },
+  activated() {
+    this.init()
   },
   methods: {
+    async init() {
+      this.$emit('onFieldActivated', this)
+      const values = this.listData.filter(i => i.value != '')
+      this.listData = await this.options(this.fdata, values);
+    },
     onChange(val: Option): void {
       this.$nextTick(async () => {
         const values = this.listData.map(i => i.value!='')

@@ -96,9 +96,11 @@ export default defineComponent({
     tab: 'prescribe',
     listData: [] as any
   }),
-  async activated() {
-    this.$emit('onFieldActivated', this)
-    this.listData = await this.options(this.fdata)
+  mounted() {
+    this.init()
+  },
+  activated() {
+    this.init()
   },
   computed: {
     medicationHistory(): Array<any> {
@@ -109,6 +111,10 @@ export default defineComponent({
     }
   },
   methods: {
+    async init() {
+      this.$emit('onFieldActivated', this)
+      this.listData = await this.options(this.fdata)
+    },
     async onScan(barcode: string) {
       const [ drugId, quantity ] = barcode.split('-')
       /** Find the drug matching the one detected on the barcode */

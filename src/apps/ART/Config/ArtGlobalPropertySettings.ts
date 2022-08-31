@@ -2,7 +2,7 @@ import { FolderInterface } from "@/apps/interfaces/AppInterface";
 import { UserService } from "@/services/user_service"
 import { ART_GLOBAL_PROP } from "@/apps/ART/art_global_props"
 import { GLOBAL_PROP } from "@/apps/GLOBAL_APP/global_prop";
-import ART_PROP from "@/apps/ART/art_global_props"
+import Store from "@/composables/ApiStore"
 
 function globalPropConfig(label: string, prop: string) {
     return {
@@ -15,7 +15,7 @@ export const PROPERTIES: FolderInterface[] = [
     {
         name: "Drug Management",
         icon: "drug.png",
-        condition: async () => UserService.isAdmin() && (await ART_PROP.drugManagementEnabled()),
+        condition: async () => UserService.isAdmin() && (await Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED')),
         files: [
             {
                 name: "Enter Receipts",

@@ -7,39 +7,35 @@ import Summary from "@/components/HomeSummary.vue"
 import { PatientDemographicsExchangeService } from "@/services/patient_demographics_exchange_service"
 import dayjs from "dayjs"
 import { delayPromise } from "@/utils/Timers"
+import GLOBAL_STORE from "@/apps/GLOBAL_APP/global_store"
 
 export default {
+  GlobalStore: GLOBAL_STORE,
   GlobalAppSettings: [
     {
       name: 'Session Management',
       icon: 'time.png',
+      pathUrl: '/session/date',
       files: [
-        {
-          name: 'Change session date',
-          pathUrl: '/session/date'
-        }
+
       ]
     },
     {
       name: 'Portal Settings',
       icon: 'portal.png',
       condition: () => UserService.isAdmin(),
+      pathUrl: "/portal/config",
       files: [
-        {
-          name: "Portal settings",
-          pathUrl: "/portal/config",
-        }
+
       ]
     },
     {
       name: 'Network',
       icon: 'portal.png',
       condition: () => UserService.isAdmin(),
+      pathUrl: "/settings/host",
       files: [
-        {
-          name: "IP Configuration",
-          pathUrl: "/settings/host",
-        }
+        
       ]
     },
     {

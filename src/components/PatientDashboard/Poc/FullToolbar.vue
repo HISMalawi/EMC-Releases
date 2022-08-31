@@ -2,10 +2,10 @@
     <ion-header :translucent="true">
         <ion-toolbar> 
             <ion-row>
-                <ion-col :size="hasProgramInfo ? 5: 10"> 
+                <ion-col size="5"> 
                     <info-card :items="patientCardInfo"/> 
                 </ion-col>
-                <ion-col size="5" v-if="hasProgramInfo">
+                <ion-col size="5">
                     <info-card :items="programCardInfo"/> 
                 </ion-col>
                 <ion-col size="2">
@@ -43,9 +43,6 @@ export default defineComponent({
        }
     },
     computed: {
-        hasProgramInfo(): boolean {
-            return this.programCardInfo.length >= 1
-        },
         logo(): string {
             return Img(this.appIcon)
         }

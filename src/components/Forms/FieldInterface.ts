@@ -56,6 +56,10 @@ export interface Field {
      */
     proxyID?: string | number;
     helpText: string;
+    /***
+     * If you want to run code one time, do it here. This is ideal for setting up external variables or setting field data
+     */
+    init?: (formData: any, computedData: any) => boolean | Promise<boolean>;
     /**
      * When form value changes, helpText is updated
      */

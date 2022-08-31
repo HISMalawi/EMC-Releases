@@ -1,5 +1,9 @@
 <template>
-    <his-standard-form :skipSummary="true" :cancelDestinationPath="cancelDestination" :fields="fields"/>
+    <his-standard-form 
+        :fields="fields"
+        :skipSummary="true" 
+        :cancelDestinationPath="cancelDestination" 
+    />
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
@@ -10,6 +14,7 @@ import { DispensationService } from "@/apps/ART/services/dispensation_service"
 import {isEmpty } from 'lodash'
 import EncounterMixinVue from '../../../../views/EncounterMixin.vue'
 import HisDate from "@/utils/Date"
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
     mixins: [EncounterMixinVue],
@@ -18,12 +23,9 @@ export default defineComponent({
     }),
     watch: {
         ready: {
-            async handler(ready: any){
+            handler(ready: any){
                 if (ready) {
                     this.dispensation = new DispensationService(this.patientID, this.providerID)
-                    await this.dispensation.loadDrugManagementEnabled()
-                    await this.dispensation.loadCurrentDrugOrder()
-                    await this.dispensation.loadDrugHistory()
                     this.fields = this.getFields()
                 }
             },
@@ -32,8 +34,7 @@ export default defineComponent({
     },
     methods: {
         saveDispensations(item: Option) {
-            const dispensations = this.buildDispensations(item)
-            return this.dispensation.saveDispensations(dispensations)    
+            return this.dispensation.saveDispensations(this.buildDispensations(item))    
         },
         buildDispensations(item: Option) {
             if (!isEmpty(item.other?.dispenses)) {
@@ -50,18 +51,19 @@ export default defineComponent({
                 item.other.order_id, parseInt(item.value.toString()), 1
             )
         },
-        buildMedicationHistory() {
+        async buildMedicationHistory() {
+            await this.dispensation.loadDrugHistory()
             return this.dispensation.getDrugHistory()
-            .sort((a: any, b: any) => {
-                const dateA: any = new Date(a.order.start_date)
-                const dateB: any = new Date(b.order.start_date)
-                return dateB - dateA
-            })
-            .map((d: any) => ({
-                medication: d.drug.name,
-                date: HisDate.toStandardHisDisplayFormat(d.order.start_date),
-                amount: d.quantity
-            }))
+                .sort((a: any, b: any) => {
+                    const dateA: any = new Date(a.order.start_date)
+                    const dateB: any = new Date(b.order.start_date)
+                    return dateB - dateA
+                })
+                .map((d: any) => ({
+                    medication: d.drug.name,
+                    date: HisDate.toStandardHisDisplayFormat(d.order.start_date),
+                    amount: d.quantity
+                }))
         },
         buildOrderOptions() {
             return this.dispensation.getCurrentOrder().map((d: any) => ({
@@ -113,6 +115,11 @@ export default defineComponent({
                     id: 'dispenses',
                     helpText: 'Dispensation',
                     type: FieldType.TT_DISPENSATION_INPUT,
+                    init: async () => {
+                        this.dispensation.setIsDrugManagementEnabled((await Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED')))
+                        await this.dispensation.loadCurrentDrugOrder()
+                        return true
+                    },
                     onValueUpdate: async(i: Option, l: Array<Option>) => {
                         if (i.value != -1 && this.isDoneDispensing(l)) {
                             return this.$router.push({name: 'appointment'})
@@ -145,7 +152,8 @@ export default defineComponent({
                         return false
                     },
                     config: {
-                        medicationHistory: this.buildMedicationHistory(),
+                        isDrugManagementEnabled: () => this.dispensation.useDrugManagement,
+                        medicationHistory: () => this.buildMedicationHistory(),
                         toolbarInfo: [
                             { label: 'Name', value: this.patient.getFullName() },
                             { label: 'Gender', value: this.patient.getGender() },
