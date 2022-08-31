@@ -25,6 +25,7 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import HisDate from "@/utils/Date"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { IonPage } from "@ionic/vue"
+import { sort } from 'fast-sort'
 
 export default defineComponent({
     mixins: [ReportMixin],
@@ -80,7 +81,7 @@ export default defineComponent({
             this.setRows(this.appointments[form.date])
         },
         setRows(data: Array<any>) {
-            this.sortByArvNumber(data).forEach((data: any) => {
+            sort(data).asc((d: any) => d.given_name).forEach((data: any) => {
                 this.rows.push([
                     this.tdARV(data.arv_number || 'N/A'),
                     table.td(data.given_name),
