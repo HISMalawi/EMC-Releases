@@ -401,6 +401,7 @@ export default defineComponent({
                             card.items = this.getActivitiesCardInfo(encounters)
                             card.cache[date] = card.items
                             card.isLoading = false
+                            this.sessionEncounterMap = {}
                             // Preserve today's encounters (BY SESSION DATE) in a hash object
                             if (date === ProgramService.getSessionDate() && !isEmpty(encounters)) {
                                 this.sessionEncounterMap = encounters.reduce((accum: any, encounter: Encounter) => {
@@ -664,8 +665,7 @@ export default defineComponent({
                                 this.clearLoader()
                                 this.loadSavedEncounters()
                                 this.updateCardVisitData(this.activeVisitDate as string, true, encounter.type.name)
-                                this.getNextTask()
-                                    .then((task) => this.nextTask = task)
+                                this.getNextTask().then((task) => this.nextTask = task)
                                 toastSuccess('Encounter has been voided!', 2000)
                             }).catch((e) => {
                                 this.clearLoader()
