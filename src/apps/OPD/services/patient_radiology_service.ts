@@ -113,7 +113,6 @@ export class PatientRadiologyService extends AppEncounterService {
     const patientName = patient.getFullName()
     const urls: string[] = [];
     for(const order of orders) {
-      console.log({order})
       const fullXrayOrder = order.value_text +": "+ order.children[0].value_text
       urls.push(`/radiology/barcode`
         + `?accession_number=${order.children[0].accession_number}`
