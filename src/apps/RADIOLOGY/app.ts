@@ -12,6 +12,17 @@ const RADIOLOGY: AppInterface = {
         medicationsEnabled: false,
         labEnabled: false
     },
+    confirmationSummary(patient) {
+        return {
+            'Patient Identifiers' : () => {
+                return [{
+                    label: 'NPID',
+                    value: '...',
+                    staticValue: () => patient.getNationalID()
+                }]
+            }
+        }
+    },
     appRoutes: [
         {
             name: 'Examination',

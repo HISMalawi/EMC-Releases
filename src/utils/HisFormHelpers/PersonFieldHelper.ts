@@ -301,16 +301,36 @@ export default {
             id: 'cell_phone_number',
             helpText: 'Cell phone number',
             group: 'person',
-            type: FieldType.TT_NUMBER,
+            type: FieldType.TT_TEXT,
             computedValue: (val: Option) => ({person: val.label}),
             validation: (val: any) => {
-                if (val && (val.value.match(/Unknown/i) 
-                    || val.value.match(/n\/a/i))) return
-
-                return Validation.isMWPhoneNumber(val)
+                if (val) {
+                    if (val.value.match(/Unknown|n\/a/i)) {
+                        return null
+                    }
+                    for(const number of `${val.value}`.split('/')) {
+                        if (Validation.isMWPhoneNumber({label: number, value: number})) {
+                            return [`"${number}" is not a valid phone number`]
+                        }
+                    }
+                    return null
+                }
+                return ['Phone number cannot be empty']
             },
             config: {
-                noChars: false
+                customKeyboard: [
+                    [
+                        ['1', '2', '3'],
+                        ['4', '5', '6'],
+                        ['7', '8', '9'],
+                        ['',  '0', '']
+                    ],
+                    [ 
+                        [ '+265', '/'],
+                        [ 'Unknown', 'N/A' ],
+                        [ 'Delete' ]
+                    ]
+                ]
             }
         }
     },
