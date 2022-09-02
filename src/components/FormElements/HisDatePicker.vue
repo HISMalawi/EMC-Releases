@@ -9,7 +9,6 @@
               ref="calendar"
               is-expanded  
               v-model="date"
-              :max-date="maxDate"
               class="custom-calendar"
             />
           </ion-col>
@@ -116,6 +115,10 @@ export default defineComponent({
 }
 .custom-calendar.vc-container .vc-weeks {
   padding: 0;
+}
+.custom-calendar.vc-container .vc-day-content {
+  padding: 50px;
+  background: none;
 }
 .custom-calendar.vc-container .vc-weekday {
   background-color: var(--weekday-bg);
