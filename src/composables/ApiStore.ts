@@ -4,7 +4,7 @@ import App from "@/apps/app_lib"
 
 // Track all cached items in this reactive object
 const STATES = ref({} as any)
-const REQUEST_OBJECTS = ref({} as any)
+const REQUEST_OBJECTS = ref({} as Promise<any> | any)
 
 export default {
     /**
