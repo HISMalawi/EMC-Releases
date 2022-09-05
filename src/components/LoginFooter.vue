@@ -6,7 +6,7 @@
       <img id="pepfar" :src="pepfarImg" alt="PEPFAR logo" />
     </span>
 
-    <ion-item slot="end" color="primary" size="large">
+    <ion-item slot="end" color="primary" size="large" v-if="isPocSite">
       <ion-label>Select Platform: </ion-label>
       <ion-select :value="platform" v-model="platform" >
         <ion-select-option
@@ -44,6 +44,10 @@ export default defineComponent({
     showConfigBtn: {
       type: Boolean,
       default: false,
+    },
+    isPocSite: {
+      type: Boolean,
+      default: true,
     }
   },
   setup() {

@@ -22,7 +22,7 @@
           src="/assets/images/report.png"
           style="display: block; width: 55%; margin: 5px auto"
         />
-        <login-footer :showConfigBtn="showConfigBtn"></login-footer>
+        <login-footer :showConfigBtn="showConfigBtn" :isPocSite="false"></login-footer>
       </ion-col>
       <ion-col
         size="4"
