@@ -23,13 +23,8 @@
                     }"
                     :src="barcodeLogo"/>
                 </ion-col>
-                <ion-col size-lg="7" size-sm="8" v-if="activePlatformProfile.scanner === 'BARCODE_SCANNER'"> 
+                <ion-col size-lg="7" size-sm="8" > 
                   <p class="vertically-align ion-padding-end ion-text-center">Scan QR code Or Barcode</p>
-                </ion-col>
-                 <ion-col v-if="activePlatformProfile.scanner === 'CAMERA_SCANNER'" size-lg="6" size-sm="6" style="text-align: center; margin: auto;line-height: 1.2;"> 
-                  <p>Click Here</p>
-                  <p>To Scan QR code Or Barcode</p>
-                  <p> using Camera</p>
                 </ion-col>
               </ion-row>
             </div>
