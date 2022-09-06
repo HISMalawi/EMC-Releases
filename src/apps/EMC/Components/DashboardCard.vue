@@ -1,19 +1,20 @@
 <template>
   <ion-card :color="color">
-    <ion-card-body class="ion-padding">
+    <ion-card-content class="ion-padding">
       <ion-card-title class="ion-padding">{{ label }}</ion-card-title>
       <ion-card-subtitle v-if="isLoading" class="ion-padding">
         <ion-spinner name="bubbles" :color="loaderColor"></ion-spinner>
       </ion-card-subtitle>
-      <ion-card-subtitle class="ion-padding" v-else>{{
-        value
-      }}</ion-card-subtitle>
-      <ion-icon :icon="icon" v-if="canShowIcon"></ion-icon>
-    </ion-card-body>
+      <ion-card-subtitle class="ion-padding" v-else>
+        {{ value }}
+      </ion-card-subtitle>
+      <ion-icon :icon="icon" v-if="canShowIcon" class="ion-float-right"></ion-icon>
+    </ion-card-content>
   </ion-card>
 </template>
 
 <script lang="ts">
+import { IonCard, IonCardTitle, IonCardSubtitle, IonSpinner, IonCardContent, IonIcon } from "@ionic/vue";
 import { computed, defineComponent } from "vue";
 
 export default defineComponent({
@@ -34,6 +35,14 @@ export default defineComponent({
       type: String,
       default: 'light'
     }
+  },
+  components: {
+    IonCard,
+    IonCardContent,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonSpinner,
+    IonIcon,
   },
   setup(props) {
     const isLoading = computed(() => props.value === -1);
@@ -56,9 +65,9 @@ ion-card-subtitle {
 ion-icon {
   position: absolute;
   right: 0;
-  top: 0;
-  font-size: 126px;
-  margin-top: 1rem;
+  bottom: 0;
   margin-right: 1rem;
+  margin-bottom: 2rem;
+  font-size: 105px;
 }
 </style>
