@@ -68,6 +68,6 @@ ion-icon {
   bottom: 0;
   margin-right: 1rem;
   margin-bottom: 2rem;
-  font-size: 105px;
+  font-size: 90px;
 }
 </style>
