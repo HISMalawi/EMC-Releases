@@ -411,9 +411,11 @@ export default defineComponent({
       this.openModal();
     } else {
       this.app = app;
+      if (this.app.applicationName === "EMC") {
+        return this.$router.push("/emc/home");
+      }
       this.loadApplicationData();
     }
-    if (this.app.applicationName === "EMC") this.$router.push("/emc/home");
   },
   watch: {
     patientBarcode: function () {
