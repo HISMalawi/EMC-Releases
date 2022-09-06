@@ -65,6 +65,7 @@ import AuthUserMenuVue from "./AuthUserMenu.vue";
 import { Service } from "@/services/service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import MultiLevelMenu from "./MultiLevelMenu.vue";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   name: "Layout",
@@ -115,19 +116,19 @@ export default defineComponent({
       const { data } = await authMenu.onDidDismiss();
     }
 
-    const getFacility = async () => {
-      const locationID = await GLOBAL_PROP.healthCenterID();
-      if(!locationID) return ''
-      const data = await Service.getJson("locations/" + locationID);
+    const setLocation = async () => {
+      const data = await Store.get('CURRENT_LOCATION') 
+      facility.value = data.name;
       sessionStorage.location = data.name;
       sessionStorage.locationName = data.name;
-      return data.name
+      sessionStorage.siteUUID = data.uuid;
     }
 
     onMounted(async () => {
-      facility.value = await getFacility()
+      await setLocation()
       user.value = await Service.getUserName();
     })
+    
     return {
       menuItems,
       logo,
