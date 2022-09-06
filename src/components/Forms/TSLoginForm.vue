@@ -344,12 +344,4 @@ export default defineComponent({
 .input-rows {
   line-height: 140px;
 }
-
-.center {
-    text-align: center;
-}
-.center > div, .center > table {
-    margin-left: auto;
-    margin-right: auto;
-}
 </style>
