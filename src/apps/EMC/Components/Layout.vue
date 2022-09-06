@@ -20,9 +20,6 @@
       <ion-toolbar>
         <ion-buttons slot="start">
           <ion-menu-button auto-hide="true"></ion-menu-button>
-          <ion-button @click="selectApp" >
-            <ion-icon :icon="apps"></ion-icon>
-          </ion-button>
         </ion-buttons>
         <ion-title>{{ facility }}</ion-title>
         <ion-buttons slot="end" size="large">
@@ -59,8 +56,7 @@ import {
 IonButton,
 } from "@ionic/vue";
 import { menuItems } from "../Config/appMenu";
-import { apps, caretDown } from "ionicons/icons";
-import { useRouter } from "vue-router";
+import { caretDown } from "ionicons/icons";
 import AuthUserMenuVue from "./AuthUserMenu.vue";
 import { Service } from "@/services/service";
 import MultiLevelMenu from "./MultiLevelMenu.vue";
@@ -87,21 +83,9 @@ export default defineComponent({
   setup() {
     const facility = ref('')
     const user = ref('')
-    const router = useRouter()
     const app = ref(HisApp.getActiveApp())
     const logo = computed(() => Img(app.value?.applicationIcon || '' ))
     const description = computed(() => app.value?.applicationDescription || '')
-    const selectApp = async () => {
-      const data = await HisApp.selectApplication("HomePage");
-      if (data && data.applicationName !== app.value?.applicationName) {
-        const userLocation = sessionStorage.userLocation;
-        return !userLocation
-          ? router.push("/select_hc_location")
-          : data.appLandingPage 
-          ? router.push(data.appLandingPage)
-          : router.push('/')
-      }
-    }
 
     const showAuthUserMenu = async (e: Event) => {
       const authMenu = await popoverController.create({
@@ -130,9 +114,7 @@ export default defineComponent({
     return {
       menuItems,
       logo,
-      apps,
       caretDown,
-      selectApp,
       showAuthUserMenu,
       facility,
       user,
