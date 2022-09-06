@@ -82,7 +82,6 @@ export default defineComponent({
   },
   methods: {
     clickable (app) {
-      console.log(this.isPocSite)
       return this.isPocSite === app.isPocApp && app.hasPriviledge
     },
     closeModal() {
