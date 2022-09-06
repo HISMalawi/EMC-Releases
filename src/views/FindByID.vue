@@ -57,6 +57,9 @@ export default defineComponent({
             : []
 
           const resolvedProps = await Promise.all(ids.map(async (id) => {
+            if (typeof id.visible === 'function') {
+              return await id.visible()
+            }
             if(id.globalPropertySetting){
               return await GlobalPropertyService.isProp(id.globalPropertySetting)
             }

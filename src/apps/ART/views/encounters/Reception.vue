@@ -20,7 +20,8 @@ import { ProgramService } from "@/services/program_service";
 import { toastWarning, toastSuccess } from "@/utils/Alerts"
 import EncounterMixinVue from '../../../../views/EncounterMixin.vue'
 import HisApp from "@/apps/app_lib"
-import { isEmpty } from "lodash";
+import { find, isEmpty } from "lodash";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -29,31 +30,14 @@ export default defineComponent({
     reception: {} as any,
     activeField: "",
     hasARVNumber: true,
-    hasGuardian: false,
     suggestedNumber: "" as any,
     patientType: {} as any,
   }),
   watch: {
     ready: {
-      async handler(ready: any) {
+      handler(ready: any) {
         if (!ready) return
-        const guardian = await this.patient.getGuardian()
-        this.hasGuardian = !isEmpty(guardian)
         this.reception = new ReceptionService(this.patientID, this.providerID)
-
-        await this.reception.loadSitePrefix()
-
-        const ARVNumber = this.patient.getPatientIdentifier(4);
-  
-        if (ARVNumber === "") {
-          this.hasARVNumber = false;
-
-          const j = await ProgramService.getNextSuggestedARVNumber();
-          this.suggestedNumber = j.arv_number.replace(/^\D+|\s/g, "");
-        }
-
-          this.patientType = new PatientTypeService(this.patientID, this.providerID);
-          await this.patientType.loadPatientType()
         this.fields = this.getFields();
       },
       immediate: true
@@ -73,21 +57,17 @@ export default defineComponent({
 
       if (formData.capture_arv && formData.capture_arv.value === 'Yes') {
         const arv = await this.reception.createArvNumber(computedData.arv_number)
-
         if (!arv) return toastWarning('Unable to save Arv number')
+        Store.invalidate('ACTIVE_PATIENT')
       }
-
       toastSuccess('Encounter created')
-
-      const guardianPresent = formData.who_is_present.filter(
-        (p: any) => p.value === 'Yes' && p.label === 'Guardian Present?'
-      )
-
-      if (!this.hasGuardian && !isEmpty(guardianPresent)) {
-        this.$router.push(`/guardian/registration/${this.patient.getID()}`)
-      } else {
-        this.nextTask()
+      const guardianPresent = find(formData.who_is_present, { value: 'Yes', label: 'Guardian present?'})
+      if (guardianPresent) {
+        if (isEmpty((await this.patient.getGuardian()))) {
+          return this.$router.push(`/guardian/registration/${this.patientID}`)
+        } 
       }
+      this.nextTask()
     },
     getFields(): Array<Field> {
       return [
@@ -139,6 +119,13 @@ export default defineComponent({
           helpText: "Capture ARV Number?",
           type: FieldType.TT_SELECT,
           requireNext: true,
+          init: async() => {
+            const ARVNumber = this.patient.getPatientIdentifier(4);
+            if (ARVNumber === "") this.hasARVNumber = false;
+            this.patientType = new PatientTypeService(this.patientID, this.providerID);
+            await this.patientType.loadPatientType()
+            return true
+          },
           condition: () => !this.hasARVNumber && this.patientType.getType() === "New patient",
           validation: (val: any) => Validation.required(val),
           options: () => this.yesNoOptions(),
@@ -147,6 +134,14 @@ export default defineComponent({
           id: "arv_number",
           helpText: "ART number",
           type: FieldType.TT_TEXT,
+          init: async() => {
+            await this.reception.loadSitePrefix()
+            if (!this.hasARVNumber) {
+              const j = await ProgramService.getNextSuggestedARVNumber();
+              this.suggestedNumber = j.arv_number.replace(/^\D+|\s/g, "");
+            }
+            return true
+          },
           computedValue: ({ value }: Option) => {
             return value
           },

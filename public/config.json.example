@@ -6,7 +6,8 @@
 		"devMode": true,
 		"enableVersionLocking": true,
 		"promptFullScreenDialog": false,
-		"showUpdateNotifications": true
+		"showUpdateNotifications": true,
+		"dataCaching": true
 	},
 	"apps": [
 		{ "name": "EMC", "available": true },

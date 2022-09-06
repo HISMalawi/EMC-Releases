@@ -101,6 +101,7 @@ import { OrderService } from "@/services/order_service";
 import { LabOrderService } from "@/apps/ART/services/lab_order_service";
 import { PrintoutService } from "@/services/printout_service";
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   name: "Modal",
@@ -175,6 +176,7 @@ export default defineComponent({
         
         if(!d) return toastWarning('Unable to save lab orders')
 
+        Store.invalidate('PATIENT_LAB_ORDERS')
         const canPrintOrders = await alertConfirmation('Lab orders and encounter created!, print out your last orders?', { 
           confirmBtnLabel: 'Yes',
           cancelBtnLabel: 'No'

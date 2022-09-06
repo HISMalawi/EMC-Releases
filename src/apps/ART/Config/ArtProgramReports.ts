@@ -1,5 +1,5 @@
 import { FolderInterface } from "@/apps/interfaces/AppInterface"
-import ART_PROP from "../art_global_props"
+import Store from "@/composables/ApiStore"
 
 export const REPORTS: FolderInterface[] = [
     {
@@ -102,7 +102,7 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'Stock card report',
                 pathName: 'stock_card_report',
-                condition: () => ART_PROP.drugManagementEnabled()
+                condition: () => Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED')
             }
         ]
     },

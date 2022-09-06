@@ -15,7 +15,6 @@ export default defineComponent({
         ready: {
             async handler(ready: any) {
                 if (ready) {
-                    await this.initAdherence(this.patient, this.providerID)
                     this.fields = this.getAdherenceFields()
                 }
             },

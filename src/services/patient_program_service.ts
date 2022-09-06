@@ -45,7 +45,7 @@ export class PatientProgramService extends ProgramService {
      * @returns 
      */
     async getProgram() {
-        const defaults = { program: 'N/A', outcome: 'N/A', startDate: '', endDate: '' }
+        const defaults = { patientID: -1, programID: -1, program: 'N/A', outcome: 'N/A', startDate: '', endDate: '' }
         const req = await this.getPrograms()
         if (isEmpty(req)) return defaults
         /**
@@ -69,10 +69,12 @@ export class PatientProgramService extends ProgramService {
                 currentOutcome = availableStates[index].name
             }
             return {
+                patientID: p.patient_id,
+                programID: p.program_id,
                 program: p.program.name, 
                 outcome: currentOutcome,
                 startDate: outComeStartDate,
-                endDate: outComeEndDate,
+                endDate: outComeEndDate
             }
         })
         return !isEmpty(programs) 

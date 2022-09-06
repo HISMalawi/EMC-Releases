@@ -8,39 +8,35 @@ import { PatientDemographicsExchangeService } from "@/services/patient_demograph
 import dayjs from "dayjs"
 import { delayPromise } from "@/utils/Timers"
 import platform, { PrinterType } from '@/composables/usePlatform';
+import GLOBAL_STORE from "@/apps/GLOBAL_APP/global_store"
 
 export default {
+  GlobalStore: GLOBAL_STORE,
   GlobalAppSettings: [
     {
       name: 'Session Management',
       icon: 'time.png',
+      pathUrl: '/session/date',
       files: [
-        {
-          name: 'Change session date',
-          pathUrl: '/session/date'
-        }
+
       ]
     },
     {
       name: 'Portal Settings',
       icon: 'portal.png',
       condition: () => UserService.isAdmin(),
+      pathUrl: "/portal/config",
       files: [
-        {
-          name: "Portal settings",
-          pathUrl: "/portal/config",
-        }
+
       ]
     },
     {
       name: 'Network',
       icon: 'portal.png',
       condition: () => UserService.isAdmin(),
+      pathUrl: "/settings/host",
       files: [
-        {
-          name: "IP Configuration",
-          pathUrl: "/settings/host",
-        }
+        
       ]
     },
     {
@@ -227,8 +223,7 @@ export default {
       name: "National Health ID (Print)",
       description: "Print Patient National Health ID",
       action({ patient }: any) {
-        const lbl = new PatientPrintoutService(patient.patient_id)
-        return lbl.printNidLbl()
+        return new PatientPrintoutService(patient.patient_id).printNidLbl()
       },
       icon: "barcode.svg"
     },
@@ -236,7 +231,8 @@ export default {
       id: "lab activities",
       name: "Lab activities",
       description: "Do lab orders",
-      icon: 'lab.png'
+      icon: 'lab.png',
+      condition: () => App.getActiveApp()?.applicationName !== "RADIOLOGY"
     },
     {
       id: "demographics",

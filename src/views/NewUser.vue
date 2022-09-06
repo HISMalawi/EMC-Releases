@@ -20,6 +20,7 @@ import { toastWarning, toastSuccess, toastDanger } from "@/utils/Alerts"
 import { RecordConflictError } from "@/services/service";
 import { isEmpty } from "lodash";
 import { find } from "lodash";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -80,6 +81,7 @@ export default defineComponent({
                     }
                     break;
             }
+            Store.invalidate('PROVIDERS')
             this.formKey += 1
             this.activeField = 'user_info'
             this.$nextTick(() => this.fieldComponent = this.activeField)

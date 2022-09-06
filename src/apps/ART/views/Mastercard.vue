@@ -8,11 +8,22 @@
       @updateARVNumber="updateARVNumber"
     ></information-header>
     <ion-content>
-      <visit-information
-        :getVisitDates="getPatientVisitDates"
-        @onPrint="printLabel"
-        style="font-size: 11px"
-      ></visit-information>
+      <report-table
+        :paginated="true"
+        :rows="rows"
+        :columns="columns"
+        :rowsPerPage="itemsPerPage"
+        :newPage="currentPage"
+        :asyncRowParser="onNewRow"
+        @onPagination="(p) => totalPages = p.length"
+      ></report-table>
+      <preloader v-if="!visitDatesInitialised" :itemCount="5"/>
+      <pagination
+        :perPage="itemsPerPage"
+        :maxVisibleButtons="20"
+        :totalPages="totalPages"
+        @onChangePage="(p) => currentPage = p"
+        />
     </ion-content>
     <his-footer :btns="btns" />
   </ion-page>
@@ -20,94 +31,384 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import HisDate from "@/utils/Date";
-import { Encounter } from "@/interfaces/encounter";
-import { Option } from "@/components/Forms/FieldInterface";
-import { Patient } from "@/interfaces/patient";
 import { Patientservice } from "@/services/patient_service";
 import { ObservationService } from "@/services/observation_service";
 import InformationHeader from "@/components/InformationHeader.vue";
-import VisitInformation from "@/components/VisitInformation.vue";
-import MastercardDetails from "@/components/MastercardDetails.vue";
 import HisFooter from "@/components/HisDynamicNavFooter.vue";
-import { isArray, isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 import { IonPage, IonContent, modalController } from "@ionic/vue";
-import { EncounterService } from "@/services/encounter_service";
 import { RelationshipService } from "@/services/relationship_service";
-import { alertConfirmation } from "@/utils/Alerts";
+import { alertConfirmation, toastDanger } from "@/utils/Alerts";
 import { ProgramService } from "@/services/program_service";
 import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { NavBtnInterface } from "@/components/HisDynamicNavFooterInterface";
+import Store from "@/composables/ApiStore"
+import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
+import table, { ColumnInterface } from "@/components/DataViews/tables/ReportDataTable"
+import Pagination from "@/components/Pagination.vue"
+import Preloader from "@/components/TextSkeleton.vue"
+import MastercardDetails from "@/components/MastercardDetails.vue";
 
 export default defineComponent({
   components: {
+    Preloader,
+    Pagination,
     IonPage,
+    ReportTable,
     IonContent,
-    VisitInformation,
-    InformationHeader,
     HisFooter,
+    InformationHeader
   },
   data: () => ({
-    isBDE: false as boolean,
-    currentDate: "",
-    sessionDate: "",
-    nextTask: {} as any,
     patientId: 0 as any,
-    programID: 0,
     patient: {} as any,
-    patientProgram: {} as Array<Option>,
     patientCardInfo: [] as any,
-    programCardInfo: [] as Array<Option> | [],
-    encounters: [] as Array<Encounter>,
-    medications: [] as any,
-    labOrders: [] as any,
-    visitDates: [] as Array<Option> as any,
-    activeVisitDate: "" as string | number,
-    encountersCardItems: [] as Array<Option>,
-    medicationCardItems: [] as Array<Option>,
-    labOrderCardItems: [] as Array<Option>,
-    alertCardItems: [] as Array<Option>,
     btns: [] as Array<NavBtnInterface>,
-    guardians: "",
+    itemsPerPage: 10 as number,
+    currentPage: 0 as number,
+    totalPages: 0 as number,
+    pages: [] as any,
+    visitDates: [] as string[],
+    tbStats: [] as Array<any>,
+    visitDatesInitialised: false as boolean,
+    columns: [[
+      table.thTxt('VISIT DATE'),
+      table.thTxt('WEIGHT (Kg)'),
+      table.thTxt('REG'),
+      table.thTxt('VIRAL LOAD'),
+      table.thTxt('TB STATUS'),
+      table.thTxt('OUTCOME'),
+      table.thTxt('PILLS DISPENSED'),
+      table.thTxt('ACTIONS')
+    ]] as ColumnInterface[][],
+    rows: [] as any
   }),
-  computed: {
-    visitDatesTitle(): string {
-      return `${this.visitDates.length} Visits`;
-    },
+  created() {
+    this.setPatientCards()
+    this.patientId = parseInt(`${this.$route.params.patient_id}`)
+    Patientservice.getPatientVisits(this.patientId, true)
+      .then(dates =>  {
+        this.visitDatesInitialised = true
+        this.visitDates = dates
+        this.rows = dates.map((date) => {
+          return [
+            table.tdBtn(HisDate.toStandardHisDisplayFormat(date), 
+              () => new PatientPrintoutService(this.patientId).printVisitSummaryLbl(date)),
+            table.td('...'),
+            table.td('...'),
+            table.td('...'),
+            table.td('...'),
+            table.td('...'),
+            table.td('...'),
+            table.td('...')
+          ]
+        })
+      }).catch((e) =>{
+        this.visitDatesInitialised = true
+        toastDanger(`${e}`)
+        console.error(e)
+      })
+    this.btns.push({
+      name: "Finish",
+      color: "success",
+      size: "large",
+      slot: "end",
+      visible: true,
+      onClick: () => {
+        alertConfirmation("Are you sure you want to exit?").then(ok => {
+          if (ok) {
+            return this.$router.push(`/patient/dashboard/${this.patientId}`)
+          }
+        })
+      }
+    })
   },
-  watch: {
-    $route: {
-      async handler({ params }: any) {
-        if (!params) return;
-
-        this.patientId = parseInt(params.patient_id);
-
-        if (this.patientId) this.init();
-      },
-      deep: true,
-      immediate: true,
-    },
-    async activeVisitDate(date: string) {
-      this.encounters = await EncounterService.getEncounters(this.patientId, {
-        date,
-      });
-    },
+  async mounted() {
+    if (this.patientId) {
+      for(const item of this.patientCardInfo) {
+        if (typeof item.init === 'function') {
+          await item.init()
+        }
+        if (typeof item.asyncValue === 'function') {
+          item.asyncValue(item).then((value: any) => item.value = value || '')
+        } else if (typeof item.staticValue === 'function') {
+          item.value = item.staticValue()
+        } 
+      }
+    }
   },
   methods: {
-    async init() {
-      this.patient = await this.fetchPatient(this.patientId);
-      this.guardians = await this.getGuardian();
-      this.patientCardInfo = await this.getPatientCardInfo(this.patient);
-      this.btns.push(this.getFinishBtn());
+    setPatientCards() {
+      this.patientCardInfo = [
+        { 
+          label: "ARV Number", 
+          value: '...',
+          staticValue: () => this.patient.getArvNumber(),
+          init: async () => {
+            this.patient = await Store.get('ACTIVE_PATIENT', { patientID: this.patientId })
+          },
+          other: {
+            editable: true,
+            category: "arv_number"
+          }
+        },
+        { 
+          label: "National Patient ID", 
+          value: '...',
+          staticValue: () => this.patient.getNationalID() 
+        },
+        {
+          label: "Given Name",
+          value: '...',
+          staticValue: () => this.patient.getGivenName(),
+          other: {
+            editable: true,
+            attribute: "given_name",
+            category: "demographics",
+          }
+        },
+        {
+          label: "Family Name",
+          value: '...',
+          staticValue: () => this.patient.getFamilyName(),
+          other: {
+            editable: true,
+            attribute: "family_name",
+            category: "demographics",
+          },
+        },
+        {
+          label: "Age",
+          value: '...',
+          staticValue: () => this.patient.getAge(),
+          other: {
+            editable: true,
+            attribute: "year_birth_date",
+            category: "demographics",
+          }
+        },
+        {
+          label: "Sex",
+          value: '...',
+          staticValue: () => this.patient.getGender(),
+          other: {
+            editable: true,
+            attribute: "gender",
+            category: "demographics",
+          }
+        },
+        {
+          label: "Location",
+          value: '...',
+          staticValue: () => this.patient.getCurrentVillage(),
+          other: {
+            editable: true,
+            attribute: "home_region",
+            category: "demographics",
+          }
+        },
+        { 
+          label: "Landmark",
+          value: '...', 
+          staticValue: () => this.patient.getAttribute(19) 
+        },
+        {
+          label: "Guardian",
+          value: '...',
+          asyncValue: async (item: any) => {
+            const relations = await RelationshipService.getGuardianDetails(this.patientId)
+            if (isEmpty(relations)) {
+              item.other.editable = true
+              return 'add'
+            }
+            return relations.map((r: any) => ` ${r.name} (${r.relationshipType})`).join(" ")
+          },
+          other: {
+            editable: false,
+            attribute: "",
+            category: "guardian",
+          }
+        },
+        { 
+          label: "Init W(KG)", 
+          value: '...',
+          asyncValue: () => this.patient.getInitialWeight() 
+        },
+        { 
+          label: "Init H(CM)", 
+          value: '...',
+          asyncValue: () => this.patient.getInitialHeight() 
+        },
+        { 
+          label: "BMI(CM)", 
+          value: '...',
+          asyncValue: () => this.patient.getInitialBMI() 
+        },
+        { 
+          label: "TI", 
+          value:  '...',
+          asyncValue: () => ObservationService.getFirstValueCoded(
+            this.patientId, "Ever received ART"
+          )
+        },
+        { 
+          label: "Agrees to follow up", 
+          value: '...',
+          asyncValue: () => ObservationService.getFirstValueCoded(
+            this.patientId, "Agrees to followup"
+          ) 
+        },
+        { 
+          label: "Reason for starting ART", 
+          value: '...',
+          asyncValue: () => ObservationService.getFirstValueCoded(
+            this.patientId, "Reason for ART eligibility"
+          )
+        },
+        { 
+          label: "HIV test date", 
+          value: '...',
+          asyncValue: async () => {
+            const date = await ObservationService.getFirstValueDatetime(
+              this.patientId, 'Confirmatory HIV test date'
+            )
+            return date ? HisDate.toStandardHisDisplayFormat(date) : ''
+          }
+        },
+        { 
+          label: "HIV test place", 
+          value: "...",
+          asyncValue: () => ObservationService.getFirstValueText(
+            this.patientId, "Confirmatory HIV test location"
+          )
+        },
+        { 
+          label: "Date of starting first line ART", 
+          value: '...',
+          asyncValue: async () => {
+            const date = await ObservationService.getFirstValueDatetime(
+              this.patientId, 'Date ART started'
+            )
+            return date ? HisDate.toStandardHisDisplayFormat(date) : ''
+          }
+        },
+        {
+          label: "Pulmonary TB within the last 2 years",
+          value: '...',
+          init: async () => {
+            this.tbStats = (await ObservationService.getAllValueCoded(
+              this.patientId, "Who stages criteria present"
+            )) || []
+          },
+          staticValue: () => this.hasTbStat('Tuberculosis (PTB or EPTB) within the last 2 years')
+        },
+        {
+          label: "Extra pulmonary TB (EPTB)",
+          value:'...',
+          staticValue: () => this.hasTbStat('Extrapulmonary tuberculosis (EPTB)')
+        },
+        {
+          label: "Pulmonary TB (current)",
+          value: "...",
+          staticValue: () => this.hasTbStat('Pulmonary tuberculosis (current)')
+        },
+        {
+          label: "Kaposis sarcoma",
+          value: '...',
+          staticValue: () => this.hasTbStat('Kaposis sarcoma')
+        }
+      ]
     },
-    async getGuardian() {
-      const relationship = await RelationshipService.getGuardianDetails(
-        this.patientId
-      );
-      return relationship
-        .map((r: any) => {
-          return ` ${r.name} (${r.relationshipType})`;
+    buildDetails(data: Record<string, any>) {
+      const fmtTurple = (turple: Array<[string, number]>) => turple.map(([t, v]: any) => `${t} (${v})`).join('/')
+      return [
+        {
+          label: 'Outcome',
+          value: data.outcome
+        },
+        {
+          label: 'Outcome Date',
+          value: data.outcome_date
+        },
+        {
+          label: 'Side effects',
+          value: data.side_effects
+        },
+        {
+          label: 'Viral load',
+          value: data.viral_load
+        },
+        {
+          label: 'Pills Brought',
+          value: fmtTurple(data.pills_brought)
+        },
+        {
+          label: 'Pills dispensed',
+          value: fmtTurple(data.pills_dispensed)
+        },
+        {
+          label: 'Visit by',
+          value: data.visit_by
+        },
+        {
+          label: "Regimen",
+          value: data.regimen
+        },
+        {
+          label: 'Adherence',
+          value: fmtTurple(data.adherence)
+        },
+        {
+          label: 'TB Status',
+          value: data.tb_status
+        },
+        {
+          label: 'Height (cm)',
+          value: data.height
+        },
+        {
+          label: 'Weight (Kg)',
+          value: data.weight
+        },
+        {
+          label: 'BMI',
+          value: data.bmi
+        }
+      ]
+    },
+    async onNewRow(row: any) {
+      const r = [...row]
+      if (r[1] && r[1].td !='...') {
+        return r
+      }
+      const date = r[0].td
+      const data = await ProgramService.getCurrentProgramInformation(this.patientId, date)
+      const drugs = await ProgramService.getMastercardDrugInformation(this.patientId, date)
+      const pillsDispensed = (drugs?.pills_given || []).map((d: any) =>  {
+        return `${d['short_name'] || d['name']} <b>(${d.quantity || '?'})</b>`
+      }).join('<br/>')
+      r[1] = table.td(data.weight)
+      r[2] = table.td(data.regimen)
+      r[3] = table.td(data.viral_load)
+      r[4] = table.td(data.tb_status)
+      r[5] = table.td(data.outcome.match(/Unk/i) ? "Unknown" : data.outcome)
+      r[6] = table.td(pillsDispensed)
+      r[7] = table.tdBtn('More', async () => {
+        (await modalController.create({
+          component: MastercardDetails,
+          backdropDismiss: false,
+          cssClass: "large-modal",
+          componentProps: {
+            title: date,
+            visitData: this.buildDetails(data)  
+          }
         })
-        .join(" ");
+        ).present()
+      })
+      return r
+    },
+    hasTbStat(conceptName: string) {
+      return this.tbStats.includes(conceptName) ? 'Yes' : 'No'
     },
     updateDemographics(attribute: string) {
       this.$router.push({
@@ -128,218 +429,6 @@ export default defineComponent({
     },
     updateARVNumber() {
       this.$router.push({name: "Edit ARV Number"})
-    },
-    getFinishBtn(): NavBtnInterface {
-      return {
-        name: "Finish",
-        color: "success",
-        size: "large",
-        slot: "end",
-        visible: true,
-        onClick: async () => {
-          const confirmation = await alertConfirmation(
-            "Are you sure you want to exit?"
-          );
-          if (confirmation)
-            return this.$router.push(`/patient/dashboard/${this.patientId}`);
-        },
-      };
-    },
-    async fetchPatient(patientId: number | string) {
-      const patient: Patient = await Patientservice.findByID(patientId);
-      return patient ? new Patientservice(patient) : {};
-    },
-    getProp(data: any, prop: string): string {
-      return prop in data ? data[prop]() : "-";
-    },
-    async getPatientVisitDates() {
-      const dates = await Patientservice.getPatientVisits(this.patientId, true);
-      const f = dates.map(async (date: string) => {
-        const d = await this.getExtras(date);
-        return {
-          label: HisDate.toStandardHisDisplayFormat(date),
-          value: date,
-          data: d,
-        };
-      });
-      const y = await Promise.all(f);
-      return y;
-    },
-    async getExtras(date: any) {
-      const programInfo = await ProgramService.getCurrentProgramInformation(
-        this.patientId, date
-      );
-      const drugInformation = await ProgramService.getMastercardDrugInformation(
-        this.patientId, date
-      );
-      return { ...programInfo, drugs: drugInformation };
-    },
-    onActiveVisitDate(data: Option) {
-      this.activeVisitDate = data.value;
-    },
-
-    async getPatientCardInfo(patient: Patientservice) {
-      const { toStandardHisDisplayFormat } = HisDate;
-      let dateOfTest = await ObservationService.getAll(
-        this.patientId,
-        "Confirmatory HIV test date"
-      );
-      if (dateOfTest) {
-        dateOfTest = toStandardHisDisplayFormat(dateOfTest[0].value_datetime);
-      }
-      const placeOfTest = await ObservationService.getFirstValueText(
-        this.patientId,
-        "Confirmatory HIV test location"
-      );
-
-      let startDate = await ObservationService.getAll(
-        this.patientId,
-        "Date ART started"
-      );
-
-      startDate = !isEmpty(startDate)
-        ? toStandardHisDisplayFormat(startDate[0].value_datetime)
-        : "N/A";
-
-      const TI = await ObservationService.getFirstValueCoded(
-        this.patientId,
-        "Ever received ART"
-      );
-      const agreesToFollowUp = await ObservationService.getFirstValueCoded(
-        this.patientId,
-        "Agrees to followup"
-      );
-      const reasonForStarting = await ObservationService.getFirstValueCoded(
-        this.patientId,
-        "Reason for ART eligibility"
-      );
-
-      return [
-        { 
-          label: "ARV Number", 
-          value: this.patient.getArvNumber(),
-          other: {
-            editable: true,
-            category: "arv_number"
-          }
-        },
-        { label: "National Patient ID", value: patient.getNationalID() },
-        {
-          label: "Given Name",
-          value: patient.getGivenName(),
-          other: {
-            editable: true,
-            attribute: "given_name",
-            category: "demographics",
-          },
-        },
-        {
-          label: "Family Name",
-          value: patient.getFamilyName(),
-          other: {
-            editable: true,
-            attribute: "family_name",
-            category: "demographics",
-          },
-        },
-        {
-          label: "Age",
-          value: patient.getAge(),
-          other: {
-            editable: true,
-            attribute: "year_birth_date",
-            category: "demographics",
-          },
-        },
-        {
-          label: "Sex",
-          value: patient.getGender(),
-          other: {
-            editable: true,
-            attribute: "gender",
-            category: "demographics",
-          },
-        },
-        {
-          label: "Location",
-          value: patient.getCurrentVillage(),
-          other: {
-            editable: true,
-            attribute: "home_region",
-            category: "demographics",
-          },
-        },
-        { label: "Landmark", value: patient.getAttribute(19) },
-        {
-          label: "Guardian",
-          value: this.guardians ? this.guardians : "add",
-          other: {
-            editable: !this.guardians,
-            attribute: "",
-            category: "guardian",
-          },
-        },
-        { label: "Init W(KG)", value: await patient.getInitialWeight() },
-        { label: "Init H(CM)", value: await patient.getInitialHeight() },
-        { label: "BMI(CM)", value: await patient.getInitialBMI() },
-        { label: "TI", value: TI },
-        { label: "Agrees to follow up", value: agreesToFollowUp },
-        { label: "Reason for starting ART", value: reasonForStarting },
-        { label: "HIV test date", value: `${dateOfTest ? dateOfTest : ""}` },
-        { label: "HIV test place", value: `${placeOfTest ? placeOfTest : ""}` },
-        { label: "Date of starting first line ART", value: startDate },
-        ...(await this.getTBStats()),
-      ] as Option[];
-    },
-
-    async getTBStats(): Promise<Option[]> {
-      const stats = await ObservationService.getFirstValueCoded(
-        this.patientId,
-        "Who stages criteria present"
-      );
-      return [
-        {
-          label: "Pulmonary TB within the last 2 years",
-          value: stats && stats.match(/last/i) ? "Yes" : "N/A",
-        },
-        {
-          label: "Extra pulmonary TB (EPTB)",
-          value: stats && stats.match(/eptb/i) ? "Yes" : "N/A",
-        },
-        {
-          label: "Pulmonary TB (current)",
-          value: stats && stats.match(/current/i) ? "Yes" : "N/A",
-        },
-        {
-          label: "Kaposi's sarcoma:",
-          value: stats && stats.match(/kepos/i) ? "Yes" : "N/A",
-        },
-      ];
-    },
-
-    async openModal(items: any, title: string, component: any) {
-      const date = HisDate.toStandardHisDisplayFormat(
-        this.activeVisitDate.toString()
-      );
-      const modal = await modalController.create({
-        component: component,
-        backdropDismiss: false,
-        cssClass: "custom-modal",
-        componentProps: {
-          items,
-          title: `${title}: ${date}`,
-          taskParams: {
-            patient: this.patient.getObj(),
-            program: this.patientProgram,
-            visitDate: this.activeVisitDate,
-            patientID: this.patientId,
-          },
-        },
-      });
-      modal.present();
-    },
-    printLabel(date: any) {
-      new PatientPrintoutService(this.patientId).printVisitSummaryLbl(date);
     }
   }
 });

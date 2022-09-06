@@ -8,28 +8,18 @@
   <ion-page v-if="!showForm">
     <ion-header>
       <ion-toolbar>
-        <ion-row> 
-          <ion-col size="2">
-            <img class="ion-margin-start" :src="logo" :style="{width: customInfo ? '80px' : '60px'}" />
-          </ion-col>
-          <ion-col>
-            <ion-row>
-              <ion-col size="3"><b>Title</b></ion-col> 
-              <ion-col> <b>{{ title }}</b> </ion-col>
-            </ion-row>
-            <ion-row v-if="period"> 
-              <ion-col size="3"><b>Period</b></ion-col> 
-              <ion-col> <b>{{ period }}</b> </ion-col>
-            </ion-row>
-            <ion-row v-if="customInfo"> 
-              <ion-col size="3"><b>{{ customInfo.label }}</b></ion-col> 
-              <ion-col> <b>{{ customInfo.value }}</b> </ion-col>
-            </ion-row>
-          </ion-col>
-        </ion-row>
-      </ion-toolbar>
-      <ion-toolbar> 
+        <ion-thumbnail slot="start"> 
+          <ion-img :src="logo"/>
+        </ion-thumbnail>
+        <ion-label> 
+          <ul class="header-text-list"> 
+            <li>Title <b>{{ title }}</b></li>
+            <li>Period <b>{{ period }}</b></li>
+            <li v-if="customInfo">{{customInfo.label}} <b>{{customInfo.value}}</b></li>
+          </ul>
+        </ion-label>
         <report-filter
+          slot="end"
           :showPerPageFilter="showFilters || paginated"
           :disableSearchFilter="isTableLoading"
           :disablePerPageFilter="isTableLoading"
@@ -91,12 +81,11 @@ import {
   IonPage,
   IonHeader,
   IonContent,
-  IonToolbar, 
-  IonRow,
-  IonCol,
+  IonToolbar,
   loadingController,
   IonChip, 
-  IonFooter
+  IonFooter,
+  IonLabel
 } from "@ionic/vue"
 import { Service } from "@/services/service"
 import HisDate from "@/utils/Date"
@@ -112,16 +101,15 @@ export default defineComponent({
     HisFooter, 
     IonPage, 
     IonContent, 
-    IonToolbar, 
-    IonRow, 
-    IonCol,
+    IonToolbar,
     Pagination, 
     ReportFilter,  
     IonFooter,
     IonChip, 
+    IonLabel
   },
   props: {
-       title: {
+      title: {
       type: String,
       required: true,
     },
@@ -285,7 +273,7 @@ export default defineComponent({
         name: "Back",
         size: "large",
         slot: "end",
-        color: "warning",
+        color: "primary",
         visible: true,
         onClick: () => this.showForm = true
       },
@@ -295,7 +283,7 @@ export default defineComponent({
         slot: "end",
         color: "warning",
         visible: true,
-        onClick: async () => this.reloadReport()
+        onClick: () => this.reloadReport()
       },
       {
         name: "Finish",
@@ -303,7 +291,7 @@ export default defineComponent({
         slot: "end",
         color: "success",
         visible: true,
-        onClick: async () => this.$router.push({ path:'/' })
+        onClick: () => this.$router.push({ path:'/' })
       }
     )
   }
@@ -315,5 +303,8 @@ export default defineComponent({
   width: 99.9%;
   height: 99%;
   overflow: auto;
+}
+.header-text-list {
+  list-style: none;
 }
 </style>

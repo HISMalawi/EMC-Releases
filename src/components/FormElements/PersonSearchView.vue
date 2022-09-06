@@ -89,6 +89,11 @@ export default defineComponent({
     }
   },
   methods: {
+    async init() {
+      this.$emit('onFieldActivated', this)
+      this.listData = await this.options(this.fdata, this)
+      this.onSelect((this.listData.length > 0) ? this.listData[0] : {})
+    },
     async onSelect(item: any) {
       if (!item) {
         return
@@ -103,10 +108,11 @@ export default defineComponent({
       this.$emit('onValue', item)
     }
   },
-  async activated() {
-    this.$emit('onFieldActivated', this)
-    this.listData = await this.options(this.fdata, this)
-    this.onSelect((this.listData.length > 0) ? this.listData[0] : {})
+  mounted() {
+    this.init()
+  },
+  activated() {
+    this.init()  
   }
 });
 </script>

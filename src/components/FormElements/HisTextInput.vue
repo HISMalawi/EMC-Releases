@@ -75,14 +75,20 @@ export default defineComponent({
             }
         }
     },
-    async activated(){
-        this.$emit('onFieldActivated', this)
-        if (this.config && this.config.prependValue) {
-            this.prependValue = await this.config.prependValue(this.fdata)
-        }
-        await this.setDefaultValue()
+    mounted() {
+        this.init()
+    },
+    activated(){
+        this.init()
     },
     methods: {
+        async init() {
+            this.$emit('onFieldActivated', this)
+            if (this.config && this.config.prependValue) {
+                this.prependValue = await this.config.prependValue(this.fdata)
+            }
+            await this.setDefaultValue()
+        },
         async setDefaultValue() {
             if (this.defaultValue && !this.value) {
                 const defaults: any = await this.defaultValue(this.fdata, this.cdata)

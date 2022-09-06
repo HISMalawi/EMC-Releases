@@ -35,6 +35,7 @@ import { PrescriptionService } from "../../services/prescription_service";
 import { DispensationService } from "../../services/dispensation_service";
 import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { AppEncounterService } from "@/services/app_encounter_service";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   mixins: [AdherenceMixinVue],
@@ -45,7 +46,6 @@ export default defineComponent({
     weightTrail: [] as any,
     customRegimens: [] as any,
     labOrders: [] as any,
-    isDrugRefillPatient: false as boolean,
     weightLossPercentageNum: 0 as number,
     lostTenPercentBodyWeight: false as boolean,
     CxCaEnabled: false as boolean,
@@ -69,81 +69,23 @@ export default defineComponent({
     lastDrugsReceived: [] as any,
     sideEffectsHistory: {} as any,
     onPermanentFPMethods: false,
-    guardianVisit: false,
     reasonForDecliningTPTObs: {} as any,
     malawiSideEffectReasonObs: [] as any,
     otherSideEffectReasonObs: [] as any,
     wasTransferredIn: false as boolean,
     dateStartedArt: '' as string,
     clientHadAHysterectomy: false as any,
+    isNoneClientPatient: false as boolean,
+    tptStatus: {} as Record<string, any>
   }),
   watch: {
     ready: {
-      async handler(value: boolean) {
+      handler(value: boolean) {
         if (value) {
           this.consultation = new ConsultationService(this.patientID, this.providerID)
           this.prescription = new PrescriptionService(this.patientID, this.providerID)
           this.dispensation = new DispensationService(this.patientID, this.providerID)
-
-          await this.initAdherence(this.patient, this.providerID);
-          await this.guardianOnlyVisit();
-
-          this.currentWeight = Number((await this.patient.getRecentWeight()))
-
-          // this.wasTransferredIn = await this.getTransferInStatus()
-          this.wasTransferredIn = (await this.getTransferInStatus()) || false
-          this.currentWeight = Number((await this.patient.getRecentWeight()))
-
-          // this.wasTransferredIn = await this.getTransferInStatus()
-
-          this.dateStartedArt = await this.getDateStartedArt()
-
-          this.isDrugRefillPatient = await PatientTypeService.isDrugRefillPatient(this.patientID)
-
-          this.sideEffectsHistory = await this.consultation.getDrugSideEffects()
-
-          this.hasTbHistoryObs = await this.consultation.hasTreatmentHistoryObs()
-
-          this.CxCaEnabled = await ART_PROP.cervicalCancerScreeningEnabled()
-
-          this.weightTrail = await this.patient.getWeightHistory()
-
-          this.weightLossPercentageNum = this.patient.getWeightLossPercentageFromTrail(this.weightTrail)
-
-          this.lostTenPercentBodyWeight = this.weightLossPercentageNum >= 10
-
-          this.labOrders = await this.getVlLabData()
-
-          if (this.CxCaEnabled) {
-            const { start, end } = await ART_PROP.cervicalCancerScreeningAgeBounds()
-            this.CxCaMaxAge = end
-            this.CxCaStartAge = start
-            this.DueForCxCa = await this.consultation.clientDueForCxCa()
-            this.clientHadAHysterectomy =  await this.consultation.clientHasHadAHysterectomy();
-          }
-
-          if (this.patient.isChildBearing()) {
-            this.hasPregnancyObsToday = await this.patient.hasPregnancyObsToday()
-            this.currentlyPregnant = await this.patient.isPregnant()
-          } 
-
-          if (this.patient.isFemale()) {
-            this.patientHitMenopause = await this.consultation.patientHitMenopause()
-          }
-          
-          if (this.hasTbHistoryObs) {
-            this.completed3HP = await this.consultation.patientCompleted3HP()
-          }
-
-          if (!this.completed3HP) {
-            this.completed3HP = await this.consultation.hasCompleteTptDispensations()
-          }
-
-          this.autoSelect3HP = await ART_PROP.threeHPAutoSelectEnabled()
-          this.askAdherence = this.adherence.receivedDrugsBefore();
           this.fields = this.getFields();
-          this.onPermanentFPMethods = await this.consultation.getTLObs();
-          this.lastDrugsReceived = await this.consultation.getPreviousDrugs();
         }
       },
       immediate: true
@@ -167,7 +109,7 @@ export default defineComponent({
         ...computedObs, ...secondaryObs
       ])
 
-      if (this.askAdherence && !this.isNonePatientClient()) await this.saveAdherence();
+      if (!isEmpty(this.drugObs) && !this.isNoneClientPatient) await this.saveAdherence();
 
       if (!savedObs) return toastWarning("Unable to save patient observations");
 
@@ -212,10 +154,6 @@ export default defineComponent({
         )
         val.value = action === 'Confirm weight loss' ? 'Yes' : 'No'
       }
-    },
-    async guardianOnlyVisit() {
-      const val = await this.consultation.getClient();
-      this.guardianVisit = val === "No";
     },
     async checkVLReminder() {
       const vals = await ProgramService.getPatientVLInfo(this.patientID);
@@ -562,7 +500,8 @@ export default defineComponent({
       })
     },
     medicationOrderOptions(formData: any, prechecked=[] as Option[]): Option[] {
-      const completed3HP = this.didCompleted3HP(formData)
+      const completedTpt = this.didCompleted3HP(formData)
+      const everTakenTpt = this.tptStatus.tpt !== null
       const autoSelect3HP = this.tptAutoSelectionMode(formData)
 
       const disableOption = (text: string) => ({
@@ -594,39 +533,42 @@ export default defineComponent({
         }),
         this.toOption('3HP (RFP + INH)', {
           appendOptionParams: () => {
-            if (completed3HP) return disableOption('Completed 3HP')
-
+            if (completedTpt) return disableOption(`Completed TPT treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
-
-            if (this.currentWeight < 20) return disableOption('Weight below regulation') 
+            if (this.currentWeight < 20) return disableOption('Weight below regulation')
+            if (everTakenTpt && this.tptStatus.tpt !== '3HP (RFP + INH)' && !this.tptStatus.completed) {
+              return disableOption(`On ${this.tptStatus.tpt} treatment`)
+            }
+            if (this.tptStatus.tpt === '3HP (RFP + INH)' && !this.tptStatus.completed) return { isChecked: true }
           }
         }),
         this.toOption('INH 300 / RFP 300 (3HP)', {
           appendOptionParams: () => { 
-            if (completed3HP) return disableOption('Completed 3HP')
-
+            if (completedTpt) return disableOption(`Completed TPT treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
-
             if (this.currentWeight < 30) return disableOption('Weight below regulation') 
-
+            if (everTakenTpt && this.tptStatus.tpt !== 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) {
+              return disableOption(`On ${this.tptStatus.tpt} treatment`)
+            }
+            if (this.tptStatus.tpt === 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) return { isChecked: true }
             return { isChecked: autoSelect3HP }
           }
         }),
         this.toOption('IPT', {
           appendOptionParams: () => {
-            if (completed3HP) return disableOption('Completed 3HP')
+            if (completedTpt) return disableOption(`Completed TPT treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
+            if (everTakenTpt && this.tptStatus.tpt !== 'IPT' && !this.tptStatus.completed) {
+              return disableOption(`On ${this.tptStatus.tpt} treatment`)
+            }
+            if (this.tptStatus.tpt === 'IPT' && !this.tptStatus.completed) return { isChecked: true }
           }
         }),
         this.toOption('NONE OF THE ABOVE')
       ], prechecked)
     },
-    isNonePatientClient() {
-      return this.guardianVisit || this.isDrugRefillPatient
-    },
     async getVlLabData() {
-      const orders = await OrderService.getOrdersIncludingGivenResultStatus(this.patientID);
-      return OrderService.formatLabs(orders);
+      return OrderService.formatLabs((await Store.get('GET_LAB_ORDERS_WITH_GIVEN_RESULT_STATUS', { patientID: this.patientID })));
     },
     isANCclient() {
       return ProgramService.getSuspendedProgram() === 'ANC'
@@ -638,6 +580,22 @@ export default defineComponent({
           proxyID: "prescription",
           helpText: "Medication to prescribe during this visit",
           type: FieldType.TT_MULTIPLE_SELECT,
+          init: async () => {
+            const isGuardian = (await this.consultation.getClient()) === "No";
+            if (isGuardian) {
+              this.isNoneClientPatient = true
+            } else {
+              this.isNoneClientPatient = (await PatientTypeService.isDrugRefillPatient(this.patientID))
+                ? true : false
+            }
+            if (this.isNoneClientPatient) {
+              this.currentWeight = Number((await this.patient.getRecentWeight()))
+              this.autoSelect3HP = await Store.get('ART_AUTO_3HP_SELECTION')
+              this.tptStatus = await this.consultation.getTptTreatmentStatus()
+              this.completed3HP = this.tptStatus.tpt !== null && this.tptStatus.completed
+            }
+            return true
+          },
           validation: (data: any) => Validation.required(data),
           computedValue: (v: Option[]) => ({ 
             tag: 'consultation',
@@ -650,7 +608,7 @@ export default defineComponent({
           options: (formData: any, c: Array<Option>, cd: any, l: any) => {
             return !isEmpty(l) ? l : this.medicationOrderOptions(formData)
           },
-          condition: () => this.isNonePatientClient(),
+          condition: () => this.isNoneClientPatient,
           exitsForm: () => true
         },
         /**
@@ -660,6 +618,11 @@ export default defineComponent({
           id: 'date_last_received_arvs',
           helpText: 'Last ARV Dispensation',
           required: true,
+          init: async () => {
+            this.wasTransferredIn = (await this.getTransferInStatus()) || false
+            this.dateStartedArt = await this.getDateStartedArt()
+            return true
+          },
           condition: () => this.wasTransferredIn,
           minDate: () => this.dateStartedArt,
           maxDate: () => this.consultation.getDate(),
@@ -803,6 +766,10 @@ export default defineComponent({
           id: "patient_lab_orders",
           helpText: "Lab orders",
           type: FieldType.TT_LAB_ORDERS,
+          init: async () => {
+            this.labOrders = await this.getVlLabData()
+            return true
+          },
           unload: async () => {
             await this.checkVLReminder()
             // Check if released results were given to the patient
@@ -860,6 +827,16 @@ export default defineComponent({
         {
           id: "pregnant_breastfeeding",
           helpText: `Patient Pregnant or breastfeeding?`,
+          init: async () => {
+            if (this.patient.isFemale()) {
+              if (this.patient.isChildBearing()) {
+                this.hasPregnancyObsToday = await this.patient.hasPregnancyObsToday()
+                this.currentlyPregnant = await this.patient.isPregnant()
+              }
+              this.onPermanentFPMethods = await this.consultation.getTLObs();
+            }
+            return true
+          },
           condition: () => !this.hasPregnancyObsToday && this.pregnancyEligible(),
           type: FieldType.TT_MULTIPLE_YES_NO,
           validation: (data: any) =>
@@ -906,6 +883,12 @@ export default defineComponent({
           id: "patient_weight_chart",
           helpText: "Patient weight chart",
           type: FieldType.TT_WEIGHT_CHART,
+          init: async () => {
+            this.weightTrail = await this.patient.getWeightHistory()
+            this.weightLossPercentageNum = this.patient.getWeightLossPercentageFromTrail(this.weightTrail)
+            this.lostTenPercentBodyWeight = this.weightLossPercentageNum >= 10
+            return true
+          },
           options: async () => {
             const bmi = await this.patient.getBMI();
             const values = this.weightTrail;
@@ -941,6 +924,12 @@ export default defineComponent({
           id: "current_fp_methods",
           helpText: "What method are you currently on?",
           type: FieldType.TT_MULTIPLE_SELECT,
+          init: async () => {
+            if (this.patient.isFemale()) {
+              this.patientHitMenopause = await this.consultation.patientHitMenopause()
+            }
+            return true
+          },
           validation: (data: any) => Validation.required(data),
           onValueUpdate: (listData: Array<Option>, value: Option) => {
             return this.disableFPMethods(listData, value);
@@ -1035,6 +1024,19 @@ export default defineComponent({
           id: "offer_cxca",
           helpText: "Refer client for CxCa screening",
           type: FieldType.TT_SELECT,
+          init: async () => {
+            if (this.patient.isFemale()) {
+              this.CxCaEnabled = await ART_PROP.cervicalCancerScreeningEnabled()
+              if (this.CxCaEnabled) {
+                const { start, end } = await ART_PROP.cervicalCancerScreeningAgeBounds()
+                this.CxCaMaxAge = end
+                this.CxCaStartAge = start
+                this.DueForCxCa = await this.consultation.clientDueForCxCa()
+                this.clientHadAHysterectomy =  await this.consultation.clientHasHadAHysterectomy();
+              }
+            }
+            return true
+          },
           validation: (v: Option) => Validation.required(v),
           condition: (f: any) => this.canScreenCxCa() && !this.isPregnant(f),
           computedValue: (v: Option) => ({
@@ -1084,6 +1086,10 @@ export default defineComponent({
           id: 'previous_side_effects',
           helpText: 'Side effects / Contraindications history',
           type: FieldType.TT_DATA_TABLE,
+          init: async () => {
+            this.sideEffectsHistory = await this.consultation.getDrugSideEffects()
+            return true
+          },
           config: {
             columns: () => [
               [
@@ -1112,6 +1118,10 @@ export default defineComponent({
           id: "side_effects",
           helpText: "Contraindications / Side effects (select either 'Yes' or 'No')",
           type: FieldType.TT_MULTIPLE_YES_NO,
+          init: async () => {
+            this.lastDrugsReceived = await this.consultation.getPreviousDrugs();
+            return true
+          },
           validation: (data: any) =>
             this.validateSeries([
               () => Validation.required(data),
@@ -1255,6 +1265,10 @@ export default defineComponent({
           id: "routine_tb_therapy",
           helpText: "TB preventive therapy (TPT) history",
           type: FieldType.TT_SELECT,
+          init: async () => {
+            this.hasTbHistoryObs = await this.consultation.hasTreatmentHistoryObs()
+            return true
+          },
           validation: (data: any) => Validation.required(data),
           condition: () => !this.hasTbHistoryObs,
           computedValue: (data: any) => ({
@@ -1295,7 +1309,7 @@ export default defineComponent({
           },
           options: () => this.yesNoUnknownOptions()
         },
-        ...this.getAdherenceFields(this.askAdherence),
+        ...this.getAdherenceFields(true),
         {
           id: "refer_to_clinician",
           helpText: "Refer to clinician",
@@ -1313,6 +1327,15 @@ export default defineComponent({
           proxyID: "prescription",
           helpText: "Medication to prescribe during this visit",
           type: FieldType.TT_MULTIPLE_SELECT,
+          init: async () => {
+            if (!this.isNoneClientPatient) {
+              this.currentWeight = Number((await this.patient.getRecentWeight()))
+              this.autoSelect3HP = await Store.get('ART_AUTO_3HP_SELECTION')
+              this.tptStatus = await this.consultation.getTptTreatmentStatus()
+              this.completed3HP = this.tptStatus.tpt !== null && this.tptStatus.completed
+            }
+            return true
+          },
           condition: (f: any) => !f.refer_to_clinician || `${f.refer_to_clinician.value}`.match(/no/i),
           validation: (data: Option) => Validation.required(data),
           computedValue: (v: Option[]) => ({

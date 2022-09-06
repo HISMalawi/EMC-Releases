@@ -64,17 +64,21 @@ export default defineComponent({
   data: () => ({
     value: '' as string,
   }),
-  async activated() {
-    this.$emit('onFieldActivated', this)
-    this.listData = await this.options(this.fdata);
+  activated() {
+    this.init()
   },
   async mounted() {
+    await this.init()
     if (typeof this.defaultValue === 'function') {
       const value = await this.defaultValue(this.fdata, this.cdata)
       if (value != null || value != undefined) this.value = `${value}`
     }
   },
   methods: {
+    async init() {
+      this.$emit('onFieldActivated', this)
+      this.listData = await this.options(this.fdata);
+    },
     onselect(data: any): void {
       this.$emit("onValue", data);
     },

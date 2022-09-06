@@ -53,13 +53,22 @@ export default defineComponent({
             const req = this.service.requestReport()
             if (typeof req === 'object' && req.then) {
                 req.then((data: any) => {
+                    let total = 0;
                     data.forEach((d: any) => {
                         this.rows.push([
                             table.td(d.exam_name),
                             table.td(d.exam_value_name),
                             table.td(d.exam_total)
                         ])
+                        total += d.exam_total;
                     })
+                    if (total > 0) {
+                        this.rows.push([
+                                table.td('Total'),
+                                table.td('All'),
+                                table.td(total),
+                        ])
+                    }
                 }).catch((e: any) => toastDanger(`${e}`))
             }
         }

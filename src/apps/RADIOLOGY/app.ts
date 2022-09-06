@@ -12,6 +12,17 @@ const RADIOLOGY: AppInterface = {
         medicationsEnabled: false,
         labEnabled: false
     },
+    confirmationSummary(patient) {
+        return {
+            'Patient Identifiers' : () => {
+                return [{
+                    label: 'NPID',
+                    value: '...',
+                    staticValue: () => patient.getNationalID()
+                }]
+            }
+        }
+    },
     appRoutes: [
         {
             name: 'Examination',
@@ -37,6 +48,11 @@ const RADIOLOGY: AppInterface = {
             name: 'radiology referral report',
             path: '/radiology/report/referral',
             component: () => import('@/apps/RADIOLOGY/views/reports/RadiologyReferralReport.vue')
+        },
+        {
+            name: 'radiology activities',
+            path: '/radiology/activities/:patient_id',
+            component: () => import('@/apps/RADIOLOGY/views/RadiologyActivities.vue')
         }
     ],
     programReports: [
@@ -86,6 +102,12 @@ const RADIOLOGY: AppInterface = {
             icon: "appointment.png"
         }
     ],
-    secondaryPatientActivites: []
+    secondaryPatientActivites: [
+        {
+            id: 'radiology activities',
+            name: 'Radiology Activities',
+            icon: 'radiology_types.png'
+        }
+    ]
 }
 export default RADIOLOGY

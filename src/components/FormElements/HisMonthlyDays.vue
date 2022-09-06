@@ -28,40 +28,46 @@ export default defineComponent({
         maxDays: 30 as number,
         keyboard: [] as any
     }),
-    async activated() {
-        this.$emit('onFieldActivated', this)
-        let keypad: Array<any> = MONTHLY_DAYS_LO
-
-        if (this.config) {
-            // Generate dynamic keypad based on year and month configuration
-            if (this.config.year && this.config.month) {
-                keypad = this.generateKeypad(
-                    this.config.year(this.fdata), 
-                    this.config.month(this.fdata)
-                )
-            }
-            // Load secondary keyboard buttons if configured
-            if (this.config.keyboardActions) {
-                this.keyboard = [
-                    keypad, 
-                    this.config.keyboardActions
-                ]
-            } else {
-                this.keyboard = [
-                    keypad, 
-                    [
-                        ['Unknown']
-                    ]
-                ]                
-            }
-        } else {
-            // Use fixed configuration for everything
-            this.keyboard = MONTHLY_DAYS
-        }
-
-        await this.setDefaultValue()
+    mounted() {
+        this.init()
+    },
+    activated() {
+        this.init()
     },
     methods: {
+        async init() {
+            this.$emit('onFieldActivated', this)
+            let keypad: Array<any> = MONTHLY_DAYS_LO
+
+            if (this.config) {
+                // Generate dynamic keypad based on year and month configuration
+                if (this.config.year && this.config.month) {
+                    keypad = this.generateKeypad(
+                        this.config.year(this.fdata), 
+                        this.config.month(this.fdata)
+                    )
+                }
+                // Load secondary keyboard buttons if configured
+                if (this.config.keyboardActions) {
+                    this.keyboard = [
+                        keypad, 
+                        this.config.keyboardActions
+                    ]
+                } else {
+                    this.keyboard = [
+                        keypad, 
+                        [
+                            ['Unknown']
+                        ]
+                    ]                
+                }
+            } else {
+                // Use fixed configuration for everything
+                this.keyboard = MONTHLY_DAYS
+            }
+
+            await this.setDefaultValue()
+        },
         onKbValue(value: any) {
             this.value = value
             this.emitValue()

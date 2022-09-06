@@ -70,11 +70,17 @@ export default defineComponent({
     drugs: [] as any,
     selectedDrug: null as any,
   }),
+  mounted() {
+    this.init()
+  },
   async activated() {
-    this.$emit("onFieldActivated", this);
-    await this.setDefaultValue();
+    this.init()
   },
   methods: {
+    async init() {
+      this.$emit("onFieldActivated", this);
+      await this.setDefaultValue();
+    },
     async setDefaultValue() {
       const incomingDrugs = await this.options();
       // detect if some drugs are still available as options

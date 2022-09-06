@@ -45,9 +45,18 @@ export default defineComponent({
             whoStage: '' as string
         }
     }),
+    watch: {
+        ready : {
+            handler(v) {
+                if (v) {
+                    this.staging = new StagingService(this.patient.getID(), this.patient.getAge(), this.providerID)
+                }
+            },
+            immediate: true
+        }
+    },
     methods: {
         async initStaging(patient: any) {
-            this.staging = new StagingService(patient.getID(), patient.getAge(), this.providerID)
             await this.staging.loadHivConfirmatoryTestType()
             this.bmiObj = await patient.getBMI()
             this.stagingFacts.age = patient.getAge()

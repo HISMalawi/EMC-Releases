@@ -19,12 +19,12 @@
     </ion-segment>
   </ion-toolbar>
   <ion-content class="ion-padding">
-    <apexchart
+    <ApexChart
       width="100%"
       type="bar"
       :options="options"
       :series="series"
-    ></apexchart>
+    />
   </ion-content>
 </template>
 <script lang="ts">
@@ -40,10 +40,12 @@ import {
 } from "@ionic/vue";
 import { defineComponent } from "vue";
 import { StockService } from "../views/ARTStock/stock_service";
+import ApexChart from "vue3-apexcharts";
 
 export default defineComponent({
   name: "Modal",
   components: {
+    ApexChart,
     IonContent,
     IonHeader,
     IonTitle,

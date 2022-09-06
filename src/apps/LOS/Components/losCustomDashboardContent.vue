@@ -138,7 +138,6 @@ export default defineComponent({
         IonLabel,
         IonSegmentButton
     },
-    emits: ['onProgramVisitDates'],
     data: () => ({
         initiated: false as boolean,
         showSpecimenModal: false as boolean,
@@ -192,12 +191,6 @@ export default defineComponent({
             this.service = new PatientLabService(this.patient.getID())
             this.openOrdersData = await this.service.getOrders('ordered')
             this.drawnOrdersData = await this.service.getOrders('drawn')
-            const visitDates = this.drawnOrdersData.concat(this.openOrdersData)
-                .map((d: any) => ({
-                    label: HisDate.toStandardHisDisplayFormat(d.order_date),
-                    value: this.toDate(d.order_date)
-                }))
-            this.$emit('onProgramVisitDates', visitDates)
         },
         toDate(date: string) {
             return HisDate.toStandardHisFormat(date)

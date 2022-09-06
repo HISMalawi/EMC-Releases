@@ -4,10 +4,12 @@ import Url from "@/utils/Url";
 export class PatientPrintoutService extends PrintoutService {
     patient: number
     baseUrl: string
+    useQrPrinting: boolean
     constructor(patientId: number){
         super()
         this.patient = patientId
         this.baseUrl = `patients/${this.patient}/labels/`
+        this.useQrPrinting = ['RADIOLOGY', 'Registration'].includes(PrintoutService.getProgramName())
     }
 
     getLblUrl(resource: string, params = {} as Record<string, string>) {
@@ -23,8 +25,8 @@ export class PatientPrintoutService extends PrintoutService {
         return this.printPatientLbl('filing_number')
     }
 
-    printNidLbl() {
-        return this.printPatientLbl('national_health_id')
+    printNidLbl(useQR=this.useQrPrinting) {
+        return this.printPatientLbl(`national_health_id?qr_code=${useQR}`)
     }
 
     printVisitSummaryLbl(date = PrintoutService.getSessionDate() ) {

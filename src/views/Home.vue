@@ -52,19 +52,27 @@
 
     <ion-toolbar> 
       <ion-segment scrollable :value="activeTab" class="ion-justify-content-center">
-        <ion-segment-button :value="1" @click="activeTab = 1">
+        <ion-segment-button :value="1" @click="onSegmentClick(1)">
           <ion-icon :icon="statsChart"> </ion-icon>
-          <ion-label class="his-sm-text">Overview</ion-label>
+          <ion-label class="his-sm-text">
+            Overview
+          </ion-label>
         </ion-segment-button>
-        <ion-segment-button v-if="canReport" :value="2" @click="activeTab = 2">
+        <ion-segment-button v-if="canReport" :value="2" @click="onSegmentClick(2)">
           <ion-icon :icon="pieChart"> </ion-icon>
-          <ion-label class="his-sm-text">Reports</ion-label>
+          <ion-label class="his-sm-text">
+            <ion-icon v-if="showSegmentBackArrow && activeTab === 2" :icon="arrowBack"/>
+            Reports
+          </ion-label>
         </ion-segment-button>
-        <ion-segment-button :value="3" @click="activeTab = 3">
+        <ion-segment-button :value="3" @click="onSegmentClick(3)">
           <ion-icon :icon="settings"> </ion-icon>
-          <ion-label class="his-sm-text">Administration</ion-label>
+          <ion-label class="his-sm-text">
+            <ion-icon v-if="showSegmentBackArrow && activeTab === 3" :icon="arrowBack"/>
+            Administration
+          </ion-label>
         </ion-segment-button>
-        <ion-segment-button :value="4" @click="activeTab = 4">
+        <ion-segment-button :value="4" @click="onSegmentClick(4)">
           <ion-icon :color="hasUnreadNotifications ? 'danger' : ''" :icon="notifications"/>
           <ion-label :color="hasUnreadNotifications ? 'danger' : ''" class="his-sm-text">
             Alerts <b v-if="hasUnreadNotifications">({{notificationCount}})</b>
@@ -75,22 +83,26 @@
     
     <ion-content :fullscreen="true">
       <div id="container" class="his-card overview" v-if="ready">
-        <component 
-          v-if ="activeTab == 1" 
-          v-bind:is="appOverview"
-          > 
-        </component>
-        <home-folder
-          v-if="activeTab == 2"
-          :items="appReports"
-          >
-        </home-folder>
-        <home-folder 
-          v-if="activeTab == 3 && app.globalPropertySettings"
-          :items="app.globalPropertySettings" 
-          >
-        </home-folder>
-        <home-notification v-if="activeTab == 4"/>
+        <div v-show="activeTab == 1"> 
+          <component v-bind:is="appOverview"/>
+        </div>
+        <div v-show="activeTab == 2">
+          <home-folder
+            @onSublist="showSegmentBackArrow=true"
+            :items="appReports"
+            :resetList="resetReport">
+          </home-folder>
+        </div>
+        <div v-show="activeTab == 3"> 
+          <home-folder
+            @onSublist="showSegmentBackArrow=true"
+            :items="app.globalPropertySettings"
+            :resetList="resetAdmin">
+          </home-folder>
+        </div>
+        <div v-if="activeTab == 4">
+          <home-notification/>
+        </div>
       </div>
     </ion-content>
 
@@ -118,10 +130,10 @@
         </ion-col>
 
         <ion-col>
-          <ion-button class="xl-button mobile-component-view" color="primary" router-link="/patient/registration">
+          <ion-button class="xl-button mobile-component-view" color="success" router-link="/patient/registration">
             <ion-icon :icon="person"></ion-icon>
           </ion-button>
-          <ion-button class="xl-button full-component-view" color="primary" size="large" router-link="/patient/registration">
+          <ion-button class="xl-button full-component-view" color="success" size="large" router-link="/patient/registration">
             <ion-icon :icon="person"></ion-icon>
             <ion-label> Find or Register </ion-label>
           </ion-button>
@@ -144,13 +156,11 @@
 
 <script lang="ts">
 import HisApp from "@/apps/app_lib"
-import { defineComponent, watch } from "vue";
-import ApiClient from "@/services/api_client";
+import { defineAsyncComponent, defineComponent, watch } from "vue";
+import { barcode } from "ionicons/icons";
 import HisDate from "@/utils/Date"
 import { AppInterface, FolderInterface } from "@/apps/interfaces/AppInterface";
 import { Service } from "@/services/service"
-import ProgramIcon from "@/components/DataViews/DashboardAppIcon.vue"
-import HomeFolder from "@/components/HomeComponents/HomeFolders.vue"
 import { AuthService } from "@/services/auth_service"
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
 import { Notification } from "@/composables/notifications" 
@@ -163,7 +173,8 @@ import {
   logOut,
   statsChart,
   pieChart,
-  settings
+  settings,
+  arrowBack
 } from 'ionicons/icons';
 import {
   IonThumbnail,
@@ -187,6 +198,7 @@ import { alertConfirmation } from "@/utils/Alerts";
 import HomeNotification from "@/components/HomeComponents/HomeNotifications.vue"
 import useBarcode from "@/composables/useBarcode";
 import { useRouter } from "vue-router";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   name: "Home",
@@ -194,8 +206,6 @@ export default defineComponent({
     IonTitle,
     IonThumbnail,
     IonIcon,
-    ProgramIcon,
-    HomeFolder,
     IonContent,
     IonHeader,
     IonPage,
@@ -208,7 +218,9 @@ export default defineComponent({
     IonSegment,
     IonSegmentButton,
     IonLabel,
-    HomeNotification
+    ProgramIcon: defineAsyncComponent(() => import("@/components/DataViews/DashboardAppIcon.vue")),
+    HomeFolder: defineAsyncComponent(() => import("@/components/HomeComponents/HomeFolders.vue")),
+    HomeNotification: defineAsyncComponent(() => import("@/components/HomeComponents/HomeNotifications.vue"))
   },
   setup() {
     const { activePlatformProfile } = usePlatform()
@@ -238,6 +250,7 @@ export default defineComponent({
       logOut,
       statsChart,
       pieChart,
+      arrowBack,
       settings,
       activePlatformProfile
     }
@@ -254,6 +267,9 @@ export default defineComponent({
       ready: false,
       overviewComponent: {} as any,
       isBDE: false,
+      showSegmentBackArrow: false as boolean,
+      resetReport: 0 as number,
+      resetAdmin: 0 as number,
     };
   },
   computed: {
@@ -280,17 +296,18 @@ export default defineComponent({
     }
   },
   methods: {
-    fetchLocationID: async function () {
-      const centerID = await GLOBAL_PROP.healthCenterID()
-
-      if (centerID) this.fetchLocationName(centerID);
+    onSegmentClick(tabIndex: number) {
+      this.activeTab = tabIndex
+      if (this.activeTab === 2) {
+        this.resetReport += 1
+      } else if(this.activeTab === 3) {
+        this.resetAdmin += 1
+      }
+      this.showSegmentBackArrow = false
+      Store.set('ACTIVE_HOME_TAB', this.activeTab)
     },
-    async fetchLocationName(locationID: string) {
-      const response = await ApiClient.get("locations/" + locationID);
-
-      if (!response || response.status !== 200) return;
-
-      const data = await response.json();
+    async setLocation() {
+      const data = await Store.get('CURRENT_LOCATION') 
       this.facilityName = data.name;
       this.createSessionLocationName(data);
     },
@@ -304,7 +321,7 @@ export default defineComponent({
       this.isBDE = Service.isBDE() === true
       this.userLocation = sessionStorage.userLocation;
       this.userName = sessionStorage.username;
-      this.fetchLocationID();
+      this.setLocation();
       this.sessionDate = HisDate.toStandardHisDisplayFormat(
         Service.getSessionDate()
       )
@@ -323,6 +340,7 @@ export default defineComponent({
       if (!ok) return
       const auth = new AuthService()
       try {
+        Store.invalidateAll()
         if((await GLOBAL_PROP.portalEnabled())) {
           const portalLocation = await GLOBAL_PROP.portalProperties();
           window.location = portalLocation;
@@ -341,6 +359,7 @@ export default defineComponent({
     }
   },
   async created() {
+    this.activeTab = await Store.get('ACTIVE_HOME_TAB')
     const { loadNotifications } = Notification()
     await loadNotifications()
     setInterval(() => {

@@ -130,6 +130,7 @@ export default defineComponent({
     },
   },
   async mounted() {
+    this.$emit('onFieldActivated', this)
     this.keys = await this.options(this.fdata);
   },
   methods: {

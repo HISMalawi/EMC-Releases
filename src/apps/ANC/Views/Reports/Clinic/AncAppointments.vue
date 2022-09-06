@@ -33,7 +33,7 @@ export default defineComponent({
         title: 'Booked clients',
         date: '' as string,
         rows: [] as Array<any>,
-        appointments: [] as any,
+        appointments: {} as Record<string, any>,
         columns: [
             [
                 table.thTxt('Identifier'),
@@ -51,18 +51,23 @@ export default defineComponent({
             {
                 id: 'date',
                 helpText: 'Select date',
-                type: FieldType.TT_APPOINTMENT_PICKER,
+                type: FieldType.TT_DATE_PICKER,
                 defaultValue: () => AncClinicReportService.getSessionDate(),
                 validation: (val: any) => Validation.required(val),
-                onValue: async (date: string, context: any) => {
+                onValue: async (date: string) => {
                     this.report.setStartDate(date)
-                    const data = await this.report.generateBookedAppointments()
-                    if (data.length > 0) {
-                        this.appointments = data
-                        context.appointmentCounter = this.appointments.length
-                        return true
+                    if (!this.appointments[date]) {
+                        this.appointments[date] = (await this.report.generateBookedAppointments()) || []
                     }
-                    return false
+                    return true
+                },
+                config: {
+                    infoItems: (date: string) => {
+                        return [{
+                            label: 'Appointments',
+                            value: this.appointments[date]?.length || 0
+                        }]
+                   } 
                 }
             }
         ]
@@ -71,7 +76,7 @@ export default defineComponent({
         onPeriod(form: any) {
             this.rows = []
             this.period = HisDate.toStandardHisDisplayFormat(form.date)
-            this.rows = this.appointments.map((p: any) => ([
+            this.rows = this.appointments[form.date].map((p: any) => ([
                 table.td(p.npid),
                 table.td(p.given_name),
                 table.td(p.family_name),

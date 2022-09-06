@@ -6,8 +6,15 @@ export class RadiologyExaminationService extends AppEncounterService {
         super(patientID, 121, providerID) 
     }
 
+    
     static getListOfRadiologyTests(id: string | number) {
         return super.getJson('radiology_set', { id })
+    }
+    
+    getPatientExaminations() {
+        return AppEncounterService.getJson('radiology/examinations', {
+            'patient_id': this.patientID
+        })
     }
 
     createOrder(params: any) {
