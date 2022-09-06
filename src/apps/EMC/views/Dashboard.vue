@@ -37,7 +37,7 @@
         </ion-col>
       </ion-row>
       <ion-row>
-        <ion-col size="2">
+        <ion-col size="3">
           <dashboard-card
             label="Patients on DTG"
             :value="totalPatientsOnDTG"
@@ -54,7 +54,7 @@
             class="his-card"
           />
         </ion-col>
-        <ion-col size="10">
+        <ion-col size="9" style="max-height: 650px">
           <visit-stats-chart
             :days="days"
             :visits="accumulativeVisits"
@@ -70,7 +70,7 @@ import Layout from "@/apps/EMC/Components/Layout.vue";
 import VisitStatsChart from "../Components/charts/CompleteIncompleteVisits.vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import DashboardCard from "../Components/DashboardCard.vue";
-import { people, calendar, alarm, hourglass, time } from "ionicons/icons";
+import { people, calendar, alarm, time } from "ionicons/icons";
 import HisDate, { STANDARD_DATE_FORMAT } from "@/utils/Date";
 import DashboardService from "../services/dashboard.service";
 
