@@ -34,7 +34,9 @@ function applyGlobalConfig(app: AppInterface) {
 }
 
 function getActiveApp(): AppInterface | undefined {
-    const appName = sessionStorage.getItem(AppSessionVariable.APPLICATION_NAME)
+    const appName = Service.isPocSite() === false 
+        ? 'EMC'
+        : sessionStorage.getItem(AppSessionVariable.APPLICATION_NAME)
 
     if (appName) {
         const app: AppInterface | undefined = find(Apps, { applicationName: appName })
