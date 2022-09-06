@@ -1,7 +1,7 @@
 <template>
   <ion-content class="ion-padding">
     <ion-list>
-      <ion-item button @click="$router.push('/emc/profile')">
+      <ion-item button @click="userProfile">
         <ion-label>Profile</ion-label>
       </ion-item>
       <ion-item lines="none" button @click="signOut">
@@ -24,22 +24,27 @@ export default defineComponent({
   components: { IonContent },
   setup() {
     const router = useRouter()
+    const userProfile = async () => {
+      await popoverController.dismiss();
+      router.push('/emc/profile')
+    }
+
     const signOut = async () => {
+      await popoverController.dismiss();
       const ok = await alertConfirmation('Are you sure you want to logout ?')
       if (!ok) return
-      const auth = new AuthService()
+      new AuthService().clearSession()
       if((await GLOBAL_PROP.portalEnabled())) {
         const portalLocation = await GLOBAL_PROP.portalProperties();
         window.location = portalLocation;
       } else {
         router.push("/login");
       }
-      auth.clearSession();
-      popoverController.dismiss();
     }
 
     return {
       signOut,
+      userProfile,
     }
   }
 });
