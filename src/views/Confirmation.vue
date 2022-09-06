@@ -30,29 +30,26 @@
     <ion-content>
       <ion-row>
         <ion-col size-md="4" size-sm="12" v-for="(card, index) in cards" :key="index">
-          <ion-card class="his-card">
-            <ion-card-header style="background: #708090 !important;">
-              <ion-card-title>{{ card.title.toUpperCase() }}</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <ul class="card-content"> 
-                <li class='li-item his-sm-text' v-for="(info, id) in card.data" :key="id" style="display: flex; justify-content: space-between;"> 
-                  <span v-if="info.label"> {{ info.label }} &nbsp;</span>
-                  <strong v-html="info.value"></strong>
-                </li>
-              </ul>
-            </ion-card-content>
-          </ion-card>
+          <confirmation-card
+            :key="`card-${index}`"
+            :title="card.label"
+            :items="card.values"
+            :isLoading="card.isLoading"
+          />
         </ion-col>
       </ion-row>
     </ion-content>
-
     <ion-footer>
       <ion-toolbar color="dark">
-        <ion-button color="danger" size="large" router-link="/"
-          >Cancel</ion-button>
         <ion-button
-          v-if="facts.patientFound && isAdmin"
+          color="danger"
+          size="large"
+          router-link="/"
+          >
+          Cancel
+        </ion-button>
+        <ion-button
+          :disabled="!(facts.patientFound && isAdmin)"
           color="danger left"
           size="large"
           @click="onVoid"
@@ -62,15 +59,14 @@
           v-if="facts.anc.canInitiateNewPregnancy"
           slot="end"
           size="large"
-          @click="onInitiateNewAncPregnancy"
-          >
+          @click="onInitiateNewAncPregnancy">
           New Pregnancy
         </ion-button>
-        <ion-button 
-          v-if="facts.patientFound"
-          slot="end" 
-          color="success" 
-          size="large" 
+        <ion-button
+          :disabled="!facts.patientFound"
+          slot="end"
+          color="success"
+          size="large"
           @click="nextTask">
           Continue
         </ion-button>
@@ -83,7 +79,7 @@
 import { isEmpty } from "lodash";
 import HisDate from "@/utils/Date"
 import HisApp from "@/apps/app_lib"
-import { defineComponent } from "vue";
+import { defineAsyncComponent, defineComponent } from "vue";
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { UserService } from "@/services/user_service";
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
@@ -100,11 +96,6 @@ import {
   IonRow,
   IonCol,
   IonButton,
-  IonCard,
-  IonCardContent,
-  IonCardTitle,
-  IonCardHeader,
-  loadingController,
   modalController
 } from "@ionic/vue";
 import {
@@ -114,11 +105,8 @@ import {
 } from "@/guidelines/confirmation_page_guidelines"
 import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { AppInterface } from "@/apps/interfaces/AppInterface";
-import { GlobalPropertyService } from "@/services/global_property_service"
 import { PatientDemographicsExchangeService } from "@/services/patient_demographics_exchange_service"
 import { IncompleteEntityError, BadRequestError } from "@/services/service"
-import  { ART_GLOBAL_PROP } from "@/apps/ART/art_global_props"
-import  { GLOBAL_PROP } from "@/apps/GLOBAL_APP/global_prop"
 import { OrderService } from "@/services/order_service";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { ObservationService } from "@/services/observation_service";
@@ -126,6 +114,7 @@ import { delayPromise } from "@/utils/Timers";
 import { AncPregnancyStatusService } from "@/apps/ANC/Services/anc_pregnancy_status_service"
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 import { isUnknownOrEmpty, isValueEmpty } from "@/utils/Strs";
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -138,20 +127,18 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonButton,
-    IonCard,
-    IonCardContent,
-    IonCardTitle,
-    IonCardHeader
+    ConfirmationCard: defineAsyncComponent(()=>import("@/components/Cards/PatientConfirmationCards.vue")),
   },
   data: () => ({
-    app: {} as AppInterface,
+    app: {} as any,
     program: {} as any,
     patient: {} as any,
     localPatient: {} as any, // Patient found without dde
-    cards: [] as any[],
     ddeInstance: {} as any,
     useDDE: false as boolean,
     programInfo: {} as any,
+    isReady: false as boolean,
+    cards: [] as any[],
     facts: {
       hasHighViralLoad: false as boolean,
       patientFound: false as boolean,
@@ -203,20 +190,26 @@ export default defineComponent({
         birthdate: '' as string,
       } as any,
       globalProperties: {
-        useFilingNumbers: `${ART_GLOBAL_PROP.FILING_NUMBERS}=true`,
-        ddeEnabled: `${GLOBAL_PROP.DDE_ENABLED}=true`
+        useFilingNumbers: false,
+        ddeEnabled: false
       } as any
     }
   }),
-  async created() {
-    const app = HisApp.getActiveApp()
-    if (app) this.app = app
-
-    this.ddeInstance = new PatientDemographicsExchangeService()
-
-    await this.ddeInstance.loadDDEStatus()
-
-    this.useDDE = this.ddeInstance.isEnabled()
+  created() {
+    this.initCards()
+    this.app = HisApp.getActiveApp() || {}
+  },
+  mounted() {
+    if (this.app) {
+      this.updateCards()
+      this.ddeInstance = new PatientDemographicsExchangeService()
+      this.setGlobalPropertyFacts().then(() => {
+        const query = this.$route.query
+        if (!isEmpty(query) && (query.person_id || query.patient_barcode)) {
+          this.findAndSetPatient(query.person_id as any, query.patient_barcode as any)
+        }
+      })
+    }
   },
   computed: {
     demographics(): any {
@@ -231,17 +224,65 @@ export default defineComponent({
       return UserService.isAdmin()
     }
   },
-  watch: {
-    $route: {
-      handler({query}: any) {
-        if (!isEmpty(query) && (query.person_id || query.patient_barcode)) {
-          this.findAndSetPatient(query.person_id, query.patient_barcode)
-        }
-      },
-      immediate: true
-    }
-  },
   methods: {
+    initCards() {
+      for(let i=0; i < 6; i++) {
+        this.cards[i] = {
+          label: '-',
+          isLoading: true,
+          values: []
+        }
+      }
+    },
+    async updateCards() {
+      if (typeof this.app.confirmationSummary === 'function') {
+        const cardItems: any = this.app.confirmationSummary(
+          this.patient, this.program, this.facts
+        )
+        const keys: any = Object.keys(cardItems)
+        for(let i = 0; i < this.cards.length; i++) {
+          const cardData = keys[i] ? cardItems[keys[i]]() : []
+          this.cards[i] = {
+            label: keys[i] || '-',
+            isLoading: false,
+            values: cardData
+          }
+          if (typeof cardData === 'object' && cardData.then) {
+            this.cards[i].isLoading = true
+            if (!isEmpty(this.patient)) {
+              cardData.then((data: any) => {
+                this.cards[i].isLoading = false
+                this.cards[i].values = data
+              }).catch((e: any) => {
+                this.cards[i].isLoading = false
+                console.error(`${e}`)
+              })
+            }
+          } else {
+            // Render static label value pairs
+            for (let c=0; c < cardData.length; ++c) {
+              const val = cardData[c]
+              this.cards[i].values[c] = val
+              if (!isEmpty(this.patient)) {
+                if (typeof val.init === 'function') {
+                  await val.init()
+                }
+                if (typeof val.asyncValue === 'function') {
+                  val.asyncValue().then((val: any) => {
+                    this.cards[i].values[c].value = val
+                  }).catch((e: any) => {
+                    this.cards[i].values[c].value = '_ERROR_'  
+                    console.error(`${e}`)
+                  })
+                } else if (typeof val.staticValue === 'function') {
+                  this.cards[i].values[c].value = val.staticValue()
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     async setViralLoadStatus() {
       const orders = await OrderService.getOrders(this.patient.getID())      
       if(!isEmpty(orders)){
@@ -257,21 +298,20 @@ export default defineComponent({
      *  - DDE Service only supports NPID search.
     */
     async findAndSetPatient(id: number | undefined, npid: string | undefined) {
+      let req = null
+      this.isReady = false
       this.localPatient = {} // Patient found without using DDE
-      await this.presentLoading()
-
-      if (!this.facts.scannedNpid) this.facts.scannedNpid = npid || ''
-
-      await this.resolveGlobalPropertyFacts()
-      if (this.useDDE && npid) {
-        await this.handleSearchResults(this.ddeInstance.searchNpid(npid))
-      } else if (id) {
-        await this.handleSearchResults(Patientservice.findByID(id))
-      } else {
-        await this.handleSearchResults(Patientservice.findByNpid(npid as string))
+      if (!this.facts.scannedNpid) {
+        this.facts.scannedNpid = npid || ''
       }
-      await loadingController.dismiss()
-      await this.onEvent(TargetEvent.ONLOAD)
+      if (this.useDDE && npid) {
+        req = this.ddeInstance.searchNpid(npid)
+      } else if (id) {
+        req = Patientservice.findByID(id)
+      } else {
+        req = Patientservice.findByNpid(npid as string)
+      }
+      this.handleSearchResults(req).then(() => this.isReady = true)
     },
     /**
      * Handle search result promises and handle entity related errors.
@@ -312,25 +352,29 @@ export default defineComponent({
             ? results[0]
             : results
           )
+        this.updateCards()
+        Store.set('ACTIVE_PATIENT', this.patient)
         this.setPatientFacts()
-        await this.setProgramFacts()
+        const factPromises = []
+        factPromises.push(this.setProgramFacts())
         if (this.useDDE) {
-          await this.setDDEFacts()
+          factPromises.push(this.setDDEFacts())
         } 
         if (this.facts.programName === 'ANC') {
-          await this.setAncFacts()
+          factPromises.push(this.setAncFacts())
         }
         if (this.facts.programName === 'ART') {
-          await this.setViralLoadStatus()
+          factPromises.push(this.setViralLoadStatus())
         }
         this.facts.currentNpid = this.patient.getNationalID()
-        await this.validateNpid()
-        await this.drawPatientCards()
+        factPromises.push(this.validateNpid())
+        await Promise.all(factPromises)
       } else {
         // [DDE] a user might scan a deleted npid but might have a newer one.
         // The function below checks for newer version
-        if (this.facts.scannedNpid) await this.setVoidedNpidFacts(this.facts.scannedNpid)
+        if (this.facts.scannedNpid) this.setVoidedNpidFacts(this.facts.scannedNpid)
       }
+      this.onEvent(TargetEvent.ONLOAD).then(() => this.isReady = true)
     },
     async validateNpid () {
       if(this.useDDE){
@@ -388,6 +432,13 @@ export default defineComponent({
       this.facts.identifiers = this.patient.getIdentifiers()
         .map((id: any) => id.type.name)
     },
+    async setGlobalPropertyFacts() {
+      this.facts.globalProperties.ddeEnabled = await Store.get('IS_DDE_ENABLED')
+      this.useDDE = this.facts.globalProperties.ddeEnabled
+      if (this.app.applicationName === 'ART') {
+        this.facts.globalProperties.useFilingNumbers = await Store.get('IS_ART_FILING_NUMBER_ENABLED')
+      }
+    },
     async setAncFacts() {
       const anc = new AncPregnancyStatusService(this.patient.getID(), -1)
       this.facts.anc.canInitiateNewPregnancy = await anc.canInitiateNewPregnancy()
@@ -431,20 +482,12 @@ export default defineComponent({
       }
       return {comparisons, rowColors: [diffIndexes]}
     },
-    async resolveGlobalPropertyFacts() {
-      for(const i in this.facts.globalProperties) {
-        if (typeof this.facts.globalProperties[i] === 'string') {
-          this.facts.globalProperties[i] = await GlobalPropertyService.isProp(
-            this.facts.globalProperties[i]
-          )
-        }
-      }
-    },
     async setProgramFacts() {
       this.facts.programName = this.app.applicationName
       try {
         this.program = new PatientProgramService(this.patient.getID())
         this.programInfo = await this.program.getProgram()
+        Store.set('PATIENT_PROGRAM', this.programInfo)
         const { program, outcome }: any =  this.programInfo
         this.facts.enrolledInProgram = !(isValueEmpty(program) || program.match(/n\/a/i))
         this.facts.currentOutcome = outcome
@@ -479,21 +522,6 @@ export default defineComponent({
         this.facts.dde.hasDemographicConflict = !isEmpty(localAndRemoteDiffs)
       } catch (e) {
         console.warn(e)
-      }
-    },
-    /**
-     * The Application/Program determines which cards to
-     * render on the view
-     */
-    async drawPatientCards() {
-      if (!this.app.confirmationSummary) return
-      this.cards = []
-      const summaryEntries: Record<string, Function>
-        = await this.app.confirmationSummary(this.patient, this.programInfo)
-
-      for (const title in summaryEntries) {
-        const data = await summaryEntries[title]()
-        this.cards.push({ title, data })
       }
     },
     async setVoidedNpidFacts(npid: string) {
@@ -537,14 +565,6 @@ export default defineComponent({
         this.facts.dde.voidedNpids.rows = rows
       }
     },
-    async presentLoading() {
-      const loading = await loadingController
-        .create({
-          message: 'Please wait...',
-          backdropDismiss: false
-        })
-      await loading.present()
-    },
     /**
      * Executes CONFIRMATION_PAGE GUIDELINES with given TargetEvent
     */
@@ -569,13 +589,13 @@ export default defineComponent({
         if ((await this.initiateNewAncPregnancy())) {
           this.facts.anc.canInitiateNewPregnancy = false
           this.facts.anc.currentPregnancyIsOverdue = false
-          await this.nextTask()
+          this.nextTask()
         } else {
           toastWarning('Unable to initiate new pregnancy')
         }
       }
     },
-    async initiateNewAncPregnancy() {
+    initiateNewAncPregnancy() {
       return new AncPregnancyStatusService(this.patient.getID(), -1).createNewPregnancyStatus()
     },
     /**
@@ -699,6 +719,9 @@ export default defineComponent({
       await type.savePatientType(patientType)
     },
     async onVoid() {
+      if (!this.isReady) {
+        return toastWarning('Please wait...')
+      }
       popVoidReason(async (reason: string) => {
         try {
           await Patientservice.voidPatient(this.patient.getID(), reason)
@@ -708,8 +731,11 @@ export default defineComponent({
         }
       }, 'void-modal')
     },
-    async nextTask() {
-      await this.onEvent(TargetEvent.ON_CONTINUE, () => {
+    nextTask() {
+      if (!this.isReady) {
+        return toastWarning('Please wait...')
+      }
+      this.onEvent(TargetEvent.ON_CONTINUE, () => {
         nextTask(this.patient.getID(), this.$router)
       })
     }
@@ -717,38 +743,10 @@ export default defineComponent({
 })
 </script>
 <style scoped>
-.card-content {
-  padding: 0;
-  height: 300px;
-  overflow: hidden;
-}
 .tool-bar-medium-card {
   padding: 0.3em;
 }
-ul {
-  padding: 0;
-}
-.li-item {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  line-height: 30px;
-  border-bottom: .1rem solid #cecece;
-}
-ion-card-header {
-  padding: 0.3em;
-  background: #3880ff;
-  color: white!important;
-}
-ion-card-title {
-  color: white;
-}
 ion-col p {
   margin: 0;
-}
-ion-card {
-  height: 35vh;
-  padding: 0; 
-  border-radius: 6px;
 }
 </style>

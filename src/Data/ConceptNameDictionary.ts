@@ -1,6 +1,16 @@
 export default [
    {
       "categories": [],
+      "concept_id": 8259,
+      "name": "Routine TB Screening"
+   },
+   {
+      "categories": [],
+      "concept_id": 6195,
+      "name": "Why does the woman not use birth control"
+   },
+   {
+      "categories": [],
       "concept_id": 2137,
       "name": "BMI",
    },

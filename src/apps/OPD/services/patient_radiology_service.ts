@@ -2,9 +2,9 @@ import { AppEncounterService } from "@/services/app_encounter_service"
 import { ConceptService } from '@/services/concept_service';
 import { PrintoutService } from "@/services/printout_service";
 import { Service } from "@/services/service";
-import moment from "dayjs";
 import { Patientservice } from "@/services/patient_service";
 import { isEmpty } from "lodash";
+import HisDate from "@/utils/Date";
 
 export class PatientRadiologyService extends AppEncounterService {
   constructor(patientID: number, providerID: number) {
@@ -16,13 +16,17 @@ export class PatientRadiologyService extends AppEncounterService {
   }
 
   async getRadiologyObs(patientId: number) {
-    const path = 'radiology/radiology_orders?patient_id='+patientId
-    const data = await Service.getJson(path)
-    return data
+    try {
+      const path = 'radiology/radiology_orders?patient_id='+patientId
+      const data = await Service.getJson(path)
+      return data
+    } catch (error) {
+      return 0
+    }
   }
 
   async showPreviousRadiolgy(patient: any): Promise<boolean> {
-    if ( (await this.getRadiologyObs(patient.getID())).length > 0) {
+    if ( (await this.getRadiologyObs(patient.getID())).length > 0 ) {
       return true
     }
     return false
@@ -109,12 +113,13 @@ export class PatientRadiologyService extends AppEncounterService {
     const patientName = patient.getFullName()
     const urls: string[] = [];
     for(const order of orders) {
+      const fullXrayOrder = order.value_text +": "+ order.children[0].value_text
       urls.push(`/radiology/barcode`
-        + `?accession_number=${await this.getAccesionNumber()}`
+        + `?accession_number=${order.children[0].accession_number}`
         + `&patient_national_id=${patientNationalId}`
         + `&patient_name=${patientName}`
-        + `&radio_order=${await ConceptService.getConceptName(order.child.value_coded)}`
-        + `&date_created=${moment(order.obs_datetime)}`
+        + `&radio_order=${fullXrayOrder}`
+        + `&date_created=${HisDate.toStandardHisDisplayFormat(order.obs_datetime)}`
       )
     }
 

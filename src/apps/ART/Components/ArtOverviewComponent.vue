@@ -3,12 +3,12 @@
     <ion-row>
       <ion-col size-lg="6" size-sm="12">
         <span class="his-md-text">Total visits / incomplete visits: last 5 days</span>
-        <apexchart
+        <ApexChart
           width="100%"
           type="bar"
           :options="options"
           :series="series"
-        ></apexchart>
+        />
       </ion-col>
       <ion-col size-lg="6" size-sm="12">
         <span class="his-md-text">Encounters created today</span>
@@ -39,6 +39,7 @@ import { defineComponent } from "vue";
 import ApiClient from "@/services/api_client";
 import dayjs from "dayjs";
 import { Service } from "@/services/service"
+import ApexChart from "vue3-apexcharts";
 
 export default defineComponent({
   data: function () {
@@ -66,7 +67,7 @@ export default defineComponent({
           color: "#434348"
         },
       ],
-      rows: [{}],
+      rows: [] as any,
       encounters: [
         {"HIV clinic registration": 9},
         {"HIV reception": 51},
@@ -84,6 +85,17 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
+    ApexChart
+  },
+  created() {
+    this.rows = this.encounters.map(
+      (enc) => ({
+        encounter: Object.values(enc)[0],
+        female: '',
+        male: '',
+        me: '',
+        facility: ''
+    }))
   },
   mounted() {
     this.endDate = this.dayjs().subtract(1, "days").format("YYYY-MM-DD");

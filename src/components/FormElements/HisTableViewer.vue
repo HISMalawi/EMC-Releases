@@ -22,17 +22,25 @@ export default defineComponent({
         cellColors: [] as Array<any>,
         styles: [] as Array<string>
     }),
-    async activated() {
-        this.$emit('onFieldActivated', this)
-        const data = await this.options(this.fdata, this.cdata, this)
-        if (isEmpty(data)) return
+    methods: {
+        async init() {
+            this.$emit('onFieldActivated', this)
+            const data = await this.options(this.fdata, this.cdata, this)
+            if (isEmpty(data)) return
 
-        const { other } = data[0]
-        this.columns = other.columns
-        this.rows = other.rows
-        this.rowColors = other.rowColors
-        this.cellColors = other.cellColors
-        this.styles = this.config ? this.config.styles : []
+            const { other } = data[0]
+            this.columns = other.columns
+            this.rows = other.rows
+            this.rowColors = other.rowColors
+            this.cellColors = other.cellColors
+            this.styles = this.config ? this.config.styles : []
+        }
+    },
+    mounted() {
+        this.init()
+    },
+    activated() {
+        this.init()    
     }
 })
 </script>

@@ -1,4 +1,5 @@
 import { Option } from '@/components/Forms/FieldInterface';
+import { StoreDef } from '@/composables/storeDefs';
 import { RouteRecordRaw } from 'vue-router';
 import { TaskInterface } from './TaskInterface';
 
@@ -37,6 +38,7 @@ export interface ProgramIdentifierInterface {
     useForSearch: boolean;
     prefix: () => Promise<string> | string;
     validation?: (value: Option) => string[] | null
+    visible?: () => boolean | Promise<boolean>;
     globalPropertySetting?: string;
 }
 
@@ -145,5 +147,9 @@ export interface AppInterface {
     /**
      * Summary data that is rendered on patient confirmation page
     */
-    readonly confirmationSummary?: (patient: any, program: any) => Record<string, Function> | Promise<Record<string, Function>>;
+    readonly confirmationSummary?: (patient: any, program: any, other: any) => Record<string, Function> | Promise<Record<string, Function>>;
+    /**
+     * Define assets to be cached by the app
+    */
+    readonly appStore?: Record<string, StoreDef>
 }

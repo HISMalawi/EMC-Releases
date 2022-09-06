@@ -17,15 +17,13 @@
             >
               <template v-slot:day-content="{ day }">
                 <div
+                  @click="dayClicked(day)"
                   v-bind:class="{
                     selected: day.id === cDate,
                     isDisabled: day.isDisabled,
                   }"
                 >
-                  <span
-                    @click="dayClicked(day)"
-                    >{{ day.day }}</span
-                  >
+                  <span>{{ day.day }}</span>
                   <sup v-if="day.id === cDate" class="appointments">{{
                     appointments.length
                   }}</sup>
@@ -108,6 +106,9 @@ export default defineComponent({
       weekdays: 'WWW',
     }
   }),
+  mounted() {
+    this.$emit('onFieldActivated', this)
+  },
   activated(){
     this.$emit('onFieldActivated', this)
   },
@@ -230,6 +231,10 @@ export default defineComponent({
   --weekday-border: 1px solid #eaeaea;
   border-radius: 0 !important;
   width: 100%;
+}
+.custom-calendar.vc-container .vc-day-content {
+  padding: 50px;
+  background: none;
 }
 .custom-calendar.vc-container .vc-header {
   background-color: #f1f5f8;

@@ -57,6 +57,9 @@ export default defineComponent({
         ],
         keyboard: NUMBERS_ONLY,
     }),
+    mounted() {
+        this.$emit('onFieldActivated', this)
+    },
     activated() {
         this.$emit('onFieldActivated', this)
     },

@@ -119,7 +119,17 @@ export default defineComponent({
       },
     },
   },
+  mounted() {
+    this.init()
+  },
+  activated() {
+    this.init()
+  },
   methods: {
+    async init() {
+      this.$emit('onFieldActivated', this);
+      this.listData = await this.getListData();
+    },
     async getListData(): Promise<Array<Option>> {
       return await this.options(this.fdata, this.filter, this.page, this.limit);
     },
@@ -166,10 +176,6 @@ export default defineComponent({
     this.keyboard = this.config?.keyboard ?? QWERTY;
     this.page = this.config?.page ?? 1;
     this.limit = this.config?.limit ?? 10;
-  },
-  async activated() {
-    this.$emit('onFieldActivated', this);
-    this.listData = await this.getListData();
   }
 });
 </script>

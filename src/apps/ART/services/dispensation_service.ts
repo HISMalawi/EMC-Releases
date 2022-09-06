@@ -52,6 +52,10 @@ export class DispensationService extends AppEncounterService {
         this.useDrugManagement = false
     }
 
+    setIsDrugManagementEnabled(isEnabled: boolean) {
+        this.useDrugManagement = isEnabled
+    }
+
     async loadDrugManagementEnabled() {
         this.useDrugManagement = await ART_PROP.drugManagementEnabled()
     }

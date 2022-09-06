@@ -83,7 +83,13 @@
 }
 
 #nprogress .bar {
-    height: 8px;
+    height: 3px;
+}
+
+#nprogress .spinner-icon {
+    width: 28px;
+    height: 28px;
+    background: lightyellow;
 }
 
 .inactive-card-color {

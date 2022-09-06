@@ -45,6 +45,12 @@ export default defineComponent({
     data: () => ({
         listData: [] as Option[]
     }),
+    methods: {
+        async init () {
+            this.$emit('onFieldActivated', this)
+            this.listData = await this.options(this.fdata, this.cdata, this.listData)
+        }
+    },
     watch: {
         clear(){
             this.listData = this.listData.map((item) => {
@@ -62,9 +68,11 @@ export default defineComponent({
             deep: true
         }
     },
-    async activated() {
-        this.$emit('onFieldActivated', this)
-        this.listData = await this.options(this.fdata, this.cdata, this.listData)
+    mounted() {
+        this.init()
+    },
+    activated() {
+        this.init()
     }
 })
 </script>

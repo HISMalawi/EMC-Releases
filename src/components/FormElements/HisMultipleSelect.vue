@@ -46,6 +46,15 @@ export default defineComponent({
   name: "HisMultipleSelect",
   mixins: [SelectMixin],
   methods: {
+    async init() {
+      this.$emit('onFieldActivated', this)
+      // Optionally Prevent from rebuilding options everytime the component is activated
+      if (!isEmpty(this.listData) && this.config.buildOptionsOnce) {
+        return
+      }
+      this.listData = await this.options(this.fdata, this.getChecked(this.listData), this.cdata, this.listData)
+      this.$emit('onValue', this.getChecked(this.listData))
+    },
     async onselect(entry: Option, event: any){
       this.$nextTick(async ()=> {
         const option = {...entry}
@@ -109,14 +118,11 @@ export default defineComponent({
       immediate: true
     }
   },
-  async activated() {
-    this.$emit('onFieldActivated', this)
-    // Optionally Prevent from rebuilding options everytime the component is activated
-    if (!isEmpty(this.listData) && this.config.buildOptionsOnce) {
-      return
-    }
-    this.listData = await this.options(this.fdata, this.getChecked(this.listData), this.cdata, this.listData)
-    this.$emit('onValue', this.getChecked(this.listData))
+  mounted() {
+    this.init()
+  },
+  activated() {
+    this.init()
   }
 });
 </script>

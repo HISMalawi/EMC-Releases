@@ -3,6 +3,7 @@ import LOS from "@/apps/LOS/app";
 import EMC from "@/apps/EMC/app";
 import ANC from '@/apps/ANC/app';
 import CXCA from '@/apps/CxCa/app';
+import { RouteRecordRaw } from 'vue-router';
 import RADIOLOGY from '@/apps/RADIOLOGY/app';
 import Registration from '@/apps/Registration/app';
 import OPD from "./OPD/app";
@@ -10,7 +11,7 @@ import OPD from "./OPD/app";
 /**
  * Register Program Applications here that conform to the AppInterface
 */
-export default [ 
+const APPS = [
     ART,
     LOS,
     OPD,
@@ -20,3 +21,8 @@ export default [
     Registration,
     EMC,
 ]
+export function  AllAppRoutes() {
+    return APPS.reduce((all, app) => 
+        all.concat(app.appRoutes), [] as RouteRecordRaw[])
+}
+export default APPS

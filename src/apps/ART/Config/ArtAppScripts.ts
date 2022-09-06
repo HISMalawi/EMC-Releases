@@ -20,8 +20,63 @@ import { addWorkflowTask, nextTask, selectActivities } from "@/utils/WorkflowTas
 import dayjs from "dayjs";
 import { Service } from "@/services/service";
 import { Patientservice } from '@/services/patient_service';
-import ART_PROP from '@/apps/ART/art_global_props';
-import router from "@/router/index"
+import Store from "@/composables/ApiStore"
+import ART_PROP from "@/apps/ART/art_global_props";
+import { StoreDef, isCacheEnabled } from "@/apps/GLOBAL_APP/global_store";
+
+export const appStore: Record<string, StoreDef> = {
+    'ART_AUTO_3HP_SELECTION': {
+        get: () =>  ART_PROP.threeHPAutoSelectEnabled(),
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
+    },
+    'IS_ART_FAST_TRACK_ENABLED': {
+        get: () => ART_PROP.fastTrackEnabled(),
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
+    },
+    'IS_ART_HTN_ENABLED' : {
+        get: () => ART_PROP.htnEnabled(),
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
+    },
+    'IS_ART_FILING_NUMBER_ENABLED': {
+        get: () => ART_PROP.filingNumbersEnabled(),
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
+    },
+    'ART_FILING_NUMBER_PREFIX': {
+        get: () => ART_PROP.filingNumberPrefix(),
+        canReloadCache: data => !isCacheEnabled()  || typeof data.state != 'string'
+    },
+    'IS_ART_DRUG_MANAGEMENT_ENABLED': {
+        get: () => ART_PROP.drugManagementEnabled(),
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
+    },
+    'GET_LAB_ORDERS_WITH_GIVEN_RESULT_STATUS': {
+        get: async (params: any) => {
+            const data = (await Store.get('PATIENT_LAB_ORDERS', {patientID: params.patientID }))
+                .map(async (order: Order) => {
+                    const remappedOrder: any = { ...order, 'result_given': false }
+                    const obsResultID = order.tests.filter(order => order.result != null)
+                        .map((tests: any) => tests.result)
+                        .reduce((results: any, result: any) => [...results, ...result], [])
+                        .reduce((_: any, result: any) => result.id, null)
+                    try {
+                        remappedOrder['result_given'] = !obsResultID ? 'N/A'
+                            : await (await ObservationService.get(obsResultID as number))
+                                .children.reduce(async (status: string, obs: any) => {
+                                    return (await ConceptService.getConceptID('Result Given to Client')) === obs.concept_id
+                                    && (await ConceptService.getConceptName(obs.value_coded)) === 'Yes'
+                                        ? 'Yes'
+                                        : status
+                                }, 'No')
+                    } catch (e) {
+                        console.error(e)
+                    }
+                    return remappedOrder
+                })
+            return await Promise.all(data)
+        },
+        canReloadCache: () => true
+    }
+}
 
 async function enrollInArtProgram(patientID: number, patientType: string, clinic: string) {
     const program = new PatientProgramService(patientID)
@@ -39,7 +94,7 @@ async function enrollInArtProgram(patientID: number, patientType: string, clinic
  * Present a modal to show drug chart
  */
 async function showStockManagementChart() {
-    if((await ART_GLOBAL_PROP.drugManagementEnabled())){
+    if((await Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED'))){
         const drugModal = await modalController.create({
             component: DrugModalVue,
             cssClass: "large-modal",
@@ -118,8 +173,9 @@ export function formatPatientProgramSummary(data: any) {
  * @param date 
  * @returns 
  */
-export async function getPatientDashboardLabOrderCardItems(patientId: number, date: string) {
-    const data = (await OrderService.getOrders(patientId)).reduce((results: any, order: any) => {
+export async function getPatientDashboardLabOrderCardItems(patientId: number) {
+    const data = (await Store.get('PATIENT_LAB_ORDERS', { patientID: patientId }))
+        .reduce((results: any, order: any) => {
         const tresults = order.tests.filter(
             (t: any) => t.name.match(/HIV/i) && !isEmpty(t.result))
             .map((t: any) => t?.result)
@@ -142,64 +198,86 @@ export async function getPatientDashboardLabOrderCardItems(patientId: number, da
     return data
 }
 
-export async function confirmationSummary(patient: Patientservice) {
-    const patientID = patient.getID()
-    const patientProgamInfo = await ProgramService.getProgramInformation(patientID)
+export function confirmationSummary(patient: Patientservice) {
+    Store.invalidate('PATIENT_LAB_ORDERS')
+    const patientID = !isEmpty(patient) ? patient?.getID() : -1
+    let programInfo: any = null
     return {
-        'PROGRAM INFORMATION': async () => {
-            const data: any = []
-            const params = await WorkflowService.getNextTaskParams(patientID)
-            data.push({
-              label: "Next Task",
-              value: params.name ? `${params.name}` : 'NONE',
-            })
-            data.push({
-              label: "ART Duration",
-              value: `${patientProgamInfo.art_duration} month(s) `,
-            })
-            await ProgramService.getFastTrackStatus(patientID).then(
-              (task) => {
-                data.push({
-                  label: "On Fast Track",
-                  value: task["Continue FT"] === true ? "Yes" : "No",
-                });
-              }
-            );
-            const appointMentObs: Observation[] 
-                = await ObservationService.getObservations(
-                patientID, ConceptService.getCachedConceptID('appointment date')
-            );
-            if (appointMentObs.length > 0) {
-              const nextAPPT = HisDate.toStandardHisDisplayFormat(appointMentObs[0].value_datetime);
-              data.push({
-                label: "Next Appointment",
-                value: nextAPPT,
-              });
-            }
-            return data
-        },
-        'PATIENT IDENTIFIERS': async () => {
-            const identifiers = [{
-                label: "ARV Number",
-                value: patient.getArvNumber(),
+        'PROGRAM INFORMATION' : () => [
+            {
+                label: 'Next Task',
+                value: '...',
+                asyncValue: async () => {
+                    const params = await WorkflowService.getNextTaskParams(patientID)
+                    return params.name ? `${params.name}` : 'NONE'
+                }
             },
             {
-                label: "NPID",
-                value: patient.getNationalID(),
-            }]
-
-            if((await ART_PROP.filingNumbersEnabled())){
-                identifiers.push({
-                    label: "Filing Number",
-                    value: patient.getFilingNumber()
-                })
+                label: 'ART Duration',
+                value: '...',
+                init: async () => {
+                    programInfo = await ProgramService.getProgramInformation(patientID)
+                },
+                asyncValue: async () => {
+                    return programInfo.art_duration
+                }
+            },
+            {
+                label: 'Fast Track',
+                value: '...',
+                asyncValue: async () => {
+                    const task = await ProgramService.getFastTrackStatus(patientID)
+                    return task["Continue FT"] === true ? "Yes" : "No"
+                }
+            },
+            {
+                label: 'Next Appointment',
+                value: '...',
+                asyncValue: async () => {
+                    const date = await ObservationService.getFirstValueDatetime(
+                        patientID, 'appointment date'
+                    );
+                    return date ? HisDate.toStandardHisDisplayFormat(date) : ''
+                }
             }
-            return identifiers;
-        },
-        'ALERTS': () => getPatientDashboardAlerts(patient),
+        ],
+        'PATIENT IDENTIFIERS': () => [
+            {
+                label: 'ARV Number',
+                value: '...',
+                staticValue: () => patient.getArvNumber(),
+            },
+            {
+                label: 'NPID',
+                value: '...',
+                staticValue: () => patient.getNationalID(),
+            },
+            {
+                label: 'Filing Number',
+                value: '...',
+                staticValue: () => patient.getFilingNumber()
+            }
+        ],
+        'ALERTS': () => [
+            {
+                label: 'Side effects',
+                value: '...',
+                asyncValue: async () => { 
+                    return (await PatientAlerts.alertSideEffects(patientID)).length
+                }
+            }, 
+            {
+                label: 'Patient BMI is',
+                value: '...',
+                asyncValue: async () => {
+                    const bmi = await patient.getBMI()
+                    return bmi.result
+                }
+            }
+        ],
         'LAB ORDERS': async () => {
             const data: any = []
-            await OrderService.getOrders(patient.getID())
+            await Store.get('PATIENT_LAB_ORDERS', { patientID })
                 .then((orders) => {
                     const VLOrders = OrderService.getViralLoadOrders(orders);
                     for(let i = 0; i < 2 && i < VLOrders.length; i++) {
@@ -211,36 +289,30 @@ export async function confirmationSummary(patient: Patientservice) {
                 });
             return data
         },
-        'OUTCOME': () => {
-            return [
-                { 
-                    label: 'Current Outcome', 
-                    value: patientProgamInfo.current_outcome || 'N/A'
-                }
-            ]
-        },
+        'OUTCOME': () => [
+            {
+                label: 'Current Outcome',
+                value: '...',
+                staticValue: () => programInfo.current_outcome || 'N/A'
+            }
+        ],
         'GUARDIAN': async () => {
-            const req = await RelationshipService
-                .getGuardianDetails(
-                    patient.getID()
-                )
-            if (req && req.length > 0) {
-                const data: any = [];
+            const data: any = []
+            const req = (await RelationshipService.getGuardianDetails(patientID) || [])
+            if (req.length) {
                 req.forEach(element => {
-                   data.push( {
+                    data.push( {
                         label: element.name,
                         value: element.relationshipType
-                   }) 
-                   data.push({
-
+                    }) 
+                    data.push({
                         label: "Phone",
                         value: element.phoneNumber
-                   })
-                });
+                    })
+                })
                 return data
-            } 
+            }
             return []
-        }
+        } 
     }
 }
-

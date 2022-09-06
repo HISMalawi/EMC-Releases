@@ -1,7 +1,7 @@
 import { TaskInterface } from "../../interfaces/TaskInterface"
 import { PatientPrintoutService } from "@/services/patient_printout_service"
 import { Patientservice } from "@/services/patient_service"
-import { ART_GLOBAL_PROP } from "../art_global_props"
+import Store from "@/composables/ApiStore"
 
 export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
@@ -54,8 +54,8 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: "fast track assesment",
     name: "Fast Track assesment",
-    globalProperty: `${ART_GLOBAL_PROP.FAST_TRACK}=true`,
     icon: "fast-track.png",
+    condition: () => Store.get('IS_ART_FAST_TRACK_ENABLED'),
     availableOnActivitySelection: false
   },
   {
@@ -84,14 +84,14 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     name: "bp_management",
     icon: "dispensing.png",
     encounterTypeName: "Hypertension management",
-    globalProperty: `${ART_GLOBAL_PROP.HTN_ENHANCEMENT}=true`,
+    condition: () => Store.get('IS_ART_HTN_ENABLED'),
     availableOnActivitySelection: false
   },
   {
     id: "bp_alert",
     name: "bp_alert",
     icon: "dispensing.png",
-    globalProperty: `${ART_GLOBAL_PROP.HTN_ENHANCEMENT}=true`,
+    condition: () => Store.get('IS_ART_HTN_ENABLED'),
     availableOnActivitySelection: false
   }
 ]
@@ -110,10 +110,9 @@ export const SECONDARY_ACTIVITIES: TaskInterface[] = [
     id: "f_number",
     name: "Filing Number (Print)",
     description: "Print Patient Filing Number",
-    globalProperty: `${ART_GLOBAL_PROP.FILING_NUMBERS}=true`,
-    condition: ({patient}: any) => {
+    condition: async({patient}: any) => {
       const p = new Patientservice(patient)
-      return p.hasActiveFilingNumber() || p.hasDormantFilingNumber()
+      return (await Store.get('IS_ART_FILING_NUMBER_ENABLED')) && (p.hasActiveFilingNumber() || p.hasDormantFilingNumber())
     },
     action({ patient }: any) {
       const lbl = new PatientPrintoutService(patient.patient_id)
@@ -129,9 +128,8 @@ export const SECONDARY_ACTIVITIES: TaskInterface[] = [
       router.push(`/art/filing_numbers/${patient.patient_id}?archive=true`)
     },
     condition: async ({ patient }: any) => {
-      return new Patientservice(patient).hasActiveFilingNumber()
+      return (await Store.get('IS_ART_FILING_NUMBER_ENABLED')) && new Patientservice(patient).hasActiveFilingNumber()
     },
-    globalProperty: `${ART_GLOBAL_PROP.FILING_NUMBERS}=true`,
     icon: "archive.png"
   },
   {
@@ -140,12 +138,11 @@ export const SECONDARY_ACTIVITIES: TaskInterface[] = [
     description: "Assign a new filing number",
     condition: async ({patient}: any) => {
       const _p = new Patientservice(patient)
-      return _p.hasDormantFilingNumber() || !_p.hasActiveFilingNumber()
+      return (await Store.get('IS_ART_FILING_NUMBER_ENABLED')) && (_p.hasDormantFilingNumber() || !_p.hasActiveFilingNumber())
     },
     action: ({ patient }: any, router: any) => {
       router.push(`/art/filing_numbers/${patient.patient_id}?assign=true`)
     },
-    globalProperty: `${ART_GLOBAL_PROP.FILING_NUMBERS}=true`,
     icon: "archive.png"
   },
   {
@@ -155,7 +152,7 @@ export const SECONDARY_ACTIVITIES: TaskInterface[] = [
     action: ({ patient }: any, router: any) => {
       router.push(`/art/filing_numbers/${patient.patient_id}?trail=true`)
     },
-    globalProperty: `${ART_GLOBAL_PROP.FILING_NUMBERS}=true`,
+    condition: () =>  Store.get('IS_ART_FILING_NUMBER_ENABLED'),
     icon: "folder.png"
   }
 ]

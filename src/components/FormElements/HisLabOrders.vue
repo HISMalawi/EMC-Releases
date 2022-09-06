@@ -48,6 +48,21 @@ export default defineComponent({
     rows: [] as Array<any>,
   }),
   methods: {
+    async init() {
+      this.$emit('onFieldActivated', this)
+        const items = await this.options(this.fdata);
+        const rows = items[0].other.values;
+        this.rows = rows.map((o: any) => {
+          o.id = o.order_id
+          if (o.ordered) {
+            o.ordered = HisDate.toStandardHisDisplayFormat(o.ordered)
+          }
+          if (o.released) {
+            o.released = HisDate.toStandardHisDisplayFormat(o.released)
+          }
+          return o
+      })
+    },
     async printOrder(data: any) {
       if (typeof this.config?.printOrder === 'function') {
         const ok = await alertConfirmation(`Do you want to print order with accession number ${data.accession_number}?`)
@@ -83,20 +98,11 @@ export default defineComponent({
       }
     }
   },
-  async activated() {
-    this.$emit('onFieldActivated', this)
-    const items = await this.options(this.fdata);
-    const rows = items[0].other.values;
-    this.rows = rows.map((o: any) => {
-      o.id = o.order_id
-      if (o.ordered) {
-        o.ordered = HisDate.toStandardHisDisplayFormat(o.ordered)
-      }
-      if (o.released) {
-        o.released = HisDate.toStandardHisDisplayFormat(o.released)
-      }
-      return o
-    })
+  mounted() {
+    this.init()
+  },
+  activated() {
+   this.init()
   }
 })
 </script>

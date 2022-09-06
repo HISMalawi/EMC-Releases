@@ -22,6 +22,10 @@ export class ConsultationService extends AppEncounterService {
     ];
   }
 
+  async getTptTreatmentStatus() {
+    return AppEncounterService.getJson(`/patients/${this.patientID}/tpt_status`)
+  }
+
   async hasCompleteTptDispensations() {
     try {
       const orders = await DrugOrderService.getAllDrugOrders(this.patientID)
@@ -69,7 +73,7 @@ export class ConsultationService extends AppEncounterService {
   }
 
   getClient() {
-    return AppEncounterService.getFirstValueCoded(this.patientID, 'Patient Present');
+    return AppEncounterService.getFirstValueCoded(this.patientID, 'Patient present');
   }
 
   async clientDueForCxCa() {

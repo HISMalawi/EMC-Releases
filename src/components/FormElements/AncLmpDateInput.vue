@@ -60,7 +60,11 @@ export default defineComponent({
         minGestationWeeks: 0 as number,
         maxGestationWeeks: 42 as number
     }),
+    activated() {
+        this.$emit('onFieldActivated', this)
+    },
     mounted() {
+        this.$emit('onFieldActivated', this)
         this.minGestationWeeks = this.config?.minGestationWeeks || 0
         this.maxGestationWeeks = this.config?.maxGestationWeeks || 42
     },

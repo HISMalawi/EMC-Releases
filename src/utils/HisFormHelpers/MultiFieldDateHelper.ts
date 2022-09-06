@@ -22,6 +22,7 @@ export interface EstimationInterface {
 export interface DateFieldInterface {
     id: string;
     helpText: string;
+    init?: (f: any, c: any) => boolean | Promise<boolean>;
     summaryLabel?: string;
     condition?: Function;
     required?: boolean;
@@ -156,6 +157,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     let yearValue = ''
     let monthValue = ''
     let dayValue = ''
+    let dateIsEstimated = false
 
     const yearID = `year_${field.id}`
     const monthID = `month_${field.id}`
@@ -212,6 +214,8 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
         }, []).join('-')
     }
 
+    if (typeof field.init === 'function') year.init = field.init
+    
     // YEAR CONFIG
     year.updateHelpTextOnValue = (data: any) => `${year.helpText} (${buildHelpTextDate(data?.label, 'year')})`
 
@@ -339,17 +343,17 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
         if (StandardValidations.required(v)) {
             return ['Day is required for date']
         }
+        dateIsEstimated = `${v.value}`.match(/unknown/i) ? true : false
+        // Use 15 as default value if day is estimated
+        dayValue = dateIsEstimated ? '15' :  appendLeadingZero(`${v.value}`)
+        fullDate = `${yearValue}-${monthValue}-${dayValue}`
         return validateMinMax(fullDate, field, f, c)
     }
 
     day.defaultValue = (f: any) => getDefaultDate(f, field, 'Day')
 
-    day.computedValue = (v: Option) => {
-        const isEstimate = `${v.value}`.match(/unknown/i) ? true : false
-        // Use 15 as default value if day is estimated
-        dayValue = isEstimate ? '15' :  appendLeadingZero(`${v.value}`)
-        fullDate = `${yearValue}-${monthValue}-${dayValue}`
-        return field.computeValue(fullDate, isEstimate)
+    day.computedValue = () => {
+        return field.computeValue(fullDate, dateIsEstimated)
     }
 
     day.unload = (d: any, s: any, f: any, c: any) => {
@@ -395,6 +399,10 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
         if(!v.value.toString().match(ageEstimateRegex) ){
             return ['Not a valid age estimate'] 
         }
+        const year = dayjs(Service.getSessionDate())
+            .subtract(v.value as number, 'years')
+            .year()
+        fullDate = `${year}-07-15`
         return validateMinMax(fullDate, field, f, c)
     }
 
@@ -402,13 +410,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
         form, EstimationFieldType.AGE_ESTIMATE_FIELD
     ) 
 
-    ageEstimate.computedValue = (val: Option) => {
-        const year = dayjs(Service.getSessionDate())
-            .subtract(val.value as number, 'years')
-            .year()
-        fullDate = `${year}-07-15`
-        return field.computeValue(fullDate, true)
-    }
+    ageEstimate.computedValue = () => field.computeValue(fullDate, true)
 
     ageEstimate.beforeNext = (v: any, f: any) => {
         return !field.beforeNext 
@@ -423,19 +425,17 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
         if (StandardValidations.required(v)) {
             return ['Please select an estimate']
         }
+        fullDate = dayjs(Service.getSessionDate())
+            .subtract(v.value as number, 'day')
+            .format(STANDARD_DATE_FORMAT)
         return validateMinMax(fullDate, field, f, c)
     }
 
     durationEstimate.condition = (form: any) => valueEstimateCondition(
         form, EstimationFieldType.MONTH_ESTIMATE_FIELD
-    ) 
+    )
 
-    durationEstimate.computedValue = (val: Option) => {
-        fullDate = dayjs(Service.getSessionDate())
-            .subtract(val.value as number, 'day')
-            .format(STANDARD_DATE_FORMAT)
-        return field.computeValue(fullDate, true)
-    }
+    durationEstimate.computedValue = () => field.computeValue(fullDate, true)
 
     durationEstimate.beforeNext = (_: any, f: any) => {
         return !field.beforeNext 

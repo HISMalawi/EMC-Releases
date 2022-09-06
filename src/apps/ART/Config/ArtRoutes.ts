@@ -1,55 +1,4 @@
 import { ART_GLOBAL_PROP } from "../art_global_props"
-import Prescription from "@/apps/ART/views/encounters/Prescription.vue"
-import Registration from "@/apps/ART/views/encounters/Registration.vue"
-import Appointments from "@/apps/ART/views/encounters/Appointment.vue"
-import Adherence from "@/apps/ART/views/encounters/Adherence.vue"
-import Consultation from "@/apps/ART/views/encounters/Consultation.vue"
-import Dispensing from "@/apps/ART/views/encounters/Dispensing.vue"
-import Reception from "@/apps/ART/views/encounters/Reception.vue"
-import Staging from "@/apps/ART/views/encounters/Staging.vue"
-import Vitals from "@/apps/ART/views/encounters/Vitals.vue"
-import PatientType from "@/apps/ART/views/encounters/PatientType.vue"
-import FastTrack from "@/apps/ART/views/encounters/FastTrack.vue"
-import BPManagment from "@/apps/ART/views/encounters/BPManagement.vue"
-import LabActivities from "@/apps/ART/views/encounters/LabActivities.vue"
-import Mastercard from "@/apps/ART/views/Mastercard.vue"
-import PepFarDiaggregatedReport from "@/apps/ART/views/reports/pepfar/disaggregated.vue"
-import PepFarDefaultersReport from "@/apps/ART/views/reports/pepfar/defaulters.vue"
-import PepFarRegimenReport from "@/apps/ART/views/reports/pepfar/regimen.vue"
-import PepFarRegimenSwitchReport from "@/apps/ART/views/reports/pepfar/RegimenSwitch.vue"
-import PepFarVlCoverage from "@/apps/ART/views/reports/pepfar/ViralLoadCoverage.vue"
-import TBPrevReport from "@/apps/ART/views/reports/pepfar/TBPrev.vue"
-import TXCurrMMD from "@/apps/ART/views/reports/pepfar/TxCurrMMD.vue"
-import TXCurrMl from "@/apps/ART/views/reports/pepfar/TxCurrMl.vue"
-import TXRtt from "@/apps/ART/views/reports/pepfar/TxRtt.vue"
-import ClinicMissedAppointmentsReport from "@/apps/ART/views/reports/clinic/ClinicMissedAppointments.vue"
-import ClinicDefaultersReport from "@/apps/ART/views/reports/clinic/ClinicDefaulters.vue"
-import ClinicRegimenReport from "@/apps/ART/views/reports/clinic/ClinicRegimenReport.vue"
-import ClinicRegimenSwitchReport from "@/apps/ART/views/reports/clinic/ClinicRegimenSwitchReport.vue"
-import ClinicPregnantPatientsReport from "@/apps/ART/views/reports/clinic/ClinicPregnantPatientsReport.vue"
-import ClinicClientsDueForViralLoad from "@/apps/ART/views/reports/clinic/ClinicDueForViralLoad.vue"
-import ClinicRetentionReport from "@/apps/ART/views/reports/clinic/ClinicRetentionReport.vue"
-import ClinicExternalConsultationReport from "@/apps/ART/views/reports/clinic/ClinicExternalConsultation.vue"
-import ClinicViralLoadReport from "@/apps/ART/views/reports/clinic/ClinicViralLoadReport.vue"
-import ClinicOtherOutcomeReport from "@/apps/ART/views/reports/clinic/ClinicOtherOutcomeReport.vue"
-import ClinicRegimenFormulationReport from "@/apps/ART/views/reports/clinic/ClinicRegimenFormulationReport.vue"
-import ClinicLabResultsReport from "@/apps/ART/views/reports/clinic/ClinicLabResultsReport.vue"
-import ClinicArchivingCandidates from "@/apps/ART/views/reports/clinic/ClinicArchivingCandidates.vue"
-import MohDisaggregatedReport from "@/apps/ART/views/reports/moh/MohDisaggregatedReport.vue"
-import MohSurvivalAnalysisReport from "@/apps/ART/views/reports/moh/MohSurvivalAnalysisReport.vue"
-import MohTptInitiationsReport from "@/apps/ART/views/reports/moh/MohTptInitiationsReport.vue"
-import MohTxCurrMMD from "@/apps/ART/views/reports/moh/MohTxCurrMMD.vue"
-import MohRegimenWeightDistribution from "@/apps/ART/views/reports/moh/MohRegimenWeightDistribution.vue"
-import MohCohort from "@/apps/ART/views/reports/moh/CohortReport/MohCohort.vue"
-import ReportTemplate from "@/apps/ART/views/reports/pepfar/PepfarIndex.vue"
-import StockCardReport from "@/apps/ART/views/reports/clinic/ClinicStockCardReport.vue"
-import ClinicAppointments from "@/apps/ART/views/reports/clinic/ClinicAppointments.vue"
-import DataCleaning from "@/apps/ART/views/reports/inconsistencies/DataCleaning.vue"
-import HyperTensionDiagnosis from "@/apps/ART/views/encounters/hypertension_diagnosis.vue"
-import BPPrescription from "@/apps/ART/views/encounters/BPDrug_management.vue"
-import SocialHistory from "@/apps/ART/views/encounters/SocialHistory.vue"
-import BPAdherence from "@/apps/ART/views/encounters/BPAdherence.vue"
-import SCARV from "@/apps/ART/views/reports/pepfar/SCARVReport.vue"
 
 export default [
     {
@@ -150,7 +99,7 @@ export default [
     {
         name: "treatment",
         path: "/art/encounters/prescriptions/:patient_id",
-        component: Prescription
+        component: () => import("@/apps/ART/views/encounters/Prescription.vue")
     },
     {
         name: 'bp_alert',
@@ -160,107 +109,108 @@ export default [
     {
         name: "art adherence",
         path: "/art/encounters/adherence/:patient_id",
-        component: Adherence
+        component: () => import("@/apps/ART/views/encounters/Adherence.vue")
     },
     {
         name: "hiv clinic consultation (clinician)",
         path: "/art/encounters/consultation/:patient_id",
-        component: Consultation
+        component: () => import("@/apps/ART/views/encounters/Consultation.vue")
     },
     {
         name: "hiv clinic consultation",
         path: "/art/encounters/consultation/:patient_id",
-        component: Consultation
+        component: () => import("@/apps/ART/views/encounters/Consultation.vue")
     },
     {
         name: "hiv clinic registration",
         path: "/art/encounters/registration/:patient_id",
-        component: Registration
+        component: () => import("@/apps/ART/views/encounters/Registration.vue")
     },
     {
         name: "hiv reception",
         path: "/art/encounters/reception/:patient_id",
-        component: Reception
+        component: () => import("@/apps/ART/views/encounters/Reception.vue")
     },
     {
         name: "hiv staging",
         path: "/art/encounters/staging/:patient_id",
-        component: Staging
+        component: () => import("@/apps/ART/views/encounters/Staging.vue")
     },
     {
         name: "appointment",
         path: "/art/encounters/appointment/:patient_id",
-        component: Appointments
+        component: () => import("@/apps/ART/views/encounters/Appointment.vue")
     },
     {
         name: "dispensing",
         path: "/art/encounters/dispensation/:patient_id",
-        component: Dispensing
+        component: () => import("@/apps/ART/views/encounters/Dispensing.vue")
     },
     {
         name: "vitals",
         path: "/art/encounters/vitals/:patient_id",
-        component: Vitals
+        component: () => import("@/apps/ART/views/encounters/Vitals.vue")
     },
     {
         name: "htn_vitals",
         path: "/art/encounters/vitals/:patient_id",
-        component: Vitals
+        component: () => import("@/apps/ART/views/encounters/Vitals.vue")
     },
     {
         name: "patient type",
         path: "/art/encounters/patient_type/:patient_id",
-        component: PatientType
+        component: () => import("@/apps/ART/views/encounters/PatientType.vue")
     },
     {
         name: "fast track assesment",
         path: "/art/encounters/fast_track/:patient_id",
-        component: FastTrack
+        component: () => import("@/apps/ART/views/encounters/FastTrack.vue")
     },
     {
         name: "bp_management",
         path: "/art/encounters/bp_management/:patient_id",
-        component: BPManagment
+        component: () => import("@/apps/ART/views/encounters/BPManagement.vue")
     },
     {
         name: "Hypertesnion diagnosis",
         path: "/art/encounters/hypertension_diagnosis/:patient_id",
-        component: HyperTensionDiagnosis
+        component: () => import("@/apps/ART/views/encounters/hypertension_diagnosis.vue")
     },
     {
         name: "BP prescription",
         path: "/art/encounters/bp_prescription/:patient_id",
-        component: BPPrescription
+        component: () => import("@/apps/ART/views/encounters/BPDrug_management.vue")
     },
     {
         name: "Social history",
         path: "/art/encounters/social_history/:patient_id",
-        component: SocialHistory
+        component: () => import("@/apps/ART/views/encounters/SocialHistory.vue")
     },
     {
         name: "BP adherence",
         path: "/art/encounters/bp_adherence/:patient_id",
-        component: BPAdherence
+        component: () => import("@/apps/ART/views/encounters/BPAdherence.vue")
     },
     {
         name: "lab activities",
         path: "/art/encounters/lab/:patient_id",
-        component: LabActivities
+        component: () => import("@/apps/ART/views/encounters/LabActivities.vue")
     },
     {
         name: "patient mstercard",
         path: "/art/mastercard/:patient_id",
-        component: Mastercard
+        component: () => import("@/apps/ART/views/Mastercard.vue")
     },
     {
         name: "Data cleaning",
         path: "/data_cleaning",
-        component: DataCleaning
+        component: () => import("@/apps/ART/views/reports/inconsistencies/DataCleaning.vue")
     },
+    /** ART MOH REPORT*/
     {
         name: 'moh_disaggregated_report',
         path: '/art/moh_disaggregated_report',
-        component: MohDisaggregatedReport
+        component: () => import("@/apps/ART/views/reports/moh/MohDisaggregatedReport.vue")
     },
     {
         name: 'moh_regimen_report',
@@ -268,171 +218,155 @@ export default [
         component: () => import('@/apps/ART/views/reports/moh/MohRegimenReport.vue')
     },
     {
-        path: '/art/report/moh',
-        component: ReportTemplate,
-        children: [
-            {
-                name: 'moh_cohort',
-                path: 'moh_cohort',
-                component: MohCohort
-            }, 
-            {
-                name: 'moh_survial_analysis',
-                path: 'moh_survial_analysis',
-                component: MohSurvivalAnalysisReport
-            }, 
-            {
-                name: 'moh_tpt_new_initiations',
-                path: 'moh_tpt_new_initiations',
-                component: MohTptInitiationsReport
-            }, 
-            {
-                name: 'moh_tx_curr_mmd',
-                path: 'moh_tx_curr_mmd',
-                component: MohTxCurrMMD
-            },
-            {
-                name: 'moh_regimen_weight_distribution',
-                path: 'moh_regimen_weight_distribution',
-                component: MohRegimenWeightDistribution
-            }
-        ]
+        path: '/art/report/moh/moh_cohort',
+        name: 'moh_cohort',
+        component: () => import("@/apps/ART/views/reports/moh/CohortReport/MohCohort.vue")
     },
     {
-        path: '/art/report/clinic',
-        component: ReportTemplate,
-        children: [
-            {
-                name: 'clinic_archiving_candidates',
-                path: 'clinic_archiving_candidates',
-                component: ClinicArchivingCandidates
-            },
-            {
-                name: 'clinic_retention_report',
-                path: "clinic_retention_report",
-                component: ClinicRetentionReport
-            },
-            {
-                name: 'clinic_external_consultation_report',
-                path: "clinic_external_consultation_report",
-                component: ClinicExternalConsultationReport
-            },
-            {
-                name: 'clinic_due_viral_load_report',
-                path: "clinic_due_viral_load_report",
-                component: ClinicClientsDueForViralLoad
-            },
-            {
-                name: "clinic_lab_results",
-                path: "clinic_lab_results",
-                component: ClinicLabResultsReport
-            },
-            {
-                name: 'clinic_missed_appointments',
-                path: "clinic_missed_appointments",
-                component: ClinicMissedAppointmentsReport
-            },
-            {
-                name: "clinic_defaulters_report",
-                path: "clinic_defaulters",
-                component: ClinicDefaultersReport
-            },
-            {
-                name: "clinic_regimen_report",
-                path: "clinic_regimen_report",
-                component: ClinicRegimenReport
-            },
-            {
-                name: "clinic_regimen_switch",
-                path: "clinic_regimen_switch",
-                component: ClinicRegimenSwitchReport
-            },
-            {
-                name: "clinic_pregnant_patients",
-                path: "clinic_pregnant_patients",
-                component: ClinicPregnantPatientsReport
-            },
-            {
-                name: "clinic_appointments",
-                path: "clinic_appointments",
-                component: ClinicAppointments
-            },
-            {
-                name: "stock_card_report",
-                path: "stock_card_report",
-                component: StockCardReport
-            },
-            {
-                name: "clinic_viral_load",
-                path: "clinic_viral_load",
-                component: ClinicViralLoadReport
-            },
-            {
-                name: "clinic_other_outcome_list",
-                path: "clinic_other_outcome_list",
-                component: ClinicOtherOutcomeReport
-            },
-            {
-                name: "clinic_regimen_formulation",
-                path: "clinic_regimen_formulation",
-                component: ClinicRegimenFormulationReport
-            },
-        ]
+        path: '/art/report/moh/moh_survial_analysis',
+        name: 'moh_survial_analysis',
+        component: () => import("@/apps/ART/views/reports/moh/MohSurvivalAnalysisReport.vue")
     },
     {
-        path: '/art/report/pepfar',
-        component: ReportTemplate,
-        children: [
-            {
-                name: 'pepfar_disaggregated_report',
-                path: "disaggregated",
-                component: PepFarDiaggregatedReport
-            },
-            {
-                name: "pepfar_defaulters_report",
-                path: "defaulters",
-                component: PepFarDefaultersReport
-            },
-            {
-                name: "pepfar_regimen_report",
-                path: "regimens",
-                component: PepFarRegimenReport
-            },
-            {
-                name: "pepfar_regimen_switch",
-                path: "regimen_switch",
-                component: PepFarRegimenSwitchReport
-            },
-            {
-                name: "pepfar_tb_prev_report",
-                path: "tb_prev",
-                component: TBPrevReport
-            },
-            {
-                name: "pepfar_tx_curr_mmd_report",
-                path: "tx_cur_mmd",
-                component: TXCurrMMD
-            },
-            {
-                name: "pepfar_tx_ml_report",
-                path: "tx_ml",
-                component: TXCurrMl
-            },
-            {
-                name: "pepfar_tx_rtt",
-                path: "tx_rtt",
-                component: TXRtt
-            },
-            {
-                name: 'pepfar_vl_coverage',
-                path: 'pepfar_vl_coverage',
-                component: PepFarVlCoverage
-            },
-            {
-                name: 'sc_arv',
-                path: 'sc_arv',
-                component: SCARV
-            },
-        ]
+        path: '/art/report/moh/moh_tpt_new_initiations',
+        name: 'moh_tpt_new_initiations',
+        component: () => import("@/apps/ART/views/reports/moh/MohTptInitiationsReport.vue")
+    }, 
+    {
+        name: 'moh_tx_curr_mmd',
+        path: '/art/report/moh/moh_tx_curr_mmd',
+        component: () => import("@/apps/ART/views/reports/moh/MohTxCurrMMD.vue")
+    },
+    {
+        name: 'moh_regimen_weight_distribution',
+        path: '/art/report/moh/moh_regimen_weight_distribution',
+        component: () => import("@/apps/ART/views/reports/moh/MohRegimenWeightDistribution.vue")
+    },
+    /** ART Clinic reports */
+    {
+        name: 'clinic_archiving_candidates',
+        path: '/art/report/clinic/clinic_archiving_candidates',
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicArchivingCandidates.vue")
+    },
+    {
+        name: 'clinic_retention_report',
+        path: "/art/report/clinic/clinic_retention_report",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicRetentionReport.vue")
+    },
+    {
+        name: 'clinic_external_consultation_report',
+        path: "/art/report/clinic/clinic_external_consultation_report",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicExternalConsultation.vue")
+    },
+    {
+        name: 'clinic_due_viral_load_report',
+        path: "/art/report/clinic/clinic_due_viral_load_report",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicDueForViralLoad.vue")
+    },
+    {
+        name: "clinic_lab_results",
+        path: "/art/report/clinic/clinic_lab_results",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicLabResultsReport.vue")
+    },
+    {
+        name: 'clinic_missed_appointments',
+        path: "/art/report/clinic/clinic_missed_appointments",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicMissedAppointments.vue")
+    },
+    {
+        name: "clinic_defaulters_report",
+        path: "/art/report/clinic/clinic_defaulters",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicDefaulters.vue")
+    },
+    {
+        name: "clinic_regimen_report",
+        path: "/art/report/clinic/clinic_regimen_report",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicRegimenReport.vue")
+    },
+    {
+        name: "clinic_regimen_switch",
+        path: "/art/report/clinic/clinic_regimen_switch",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicRegimenSwitchReport.vue")
+    },
+    {
+        name: "clinic_pregnant_patients",
+        path: "/art/report/clinic/clinic_pregnant_patients",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicPregnantPatientsReport.vue")
+    },
+    {
+        name: "clinic_appointments",
+        path: "/art/report/clinic/clinic_appointments",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicAppointments.vue")
+    },
+    {
+        name: "stock_card_report",
+        path: "/art/report/clinic/stock_card_report",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicStockCardReport.vue")
+    },
+    {
+        name: "clinic_viral_load",
+        path: "/art/report/clinic/clinic_viral_load",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicViralLoadReport.vue")
+    },
+    {
+        name: "clinic_other_outcome_list",
+        path: "/art/report/clinic/clinic_other_outcome_list",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicOtherOutcomeReport.vue")
+    },
+    {
+        name: "clinic_regimen_formulation",
+        path: "/art/report/clinic/clinic_regimen_formulation",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicRegimenFormulationReport.vue")
+    },
+    /** ART PEPFAR REPORTS */
+    {
+        name: 'pepfar_disaggregated_report',
+        path: "/art/report/pepfar/disaggregated",
+        component: () => import("@/apps/ART/views/reports/pepfar/disaggregated.vue")
+    },
+    {
+        name: "pepfar_defaulters_report",
+        path: "/art/report/pepfar/defaulters",
+        component: () => import("@/apps/ART/views/reports/pepfar/defaulters.vue")
+    },
+    {
+        name: "pepfar_regimen_report",
+        path: "/art/report/pepfar/regimens",
+        component: () => import("@/apps/ART/views/reports/pepfar/regimen.vue")
+    },
+    {
+        name: "pepfar_regimen_switch",
+        path: "/art/report/pepfar/regimen_switch",
+        component: () => import("@/apps/ART/views/reports/pepfar/RegimenSwitch.vue")
+    },
+    {
+        name: "pepfar_tb_prev_report",
+        path: "/art/report/pepfar/tb_prev",
+        component: () => import("@/apps/ART/views/reports/pepfar/TBPrev.vue")
+    },
+    {
+        name: "pepfar_tx_curr_mmd_report",
+        path: "/art/report/pepfar/tx_cur_mmd",
+        component: () => import("@/apps/ART/views/reports/pepfar/TxCurrMMD.vue")
+    },
+    {
+        name: "pepfar_tx_ml_report",
+        path: "/art/report/pepfar/tx_ml",
+        component: () => import("@/apps/ART/views/reports/pepfar/TxCurrMl.vue")
+    },
+    {
+        name: "pepfar_tx_rtt",
+        path: "/art/report/pepfar/tx_rtt",
+        component: () => import("@/apps/ART/views/reports/pepfar/TxRtt.vue")
+    },
+    {
+        name: 'pepfar_vl_coverage',
+        path: '/art/report/pepfar/pepfar_vl_coverage',
+        component: () => import("@/apps/ART/views/reports/pepfar/ViralLoadCoverage.vue")
+    },
+    {
+        name: 'sc_arv',
+        path: '/art/report/pepfar/sc_arv',
+        component: () => import("@/apps/ART/views/reports/pepfar/SCARVReport.vue")
     }
 ]

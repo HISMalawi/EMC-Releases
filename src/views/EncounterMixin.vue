@@ -1,17 +1,14 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { Field, Option } from '@/components/Forms/FieldInterface'
-import { Patientservice } from "@/services/patient_service"
 import { ProgramService } from "@/services/program_service"
-import { PatientProgramService } from "@/services/patient_program_service"
-import { UserService } from "@/services/user_service"
 import { find, isEmpty } from "lodash"
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { ENCOUNTER_GUIDELINES, FlowState } from "@/guidelines/encounter_guidelines"
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
-import { delayPromise } from '@/utils/Timers'
 import { toastDanger } from '@/utils/Alerts'
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -35,15 +32,19 @@ export default defineComponent({
     }),
     watch: {
        '$route': {
-            async handler(route: any) {
+            handler(route: any) {
                 if(route.params.patient_id && this.patientID != route.params.patient_id) {
-                    this.patientID = route.params.patient_id;
-                    const response = await Patientservice.findByID(this.patientID);
-                    this.patient = new Patientservice(response);
-                    await this.setEncounterFacts()
-                    await this.checkEncounterGuidelines()
-                    this.ready = true;
-                }
+                    this.patientID = parseInt(route.params.patient_id);
+                    Store.get('ACTIVE_PATIENT', { patientID: this.patientID})
+                        .then(patientData => {
+                            this.patient = patientData
+                            this.setEncounterFacts().then(() => {
+                                this.checkEncounterGuidelines().then(() => {
+                                    this.ready = true
+                                })
+                            })
+                        })
+                    }
             },
             immediate: true,
             deep: true
@@ -81,7 +82,6 @@ export default defineComponent({
         },
         async checkEncounterGuidelines() {
             const findings = matchToGuidelines(this.facts, ENCOUNTER_GUIDELINES)
-            await delayPromise(200)
             for(const index in findings) {
                 const finding = findings[index]
                 if (finding?.actions?.alert) {
@@ -96,7 +96,7 @@ export default defineComponent({
         },
         async setEncounterFacts() {
             try {
-                const program = await new PatientProgramService(this.patientID).getProgram()
+                const program = await Store.get('PATIENT_PROGRAM', { patientID: this.patientID })
                 this.facts.outcome = program.outcome
                 this.facts.outcomeStartDate = program.startDate
             } catch (e) {
@@ -111,7 +111,7 @@ export default defineComponent({
                 ? this.$route.name.toString().toUpperCase()
                 : 'N/A'
             if (ProgramService.isBDE()) {
-                this.providers = await UserService.getUsers()
+                this.providers = await Store.get('PROVIDERS')
                 this.facts.providers = this.providers
                     .sort((a: any, b: any) => {
                         const usernameA = a.username.toUpperCase()

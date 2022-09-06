@@ -43,21 +43,53 @@ const ANC: AppInterface = {
                     { label: 'National ID', value: data.getMWNationalID() }
                 ]
             },
-            'PROGRAM INFO': async () => {
-                const appointmentDate = (await ObservationService.getFirstValueDatetime(patientID, 'appointment date')) || 'N/A'; 
-                const info = await ProgramService.getProgramInformation(patientID)
+            'PROGRAM INFO': () => {
+                let info: any = null
                 return [
-                    { label: 'ANC visit', value: info.anc_visits || 'N/A' },
-                    { label: 'Next Appointment Date', value: d(appointmentDate) },
-                    { label: 'Gestation Age', value: info.gestation ? `${info.gestation} week(s)` : 'N/A' },
-                    { label: 'Date of LMP', value: d(info.date_of_lnmp) },
-                    { label: 'EDOD', value: info.edod ? d(info.edod) : 'N/A'},
-                    { label: 'Next task', value: (await WorkflowService.getNextTaskParams(patientID)).name.toUpperCase() || 'N/A' }
+                    { 
+                        label: 'ANC visit', 
+                        value: '...',
+                        init: async () => {
+                            info = await ProgramService.getProgramInformation(patientID)
+                        },
+                        staticValue: () => info.anc_visits || 'N/A' 
+                    },
+                    { 
+                        label: 'Next Appointment Date', 
+                        value: '...',
+                        asyncValue: async () => {
+                            const date = await ObservationService.getFirstValueDatetime(patientID, 'appointment date')
+                            return date ? d(date) : 'N/A' 
+                        } 
+                    },
+                    { 
+                        label: 'Gestation Age',
+                        value: '...', 
+                        staticValue: () => info.gestation ? `${info.gestation} week(s)` : 'N/A' 
+                    },
+                    { 
+                        label: 'Date of LMP', 
+                        value: '...',
+                        staticValue: () => info.date_of_lnmp ?  d(info.date_of_lnmp) : 'N/A'
+                    },
+                    { 
+                        label: 'EDOD', 
+                        staticValue: () => info.edod ? d(info.edod) : 'N/A'
+                    },
+                    { 
+                        label: 'Next task', 
+                        value: '...',
+                        asyncValue: async () => (await WorkflowService.getNextTaskParams(patientID)).name.toUpperCase() || 'N/A' 
+                    }
                 ]
             },
-            'OUTCOME': () => { 
+            'OUTCOME': () => {
                 return [
-                    { label: 'Current Outcome', value: program.outcome || 'N/A' }
+                    { 
+                        label: 'Current Outcome', 
+                        value: '...',
+                        staticValue: () => program.outcome || 'N/A' 
+                    }
                 ]
             },
             'LABS': async () => {
@@ -68,11 +100,6 @@ const ANC: AppInterface = {
                             value: HisDate.toStandardHisDisplayFormat(order.order_date) 
                         } 
                     })
-            },
-            'ALERTS': () => { 
-                return [
-
-                ]
             },
             'GUARDIANS': async () => {
                 const req = await RelationshipService

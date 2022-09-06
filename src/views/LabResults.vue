@@ -21,6 +21,7 @@ import { find, isEmpty } from 'lodash';
 import HisDate from "@/utils/Date"
 import { Service } from "@/services/service"
 import { OrderService } from '@/services/order_service';
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -58,6 +59,7 @@ export default defineComponent({
                 this.labResult.setResultDate(c.result_date)
                 await this.labResult.createEncounter()
                 await this.labResult.createLabResult(measures)
+                Store.invalidate('PATIENT_LAB_ORDERS')
                 this.testOptions = []
                 this.selectedTest = {}
                 this.testIndicators = []
@@ -70,19 +72,14 @@ export default defineComponent({
             }
         },
         generateTestIndicatorsFields() {
-            let fields: Array<Field> = []
-            this.testIndicators.forEach((i: any) => {
-               fields = [ 
-                   ...fields, 
-                   ...this.buildTestIndicatorFields(
-                       i.indicatorId,
-                       i.indicatorName,
-                       i.specimen,
-                       i.testId
-                    )
-                ]
-            })
-            return fields
+          return this.testIndicators.reduce((acc: Field[], data: any) => {
+            return acc.concat(this.buildTestIndicatorFields(
+              data.indicatorId,
+              data.indicatorName,
+              data.specimen,
+              data.testId
+            ))
+          }, [] as Field[])
         },
         async validateVLresults(name: string, specimen: string, result: string){
             if (name !== 'HIV viral load') return true
@@ -113,16 +110,16 @@ export default defineComponent({
             return name.match(/mrdt|malaria/i) ? true : false
         },
         buildTestIndicatorFields(id: number, name: string, specimen: string, test: number): Array<Field> {
+          const fieldIndex = id * test
             const condition = (f: any) => [
                 this.selectedTest.value === test, 
                 find(f.result_indicators, { label: name}) ? true : false
             ].every(Boolean)
-
             const beforeNext = (v: Option) => this.validateVLresults(name, specimen, v.value.toString())
 
             const computedValue = (v: any, f: any) => {
                 if(v.value === 'Other' && name.match(/HIV viral load/i)) return {}
-                const type = this.isMalariaResult(name) ? 'text' : f[`type_${id}`].value
+                const type = this.isMalariaResult(name) ? 'text' : f[`type_${fieldIndex}`].value
                 const value = this.isMalariaResult(name) ? "=" + v.value : v.value.toString()
                 const modifier = value.charAt(0)
                 const result = type === 'numeric' ? parseInt(value.substring(1)) : value.substring(1)
@@ -144,7 +141,7 @@ export default defineComponent({
             }
             return [
                 {
-                    id: `type_${id}`,
+                    id: `type_${fieldIndex}`,
                     helpText: `Result type (${name})`,
                     type: FieldType.TT_SELECT,
                     group: 'test_indicator',
@@ -163,7 +160,7 @@ export default defineComponent({
                     ]
                 },
                 {
-                    id: `num_${id}`,
+                    id: `num_${fieldIndex}`,
                     helpText: `Test Result (${name})`,
                     type: FieldType.TT_TEXT,
                     group: 'test_indicator',
@@ -177,7 +174,7 @@ export default defineComponent({
                         return true
                     },
                     validation: (v: Option) => Validation.required(v),
-                    condition: (f: any) => condition(f) && f[`type_${id}`].value === 'numeric',
+                    condition: (f: any) => condition(f) && f[`type_${fieldIndex}`].value === 'numeric',
                     config: {
                         customKeyboard: [
                             [
@@ -193,7 +190,7 @@ export default defineComponent({
                     }
                 },
                 {
-                    id: `alpha_${id}`,
+                    id: `alpha_${fieldIndex}`,
                     helpText: `Test Result (${name})`,
                     type: FieldType.TT_TEXT,
                     group: 'test_indicator',
@@ -206,16 +203,16 @@ export default defineComponent({
                     },
                     computedValue,
                     validation: (v: Option) => Validation.required(v),
-                    condition: (f: any) => condition(f) && f[`type_${id}`].value === 'text' && !name.match(/HIV viral load/i)
+                    condition: (f: any) => condition(f) && f[`type_${fieldIndex}`].value === 'text' && !name.match(/HIV viral load/i)
                 },
                 {
-                    id: `VL_alpha_${id}`,
+                    id: `VL_alpha_${fieldIndex}`,
                     helpText: `Select Test Result (${name})`,
                     type: FieldType.TT_SELECT,
                     group: 'test_indicator',
                     computedValue,
                     validation: (v: Option) => Validation.required(v),
-                    condition: (f: any) => condition(f) && f[`type_${id}`].value === 'text' && name.match(/HIV viral load/i),
+                    condition: (f: any) => condition(f) && f[`type_${fieldIndex}`].value === 'text' && name.match(/HIV viral load/i),
                     options: () => [
                       {
                         label: 'Collect Another Sample',
@@ -236,7 +233,7 @@ export default defineComponent({
                     ]
                 },
                 {
-                    id: `other_VL_alpha_${id}`,
+                    id: `other_VL_alpha_${fieldIndex}`,
                     helpText: `Test Result (${name})`,
                     type: FieldType.TT_TEXT,
                     group: 'test_indicator',
@@ -251,13 +248,13 @@ export default defineComponent({
                     validation: (v: Option) => Validation.required(v),
                     condition: (f: any) => {
                       return condition(f) && 
-                        f[`type_${id}`].value === 'text' && 
+                        f[`type_${fieldIndex}`].value === 'text' && 
                         name.match(/HIV viral load/i)
-                        && f[`VL_alpha_${id}`].value === 'Other'
+                        && f[`VL_alpha_${fieldIndex}`].value === 'Other'
                     }
                 },
                 {
-                    id: `malaria_result_${id}`,
+                    id: `malaria_result_${fieldIndex}`,
                     helpText: `Select Test Result (${name})`,
                     type: FieldType.TT_SELECT,
                     group: 'test_indicator',

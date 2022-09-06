@@ -61,9 +61,17 @@ export default defineComponent({
     data: () => ({
         listData: [] as Option[]
     }),
-    async activated() {
-        this.$emit('onFieldActivated', this)
-        this.listData = await this.options(this.fdata)
+    methods: {
+        async init() {
+            this.$emit('onFieldActivated', this)
+            this.listData = await this.options(this.fdata)
+        }
+    },
+    mounted() {
+        this.init()
+    },
+    activated() {
+        this.init()        
     },
     watch: {
         listData: {

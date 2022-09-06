@@ -64,6 +64,7 @@ export default defineComponent({
     },
     methods: {
         async init() {
+            this.$emit('onFieldActivated', this)
             const options = await this.options(this.fdata)
             this.listData = this.buildList(options)
         },

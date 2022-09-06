@@ -114,6 +114,9 @@ export default defineComponent({
     asyncRows: {
         type: Function
     },
+    asyncRowParser: {
+        type: Function
+    },
     rowParser: {
         type: Function
     },
@@ -183,9 +186,7 @@ export default defineComponent({
         if (!searchTerm) {
             this.paginated ? this.setPage(this.currentPage) : this.activeRows = this.tableRows
         } else {
-            this.activeRows = this.searchDataSet(
-                searchTerm, this.paginated ? this.activeRows : this.tableRows 
-            )
+            this.activeRows = this.searchDataSet(searchTerm, this.tableRows)
         }
     },
     activeRows: {
@@ -278,13 +279,20 @@ export default defineComponent({
     },
     async setPage(index: number) {
         this.activeRows = []
-        const pageRows = this.paginatedRows[index]
+        const pageRows: any = this.paginatedRows[index]
         if (!pageRows) return
         try {
-            this.isLoading = true
-            this.activeRows = typeof this.rowParser === 'function'
-                ? await this.rowParser(pageRows)
-                : pageRows
+            if (typeof this.asyncRowParser === 'function') {
+                this.activeRows = pageRows
+                for (const i in pageRows) {
+                    this.activeRows[i as any] = await this.asyncRowParser(pageRows[i])
+                }
+            } else {
+               this.isLoading = true
+               this.activeRows = typeof this.rowParser === 'function'
+                    ? await this.rowParser(pageRows)
+                    : pageRows
+            }
         } catch (e) {
             toastDanger(e)
             this.errorMessage = `${e}`
@@ -316,16 +324,8 @@ export default defineComponent({
     },
     searchDataSet(searchTerm: string, dataset: Array<any>) {
         return dataset.filter((r: any) => {
-            const found = r.filter((rowData: any) => {
-                if (typeof rowData === 'object' && rowData !=null &&  'td' in rowData) {
-                    if (typeof rowData.td === 'string' || typeof rowData.td === 'number') {
-                        return rowData.td.toString().match(new RegExp(searchTerm, 'i'))
-                    }
-                    return false
-                }
-                return false
-            })
-            return !isEmpty(found)
+            const rowText = JSON.stringify(r).match(/"td":"(.*?)"/g)?.join(' ').replace(/"td":|"/g, '')
+            return rowText?.match(new RegExp(searchTerm, 'i')) || false
         })
     },
     async onChangePage(page: number) {

@@ -41,12 +41,18 @@ export default defineComponent({
             this.clearSelection() 
         }
     },
-    async activated() {
-        this.$emit('onFieldActivated', this)
-        this.listData = await this.options(this.fdata)
-        await this.setDefaultValue()
+    mounted() {
+        this.init()
+    },
+    activated() {
+        this.init()
     },
     methods: {
+        async init() {
+            this.$emit('onFieldActivated', this)
+            this.listData = await this.options(this.fdata)
+            await this.setDefaultValue() 
+        },
         async setDefaultValue() {
             if(this.defaultValue) {
                 const defaults: string = await this.defaultValue(this.fdata, this.cdata, this.selected)
