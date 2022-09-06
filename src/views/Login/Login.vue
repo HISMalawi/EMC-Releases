@@ -31,6 +31,12 @@ export default defineComponent({
       if (user.username && user.password) {
         auth.setUsername(user.username);
         try {
+          if (auth.versionLockingIsEnabled()) {
+            await auth.validateIfCorrectAPIVersion()
+          }
+          if (!(await auth.checkTimeIntegrity())) {
+            throw "Local date does not match API date. Please Update your device's date"
+          }
           await auth.login(user.password);
           auth.startSession();
           const nextUrl = isPocSite.value ? "/select_hc_location": "/home"

@@ -48,9 +48,9 @@
         </div>
       </div>
     </div>
-    <center>
+    <div class="center">
       <div id="keyboard" :style="btnStyles"  class="keyboard">
-        <span v-bind:key="k" v-for="k in LOGIN_KEYBOARD">
+        <span v-bind:key="index" v-for="(k, index) in LOGIN_KEYBOARD">
           <div class="rows">
             <div class="cells" v-bind:key="r" v-for="r in k">
               <button
@@ -80,7 +80,7 @@
           </div>
         </span>
       </div>
-    </center>
+    </div>
   </ion-content>
   <login-footer :showConfigBtn="showConfigBtn"></login-footer>
 </template>
@@ -151,6 +151,7 @@ export default defineComponent({
     const { useVirtualInput } = usePlatform()
     this.useVirtualInput = useVirtualInput.value
   },
+  emits: ["login"],
   methods: {
     renderKeyBoard(e: any) {
       this.focusInput = e.currentTarget;
@@ -211,28 +212,10 @@ export default defineComponent({
       }
     },
     doLogin: async function () {
-      if (this.userInput.username && this.userInput.password) {
-        this.auth.setUsername(this.userInput.username)
-        try {
-          if (this.auth.versionLockingIsEnabled()) {
-            await this.auth.validateIfCorrectAPIVersion()
-          }
-          if (!(await this.auth.checkTimeIntegrity())) {
-            throw "Local date does not match API date. Please Update your device's date"
-          }
-          await this.auth.login(this.userInput.password)
-          this.auth.startSession()
-          this.$router.push("/select_hc_location");
-        } catch (e) {
-          if (e instanceof InvalidCredentialsError ) {
-            toastWarning("Invalid username or password");
-          } else {
-            toastDanger(e, 50000)
-          }
-        }
-      } else {
-        toastWarning("Complete form to log in");
-      }
+      this.$emit("login", {
+        username: this.userInput.username, 
+        password: this.userInput.password
+      })
     }
   },
   computed: {
@@ -360,5 +343,13 @@ export default defineComponent({
 
 .input-rows {
   line-height: 140px;
+}
+
+.center {
+    text-align: center;
+}
+.center > div, .center > table {
+    margin-left: auto;
+    margin-right: auto;
 }
 </style>

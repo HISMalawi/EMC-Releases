@@ -33,12 +33,18 @@
 import usePlatform from '@/composables/usePlatform'
 import img from '@/utils/Img'
 import { computed, defineComponent, ref, watch } from 'vue'
-import { IonFooter, IonToolbar, IonButton, IonSelect, IonSelectOption } from "@ionic/vue";
+import { IonFooter, IonToolbar, IonButton, IonSelect, IonSelectOption, IonItem, IonLabel } from "@ionic/vue";
 
 export default defineComponent({
   name: "LoginFooter",
   components: {
-    IonFooter, IonToolbar, IonButton, IonSelect, IonSelectOption
+    IonFooter, 
+    IonToolbar, 
+    IonButton, 
+    IonSelect, 
+    IonSelectOption,
+    IonItem,
+    IonLabel,
   },
   props: {
     showConfigBtn: {

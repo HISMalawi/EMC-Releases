@@ -73,7 +73,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { IonButton, IonCardSubtitle, IonCardTitle, IonCol, IonGrid, IonInput, IonItem, IonRow } from "@ionic/vue";
+import { IonButton, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonIcon, IonInput, IonItem, IonRow } from "@ionic/vue";
 import { person } from "ionicons/icons";
 import LoginFooter from "@/components/LoginFooter.vue";
 
@@ -88,7 +88,9 @@ export default defineComponent({
     IonItem,
     IonCardTitle,
     IonCardSubtitle,
-    LoginFooter
+    LoginFooter,
+    IonContent,
+    IonIcon,
   },
   props: {
     showConfigBtn: {
