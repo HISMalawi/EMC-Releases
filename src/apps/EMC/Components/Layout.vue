@@ -63,7 +63,6 @@ import { apps, caretDown } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import AuthUserMenuVue from "./AuthUserMenu.vue";
 import { Service } from "@/services/service";
-import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import MultiLevelMenu from "./MultiLevelMenu.vue";
 import Store from "@/composables/ApiStore"
 
@@ -113,7 +112,6 @@ export default defineComponent({
       })
 
       authMenu.present();
-      const { data } = await authMenu.onDidDismiss();
     }
 
     const setLocation = async () => {
