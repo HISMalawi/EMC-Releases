@@ -224,7 +224,7 @@ export default defineComponent({
                                     return toastWarning(`Can't add already existing referral location`)
                                 }
                                 if ((await alertConfirmation(`Do you want to add referral location?`))) {
-                                    const data = await RadiologyInternalSectionService.createInternalSection(field.filter)
+                                    const data = await RadiologyInternalSectionService.createInternalSection(field.filter.toUpperCase())
                                     if (data) {
                                         field.filter = data.name
                                         field.listData = [{label: data.name, value: data.id}, ...field.listData]
