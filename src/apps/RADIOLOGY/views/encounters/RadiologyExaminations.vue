@@ -20,7 +20,8 @@ import { RadiologyInternalSectionService } from "@/apps/RADIOLOGY/services/radio
 import { isEmpty } from 'lodash';
 import { alertConfirmation, toastDanger, toastWarning } from '@/utils/Alerts';
 import PersonFieldHelper from '@/utils/HisFormHelpers/PersonFieldHelper';
-
+import RADIOLOGY_GLOBAL_PROP from "@/apps/RADIOLOGY/radiology_global_props"
+;
 export default defineComponent({
     mixins: [EncounterMixinVue],
     components: {
@@ -30,6 +31,7 @@ export default defineComponent({
     data: () => ({
         service: {} as any,
         examinationOptions: [] as any,
+        defaultExternalLocation: '' as string,
         detailedExaminationOptions: [] as any
     }),
     watch: {
@@ -178,6 +180,11 @@ export default defineComponent({
         externalReferralField() {
             const field: Field = PersonFieldHelper.getFacilityLocationField()
             field.id = 'external_referral'
+            field.init = async () => {
+                this.defaultExternalLocation = await RADIOLOGY_GLOBAL_PROP.defaultReferralLocation()
+                return true
+            }
+            field.defaultValue = () => this.defaultExternalLocation
             field.condition = (f: any) => f.referral_type.value === 'External'
             field.computedValue = (v: Option) => {
                 return {

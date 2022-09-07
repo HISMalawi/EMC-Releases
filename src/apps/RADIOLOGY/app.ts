@@ -1,5 +1,6 @@
 import { AppInterface } from "../interfaces/AppInterface";
 import HomeStats from "@/apps/RADIOLOGY/components/RadiologyHomeStats.vue";
+import { UserService } from "@/services/user_service";
 
 const RADIOLOGY: AppInterface = {
     programID: 28,
@@ -23,7 +24,24 @@ const RADIOLOGY: AppInterface = {
             }
         }
     },
+    globalPropertySettings: [
+        {
+            name: 'System Preferences',
+            condition: () => UserService.isAdmin(),
+            files: [
+                {
+                    name: 'Default External Referral',
+                    pathUrl: "/radiology/preferences/default_referral_location"
+                }
+            ]
+        }
+    ],
     appRoutes: [
+        {
+            name: 'Radiology preferences',
+            path: '/radiology/preferences/:name',
+            component: () => import('@/apps/RADIOLOGY/views/RadiologyPreferences.vue')
+        },
         {
             name: 'Examination',
             path: '/radiology/examination/:patient_id',
