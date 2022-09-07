@@ -9,7 +9,7 @@
             :config="{
                 showIndex: true
             }"
-            reportPrefix="PEPFAR"
+            reportPrefix="Clinic"
             :onReportConfiguration="onPeriod"
             > 
         </report-template>

@@ -107,6 +107,10 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'TX RTT',
                 pathUrl: '/art/report/clinic_tx_rtt'
+            },
+            {
+                name: 'TPT Outcomes',
+                pathUrl: '/art/report/clinic_tpt_outcomes'
             }
         ]
     },
