@@ -4,6 +4,7 @@ import App from "@/apps/app_lib"
 
 // Track all cached items in this reactive object
 const STATES = ref({} as any)
+const REQUEST_OBJECTS = ref({} as Promise<any> | any)
 
 export default {
     /**
@@ -19,7 +20,14 @@ export default {
             const p = params || {}
             if (typeof Store[name]?.canReloadCache === 'function' && 
             Store[name]?.canReloadCache({ params: p, state: STATES.value[name]})) {
-                STATES.value[name] = await Store[name]?.get(p)
+                // Promise objects should be cached in singleton object to prevent duplication 
+                // of requests
+                if (!REQUEST_OBJECTS.value[name]) {
+                    REQUEST_OBJECTS.value[name] = Store[name]?.get(p)
+                }
+                STATES.value[name] = await REQUEST_OBJECTS.value[name]
+                // Clear after successful request
+                REQUEST_OBJECTS.value[name] = undefined
             }
             return STATES.value[name]
         } else {
