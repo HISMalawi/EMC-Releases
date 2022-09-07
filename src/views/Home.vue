@@ -134,15 +134,15 @@
             </ion-button>
           </ion-col>
 
-        <ion-col>
-          <ion-button class="xl-button mobile-component-view" color="success" router-link="/patient/registration">
-            <ion-icon :icon="person"></ion-icon>
-          </ion-button>
-          <ion-button class="xl-button full-component-view" color="success" size="large" router-link="/patient/registration">
-            <ion-icon :icon="person"></ion-icon>
-            <ion-label> Find or Register </ion-label>
-          </ion-button>
-        </ion-col>
+          <ion-col>
+            <ion-button v-if="canFindByIdentifier" class="xl-button mobile-component-view" color="primary" router-link="/patients/search/id">
+              <ion-icon :icon="search"> </ion-icon>
+            </ion-button>
+            <ion-button v-if="canFindByIdentifier" class="xl-button full-component-view" color="primary" size="large" router-link="/patients/search/id">
+              <ion-icon :icon="search"> </ion-icon>
+              <ion-label> Find By </ion-label>
+            </ion-button>
+          </ion-col>
 
           <ion-col>
             <ion-button
