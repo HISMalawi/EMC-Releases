@@ -157,25 +157,26 @@ export async function getPatientDashboardAlerts(patient: any): Promise<GeneralDa
 
 export function patientProgramInfoData(patientID: number) {
     let data: any = {}
-    let durationOnArt = ''
-
     return  [
         { 
             label: "ART- Start Date", 
             value: '...',
             init: async () => {
                 data = await ProgramService.getProgramInformation(patientID)
+            },
+            staticValue: () => {
                 const [day, month, year] = data.art_start_date.split('/')
-                durationOnArt = !data.art_start_date.match(/n\/a/i)
+                const durationOnArt = !data.art_start_date.match(/n\/a/i)
                     ? `(${dayjs(Service.getSessionDate()).diff(`${year}-${month}-${day}`, 'months')} Month(s))`
                     : ''
-            },
-            staticValue: () => `${data.art_start_date} ${durationOnArt}`
+                return `${data.art_start_date} ${durationOnArt}`
+            } 
         },
         { 
             label: "ARV Number", 
             value: '...',
-            staticValue: () => `${data.arv_number} | Regimen: ${data.current_regimen}` },
+            staticValue: () => `${data.arv_number} | Regimen: ${data.current_regimen}`
+        },
         { 
             label: "File Number", 
             value: '...',
