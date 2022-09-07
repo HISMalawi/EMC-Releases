@@ -60,7 +60,7 @@ export default defineComponent({
                 })
                 this.rows.push([
                     table.td(d.arv_number),
-                    table.td(d.gender),
+                    table.td(d.gender === "F" ? "Female" : "Male"),
                     table.tdDate(d.birthdate),
                     table.td(d.previous_regimen),
                     table.td(d.current_regimen),

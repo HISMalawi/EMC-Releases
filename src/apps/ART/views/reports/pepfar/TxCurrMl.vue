@@ -117,21 +117,22 @@ export default defineComponent({
             ]
             for(const i in AGE_GROUPS) {
                 const group = AGE_GROUPS[i]
+                const fullGender = gender === "F" ? "Female" : "Male";
                 try {
                     const cohortData = this.cohort[group][gender]
-                    const drillContext = `${gender} ${group}`
+                    const drillContext = `${fullGender}s ${group}`
                     const drillable = cohortData.map(
                         (d: Array<number>, i: number) => this.drilldown(d, `${drillContext} ${contexts[i]}`)
                     )
                     this.rows.push([
                         table.td(group),
-                        table.td(gender),
+                        table.td(fullGender),
                         ...drillable
                     ])
                 }catch(e) {
                     this.rows.push([
                         table.td(group), 
-                        table.td(gender), 
+                        table.td(fullGender), 
                         table.td(0), 
                         table.td(0), 
                         table.td(0), 

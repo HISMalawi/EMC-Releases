@@ -125,7 +125,7 @@ export default defineComponent({
                         row.push(index)
                     } 
                     row.push(this.tdARV(patient.getArvNumber()))
-                    row.push(table.td(patient.getGender()))
+                    row.push(table.td(patient.getGender() === "M" ? "Male" : "Female"))
                     row.push(table.tdDate(patient.getBirthdate().toString()))
                     row.push(table.tdBtn('Show', async () => {
                         await modalController.dismiss({})

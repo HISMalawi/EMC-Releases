@@ -68,7 +68,7 @@ export default defineComponent({
             this.rows = this.sortByArvNumber(data, 'identifier')
                 .map(d => [
                     this.tdARV(d.identifier),
-                    table.td(d.gender),
+                    table.td(d.gender === "F" ? "Female" : "Male"),
                     dateThis(d.dob),
                     table.td(d.drugName),
                     dateThis(d.dispensationDate),

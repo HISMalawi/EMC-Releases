@@ -86,7 +86,7 @@ export default defineComponent({
                     this.tdARV(data.arv_number || 'N/A'),
                     table.td(data.given_name),
                     table.td(data.family_name),
-                    table.td(data.gender),
+                    table.td(data.gender === 'M' ? 'Male' : 'Female'),
                     table.tdDate(data.birthdate),
                     table.td(
                        `District: <br/> <b>${data.district}</b><br/>

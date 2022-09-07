@@ -137,8 +137,8 @@ export default defineComponent({
             this.columns = [this.disaggregatedColumns.concat(results.map((i: any) => table.thTxt(i.label)))]
             for(const ageGroupIndex in AGE_GROUPS) {
                 const group = AGE_GROUPS[ageGroupIndex]
-                const maleRow: any = [table.td(group), table.td('M')]
-                const femaleRow: any = [table.td(group), table.td('F')]
+                const maleRow: any = [table.td(group), table.td('Male')]
+                const femaleRow: any = [table.td(group), table.td('Female')]
                 results.forEach(({other}: Option) => {
                     const filterByGender = (gender: 'F' | 'M') => {
                         return other.filter((i: any) => i.gender === gender && i.ageGroup === group)
@@ -158,7 +158,7 @@ export default defineComponent({
                 this.sortByArvNumber(other, 'arv').forEach((d: any) => {
                     this.rows.push([
                         this.tdARV(d.arv),
-                        table.td(d.gender),
+                        table.td(d.gender === 'M' ? 'Male' : 'Female'),
                         table.tdDate(d.birthdate),
                         table.tdDate(d.ordered),
                         table.td(d.specimen),

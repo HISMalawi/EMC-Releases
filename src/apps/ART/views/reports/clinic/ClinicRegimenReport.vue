@@ -63,7 +63,7 @@ export default defineComponent({
                 })
                 this.rows.push([
                     table.td(d.arv_number),
-                    table.td(d.gender),
+                    table.td(d.gender === 'M' ? 'Male' : 'Female'),
                     table.tdDate(d.birthdate),
                     table.tdDate(d.art_start_date),
                     table.td(d.current_weight),

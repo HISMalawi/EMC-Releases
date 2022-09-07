@@ -68,7 +68,7 @@ export default defineComponent({
             this.sortByArvNumber(data).forEach((d: any) => {
                this.rows.push([
                     table.td(d.arv_number),
-                    table.td(d.gender),
+                    table.td(d.gender === 'M' ? 'Male' : 'Female'),
                     table.tdDate(d.birthdate)
                ])
             })
