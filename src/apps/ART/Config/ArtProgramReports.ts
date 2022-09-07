@@ -103,6 +103,10 @@ export const REPORTS: FolderInterface[] = [
                 name: 'Stock card report',
                 pathName: 'stock_card_report',
                 condition: () => Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED')
+            },
+            {
+                name: 'TX RTT',
+                pathUrl: '/art/report/clinic_tx_rtt'
             }
         ]
     },

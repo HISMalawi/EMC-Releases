@@ -18,6 +18,10 @@ export class TxReportService extends ArtReportService {
         this.org = org
     }
 
+    getClinicTxRtt() {
+        return this.getReport(`programs/${this.programID}/reports/clinic_tx_rtt`)
+    }
+
     getTxMMDClientLevelData(patients: Array<number>) {
         const params = Url.parameterizeObjToString({
             'start_date': this.startDate,
