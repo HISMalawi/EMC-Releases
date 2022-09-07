@@ -45,7 +45,7 @@ export default defineComponent({
             table.thTxt("Result"), 
             table.thTxt("Released")
         ])
-        this.fields = this.getDateDurationFields()
+        this.fields = this.getDateDurationFields(false, false, 5, null)
     },
     methods: {
         async onPeriod(_: any, config: any) {
