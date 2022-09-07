@@ -13,7 +13,6 @@ import { Order } from '@/interfaces/order';
 import {PROPERTIES} from "@/apps/OPD/config/globalPropertySettings"
 import { selectActivities } from '@/utils/WorkflowTaskHelper';
 import Validation from '@/components/Forms/validations/StandardValidations';
-import { Patientservice } from '@/services/patient_service';
 import { ObservationService } from '@/services/observation_service';
 import Store from "@/composables/ApiStore"
 
@@ -36,12 +35,21 @@ async function onRegisterPatient(patientId: number) {
   )
 }
 
-async function formatPatientProgramSummary(_: any, patientId: number) {
-  const patient: Patientservice = await Store.get('ACTIVE_PATIENT', { patientID: patientId })
-  const hivStatus = await ObservationService.getFirstValueText(patient.getID(), 'HIV Status')
+function patientProgramInfoData(patientID: number) {
   return [
-    { label: 'Malawi National ID', value: patient.getMWNationalID() },
-    { label: 'HIV Status', value: hivStatus || 'Unknown' },
+    { 
+      label: 'Malawi National ID', 
+      value: '...',
+      asyncValue: async () => {
+        const patient = await Store.get('ACTIVE_PATIENT', { patientID })
+        return patient ? patient.getMWNationalID() : 'unknown'
+      },
+    },
+    { 
+      label: 'HIV Status',
+      value: '...',
+      asyncValue: async () => (await ObservationService.getFirstValueText(patientID, 'HIV Status')) || 'N/A'
+    }
   ]
 }
 
@@ -124,7 +132,7 @@ const OPD: AppInterface = {
   homeOverviewComponent: HomeOverview,
   globalPropertySettings: PROPERTIES,
   onRegisterPatient,
-  formatPatientProgramSummary,
+  patientProgramInfoData,
   confirmationSummary,
   init: async () => await selectActivities(PRIMARY_ACTIVITIES, 'OPD_activities'),
   programPatientIdentifiers: {
