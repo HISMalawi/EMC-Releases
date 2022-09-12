@@ -52,6 +52,7 @@ export class StockReportService extends ArtReportService {
             return {
                 drugName: drug.drug_name,
                 currentQuantity,
+                quantityIsTabs: drug.pack_size === null,
                 expiryDate
             }
         })

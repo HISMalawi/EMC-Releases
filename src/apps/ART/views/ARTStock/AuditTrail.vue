@@ -68,7 +68,7 @@ export default defineComponent({
                                 table.td(s.drug_name),
                                 table.tdDate(s.transaction_date),
                                 table.td(s.transaction_type),
-                                table.td(s.amount_committed_to_stock),
+                                table.tdNum(s.amount_committed_to_stock),
                                 table.td(s.username),
                                 table.td(s.transaction_reason),
                             ])

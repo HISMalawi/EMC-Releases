@@ -67,12 +67,12 @@ export default defineComponent({
                     table.td(s),
                     table.td(vals[s]['drug_name']),
                     table.td('Tins'),
-                    table.td(vals[s]['Closing balance']),
-                    table.td(vals[s]['Losses']),
-                    table.td(vals[s]['Positive adjustment']),
-                    table.td(vals[s]['Negative adjustment']),
-                    table.td(vals[s]['Quantity used']),
-                    table.td(vals[s]['Quantity receieved']),
+                    table.tdNum(vals[s]['Closing balance']),
+                    table.tdNum(vals[s]['Losses']),
+                    table.tdNum(vals[s]['Positive adjustment']),
+                    table.tdNum(vals[s]['Negative adjustment']),
+                    table.tdNum(vals[s]['Quantity used']),
+                    table.tdNum(vals[s]['Quantity receieved']),
                 ])
             })
         }

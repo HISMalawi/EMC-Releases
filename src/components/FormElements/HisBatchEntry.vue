@@ -19,7 +19,7 @@
               <ion-col> 
                 <ion-item> 
                   <ion-label position="floating">Total Tins</ion-label>
-                  <ion-input readonly placeholder="0" :value="entry.tins" @click="enterTins(ind)"></ion-input>
+                  <ion-input readonly placeholder="0" :value="fmtNumber(entry.tins)" @click="enterTins(ind)"></ion-input>
                 </ion-item>
               </ion-col>
               <ion-col> 
@@ -70,6 +70,7 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { Service } from "@/services/service";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
 import { CHARACTERS_AND_NUMBERS_LO } from "../Keyboard/KbLayouts";
+import { toNumString } from "@/utils/Strs";
 
 export default defineComponent({
   components: { HisTextInput, ViewPort, IonInput, IonLabel, IonList, IonItem, IonGrid, IonCol, IonRow, IonButton },
@@ -86,6 +87,9 @@ export default defineComponent({
     this.init()
   },
   methods: {
+    fmtNumber(num: number | string) {
+      return toNumString(num)
+    },
     async init() {
       this.$emit("onFieldActivated", this);
       await this.setDefaultValue();
