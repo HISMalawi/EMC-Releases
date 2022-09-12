@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 /**
  * Check for null values and Empty spaces
  * Best used for testing single words
@@ -32,6 +34,13 @@ export function getNumberOrdinal(n: number) {
 
 export function AppendleadingZero(num: number) {
     return num < 10 ? `0${num}` : num
+}
+
+export function toDate(date: string | Date) {
+    if (date) {
+        return dayjs(date).format('DD/MMM/YYYY')
+    }
+    return date
 }
 
 export function toNumString(num: number | string) {

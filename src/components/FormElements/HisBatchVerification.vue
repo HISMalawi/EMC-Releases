@@ -20,7 +20,7 @@
               <ion-col> 
                 <ion-item>
                   <ion-label position="floating">Expiry Date</ion-label>
-                  <ion-input readonly :value="entry.expiry_date"></ion-input>
+                  <ion-input readonly :value="fmtDate(entry.expiry_date)"></ion-input>
                 </ion-item>
               </ion-col>
               <ion-col> 
@@ -63,7 +63,7 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { FieldType } from "../Forms/BaseFormElements";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
 import { isEmpty } from "lodash";
-import { toNumString } from "@/utils/Strs";
+import { toDate, toNumString } from "@/utils/Strs";
 
 export default defineComponent({
   components: { ViewPort, HisTextInput, IonGrid, IonCol, IonRow, IonButton },
@@ -87,6 +87,9 @@ export default defineComponent({
     },
     fmtNumber(num: number | string) {
       return toNumString(num)
+    },
+    fmtDate(date: string) {
+      return toDate(date)
     },
     async setDefaultValue() {
       if (!isEmpty(this.drugs)) {
