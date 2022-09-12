@@ -10,9 +10,16 @@ export class StockReportService extends ArtReportService {
     async loadStock() {
         this.stock = await ArtReportService.getJson(`pharmacy/items`, { paginate: false })
     }
-    async loadTrail() {
-        return await ArtReportService.getJson(`pharmacy/audit_trail`, { paginate: false })
+    
+    loadAllTrail() {
+        return ArtReportService.getJson(`pharmacy/audit_trail`, { paginate: false })
+
     }
+
+    loadTrail() {
+        return this.getReport('pharmacy/audit_trail')
+    }
+
     /**Code adapted from BHT-Core Art system */
     groupStock() {
         const pharmacyData: any = {};

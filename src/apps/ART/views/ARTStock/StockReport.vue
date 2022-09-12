@@ -33,7 +33,7 @@ export default defineComponent({
     }),
     async created() {
         this.report = new StockReportService()
-        const stock = await this.report.loadTrail()
+        const stock = await this.report.loadAllTrail()
         this.createStock(stock);
 
     },
