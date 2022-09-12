@@ -122,7 +122,7 @@ export default defineComponent({
           beforeNext: (_: any, f: any, c: any, {currentFieldContext}: any) => {
             const drugsToStr = (drugs: any) => drugs.map((b: any, i: number) => `${b.label}`).join(' & ')
             const drugsWithoutBatches = currentFieldContext.drugs.filter((drug: any) =>
-              drug.entries.map((d: any) => !d.tins && !d.expiry && !d.batchNumber).every(Boolean)
+              drug.entries.map((d: any) => !d.tins && !d.expiry && !d.batchNumber && !d.productCode).every(Boolean)
             )
             const partialBatches = currentFieldContext.drugs.filter((drug: any) => {
               return drug.entries.map((e: any) => {
@@ -130,7 +130,8 @@ export default defineComponent({
                 if (e.tins) score += 1
                 if (e.expiry) score += 1
                 if (e.batchNumber) score += 1
-                return score >= 1 && score <= 2 
+                if (e.productCode) score += 1
+                return score >= 1 && score <= 3 
               }).some(Boolean)
             })
             if (!isEmpty(partialBatches)) {
@@ -165,6 +166,7 @@ export default defineComponent({
         "Total units",
         "Expiry date",
         "Batch number",
+        "Product code"
       ];
       const rows = d.map((j: any) => {
         const d = j.value;
@@ -174,6 +176,7 @@ export default defineComponent({
           d.tins,
           HisDate.toStandardHisDisplayFormat(d.expiry),
           d.batchNumber,
+          d.productCode,
         ];
       });
       return [
@@ -192,6 +195,7 @@ export default defineComponent({
         const element = el.value;
         items.push({
           'batch_number': element.batchNumber,
+          'product_code': element.productCode,
           'location_id': location,
           items: [
             {
