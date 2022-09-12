@@ -64,7 +64,7 @@ export default defineComponent({
         ] as ColumnInterface[][],
       }
     },
-    mounted() {
+    updated() {
       this.initTable()
     },
     methods: {
