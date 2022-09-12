@@ -36,6 +36,7 @@ import { DispensationService } from "../../services/dispensation_service";
 import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { AppEncounterService } from "@/services/app_encounter_service";
 import Store from "@/composables/ApiStore"
+import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 
 export default defineComponent({
   mixins: [AdherenceMixinVue],
@@ -1286,6 +1287,63 @@ export default defineComponent({
             "Aborted course of IPT in the past",
             "Never taken IPT or 3HP"
           ])
+        },
+        ...generateDateFields({
+          id: 'date_started_tpt',
+          helpText: 'Started TPT Treatment',
+          required: true,
+          minDate: () => this.patient.getBirthdate(),
+          maxDate: () => ConsultationService.getSessionDate(),
+          condition: (f: any) => f.routine_tb_therapy.value.match(/currently|aborted/i),
+          computeValue: (date: string, isEstimate: boolean) => {
+            if (isEstimate) {
+              return {
+                tag: 'consultation',
+                obs: this.consultation.buildValueDateEstimated('TPT Start Date', date)
+              }
+            } else {
+              return {
+                tag: 'consultation',
+                obs: this.consultation.buildValueDate('TPT Start Date', date) 
+              }
+            }
+          },
+          estimation: {
+            allowUnknown: true,
+            estimationFieldType: EstimationFieldType.MONTH_ESTIMATE_FIELD
+          }
+        }),
+        {
+          id: "tpt_drugs_received",
+          helpText: "TPT Drugs Received",
+          required: true,
+          condition: (f: any) => f.routine_tb_therapy.value.match(/currently|aborted/i),
+          type: FieldType.TT_TPT_DRUGS_INPUT,
+          options: (f: any) => {
+            console.log(f);
+            return [{
+              label: "3HP (RFP + INH)",
+              value: '3HP (RFP + INH)'
+            }]
+          }
+        },
+        {
+          id: 'location_of_tpt_initialization',
+          helpText: 'Location of TPT initiation',
+          type: FieldType.TT_SELECT,
+          computedValue: ({label}: Option) => ({
+              tag:'reg',
+              obs: this.consultation.buildValueText(
+                  'Location of TPT initiation', label
+              )
+          }),
+          validation: (val: any) => Validation.required(val),
+          condition: (f: any) => f.routine_tb_therapy.value.match(/currently|aborted/i),
+          options: (_: any, filter='') => getFacilities(filter),
+          config: {
+              showKeyboard: true,
+              isFilterDataViaApi: true
+          }
         },
         {
           id: "allergic_to_sulphur",
