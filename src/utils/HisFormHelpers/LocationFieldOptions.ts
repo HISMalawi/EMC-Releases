@@ -4,7 +4,7 @@ import { isEmpty } from "lodash"
 
 export async function getFacilities(filter=''): Promise<Option[]> {
     const facilities = await LocationService.getFacilities({name: filter})
-    return facilities.filter((f: any) => !isEmpty(f))
+    return facilities.filter((f: any) => !isEmpty(f) && f.name.trim() !='')
         .map((facility: any) => ({
             label: facility.name,
             value: facility.location_id,
