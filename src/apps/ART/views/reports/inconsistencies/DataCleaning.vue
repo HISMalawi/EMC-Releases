@@ -117,7 +117,7 @@ export default defineComponent({
                     table.td(d.patient_id),
                     table.td(d.given_name),
                     table.td(d.family_name),
-                    table.td(d.gender),
+                    table.td(this.formatGender(d.gender)),
                     table.tdDate(d.birthdate),
                     ...additionalData,
                     this.masterCardBtn(d.patient_id)
@@ -205,7 +205,7 @@ export default defineComponent({
                                 table.td(d.national_id),
                                 table.td(d.given_name),
                                 table.td(d.family_name),
-                                table.td(d.gender === 'M' ? 'Male' : 'Female'),
+                                table.td(this.formatGender(d.gender)),
                                 table.tdDate(d.birthdate),
                                 table.td(d.dates.map((dt: any) => this.toDate(dt)).join('<br/>')),
                                 this.masterCardBtn(parseInt(pID.toString()))
@@ -240,7 +240,7 @@ export default defineComponent({
                                     table.td(d.name),
                                     table.tdDate(d.earliest_start_date),
                                     table.tdDate(d.date_enrolled),
-                                    table.td(d.gender === 'M' ? 'Male' : 'Female'),
+                                    table.td(this.formatGender(d.gender)),
                                     table.tdDate(d.birthdate),
                                     this.masterCardBtn(d.patient_id)
                                 ])

@@ -114,7 +114,7 @@ export default defineComponent({
             for(const i in AGE_GROUPS) {
                 const group = AGE_GROUPS[i]
                 const cohortData = this.cohort[group][gender]
-                const fullGender = gender === "F" ? "Female" : "Male"
+                const fullGender =  this.formatGender(gender)
                 this.rows.push([
                     table.td(group),
                     table.td(fullGender),

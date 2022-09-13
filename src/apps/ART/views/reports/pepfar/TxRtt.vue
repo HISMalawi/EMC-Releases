@@ -62,7 +62,7 @@ export default defineComponent({
             }
             for(const i in AGE_GROUPS) {
                 const group = AGE_GROUPS[i]
-                const fullGender = gender === "F" ? "Female" : "Male";
+                const fullGender = this.formatGender(gender);
                 if (group in this.cohort) {
                     const cohortData = this.cohort[group][gender]
                     const s = (comparator: Function) => sortData(cohortData, comparator)

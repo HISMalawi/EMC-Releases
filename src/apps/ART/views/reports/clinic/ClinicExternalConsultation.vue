@@ -62,7 +62,7 @@ export default defineComponent({
                     table.td(d.patient_type),
                     table.td(d.given_name),
                     table.td(d.family_name),
-                    table.td(d.gender === 'M' ? 'Male' : 'Female'),
+                    table.td(this.formatGender(d.gender)),
                     table.tdDate(d.birthdate),
                     table.tdDate(d.date_set)
                 ])

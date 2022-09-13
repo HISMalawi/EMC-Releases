@@ -46,7 +46,7 @@ export default defineComponent({
             table.td(d.given_name),
             table.td(d.family_name),
             table.tdDate(d.birthdate),
-            table.td(d.gender === 'M' ? 'Male' : 'Female'),
+            table.td(this.formatGender(d.gender)),
             table.tdDate(d.start_date),
             table.tdBtn('View', () => this.$router.push({ path: `/patient/dashboard/${d.patient_id}`}))
         ])
@@ -80,7 +80,7 @@ export default defineComponent({
                                 table.td(d.given_name),
                                 table.td(d.family_name),
                                 table.tdDate(d.birthdate),
-                                table.td(d.gender === 'M' ? 'Male' : 'Female'),
+                                table.td(this.formatGender(d.gender)),
                                 table.tdDate(d.start_date),
                                 table.td(d.transferred_out_to),
                                 table.tdBtn('View', () => this.$router.push({ path: `/patient/dashboard/${d.patient_id}`}))

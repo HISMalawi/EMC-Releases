@@ -106,7 +106,7 @@ export default defineComponent({
             return table.tdLink(patients.length, () => this.drilldownAsyncRows(context, columns, asyncRows))
         },
         setRows(gender: 'M' | 'F') {
-            const fullGender = gender === 'M' ? 'Male' : 'Female'
+            const fullGender = this.formatGender(gender)
             for(const ageIndex in AGE_GROUPS) {
                 const group = AGE_GROUPS[ageIndex]
                 const location = this.cohort['Location'];

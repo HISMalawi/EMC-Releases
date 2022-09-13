@@ -158,7 +158,7 @@ export default defineComponent({
                 this.sortByArvNumber(other, 'arv').forEach((d: any) => {
                     this.rows.push([
                         this.tdARV(d.arv),
-                        table.td(d.gender === 'M' ? 'Male' : 'Female'),
+                        table.td(this.formatGender(d.gender)),
                         table.tdDate(d.birthdate),
                         table.tdDate(d.ordered),
                         table.td(d.specimen),

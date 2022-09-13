@@ -95,7 +95,7 @@ export default defineComponent({
           this.sortByArvNumber(patients).map((p: any) => ([
             this.tdARV(p.arv_number), 
             table.tdDate(p.birthdate), 
-            table.td(p.gender === 'M' ? 'Male' : 'Female'),
+            table.td(this.formatGender(p.gender)),
             table.tdBtn('Show', () => this.$router.push({ path: `/patient/dashboard/${p.patient_id}`}))
           ]))
         return table.tdLink(patients.length, () => this.drilldownAsyncRows(context, columns, asyncRows))
@@ -172,7 +172,7 @@ export default defineComponent({
       ])
     },
     async setRows(gender: 'M' | 'F') {
-      const fullGender = gender === 'M' ? 'Male' : 'Female'
+      const fullGender = this.formatGender(gender)
       for (const group of AGE_GROUPS) {
         if (group in this.cohort) {
           const cohortData = this.cohort[group];
