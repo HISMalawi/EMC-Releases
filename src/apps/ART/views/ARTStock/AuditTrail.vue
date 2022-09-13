@@ -23,6 +23,7 @@ export default defineComponent({
         stock: [] as Array<any>,
         columns: [
             [
+                table.thTxt('Batch Number'),
                 table.thTxt('Medication'), 
                 table.thTxt('Transaction date'), 
                 table.thTxt('Transaction type'),
@@ -37,6 +38,7 @@ export default defineComponent({
         const stock = await this.report.loadTrail()
         stock.forEach((s: any) => {
             this.rows.push([
+                table.td(s.batch_number),
                 table.td(s.drug_name),
                 table.tdDate(s.transaction_date),
                 table.td(s.transaction_type),
