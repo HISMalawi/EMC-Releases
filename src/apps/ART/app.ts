@@ -9,7 +9,7 @@ import {
     appStore,
     confirmationSummary,
     onRegisterPatient,
-    formatPatientProgramSummary,
+    patientProgramInfoData,
     getPatientDashboardAlerts,
     getPatientDashboardLabOrderCardItems,
 } from "@/apps/ART/Config/ArtAppScripts"
@@ -30,7 +30,7 @@ const ART: AppInterface = {
     appStore,
     homeOverviewComponent,
     confirmationSummary,
-    formatPatientProgramSummary,
+    patientProgramInfoData,
     getPatientDashboardAlerts,
     onRegisterPatient,
     getPatientDashboardLabOrderCardItems,

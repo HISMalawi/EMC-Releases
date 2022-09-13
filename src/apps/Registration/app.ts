@@ -1,14 +1,13 @@
-import { AppInterface, GeneralDataInterface } from '@/apps/interfaces/AppInterface';
+import { AppInterface } from '@/apps/interfaces/AppInterface';
 import HomeOverview from "@/apps/Registration/components/HomeOverview.vue";
 import { PRIMARY_ACTIVITIES} from '@/apps/Registration/config/programActivities';
 import { REPORTS } from '@/apps/Registration/config/programReports';
 import opdRoutes from '@/apps/Registration/config/routes';
 import { PatientProgramService } from '@/services/patient_program_service';
-import { RelationshipService } from '@/services/relationship_service';
 import Validation from '@/components/Forms/validations/StandardValidations';
-import { Patientservice } from '@/services/patient_service';
 import router from '@/router/index';
 import { AppEncounterService } from '@/services/app_encounter_service';
+import Store from "@/composables/ApiStore"
 
 declare global {
   interface Navigator {
@@ -31,15 +30,20 @@ async function onRegisterPatient(patientId: number) {
   return true
 }
 
-async function formatPatientProgramSummary(_: any, patientId: number) {
-  const p = await Patientservice.findByID(patientId)
-  const patient = new Patientservice(p)
+function patientProgramInfoData(patientID: number) {
+  let patient: any = {}
   return [
-    { label: 'Malawi National ID', value: patient.getMWNationalID() }
+    { 
+      label: 'Malawi National ID',
+      value: '...',
+      init: async () => {
+        patient = await Store.get('ACTIVE_PATIENT', { patientID })
+      },
+      staticValue: () => patient.getMWNationalID() }
   ]
 }
 
-function confirmationSummary(patient: any, program: any) {
+function confirmationSummary(patient: any) {
   return {
     'PATIENT IDENTIFIERS': () => ([
       {
@@ -62,7 +66,7 @@ const Registration: AppInterface = {
   secondaryPatientActivites: PRIMARY_ACTIVITIES,
   homeOverviewComponent: HomeOverview,
   onRegisterPatient,
-  formatPatientProgramSummary,
+  patientProgramInfoData,
   confirmationSummary,
   programPatientIdentifiers: {
     'National ID': {
