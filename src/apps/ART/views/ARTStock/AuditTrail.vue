@@ -1,9 +1,19 @@
 <template>
     <report-template
         :title="title"
-        :rows="rows" 
-        :columns="columns"
-        > 
+        :rows="rows"
+        :paginated="true"
+        :customBtns="[
+            {
+                name: 'DATE',
+                size: 'large',
+                slot: 'end',
+                color: 'warning',
+                visible: true,
+                onClick: setReport
+            }
+        ]"
+        :columns="columns"> 
     </report-template>
 </template>
 
@@ -13,6 +23,9 @@ import { StockReportService } from "@/apps/ART/services/reports/stock_report_ser
 import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
 import ReportTemplate from "@/apps/ART/views/reports/BasicReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
+import { MultiStepPopupForm } from "@/utils/PopupKeyboard"
+import { toastDanger } from '@/utils/Alerts'
+import { loadingController, modalController } from '@ionic/core'
 
 export default defineComponent({
     mixins: [ReportMixin],
@@ -20,7 +33,6 @@ export default defineComponent({
     data: () => ({
         title: 'Audit trail',
         rows: [] as Array<any>,
-        stock: [] as Array<any>,
         columns: [
             [
                 table.thTxt('Batch Number'),
@@ -33,20 +45,43 @@ export default defineComponent({
             ]
         ]
     }),
-    async created() {
-        this.report = new StockReportService()
-        const stock = await this.report.loadTrail()
-        stock.forEach((s: any) => {
-            this.rows.push([
-                table.td(s.batch_number),
-                table.td(s.drug_name),
-                table.tdDate(s.transaction_date),
-                table.td(s.transaction_type),
-                table.td(s.amount_committed_to_stock),
-                table.td(s.username),
-                table.td(s.transaction_reason),
-            ])
-        })
+    mounted() {
+        this.setReport()
+    },
+    methods: {
+        setReport() {
+            this.rows = []
+            MultiStepPopupForm(this.getDateDurationFields(),
+            async (_: any, c: any) => {
+                await modalController.dismiss();
+                (await loadingController.create({
+                    message: 'Please wait',
+                    backdropDismiss: false
+                })).present()
+                this.report = new StockReportService()
+                this.report.setStartDate(c.start_date)
+                this.report.setEndDate(c.end_date)
+                this.title = `Audit trail ${this.report.getDateIntervalPeriod()}`
+                this.report.loadTrail()
+                    .then((stock: any) => {
+                        stock.forEach((s: any) => {
+                            this.rows.push([
+                                table.td(s.batch_number),
+                                table.td(s.drug_name),
+                                table.tdDate(s.transaction_date),
+                                table.td(s.transaction_type),
+                                table.tdNum(s.amount_committed_to_stock),
+                                table.td(s.username),
+                                table.td(s.transaction_reason),
+                            ])
+                        })
+                        loadingController.dismiss()
+                    }).catch((e: any) => {
+                        loadingController.dismiss()
+                        toastDanger(e)
+                    })
+            })
+        }
     }
 })
 </script>

@@ -20,7 +20,7 @@
               <ion-col> 
                 <ion-item>
                   <ion-label position="floating">Expiry Date</ion-label>
-                  <ion-input readonly :value="entry.expiry_date"></ion-input>
+                  <ion-input readonly :value="fmtDate(entry.expiry_date)"></ion-input>
                 </ion-item>
               </ion-col>
               <ion-col> 
@@ -29,7 +29,7 @@
                   <ion-input 
                     readonly 
                     placeholder="0"
-                    :value="entry.current_quantity"
+                    :value="fmtNumber(entry.current_quantity)"
                     :color="entry.current_quantity != entry.originalQuantity ? 'success': ''">
                   </ion-input>
                 </ion-item>
@@ -63,6 +63,7 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { FieldType } from "../Forms/BaseFormElements";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
 import { isEmpty } from "lodash";
+import { toDate, toNumString } from "@/utils/Strs";
 
 export default defineComponent({
   components: { ViewPort, HisTextInput, IonGrid, IonCol, IonRow, IonButton },
@@ -83,6 +84,12 @@ export default defineComponent({
       this.$emit("onFieldActivated", this);
       this.stockService = new StockService();
       await this.setDefaultValue();
+    },
+    fmtNumber(num: number | string) {
+      return toNumString(num)
+    },
+    fmtDate(date: string) {
+      return toDate(date)
     },
     async setDefaultValue() {
       if (!isEmpty(this.drugs)) {

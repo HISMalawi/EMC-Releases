@@ -23,7 +23,7 @@
                   <ion-input 
                     readonly 
                     placeholder="0" 
-                    :value="entry.tins" 
+                    :value="fmtNumber(entry.tins)" 
                     @click="enterTins(ind)">
                   </ion-input>
                 </ion-item>
@@ -54,6 +54,7 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { Field, Option } from "../Forms/FieldInterface";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
 import TouchField from "@/components/Forms/SIngleTouchField.vue"
+import { toNumString } from "@/utils/Strs";
 
 export default defineComponent({
   components: { 
@@ -80,6 +81,9 @@ export default defineComponent({
     async init() {
       this.$emit("onFieldActivated", this);
       await this.setDefaultValue();
+    },
+    fmtNumber(num: number | string) {
+      return toNumString(num)
     },
     async setDefaultValue() {
       const incomingDrugs = await this.options();
