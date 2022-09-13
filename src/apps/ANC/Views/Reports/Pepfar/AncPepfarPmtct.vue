@@ -18,21 +18,18 @@
 
 <script lang='ts'>
 import { defineComponent } from 'vue'
-import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
 import { AncPepfarReportService } from '@/apps/ANC/Services/anc_pepfar_report_service'
-import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
-import { toastDanger } from '@/utils/Alerts'
+import AncReport from "@/apps/ANC/composables/AncReport"
+import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import HisDate from "@/utils/Date"
-
 export default defineComponent({
-    mixins: [ReportMixin],
     components: { ReportTemplate },
-    data: () => ({
-        title: 'PMTCT STAT',
-        rows: [] as Array<any>,
-        columns: [
-            [       
+    setup() {
+        const r =  AncReport('PMTCT STAT')
+        const { data, drill } = r
+        data.columns = [
+            [
                 table.thTxt('Age group'),
                 table.thTxt('Gender'),
                 table.thTxt('Known positive'),
@@ -44,34 +41,32 @@ export default defineComponent({
                 table.thTxt('Already on ART')
             ]
         ]
-    }),
-    created() {
-        this.fields = this.getDateDurationFields()
-    },
-    methods: {
-        async onPeriod(_: any, config: any) {
-            this.rows = []
-            const d = (d: string) => HisDate.toStandardHisDisplayFormat(d)
-            this.report = new AncPepfarReportService()
-            this.report.setStartDate(config.start_date)
-            this.report.setEndDate(config.end_date)
-            this.period = `${d(config.start_date)} - ${d(config.end_date)}`
-            await this.report.generatePmtctStatArt()
-                .then((data: any) => {
-                    data.forEach((d: any) => {
-                        this.rows.push([
-                            table.td(d.age_group),
-                            table.td('Female'),
-                            this.drill(d.known_positive, `Known positive ${d.age_group}`),
-                            this.drill(d.newly_tested_positives, `Newly Tested Positives ${d.age_group}`),
-                            this.drill(d.new_negatives, `New Negatives ${d.age_group}`),
-                            this.drill(d.recent_negatives, `Recent negative ${d.age_group}`),
-                            this.drill(d.not_done, `Not Done ${d.age_group}`),
-                            this.drill(d.new_on_art, `New on ART ${d.age_group}`),
-                            this.drill(d.already_on_art, `Already on ART ${d.age_group}`)
-                        ])
-                    })
-                }).catch((e: any) => toastDanger(`${e}`))
+        const d = (date: string) => HisDate.toStandardHisDisplayFormat(date)
+
+        const onPeriod = async (_: any, config: any) => {
+            data.rows = []
+            const report = new AncPepfarReportService()
+            report.setStartDate(config.start_date)
+            report.setEndDate(config.end_date)
+            data.period = `${d(config.start_date)} to ${d(config.end_date)}`
+            const stats = await report.generatePmtctStatArt()
+            stats.forEach((d: any) => {
+                data.rows.push([
+                    table.td(d.age_group),
+                    table.td('Female'),
+                    drill(d.known_positive, { title: `Known positive ${d.age_group}`}),
+                    drill(d.newly_tested_positives, { title: `Newly Tested Positives ${d.age_group}`}),
+                    drill(d.new_negatives, { title: `New Negatives ${d.age_group}`}),
+                    drill(d.recent_negatives, { title: `Recent negative ${d.age_group}`}),
+                    drill(d.not_done, { title: `Not Done ${d.age_group}`}),
+                    drill(d.new_on_art, { title: `New on ART ${d.age_group}`}),
+                    drill(d.already_on_art, { title: `Already on ART ${d.age_group}` })
+                ])
+            })
+        }
+        return {
+            ...r,
+            onPeriod
         }
     }
 })
