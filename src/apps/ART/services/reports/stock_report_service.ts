@@ -11,9 +11,8 @@ export class StockReportService extends ArtReportService {
         this.stock = await ArtReportService.getJson(`pharmacy/items`, { paginate: false })
     }
     
-    loadAllTrail() {
-        return ArtReportService.getJson(`pharmacy/audit_trail`, { paginate: false })
-
+    getStockReport() {
+        return ArtReportService.getJson(`pharmacy/stock_report`, { paginate: false })
     }
 
     loadTrail() {

@@ -35,7 +35,7 @@ export default defineComponent({
         rows: [] as Array<any>,
         columns: [
             [
-                table.thTxt('Batch Number'),
+                table.thTxt('Product Code'),
                 table.thTxt('Medication'), 
                 table.thTxt('Transaction date'), 
                 table.thTxt('Transaction type'),
@@ -66,7 +66,7 @@ export default defineComponent({
                     .then((stock: any) => {
                         stock.forEach((s: any) => {
                             this.rows.push([
-                                table.td(s.batch_number),
+                                table.td(s.product_code || ''),
                                 table.td(s.drug_name),
                                 table.tdDate(s.transaction_date),
                                 table.td(s.transaction_type),

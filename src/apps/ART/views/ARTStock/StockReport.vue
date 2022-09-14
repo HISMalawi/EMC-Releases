@@ -19,7 +19,7 @@ export default defineComponent({
         stock: [] as Array<any>,
         columns: [
             [
-                table.thTxt('Batch Number'),
+                table.thTxt('Product Code'),
                 table.thTxt('Medication'),
                 table.thTxt('Units'),
                 table.thTxt('Closing Balance'),
@@ -33,49 +33,21 @@ export default defineComponent({
     }),
     async created() {
         this.report = new StockReportService()
-        const stock = await this.report.loadAllTrail()
-        this.createStock(stock);
+        const stocks: any[] = await this.report.getStockReport()
+        stocks.forEach(s => {
+            this.rows.push([
+                table.td(s.product_code || ''),
+                table.td(s.drug_name),
+                table.td(s.units),
+                table.td(s.closing_balance),
+                table.td(s.losses),
+                table.td(s.positive_adjustment),
+                table.td(s.negative_adjustment),
+                table.td(s.quantity_used),
+                table.td(s.quantity_received),
+            ])
+        })
 
     },
-    methods: {
-        createStock(stock: any) {
-            const vals: any = {};
-            stock.forEach((element: any) => {
-                if (!vals[element.batch_number]) {
-                    vals[element.batch_number] = {
-                        'drug_name': element.drug_name,
-                        'drug_id': element.drug_id,
-                        'Closing balance': 0,
-                        'Losses': 0,
-                        'Positive adjustment': 0,
-                        'Negative adjustment': 0,
-                        'Quantity used': 0,
-                        'Quantity receieved': 0
-                    }
-                }
-                const stockValue = element.amount_committed_to_stock;
-                vals[element.batch_number]['Closing balance'] += stockValue;
-                vals[element.batch_number]['Losses'] += ["Expired", "Damaged", "Phased out", "Banned", "Missing",
-                    "For trainings"].includes(element.transaction_reason) ? stockValue : 0;
-                vals[element.batch_number]['Positive adjustment'] += ['Drugs delivered'].includes(element.transaction_reason) ? stockValue : 0;
-                vals[element.batch_number]['Negative adjustment'] += ["Transfer to another facility/relocation"].includes(element.transaction_reason) ? stockValue : 0;
-                vals[element.batch_number]['Quantity used'] += ['Drug dispensed'].includes(element.transaction_reason) ? stockValue : 0;
-                vals[element.batch_number]['Quantity receieved'] += ['Drugs delivered'].includes(element.transaction_reason) ? stockValue : 0;
-            });
-            Object.keys(vals).forEach((s: any) => {
-                this.rows.push([
-                    table.td(s),
-                    table.td(vals[s]['drug_name']),
-                    table.td('Tins'),
-                    table.tdNum(vals[s]['Closing balance']),
-                    table.tdNum(vals[s]['Losses']),
-                    table.tdNum(vals[s]['Positive adjustment']),
-                    table.tdNum(vals[s]['Negative adjustment']),
-                    table.tdNum(vals[s]['Quantity used']),
-                    table.tdNum(vals[s]['Quantity receieved']),
-                ])
-            })
-        }
-    }
 })
 </script>
