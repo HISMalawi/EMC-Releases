@@ -6,12 +6,10 @@
           <b style="color: #8b4513">National </b>
           <b style="color: #cd853f">EMR</b>
         </ion-label>
-      </ion-title>
-      <template #end>
-        <ion-label class="ion-padding">
+        <ion-label class="ion-padding ion-float-end">
           Version: <b>{{ version }}</b>
         </ion-label>
-      </template>
+      </ion-title>
     </ion-toolbar>
   </ion-header>
   <ion-content fullscreen="false">
@@ -107,7 +105,7 @@ export default defineComponent({
     },
     version: {
       type: String,
-      required: true
+      default: '4.4.4'
     }
   },
   components: {
@@ -141,7 +139,8 @@ export default defineComponent({
       },
     };
   }, 
-  setup() {
+  setup(props) {
+    console.log(props.version)
     return {
       useVirtualInput: computed(() => {
         return usePlatform().platformType.value === 'mobile'
