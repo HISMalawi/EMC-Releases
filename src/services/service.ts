@@ -256,4 +256,8 @@ export class Service {
     static isPocSite() {
         return sessionStorage.isPocSite !== "false"
     }
+
+    static getDefaultApp() {
+        return find(HisApps, {applicationName: sessionStorage.defaultApp})
+    }
 }

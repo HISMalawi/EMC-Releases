@@ -354,9 +354,6 @@ export default defineComponent({
     async openModal() {
       const data = await HisApp.selectApplication("HomePage");
       if (data) {
-        if(!data.isPocApp && data.appLandingPage){
-          return this.$router.push(data.appLandingPage)
-        }
         this.app = data;
         this.activeTab = 1;
         this.loadApplicationData();
@@ -411,9 +408,6 @@ export default defineComponent({
       this.openModal();
     } else {
       this.app = app;
-      if (this.app.applicationName === "EMC") {
-        return this.$router.push("/emc/home");
-      }
       this.loadApplicationData();
     }
   },

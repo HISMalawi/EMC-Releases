@@ -12,7 +12,6 @@ const ApiClient = (() => {
         port: string;
         protocol: string;
         thirdpartyapps: string;
-        isPocSite: boolean;
     }
 
     async function getFileConfig(): Promise<Config> {
@@ -21,7 +20,7 @@ const ApiClient = (() => {
             throw 'Unable to retrieve configuration file/ Invalid config.json'
         }
         try {
-            const { apiURL, apiPort, apiProtocol, appConf, apps, thirdpartyApps, isPocSite } = await response.json()
+            const { apiURL, apiPort, apiProtocol, appConf, apps, thirdpartyApps, isPocSite, defaultApp } = await response.json()
             sessionStorage.setItem("apiURL", apiURL);
             sessionStorage.setItem("apiPort", apiPort);
             sessionStorage.setItem("apiProtocol", apiProtocol);
@@ -29,12 +28,12 @@ const ApiClient = (() => {
             sessionStorage.setItem("apps", JSON.stringify(apps));
             sessionStorage.setItem("thirdpartyApps", JSON.stringify(thirdpartyApps))
             sessionStorage.setItem("isPocSite", isPocSite)
+            sessionStorage.setItem("defaultApp", defaultApp)
             return {
                 host: apiURL,
                 port: apiPort,
                 protocol: apiProtocol,
                 thirdpartyapps: thirdpartyApps,
-                isPocSite: isPocSite,
             }
         } catch (e) {
             console.error(e)
@@ -47,9 +46,8 @@ const ApiClient = (() => {
         const port = localStorage.apiPort;
         const protocol = localStorage.apiProtocol;
         const thirdpartyapps = localStorage.thirdpartyApps
-        const isPocSite = localStorage.isPocSite ?? true
         if ((host && port && protocol))
-            return { host, port, protocol, thirdpartyapps, isPocSite }
+            return { host, port, protocol, thirdpartyapps }
     }
 
     function getSessionConfig(): Config | undefined {
@@ -57,9 +55,8 @@ const ApiClient = (() => {
         const port = sessionStorage.apiPort
         const protocol = sessionStorage.apiProtocol
         const thirdpartyapps = sessionStorage.thirdpartyApps
-        const isPocSite = sessionStorage.isPocSite ?? true
         if ((host && port && protocol))
-            return { host, port, protocol, thirdpartyapps, isPocSite }
+            return { host, port, protocol, thirdpartyapps }
     }
 
     function getConfig(): Promise<Config> | Config {
