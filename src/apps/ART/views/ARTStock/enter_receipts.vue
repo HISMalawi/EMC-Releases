@@ -19,6 +19,7 @@ import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { StockService } from "./stock_service";
 import { toastDanger, toastSuccess, toastWarning } from "@/utils/Alerts";
 import { isEmpty } from "lodash";
+import { toNumString } from "@/utils/Strs";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -173,7 +174,7 @@ export default defineComponent({
         return [
           d.shortName,
           d.tabs,
-          d.tins,
+          toNumString(d.tins),
           HisDate.toStandardHisDisplayFormat(d.expiry),
           d.batchNumber,
           d.productCode,
@@ -195,10 +196,10 @@ export default defineComponent({
         const element = el.value;
         items.push({
           'batch_number': element.batchNumber,
-          'product_code': element.productCode,
           'location_id': location,
           items: [
             {
+              'product_code': element.productCode,
               'barcode': barcode,
               'drug_id': element.drugID,
               'expiry_date': element.expiry,
