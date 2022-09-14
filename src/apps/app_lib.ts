@@ -117,7 +117,6 @@ async function selectApplication(context='', canClose=false) {
         cssClass: "large-modal",
         backdropDismiss: false,
         componentProps: {
-            isPocSite: Service.isPocSite(),
             appVersion: Service.getFullVersion(),
             apps: Service.getAvailableApps(),
             canClose

@@ -16,8 +16,8 @@
           size-sm="12">
         <application-card 
           :class="{ 
-            'inactive' : !clickable(app), 
-            'clickable': clickable(app)
+            'inactive' : !app.hasPriviledge, 
+            'clickable': app.hasPriviledge
           }"
           @click="setApplication(app)" 
           :name="app.applicationName" 
@@ -81,9 +81,6 @@ export default defineComponent({
     }
   },
   methods: {
-    clickable (app) {
-      return this.isPocSite === app.isPocApp && app.hasPriviledge
-    },
     closeModal() {
       if (this.noAppPriviledges) {
         this.$router.push('/login');
@@ -95,7 +92,7 @@ export default defineComponent({
       return Img(name)
     },
     setApplication(app) { 
-      if (this.clickable(app)) {
+      if (app.hasPriviledge) {
         modalController.dismiss(app) 
       }
     }

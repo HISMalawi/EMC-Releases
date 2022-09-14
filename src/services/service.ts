@@ -231,7 +231,7 @@ export class Service {
 
     static delay = (ms: number) => new Promise(res => setTimeout(res, ms))
 
-    static getAvailableApps() {
+    static getAvailableApps(isPocSite = this.isPocSite()) {
         const userPrograms = JSON.parse(sessionStorage.getItem('userPrograms') || '[]')
             .map((app: any) => app['program_id'])
         const apps = []
@@ -239,10 +239,14 @@ export class Service {
             const appData: any = find(HisApps, { applicationName : app.name }) || {}
             const userHasPriviledge = isEmpty(userPrograms) || userPrograms.includes(appData.programID)
             if (app.available && !isEmpty(appData)) {
-                apps.push({...appData, hasPriviledge: userHasPriviledge})
+                apps.push({
+                    ...appData, 
+                    hasPriviledge: userHasPriviledge, 
+                    isPocApp: appData.isPocApp !== false
+                })
             }
         }
-        return apps
+        return apps.filter(({ isPocApp }) => isPocSite === isPocApp)
     }
 
     static isUsingLocalStorage() {
