@@ -24,7 +24,9 @@ export function AncReportComposable(reportTitle='Report') {
         columns: [] as Array<any>,
         fields: [] as Field[],
         period: '' as string,
-        drill: [] as any
+        drill: [] as any,
+        service: {} as any,
+        other: {} as Record<string, any>
     })
     const rows = computed(() => reportData.rows)
     const period = computed(() => reportData.period)
@@ -33,6 +35,10 @@ export function AncReportComposable(reportTitle='Report') {
     const title = computed(() => reportData.title)
 
     const router = useRouter()
+
+    function gotoPatientDashboard(patientId: number) {
+        router.push(`/patient/dashboard/${patientId}`)
+    }
 
     // Short function name for formating dates
     function fd(date: string) {
@@ -211,6 +217,7 @@ export function AncReportComposable(reportTitle='Report') {
         getMonthlyReportFields,
         showPrintWindow,
         buildTimeIntervalFields,
+        gotoPatientDashboard,
         reportData,
         rows,
         period,
