@@ -29,7 +29,7 @@
                   <ion-input 
                     readonly 
                     placeholder="0"
-                    :value="fmtNumber(entry.current_quantity)"
+                    :value="fmtNumber(entry.originalQuantity)"
                   >
                   </ion-input>
                 </ion-item>
@@ -118,7 +118,6 @@ export default defineComponent({
     },
     setDrugValue(index: number, type: string, data: Option | null) {
       this.drugs[this.selectedDrug].entries[index][type] = data ? data.value : ''
-
     },
     async enterAmount(index: number) {
       const batchNumber = this.getDrugValue(index, 'batch_number');

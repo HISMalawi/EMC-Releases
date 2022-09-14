@@ -16,6 +16,7 @@ import Validation from "@/components/Forms/validations/StandardValidations";
 import HisDate from "@/utils/Date";
 import  { StockService } from "./stock_service";
 import { toastDanger, toastSuccess } from "@/utils/Alerts";
+import { toNumString } from "@/utils/Strs";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -110,7 +111,7 @@ export default defineComponent({
         const d = j.value;
         return [
           d.shortName,
-          d['current_quantity'],
+          toNumString(d['current_quantity']),
           HisDate.toStandardHisDisplayFormat(d.expiry_date),
         ];
       });
