@@ -30,12 +30,22 @@
                     readonly 
                     placeholder="0"
                     :value="fmtNumber(entry.current_quantity)"
-                    :color="entry.current_quantity != entry.originalQuantity ? 'success': ''">
+                  >
                   </ion-input>
                 </ion-item>
               </ion-col>
               <ion-col> 
-                <ion-button size="large" @click="enterAmount(ind)"> Update Stock </ion-button>
+                <ion-item>
+                  <ion-label position="floating">Verified Stock</ion-label>
+                  <ion-input 
+                    readonly 
+                    placeholder="0"
+                    :value="fmtNumber(entry.current_quantity)"
+                    :color="entry.current_quantity != entry.originalQuantity ? 'danger': 'success'"
+                    @click="enterAmount(ind)"
+                    >
+                  </ion-input>
+                </ion-item>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -51,7 +61,6 @@ import {
   IonGrid,
   IonCol,
   IonRow,
-  IonButton,
   modalController,
 } from "@ionic/vue";
 import { StockService } from "@/apps/ART/views/ARTStock/stock_service";
@@ -66,7 +75,7 @@ import { isEmpty } from "lodash";
 import { toDate, toNumString } from "@/utils/Strs";
 
 export default defineComponent({
-  components: { ViewPort, HisTextInput, IonGrid, IonCol, IonRow, IonButton },
+  components: { ViewPort, HisTextInput, IonGrid, IonCol, IonRow },
   mixins: [FieldMixinVue],
   data: () => ({
     drugs: [] as any,
