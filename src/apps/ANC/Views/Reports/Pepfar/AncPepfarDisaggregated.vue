@@ -23,7 +23,7 @@ import table from "@/components/DataViews/tables/ReportDataTable"
 import { IonPage } from "@ionic/vue"
 import { Field } from '@/components/Forms/FieldInterface'
 import dayjs from 'dayjs'
-import  { AncReportComposable } from '@/apps/ANC/Views/Reports/AncReportComposable'
+import  { AncReportComposable } from '@/apps/ANC/composables/AncReports'
 
 export default defineComponent({
     mixins: [ReportMixin],
@@ -75,7 +75,7 @@ export default defineComponent({
     created() {
         this.report = new AncPepfarReportService()
         this.fields = this.getDateDurationFields()
-        this.drillPatients = AncReportComposable()['drillPatientByIDs']
+        this.drillPatients = AncReportComposable()['drill']
     },
     methods: {
         f(d: string) {

@@ -68,7 +68,7 @@ import { toastDanger } from '@/utils/Alerts'
 import { AncMohReportService } from "@/apps/ANC/Services/anc_moh_report_service"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { toCsv } from "@/utils/Export"
-import  { AncReportComposable } from '@/apps/ANC/Views/Reports/AncReportComposable'
+import  { AncReportComposable } from '@/apps/ANC/composables/AncReports'
 import CohortTemplate from "@/apps/ANC/Views/Reports/Moh/ANCohortTemplate.vue"
 import MonthlyTemplate from "@/apps/ANC/Views/Reports/Moh/AncMohMonthlyReportTemplate.vue"
 import { useRoute, useRouter } from 'vue-router'
@@ -91,7 +91,7 @@ export default defineComponent({
         const router = useRouter()
         const activeTemplateName = route.params['template_id'] as string
         const { 
-            drillPatientByIDs,
+            drill,
             getMonthlyReportFields, 
             showPrintWindow, 
             fd 
@@ -134,7 +134,7 @@ export default defineComponent({
 
         function onIndicatorSelected(indicator: string) {
             const data = reportData.value['values'][indicator]['table']
-            drillPatientByIDs(data['indicator_name'], data['contents'])
+            drill(data['indicator_name'], data['contents'])
         }
 
         function exportPDF() {
