@@ -1,7 +1,7 @@
 import { Option } from '@/components/Forms/FieldInterface';
-import { StoreDef } from '@/composables/storeDefs';
 import { RouteRecordRaw } from 'vue-router';
 import { TaskInterface } from './TaskInterface';
+import { StoreDef } from '../GLOBAL_APP/global_store';
 
 export interface ActivityInterface {
     value: string;
@@ -28,7 +28,10 @@ export interface FolderInterface {
 
 export interface GeneralDataInterface {
     label: string;
-    value: string;
+    value: number | string;
+    init?: () => Promise<void>;
+    staticValue?: () => string | number;
+    asyncValue?: () => Promise<string | number>;
 }
 
 export interface ProgramIdentifierInterface {
@@ -139,7 +142,7 @@ export interface AppInterface {
      * Parse summary data object based on program specific definition and
      * return generic object to be displayed on patient dashboard
      */
-    readonly formatPatientProgramSummary?: (programInfo: any, patientId: number) => Promise<GeneralDataInterface[]> | GeneralDataInterface[];
+    readonly patientProgramInfoData?: (patientId: number) => GeneralDataInterface[];
     /**
      * Callback which retrieves and formats Lab order card on the patient dashboard
      */

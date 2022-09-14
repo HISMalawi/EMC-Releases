@@ -289,6 +289,7 @@ import VisitDatesCard from "@/components/DataViews/VisitDatesCard.vue"
 import Display from "@/composables/display"
 import FullToolbar from "@/components/PatientDashboard/Poc/FullToolbar.vue"
 import Store from "@/composables/ApiStore"
+import { GeneralDataInterface } from "@/apps/interfaces/AppInterface"
 
 export default defineComponent({
     components: {
@@ -349,7 +350,7 @@ export default defineComponent({
         patient: {} as any,
         patientProgram: {} as any,
         patientCardInfo: [] as Array<Option>,
-        programCardInfo: [] as Array<Option> | [],
+        programCardInfo: [] as GeneralDataInterface[] | [],
         visitDates: [] as Array<Option>,
         activeVisitDate: '' as string | number,
         patientCards: [] as Array<any>,
@@ -536,35 +537,17 @@ export default defineComponent({
     },
     methods: {
         initData() {
+            this.programCardInfo = typeof this.app?.patientProgramInfoData === 'function' 
+                ? this.app?.patientProgramInfoData(this.patientId) 
+                : []
             this.currentDate = HisDate.currentDisplayDate()
             this.sessionDate = this.toDate(ProgramService.getSessionDate())
             this.isBDE = ProgramService.isBDE() || false
-            Store.get('ACTIVE_PATIENT', { patientID: this.patientId }).then((patient) => {
-                const setProgramInfo = (data: any) => {
-                    if (typeof data === 'object' && data.then) {
-                        this.getProgramCardInfo(this.patientProgram)
-                            .then((cardData: any) => this.programCardInfo = cardData)
-                            .catch(e => console.error(e))
-                    } else {
-                        const cardData = this.getProgramCardInfo(data)
-                        if (typeof cardData === 'object' && cardData.then) {
-                            cardData.then(d => this.programCardInfo = d)
-                                .catch(e => console.error(e))
-                        }
-                    }
-                }
-                this.patientCardInfo = this.getPatientCardInfo(patient)
-                this.patient = patient
-                ProgramService.getProgramInformation(this.patientId)
-                    .then((data) => {
-                        this.patientProgram = data
-                        setProgramInfo(this.patientProgram)
-                    }).catch(() => {
-                        this.patientProgram = []
-                        setProgramInfo(this.patientProgram)
-                    })
-                this.getNextTask()
-                    .then((task) => this.nextTask = task)
+            Store.get('ACTIVE_PATIENT', { patientID: this.patientId })
+                .then(async (patient) => {
+                    this.patient = patient
+                    this.patientCardInfo = this.getPatientCardInfo(patient)
+                this.getNextTask().then((task) => this.nextTask = task)
                 this.getPatientVisitDates(this.patientId)
                     .then((dates) => {
                         this.visitDates = dates
@@ -572,6 +555,16 @@ export default defineComponent({
                     }).catch((e) => {
                         console.error(e)
                     })
+                for(const p of this.programCardInfo) {
+                    if (typeof p.init === 'function') {
+                        await p.init()
+                    }
+                    if (typeof p.asyncValue === 'function') {
+                        p.asyncValue().then(value => p.value = value)
+                    } else if (typeof p.staticValue === 'function') {
+                        p.value = p.staticValue()
+                    }
+                }
             }).catch((e) => toastDanger(`${e}`))
         },
         isCardEnabled(setting: 'activitiesEnabled' | 'alertsEnabled' | 'medicationsEnabled' | 'labEnabled') {
@@ -642,12 +635,6 @@ export default defineComponent({
                 { label: "Current Village", value: patient.getCurrentVillage() },
                 { label: "Phone#", value: patient.getPhoneNumber()}
             ]
-        },
-        async getProgramCardInfo(info: any) {
-           if ('formatPatientProgramSummary' in this.app) {
-             return this.app.formatPatientProgramSummary(info, this.patientId)
-           }
-           return []
         },
         getActivitiesCardInfo(encounters: Array<Encounter>) {
            return encounters.map((encounter: Encounter) => {

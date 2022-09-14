@@ -25,12 +25,32 @@ const ANC: AppInterface = {
     programReports: REPORTS,
     homeOverviewComponent: HomePageStats,
     init: async () => await selectActivities(PRIMARY_ACTIVITIES),
-    formatPatientProgramSummary(data) {
+    patientProgramInfoData: (patientID: number) => {
+        let data = {} as any
         return [
-            { label: "Date of last ANC visit", value: data.date_of_lnmp || 'N/A' },
-            { label: "Gestation:", value: data.gestation ? `${data.gestation} week(s)` : 'N/A' },
-            { label: "ANC Visits", value: data.anc_visits || 'N/A' },
-            { label: "Current outcome", value: data.current_outcome || 'N/A'}
+            { 
+                label: "Date of last ANC visit",
+                value: '...', 
+                init: async () => {
+                    data = await ProgramService.getProgramInformation(patientID)
+                },
+                staticValue: () => data.date_of_lnmp || 'N/A' 
+            },
+            { 
+                label: "Gestation:",
+                value: '...', 
+                staticValue: () => data.gestation ? `${data.gestation} week(s)` : 'N/A' 
+            },
+            { 
+                label: "ANC Visits",
+                value: '...', 
+                staticValue: () => data.anc_visits || 'N/A' 
+            },
+            { 
+                label: "Current outcome",
+                value: '...', 
+                staticValue: () => data.current_outcome || 'N/A'
+            }
         ]
     },
     confirmationSummary(data: Patientservice, program: any) { 
