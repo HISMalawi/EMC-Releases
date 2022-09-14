@@ -135,7 +135,7 @@ export default defineComponent({
 					condition: () => this.isProp(prop),
 					computedValue: (v: Option) => v.value,
 					defaultValue: () => ART_PROP.clinicHolidays(),
-					validation: (val: string) => Validation.required(val)
+					validation: (val: Option) => Validation.required(val)
 				}
 			]
 		},

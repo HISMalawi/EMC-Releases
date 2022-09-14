@@ -13,8 +13,12 @@ function validateSeries(conditions: Array<any>){
     }
 }
 
-function required(value: any): null | Array<string> {
-    return isEmpty(value) || !value.value ? ['Value is required'] : null
+function required(value: Option | Option[]): null | Array<string> {
+    return isEmpty(value) || 
+        ((Array.isArray(value) && value.some((v: Option) => !v.value))) || 
+        (!Array.isArray(value) && !value.value)
+        ? ['Value is required']
+        : null
 }
 
 function isMWPhoneNumber(val: any) {
