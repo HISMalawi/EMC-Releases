@@ -45,15 +45,15 @@ export default defineComponent({
       ],
       [
         table.thTxt('Diagnosis'),
-        table.thTxt('M (0-15 years)', { value: 'Males (0-15 years New Cases)' }),
-        table.thTxt('M (>=16 years)', { value: 'Males (>=16 years New Cases)' }),
-        table.thTxt('F (0-15 years)', { value: 'Females (0-15 years New Cases)' }),
-        table.thTxt('F (>=16 years)', { value: 'Females (>=16 years New Cases)' }),
+        table.thTxt('Male (0-15 years)', { value: 'Males (0-15 years New Cases)' }),
+        table.thTxt('Male (>=16 years)', { value: 'Males (>=16 years New Cases)' }),
+        table.thTxt('Female (0-15 years)', { value: 'Females (0-15 years New Cases)' }),
+        table.thTxt('Female (>=16 years)', { value: 'Females (>=16 years New Cases)' }),
 
-        table.thTxt('M (0-15 years)', { value: 'Males (0-15 years Subsequent Cases)' }),
-        table.thTxt('M (>=16 years)', { value: 'Males (>=16 years Subsequent Cases)' }),
-        table.thTxt('F (0-15 years)', { value: 'Females (0-15 years Subsequent Cases)' }),
-        table.thTxt('F (>=16 years)', { value: 'Females (>=16 years Subsequent Cases)' }),
+        table.thTxt('Male (0-15 years)', { value: 'Males (0-15 years Subsequent Cases)' }),
+        table.thTxt('Male (>=16 years)', { value: 'Males (>=16 years Subsequent Cases)' }),
+        table.thTxt('Female (0-15 years)', { value: 'Females (0-15 years Subsequent Cases)' }),
+        table.thTxt('Female (>=16 years)', { value: 'Females (>=16 years Subsequent Cases)' }),
       ]
     ] as ColumnInterface[][],
   }),

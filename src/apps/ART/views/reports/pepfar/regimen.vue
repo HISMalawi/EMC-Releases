@@ -61,7 +61,7 @@ export default defineComponent({
                 })
                 this.rows.push([
                     table.td(d.arv_number),
-                    table.td(d.gender),
+                    table.td(this.formatGender(d.gender)),
                     table.tdDate(d.birthdate),
                     table.td(d.current_regimen),
                     table.td(medications.join(', ')),

@@ -95,7 +95,7 @@ export default defineComponent({
           this.sortByArvNumber(patients).map((p: any) => ([
             this.tdARV(p.arv_number), 
             table.tdDate(p.birthdate), 
-            table.td(p.gender),
+            table.td(this.formatGender(p.gender)),
             table.tdBtn('Show', () => this.$router.push({ path: `/patient/dashboard/${p.patient_id}`}))
           ]))
         return table.tdLink(patients.length, () => this.drilldownAsyncRows(context, columns, asyncRows))
@@ -172,6 +172,7 @@ export default defineComponent({
       ])
     },
     async setRows(gender: 'M' | 'F') {
+      const fullGender = this.formatGender(gender)
       for (const group of AGE_GROUPS) {
         if (group in this.cohort) {
           const cohortData = this.cohort[group];
@@ -182,36 +183,36 @@ export default defineComponent({
           }
           this.rows.push([
             table.td(group),
-            table.td(gender === 'M' ? 'Male' : 'Female'),
+            table.td(fullGender),
             td(
-              'tx_curr', cohortData.tx_curr, `${group} TX CURR (${gender})`
+              'tx_curr', cohortData.tx_curr, `${group} TX CURR (${fullGender}s)`
             ),
             td(
-              'due_for_vl', cohortData.due_for_vl, `${group} Due for VL (${gender})`
+              'due_for_vl', cohortData.due_for_vl, `${group} Due for VL (${fullGender}s)`
             ),
             td(
-              'drawn_routine', cohortData.drawn.routine, `${group} Routine (Sample Drawn) (${gender})`
+              'drawn_routine', cohortData.drawn.routine, `${group} Routine (Sample Drawn) (${fullGender}s)`
             ),
             td(
-              'drawn_targeted', cohortData.drawn.targeted, `${group} Targeted (Sample Drawn) (${gender})`
+              'drawn_targeted', cohortData.drawn.targeted, `${group} Targeted (Sample Drawn) (${fullGender}s)`
             ),
             td(
-              'high_vl_routine', cohortData.high_vl.routine, `${group} Routine (High VL (>=1000 copies)) (${gender})`
+              'high_vl_routine', cohortData.high_vl.routine, `${group} Routine (High VL (>=1000 copies)) (${fullGender}s)`
             ),
             td(
-              'high_vl_targeted', cohortData.high_vl.targeted, `${group} Targeted High VL (>=1000 copies) (${gender})`
+              'high_vl_targeted', cohortData.high_vl.targeted, `${group} Targeted High VL (>=1000 copies) (${fullGender}s)`
             ),
             td(
-              'low_vl_routine', cohortData.low_vl.routine, `${group} Routine (Low VL (<1000 copies)) (${gender})`
+              'low_vl_routine', cohortData.low_vl.routine, `${group} Routine (Low VL (<1000 copies)) (${fullGender}s)`
             ),
             td(
-              'low_vl_targeted', cohortData.low_vl.targeted, `${group} Targeted (Low VL (<1000 copies)) (${gender})`
+              'low_vl_targeted', cohortData.low_vl.targeted, `${group} Targeted (Low VL (<1000 copies)) (${fullGender}s)`
             )
           ]);
         } else {
           this.rows.push([
             table.td(group), 
-            table.td(gender), 
+            table.td(fullGender), 
             table.td(0),
             table.td(0),
             table.td(0),

@@ -62,6 +62,7 @@ export default defineComponent({
             }
             for(const i in AGE_GROUPS) {
                 const group = AGE_GROUPS[i]
+                const fullGender = this.formatGender(gender);
                 if (group in this.cohort) {
                     const cohortData = this.cohort[group][gender]
                     const s = (comparator: Function) => sortData(cohortData, comparator)
@@ -70,15 +71,15 @@ export default defineComponent({
                     const sixPlusMonths = s((months: number) => months >= 6)
                     this.rows.push([
                         table.td(group),
-                        table.td(gender),
-                        this.drill(lessThanThreeMonths, `${group} (${gender}) Returned <3 mo`),
-                        this.drill(threeToFiveMonths, `${group} (${gender}) Returned 3-5 mo`),
-                        this.drill(sixPlusMonths, `${group} (${gender}) Returned 6+ mo`),
+                        table.td(fullGender),
+                        this.drill(lessThanThreeMonths, `${group} (${fullGender}s) Returned <3 mo`),
+                        this.drill(threeToFiveMonths, `${group} (${fullGender}s) Returned 3-5 mo`),
+                        this.drill(sixPlusMonths, `${group} (${fullGender}s) Returned 6+ mo`),
                     ])
                 } else {
                     this.rows.push([
                         table.td(group),
-                        table.td(gender),
+                        table.td(fullGender),
                         table.td(0),
                         table.td(0),
                         table.td(0)

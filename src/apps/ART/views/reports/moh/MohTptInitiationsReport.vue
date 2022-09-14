@@ -106,7 +106,7 @@ export default defineComponent({
             return table.tdLink(patients.length, () => this.drilldownAsyncRows(context, columns, asyncRows))
         },
         setRows(gender: 'M' | 'F') {
-            const fullGender = gender === 'M' ? 'Males' : 'Females'
+            const fullGender = this.formatGender(gender)
             for(const ageIndex in AGE_GROUPS) {
                 const group = AGE_GROUPS[ageIndex]
                 const location = this.cohort['Location'];
@@ -117,16 +117,16 @@ export default defineComponent({
                     this.rows.push([
                         table.td(location),
                         table.td(group),
-                        table.td(gender),
-                        this.drilldown(data['3HP_new'][gender], `${group} ${fullGender} New on 3HP`),
-                        this.drilldown(data['6H_new'][gender], `${group} ${fullGender} New on 6H`),
-                        this.drilldown(data['3HP_prev'][gender], `${group} ${fullGender} Previously on 3HP`),
-                        this.drilldown(data['6H_prev'][gender], `${group} ${fullGender} Previously on 6H`)
+                        table.td(fullGender),
+                        this.drilldown(data['3HP_new'][gender], `${group} ${fullGender}s New on 3HP`),
+                        this.drilldown(data['6H_new'][gender], `${group} ${fullGender}s New on 6H`),
+                        this.drilldown(data['3HP_prev'][gender], `${group} ${fullGender}s Previously on 3HP`),
+                        this.drilldown(data['6H_prev'][gender], `${group} ${fullGender}s Previously on 6H`)
                     ])
                 } else {
                     this.rows.push([
                         table.td(group),
-                        table.td(gender),
+                        table.td(fullGender),
                         table.td(0),
                         table.td(0)
                     ])
