@@ -43,11 +43,11 @@ export default defineComponent({
 
         const onPeriod = async (_: any, config: any) => {
             reportData.rows = []
-            const report = new AncPepfarReportService()
-            report.setStartDate(config.start_date)
-            report.setEndDate(config.end_date)
+            reportData.service = new AncPepfarReportService()
+            reportData.service.setStartDate(config.start_date)
+            reportData.service.setEndDate(config.end_date)
             reportData.period = `${fd(config.start_date)} to ${fd(config.end_date)}`
-            const stats = await report.generatePmtctStatArt()
+            const stats = await reportData.service.generatePmtctStatArt()
             stats.forEach((d: any) => {
                 reportData.rows.push([
                     table.td(d.age_group),
