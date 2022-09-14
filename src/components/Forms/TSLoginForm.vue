@@ -105,7 +105,7 @@ export default defineComponent({
     },
     version: {
       type: String,
-      default: '4.4.4'
+      required: true,
     }
   },
   components: {
@@ -139,8 +139,7 @@ export default defineComponent({
       },
     };
   }, 
-  setup(props) {
-    console.log(props.version)
+  setup() {
     return {
       useVirtualInput: computed(() => {
         return usePlatform().platformType.value === 'mobile'
