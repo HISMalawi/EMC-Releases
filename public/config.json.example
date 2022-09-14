@@ -3,10 +3,12 @@
 	"apiPort": "3000",
 	"apiProtocol": "http",
 	"isPocSite": false,
+	"defaultApp": "",
 	"appConf": {
+		"devMode": true,
+		"enableVersionLocking": true,
 		"promptFullScreenDialog": false,
-		"showUpdateNotifications": true,
-		"dataCaching": true
+		"showUpdateNotifications": true
 	},
 	"apps": [
 		{ "name": "EMC", "available": true },
@@ -18,6 +20,22 @@
 		{ "name": "RADIOLOGY", "available": true },
 		{ "name": "Registration", "available": true}
 	],
+	"platformProfiles":  {
+		"Desktop": {
+			"profileName": "Desktop",
+			"fileExport": "WEB",
+			"scanner": "BARCODE_SCANNER",
+			"printer": "WEB",
+			"keyboard": "NATIVE_AND_HIS_KEYBOARD"
+		},
+		"Mobile" : {
+			"profileName": "Mobile",
+			"fileExport": "FILE_SYSTEM",
+			"scanner": "CAMERA_SCANNER",
+			"printer": "BLUETOOTH",
+			"keyboard": "HIS_KEYBOARD_ONLY"
+		}
+	},
 	"thirdpartyApps": [
 		{
 			"name": "pacs",
