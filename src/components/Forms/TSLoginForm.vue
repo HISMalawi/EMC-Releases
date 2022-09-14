@@ -86,10 +86,7 @@
 </template>
 
 <script lang="ts">
-import { toastWarning, toastDanger } from "@/utils/Alerts";
-import { defineComponent } from 'vue';
-import HisApp from "@/apps/app_lib"
-import { AuthService, InvalidCredentialsError } from "@/services/auth_service"
+import { computed, defineComponent } from 'vue';
 import { LOGIN_KEYBOARD } from "@/components/Keyboard/KbLayouts"
 import LoginFooter from "@/components/LoginFooter.vue";
 import usePlatform from "@/composables/usePlatform";
@@ -124,7 +121,6 @@ export default defineComponent({
   data: function () {
     return {
       LOGIN_KEYBOARD: LOGIN_KEYBOARD,
-      auth: {} as any,
       userInput: {
         type: String,
         username: "",
@@ -143,13 +139,14 @@ export default defineComponent({
         type: Boolean,
         on: false,
       },
-      useVirtualInput: false
     };
   }, 
-  created() {
-    this.auth = new AuthService()
-    const { useVirtualInput } = usePlatform()
-    this.useVirtualInput = useVirtualInput.value
+  setup() {
+    return {
+      useVirtualInput: computed(() => {
+        return usePlatform().platformType.value === 'mobile'
+      })
+    }
   },
   emits: ["login"],
   methods: {
