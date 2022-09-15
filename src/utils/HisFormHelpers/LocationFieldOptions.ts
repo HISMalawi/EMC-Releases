@@ -78,7 +78,7 @@ export async function getVillages(traditionalAuthorityID: number, name=''): Prom
     }))
 }
 
-export async function getVillagesByName(name='', page=1): Promise<Option[]> {
+export async function getVillagesByName(name='a', page=1): Promise<Option[]> {
     const villages = await LocationService.getVillagesByName(name, page)
     return villages.map((village: any) => ({
         label: village.name,
