@@ -43,7 +43,7 @@ export default defineComponent({
           await auth.login(user.password);
           auth.startSession();
           const defaultApp = Service.getDefaultApp() // get app config          
-          if (defaultApp && defaultApp.isPocApp !== false || Service.isPocSite()) {
+          if (defaultApp && defaultApp.isPocApp !== false) {
             return router.push("/select_hc_location")
           }          
           const app = await HisApps.selectApplication()
