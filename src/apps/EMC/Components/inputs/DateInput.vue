@@ -152,6 +152,13 @@ export default defineComponent({
       model.value.value = newDate;
       validate();
     })
+
+    watch(() => props.modelValue.value, (date) => {
+      day.value = date ? dayjs(date).date() : undefined;
+      month.value = date ? dayjs(date).month() + 1 : 0;
+      year.value = date ? dayjs(date).year() : undefined;
+    })
+
     watch(isEstimated, newValue => {
       age.value = undefined;
       day.value = undefined;
