@@ -37,6 +37,7 @@ import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { AppEncounterService } from "@/services/app_encounter_service";
 import Store from "@/composables/ApiStore"
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
+import { RegimenService } from "@/services/regimen_service";
 
 export default defineComponent({
   mixins: [AdherenceMixinVue],
@@ -121,6 +122,34 @@ export default defineComponent({
         return
       }
       this.nextTask();
+    },
+    async getTptDrugs(formData: any){
+      const tptHistory = formData.routine_tb_therapy.value
+      const drugs: any[] = await RegimenService.getCustomIngridients()
+      if(tptHistory.match(/ipti/)) {
+        return drugs.filter(drug => drug.name === "INH or H (Isoniazid 300mg tablet)").map(drug => ({
+          label: drug.name,
+          value: '',
+          other: drug
+        }))
+      }
+      if(tptHistory.includes("3HP (RFP + INH)")){
+        return drugs
+          .filter(drug => drug.name === "INH or H (Isoniazid 300mg tablet)" || drug.name === "Rifapentine (150mg)")
+          .map(drug => ({
+            label: drug.name,
+            value: '',
+            other: drug
+          }))
+      }
+      if(tptHistory.includes("INH 300 / RFP 300 (3HP)")){
+        return drugs.filter(drug => drug.name === "INH 300 / RFP 300 (3HP)").map(drug => ({
+          label: drug.name,
+          value: '',
+          other: drug
+        }))
+      }
+      return []
     },
     async getTransferInStatus() {
       const receivedArvs = await ConsultationService.getFirstValueCoded(
@@ -1295,19 +1324,7 @@ export default defineComponent({
           minDate: () => this.patient.getBirthdate(),
           maxDate: () => ConsultationService.getSessionDate(),
           condition: (f: any) => f.routine_tb_therapy.value.match(/currently|aborted/i),
-          computeValue: (date: string, isEstimate: boolean) => {
-            if (isEstimate) {
-              return {
-                tag: 'consultation',
-                obs: this.consultation.buildValueDateEstimated('TPT Start Date', date)
-              }
-            } else {
-              return {
-                tag: 'consultation',
-                obs: this.consultation.buildValueDate('TPT Start Date', date) 
-              }
-            }
-          },
+          computeValue: (date: string) => date,
           estimation: {
             allowUnknown: true,
             estimationFieldType: EstimationFieldType.MONTH_ESTIMATE_FIELD
@@ -1319,13 +1336,7 @@ export default defineComponent({
           required: true,
           condition: (f: any) => f.routine_tb_therapy.value.match(/currently|aborted/i),
           type: FieldType.TT_TPT_DRUGS_INPUT,
-          options: (f: any) => {
-            console.log(f);
-            return [{
-              label: "3HP (RFP + INH)",
-              value: '3HP (RFP + INH)'
-            }]
-          }
+          options: (f: any) => this.getTptDrugs(f)
         },
         {
           id: 'location_of_tpt_initialization',
