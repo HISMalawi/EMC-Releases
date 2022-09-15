@@ -1323,7 +1323,7 @@ export default defineComponent({
           required: true,
           minDate: () => this.patient.getBirthdate(),
           maxDate: () => ConsultationService.getSessionDate(),
-          condition: (f: any) => f.routine_tb_therapy.value.match(/currently|aborted/i),
+          condition: (f: any) => f.routine_tb_therapy.value.match(/currently/i),
           computeValue: (date: string) => date,
           estimation: {
             allowUnknown: true,
@@ -1334,7 +1334,7 @@ export default defineComponent({
           id: "tpt_drugs_received",
           helpText: "TPT Drugs Received",
           required: true,
-          condition: (f: any) => f.routine_tb_therapy.value.match(/currently|aborted/i),
+          condition: (f: any) => f.routine_tb_therapy.value.match(/currently/i),
           type: FieldType.TT_TPT_DRUGS_INPUT,
           options: (f: any) => this.getTptDrugs(f),
           computedValue: (drugs: Option[], f: any, c: any) => {
@@ -1363,7 +1363,7 @@ export default defineComponent({
             )
           }),
           validation: (val: any) => Validation.required(val),
-          condition: (f: any) => f.routine_tb_therapy.value.match(/currently|aborted/i),
+          condition: (f: any) => f.routine_tb_therapy.value.match(/currently/i),
           options: (_: any, filter='') => getFacilities(filter),
           config: {
             showKeyboard: true,
