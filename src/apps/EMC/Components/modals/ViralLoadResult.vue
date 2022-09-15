@@ -220,6 +220,7 @@ export default defineComponent({
     }
 
     const resetResults = () => {
+      ldl.value = false
       for(const key in form) {
         form[key].value = '';
         form[key].error = ''

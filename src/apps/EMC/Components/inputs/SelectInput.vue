@@ -134,6 +134,7 @@ export default defineComponent({
     })
 
     const setDefaults = () => {
+      selectedOption.value = undefined
       if(isEmpty(model.value.value)) return
       if (Array.isArray(model.value.value) && props.multiple) {
         return model.value.value.forEach((option: Option) => {
@@ -245,6 +246,8 @@ export default defineComponent({
     })
 
     watch([() => props.options, () => props.asyncOptions], async () => filterOptions())
+
+    watch(() => props.modelValue.value, (v) => isEmpty(v) && setDefaults())
 
     onMounted(async () => {
       await filterOptions()
