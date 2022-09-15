@@ -115,13 +115,15 @@ export default defineComponent({
         return  HisDate.toStandardHisFormat(HisDate.estimateDateFromAge(age.value));
       }
       if (day.value && month.value && year.value) {
-        return HisDate.toStandardHisFormat(`${year.value}-${month.value}-${day.value}`);
+        const date = `${year.value}-${month.value}-${day.value}`
+        if(date.match(/^\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$/))
+          return HisDate.toStandardHisFormat(date);
       }
       return ``;
     });
 
     const model = computed({
-      get: () => props.modelValue,
+      get: () => props.modelValue as DTFormField,
       set: (value) => emit("update:modelValue", value)
     })
 
