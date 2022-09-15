@@ -227,7 +227,7 @@ import {
   IonTitle,
 } from "@ionic/vue";
 import usePlatform from "@/composables/usePlatform";
-import { alertConfirmation } from "@/utils/Alerts";
+import { alertConfirmation, toastWarning } from "@/utils/Alerts";
 import Store from "@/composables/ApiStore"
 
 export default defineComponent({
@@ -352,9 +352,15 @@ export default defineComponent({
       this.appVersion = Service.getFullVersion()
     },
     async openModal() {
-      const data = await HisApp.selectApplication("HomePage");
-      if (data) {
-        this.app = data;
+      const app = await HisApp.selectApplication("HomePage");
+      if (typeof app?.isPocApp === 'boolean' && !app.isPocApp) {
+        if (typeof app.appLandingPage === 'string') {
+          return this.$router.push(app.appLandingPage)
+        }
+        toastWarning(`${app.applicationName} is not a POC App`, 100000)
+      }
+      if (app) {
+        this.app = app;
         this.activeTab = 1;
         this.loadApplicationData();
       }
