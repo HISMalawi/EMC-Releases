@@ -9,4 +9,11 @@ export class AncPepfarReportService extends AncReportService {
             'program_id': AncReportService.getProgramID()
         })
     }
+
+    generatePmtctStatArt() {
+        return AncReportService.getJson(`programs/${this.programID}/reports/pmtct_stat_art`,  {
+            'start_date': this.startDate,
+            'end_date': this.endDate
+        })
+    }
 }

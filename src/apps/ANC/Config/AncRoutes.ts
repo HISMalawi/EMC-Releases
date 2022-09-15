@@ -88,5 +88,10 @@ export default [
         name: 'anc treatment',
         path: '/anc/treatment/:patient_id',
         component: () => import("@/apps/ANC/Views/Encounters/Treatment.vue")
+    },
+    {
+        name: 'anc pepfar pmtct report',
+        path: '/anc/report/pmtct_pepfar',
+        component: () => import("@/apps/ANC/Views/Reports/Pepfar/AncPepfarPmtct.vue")
     }
 ]
