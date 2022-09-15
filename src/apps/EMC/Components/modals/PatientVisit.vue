@@ -344,9 +344,10 @@ export default defineComponent({
         label: "Has Side Effects / Contraindications ?",
         validation: async (state: Option, form: any) => StandardValidations.validateSeries([
           ()  => StandardValidations.required(state),
-          () => (state.value === "Yes" && contraIndications.value.some(x => x.isChecked)) 
-            ? null
-            : ["Please select at least one side effect"]
+          () => {
+            if(state.value === "No" || sideEffects.value.some(x => x.isChecked)) return null
+            return ["Please select at least one side effect"]
+          }
         ])
       },
       hasSideEffects: {
@@ -354,9 +355,10 @@ export default defineComponent({
         label: "Has Other Side Effects ?",
         validation: async (state: Option, form: any) => StandardValidations.validateSeries([
           ()  => StandardValidations.required(state),
-          () => (state.value === "Yes" && sideEffects.value.some(x => x.isChecked)) 
-            ? null
-            : ["Please select at least one side effect"]
+          () => {
+            if(state.value === "No" || sideEffects.value.some(x => x.isChecked)) return null
+            return ["Please select at least one side effect"]
+          }
         ])
       },
       tbStatus: {
