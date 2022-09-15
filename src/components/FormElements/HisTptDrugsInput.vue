@@ -18,7 +18,7 @@
                 <ion-input
                   readonly
                   @click="launchKeyPad(drug)"
-                  :value="drug.other?.amount"
+                  :value="drug.value"
                   placeholder="tablets received"
                   class="dosage-input"
                 />
@@ -67,7 +67,6 @@ export default defineComponent({
     async init() {
       this.$emit("onFieldActivated", this);
       this.drugs = await this.options(this.fdata, this.cdata);
-      console.log(this.drugs)
     },
     async launchKeyPad(drug: Option) {
       const modal = await modalController.create({
@@ -76,10 +75,10 @@ export default defineComponent({
         cssClass: "keypad-modal",
         componentProps: {
           title: drug.label,
-          preset: drug.other?.amount,
+          preset: drug.value,
           strictNumbers: true,
           onKeyPress(val: string) {
-            drug.other.amount = val;
+            drug.value = parseInt(val);
           },
         },
       });
@@ -89,7 +88,7 @@ export default defineComponent({
   watch: {
     clear() {
       this.drugs = this.drugs.map((d: any) => {
-        return {...d, other:{amount: ''}};
+        return {...d, value: ""};
       });
     },
     drugs: {
