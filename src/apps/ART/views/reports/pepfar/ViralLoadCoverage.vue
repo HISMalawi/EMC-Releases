@@ -183,7 +183,7 @@ export default defineComponent({
             table.td(group),
             table.td(fullGender),
             td(
-              'due_for_vl', cohortData.due_for_vl, `${group} Due for VL (${gender})`
+              'due_for_vl', cohortData.due_for_vl, `${group} Due for VL (${fullGender})`
             ),
             td(
               'drawn_routine', cohortData.drawn.routine, `${group} Routine (Sample Drawn) (${fullGender}s)`
