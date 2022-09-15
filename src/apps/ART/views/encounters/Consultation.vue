@@ -1338,6 +1338,7 @@ export default defineComponent({
           type: FieldType.TT_TPT_DRUGS_INPUT,
           options: (f: any) => this.getTptDrugs(f),
           computedValue: (drugs: Option[], f: any, c: any) => {
+            console.log(drugs, c?.date_started_tpt)
             return {
               tag: 'consultation',
               obs:  drugs.map(async (drug: any) => this.consultation.buildObs(
@@ -1352,21 +1353,21 @@ export default defineComponent({
           }
         },
         {
-          id: 'location_of_tpt_initialization',
-          helpText: 'Location of TPT initiation',
+          id: 'tpt_tranfer_from',
+          helpText: 'Facility client is transferring in fom',
           type: FieldType.TT_SELECT,
           computedValue: ({label}: Option) => ({
-              tag:'consultation',
-              obs: this.consultation.buildValueText(
-                  'Location of TPT initiation', label
-              )
+            tag:'consultation',
+            obs: this.consultation.buildValueText(
+              'Location TPT last received', label
+            )
           }),
           validation: (val: any) => Validation.required(val),
           condition: (f: any) => f.routine_tb_therapy.value.match(/currently|aborted/i),
           options: (_: any, filter='') => getFacilities(filter),
           config: {
-              showKeyboard: true,
-              isFilterDataViaApi: true
+            showKeyboard: true,
+            isFilterDataViaApi: true
           }
         },
         {
