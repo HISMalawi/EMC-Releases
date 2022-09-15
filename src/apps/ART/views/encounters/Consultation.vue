@@ -1336,14 +1336,27 @@ export default defineComponent({
           required: true,
           condition: (f: any) => f.routine_tb_therapy.value.match(/currently|aborted/i),
           type: FieldType.TT_TPT_DRUGS_INPUT,
-          options: (f: any) => this.getTptDrugs(f)
+          options: (f: any) => this.getTptDrugs(f),
+          computedValue: (drugs: Option[], f: any, c: any) => {
+            return {
+              tag: 'consultation',
+              obs:  drugs.map(async (drug: any) => this.consultation.buildObs(
+                'TPT Drugs Received', 
+                {
+                  'value_drug': drug?.other?.drug_id || 0,
+                  'value_datetime': c?.date_started_tpt || null,
+                  'value_numeric': drug?.value || 0
+                }
+              ))
+            }
+          }
         },
         {
           id: 'location_of_tpt_initialization',
           helpText: 'Location of TPT initiation',
           type: FieldType.TT_SELECT,
           computedValue: ({label}: Option) => ({
-              tag:'reg',
+              tag:'consultation',
               obs: this.consultation.buildValueText(
                   'Location of TPT initiation', label
               )
