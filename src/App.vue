@@ -64,7 +64,7 @@ export default defineComponent({
     })
 
     watch(route, (route) => 
-      notConfigPage.value = route.name != 'API host settings',
+      notConfigPage.value = route.name != 'API host settings' && route.name != "DT API host settings",
       {
         immediate: true
       }
