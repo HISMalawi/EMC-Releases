@@ -85,7 +85,6 @@ export default defineComponent({
     const onSave = async () => {
       if(await isValidForm(form)) {
         const data = resolveFormValues(form).formData;
-        console.log(data)
         emit("saveOutcome", data);
       }
     }
