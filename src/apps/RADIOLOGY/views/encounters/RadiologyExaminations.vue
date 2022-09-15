@@ -211,7 +211,7 @@ export default defineComponent({
                         referralSections = (await RadiologyInternalSectionService.getInternalSections())
                             .map((s: any) => ({
                                 value: s.id,
-                                label: s.name
+                                label: `${s?.name}`.toUpperCase()
                             }))
                     }
                     return referralSections
