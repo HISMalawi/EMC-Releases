@@ -8,7 +8,7 @@
           </ion-title>
           <ion-row class="ion-margin-top ion-margin-bottom">
           <ion-col size="5" class="ion-margin-top ion-margin-bottom">
-            <text-input v-model="form.arvNumber" :form="form" :prefix="`${sitePrefix}-ARV-`" />
+            <text-input v-model="form.arvNumber" :form="form" :prefix="`${sitePrefix}-ARV-`" :disabled="!isNewPatient" />
           </ion-col>
           <ion-col size="7" class="ion-margin-top ion-margin-bottom">
             <DateInput v-model="form.initialVisitDate" :min-date="patientDob" :max-date="today" :form="form" />
@@ -58,6 +58,7 @@
         </ion-row>
           <ion-button class="ion-margin-top ion-float-end" size="large" @click="onSubmit" color="success">Next</ion-button>
           <ion-button class="ion-margin-top ion-float-end" size="large" @click="onClear" color="warning">Clear</ion-button>
+          <ion-button class="ion-margin-top ion-float-end" size="large" @click="$router.back()" color="primary" v-if="!isNewPatient">Back</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -377,6 +378,7 @@ export default defineComponent({
       sitePrefix,
       initialTbStatusOptions,
       HIVTestOptions,
+      isNewPatient,
       getFacilities,
       onClear,
       onSubmit,
