@@ -23,6 +23,7 @@ import table from "@/components/DataViews/tables/ReportDataTable";
 import { ViralLoadReportService } from "@/apps/ART/services/reports/viral_load_report";
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service"
 import { IonPage } from "@ionic/vue";
+import { uniq } from "lodash";
 
 export default defineComponent({
   mixins: [ReportMixin],
@@ -37,7 +38,7 @@ export default defineComponent({
     } as any,
     columns: [
       [
-        table.thTxt("", { colspan: 5, exportable: false }),
+        table.thTxt("", { colspan: 4, exportable: false }),
         table.thTxt("Sample Drawn", { colspan: 2, exportable: false }),
         table.thTxt("High VL (>=1000 copies)", { colspan: 2, exportable: false }),
         table.thTxt("Low VL (<1000 copies)", { colspan: 2, exportable: false }),
@@ -45,7 +46,6 @@ export default defineComponent({
       [
         table.thTxt("Age group"),
         table.thTxt("Gender"),
-        table.thTxt("TX CURR"),
         table.thTxt("Due for VL"),
         table.thTxt("Routine", { value: 'Routine (Sample Drawn)'}),
         table.thTxt("Targeted", { value:'Targeted (Sample Drawn)'}),
@@ -105,9 +105,11 @@ export default defineComponent({
     async setFemaleTotalsRow() {
       const totals = this.totals.F
 
-      const allFemaleTxCurr =  totals.tx_curr.map((p: any) => p.patient_id)
+      const allFemale = Object.values(totals).reduce((a: number[], c: any) => {
+        return uniq(a.concat(c.map((p: any) => p.patient_id)))
+      }, [] as number[])
 
-      const fStatus = await this.report.getMaternalStatus(allFemaleTxCurr)
+      const fStatus = await this.report.getMaternalStatus(allFemale)
 
       const allFp = fStatus.FBf.concat(fStatus.FP)
 
@@ -120,7 +122,6 @@ export default defineComponent({
       this.rows.push([
         table.td('All'),
         table.td('FP'),
-        this.drillDown(fp('FP', totals.tx_curr), 'TX CURR FP'),
         this.drillDown(fp('FP', totals.due_for_vl), 'Due for VL FP'),
         this.drillDown(fp('FP', totals.drawn_routine), 'Routine (Sample Drawn) FP'),
         this.drillDown(fp('FP', totals.drawn_targeted), 'Targetted (Sample Drawn) FP'),
@@ -133,7 +134,6 @@ export default defineComponent({
       this.rows.push([
         table.td('All'),
         table.td('FNP'),
-        this.drillDown(fnp(totals.tx_curr), 'TX CURR FNP'),
         this.drillDown(fnp(totals.due_for_vl), 'Due for VL FNP'),
         this.drillDown(fnp(totals.drawn_routine), 'Routine (Sample Drawn) FNP'),
         this.drillDown(fnp(totals.drawn_targeted), 'Targetted (Sample Drawn) FNP'),
@@ -146,7 +146,6 @@ export default defineComponent({
       this.rows.push([
         table.td('All'),
         table.td('FBf'),
-        this.drillDown(fp('FBf', totals.tx_curr), 'TX CURR FBf'),
         this.drillDown(fp('FBf', totals.due_for_vl), 'Due for VL FBf'),
         this.drillDown(fp('FBf', totals.drawn_routine), 'Routine (Sample Drawn) FBf'),
         this.drillDown(fp('FBf', totals.drawn_targeted), 'Targetted (Sample Drawn) FBf'),
@@ -161,7 +160,6 @@ export default defineComponent({
       return this.rows.push([
         table.td('All'),
         table.td('Male'),
-        this.drillDown(totals.tx_curr, 'TX CURR Male'),
         this.drillDown(totals.due_for_vl, 'Due for VL Male'),
         this.drillDown(totals.drawn_routine, 'Routine (Sample Drawn) Male'),
         this.drillDown(totals.drawn_targeted, 'Targetted (Sample Drawn) Male'),
@@ -183,9 +181,6 @@ export default defineComponent({
           this.rows.push([
             table.td(group),
             table.td(gender === 'M' ? 'Male' : 'Female'),
-            td(
-              'tx_curr', cohortData.tx_curr, `${group} TX CURR (${gender})`
-            ),
             td(
               'due_for_vl', cohortData.due_for_vl, `${group} Due for VL (${gender})`
             ),
@@ -212,7 +207,6 @@ export default defineComponent({
           this.rows.push([
             table.td(group), 
             table.td(gender), 
-            table.td(0),
             table.td(0),
             table.td(0),
             table.td(0),
