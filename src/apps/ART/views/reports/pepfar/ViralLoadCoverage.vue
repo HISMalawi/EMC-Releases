@@ -47,12 +47,12 @@ export default defineComponent({
         table.thTxt("Gender"),
         table.thTxt("TX CURR"),
         table.thTxt("Due for VL"),
-        table.thTxt("Routine"),// { value: 'Routine (Sample Drawn)'}),
-        table.thTxt("Targeted"),//, { value:'Targeted (Sample Drawn)'}),
-        table.thTxt("Routine"),//, { value: 'Routine (High VL (>=1000 copies))'}),
-        table.thTxt("Targeted"),//, { value:'Targeted High VL (>=1000 copies)'}),
-        table.thTxt("Routine"),//, { value: 'Routine (Low VL (<1000 copies))'}),
-        table.thTxt("Targeted")//, { value:'Targeted (Low VL (<1000 copies))'}),
+        table.thTxt("Routine", { value: 'Routine (Sample Drawn)'}),
+        table.thTxt("Targeted", { value:'Targeted (Sample Drawn)'}),
+        table.thTxt("Routine", { value: 'Routine (High VL (>=1000 copies))'}),
+        table.thTxt("Targeted", { value:'Targeted High VL (>=1000 copies)'}),
+        table.thTxt("Routine", { value: 'Routine (Low VL (<1000 copies))'}),
+        table.thTxt("Targeted", { value:'Targeted (Low VL (<1000 copies))'}),
       ]
     ]
   }),
@@ -105,7 +105,7 @@ export default defineComponent({
     async setFemaleTotalsRow() {
       const totals = this.totals.F
 
-      const allFemaleTxCurr = totals.tx_curr.map((p: any) => p.patient_id)
+      const allFemaleTxCurr =  totals.tx_curr.map((p: any) => p.patient_id)
 
       const fStatus = await this.report.getMaternalStatus(allFemaleTxCurr)
 
