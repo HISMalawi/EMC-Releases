@@ -15,7 +15,6 @@ import { useRouter } from "vue-router";
 import { toastDanger, toastWarning } from "@/utils/Alerts";
 import { Service } from "@/services/service";
 import HisApps from '@/apps/app_lib';
-import { find } from "lodash";
 
 export default defineComponent({
   name: "login",
