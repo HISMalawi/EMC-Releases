@@ -1356,7 +1356,7 @@ export default defineComponent({
         },
         {
           id: 'tpt_tranfer_from',
-          helpText: 'Facility client is transferring in fom',
+          helpText: 'Facility client is transferring in from',
           type: FieldType.TT_SELECT,
           computedValue: ({label}: Option) => ({
             tag:'consultation',
