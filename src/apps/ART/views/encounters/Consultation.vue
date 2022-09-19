@@ -78,7 +78,8 @@ export default defineComponent({
     dateStartedArt: '' as string,
     clientHadAHysterectomy: false as any,
     isNoneClientPatient: false as boolean,
-    tptStatus: {} as Record<string, any>
+    tptStatus: {} as Record<string, any>,
+    customDrugs: [] as any
   }),
   watch: {
     ready: {
@@ -124,32 +125,27 @@ export default defineComponent({
       this.nextTask();
     },
     async getTptDrugs(formData: any){
+      const drugFilters: string[] = []
       const tptHistory = formData.routine_tb_therapy.value
-      const drugs: any[] = await RegimenService.getCustomIngridients()
-      if(tptHistory.match(/ipti/)) {
-        return drugs.filter(drug => drug.name === "INH or H (Isoniazid 300mg tablet)").map(drug => ({
-          label: drug.name,
-          value: '',
-          other: drug
-        }))
+      if (isEmpty(this.customDrugs)) {
+        this.customDrugs = await RegimenService.getCustomIngridients()
       }
-      if(tptHistory.includes("3HP (RFP + INH)")){
-        return drugs
-          .filter(drug => drug.name === "INH or H (Isoniazid 300mg tablet)" || drug.name === "Rifapentine (150mg)")
-          .map(drug => ({
+      if(tptHistory.match(/ipti/)) {
+        drugFilters.push("INH or H (Isoniazid 300mg tablet)")
+      } else if(tptHistory.includes("3HP (RFP + INH)")){
+        drugFilters.push('INH or H (Isoniazid 300mg tablet)')
+        drugFilters.push('Rifapentine (150mg)')
+      } else if(tptHistory.includes("INH 300 / RFP 300 (3HP)")){
+        drugFilters.push("INH 300 / RFP 300 (3HP)")
+      }
+      return !isEmpty(drugFilters) 
+        ? this.customDrugs.filter((drug: any) => drugFilters.includes(drug.name))
+          .map((drug: any) => ({
             label: drug.name,
             value: '',
             other: drug
           }))
-      }
-      if(tptHistory.includes("INH 300 / RFP 300 (3HP)")){
-        return drugs.filter(drug => drug.name === "INH 300 / RFP 300 (3HP)").map(drug => ({
-          label: drug.name,
-          value: '',
-          other: drug
-        }))
-      }
-      return []
+        : []
     },
     async getTransferInStatus() {
       const receivedArvs = await ConsultationService.getFirstValueCoded(
@@ -1335,10 +1331,9 @@ export default defineComponent({
           helpText: "TPT Drugs Received",
           required: true,
           condition: (f: any) => f.routine_tb_therapy.value.match(/currently/i),
-          type: FieldType.TT_TPT_DRUGS_INPUT,
+          type: FieldType.TT_ADHERENCE_INPUT,
           options: (f: any) => this.getTptDrugs(f),
           computedValue: (drugs: Option[], f: any, c: any) => {
-            console.log(drugs, c?.date_started_tpt)
             return {
               tag: 'consultation',
               obs:  drugs.map(async (drug: any) => this.consultation.buildObs(
@@ -1349,6 +1344,12 @@ export default defineComponent({
                   'value_numeric': drug?.value || 0
                 }
               ))
+            }
+          },
+          config: {
+            titles: {
+              label: 'Drug name',
+              value: 'Tablets received'
             }
           }
         },

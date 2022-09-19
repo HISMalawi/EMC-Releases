@@ -56,8 +56,7 @@ export enum FieldType {
     TT_ANC_DRUGSET_INPUT = 'AncDrugSetInput',
     TT_DRUG_TRANSFER_IN = 'DrugTransferInput',
     TT_PRESCRIPTION_INPUT = 'HisPrescriptionInput',
-    TT_INFINITE_SCROLL_MULTIPLE_SELECT="HisInfiniteScrollMultipleSelect",
-    TT_TPT_DRUGS_INPUT = "HisTptDrugsInput"
+    TT_INFINITE_SCROLL_MULTIPLE_SELECT="HisInfiniteScrollMultipleSelect"
 }
 
 // Register FieldTypes here that will be registered at runtime
