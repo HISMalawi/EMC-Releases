@@ -20,7 +20,8 @@ import { RadiologyInternalSectionService } from "@/apps/RADIOLOGY/services/radio
 import { isEmpty } from 'lodash';
 import { alertConfirmation, toastDanger, toastWarning } from '@/utils/Alerts';
 import PersonFieldHelper from '@/utils/HisFormHelpers/PersonFieldHelper';
-
+import RADIOLOGY_GLOBAL_PROP from "@/apps/RADIOLOGY/radiology_global_props"
+;
 export default defineComponent({
     mixins: [EncounterMixinVue],
     components: {
@@ -30,6 +31,7 @@ export default defineComponent({
     data: () => ({
         service: {} as any,
         examinationOptions: [] as any,
+        defaultExternalLocation: '' as string,
         detailedExaminationOptions: [] as any
     }),
     watch: {
@@ -178,6 +180,11 @@ export default defineComponent({
         externalReferralField() {
             const field: Field = PersonFieldHelper.getFacilityLocationField()
             field.id = 'external_referral'
+            field.init = async () => {
+                this.defaultExternalLocation = await RADIOLOGY_GLOBAL_PROP.defaultReferralLocation()
+                return true
+            }
+            field.defaultValue = () => this.defaultExternalLocation
             field.condition = (f: any) => f.referral_type.value === 'External'
             field.computedValue = (v: Option) => {
                 return {
@@ -204,7 +211,7 @@ export default defineComponent({
                         referralSections = (await RadiologyInternalSectionService.getInternalSections())
                             .map((s: any) => ({
                                 value: s.id,
-                                label: s.name
+                                label: `${s?.name}`.toUpperCase()
                             }))
                     }
                     return referralSections
@@ -224,7 +231,7 @@ export default defineComponent({
                                     return toastWarning(`Can't add already existing referral location`)
                                 }
                                 if ((await alertConfirmation(`Do you want to add referral location?`))) {
-                                    const data = await RadiologyInternalSectionService.createInternalSection(field.filter)
+                                    const data = await RadiologyInternalSectionService.createInternalSection(field.filter.toUpperCase())
                                     if (data) {
                                         field.filter = data.name
                                         field.listData = [{label: data.name, value: data.id}, ...field.listData]

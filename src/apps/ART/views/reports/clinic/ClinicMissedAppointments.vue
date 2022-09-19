@@ -59,7 +59,7 @@ export default defineComponent({
                     table.td(d.arv_number),
                     table.td(d.given_name),
                     table.td(d.family_name),
-                    table.td(d.gender),
+                    table.td(this.formatGender(d.gender)),
                     table.tdDate(d.birthdate),
                     table.tdDate(d.appointment_date),
                     table.td(d.days_missed),

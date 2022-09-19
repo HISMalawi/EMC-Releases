@@ -114,32 +114,33 @@ export default defineComponent({
             for(const i in AGE_GROUPS) {
                 const group = AGE_GROUPS[i]
                 const cohortData = this.cohort[group][gender]
+                const fullGender =  this.formatGender(gender)
                 this.rows.push([
                     table.td(group),
-                    table.td(gender),
+                    table.td(fullGender),
                     this.makeDrilldown(cohortData['3HP']['started_new_on_art'],
-                        `${group} Started new on ART 3HP (${gender})`
+                        `${group} started new on ART 3HP (${fullGender}s)`
                     ),
                     this.makeDrilldown(cohortData['6H']['started_new_on_art'],
-                        `${group} Start new on ART 6H (${gender})`
+                        `${group} started new on ART 6H (${fullGender}s)`
                     ),
                     this.makeDrilldown(cohortData['3HP']['started_previously_on_art'],
-                        `${group} Started previously on ART 3HP (${gender})`
+                        `${group} started previously on ART 3HP (${fullGender}s)`
                     ),
                     this.makeDrilldown(cohortData['6H']['started_previously_on_art'],
-                        `${group} Started previously on ART 6H (${gender})`
+                        `${group} started previously on ART 6H (${fullGender}s)`
                     ),
                     this.makeDrilldown(cohortData['3HP']['completed_new_on_art'],
-                        `${group} Completed new on ART 3HP (${gender})`
+                        `${group} completed new on ART 3HP (${fullGender}s)`
                     ),
                     this.makeDrilldown(cohortData['6H']['completed_new_on_art'],
-                        `${group} Completed new on ART 6H (${gender})`
+                        `${group} completed new on ART 6H (${fullGender}s)`
                     ),
                     this.makeDrilldown(cohortData['3HP']['completed_previously_on_art'],
-                        `${group} Completed previously on ART 3HP (${gender})`
+                        `${group} completed previously on ART 3HP (${fullGender}s)`
                     ),
                     this.makeDrilldown(cohortData['6H']['completed_previously_on_art'],
-                        `${group} Completed previously on ART 6H (${gender})`
+                        `${group} completed previously on ART 6H (${fullGender}s)`
                     )
                 ])
             }

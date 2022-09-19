@@ -13,6 +13,7 @@ import { StockReportService } from "@/apps/ART/services/reports/stock_report_ser
 import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
 import ReportTemplate from "@/apps/ART/views/reports/BasicReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
+import { toNumString } from '@/utils/Strs'
 
 export default defineComponent({
     mixins: [ReportMixin],
@@ -32,12 +33,15 @@ export default defineComponent({
     async created() {
         this.report = new StockReportService()
         await this.report.loadStock()
-        const stock  = this.report.groupStock()
-        stock.forEach((s: any) => {
+        this.report.groupStock().forEach((s: any) => {
             this.rows.push([
                 table.td(s.drugName),
                 table.tdDate(s.expiryDate),
-                table.td(s.currentQuantity)
+                table.td(
+                    (s.quantityIsTabs 
+                    ? `${toNumString(s.currentQuantity)} (tabs)`
+                    : toNumString(s.currentQuantity)), 
+                    { sortValue: parseInt(s.currentQuantity)})
             ])
         })
     }

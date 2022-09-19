@@ -36,6 +36,8 @@ import { DispensationService } from "../../services/dispensation_service";
 import { PatientPrintoutService } from "@/services/patient_printout_service";
 import { AppEncounterService } from "@/services/app_encounter_service";
 import Store from "@/composables/ApiStore"
+import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
+import { RegimenService } from "@/services/regimen_service";
 
 export default defineComponent({
   mixins: [AdherenceMixinVue],
@@ -76,7 +78,8 @@ export default defineComponent({
     dateStartedArt: '' as string,
     clientHadAHysterectomy: false as any,
     isNoneClientPatient: false as boolean,
-    tptStatus: {} as Record<string, any>
+    tptStatus: {} as Record<string, any>,
+    customDrugs: [] as any
   }),
   watch: {
     ready: {
@@ -120,6 +123,29 @@ export default defineComponent({
         return
       }
       this.nextTask();
+    },
+    async getTptDrugs(formData: any){
+      const drugFilters: string[] = []
+      const tptHistory = formData.routine_tb_therapy.value
+      if (isEmpty(this.customDrugs)) {
+        this.customDrugs = await RegimenService.getCustomIngridients()
+      }
+      if(tptHistory.match(/ipti/)) {
+        drugFilters.push("INH or H (Isoniazid 300mg tablet)")
+      } else if(tptHistory.includes("3HP (RFP + INH)")){
+        drugFilters.push('INH or H (Isoniazid 300mg tablet)')
+        drugFilters.push('Rifapentine (150mg)')
+      } else if(tptHistory.includes("INH 300 / RFP 300 (3HP)")){
+        drugFilters.push("INH 300 / RFP 300 (3HP)")
+      }
+      return !isEmpty(drugFilters) 
+        ? this.customDrugs.filter((drug: any) => drugFilters.includes(drug.name))
+          .map((drug: any) => ({
+            label: drug.name,
+            value: '',
+            other: drug
+          }))
+        : []
     },
     async getTransferInStatus() {
       const receivedArvs = await ConsultationService.getFirstValueCoded(
@@ -649,7 +675,8 @@ export default defineComponent({
           options: async () => {
             if (!isEmpty(this.customRegimens)) return this.customRegimens
             const p = new PrescriptionService(this.patientID, this.providerID)
-            this.customRegimens = (await p.getCustomIngridients())
+            this.customDrugs = await p.getCustomIngridients()
+            this.customRegimens = this.customDrugs
               .map((drug: any ) => ({
                 label: drug.name,
                 value: drug.drug_id,
@@ -1276,13 +1303,74 @@ export default defineComponent({
             obs: this.consultation.buildValueText("Previous TB treatment history", data.value)
           }),
           options: () => this.mapStrToOptions([
-            "Currently on IPT", 
-            "Currently on 3HP",
+            "Currently on IPT",
+            "Currently on 3HP (RFP + INH)",
+            "Currently on INH 300 / RFP 300 (3HP)",
             "Complete course of 3HP in the past (3 months RFP+INH)",
             "Complete course of IPT in the past (min. 6 months of INH)",
-            "Aborted course of 3HP or IPT in the past",
+            "Aborted course of 3HP (RFP + INH) in the past",
+            "Aborted course of INH 300 / RFP 300 (3HP) in the past",
+            "Aborted course of IPT in the past",
             "Never taken IPT or 3HP"
           ])
+        },
+        ...generateDateFields({
+          id: 'date_started_tpt',
+          helpText: 'Started TPT Treatment',
+          required: true,
+          minDate: () => this.patient.getBirthdate(),
+          maxDate: () => ConsultationService.getSessionDate(),
+          condition: (f: any) => f.routine_tb_therapy.value.match(/currently/i),
+          computeValue: (date: string) => date,
+          estimation: {
+            allowUnknown: true,
+            estimationFieldType: EstimationFieldType.MONTH_ESTIMATE_FIELD
+          }
+        }),
+        {
+          id: "tpt_drugs_received",
+          helpText: "TPT Drugs Received",
+          required: true,
+          condition: (f: any) => f.routine_tb_therapy.value.match(/currently/i),
+          type: FieldType.TT_ADHERENCE_INPUT,
+          options: (f: any) => this.getTptDrugs(f),
+          computedValue: (drugs: Option[], f: any, c: any) => {
+            return {
+              tag: 'consultation',
+              obs:  drugs.map(async (drug: any) => this.consultation.buildObs(
+                'TPT Drugs Received', 
+                {
+                  'value_drug': drug?.other?.drug_id || 0,
+                  'value_datetime': c?.date_started_tpt || null,
+                  'value_numeric': drug?.value || 0
+                }
+              ))
+            }
+          },
+          config: {
+            titles: {
+              label: 'Drug name',
+              value: 'Tablets received'
+            }
+          }
+        },
+        {
+          id: 'tpt_tranfer_from',
+          helpText: 'Facility client is transferring in from',
+          type: FieldType.TT_SELECT,
+          computedValue: ({label}: Option) => ({
+            tag:'consultation',
+            obs: this.consultation.buildValueText(
+              'Location TPT last received', label
+            )
+          }),
+          validation: (val: any) => Validation.required(val),
+          condition: (f: any) => f.routine_tb_therapy.value.match(/currently/i),
+          options: (_: any, filter='') => getFacilities(filter),
+          config: {
+            showKeyboard: true,
+            isFilterDataViaApi: true
+          }
         },
         {
           id: "allergic_to_sulphur",

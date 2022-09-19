@@ -9,7 +9,7 @@
             :config="{
                 showIndex: true
             }"
-            reportPrefix="PEPFAR"
+            reportPrefix="Clinic"
             :onReportConfiguration="onPeriod"
             > 
         </report-template>
@@ -51,7 +51,7 @@ export default defineComponent({
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()
-            this.cohort = await this.report.getTxRttReport()
+            this.cohort = await this.report.getClinicTxRtt()
             await this.setRows('F')
             await this.setRows('M')
         },
@@ -62,7 +62,6 @@ export default defineComponent({
             }
             for(const i in AGE_GROUPS) {
                 const group = AGE_GROUPS[i]
-                const fullGender = this.formatGender(gender);
                 if (group in this.cohort) {
                     const cohortData = this.cohort[group][gender]
                     const s = (comparator: Function) => sortData(cohortData, comparator)
@@ -71,15 +70,15 @@ export default defineComponent({
                     const sixPlusMonths = s((months: number) => months >= 6)
                     this.rows.push([
                         table.td(group),
-                        table.td(fullGender),
-                        this.drill(lessThanThreeMonths, `${group} (${fullGender}s) Returned <3 mo`),
-                        this.drill(threeToFiveMonths, `${group} (${fullGender}s) Returned 3-5 mo`),
-                        this.drill(sixPlusMonths, `${group} (${fullGender}s) Returned 6+ mo`),
+                        table.td(gender),
+                        this.drill(lessThanThreeMonths, `${group} (${gender}) Returned <3 mo`),
+                        this.drill(threeToFiveMonths, `${group} (${gender}) Returned 3-5 mo`),
+                        this.drill(sixPlusMonths, `${group} (${gender}) Returned 6+ mo`),
                     ])
                 } else {
                     this.rows.push([
                         table.td(group),
-                        table.td(fullGender),
+                        table.td(gender),
                         table.td(0),
                         table.td(0),
                         table.td(0)

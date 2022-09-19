@@ -151,7 +151,7 @@ export default defineComponent({
         return persons.map((person: any) => ([
           this.tdARV(person['arv_number']),
           table.td(`${person['given_name']} ${person['family_name']}`),
-          table.td(person['gender']),
+          table.td(this.formatGender(person['gender'])),
           table.td(`${HisDate.toStandardHisDisplayFormat(person['birthdate'])} (${HisDate.getAgeInYears(person['birthdate'])})`),
           table.td(person['outcome'] || 'N/A'),
           table.tdBtn('Select', async () => {

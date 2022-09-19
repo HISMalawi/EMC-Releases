@@ -1,4 +1,5 @@
 import HisDate from "@/utils/Date"
+import { toNumString } from "@/utils/Strs";
 import { sort } from 'fast-sort';
 import { isEmpty } from "lodash";
 
@@ -77,6 +78,9 @@ function configCell(conf: any) {
         value: () => {
             return conf.value ? conf.value : ''
         },
+        sortValue: () => {
+            return conf.sortValue ? conf.sortValue : 0
+        },
         type() {
             return conf.type ? conf.type : 'string'
         },
@@ -140,6 +144,13 @@ function thNum(th: string | number | Date, params={} as any): ColumnInterface {
     return configCell(data)
 }
 
+function tdNum(td: string | number, params={} as any): RowInterface {
+    const data = {...params}
+    data.td = toNumString(td)
+    data.sortValue = parseInt(`${td}`)
+    return configCell(data)
+}
+
 function tdDate(td: string, params={} as any): RowInterface {
     const data = params
     data.td = td ? HisDate.toStandardHisDisplayFormat(td) : ''
@@ -180,6 +191,7 @@ export default {
     thTxt,
     thNum,
     thDate,
+    tdNum,
     td,
     tdBtn,
     tdDate,

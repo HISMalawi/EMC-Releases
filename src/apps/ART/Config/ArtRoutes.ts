@@ -368,5 +368,15 @@ export default [
         name: 'sc_arv',
         path: '/art/report/pepfar/sc_arv',
         component: () => import("@/apps/ART/views/reports/pepfar/SCARVReport.vue")
+    },
+    {
+        name: 'clinic_tx_rrt',
+        path: '/art/report/clinic_tx_rtt',
+        component: () => import('@/apps/ART/views/reports/clinic/ClinicTxRtt.vue')
+    },
+    {
+        name: 'clinic_tpt_outcomes',
+        path: '/art/report/clinic_tpt_outcomes',
+        component: () => import('@/apps/ART/views/reports/clinic/ClinicTpTOutcomes.vue')
     }
 ]

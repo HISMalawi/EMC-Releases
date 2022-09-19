@@ -155,18 +155,41 @@ export async function getPatientDashboardAlerts(patient: any): Promise<GeneralDa
     ]
 }
 
-export function formatPatientProgramSummary(data: any) {
-    const [day, month, year] = data.art_start_date.split('/')
-    const durationOnArt = !data.art_start_date.match(/n\/a/i)
-        ? `(${dayjs(Service.getSessionDate()).diff(`${year}-${month}-${day}`, 'months')} Month(s))`
-        : ''
+export function patientProgramInfoData(patientID: number) {
+    let data: any = {}
     return  [
-        { label: "ART- Start Date", value: `${data.art_start_date} ${durationOnArt}`},
-        { label: "ARV Number", value: `${data.arv_number} | Regimen: ${data.current_regimen}` },
-        { label: "File Number", value: data.filing_number.number},
-        { label: "Current Outcome", value: data.current_outcome},
+        { 
+            label: "ART- Start Date", 
+            value: '...',
+            init: async () => {
+                data = await ProgramService.getProgramInformation(patientID)
+            },
+            staticValue: () => {
+                const [day, month, year] = data.art_start_date.split('/')
+                const durationOnArt = !data.art_start_date.match(/n\/a/i)
+                    ? `(${dayjs(Service.getSessionDate()).diff(`${year}-${month}-${day}`, 'months')} Month(s))`
+                    : ''
+                return `${data.art_start_date} ${durationOnArt}`
+            } 
+        },
+        { 
+            label: "ARV Number", 
+            value: '...',
+            staticValue: () => `${data.arv_number} | Regimen: ${data.current_regimen}`
+        },
+        { 
+            label: "File Number", 
+            value: '...',
+            staticValue: () => data.filing_number.number
+        },
+        { 
+            label: "Current Outcome", 
+            value: '...',
+            staticValue: () => data.current_outcome
+        }
     ]
 }
+
 /**
  * Loads lab result card data
  * @param patientId 

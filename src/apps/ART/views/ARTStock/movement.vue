@@ -4,7 +4,6 @@
     :activeField="activeField"
     :onFinishAction="onFinish"
     :skipSummary="true"
-    :cancelDestinationPath="cancelDestination"
   >
   </his-standard-form>
 </template> 
@@ -166,16 +165,16 @@ export default defineComponent({
           config: {
             customKeyboard: [CHARACTERS_AND_NUMBERS_LO, [['Delete']]]
           },
-          validation: (v: Option) => {
-          if (!v || v && !v.value) {
-            return null
-          }
-          const value = v.value as string
-          const dha = new DHAVerificationService()
-          return !dha.isValidDHACode(value.toUpperCase())
-            ? ['Invalid authorization code']
-            : null  
-          }, 
+          validation: (v: Option) => Validation.validateSeries([
+            () => Validation.required(v),
+            () => {
+              const value = v.value as string
+              const dha = new DHAVerificationService()
+              return !dha.isValidDHACode(value.toUpperCase())
+                ? ['Invalid authorization code']
+                : null
+            }
+          ]), 
         },
         {
           id: "reasons",
