@@ -26,24 +26,6 @@ export class ConsultationService extends AppEncounterService {
     return AppEncounterService.getJson(`/patients/${this.patientID}/tpt_status`)
   }
 
-  async hasCompleteTptDispensations() {
-    try {
-      const orders = await DrugOrderService.getAllDrugOrders(this.patientID)
-      const { rifapentine, isoniazid } = orders.reduce((quantities: any, order: any) => {
-      const name = order.drug.name
-      if (name.match(/Isoniazid/i))
-        quantities['isoniazid'] += order.quantity
-      if (name.match(/Rifapentine/i))
-        quantities['rifapentine'] += order.quantity
-      return quantities
-      }, {'rifapentine': 0, 'isoniazid': 0})
-      return isoniazid >= 168 || isoniazid >= 36 && rifapentine >= 72
-    } catch (e) {
-      console.error(e)
-      return false
-    }
-  }
-
   async patientHitMenopause() {
     const obs = await ObservationService.getFirstObs(
       this.patientID, 'Why does the woman not use birth control', 
@@ -57,13 +39,6 @@ export class ConsultationService extends AppEncounterService {
   async hasTreatmentHistoryObs() {
     const obs = await ObservationService.getFirstObs(this.patientID, 'Previous TB treatment history')
     return obs && AppEncounterService.obsInValidPeriod(obs)
-  }
-
-  async patientCompleted3HP() {
-    const obs = await ObservationService.getFirstObs(this.patientID, 'Previous TB treatment history')
-    return obs && typeof obs.value_text === 'string' 
-      && AppEncounterService.obsInValidPeriod(obs)
-      && obs.value_text.match(/complete/i) ? true : false
   }
 
   getDrugSideEffects() {

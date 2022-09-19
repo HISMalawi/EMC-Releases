@@ -556,7 +556,7 @@ export default [
       "concept_id": 9764
    },
    {
-      "categories": [],
+      "categories": ['art_extra_medication_order'],
       "name": "INH 300 / RFP 300 (3HP)",
       "concept_id": 10565
    },
