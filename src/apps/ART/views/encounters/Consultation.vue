@@ -675,7 +675,8 @@ export default defineComponent({
           options: async () => {
             if (!isEmpty(this.customRegimens)) return this.customRegimens
             const p = new PrescriptionService(this.patientID, this.providerID)
-            this.customRegimens = (await p.getCustomIngridients())
+            this.customDrugs = await p.getCustomIngridients()
+            this.customRegimens = this.customDrugs
               .map((drug: any ) => ({
                 label: drug.name,
                 value: drug.drug_id,

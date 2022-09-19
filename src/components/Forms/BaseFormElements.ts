@@ -110,6 +110,5 @@ export const COMPONENT_REFS: FieldType[] = [
     FieldType.TT_RADIOLOGY_PICKER,
     FieldType.TT_PRESCRIPTION_INPUT,
     FieldType.TT_INFINITE_SCROLL_MULTIPLE_SELECT,
-    FieldType.TT_DRUG_DISPENSER,
-    FieldType.TT_TPT_DRUGS_INPUT,
+    FieldType.TT_DRUG_DISPENSER
 ]
