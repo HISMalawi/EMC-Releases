@@ -20,7 +20,7 @@
               <ion-col> 
                 <ion-item>
                   <ion-label position="floating">Expiry Date</ion-label>
-                  <ion-input readonly :value="entry.expiry_date"></ion-input>
+                  <ion-input readonly :value="fmtDate(entry.expiry_date)"></ion-input>
                 </ion-item>
               </ion-col>
               <ion-col> 
@@ -29,13 +29,23 @@
                   <ion-input 
                     readonly 
                     placeholder="0"
-                    :value="entry.current_quantity"
-                    :color="entry.current_quantity != entry.originalQuantity ? 'success': ''">
+                    :value="fmtNumber(entry.originalQuantity)"
+                  >
                   </ion-input>
                 </ion-item>
               </ion-col>
               <ion-col> 
-                <ion-button size="large" @click="enterAmount(ind)"> Update Stock </ion-button>
+                <ion-item>
+                  <ion-label position="floating">Verified Stock</ion-label>
+                  <ion-input 
+                    readonly 
+                    placeholder="0"
+                    :value="fmtNumber(entry.current_quantity)"
+                    :color="entry.current_quantity != entry.originalQuantity ? 'danger': 'success'"
+                    @click="enterAmount(ind)"
+                    >
+                  </ion-input>
+                </ion-item>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -51,7 +61,6 @@ import {
   IonGrid,
   IonCol,
   IonRow,
-  IonButton,
   modalController,
 } from "@ionic/vue";
 import { StockService } from "@/apps/ART/views/ARTStock/stock_service";
@@ -63,9 +72,10 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { FieldType } from "../Forms/BaseFormElements";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
 import { isEmpty } from "lodash";
+import { toDate, toNumString } from "@/utils/Strs";
 
 export default defineComponent({
-  components: { ViewPort, HisTextInput, IonGrid, IonCol, IonRow, IonButton },
+  components: { ViewPort, HisTextInput, IonGrid, IonCol, IonRow },
   mixins: [FieldMixinVue],
   data: () => ({
     drugs: [] as any,
@@ -83,6 +93,12 @@ export default defineComponent({
       this.$emit("onFieldActivated", this);
       this.stockService = new StockService();
       await this.setDefaultValue();
+    },
+    fmtNumber(num: number | string) {
+      return toNumString(num)
+    },
+    fmtDate(date: string) {
+      return toDate(date)
     },
     async setDefaultValue() {
       if (!isEmpty(this.drugs)) {
@@ -102,7 +118,6 @@ export default defineComponent({
     },
     setDrugValue(index: number, type: string, data: Option | null) {
       this.drugs[this.selectedDrug].entries[index][type] = data ? data.value : ''
-
     },
     async enterAmount(index: number) {
       const batchNumber = this.getDrugValue(index, 'batch_number');

@@ -10,9 +10,15 @@ export class StockReportService extends ArtReportService {
     async loadStock() {
         this.stock = await ArtReportService.getJson(`pharmacy/items`, { paginate: false })
     }
-    async loadTrail() {
-        return await ArtReportService.getJson(`pharmacy/audit_trail`, { paginate: false })
+    
+    getStockReport() {
+        return ArtReportService.getJson(`pharmacy/stock_report`, { paginate: false })
     }
+
+    loadTrail() {
+        return this.getReport('pharmacy/audit_trail')
+    }
+
     /**Code adapted from BHT-Core Art system */
     groupStock() {
         const pharmacyData: any = {};
@@ -45,6 +51,7 @@ export class StockReportService extends ArtReportService {
             return {
                 drugName: drug.drug_name,
                 currentQuantity,
+                quantityIsTabs: drug.pack_size === null,
                 expiryDate
             }
         })

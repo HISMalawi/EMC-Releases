@@ -5,7 +5,6 @@
     :onFinishAction="onFinish"
     :skipSummary="true"
     @onIndex="activeField=''"
-    :cancelDestinationPath="cancelDestination"
   >
   </his-standard-form>
 </template> 
@@ -20,6 +19,7 @@ import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { StockService } from "./stock_service";
 import { toastDanger, toastSuccess, toastWarning } from "@/utils/Alerts";
 import { isEmpty } from "lodash";
+import { toNumString } from "@/utils/Strs";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -123,7 +123,7 @@ export default defineComponent({
           beforeNext: (_: any, f: any, c: any, {currentFieldContext}: any) => {
             const drugsToStr = (drugs: any) => drugs.map((b: any, i: number) => `${b.label}`).join(' & ')
             const drugsWithoutBatches = currentFieldContext.drugs.filter((drug: any) =>
-              drug.entries.map((d: any) => !d.tins && !d.expiry && !d.batchNumber).every(Boolean)
+              drug.entries.map((d: any) => !d.tins && !d.expiry && !d.batchNumber && !d.productCode).every(Boolean)
             )
             const partialBatches = currentFieldContext.drugs.filter((drug: any) => {
               return drug.entries.map((e: any) => {
@@ -131,7 +131,8 @@ export default defineComponent({
                 if (e.tins) score += 1
                 if (e.expiry) score += 1
                 if (e.batchNumber) score += 1
-                return score >= 1 && score <= 2 
+                if (e.productCode) score += 1
+                return score >= 1 && score <= 3 
               }).some(Boolean)
             })
             if (!isEmpty(partialBatches)) {
@@ -166,15 +167,17 @@ export default defineComponent({
         "Total units",
         "Expiry date",
         "Batch number",
+        "Product code"
       ];
       const rows = d.map((j: any) => {
         const d = j.value;
         return [
           d.shortName,
           d.tabs,
-          d.tins,
+          toNumString(d.tins),
           HisDate.toStandardHisDisplayFormat(d.expiry),
           d.batchNumber,
+          d.productCode,
         ];
       });
       return [
@@ -196,6 +199,7 @@ export default defineComponent({
           'location_id': location,
           items: [
             {
+              'product_code': element.productCode,
               'barcode': barcode,
               'drug_id': element.drugID,
               'expiry_date': element.expiry,
