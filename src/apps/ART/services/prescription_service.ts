@@ -69,6 +69,10 @@ export class PrescriptionService extends AppEncounterService {
 
     getPatientRegimens() { return RegimenService.getRegimens(this.patientID) }
 
+    getARVs() {
+        return RegimenService.getJson('arv_drugs')
+    }
+
     getCustomIngridients() { return RegimenService.getCustomIngridients() }
 
     getFastTrackMedications() { return this.fastTrackMedications }

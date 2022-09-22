@@ -21,6 +21,7 @@ import { alertConfirmation, toastDanger, toastWarning  } from "@/utils/Alerts"
 import HisDate from "@/utils/Date"
 import Keypad from "@/components/Keyboard/HisKeypad.vue"
 import { nextTask } from '@/utils/WorkflowTaskHelper';
+import Store from "@/composables/ApiStore"
 
 /**
  * Manages filing number assignment
@@ -88,6 +89,7 @@ export default defineComponent({
             if (assigned) {
                 this.filingNumberAssignment = assigned
                 this.fieldComponent = 'filing_number_management'
+                Store.invalidate('ACTIVE_PATIENT')
             } else {
                 this.fieldComponent = 'select_candidate_to_swap'
                 toastWarning('Out of filing numbers, Please select eligible candidate')
@@ -217,8 +219,9 @@ export default defineComponent({
             try {
                 await this.service.archiveFilingNumber()
                 await this.service.printFilingNumber()
+                Store.invalidate('ACTIVE_PATIENT')
             }catch(e) {
-                toastDanger(e)
+                toastDanger(`${e}`)
             }
             await loadingController.dismiss()
             this.$router.back()
