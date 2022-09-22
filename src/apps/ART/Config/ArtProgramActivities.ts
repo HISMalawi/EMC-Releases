@@ -2,6 +2,8 @@ import { TaskInterface } from "../../interfaces/TaskInterface"
 import { PatientPrintoutService } from "@/services/patient_printout_service"
 import { Patientservice } from "@/services/patient_service"
 import Store from "@/composables/ApiStore"
+import { alertConfirmation } from "@/utils/Alerts"
+import { delayPromise } from "@/utils/Timers"
 
 export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
@@ -125,7 +127,13 @@ export const SECONDARY_ACTIVITIES: TaskInterface[] = [
     name: "Archive client",
     description: "Archive a client",
     action: ({ patient }: any, router: any) => {
-      router.push(`/art/filing_numbers/${patient.patient_id}?archive=true`)
+      delayPromise(200).then(() => {
+        alertConfirmation('Are you sure you want to archive patient?').then((ok) => {
+          if (ok) {
+            router.push(`/art/filing_numbers/${patient.patient_id}?archive=true`)
+          }
+        })
+      })
     },
     condition: async ({ patient }: any) => {
       return (await Store.get('IS_ART_FILING_NUMBER_ENABLED')) && new Patientservice(patient).hasActiveFilingNumber()
@@ -141,7 +149,13 @@ export const SECONDARY_ACTIVITIES: TaskInterface[] = [
       return (await Store.get('IS_ART_FILING_NUMBER_ENABLED')) && (_p.hasDormantFilingNumber() || !_p.hasActiveFilingNumber())
     },
     action: ({ patient }: any, router: any) => {
-      router.push(`/art/filing_numbers/${patient.patient_id}?assign=true`)
+      delayPromise(200).then(() => {
+        alertConfirmation('Are you sure you want to assign a filing number?').then((ok) => {
+          if (ok) {
+            router.push(`/art/filing_numbers/${patient.patient_id}?assign=true`)
+          }
+        })
+      })
     },
     icon: "archive.png"
   },
