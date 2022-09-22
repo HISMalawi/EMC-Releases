@@ -63,11 +63,12 @@
           New Pregnancy
         </ion-button>
         <ion-button
-          :disabled="!facts.patientFound"
+          :disabled="!facts.patientFound || facts.patientFound && !isReady"
           slot="end"
           color="success"
           size="large"
           @click="nextTask">
+          <ion-spinner v-if="!isReady" name="crescent"/>
           Continue
         </ion-button>
       </ion-toolbar>
@@ -95,6 +96,7 @@ import {
   IonToolbar,
   IonRow,
   IonCol,
+  IonSpinner,
   IonButton,
   modalController
 } from "@ionic/vue";
@@ -104,7 +106,6 @@ import {
   CONFIRMATION_PAGE_GUIDELINES
 } from "@/guidelines/confirmation_page_guidelines"
 import { PatientPrintoutService } from "@/services/patient_printout_service";
-import { AppInterface } from "@/apps/interfaces/AppInterface";
 import { PatientDemographicsExchangeService } from "@/services/patient_demographics_exchange_service"
 import { IncompleteEntityError, BadRequestError } from "@/services/service"
 import { OrderService } from "@/services/order_service";
@@ -124,6 +125,7 @@ export default defineComponent({
     IonFooter,
     IonPage,
     IonToolbar,
+    IonSpinner,
     IonRow,
     IonCol,
     IonButton,
@@ -311,7 +313,9 @@ export default defineComponent({
       } else {
         req = Patientservice.findByNpid(npid as string)
       }
-      this.handleSearchResults(req).then(() => this.isReady = true)
+      this.handleSearchResults(req)
+        .then(() => this.isReady = true)
+        .catch((e) => toastDanger(`${e}`, 300000))
     },
     /**
      * Handle search result promises and handle entity related errors.
@@ -374,7 +378,9 @@ export default defineComponent({
         // The function below checks for newer version
         if (this.facts.scannedNpid) this.setVoidedNpidFacts(this.facts.scannedNpid)
       }
-      this.onEvent(TargetEvent.ONLOAD).then(() => this.isReady = true)
+      this.onEvent(TargetEvent.ONLOAD)
+        .then(() => this.isReady = true)
+        .catch(e => { toastDanger(`${e}`, 300000); this.isReady = true })
     },
     async validateNpid () {
       if(this.useDDE){
@@ -719,9 +725,6 @@ export default defineComponent({
       await type.savePatientType(patientType)
     },
     async onVoid() {
-      if (!this.isReady) {
-        return toastWarning('Please wait...')
-      }
       popVoidReason(async (reason: string) => {
         try {
           await Patientservice.voidPatient(this.patient.getID(), reason)
@@ -732,9 +735,6 @@ export default defineComponent({
       }, 'void-modal')
     },
     nextTask() {
-      if (!this.isReady) {
-        return toastWarning('Please wait...')
-      }
       this.onEvent(TargetEvent.ON_CONTINUE, () => {
         nextTask(this.patient.getID(), this.$router)
       })
