@@ -130,7 +130,7 @@ export default defineComponent({
       if (isEmpty(this.customDrugs)) {
         this.customDrugs = await RegimenService.getCustomIngridients()
       }
-      if(tptHistory.match(/ipti/)) {
+      if(tptHistory.match(/ipt/i)) {
         drugFilters.push("INH or H (Isoniazid 300mg tablet)")
       } else if(tptHistory.includes("3HP (RFP + INH)")){
         drugFilters.push('INH or H (Isoniazid 300mg tablet)')
