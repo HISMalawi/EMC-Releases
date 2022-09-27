@@ -307,7 +307,7 @@ export const DataTable = defineComponent({
                 h("th", { key: column.label, style: {minWidth: column.path.match(/index/i) ? '80px' : '190px'}, onClick: () => updateSortQueries(column) },
                   [
                     h("span", column.label),
-                    h(IonIcon, {
+                    column.sortable !== false && h(IonIcon, {
                       icon: (computed(() => {
                         const query = filters.sort.find(({ columnId }) => columnId === column.path);
                         return !query ? swapVertical : query.order == "asc" ? arrowUp : arrowDown;
