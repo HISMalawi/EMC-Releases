@@ -146,6 +146,12 @@ export default defineComponent({
     cancelDestinationPath: {
       type: String,
     },
+    disableAutoModalDismiss : {
+      type: Boolean
+    },
+    cancelAction: {
+      type: Function
+    }
   },
   data: () => ({
     ftBtnEvent: {
@@ -202,7 +208,7 @@ export default defineComponent({
       handler (newState: string) {
         if(["onValue", "onClear", "next", "prev", "onfinish", "onload", "unload"].includes(newState)){
           loadingController.getTop().then(v => v ? loadingController.dismiss() : null)
-          modalController.getTop().then(v => v ? modalController.dismiss() : null)
+          if (!this.disableAutoModalDismiss) modalController.getTop().then(v => v && modalController.dismiss())
           alertController.getTop().then(v => v ? alertController.dismiss() : null)
           toastController.getTop().then(v => v ? toastController.dismiss() : null)
         }
@@ -261,13 +267,14 @@ export default defineComponent({
           if (override.onClick) {
             return override.onClick()
           }
-          const confirmation = await alertConfirmation(
-            "Are you sure you want to cancel?"
-          );
-          if (confirmation) {
-            this.cancelDestinationPath
-              ? this.$router.push(this.cancelDestinationPath)
-              : this.$router.back();
+          if ((await alertConfirmation("Are you sure you want to cancel?"))) {
+            if (typeof this.cancelAction === 'function') {
+              return this.cancelAction()
+            } else {
+              this.cancelDestinationPath
+                ? this.$router.push(this.cancelDestinationPath)
+                : this.$router.back();
+            }
           }
         }
       }

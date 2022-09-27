@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 /**
  * Check for null values and Empty spaces
  * Best used for testing single words
@@ -36,4 +38,22 @@ export function AppendleadingZero(num: number) {
 
 export function toUnderscores (str: string) {
     return str.split(/(?=[A-Z])/).join('_').toLowerCase() 
+}
+
+export function toDate(date: string | Date) {
+    if (date) {
+        return dayjs(date).format('DD/MMM/YYYY')
+    }
+    return date
+}
+
+export function toNumString(num: number | string) {
+    let val = num
+    if (typeof val === 'string' && val !='') {
+        val = parseInt(val)
+    }
+    if (typeof val === 'number') {
+        return val.toLocaleString()
+    }
+    return num
 }

@@ -82,9 +82,9 @@ export default defineComponent({
                     break;
             }
             Store.invalidate('PROVIDERS')
-            this.formKey += 1
             this.activeField = 'user_info'
             this.$nextTick(() => this.fieldComponent = this.activeField)
+            this.formKey += 1
         } catch (e) {
             if (e instanceof RecordConflictError && !isEmpty(e.errors)) {
                 toastWarning(e.errors)

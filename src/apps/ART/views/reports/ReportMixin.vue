@@ -26,6 +26,9 @@ export default defineComponent({
         drillDownCache: {} as Record<number, Array<any>>
     }),
     methods: {
+        formatGender(gender: string) {
+            return gender === 'M' || gender.toLowerCase() === 'male' ? "Male" : "Female"
+        },
         toDate(date: string) {
             return HisDate.toStandardHisDisplayFormat(date)
         },
@@ -125,7 +128,7 @@ export default defineComponent({
                         row.push(index)
                     } 
                     row.push(this.tdARV(patient.getArvNumber()))
-                    row.push(table.td(patient.getGender()))
+                    row.push(table.td(this.formatGender(patient.getGender())))
                     row.push(table.tdDate(patient.getBirthdate().toString()))
                     row.push(table.tdBtn('Show', async () => {
                         await modalController.dismiss({})

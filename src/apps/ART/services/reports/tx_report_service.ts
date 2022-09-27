@@ -18,6 +18,10 @@ export class TxReportService extends ArtReportService {
         this.org = org
     }
 
+    getClinicTxRtt() {
+        return this.getReport(`programs/${this.programID}/reports/clinic_tx_rtt`)
+    }
+
     getTxMMDClientLevelData(patients: Array<number>) {
         const params = Url.parameterizeObjToString({
             'start_date': this.startDate,
@@ -73,5 +77,18 @@ export class TxReportService extends ArtReportService {
 
     getTxRttReport() {
         return this.getReport('tx_rtt')
+    }
+
+    getMaternalStatus(patientIds: number[]) {
+        const params = Url.parameterizeObjToString({
+            'start_date': this.startDate,
+            'end_date': this.endDate,
+            'date': this.date,
+            'program_id': this.programID,
+            'report_definition': 'pepfar'
+        })
+        return ArtReportService.postJson(`vl_maternal_status?${params}`, {
+            'patient_ids': patientIds
+        })
     }
 }

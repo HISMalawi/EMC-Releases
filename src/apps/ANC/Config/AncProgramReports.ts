@@ -41,6 +41,10 @@ export const REPORTS: FolderInterface[] = [
            {
                name: "Disaggregated",
                pathName: 'anc_pepfar_disaggregated'
+           },
+           {
+                name: 'PMTCT',
+                pathName: 'anc pepfar pmtct report'
            }
         ]
     }

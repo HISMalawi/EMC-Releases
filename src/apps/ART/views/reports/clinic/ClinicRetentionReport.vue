@@ -69,7 +69,7 @@ export default defineComponent({
             const ageGroups = [...AGE_GROUPS, 'Unknown']
             for(const ageIndex in ageGroups) {
                 const group = ageGroups[ageIndex]
-                const row: any = [table.td(group), table.td(gender)]
+                const row: any = [table.td(group), table.td(this.formatGender(gender))]
                 if (!isEmpty(this.cohort)) {
                     for (const month in this.cohort) {
                         row.push(this.getValue(parseInt(month), gender, group, 'all'))
