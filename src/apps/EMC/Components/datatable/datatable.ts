@@ -345,7 +345,7 @@ export const DataTable = defineComponent({
                 }, [
                   ...props.columns.map(column => {
                     let value = get(row, column.path);
-                    if (column.date && value) value = dayjs(value).format('DD/MMM/YYYY');
+                    if(typeof column.formatter === 'function' && value) value = column.formatter(value)
                     return h('td', { key: column.path, style: { minWidth: column.path.match(/index/i) ? '80px' : '190px'} }, 
                       column.drillable && !isEmpty(value)
                         ? h('a', { onClick: () => emit("drilldown", {column, row})}, Array.isArray(value) ? value.length : value)

@@ -4,10 +4,10 @@ export interface TableColumnInterface {
   exportable?: boolean;
   initialSort?: boolean;
   sortable?: boolean;
-  date?: boolean;
   initialSortOrder?: sortType;
   sortCaseSensitive?: boolean;
   drillable?: boolean;
+  formatter?: (value: any) => any
 }
 
 export interface SortQueryInterface {
