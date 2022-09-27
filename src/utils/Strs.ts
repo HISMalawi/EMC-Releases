@@ -57,3 +57,7 @@ export function toNumString(num: number | string) {
     }
     return num
 }
+
+export function toGenderString(gender: string) {
+    return gender.toLowerCase() === 'm' || gender.toLowerCase() === 'male' ? "Male" : "Female"
+}

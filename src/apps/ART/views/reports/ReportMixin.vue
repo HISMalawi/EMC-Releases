@@ -13,6 +13,7 @@ import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { isArray } from "lodash"
+import { toGenderString } from "@/utils/Strs"
 
 export default defineComponent({
     data: () => ({
@@ -27,7 +28,7 @@ export default defineComponent({
     }),
     methods: {
         formatGender(gender: string) {
-            return gender === 'M' || gender.toLowerCase() === 'male' ? "Male" : "Female"
+            return toGenderString(gender)
         },
         toDate(date: string) {
             return HisDate.toStandardHisDisplayFormat(date)
