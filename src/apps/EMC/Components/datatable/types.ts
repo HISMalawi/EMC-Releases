@@ -7,7 +7,7 @@ export interface TableColumnInterface {
   initialSortOrder?: sortType;
   sortCaseSensitive?: boolean;
   drillable?: boolean;
-  formatter?: (value: any) => any
+  formatter?: (value: any) => any;
 }
 
 export interface SortQueryInterface {
