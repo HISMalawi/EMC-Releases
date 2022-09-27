@@ -69,7 +69,6 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     name: 'Dispensation',
     encounterTypeName: 'dispensing',
     icon: 'dispensing.png',
-    availableOnActivitySelection: false
   },
 ]
 
