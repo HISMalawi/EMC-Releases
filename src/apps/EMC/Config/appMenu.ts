@@ -182,6 +182,12 @@ export const menuItems: MenuItem[] = [
             id: 'clients_due_for_vl',
             img: 'reports/viral_load.png',
             url: '/emc/report/clinic/clients_due_for_vl',
+          },
+          {
+            title: 'TPT Outcomes',
+            id: 'tpt_outcomes',
+            img: 'reports/stats.png',
+            url: '/emc/report/clinic/tpt_outcomes',
           }
         ]
       }

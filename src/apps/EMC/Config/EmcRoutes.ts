@@ -91,6 +91,11 @@ export default [
         name: 'regimen_formulation',
         path: 'regimen_formulation',
         component: () => import('@/apps/EMC/views/reports/clinic/RegimenFormulation.vue'),
+      },
+      {
+        name: 'tpt_outcomes',
+        path: 'tpt_outcomes',
+        component: () => import('@/apps/EMC/views/reports/clinic/TptOutcomes.vue')
       }
     ]
   },
