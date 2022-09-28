@@ -101,7 +101,7 @@ export default defineComponent({
             await PatientDiagnosisService.getDiagnosis(filter, page, limit)
           ),
           beforeNext: async (data: any) => await this.checkMalariaResult(data),
-          computedValue: (options: Array<Option>) => ({
+          computedValue: (options: Array<Option>) => !isEmpty(options) && ({
             tag: 'diagnosis',
             obs: options.map(({other}) => 
               this.diagnosisService.buildValueCodedFromConceptId('Secondary diagnosis', other))
@@ -119,9 +119,9 @@ export default defineComponent({
           id: 'clinical_notes',
           helpText: 'Clinical notes',
           type: FieldType.TT_TEXT,
-          computedValue: ({value}: Option) => ({
+          computedValue: (v: Option) => v && ({
             tag: 'notes',
-            obs: this.notesService.buildValueText('Clinical notes construct', value)
+            obs: this.notesService.buildValueText('Clinical notes construct', v.value)
           })
         },
       ]
