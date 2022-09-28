@@ -18,6 +18,7 @@ import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { RegimenReportService } from "@/apps/ART/services/reports/regimen_report_service";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   name: "RegimenDispensation",
@@ -28,7 +29,7 @@ export default defineComponent({
     const formatter = (v: any) => dayjs(v).format(DISPLAY_DATE_FORMAT) 
     const columns: TableColumnInterface[] = [
       { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
-      { path: "gender", label: "Gender" },
+      { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "birthdate", label: "DOB", formatter},
       { path: "art_start_date", label: "Start Date", formatter },
       { path: "current_weight", label: "Weight (Kg)" },

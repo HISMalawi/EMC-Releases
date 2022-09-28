@@ -54,6 +54,7 @@ import DataTable, { RowActionButtonInterface, TableColumnInterface, TableConfigI
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   components: {
@@ -76,7 +77,7 @@ export default defineComponent({
       { label: 'ARV Number', path: 'arv_number'},
       { path: "given_name", label: "First name" },
       { path: "family_name", label: "Last name" },
-      { path: "gender", label: "Gender" },
+      { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
     ]
     const tableConfig: TableConfigInterface = { 

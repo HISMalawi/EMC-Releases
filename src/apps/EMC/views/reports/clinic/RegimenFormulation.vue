@@ -22,6 +22,7 @@ import { CustomFilterInterface, RowActionButtonInterface, TableColumnInterface }
 import { FORMULATIONS, RegimenReportService, REGIMENS } from "@/apps/ART/services/reports/regimen_report_service";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   name: "RegimenFormulation",
@@ -35,7 +36,7 @@ export default defineComponent({
     
     const columns: TableColumnInterface[] = [
       { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
-      { path: "gender", label: "Gender" },
+      { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
     ]
 

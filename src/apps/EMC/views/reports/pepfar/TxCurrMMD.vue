@@ -27,6 +27,7 @@ import { TxReportService } from "@/apps/ART/services/reports/tx_report_service";
 import { Patientservice } from "@/services/patient_service";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   name: "TBPrev",
@@ -37,7 +38,7 @@ export default defineComponent({
     const columns: TableColumnInterface[] = [
       { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
-      { path: "gender", label: "Gender" },
+      { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "underThree", label: "# of clients on <3 months of ARVs", drillable: true },
       { path: "betweenThreeAndFive", label: "# of clients on 3 - 5 months of ARVs", drillable: true },
       { path: "overSix", label: "# of clients on >= 6 months of ARVs", drillable: true },
@@ -103,7 +104,7 @@ export default defineComponent({
       const columns: TableColumnInterface[] = [
         { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
         { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
-        { path: "gender", label: "Gender" },
+        { path: "gender", label: "Gender", formatter: toGenderString },
         { path: "address", label: "Address" }
       ]
       const patients = data.row[data.column.path]

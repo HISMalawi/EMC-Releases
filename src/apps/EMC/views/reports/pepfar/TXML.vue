@@ -25,6 +25,7 @@ import { Patientservice } from "@/services/patient_service";
 import { get } from "lodash";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   name: "TBPrev",
@@ -35,7 +36,7 @@ export default defineComponent({
     const columns: TableColumnInterface[] = [
       { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
-      { path: "gender", label: "Gender" },
+      { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "died", label: "Died", drillable: true },
       { path: "iit_less_than_3_mo", label: "IIT <3 mo", drillable: true },
       { path: "iit_3_to_5_mo", label: "IIT 3-5 mo", drillable: true },
@@ -76,7 +77,7 @@ export default defineComponent({
       const columns: TableColumnInterface[] = [
         { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
         { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
-        { path: "gender", label: "Gender" },
+        { path: "gender", label: "Gender", formatter: toGenderString },
         { path: "address", label: "Address" }
       ]
       const patients = data.row[data.column.path]

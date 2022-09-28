@@ -18,6 +18,7 @@ import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
 import dayjs from "dayjs";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   name: "IncompleteVisits",
@@ -30,7 +31,7 @@ export default defineComponent({
       { path: "national_id", label: "NHID" },
       { path: "given_name", label: "First name", exportable: false },
       { path: "family_name", label: "Last name", exportable: false },
-      { path: "gender", label: "Gender" },
+      { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
       { path: "dates", label: "Date(s)" }
     ]

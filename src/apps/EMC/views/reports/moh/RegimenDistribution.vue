@@ -18,6 +18,7 @@ import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { RegimenReportService, REGIMEN_WEIGHT_DISTRIBUTION, WEIGHT_BAND } from "@/apps/ART/services/reports/regimen_report_service";
 import dayjs from "dayjs";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   name: "RegimenDistribution",
@@ -27,7 +28,7 @@ export default defineComponent({
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
       { path: "weight_band", label: "Weight Band" },
-      { path: "gender", label: "Gender" },
+      { path: "gender", label: "Gender", formatter: toGenderString },
       ...REGIMEN_WEIGHT_DISTRIBUTION.map(r => ({ 
         path: r, label: r,
       })),

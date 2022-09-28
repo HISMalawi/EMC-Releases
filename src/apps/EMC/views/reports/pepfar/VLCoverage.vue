@@ -23,6 +23,7 @@ import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
 import { get } from "lodash";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   name: "VLCoverage",
@@ -33,7 +34,7 @@ export default defineComponent({
     const columns: TableColumnInterface[] = [
       { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
-      { path: "gender", label: "Gender" },
+      { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "tx_curr", label: "TX CURR", drillable: true },
       { path: "due_for_vl", label: "Due for VL", drillable: true },
       { path: "drawn", label: "Sample Drawn", drillable: true },

@@ -29,6 +29,7 @@ import { useRouter } from "vue-router";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
 import { options } from "ionicons/icons";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   components: {
@@ -128,7 +129,7 @@ export default defineComponent({
         const columns: TableColumnInterface[] = [
           { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
           { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
-          { path: "gender", label: "Gender" },
+          { path: "gender", label: "Gender", formatter: toGenderString },
           { path: "address", label: "Address" }
         ]
         const rows: any[] = []

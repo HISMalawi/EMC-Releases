@@ -20,6 +20,7 @@ import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Compo
 import { DefaulterReportService } from "@/apps/ART/services/reports/defaulters_report_service";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   name: "DefaultersList",
@@ -32,7 +33,7 @@ export default defineComponent({
       { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
       { path: "given_name", label: "First name", exportable: false },
       { path: "family_name", label: "Last name", exportable: false },
-      { path: "gender", label: "Gender" },
+      { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT)},
       { path: "current_age", label: "Age (At reporting)"},
       { path: "defaulter_date", label: "Defaulted Date", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT)}

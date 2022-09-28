@@ -21,6 +21,7 @@ import { CustomFilterInterface, RowActionButtonInterface, TableColumnInterface }
 import { CtIndicator, DataCleaningReportService } from "@/apps/ART/services/reports/data_cleaning_report_service";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   name: "DataCleaning",
@@ -37,7 +38,7 @@ export default defineComponent({
       { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
       { path: "given_name", "label": "First Name" },
       { path: "family_name", label: "Last Name" },
-      { path: "gender", label: "Gender" },
+      { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
     ]
 

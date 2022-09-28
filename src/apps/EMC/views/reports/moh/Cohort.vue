@@ -58,6 +58,7 @@ import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
 import { DTFormField } from "@/apps/EMC/interfaces/dt_form_field";
 import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   name: "Cohort",
@@ -115,7 +116,7 @@ export default defineComponent({
         { path: "given_name", label: "First Name"},
         { path: "family_name", label: "Last Name"},
         { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
-        { path: "gender", label: "Gender" },
+        { path: "gender", label: "Gender", formatter: toGenderString },
         { path: "outcome", label: "Outcome" }
       ]
       const indicator = find(cohort.value, {name: indicatorName})

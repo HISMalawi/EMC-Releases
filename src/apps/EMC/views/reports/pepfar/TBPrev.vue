@@ -23,6 +23,7 @@ import { TbPrevReportService } from "@/apps/ART/services/reports/tb_prev_report_
 import { get } from "lodash";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   name: "TBPrev",
@@ -33,7 +34,7 @@ export default defineComponent({
     const columns: TableColumnInterface[] = [
       { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
-      { path: "gender", label: "Gender" },
+      { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "3hp_started_new_art", label: "3H (Started New on ART)", drillable: true },
       { path: "6hp_started_new_art", label: "6H (Started New on ART)", drillable: true },
       { path: "3hp_started_previous_art", label: "3H (Started Previously on ART)", drillable: true },

@@ -5,7 +5,7 @@
     :columns="columns"
     :rows="rows"
     :date="date"
-    useDateFilter="true"
+    useDateFilter
     :rowActionButtons="rowActionBtns"
     @custom-filter="getData"
   />
@@ -20,6 +20,7 @@ import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   name: "ClinicAppointments",
@@ -31,7 +32,7 @@ export default defineComponent({
       { path: "arv_number", label: "ARV Number" },
       { path: "given_name", label: "First name", exportable: false },
       { path: "family_name", label: "Last name", exportable: false },
-      { path: "gender", label: "Gender" },
+      { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
     ]
 
