@@ -188,7 +188,13 @@ export const menuItems: MenuItem[] = [
             id: 'tpt_outcomes',
             img: 'reports/stats.png',
             url: '/emc/report/clinic/tpt_outcomes',
-          }
+          },
+          {
+            title: 'TX RTT',
+            id: 'clinic_tx_rtt',
+            img: 'reports/restart.png',
+            url: '/emc/report/clinic/tx_rtt'
+          },
         ]
       }
     ]

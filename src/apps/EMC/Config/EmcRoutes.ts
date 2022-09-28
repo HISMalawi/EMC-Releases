@@ -96,7 +96,12 @@ export default [
         name: 'tpt_outcomes',
         path: 'tpt_outcomes',
         component: () => import('@/apps/EMC/views/reports/clinic/TptOutcomes.vue')
-      }
+      },
+      {
+        name: "clinic_tx_rtt",
+        path: "tx_rtt",
+        component: () => import("@/apps/EMC/views/reports/clinic/TXRTT.vue"),
+      },
     ]
   },
   {
