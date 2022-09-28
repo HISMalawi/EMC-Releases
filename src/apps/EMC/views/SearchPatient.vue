@@ -52,6 +52,8 @@ import { DTFormField } from "../interfaces/dt_form_field";
 import { loader } from "@/utils/loader";
 import DataTable, { RowActionButtonInterface, TableColumnInterface, TableConfigInterface } from "../Components/datatable";
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
+import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import dayjs from "dayjs";
 
 export default defineComponent({
   components: {
@@ -75,7 +77,7 @@ export default defineComponent({
       { path: "given_name", label: "First name" },
       { path: "family_name", label: "Last name" },
       { path: "gender", label: "Gender" },
-      { path: "birthdate", label: "Date of Birth", date: true },
+      { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
     ]
     const tableConfig: TableConfigInterface = { 
       showSearchField: false,

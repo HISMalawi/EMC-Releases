@@ -20,6 +20,8 @@ import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { CustomFilterInterface, RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { FORMULATIONS, RegimenReportService, REGIMENS } from "@/apps/ART/services/reports/regimen_report_service";
+import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import dayjs from "dayjs";
 
 export default defineComponent({
   name: "RegimenFormulation",
@@ -34,7 +36,7 @@ export default defineComponent({
     const columns: TableColumnInterface[] = [
       { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
       { path: "gender", label: "Gender" },
-      { path: "birthdate", label: "Date of Birth", date: true },
+      { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
     ]
 
     const fetchData = async (filters: Record<string, any>) => {

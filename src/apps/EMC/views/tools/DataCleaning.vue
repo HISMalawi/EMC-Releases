@@ -19,6 +19,8 @@ import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { CustomFilterInterface, RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { CtIndicator, DataCleaningReportService } from "@/apps/ART/services/reports/data_cleaning_report_service";
+import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import dayjs from "dayjs";
 
 export default defineComponent({
   name: "DataCleaning",
@@ -36,7 +38,7 @@ export default defineComponent({
       { path: "given_name", "label": "First Name" },
       { path: "family_name", label: "Last Name" },
       { path: "gender", label: "Gender" },
-      { path: "birthdate", label: "Date of Birth", date: true },
+      { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
     ]
 
     const fetchData = async (filters: Record<string, any>) => {

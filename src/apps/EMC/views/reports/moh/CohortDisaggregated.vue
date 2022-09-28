@@ -29,6 +29,7 @@ import { Patientservice } from "@/services/patient_service";
 import { useRoute } from "vue-router";
 import { empty } from "rxjs";
 import Url from "@/utils/Url";
+import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 
 interface Category {
   index: number;
@@ -239,7 +240,7 @@ export default defineComponent({
     const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
       const columns: TableColumnInterface[] = [
         { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
-        { path: "birthdate", label: "Date of Birth", date: true },
+        { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
         { path: "gender", label: "Gender" },
         { path: "address", label: "Address" }
       ]

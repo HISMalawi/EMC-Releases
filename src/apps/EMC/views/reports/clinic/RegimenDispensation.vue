@@ -16,6 +16,8 @@ import { loader } from "@/utils/loader";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { RegimenReportService } from "@/apps/ART/services/reports/regimen_report_service";
+import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import dayjs from "dayjs";
 
 export default defineComponent({
   name: "RegimenDispensation",
@@ -23,17 +25,18 @@ export default defineComponent({
   setup() {
     const period = ref("");
     const rows = ref<any[]>([]);
+    const formatter = (v: any) => dayjs(v).format(DISPLAY_DATE_FORMAT) 
     const columns: TableColumnInterface[] = [
       { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
       { path: "gender", label: "Gender" },
-      { path: "birthdate", label: "DOB", date: true },
-      { path: "art_start_date", label: "Start Date", date: true },
+      { path: "birthdate", label: "DOB", formatter},
+      { path: "art_start_date", label: "Start Date", formatter },
       { path: "current_weight", label: "Weight (Kg)" },
       { path: "current_regimen", label: "Regimen" },
       { path: "medications", label: "ARVs"},
-      { path: "dispensation_date", label: "Dispensation Date", date: true },
+      { path: "dispensation_date", label: "Dispensation Date", formatter },
       { path: "vl_result", label: "VL Result" },
-      { path: "vl_result_date", label: "Date of VL Result", date: true }
+      { path: "vl_result_date", label: "Date of VL Result", formatter }
     ]
 
     const fetchData =  async (filters: Record<string, any>) => {

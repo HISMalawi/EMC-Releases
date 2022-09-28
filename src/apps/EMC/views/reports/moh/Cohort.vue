@@ -57,6 +57,7 @@ import { Service } from "@/services/service";
 import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
 import { DTFormField } from "@/apps/EMC/interfaces/dt_form_field";
 import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
+import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 
 export default defineComponent({
   name: "Cohort",
@@ -113,7 +114,7 @@ export default defineComponent({
         { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
         { path: "given_name", label: "First Name"},
         { path: "family_name", label: "Last Name"},
-        { path: "birthdate", label: "Date of Birth", date: true },
+        { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
         { path: "gender", label: "Gender" },
         { path: "outcome", label: "Outcome" }
       ]

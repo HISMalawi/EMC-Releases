@@ -23,6 +23,7 @@ import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
 import { get } from "lodash";
 import { RegimenReportService } from "@/apps/ART/services/reports/regimen_report_service";
 import dayjs from "dayjs";
+import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 
 export default defineComponent({
   name: "TptInitiation",
@@ -78,13 +79,14 @@ export default defineComponent({
     }
 
     const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
+      const formatter = (v: any) => dayjs(v).format(DISPLAY_DATE_FORMAT) 
       const columns: TableColumnInterface[] = [
         { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
-        { path: "birthdate", label: "Date of Birth", date: true },
+        { path: "birthdate", label: "Date of Birth", formatter },
         { path: "gender", label: "Gender"},
-        { path: "dispensation_date", label: "Dispensation Date", date: true },
-        { path: "art_start_date", label: "Art Start Date", date: true },
-        { path: "tpt_start_date", label: "TPT Start Date", date: true }
+        { path: "dispensation_date", label: "Dispensation Date", formatter },
+        { path: "art_start_date", label: "Art Start Date", formatter },
+        { path: "tpt_start_date", label: "TPT Start Date",formatter }
       ]
       const rows = get(data, `row.${data.column.path}`, [])
 

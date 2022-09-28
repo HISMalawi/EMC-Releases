@@ -17,6 +17,8 @@ import DataTable, {
   TableColumnInterface, 
   TableConfigInterface 
 } from "../datatable";
+import dayjs from "dayjs";
+import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 
 export default defineComponent({
   name: "OutcomesTable",
@@ -33,8 +35,8 @@ export default defineComponent({
   setup(props, { emit }) {
     const columns: TableColumnInterface[] = [
       { path: 'name', label: "Outcome"},
-      { path: 'start_date', label: "Start Date", date: true },
-      { path: 'end_date', label: "End Date", date: true },
+      { path: 'start_date', label: "Start Date", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
+      { path: 'end_date', label: "End Date", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
     ];
 
     const tableConfig: TableConfigInterface = {

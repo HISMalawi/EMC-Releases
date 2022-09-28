@@ -18,6 +18,8 @@ import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
+import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import dayjs from "dayjs";
 
 export default defineComponent({
   name: "ClinicAppointments",
@@ -30,7 +32,7 @@ export default defineComponent({
       { path: "given_name", label: "First name", exportable: false },
       { path: "family_name", label: "Last name", exportable: false },
       { path: "gender", label: "Gender" },
-      { path: "birthdate", label: "Date of Birth", date: true },
+      { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
     ]
 
     const getData = async ({ dateRange }: Record<string, any>) => {

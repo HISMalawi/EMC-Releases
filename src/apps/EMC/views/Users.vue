@@ -24,6 +24,8 @@ import { modal } from "@/utils/modal";
 import UserModalVue from "../Components/modals/UserModal.vue";
 import { loader } from "@/utils/loader";
 import { User } from "@/interfaces/user";
+import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import dayjs from "dayjs";
 
 export default defineComponent({
   name: "Users",
@@ -35,7 +37,7 @@ export default defineComponent({
       { path: "given_name", label: "First name" },
       { path: "family_name", label: "Last name" },
       { path: "role", label: "Roles" },
-      { path: "deactivated_on", label: "Deactivated On", date: true },
+      { path: "deactivated_on", label: "Deactivated On", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
     ]
 
     const loadUsers = async () => {

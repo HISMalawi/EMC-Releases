@@ -23,6 +23,8 @@ import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
 import { get } from "lodash";
 import { TxReportService } from "@/apps/ART/services/reports/tx_report_service";
 import { Patientservice } from "@/services/patient_service";
+import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import dayjs from "dayjs";
 
 export default defineComponent({
   name: "TBPrev",
@@ -72,7 +74,7 @@ export default defineComponent({
     const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
       const columns: TableColumnInterface[] = [
         { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
-        { path: "birthdate", label: "Date of Birth", date: true },
+        { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
         { path: "gender", label: "Gender" },
         { path: "address", label: "Address" }
       ]

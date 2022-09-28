@@ -19,6 +19,8 @@ import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { RegimenReportService } from "@/apps/ART/services/reports/regimen_report_service";
 import { modal } from "@/utils/modal";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
+import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import dayjs from "dayjs";
 
 export default defineComponent({
   name: "SCARVDISP",
@@ -53,7 +55,7 @@ export default defineComponent({
         { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
         { path: "name", label: "Drug" },
         { path: "quantity", label: "Quantity"},
-        { path: "date", label: "Date", date: true }
+        { path: "date", label: "Date", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) }
       ]
       const rows = data.row.dispensations.map((d: any[]) => ({
         'arv_number': d[3],
