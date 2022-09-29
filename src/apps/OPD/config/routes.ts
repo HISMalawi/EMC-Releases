@@ -40,7 +40,7 @@ export default [
     component: () => import('@/apps/OPD/views/encounters/Prescription.vue')
   },
   {
-    name: "dispensation",
+    name: "dispensing",
     path: "/opd/encounters/dispensing/:patient_id",
     component: () => import('@/apps/OPD/views/encounters/Dispensing.vue')
   },
