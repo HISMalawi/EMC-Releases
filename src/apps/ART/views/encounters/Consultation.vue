@@ -130,7 +130,7 @@ export default defineComponent({
       if (isEmpty(this.customDrugs)) {
         this.customDrugs = await RegimenService.getCustomIngridients()
       }
-      if(tptHistory.match(/ipti/)) {
+      if(tptHistory.match(/ipt/i)) {
         drugFilters.push("INH or H (Isoniazid 300mg tablet)")
       } else if(tptHistory.includes("3HP (RFP + INH)")){
         drugFilters.push('INH or H (Isoniazid 300mg tablet)')
@@ -675,8 +675,7 @@ export default defineComponent({
           options: async () => {
             if (!isEmpty(this.customRegimens)) return this.customRegimens
             const p = new PrescriptionService(this.patientID, this.providerID)
-            this.customDrugs = await p.getCustomIngridients()
-            this.customRegimens = this.customDrugs
+            this.customRegimens = (await p.getARVs())
               .map((drug: any ) => ({
                 label: drug.name,
                 value: drug.drug_id,
