@@ -68,7 +68,7 @@ export default defineComponent({
           'start_date': startDate,
           'auto_expire_date': this.calculateExpireDate(startDate, drug.other.duration), 
           'units': drug.other.units,
-          'instructions': `${drug.label}: ${frequency!.value} ${frequency!.code} for ${drug.other.duration}`,
+          'instructions': `${drug.label}: ${drug.other.dosage} ${drug.other.units} ${frequency!.code} for ${drug.other.duration} days`,
           'dose': drug.other.dosage,
           'frequency': frequency!.code,
         }
