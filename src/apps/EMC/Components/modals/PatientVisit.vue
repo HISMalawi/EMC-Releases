@@ -140,6 +140,7 @@ import { modal } from "@/utils/modal";
 import { EmcEvents } from "../../interfaces/emc_event";
 import EventBus from "@/utils/EventBus";
 import { find, uniqBy } from "lodash";
+import { uniqueBy } from "@/utils/Arrays";
 
 export default defineComponent({
   components: {
@@ -517,13 +518,13 @@ export default defineComponent({
       }
 
       if(formData.totalCPTGiven) {
-        uniqBy((await RegimenService.getRegimenExtras('Cotrimoxazole', formData.weight)), 'concept_name')
+        uniqueBy((await RegimenService.getRegimenExtras('Cotrimoxazole', formData.weight)), 'concept_name')
         .filter((drug: any) => drug.frequency === 'Daily (QOD)')
         .forEach((drug: any) => drugOrders.push(toDrugOrder(drug, formData.totalCPTGiven, duration, formData.visitDate)))
       }
 
       if(formData.tbMed?.value) {
-        const iptRegimens = uniqBy((await RegimenService.getRegimenExtras('INH', formData.weight)), ['concept_name', 'frequency'])
+        const iptRegimens = uniqueBy((await RegimenService.getRegimenExtras('INH', formData.weight)), ['concept_name', 'frequency'])
         const pyridoxine = iptRegimens.find((d: any) => d['concept_name'] === 'Pyridoxine')
 
         if(pyridoxine && formData.totalPyridoxineGiven) {
