@@ -43,8 +43,28 @@
             <ion-col size="6" class="ion-margin-top ion-margin-bottom">
               <SelectInput v-model="form.initialTBStatus" :form="form" :options="initialTbStatusOptions" />
             </ion-col>
+            <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+              <SelectInput v-model="form.tptHistory" :form="form" :options="tptHistoryOptions" />
+            </ion-col>
+            <template v-if="tptDrugs.length">
+              <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+                <DateInput v-model="form.tptStartDate" :min-date="patientDob" :max-date="today" :form="form" />
+              </ion-col>
+              <ion-col size="6" class="ion-margin-top ion-margin-bottom" v-if="tptDrugs.includes('INH or H (Isoniazid 300mg tablet)')">
+                <NumberInput v-model="form.inhQty" :form="form" :min="1" />
+              </ion-col>
+              <ion-col size="6" class="ion-margin-top ion-margin-bottom" v-if="tptDrugs.includes('Rifapentine (150mg)')">
+                <NumberInput v-model="form.rifapentineQty" :form="form" :min="1" />
+              </ion-col>
+              <ion-col size="6" class="ion-margin-top ion-margin-bottom" v-if="tptDrugs.includes('INH 300 / RFP 300 (3HP)')">
+                <NumberInput v-model="form.threeHPQty" :form="form" :min="1" />
+              </ion-col>
+              <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+                <SelectInput v-model="form.tptStartLocation" :form="form" :asyncOptions="getFacilities" allowCustom />
+              </ion-col>
+            </template>
           </template>
-          <ion-col size="12" class="ion-margin-top ion-margin-bottom">
+          <ion-col size="6" class="ion-margin-top ion-margin-bottom">
             <SelectInput v-model="form.confirmatoryTest" :form="form" :options="HIVTestOptions" />
           </ion-col>
           <template v-if="form.confirmatoryTest.value.label !== 'Not done'">
@@ -85,7 +105,7 @@ import { ClinicRegistrationService } from "@/apps/ART/services/registration_serv
 import SelectInput from "../Components/inputs/SelectInput.vue";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import NumberInput from "../Components/inputs/NumberInput.vue";
-import { initialTbStatusOptions, HIVTestOptions } from '@/apps/EMC/utils/DTFormElements'
+import { initialTbStatusOptions, HIVTestOptions, tptHistoryOptions } from '@/apps/EMC/utils/DTFormElements'
 import dayjs from "dayjs";
 import { VitalsService } from "@/apps/ART/services/vitals_service";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
@@ -93,6 +113,8 @@ import { isValidForm, resolveFormValues, resolveObs } from "../utils/form";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { loader } from "@/utils/loader";
 import { PatientProgramService } from "@/services/patient_program_service";
+import { ConsultationService } from "@/apps/ART/services/consultation_service";
+import { RegimenService } from "@/services/regimen_service";
 
 export default defineComponent({
   components: {
@@ -114,8 +136,10 @@ export default defineComponent({
     const patientId = ref(parseInt(route.params.id.toString() || ''))
     const isNewPatient = route.params.new.toString().match(/true/i) ? true : false
     const patient = ref<Patientservice>()
+    const customRegimenIngredients = ref<any[]>([])
     const sitePrefix = ref("");
     const registrationService = new ClinicRegistrationService(patientId.value, -1)
+    const consultationService = new ConsultationService(patientId.value, -1)
     const vitalsService = new VitalsService(patientId.value, -1)
     const patientTypeService = new PatientTypeService(patientId.value, -1);
     const today = dayjs().format(STANDARD_DATE_FORMAT)
@@ -253,6 +277,102 @@ export default defineComponent({
           return f.everRegisteredAtClinic.value === 'Yes' && StandardValidations.required(status)
         }
       },
+      tptHistory: {
+        value: '',
+        label: "TPT History",
+        placeholder: "Select TPT history",
+        computedValue: (history: Option) => ({
+          tag: "consultation",
+          obs: consultationService.buildValueText("Previous TB treatment history", history.label)
+        }),
+        validation: async (history, form) => {
+          return form.everRegisteredAtClinic.value === 'Yes' && 
+            StandardValidations.required(history)
+        }
+      },
+      tptStartDate: {
+        value: '',
+        label: "Date started TPT",
+        validation: async (date, form) => {
+          return form.tptHistory.value.label.match(/currently/i) && 
+            StandardValidations.required(date)
+        }
+      },
+      inhQty: {
+        value: '',
+        label: "INH Amount Received",
+        validation: async (amount, form) => {
+          const history = form.tptHistory.value.label
+          return history.match(/currently/i) && 
+            (history.match(/ipt/i) || history.includes('3HP (RFP + INH)')) && 
+            StandardValidations.required(amount)
+        },
+        computedValue: (amount, form) => {
+          const drug = customRegimenIngredients.value.find(d => d.name === 'INH or H (Isoniazid 300mg tablet)')
+          return {
+            tag: 'consultation',
+            obs:  consultationService.buildObs('TPT Drugs Received', {
+              'value_drug': drug?.drug_id || 0,
+              'value_datetime': form?.tptStartDate || null,
+              'value_numeric': amount || 0
+            })
+          }
+        },
+      },
+      rifapentineQty: {
+        value: '',
+        label: "Rifapentine Amount Received",
+        validation: async (amount, form) => {
+          const history = form.tptHistory.value.label
+          return history.match(/currently/i) && history.includes('3HP (RFP + INH)') && 
+            StandardValidations.required(amount)
+        },
+        computedValue: (amount, form) => {
+          const drug = customRegimenIngredients.value.find(d => d.name === 'Rifapentine (150mg)')
+          return {
+            tag: 'consultation',
+            obs: consultationService.buildObs('TPT Drugs Received', {
+              'value_drug': drug?.drug_id || 0,
+              'value_datetime': form?.tptStartDate || null,
+              'value_numeric': amount || 0
+            })
+          }
+        },
+      },
+      threeHPQty: {
+        value: '',
+        label: "INH / RFP Amount Received",
+        validation: async (amount, form) => {
+          const history = form.tptHistory.value.label
+          return history.match(/currently/i) && history.includes('INH 300 / RFP 300 (3HP)') && 
+            StandardValidations.required(amount)
+        },
+        computedValue: (amount, form) => {
+          const drug = customRegimenIngredients.value.find(d => d.name === 'INH 300 / RFP 300 (3HP)')
+          return {
+            tag: 'consultation',
+            obs: consultationService.buildObs('TPT Drugs Received', {
+              'value_drug': drug?.drug_id || 0,
+              'value_datetime': form?.tptStartDate || null,
+              'value_numeric': amount || 0
+            })
+          }
+        },
+      },
+      tptStartLocation: {
+        value: '',
+        label: "TPT Transfer From",
+        validation: async (date, form) => {
+          return form.tptHistory.value.label.match(/currently/i) && 
+            StandardValidations.required(date)
+        },
+        computedValue: (facility: Option) => ({
+          tag:'consultation',
+          obs: consultationService.buildValueText(
+            'Location TPT last received', facility.label
+          )
+        }),
+      },
       confirmatoryTest: {
         value: '',
         label: 'Confirmatory Test',
@@ -307,6 +427,20 @@ export default defineComponent({
       }
     });
 
+    const tptDrugs = computed(() => {
+      const tptHistory = form.tptHistory.value?.label
+      if(tptHistory?.match(/currently/i)){
+        if(tptHistory.match(/ipt/i)) {
+          return ["INH or H (Isoniazid 300mg tablet)"]
+        } else if(tptHistory.includes("3HP (RFP + INH)")){
+          return ['INH or H (Isoniazid 300mg tablet)', 'Rifapentine (150mg)']
+        } else if(tptHistory.includes("INH 300 / RFP 300 (3HP)")){
+          return ["INH 300 / RFP 300 (3HP)"]
+        }
+      }
+      return []
+    })
+
     const onClear = async () => {
       if((await alertConfirmation('Are you sure you want to clear all fields?'))) {
         for(const key in form) {
@@ -323,6 +457,7 @@ export default defineComponent({
       patientTypeService.setDate(form.initialVisitDate.value)
       registrationService.setDate(form.initialVisitDate.value)
       vitalsService.setDate(form.initialVisitDate.value)
+      consultationService.setDate(form.initialVisitDate.value)
       PatientTypeService.setSessionDate(form.initialVisitDate.value)
       
       const {formData, computedFormData} = resolveFormValues(form)
@@ -342,6 +477,10 @@ export default defineComponent({
         await vitalsService.createEncounter()
         const vitalsObs = await resolveObs(computedFormData, 'vitals')
         await vitalsService.saveObservationList(vitalsObs)
+
+        await consultationService.createEncounter()
+        const consultationObs = await resolveObs(computedFormData, 'consultation')
+        await consultationService.saveObservationList(consultationObs)
       }
 
       // enroll patient into HIV program
@@ -368,6 +507,7 @@ export default defineComponent({
         const suggestedNumber = await ProgramService.getNextSuggestedARVNumber();
         form.arvNumber.value = suggestedNumber.arv_number.replace(/^\D+|\s/g, "");
       }
+      RegimenService.getCustomIngridients().then(drugs => customRegimenIngredients.value = drugs)
     }) 
  
     return {
@@ -377,8 +517,10 @@ export default defineComponent({
       form,
       sitePrefix,
       initialTbStatusOptions,
+      tptHistoryOptions,
       HIVTestOptions,
       isNewPatient,
+      tptDrugs,
       getFacilities,
       onClear,
       onSubmit,
