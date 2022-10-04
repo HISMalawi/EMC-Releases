@@ -57,14 +57,17 @@
          <ion-col size="6" class="ion-margin-vertical">
           <SelectInput v-model="form.tbMed" :options="tbMeds" />
         </ion-col>
-        <ion-col :size="hasGivenRFP ? 6 : 12" v-if="hasGiven6H || hasGivenRFP">
+        <ion-col size="6" v-if="hasGiven6H || hasGivenRFP">
           <NumberInput v-model="form.totalIPTGiven" :form="form" :min="1"/>
         </ion-col>
         <ion-col size="6" v-if="hasGivenRFP">
           <NumberInput v-model="form.totalRFPGiven" :form="form" :min="1"/>
         </ion-col>
-        <ion-col size="12" v-if="hasGiven3HP">
+        <ion-col size="6" v-if="hasGiven3HP">
           <NumberInput v-model="form.total3HPGiven" :form="form" :min="1"/>
+        </ion-col>
+        <ion-col size="6" v-if="hasGiven3HP || hasGivenRFP || hasGiven6H">
+          <NumberInput v-model="form.totalPyridoxineGiven" :form="form" :min="1"/>
         </ion-col>
         <ion-col size="6" class="ion-margin-vertical">
           <yes-no-input v-model="form.patientPresent" inline :disabled="form.patientPresent.disabled" />
@@ -136,6 +139,7 @@ import { loader } from "@/utils/loader";
 import { modal } from "@/utils/modal";
 import { EmcEvents } from "../../interfaces/emc_event";
 import EventBus from "@/utils/EventBus";
+import { find, uniqBy } from "lodash";
 
 export default defineComponent({
   components: {
@@ -334,8 +338,13 @@ export default defineComponent({
         label: "Total ARVs Given",
         validation: async (drugs: Option, form: any) => !isEmpty(form.regimen.value) && StandardValidations.isNumber(drugs)
       },
+      totalPyridoxineGiven: {
+        value: undefined as number  | undefined,
+        label: "Total Pyridoxine Given",
+        validation: async (amount: Option, form: any) => form.tbMed.value?.label && StandardValidations.isNumber(amount)
+      },
       tbMed: {
-        value: undefined as string | undefined,
+        value: undefined as Option | undefined,
         label: "TB Medication",
         placeholder: "Select a TB medication",
       },
@@ -508,33 +517,36 @@ export default defineComponent({
       }
 
       if(formData.totalCPTGiven) {
-        const cptRegimens = await RegimenService.getRegimenExtras('Cotrimoxazole', formData.weight)
-        cptRegimens.forEach((drug: any) => {
-          if(drug.drug_name !== "Cotrimoxazole (480mg tablet)") {
-            drugOrders.push(toDrugOrder(drug, formData.totalCPTGiven, duration, formData.visitDate))
-          }
-        })
+        uniqBy((await RegimenService.getRegimenExtras('Cotrimoxazole', formData.weight)), 'concept_name')
+        .filter((drug: any) => drug.frequency === 'Daily (QOD)')
+        .forEach((drug: any) => drugOrders.push(toDrugOrder(drug, formData.totalCPTGiven, duration, formData.visitDate)))
       }
 
-      if(formData.totalIPTGiven) {
-        const iptRegimens = await RegimenService.getRegimenExtras('INH', formData.weight)
-        iptRegimens.forEach((drug: any) => {
-          drugOrders.push(toDrugOrder(drug, formData.totalIPTGiven, duration, formData.visitDate))
-        })
-      }
+      if(formData.tbMed?.value) {
+        const iptRegimens = uniqBy((await RegimenService.getRegimenExtras('INH', formData.weight)), ['concept_name', 'frequency'])
+        const pyridoxine = iptRegimens.find(({concept_name}: any) => concept_name === 'Pyridoxine')
 
-      if(formData.totalRFPGiven) {
-        const rfpRegimens = await RegimenService.getRegimenExtras('Rifapentine', formData.weight)
-        rfpRegimens.forEach((drug: any) => {
-          drugOrders.push(toDrugOrder(drug, formData.totalRFPGiven, duration, formData.visitDate))
-        })
-      }
+        if(pyridoxine && formData.totalPyridoxineGiven) {
+          drugOrders.push(toDrugOrder(pyridoxine, formData.totalPyridoxineGiven, duration, formData.visitDate))
+        }
 
-      if(formData.total3HPGiven) {
-        const threeHPRegimens = await RegimenService.getRegimenExtras('INH / RFP', formData.weight)
-        threeHPRegimens.forEach((drug: any) => {
-          drugOrders.push(toDrugOrder(drug, formData.total3HPGiven, duration, formData.visitDate))
-        })
+        if(formData.totalIPTGiven) {
+          const INH = iptRegimens.find((drug: any) =>  drug.concept_name === "Isoniazid" && (
+            (hasGiven6H.value && drug.frequency === 'Daily (QOD)') || 
+            (hasGivenRFP.value && drug.frequency === 'Weekly (QW)')
+          ))
+          drugOrders.push(toDrugOrder(INH, formData.totalIPTGiven, duration, formData.visitDate))
+        }
+
+        if(formData.totalRFPGiven && hasGivenRFP.value) {
+          const rfpRegimens = await RegimenService.getRegimenExtras('Rifapentine', formData.weight)
+          if(rfpRegimens.length) drugOrders.push(toDrugOrder(rfpRegimens[0], formData.totalRFPGiven, duration, formData.visitDate))
+        }
+
+        if(formData.total3HPGiven && hasGiven3HP.value) {
+          const threeHPRegimens = await RegimenService.getRegimenExtras('INH / RFP', formData.weight)
+          drugOrders.push(toDrugOrder(threeHPRegimens[0], formData.total3HPGiven, duration, formData.visitDate))
+        }
       }
 
       const orders: any[] = await prescription.createDrugOrder(drugOrders)
