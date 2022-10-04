@@ -524,14 +524,14 @@ export default defineComponent({
 
       if(formData.tbMed?.value) {
         const iptRegimens = uniqBy((await RegimenService.getRegimenExtras('INH', formData.weight)), ['concept_name', 'frequency'])
-        const pyridoxine = iptRegimens.find(({concept_name}: any) => concept_name === 'Pyridoxine')
+        const pyridoxine = iptRegimens.find((d: any) => d['concept_name'] === 'Pyridoxine')
 
         if(pyridoxine && formData.totalPyridoxineGiven) {
           drugOrders.push(toDrugOrder(pyridoxine, formData.totalPyridoxineGiven, duration, formData.visitDate))
         }
 
         if(formData.totalIPTGiven) {
-          const INH = iptRegimens.find((drug: any) =>  drug.concept_name === "Isoniazid" && (
+          const INH = iptRegimens.find((drug: any) =>  drug['concept_name'] === "Isoniazid" && (
             (hasGiven6H.value && drug.frequency === 'Daily (QOD)') || 
             (hasGivenRFP.value && drug.frequency === 'Weekly (QW)')
           ))
