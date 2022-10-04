@@ -8,7 +8,7 @@ export interface DTFormField {
   disabled?: boolean;
   required?: boolean;
   validation?: (value: Option, form: DTForm) => Promise<string[] | false | null | undefined>;
-  computedValue?: (value: any) => any;
+  computedValue?: (value: any, form?: DTForm) => any;
 }
 
 export interface DTForm {
