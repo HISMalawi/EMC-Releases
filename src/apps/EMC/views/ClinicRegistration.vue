@@ -313,7 +313,7 @@ export default defineComponent({
             tag: 'consultation',
             obs:  consultationService.buildObs('TPT Drugs Received', {
               'value_drug': drug?.drug_id || 0,
-              'value_datetime': form?.tptStartDate || null,
+              'value_datetime': form?.tptStartDate.value || null,
               'value_numeric': amount || 0
             })
           }
@@ -333,7 +333,7 @@ export default defineComponent({
             tag: 'consultation',
             obs: consultationService.buildObs('TPT Drugs Received', {
               'value_drug': drug?.drug_id || 0,
-              'value_datetime': form?.tptStartDate || null,
+              'value_datetime': form?.tptStartDate.value || null,
               'value_numeric': amount || 0
             })
           }
@@ -353,7 +353,7 @@ export default defineComponent({
             tag: 'consultation',
             obs: consultationService.buildObs('TPT Drugs Received', {
               'value_drug': drug?.drug_id || 0,
-              'value_datetime': form?.tptStartDate || null,
+              'value_datetime': form?.tptStartDate.value || null,
               'value_numeric': amount || 0
             })
           }
