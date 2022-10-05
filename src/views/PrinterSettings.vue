@@ -12,6 +12,7 @@ import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { PrintoutService } from "@/services/printout_service";
 import { isEmpty } from "lodash";
+import { PrinterDescription } from "@/interfaces/PrintServiceInterfaces";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -19,10 +20,10 @@ export default defineComponent({
     async onFinish() {
       this.$router.back();
     },
-    isDefaultPrinter(printer: Record<string, any>) {
-      return printer.address === this.defaultPrinter.address;
+    isDefaultPrinter(printer: PrinterDescription) {
+      return printer.id === this.defaultPrinter.id;
     },
-    sortPrinters(printers: Record<string, any>[]) {
+    sortPrinters(printers: PrinterDescription[]) {
       return printers.sort((a, b) => {
         if (this.isDefaultPrinter(a) && !this.isDefaultPrinter(b)) {
           return -1;
@@ -48,20 +49,18 @@ export default defineComponent({
           type: FieldType.TT_TABLE_VIEWER,
           config: { hiddenFooterBtns: ["Clear"]},
           options: async () => {
-            const printers: Record<string, any>[] = await this.printerService.getAllPrinters();
+            const printers: PrinterDescription[] = await this.printerService.getAllPrinters();
             const sortedPrinters = this.sortPrinters(printers);
             return [{
               other: {
                 rowColors: this.defaultPrinterStyle(),
-                columns: ["Available Printers"],
+                columns: ["Available Devices"],
                 rows: sortedPrinters.map((printer: any) => [
-                  `${printer.name} (${printer.address})`,
+                  printer.id,
                   {
                     type: "button",
                     name: "Test Printer",
-                    action: async () => {
-                      await this.printerService.printTestLbl(printer.address);
-                    }
+                    action: () => this.printerService.printTestLbl(printer)
                   },
                   (this.isDefaultPrinter(printer) ? "Default Printer" : {
                     type: 'button',
@@ -73,7 +72,7 @@ export default defineComponent({
                       this.refreshKey = Math.random() * 10000;
                     }
                   })
-                ]),
+                ])
               }
             }]
           }

@@ -8,6 +8,8 @@ import { BluetoothSerial } from "@awesome-cordova-plugins/bluetooth-serial";
 import { optionsActionSheet } from '@/utils/ActionSheets';
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash';
+import { Printer } from "@mqn/capacitor-plugin-printer";
+import { PrinterDescription } from "@/interfaces/PrintServiceInterfaces";
 
 export class PrintoutService extends Service {
     constructor() {
@@ -17,18 +19,27 @@ export class PrintoutService extends Service {
     private async _print(url: string) {
         const { activePlatformProfile } = usePlatform()
         const preFetch = await Service.getText(url)
-        if (!preFetch) throw 'Unable to print Label. Try again later'
+        if (!preFetch) {
+            throw 'Unable to print Label. Try again later'
+        } 
         if (activePlatformProfile.value.printer === PrinterType.WEB) {
-            document.location = (await ApiClient.expandPath(url)) as any
+            this.printToBrowser(url)
         } else if (activePlatformProfile.value.printer === PrinterType.BLUETOOTH) {
             let printer = await this.getDefaultPrinter();
-            if(isEmpty(printer)) printer = await this.selectDefaultPrinter();
-            if (!printer) throw 'No default printer selected!!!'
-            BluetoothSerial.connect(printer.address).subscribe(async () => {
-                BluetoothSerial.write(preFetch)
-                    .then(() => BluetoothSerial.disconnect())
-                    .catch((err) => { throw err })
-            }, (err) => { throw err })
+            if(isEmpty(printer)) {
+                printer = await this.selectDefaultPrinter();
+            }
+            if (isEmpty(printer)) {
+                throw 'No default printer selected!!!'
+            } 
+            switch(printer.type) {
+                case 'BLUETOOTH DEVICE':
+                    this.printToBluetoothDevice(printer, preFetch)
+                    break
+                case 'USB DEVICE':
+                    this.printToUsbDevice(printer, preFetch)
+                    break
+            }
         } else {
             toastWarning('No printing profile for current platform')
         }
@@ -60,16 +71,17 @@ export class PrintoutService extends Service {
             toastWarning(e as any)
         }
     }
-
+    //TODO: remove this.. it's not supposed to be in this service
     async printLocation(locationId: number) {
         await this.printLbl(`labels/location?location_id=${locationId}`)
     }
 
+    //TODO: remove this.. it's not supposed to be in this service
     async printDrug(drugId: number, quantity: number) {
         await this.printLbl(`drugs/${drugId}/barcode?quantity=${quantity}`)
     }
 
-    setDefaultPrinter(printer: Record<string, any>) {
+    setDefaultPrinter(printer: PrinterDescription) {
         sessionStorage.setItem('defaultPrinter', JSON.stringify(printer))
     }
 
@@ -79,8 +91,8 @@ export class PrintoutService extends Service {
         return {}
     }
 
-    async selectDefaultPrinter(): Promise<Record<string, any>> {
-        const printers: any[] = await this.getAllPrinters()
+    async selectDefaultPrinter(): Promise<PrinterDescription | {}> {
+        const printers: PrinterDescription[] = await this.getAllPrinters()
         if (printers.length === 0) {
             toastWarning('No printers found. Please connect a printer.')
             return {}
@@ -88,7 +100,7 @@ export class PrintoutService extends Service {
         const option = await optionsActionSheet(
             "Select Printer",
             "Please, select default printer",
-            printers.map(p => p.name + ` (${p.address})`),
+            printers.map(p => p.id),
             [
                 { name: 'Cancel', slot:'start', color: 'danger' },
                 { name: 'Continue', slot: 'end', role: 'action' }
@@ -97,35 +109,84 @@ export class PrintoutService extends Service {
 
         if(option.action === 'Cancel') return {}
 
-        const printer = printers.find(p => p.name +` (${p.address})` === option.selection)
+        const printer = printers.find(p => p.id === option.selection)
         
-        this.setDefaultPrinter(printer)
+        if (printer) {
+            this.setDefaultPrinter(printer)
+            return printer
+        }
 
-        return printer
+        return {}
     }
 
-    async printTestLbl(printerAddress: string) {
+    async printTestLbl(printer: PrinterDescription) {
         const testLblText = `
-            N
-            q801
-            Q329,026
-            ZT
-            B50,180,0,1,5,15,120,N,"Barcode"
-            A35,30,0,2,2,2,N,""
-            A35,76,0,2,2,2,N,"Test Label Printing"
-            A35,122,0,2,2,2,N,"Date: ${dayjs().format('DD/MMM/YYYY')}"
-            P1`
-
+        N
+        q801
+        Q329,026
+        ZT
+        B50,180,0,1,5,15,120,N,"Barcode"
+        A35,30,0,2,2,2,N,""
+        A35,76,0,2,2,2,N,"Test Label Printing"
+        A35,122,0,2,2,2,N,"Date: ${dayjs().format('DD/MMM/YYYY')}"
+        P1`
         EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')  
-        BluetoothSerial.connect(printerAddress).subscribe(async () => {
-            BluetoothSerial.write(testLblText)
-                .catch(async (err) => await toastWarning(err))
+        if (printer.type === 'BLUETOOTH DEVICE') {
+            this.printToBluetoothDevice(printer, testLblText)
+        } else if (printer.type === 'USB DEVICE') {
+            this.printToUsbDevice(printer, testLblText)
+        }
+    }
+
+    printToBrowser(url: string) {
+        ApiClient.expandPath(url).then((path: any) => {
+            document.location = path
+        }).catch(e => toastWarning(e))
+    }
+
+    printToBluetoothDevice(printer: PrinterDescription, labelData: string) {
+        BluetoothSerial.connect(printer.address).subscribe(async () => {
+            BluetoothSerial.write(labelData)
+                .catch((e) => toastWarning(e))
                 .finally(() => BluetoothSerial.disconnect())
-        }, async (err) => await toastWarning(err))
+        }, e => toastWarning(e))
     }
 
-    async getAllPrinters() {
-        return BluetoothSerial.list()
+    printToUsbDevice(printer: PrinterDescription, labelData: string) {
+        Printer.printZpl({
+            DeviceName: printer.name,
+            Zpl: labelData.trim()
+        }).catch((e) => toastWarning(e))
     }
 
+    async getAllPrinters(): Promise<PrinterDescription[]> {
+        const allDevices: any = [];
+        try {
+            (await BluetoothSerial.list()).forEach((d: any) => {
+                allDevices.push({
+                    id: `${d.name}-${d.address} (BLUETOOTH DEVICE)`,
+                    type: 'BLUETOOTH DEVICE',
+                    name: d.name,
+                    address: d.address
+                })
+            });
+        } catch (e) {
+            console.error('Error Fetching Bluetooth devices', e)
+        }
+        try {
+            (await Printer.getUsbDevices())['UsbDevices'].forEach((name: string) => {
+                if (!/null|undefined/.test(`${name}`)) {
+                    allDevices.push({
+                        name,
+                        id: `${name} (USB DEVICE)`,
+                        type: 'USB DEVICE',
+                        address: 'N/A'
+                    })
+                }
+            });
+        } catch (e) {
+            console.error('Error fetching USB devices: ', e)
+        }
+        return allDevices
+    }
 }

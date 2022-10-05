@@ -42,12 +42,10 @@ export default {
     {
       name: 'Printer Settings',
       icon: 'printer-settings.png',
+      pathUrl: '/settings/printer',
       condition: () => UserService.isAdmin() && platform().activePlatformProfile.value.printer === PrinterType.BLUETOOTH,
       files: [
-        {
-          name: "set default printer",
-          pathUrl: "/settings/printer",
-        }
+
       ]
     },
     {
