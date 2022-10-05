@@ -152,10 +152,10 @@ export class PrintoutService extends Service {
         }, e => toastWarning(e))
     }
 
-    printToUsbDevice(printer: PrinterDescription, labelData: string) {
+    printToUsbDevice(printer: PrinterDescription, Zpl: string) {
         Printer.printZpl({
+            Zpl,
             DeviceName: printer.name,
-            Zpl: labelData.trim()
         }).catch((e) => toastWarning(e))
     }
 
