@@ -120,16 +120,7 @@ export class PrintoutService extends Service {
     }
 
     async printTestLbl(printer: PrinterDescription) {
-        const testLblText = `
-        N
-        q801
-        Q329,026
-        ZT
-        B50,180,0,1,5,15,120,N,"Barcode"
-        A35,30,0,2,2,2,N,""
-        A35,76,0,2,2,2,N,"Test Label Printing"
-        A35,122,0,2,2,2,N,"Date: ${dayjs().format('DD/MMM/YYYY')}"
-        P1`
+        const testLblText = `\nN\nq801\nQ329,026\nZT\nB50,180,0,1,5,15,120,N,"Barcode"\nA35,30,0,2,2,2,N,""\nA35,76,0,2,2,2,N,"Test Label Printing"\nA35,122,0,2,2,2,N,"Date: ${dayjs().format('DD/MMM/YYYY')}"\nP1\n`     
         EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')  
         if (printer.type === 'BLUETOOTH DEVICE') {
             this.printToBluetoothDevice(printer, testLblText)
