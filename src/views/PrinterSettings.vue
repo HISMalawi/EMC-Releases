@@ -13,6 +13,7 @@ import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { PrintoutService } from "@/services/printout_service";
 import { isEmpty } from "lodash";
 import { PrinterDescription } from "@/interfaces/PrintServiceInterfaces";
+import { loadingController } from "@ionic/core";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -47,7 +48,31 @@ export default defineComponent({
           id: "printer_settings",
           helpText: "Printer Settings",
           type: FieldType.TT_TABLE_VIEWER,
-          config: { hiddenFooterBtns: ["Clear"]},
+          config: { 
+            hiddenFooterBtns: ["Clear"],
+            footerBtns: [
+              {
+                name: 'Refresh',
+                size: "large",
+                slot: "end",
+                color: "warning",
+                visible: true,
+                onClick: async () => {
+                  if (this.printFieldContext) {
+                    (await loadingController.create({
+                      backdropDismiss: false,
+                      message: 'Please wait...'
+                    })).present();
+                    await this.printFieldContext.init()
+                    loadingController.dismiss()
+                  }
+                }
+              }
+            ]
+          },
+          onload: (context: any) => {
+            this.printFieldContext = context
+          },
           options: async () => {
             const printers: PrinterDescription[] = await this.printerService.getAllPrinters();
             const sortedPrinters = this.sortPrinters(printers);
@@ -76,12 +101,13 @@ export default defineComponent({
               }
             }]
           }
-        },
-      ];
+        }
+      ]
     },
   },
   data() {
     return {
+      printFieldContext: null as any,
       printerService: {} as PrintoutService,
       defaultPrinter: {} as Record<string, any>,
       refreshKey: 0,
