@@ -69,11 +69,7 @@ export default defineComponent({
     },
     async created() {
         this.keyboard = this.config?.customKeyboard || QWERTY
-        if (this.config) {
-            if (this.config.initialKb) {
-                this.initalKeyboardName = this.config.initialKb
-            }
-        }
+        this.initalKeyboardName = this.config?.initialKb || ''
     },
     mounted() {
         this.init()
