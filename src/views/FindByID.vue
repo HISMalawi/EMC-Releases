@@ -21,7 +21,6 @@ import table from "@/components/DataViews/tables/ReportDataTable"
 import { ProgramService } from "@/services/program_service";
 import { loadingController } from "@ionic/core";
 import { GlobalPropertyService } from "@/services/global_property_service";
-import { CHARACTERS_AND_NUMBERS_LO } from "@/components/Keyboard/KbLayouts";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -77,27 +76,22 @@ export default defineComponent({
       }
     },
     getIdSearchField(): Field {
-      let programIdentifer: ProgramIdentifierInterface;
       return {
         id: "identifier",
         helpText: "Identifier",
         dynamicHelpText: (f: any) => `Search by ${f.identifier_type.label}`,
         type: FieldType.TT_TEXT,
-        validation: (val: Option) => Validation.validateSeries([
+        validation: (val: Option, f: any) => Validation.validateSeries([
           () => Validation.required(val),
-          () => (typeof programIdentifer.validation === 'function') 
-            ? programIdentifer.validation(val)
+          () => (typeof f.identifier_type.other?.validation === 'function') 
+            ? f.identifier_type.other.validation(val)
             : null
         ]),
         config: {
           casing: 'uppercase',
-          customKeyboard: [CHARACTERS_AND_NUMBERS_LO, [['Delete']]],
-          prependValue: (f: any) => {
-            programIdentifer = f.identifier_type.other
-            return programIdentifer.prefix()
-          }
+          initialKb: (f: any) => f.identifier_type.other?.keyboardName || '0-9',
+          prependValue: (f: any) => f.identifier_type.other?.prefix() || '',
         },
-        
       }
     },
     getARVDuplicatesField(): Field {

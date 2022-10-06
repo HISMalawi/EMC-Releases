@@ -142,7 +142,8 @@ const OPD: AppInterface = {
       isPrimary: true,
       useForSearch: true,
       prefix: () => '',
-      validation: (value) => Validation.isMWNationalID(value)
+      validation: (value) => Validation.isMWNationalID(value),
+      keyboardName: 'Qwerty'
     },
   }
 }
