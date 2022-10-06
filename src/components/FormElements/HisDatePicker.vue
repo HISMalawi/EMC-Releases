@@ -26,7 +26,7 @@
                     'selected': day.id === date,
                     'date-disabled': day.isDisabled
                   }"
-                  class="his-md-text"
+                  class="his-lg-text"
                   @click="!day.isDisabled && select(day.id)"
                 >
                   <span><b>{{ day.day }}</b></span>
