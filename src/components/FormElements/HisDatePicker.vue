@@ -3,20 +3,48 @@
     <div class="view-port-content">
       <ion-grid>
         <ion-row>
-          <ion-col size="9">
+          <ion-col size="8">
             <DatePicker 
+              is-expanded
               color="blue"
               ref="calendar"
-              is-expanded  
-              v-model="date"
+              modelValue=""
+              :min-date="minDate"
+              :max-date="maxDate"
+              :attributes="[
+                {
+                  highlight: true,
+                  dates: [date]
+                }
+              ]"
+              disable-page-swipe
               class="custom-calendar"
-            />
+            >
+              <template v-slot:day-content="{ day }">
+                <div
+                  v-bind:class="{
+                    selected: day.id === date,
+                    isDisabled: day.isDisabled
+                  }"
+                  class="his-md-text"
+                  @click="!day.isDisabled && select(day.id)"
+                >
+                  <span><b>{{ day.day }}</b></span>
+                  <sup v-if="dateSupValues[day.id]" class="sup-value">
+                    <b>{{ dateSupValues[day.id] }}</b>
+                  </sup>
+                </div>
+              </template>
+            </DatePicker>
           </ion-col>
-          <ion-col size="3">
-            <ion-list>
-              <ion-item class="his-sm-text" v-for="(item, index) in infoItems" :key="index"> 
-                <ion-label>{{item.label}}</ion-label>
-                <b>{{item.value}}</b>
+          <ion-col size="4">
+            <ion-list class="his-card">
+              <ion-item class="his-sm-text" v-for="(item, index) in (dateInfoItems[date] || [])" :key="index"> 
+                <ion-label class="ion-text-wrap">
+                  <b>{{item.label}}</b>
+                  <p/>
+                  <span>{{item.value}}</span>
+                </ion-label>
               </ion-item>
             </ion-list>
           </ion-col>
@@ -49,35 +77,47 @@ export default defineComponent({
   mixins: [FieldMixinVue],
   data: () => ({
     date: '',
-    infoItems: [] as Option[],
-    selectedDates: {} as Record<string, Option[]>
+    minDate: '' as string,
+    maxDate: '' as string,
+    dateInfoItems: {} as Record<string, Option[]>,
+    dateSupValues: {} as Record<string, number | string>
   }),
-  watch: {
-    date: {
-      async handler(date: string) {
-        if (date) {
-          const formatedDate: string = HisDate.toStandardHisFormat(date)
-          if (this.onValue) {
-            const ok = await this.onValue(formatedDate, this)
-            if (!ok) return
-          }
-          this.$emit('onValue', formatedDate)
-          if (typeof this.config.infoItems === 'function') {
-            if (this.selectedDates[formatedDate]) {
-              this.infoItems = this.selectedDates[formatedDate]
-            } else {
-              this.infoItems = await this.config.infoItems(formatedDate) || []
-              this.selectedDates[formatedDate] = this.infoItems
-            }
-          }
-        }
-      },
-      immediate: true
-    }
-  },
   async created() {
     if (!this.date && typeof this.defaultValue === 'function') {
-      this.date = await this.defaultValue()
+      this.select((await this.defaultValue()))
+    }
+    if (typeof this.config.minDate === 'function') {
+      this.minDate = this.config.minDate(this.fdata)
+    }
+    if (typeof this.config.maxDate === 'function') {
+      this.maxDate = this.config.maxDate(this.fdata)
+    }
+  },
+  methods: {
+    async select(date: string) {
+      this.date = HisDate.toStandardHisFormat(date)
+
+      if (typeof this.onValue === 'function') {
+        if (!(await this.onValue(this.date, this))) {
+          this.date = ''
+          return
+        } 
+      }
+
+      this.$emit('onValue', this.date)
+      const calendar: any = this.$refs.calendar
+      calendar.move(this.date).then(() => { calendar.focusDate(this.date); })
+
+      if (typeof this.config.infoItems === 'function') {
+        if (!this.dateInfoItems[this.date]) {
+          this.dateInfoItems[this.date] = await this.config.infoItems(this.date) || []
+        }
+      }
+      if (typeof this.config.supValue === 'function') {
+        if (!this.dateSupValues[this.date]) {
+          this.dateSupValues[this.date] = await this.config.supValue(this.date, this.fdata)
+        }
+      }
     }
   },
   mounted() {
@@ -100,8 +140,8 @@ export default defineComponent({
 }
 
 .custom-calendar.vc-container {
-  --day-border: 1px solid #b8c2cc;
-  --day-border-highlight: 1px solid #b8c2cc;
+  --day-border: 1px solid #414142;
+  --day-border-highlight: 1px solid #93979b;
   --day-width: 80px;
   --day-height: 82px;
   --weekday-bg: #f8fafc;
@@ -169,4 +209,18 @@ export default defineComponent({
   right: 5px;
   color: greenyellow;
 }
+.selected{
+  font-size: 3vh;
+  height: 100%;
+  margin-top: 0 !important;
+  color: white;
+  text-align: center;
+}
+.sup-value {
+  position: absolute;
+  top: 15px;
+  right: 5px;
+  color: greenyellow;
+}
 </style>
+
