@@ -76,26 +76,21 @@ export default defineComponent({
       }
     },
     getIdSearchField(): Field {
-      let programIdentifer = {} as ProgramIdentifierInterface;
       return {
         id: "identifier",
         helpText: "Identifier",
         dynamicHelpText: (f: any) => `Search by ${f.identifier_type.label}`,
         type: FieldType.TT_TEXT,
-        init: (f) => {
-          programIdentifer = f.identifier_type.other
-          return true
-        },
-        validation: (val: Option) => Validation.validateSeries([
+        validation: (val: Option, f: any) => Validation.validateSeries([
           () => Validation.required(val),
-          () => (typeof programIdentifer.validation === 'function') 
-            ? programIdentifer.validation(val)
+          () => (typeof f.identifier_type.other?.validation === 'function') 
+            ? f.identifier_type.other.validation(val)
             : null
         ]),
         config: {
           casing: 'uppercase',
-          initialKb: () => programIdentifer.keyboardName || '0-9',
-          prependValue: () => programIdentifer.prefix(),
+          initialKb: (f: any) => f.identifier_type.other?.keyboardName || '0-9',
+          prependValue: (f: any) => f.identifier_type.other?.prefix() || '',
         },
       }
     },
