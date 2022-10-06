@@ -22,6 +22,7 @@ import { isEmpty } from "lodash";
 import HisDate from "@/utils/Date"
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
 import dayjs from "dayjs";
+import { delayPromise } from "@/utils/Timers";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -60,7 +61,7 @@ export default defineComponent({
       let appointmentLimit = -1
       let clinicHolidays: any = []
       let nextAppointment = this.appointment.date
-      let drugRunoutDate = this.appointment.date
+      let drugRunoutDate: string | null = null
       const dateAppointments: Record<string, number> = {}
       const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
       return [
@@ -69,16 +70,27 @@ export default defineComponent({
           helpText: "Appointments booking",
           type: FieldType.TT_DATE_PICKER,
           init: async () => {
-            const res = await this.appointment.getNextAppointment()
-            if (!isEmpty(res)) {
-              nextAppointment = res.appointment_date
-              drugRunoutDate = res.drugs_run_out_date
-            } else {
-              toastWarning('Next appointment date is not available')
-              this.gotoPatientDashboard()
-              return false
+            try {
+              const res = await this.appointment.getNextAppointment()
+              if (!isEmpty(res)) {
+                nextAppointment = res.appointment_date
+                drugRunoutDate = res.drugs_run_out_date
+              } 
+            } catch(e) {
+              await delayPromise(400)
+              if (!(await alertConfirmation('Next appointment/drug-runout date is not available, do you want to proceed anyway?'))) {
+                this.gotoPatientDashboard()
+              }
+              console.warn(e)
             }
-            appointmentLimit = (await ART_GLOBAL_PROP.appointmentLimit()) || 0;
+            const limitRes = (await ART_GLOBAL_PROP.appointmentLimit());
+            if (limitRes){
+              if (typeof limitRes === 'string') {
+                appointmentLimit = parseInt(limitRes)
+              } else {
+                appointmentLimit = limitRes
+              }
+            }
             return true
           },
           onValue: async (date: string) => {
@@ -86,7 +98,7 @@ export default defineComponent({
               const res = await AppointmentService.getDailiyAppointments(date)
               dateAppointments[date] = Array.isArray(res) ? res.length : 0
             }
-            if (appointmentLimit && dateAppointments[date] >= appointmentLimit) {
+            if (appointmentLimit >= 1 && dateAppointments[date] >= appointmentLimit) {
               const confirm = await alertConfirmation(
                 `Appointment limit reached for the selected date ${d(date)}`, 
                 {
@@ -104,9 +116,9 @@ export default defineComponent({
                 clinicHolidays = holidays.split(',')
               }
             }
-            if(clinicHolidays.includes(date)){
-              const proceed = await alertConfirmation("Selected date is a clinic holiday, do you want to set an appointment?")
-              if (!proceed) return false
+            if(clinicHolidays.includes(date)) {
+              if (!(await alertConfirmation("Selected date is a clinic holiday, do you want to set an appointment?"))) 
+                return false;
             }
             //Check clinic days
             if (isEmpty(clinicDays)) {
@@ -146,7 +158,7 @@ export default defineComponent({
               return [
                 { 
                   label: 'Medication Run out Date',
-                  value: d(drugRunoutDate)
+                  value: drugRunoutDate ? d(drugRunoutDate) : 'Not available'
                 },
                 {
                   label: 'User set appointment date',
