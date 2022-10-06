@@ -3,7 +3,7 @@
     <div class="view-port-content">
       <ion-grid>
         <ion-row>
-          <ion-col size="8">
+          <ion-col size-md="8" size-sm="12">
             <DatePicker 
               is-expanded
               color="blue"
@@ -37,7 +37,7 @@
               </template>
             </DatePicker>
           </ion-col>
-          <ion-col size="4">
+          <ion-col size-md="4" size-sm="12">
             <ion-list class="his-card">
               <ion-item class="his-sm-text" v-for="(item, index) in (dateInfoItems[date] || [])" :key="index"> 
                 <ion-label class="ion-text-wrap">
