@@ -142,8 +142,8 @@ export default defineComponent({
 .custom-calendar.vc-container {
   --day-border: 1px solid #414142;
   --day-border-highlight: 1px solid #93979b;
-  --day-width: 80px;
-  --day-height: 82px;
+  --day-width: 8vw;
+  --day-height: 11vh;
   --weekday-bg: #f8fafc;
   --weekday-border: 1px solid #eaeaea;
   border-radius: 0 !important;
@@ -151,14 +151,10 @@ export default defineComponent({
 }
 .custom-calendar.vc-container .vc-header {
   background-color: #f1f5f8;
-  padding: 10px 0;
+  padding: 0.4rem;
 }
 .custom-calendar.vc-container .vc-weeks {
   padding: 0;
-}
-.custom-calendar.vc-container .vc-day-content {
-  padding: 50px;
-  background: none;
 }
 .custom-calendar.vc-container .vc-weekday {
   background-color: var(--weekday-bg);
@@ -167,7 +163,7 @@ export default defineComponent({
   padding: 5px;
 }
 .custom-calendar.vc-container .vc-day {
-    padding: 30px 5px 3px 5px;
+    padding: 1.7em 0.6em 0.6em 0.6em;
     text-align: center;
     height: var(--day-height);
     min-width: var(--day-width);
