@@ -108,7 +108,7 @@ export default defineComponent({
             clinicHolidays = await ART_GLOBAL_PROP.clinicHolidays()
           }
           if(exists(date, clinicHolidays)) {
-            if (!(await alertConfirmation("Selected date is a clinic holiday, do you want to set an appointment?"))) 
+            if (!(await alertConfirmation(`${d(date)} is a clinic holiday, do you want to set an appointment?`))) 
               return false;
           }
           //Check clinic days
@@ -118,9 +118,8 @@ export default defineComponent({
               : (await ART_GLOBAL_PROP.peadsClinicDays())
           }
           if(!exists(weekDays[dayjs(date).day()], clinicDays)){
-            if(!(await alertConfirmation(
-              `The selected date ${d(date)} is not a clinic day. Do you want to proceed with this date?`
-            ))) return false;
+            if(!(await alertConfirmation(`${d(date)} is not a clinic day. Do you want to proceed with this date?`))) 
+              return false;
           }
           return true
         },
