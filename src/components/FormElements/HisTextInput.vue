@@ -69,7 +69,9 @@ export default defineComponent({
     },
     async created() {
         this.keyboard = this.config?.customKeyboard || QWERTY
-        this.initalKeyboardName = this.config?.initialKb || ''
+        this.initalKeyboardName = typeof this.config?.initialKb === 'function' 
+            ? this.config?.initialKb(this.fdata, this.cdata)
+            : this.config?.initialKb || ''
     },
     mounted() {
         this.init()

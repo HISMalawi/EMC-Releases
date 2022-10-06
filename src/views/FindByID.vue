@@ -7,7 +7,7 @@
   />
 </template>
 <script lang="ts">
-import { defineComponent } from "vue";
+import { computed, defineComponent } from "vue";
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { Patientservice } from "@/services/patient_service"
@@ -21,7 +21,6 @@ import table from "@/components/DataViews/tables/ReportDataTable"
 import { ProgramService } from "@/services/program_service";
 import { loadingController } from "@ionic/core";
 import { GlobalPropertyService } from "@/services/global_property_service";
-import { CHARACTERS_AND_NUMBERS_LO } from "@/components/Keyboard/KbLayouts";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -33,6 +32,7 @@ export default defineComponent({
     patient: {} as Patientservice,
     assignNewARVNumber: false,
     suggestedARVNumber: '' as string,
+    identifierKeyboard: '0-9',
   }),
   created() {
     this.setApp()
@@ -77,12 +77,16 @@ export default defineComponent({
       }
     },
     getIdSearchField(): Field {
-      let programIdentifer: ProgramIdentifierInterface;
+      let programIdentifer = {} as ProgramIdentifierInterface;
       return {
         id: "identifier",
         helpText: "Identifier",
         dynamicHelpText: (f: any) => `Search by ${f.identifier_type.label}`,
         type: FieldType.TT_TEXT,
+        init: (f) => {
+          programIdentifer = f.identifier_type.other
+          return true
+        },
         validation: (val: Option) => Validation.validateSeries([
           () => Validation.required(val),
           () => (typeof programIdentifer.validation === 'function') 
@@ -91,13 +95,9 @@ export default defineComponent({
         ]),
         config: {
           casing: 'uppercase',
-          customKeyboard: [CHARACTERS_AND_NUMBERS_LO, [['Delete']]],
-          prependValue: (f: any) => {
-            programIdentifer = f.identifier_type.other
-            return programIdentifer.prefix()
-          }
+          initialKb: () => programIdentifer.keyboardName || '0-9',
+          prependValue: () => programIdentifer.prefix(),
         },
-        
       }
     },
     getARVDuplicatesField(): Field {
