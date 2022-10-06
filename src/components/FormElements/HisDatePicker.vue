@@ -97,6 +97,10 @@ export default defineComponent({
     }
   },
   methods: {
+    focusDate(date: string) {
+      const calendar: any = this.$refs.calendar
+      calendar.move(date).then(() => { calendar.focusDate(date); })
+    },
     async select(date: string) {
       const calendar: any = this.$refs.calendar
       this.prevDate = this.date
@@ -105,16 +109,16 @@ export default defineComponent({
         if (!(await this.onValue(this.date, this))) {
           if (this.prevDate)  {
             this.date = this.prevDate
-            calendar.move(this.date).then(() => { calendar.focusDate(this.date); })
+            this.focusDate(this.date)
           } else {
-            this.$emit('onValue', null)
             this.date = ''
+            this.$emit('onValue', null)
           }
           return
         } 
       }
       this.$emit('onValue', this.date)
-      calendar.move(this.date).then(() => { calendar.focusDate(this.date); })
+      this.focusDate(this.date)
       if (typeof this.config.infoItems === 'function') {
         if (!this.dateInfoItems[this.date]) {
           this.dateInfoItems[this.date] = await this.config.infoItems(this.date) || []
