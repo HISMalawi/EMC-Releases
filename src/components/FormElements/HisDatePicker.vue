@@ -23,8 +23,8 @@
               <template v-slot:day-content="{ day }">
                 <div
                   v-bind:class="{
-                    selected: day.id === date,
-                    isDisabled: day.isDisabled
+                    'selected': day.id === date,
+                    'date-disabled': day.isDisabled
                   }"
                   class="his-md-text"
                   @click="!day.isDisabled && select(day.id)"
@@ -221,6 +221,9 @@ export default defineComponent({
   top: 15px;
   right: 5px;
   color: greenyellow;
+}
+.date-disabled {
+  color: #ccc;
 }
 </style>
 
