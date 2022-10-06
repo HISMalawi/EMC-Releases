@@ -22,6 +22,7 @@
             >
               <template v-slot:day-content="{ day }">
                 <div
+                  style="padding:12%;"
                   v-bind:class="{
                     'selected': day.id === date,
                     'date-disabled': day.isDisabled
@@ -99,6 +100,7 @@ export default defineComponent({
 
       if (typeof this.onValue === 'function') {
         if (!(await this.onValue(this.date, this))) {
+          this.$emit('onValue', null)
           this.date = ''
           return
         } 
@@ -163,7 +165,7 @@ export default defineComponent({
   padding: 5px;
 }
 .custom-calendar.vc-container .vc-day {
-    padding: 1.7em 0.6em 0.6em 0.6em;
+    padding: 2em 0.8em 0.8em 0.8em;
     text-align: center;
     height: var(--day-height);
     min-width: var(--day-width);
