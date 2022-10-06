@@ -67,12 +67,6 @@ export default defineComponent({
             return 'text'
         }
     },
-    async created() {
-        this.keyboard = this.config?.customKeyboard || QWERTY
-        this.initalKeyboardName = typeof this.config?.initialKb === 'function' 
-            ? this.config?.initialKb(this.fdata, this.cdata)
-            : this.config?.initialKb || ''
-    },
     mounted() {
         this.init()
     },
@@ -81,6 +75,11 @@ export default defineComponent({
     },
     methods: {
         async init() {
+            this.keyboard = this.config?.customKeyboard || QWERTY
+            this.initalKeyboardName = typeof this.config?.initialKb === 'function' 
+                ? this.config?.initialKb(this.fdata, this.cdata)
+                : this.config?.initialKb || ''
+
             this.$emit('onFieldActivated', this)
             if (this.config && this.config.prependValue) {
                 this.prependValue = await this.config.prependValue(this.fdata)
