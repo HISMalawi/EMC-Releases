@@ -95,11 +95,11 @@ export default defineComponent({
           }
           if (appointmentLimit >= 1 && dateAppointments[date] >= appointmentLimit) {
             if((await alertConfirmation(
-              `Appointment limit reached for the selected date ${d(date)}`, 
+              `${dateAppointments[date]} clients were booked on ${d(date)}`, 
               {
-                header: "APPOINTMENT LIMIT REACHED",
+                header: `APPOINTMENT LIMIT (${appointmentLimit}) REACHED`,
                 cancelBtnLabel: "Proceed",
-                confirmBtnLabel: "Reselect"
+                confirmBtnLabel: "New date"
               }
             ))) return false;
           }
