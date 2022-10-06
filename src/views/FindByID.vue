@@ -7,7 +7,7 @@
   />
 </template>
 <script lang="ts">
-import { computed, defineComponent } from "vue";
+import { defineComponent } from "vue";
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { Patientservice } from "@/services/patient_service"
@@ -32,7 +32,6 @@ export default defineComponent({
     patient: {} as Patientservice,
     assignNewARVNumber: false,
     suggestedARVNumber: '' as string,
-    identifierKeyboard: '0-9',
   }),
   created() {
     this.setApp()
