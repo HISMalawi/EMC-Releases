@@ -30,7 +30,9 @@
                   @click="!day.isDisabled && select(day.id)"
                 >
                   <span><b>{{ day.day }}</b></span>
-                  <sup v-if="dateSupValues[day.id]" class="sup-value">
+                  <sup v-if="dateSupValues[day.id]" 
+                    :style="`color: ${day.id === date ? 'white' : '#5eff7f'}`"
+                    class="sup-value his-md-text">
                     <b>{{ dateSupValues[day.id] }}</b>
                   </sup>
                 </div>
@@ -212,12 +214,6 @@ export default defineComponent({
   color: white;
   text-align: center;
 }
-.appointments {
-  position: absolute;
-  top: 15px;
-  right: 5px;
-  color: greenyellow;
-}
 .selected{
   font-size: 3vh;
   height: 100%;
@@ -229,7 +225,7 @@ export default defineComponent({
   position: absolute;
   top: 15px;
   right: 5px;
-  color: greenyellow;
+  color: white;
 }
 .date-disabled {
   color: #ccc;
