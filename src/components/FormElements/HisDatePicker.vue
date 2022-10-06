@@ -22,7 +22,6 @@
             >
               <template v-slot:day-content="{ day }">
                 <div
-                  style="padding:12%;"
                   v-bind:class="{
                     'selected': day.id === date,
                     'date-disabled': day.isDisabled

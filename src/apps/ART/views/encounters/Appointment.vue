@@ -148,6 +148,9 @@ export default defineComponent({
             ]
           },
           config: {
+            hiddenFooterBtns: [
+              'Clear'
+            ],
             minDate: () => this.appointment.date,
             maxDate: () => drugRunoutDate,
             supValue: (date: string) => `${dateAppointments[date]}`,
