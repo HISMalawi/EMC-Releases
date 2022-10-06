@@ -1,6 +1,6 @@
 <template>
   <view-port>
-    <div class="view-port-content">
+    <div class="view-port-content-calendar">
       <ion-grid>
         <ion-row>
           <ion-col size-md="8" size-sm="12">
@@ -37,8 +37,8 @@
               </template>
             </DatePicker>
           </ion-col>
-          <ion-col size-md="4" size-sm="12">
-            <ion-list class="his-card">
+          <ion-col size-md="4" size-sm="12" class="his-card-calendar">
+            <ion-list>
               <ion-item class="his-sm-text" v-for="(item, index) in (dateInfoItems[date] || [])" :key="index"> 
                 <ion-label class="ion-text-wrap">
                   <b>{{item.label}}</b>
@@ -130,8 +130,10 @@ export default defineComponent({
 })
 </script>
 <style>
-.view-port-content {
+.view-port-content-calendar {
+  overflow-x: auto;
   background: #fff;
+  height: 100%;
 }
 ::-webkit-scrollbar {
   width: 0px;
@@ -139,7 +141,17 @@ export default defineComponent({
 ::-webkit-scrollbar-track {
   display: none;
 }
-
+.his-card-calendar {
+  border: 1px solid #cccbcb;
+    background: var(--his-card-primary-color);
+    padding: var(--his-card-primary-padding);
+    border-radius: var(--his-card-primary-border-radius);
+    -webkit-box-shadow: var(--his-card-primary-shadow-webkit);
+    -moz-box-shadow: var(--his-card-primary-shadow-moz);
+    box-shadow: var(--his-card-primary-shadow);
+  height: 74vh !important;
+  overflow-y: auto;
+}
 .custom-calendar.vc-container {
   --day-border: 1px solid #414142;
   --day-border-highlight: 1px solid #93979b;
