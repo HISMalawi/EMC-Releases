@@ -15,7 +15,6 @@ import { selectActivities } from '@/utils/WorkflowTaskHelper';
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { ObservationService } from '@/services/observation_service';
 import Store from "@/composables/ApiStore"
-import { CHARACTERS_AND_NUMBERS_LO } from '@/components/Keyboard/KbLayouts';
 
 declare global {
   interface Navigator {
