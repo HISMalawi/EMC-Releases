@@ -98,8 +98,8 @@ export default defineComponent({
               `Appointment limit reached for the selected date ${d(date)}`, 
               {
                 header: "APPOINTMENT LIMIT REACHED",
-                cancelBtnLabel: "Proceed with Selected Date",
-                confirmBtnLabel: "Select Another Date"
+                cancelBtnLabel: "Proceed",
+                confirmBtnLabel: "Reselect"
               }
             ))) return false;
           }
