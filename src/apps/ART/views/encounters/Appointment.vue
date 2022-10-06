@@ -45,7 +45,7 @@ export default defineComponent({
     async onFinish(_: any, computedData: any) {
       await this.appointment.createEncounter()
       await this.appointment.saveObservationList(
-        (await this.resolveObs(computedData, 'obs'))
+        (await this.resolveObs(computedData))
       )
       const printer = new PatientPrintoutService(this.patientID);
       // TODO: remove the program checks here
@@ -141,14 +141,11 @@ export default defineComponent({
           },
           validation: (val: any) => Validation.required(val),
           defaultValue: () => nextAppointment,
-          computedValue: (d: Option) => {
-            return {
-              tag: 'obs',
-              obs: [
-                this.appointment.buildValueDate('Appointment date', d.value),
-                this.appointment.buildValueDate('Estimated date', nextAppointment)
-              ]
-            }
+          computedValue: (date: string) => {
+            return [
+              this.appointment.buildValueDate('Appointment date', date),
+              this.appointment.buildValueDate('Estimated date', nextAppointment)
+            ]
           },
           config: {
             minDate: () => this.appointment.date,
