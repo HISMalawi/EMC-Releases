@@ -1301,17 +1301,25 @@ export default defineComponent({
             tag: 'consultation',
             obs: this.consultation.buildValueText("Previous TB treatment history", data.value)
           }),
-          options: () => this.mapStrToOptions([
-            "Currently on IPT",
-            "Currently on 3HP (RFP + INH)",
-            "Currently on INH 300 / RFP 300 (3HP)",
-            "Complete course of 3HP in the past (3 months RFP+INH)",
-            "Complete course of IPT in the past (min. 6 months of INH)",
-            "Aborted course of 3HP (RFP + INH) in the past",
-            "Aborted course of INH 300 / RFP 300 (3HP) in the past",
-            "Aborted course of IPT in the past",
-            "Never taken IPT or 3HP"
-          ])
+          options: (f: any) => {
+            let options: string[] = []
+            if(!/yes/i.test(f.on_tb_treatment.value)) {
+              options = [
+                "Currently on IPT",
+                "Currently on 3HP (RFP + INH)",
+                "Currently on INH 300 / RFP 300 (3HP)"
+              ]
+            }
+            options = options.concat([
+              "Complete course of 3HP in the past (3 months RFP+INH)",
+              "Complete course of IPT in the past (min. 6 months of INH)",
+              "Aborted course of 3HP (RFP + INH) in the past",
+              "Aborted course of INH 300 / RFP 300 (3HP) in the past",
+              "Aborted course of IPT in the past",
+              "Never taken IPT or 3HP"
+            ])
+            return this.mapStrToOptions(options)
+          }
         },
         ...generateDateFields({
           id: 'date_started_tpt',
