@@ -43,6 +43,7 @@ export interface ProgramIdentifierInterface {
     validation?: (value: Option) => string[] | null
     visible?: () => boolean | Promise<boolean>;
     globalPropertySetting?: string;
+    keyboardName?: string
 }
 
 export interface AppInterface {

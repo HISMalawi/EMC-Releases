@@ -91,7 +91,7 @@ export default defineComponent({
         const router = useRouter()
         const activeTemplateName = route.params['template_id'] as string
         const { 
-            drill,
+            presentDrillDown,
             getMonthlyReportFields, 
             showPrintWindow, 
             fd 
@@ -288,7 +288,7 @@ export default defineComponent({
 
         function onIndicatorSelected(indicator: string) {
             const data = reportData.value['values'][indicator]['table']
-            drill(data['indicator_name'], data['contents'])
+            presentDrillDown(data['indicator_name'], data['contents'])
         }
 
         function exportPDF() {
