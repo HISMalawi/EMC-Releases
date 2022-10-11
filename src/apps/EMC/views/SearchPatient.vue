@@ -11,7 +11,7 @@
             v-on:keyup.enter="searchPatient"
           />
           <div style="max-width: 250px" class="ion-margin-end ion-margin-vertical">
-            <SelectInput v-model="gender" :options="genderOptions" ></SelectInput>
+            <SelectInput v-model="gender" :options="genderOptions" v-on:keyup.enter="searchPatient" ></SelectInput>
           </div>
           <ion-button class="ion-margin-vertical" @click="searchPatient">Search</ion-button>
           <ion-button class="ion-margin-vertical" @click="resetQuery" color="secondary">Reset</ion-button>
@@ -44,7 +44,7 @@ import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonGrid, IonRow, IonCol, IonSearchbar, IonButton } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
-import { alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts";
+import { toastDanger, toastWarning } from "@/utils/Alerts";
 import { useRouter } from "vue-router";
 import { genderOptions } from "../utils/DTFormElements";
 import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
@@ -123,7 +123,7 @@ export default defineComponent({
         loader.show()
         try {
           const { type, value } = await parseSearchText(searchText.value);
-          const results: any[] = (type === "name")
+          const results: any[] = type === "name"
             ? await Patientservice.search(buildSearchByNameQuery(value, gender.value.value))
             : (type === 'arv_number')
             ? await Patientservice.findByOtherID(4, value)
