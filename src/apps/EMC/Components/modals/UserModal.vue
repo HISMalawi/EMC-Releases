@@ -143,17 +143,16 @@ export default defineComponent({
       if(!(await isValidForm(form))) return
       loader.show();
       const { formData } = resolveFormValues(form, true);
-      const user = {...formData, roles: formData.roles.map((r: Option) => r.label)} 
-      console.log(formData, user)
+      let user = {...formData, roles: formData.roles.map((r: Option) => r.label)} 
       if(isEmpty(props.user)){
-        await UserService.createUser(user);
+        user = await UserService.createUser(user);
         toastSuccess('User created successfully');
       } else {
-        await UserService.updateUser(props.user['user_id'], user);
+        user = await UserService.updateUser(props.user['user_id'], user);
         toastSuccess('User updated successfully');
       }
       loader.hide();
-      modal.hide();
+      modal.hide(user);
     }
 
     onMounted(() => {

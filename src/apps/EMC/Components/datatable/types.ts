@@ -44,7 +44,7 @@ export interface ActionButtonInterface {
 export interface RowActionButtonInterface {
   label?: string;
   icon?: string;
-  action: (row: any) => any;
+  action: (row: any, index: number) => any;
   color?: string;
   default?: boolean;
   condition?: (row: any) => boolean;

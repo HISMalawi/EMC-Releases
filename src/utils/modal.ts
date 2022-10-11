@@ -12,7 +12,7 @@ export const modal = {
     const { data } = await m.onWillDismiss();
     if(data) return data;
   },
-  async hide() {
-    await modalController.dismiss();
+  async hide(data?: Record<string, any>) {
+    await modalController.dismiss(data);
   }
 }

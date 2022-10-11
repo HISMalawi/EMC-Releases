@@ -206,7 +206,7 @@ export const DataTable = defineComponent({
     watch(() => props.rows, async () => {
       await initializeRows();
       initializeFilters();
-    });
+    }, { deep: true, immediate: true});
 
     watch(filters, () => {
       filter();
@@ -333,11 +333,11 @@ export const DataTable = defineComponent({
               ? h('tr', h('td', { colspan: totalColumns.value },
                 h('div', { class: 'no-data-table' }, 'No data available')
               ))
-              : activeRows.value.map(row =>
+              : activeRows.value.map((row, index) =>
                 h('tr', {
                   key: row, onClick: async () => {
                     const defualtActionBtn = props.rowActionsButtons.find(btn => btn.default)
-                    if (defualtActionBtn) await defualtActionBtn.action(row)
+                    if (defualtActionBtn) await defualtActionBtn.action(row, index)
                   }
                 }, [
                   ...props.columns.map(column => {
@@ -354,7 +354,7 @@ export const DataTable = defineComponent({
                   !isEmpty(props.rowActionsButtons) && h('td', props.rowActionsButtons.map(btn => {
                     const canShowBtn = typeof btn.condition === 'function' ? btn.condition(row) : true;
                     return canShowBtn
-                      ? h(IonButton, { key: btn.icon, size: 'small', color: btn.color || 'primary', onClick: () => btn.action(row) },
+                      ? h(IonButton, { key: btn.icon, size: 'small', color: btn.color || 'primary', onClick: () => btn.action(row, index) },
                         btn.icon ? h(IonIcon, { icon: btn.icon }) : btn.label || "Button"
                       )
                       : null
