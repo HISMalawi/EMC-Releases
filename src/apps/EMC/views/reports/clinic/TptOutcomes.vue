@@ -23,12 +23,14 @@ import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
 import { modal } from "@/utils/modal";
 import dayjs from "dayjs";
 import { toGenderString } from "@/utils/Strs";
-import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import HisDate from "@/utils/Date";
+import { sortByARV } from "@/apps/EMC/utils/common"; 
 
 export default defineComponent({
   name: "TptOutcomes",
   components: { BaseReportTable },
   setup() {
+    const { toStandardHisDisplayFormat } = HisDate
     const period = ref("");
     const title = ref("TPT Outcomes Clinic Report");
     const rows = ref<any[]>([]);
@@ -73,9 +75,9 @@ export default defineComponent({
 
     const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
       const columns: TableColumnInterface[] = [
-        { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
-        { path: "birthdate", label: "Date of Birth", formatter: (date) => dayjs(date).format(DISPLAY_DATE_FORMAT)},
-        { path: "gender", label: "Gender", formatter: (gender) => toGenderString(gender) },
+        { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
+        { path: "birthdate", label: "Date of Birth", formatter: toStandardHisDisplayFormat },
+        { path: "gender", label: "Gender", formatter: toGenderString },
         { path: "address", label: "Address" }
       ]
       const patients = data.row[data.column.path]

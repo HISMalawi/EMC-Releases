@@ -19,6 +19,7 @@ import { PatientReportService } from "@/apps/ART/services/reports/patient_report
 import dayjs from "dayjs";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
+import { sortByARV } from "@/apps/EMC/utils/common";
 
 export default defineComponent({
   name: "IncompleteVisits",
@@ -27,7 +28,7 @@ export default defineComponent({
     const period = ref("");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
-      { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
+      { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
       { path: "national_id", label: "NHID" },
       { path: "given_name", label: "First name", exportable: false },
       { path: "family_name", label: "Last name", exportable: false },

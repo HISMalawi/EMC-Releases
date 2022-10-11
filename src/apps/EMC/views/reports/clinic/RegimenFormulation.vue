@@ -23,6 +23,7 @@ import { FORMULATIONS, RegimenReportService, REGIMENS } from "@/apps/ART/service
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
 import { toGenderString } from "@/utils/Strs";
+import { sortByARV } from "@/apps/EMC/utils/common";
 
 export default defineComponent({
   name: "RegimenFormulation",
@@ -35,7 +36,7 @@ export default defineComponent({
     const report = new RegimenReportService()
     
     const columns: TableColumnInterface[] = [
-      { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
+      { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
       { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
     ]

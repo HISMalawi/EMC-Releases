@@ -18,9 +18,9 @@ import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { DefaulterReportService } from "@/apps/ART/services/reports/defaulters_report_service";
-import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
-import dayjs from "dayjs";
+import HisDate from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
+import { sortByARV } from "@/apps/EMC/utils/common";
 
 export default defineComponent({
   name: "DefaultersList",
@@ -30,13 +30,13 @@ export default defineComponent({
     const title = ref("PEPFAR Defaulters List Report");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
-      { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
+      { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
       { path: "given_name", label: "First name", exportable: false },
       { path: "family_name", label: "Last name", exportable: false },
       { path: "gender", label: "Gender", formatter: toGenderString },
-      { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT)},
+      { path: "birthdate", label: "Date of Birth", formatter: HisDate.toStandardHisDisplayFormat },
       { path: "current_age", label: "Age (At reporting)"},
-      { path: "defaulter_date", label: "Defaulted Date", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT)}
+      { path: "defaulter_date", label: "Defaulted Date", formatter: HisDate.toStandardHisDisplayFormat }
     ]
 
     const getData = async ({ dateRange }: Record<string, any>) => {

@@ -38,7 +38,6 @@ import { defineComponent, reactive, ref, watch } from "vue";
 import { loader } from "@/utils/loader";
 import { modal } from "@/utils/modal";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
-import dayjs from "dayjs";
 import { toastWarning } from "@/utils/Alerts";
 import { find, isEmpty } from "lodash";
 import DateRangePicker, { DateRange } from "@/apps/EMC/Components/inputs/DateRangePicker.vue";
@@ -57,8 +56,10 @@ import { Service } from "@/services/service";
 import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
 import { DTFormField } from "@/apps/EMC/interfaces/dt_form_field";
 import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
-import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import HisDate from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
+import { sortByARV } from "@/apps/EMC/utils/common";
+import dayjs from "dayjs";
 
 export default defineComponent({
   name: "Cohort",
@@ -112,10 +113,10 @@ export default defineComponent({
     
     const onDrilldown = async (indicatorName: string) => {
       const columns: TableColumnInterface[] = [
-        { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
+        { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
         { path: "given_name", label: "First Name"},
         { path: "family_name", label: "Last Name"},
-        { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
+        { path: "birthdate", label: "Date of Birth", formatter: HisDate.toStandardHisDisplayFormat },
         { path: "gender", label: "Gender", formatter: toGenderString },
         { path: "outcome", label: "Outcome" }
       ]
@@ -172,8 +173,8 @@ export default defineComponent({
         period.value = `Custom ${report.getDateIntervalPeriod()}`;
         data = report.datePeriodRequestParams();
       } else {
-        startDate = dayjs(quarter.value?.other.start).format("YYYY-MM-DD");
-        endDate = dayjs(quarter.value?.other.end).format("YYYY-MM-DD");
+        startDate = HisDate.toStandardHisFormat(quarter.value?.other.start);
+        endDate = HisDate.toStandardHisFormat(quarter.value?.other.end);
         setReportPeriod(quarter.value?.label, startDate, endDate);
         period.value = quarter.value?.label;
         data = report.qaurterRequestParams();

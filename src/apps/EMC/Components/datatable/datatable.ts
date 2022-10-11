@@ -7,7 +7,6 @@ import orderBy from "lodash/orderBy";
 import range from "lodash/range";
 import { IonButton, IonCol, IonGrid, IonIcon, IonInput, IonItem, IonLabel, IonRow, IonSearchbar, IonSelect, IonSelectOption, IonSkeletonText } from "@ionic/vue";
 import { arrowDown, arrowUp, swapVertical, caretBack, caretForward } from "ionicons/icons";
-import dayjs from "dayjs";
 import DateRangePicker from "../inputs/DateRangePicker.vue";
 
 export const DataTable = defineComponent({
@@ -82,13 +81,13 @@ export const DataTable = defineComponent({
     );
 
     const emitCustomFilters = () => {
-      if(props.customFilters.every(f => {
-        if(f.required === false) return true
-        if(typeof customFiltersValues[f.id] === 'object') {
+      if (props.customFilters.every(f => {
+        if (f.required === false) return true
+        if (typeof customFiltersValues[f.id] === 'object') {
           return Object.values(customFiltersValues[f.id]).every(v => !isEmpty(v))
         }
         return !isEmpty(customFiltersValues[f.id])
-      })){
+      })) {
         emit("customFilter", customFiltersValues);
       }
     }
@@ -113,15 +112,15 @@ export const DataTable = defineComponent({
 
     const sort = () => {
       if (isEmpty(filters.sort) || isEmpty(filteredRows)) return;
-      const orders = filters.sort.map((sortConfig) => sortConfig.order);
+      const orders = filters.sort.map(({ order }) => order);
       filteredRows.value = orderBy(
         filteredRows.value,
-        filters.sort.map(({ columnId, caseSensitive }) => (row) => {
-          const value = get(row, columnId);
-          if (value && columnId.match(/arv_number/i)) return parseInt(value.toString().split("-")[2]);
-          if (typeof value === "number") return value;
-          if (caseSensitive) return value ? value : "";
-          return value ? value.toString().toLowerCase() : "";
+        filters.sort.map(({ column }) => (row) => {
+          let value = get(row, column.path);
+          if(!value || isEmpty(value)) return ""
+          if (typeof column.preSort === "function") value = column.preSort(value);
+          if (typeof value === "number" || column.sortCaseSensitive) return value;
+          return value.toString().toLowerCase();
         }),
         orders as any
       );
@@ -174,24 +173,22 @@ export const DataTable = defineComponent({
     const initializeFilters = () => {
       filters.sort = props.columns
         .filter(({ initialSort }) => initialSort)
-        .map(({ path, initialSortOrder, sortCaseSensitive }) => ({
-          columnId: path,
-          order: initialSortOrder || "asc",
-          caseSensitive: sortCaseSensitive || false
+        .map(column => ({
+          column,
+          order: column.initialSortOrder || "asc"
         }));
     }
 
     const updateSortQueries = (column: TableColumnInterface) => {
-      const queryIndex = filters.sort.findIndex(({ columnId }) => columnId === column.path);
+      const queryIndex = filters.sort.findIndex((s) => s.column.path === column.path);
       if (queryIndex >= 0) {
         filters.sort[queryIndex].order = filters.sort[queryIndex].order === 'asc'
           ? 'desc'
           : 'asc'
       } else {
         filters.sort = [{
-          columnId: column.path,
+          column,
           order: "asc",
-          caseSensitive: column.sortCaseSensitive || false
         }]
       }
     }
@@ -281,9 +278,9 @@ export const DataTable = defineComponent({
                   )
                 }
               }),
-              props.customFilters.length > 0 && props.config.showSubmitButton !== false &&  h(IonCol, {size: 2, class: "ion-margin-bottom"},
+              props.customFilters.length > 0 && props.config.showSubmitButton !== false && h(IonCol, { size: 2, class: "ion-margin-bottom" },
                 h(IonButton, { color: "primary", onClick: emitCustomFilters }, 'Submit')
-              ) 
+              )
             ])
           ),
           h(IonCol, { size: '5', class: "ion-padding-end" },
@@ -304,12 +301,12 @@ export const DataTable = defineComponent({
           h("thead", { class: props.color },
             h("tr", [
               ...props.columns.map(column =>
-                h("th", { key: column.label, style: {minWidth: column.path.match(/index/i) ? '80px' : '190px'}, onClick: () => updateSortQueries(column) },
+                h("th", { key: column.label, style: { minWidth: column.path.match(/index/i) ? '80px' : '190px' }, onClick: () => updateSortQueries(column) },
                   [
                     h("span", column.label),
                     column.sortable !== false && h(IonIcon, {
                       icon: (computed(() => {
-                        const query = filters.sort.find(({ columnId }) => columnId === column.path);
+                        const query = filters.sort.find(s => s.column.path === column.path);
                         return !query ? swapVertical : query.order == "asc" ? arrowUp : arrowDown;
                       })).value,
                       style: {
@@ -345,18 +342,18 @@ export const DataTable = defineComponent({
                 }, [
                   ...props.columns.map(column => {
                     let value = get(row, column.path);
-                    if(typeof column.formatter === 'function' && value) value = column.formatter(value)
-                    return h('td', { key: column.path, style: { minWidth: column.path.match(/index/i) ? '80px' : '190px'} }, 
+                    if (typeof column.formatter === 'function' && value) value = column.formatter(value)
+                    return h('td', { key: column.path, style: { minWidth: column.path.match(/index/i) ? '80px' : '190px' } },
                       column.drillable && !isEmpty(value)
-                        ? h('a', { onClick: () => emit("drilldown", {column, row})}, Array.isArray(value) ? value.length : value)
-                        : Array.isArray(value) 
-                          ? value.length 
+                        ? h('a', { onClick: () => emit("drilldown", { column, row }) }, Array.isArray(value) ? value.length : value)
+                        : Array.isArray(value)
+                          ? value.length
                           : value
                     )
                   }),
                   !isEmpty(props.rowActionsButtons) && h('td', props.rowActionsButtons.map(btn => {
                     const canShowBtn = typeof btn.condition === 'function' ? btn.condition(row) : true;
-                    return canShowBtn 
+                    return canShowBtn
                       ? h(IonButton, { key: btn.icon, size: 'small', color: btn.color || 'primary', onClick: () => btn.action(row) },
                         btn.icon ? h(IonIcon, { icon: btn.icon }) : btn.label || "Button"
                       )

@@ -22,6 +22,7 @@ import { CtIndicator, DataCleaningReportService } from "@/apps/ART/services/repo
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
 import { toGenderString } from "@/utils/Strs";
+import { sortByARV } from "../../utils/common";
 
 export default defineComponent({
   name: "DataCleaning",
@@ -35,7 +36,7 @@ export default defineComponent({
     const period = ref("-");
     
     const columns: TableColumnInterface[] = [
-      { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
+      { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
       { path: "given_name", "label": "First Name" },
       { path: "family_name", label: "Last Name" },
       { path: "gender", label: "Gender", formatter: toGenderString },

@@ -19,7 +19,6 @@ import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { modal } from "@/utils/modal";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
-import { REGIMENS } from "@/apps/ART/services/reports/regimen_report_service";
 import dayjs from "dayjs";
 import { DisaggregatedReportService } from "@/apps/ART/services/reports/disaggregated_service";
 import { toastWarning } from "@/utils/Alerts";
@@ -28,6 +27,7 @@ import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
 import { Patientservice } from "@/services/patient_service";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
+import { sortByARV } from "@/apps/EMC/utils/common";
 
 interface Category {
   index: number;
@@ -193,7 +193,7 @@ export default defineComponent({
 
     const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
       const columns: TableColumnInterface[] = [
-        { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
+        { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
         { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
         { path: "gender", label: "Gender", formatter: toGenderString },
         { path: "address", label: "Address" }

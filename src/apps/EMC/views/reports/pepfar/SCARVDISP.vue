@@ -21,6 +21,7 @@ import { modal } from "@/utils/modal";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
+import { sortByARV } from "@/apps/EMC/utils/common";
 
 export default defineComponent({
   name: "SCARVDISP",
@@ -52,7 +53,7 @@ export default defineComponent({
 
     const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
       const columns: TableColumnInterface[] = [
-        { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
+        { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
         { path: "name", label: "Drug" },
         { path: "quantity", label: "Quantity"},
         { path: "date", label: "Date", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) }

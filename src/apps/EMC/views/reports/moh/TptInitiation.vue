@@ -25,6 +25,7 @@ import { RegimenReportService } from "@/apps/ART/services/reports/regimen_report
 import dayjs from "dayjs";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
+import { sortByARV } from "@/apps/EMC/utils/common";
 
 export default defineComponent({
   name: "TptInitiation",
@@ -82,9 +83,9 @@ export default defineComponent({
     const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
       const formatter = (v: any) => dayjs(v).format(DISPLAY_DATE_FORMAT) 
       const columns: TableColumnInterface[] = [
-        { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
+        { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
         { path: "birthdate", label: "Date of Birth", formatter },
-        { path: "gender", label: "Gender"},
+        { path: "gender", label: "Gender", formatter: toGenderString },
         { path: "dispensation_date", label: "Dispensation Date", formatter },
         { path: "art_start_date", label: "Art Start Date", formatter },
         { path: "tpt_start_date", label: "TPT Start Date",formatter }

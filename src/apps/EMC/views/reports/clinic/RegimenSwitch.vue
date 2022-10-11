@@ -17,25 +17,26 @@ import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { RegimenReportService } from "@/apps/ART/services/reports/regimen_report_service";
 import { toGenderString } from "@/utils/Strs";
-import dayjs from "dayjs";
-import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import HisDate from "@/utils/Date";
+import { sortByARV } from "@/apps/EMC/utils/common";
 
 export default defineComponent({
   name: "RegimenSwitch",
   components: { BaseReportTable },
   setup() {
+    const { toStandardHisDisplayFormat } = HisDate
     const period = ref("");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
-      { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
-      { path: "gender", label: "Gender", formatter: (v) => toGenderString(v) },
-      { path: "birthdate", label: "DOB", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
-      { path: "art_start_date", label: "Start Date", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
+      { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
+      { path: "gender", label: "Gender", formatter: toGenderString },
+      { path: "birthdate", label: "DOB", formatter: toStandardHisDisplayFormat },
+      { path: "art_start_date", label: "Start Date", formatter: toStandardHisDisplayFormat },
       { path: "current_weight", label: "Weight (Kg)" },
       { path: "previous_regimen", label: "Prev Regimen" },
       { path: "current_regimen", label: "Curr Regimen" },
       { path: "medications", label: "ARVs"},
-      { path: "dispensation_date", label: "Dispensation Date", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) }
+      { path: "dispensation_date", label: "Dispensation Date", formatter: toStandardHisDisplayFormat }
     ]
 
     const fetchData =  async (filters: Record<string, any>) => {

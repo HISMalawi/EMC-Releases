@@ -7,13 +7,13 @@ export interface TableColumnInterface {
   initialSortOrder?: sortType;
   sortCaseSensitive?: boolean;
   drillable?: boolean;
+  preSort?: (value: any) => any;
   formatter?: (value: any) => any;
 }
 
 export interface SortQueryInterface {
-  columnId: string;
+  column: TableColumnInterface;
   order: sortType;
-  caseSensitive: boolean;
 }
 
 export type sortType = "asc" | "desc" | "none";
