@@ -5,7 +5,7 @@
       <ion-row>
         <ion-col size="3">
           <dashboard-card
-            :value="totalMissedAppointments"
+            :value="missedAppointments"
             label="Missed Appointments"
             color="primary"
             :icon="calendar"
@@ -13,7 +13,7 @@
         </ion-col>
         <ion-col size="3">
           <dashboard-card
-            :value="totalAppointmentsDue"
+            :value="appointmentsDue"
             label="Appointments Due"
             color="success"
             :icon="alarm"
@@ -21,7 +21,7 @@
         </ion-col>
         <ion-col size="3">
           <dashboard-card
-            :value="totalDueForVL"
+            :value="dueForVL"
             label="Due for Viral Load"
             color="secondary"
             :icon="time"
@@ -29,7 +29,7 @@
         </ion-col>
         <ion-col size="3">
           <dashboard-card
-            :value="totalDefaulters"
+            :value="defaulters"
             label="Defaulters (this Quarter)"
             color="danger"
             :icon="people"
@@ -40,17 +40,17 @@
         <ion-col size="3">
           <dashboard-card
             label="Patients on DTG"
-            :value="totalPatientsOnDTG"
+            :value="patientsOnDTG"
             class="his-card"
           />
           <dashboard-card
             label="TX Current (30 Days)"
-            :value="totalTXCurrent30"
+            :value="txCurrent30"
             class="his-card"
           />
           <dashboard-card
             label="TX Current (60 Days)"
-            :value="totalTXCurrent60"
+            :value="txCurrent60"
             class="his-card"
           />
         </ion-col>
@@ -72,7 +72,8 @@ import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import DashboardCard from "../Components/DashboardCard.vue";
 import { people, calendar, alarm, time } from "ionicons/icons";
 import HisDate, { STANDARD_DATE_FORMAT } from "@/utils/Date";
-import DashboardService from "../services/dashboard.service";
+import Store from "@/composables/ApiStore";
+import { EmcStore } from "../Config/emcStore";
 
 export default defineComponent({
   components: {
@@ -84,9 +85,17 @@ export default defineComponent({
     DashboardCard,
   },
   setup() {
-    const range = HisDate.getDateQuarter(new Date());
     const today = HisDate.toStandardHisFormat(new Date());
+    const quarter = HisDate.getDateQuarter(today);
     const tomorrow = HisDate.add(today, "day", 1).format(STANDARD_DATE_FORMAT);
+    const missedAppointments = ref<number>()
+    const appointmentsDue = ref<number>()
+    const dueForVL = ref<number>()
+    const defaulters = ref<number>()
+    const patientsOnDTG = ref<number>()
+    const txCurrent30 = ref<number>()
+    const txCurrent60 = ref<number>()
+    
     const visits = ref<any>();
     const days = computed<string[]>(() => visits.value && Object.keys(visits.value) || []);
     const accumulativeVisits = computed(() => {
@@ -102,58 +111,34 @@ export default defineComponent({
       }
     })
 
-    const missedAppointments = ref<any[]>()
-    const totalMissedAppointments = computed(() => missedAppointments.value?.length || -1);
+    const loadData = async (reload = false) => {
+      patientsOnDTG.value = (await Store.get(EmcStore.PATIENT_ON_DTG, { quarter })).length
+      visits.value = await Store.get(EmcStore.PATIENT_VISITS, { quarter })
+      appointmentsDue.value = (await Store.get(EmcStore.APPOINTMENTS_DUE, { date: tomorrow })).length
+      missedAppointments.value = (await Store.get(EmcStore.MISSED_APPOINTMENTS, { date: today, quarter })).length
+      txCurrent30.value = (await Store.get(EmcStore.TX_CURRENT_30, { quarter })).length
+      txCurrent60.value = (await Store.get(EmcStore.TX_CURRENT_60, { quarter })).length
+      dueForVL.value = (await Store.get(EmcStore.DUE_FOR_VL, { quarter })).length
+      defaulters.value = (await Store.get(EmcStore.PATIENT_VISITS, { quarter })).length
+    }
 
-    const appointmentsDue = ref<any[]>()
-    const totalAppointmentsDue = computed(() => appointmentsDue.value?.length || -1);
-
-    const dueForViralLoad = ref<any[]>()
-    const totalDueForVL = computed(() => dueForViralLoad.value?.length || -1);
-
-    const defaulters = ref<any[]>()
-    const totalDefaulters = computed(() => defaulters.value?.length || -1);
-
-    const patientsOnDTG = ref<any[]>()
-    const totalPatientsOnDTG = computed(() => patientsOnDTG.value?.length || -1)
-
-    const txCurrent30 = ref<any[]>()
-    const totalTXCurrent30 = computed(() => txCurrent30.value?.length)
-
-    const txCurrent60 = ref<any[]>()
-    const totalTXCurrent60 = computed(() => txCurrent60.value?.length)
-
-    onMounted(async () => {
-      patientsOnDTG.value = await DashboardService.getPatientsOnDTG(range)
-      visits.value = await DashboardService.getVisits(range)
-      appointmentsDue.value = await DashboardService.getAppointmentsDue(tomorrow)
-      missedAppointments.value = await DashboardService.getMissedAppointments(today, range)
-      txCurrent30.value = await DashboardService.getTXCurrent({
-        start: today, 
-        end: HisDate.subtract(today, 'days', 30).format(STANDARD_DATE_FORMAT)
-      })
-      txCurrent60.value = await DashboardService.getTXCurrent({
-        start: today, 
-        end: HisDate.subtract(today, 'days', 60).format(STANDARD_DATE_FORMAT)
-      })
-      dueForViralLoad.value = await DashboardService.getPatientsDueForVL(range)
-      defaulters.value = await DashboardService.getDefaulters(today, range)
-    })
+    onMounted(async () => loadData())
 
     return {
       people,
       calendar,
       alarm,
       time,
-      totalMissedAppointments,
-      totalAppointmentsDue,
-      totalDueForVL,
-      totalDefaulters,
+      missedAppointments,
+      appointmentsDue,
+      dueForVL,
+      defaulters,
       days,
       accumulativeVisits,
-      totalPatientsOnDTG,
-      totalTXCurrent30,
-      totalTXCurrent60,
+      patientsOnDTG,
+      txCurrent30,
+      txCurrent60,
+      loadData,
     };
   },
 });
