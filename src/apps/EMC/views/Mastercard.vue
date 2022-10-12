@@ -39,7 +39,6 @@ import PatientDemographics from "../Components/modals/PatientDemographics.vue";
 import GuardianDemographicsVue from "../Components/modals/GuardianDemographics.vue";
 import ARVNumberVue from "../Components/modals/ArvNumber.vue";
 import { useRoute } from "vue-router";
-import { loader } from "@/utils/loader";
 import EventBus from "@/utils/EventBus";
 import { EmcEvents } from "../interfaces/emc_event";
 import { modal } from "@/utils/modal";
@@ -100,9 +99,7 @@ export default defineComponent({
     });
 
     onMounted(async () => {
-      await loader.show();
       await setPatient();
-      await loader.hide();
       const date = await patient.value?.getARTStartDate();
       artStartDate.value = date ? HisDate.toStandardHisDisplayFormat(date) : "N/A";
       await setPatientGuardian();

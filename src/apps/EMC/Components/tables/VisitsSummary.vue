@@ -13,10 +13,9 @@
     </ion-card-header>
     <ion-card-content class="ion-no-padding" style="min-height: 45vh;">
       <report-table
-        :asyncRows="getPatientVisits"
+        :rows="rows"
         :columns="columns"
         :config="tableConfig"
-        :key="refreshKey"
       />
     </ion-card-content>
   </ion-card>
@@ -34,7 +33,7 @@ import popVoidReason from '@/utils/ActionSheetHelpers/VoidReason';
 import HisDate from "@/utils/Date";
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, modalController } from '@ionic/vue';
 import dayjs from 'dayjs';
-import { computed, defineComponent, PropType, reactive, ref } from 'vue';
+import { computed, defineComponent, onMounted, PropType, reactive, ref } from 'vue';
 import ViralLoadResult from '@/apps/EMC/Components/modals/ViralLoadResult.vue';
 import OutcomeStatus from '@/apps/EMC/Components/modals/OutcomeStatus.vue';
 import PatientVisit from '@/apps/EMC/Components/modals/PatientVisit.vue';
@@ -70,7 +69,7 @@ export default defineComponent({
     IonButton,
   },
   setup(props) {
-    const refreshKey = ref(1000);
+    const rows = ref<RowInterface[][]>([])
     const patientId = computed(() => props.patient.getID());
     const tableConfig = reactive({
       showIndex: false,
@@ -142,62 +141,63 @@ export default defineComponent({
         })
         activeRows.splice(index, 1);
       }, 'small-modal');
-    }
-        
+    } 
 
-    const getPatientVisits = async () => {
-      const dates = await Patientservice.getPatientVisits(patientId.value, true);
-      const rows: RowInterface[][] = [];
+    const buildRows = () => {
+      Patientservice.getPatientVisits(patientId.value, true).then(async (dates) => {
+        rows.value = []
+        for (const date of dates) {
+          const data =  await ProgramService.getCurrentProgramInformation(patientId.value,  date)
+          let nextAppointment = '';
+          let pregnant = '';
+          let breastfeeding = '';
+          let vlResult = ''
 
-      for (const date of dates) {
-        const data =  await ProgramService.getCurrentProgramInformation(patientId.value,  date)
-        let nextAppointment = '';
-        let pregnant = '';
-        let breastfeeding = '';
-        let vlResult = ''
-
-        if (data.outcome !== 'Defaulted') {
-          const nDate = await ObservationService.getFirstValueDatetime(patientId.value, 'appointment date', date);
-          if(nDate) nextAppointment = HisDate.toStandardHisDisplayFormat(nDate)
-          pregnant = await ObservationService.getFirstValueCoded(patientId.value, 'Is patient pregnant', date);
-          breastfeeding = await ObservationService.getFirstValueCoded(patientId.value, 'Is patient breast feeding', date);
-          if(data['viral_load'] === 'N/A') {
-            const vlObs = await ObservationService.getFirstObs(patientId.value, "HIV viral load", date)
-            if(vlObs && vlObs.value_text && vlObs.value_numeric) {
-              vlResult = vlObs.value_numeric === 1 ? "LDL" : vlObs.value_text + vlObs.value_numeric.toString()
+          if (data.outcome !== 'Defaulted') {
+            const nDate = await ObservationService.getFirstValueDatetime(patientId.value, 'appointment date', date);
+            if(nDate) nextAppointment = HisDate.toStandardHisDisplayFormat(nDate)
+            pregnant = await ObservationService.getFirstValueCoded(patientId.value, 'Is patient pregnant', date);
+            breastfeeding = await ObservationService.getFirstValueCoded(patientId.value, 'Is patient breast feeding', date);
+            if(data['viral_load'] === 'N/A') {
+              const vlObs = await ObservationService.getFirstObs(patientId.value, "HIV viral load", date)
+              if(vlObs && vlObs.value_text && vlObs.value_numeric) {
+                vlResult = vlObs.value_numeric === 1 ? "LDL" : vlObs.value_text + vlObs.value_numeric.toString()
+              }
+            } else {
+              vlResult = data['viral_load']
             }
-          } else {
-            vlResult = data['viral_load']
           }
+          data && rows.value.push([
+            table.td(formatVisitDate(date)),
+            table.td(data['visit_by'].match(/Unk/i) ? "" : data['visit_by']),
+            table.td(data.outcome === 'Defaulted' ? '' : data.weight),
+            table.td(data.outcome === 'Defaulted' ? '' : data.height),
+            table.td(data.outcome === 'Defaulted' ? '' : data.bmi),
+            table.td(pregnant || ''),
+            table.td(breastfeeding ||''),
+            table.td(data['tb_status'].match(/Unknown/i) || data.outcome === 'Defaulted' ? '' : data['tb_status']),
+            table.td(data['side_effects'].length ? 'Yes' : data.outcome !== 'Defaulted' ? 'No' : ''),
+            table.tdLink(data.outcome === 'Defaulted' ? '' : data.regimen, () => showDrugsDispensed(data.pills_dispensed, date)),
+            table.td(nextAppointment || ''),
+            table.td(data.outcome.match(/Unk/i) ? "" : data.outcome),
+            table.td(vlResult),
+            table.tdBtn('X', (index: number, activeRows: any[]) => removeEncounters(date, index, activeRows), {}, 'danger')
+          ])
         }
-        data && rows.push([
-          table.td(formatVisitDate(date)),
-          table.td(data['visit_by'].match(/Unk/i) ? "" : data['visit_by']),
-          table.td(data.outcome === 'Defaulted' ? '' : data.weight),
-          table.td(data.outcome === 'Defaulted' ? '' : data.height),
-          table.td(data.outcome === 'Defaulted' ? '' : data.bmi),
-          table.td(pregnant || ''),
-          table.td(breastfeeding ||''),
-          table.td(data['tb_status'].match(/Unknown/i) || data.outcome === 'Defaulted' ? '' : data['tb_status']),
-          table.td(data['side_effects'].length ? 'Yes' : data.outcome !== 'Defaulted' ? 'No' : ''),
-          table.tdLink(data.outcome === 'Defaulted' ? '' : data.regimen, () => showDrugsDispensed(data.pills_dispensed, date)),
-          table.td(nextAppointment || ''),
-          table.td(data.outcome.match(/Unk/i) ? "" : data.outcome),
-          table.td(vlResult),
-          table.tdBtn('X', (index: number, activeRows: any[]) => removeEncounters(date, index, activeRows), {}, 'danger')
-        ])
-      }
-      return rows;
+      });
     }
 
-    EventBus.on(EmcEvents.RELOAD_PATIENT_VISIT_DATA, () => refreshKey.value++)
+    EventBus.on(EmcEvents.RELOAD_PATIENT_VISIT_DATA, () => buildRows())
+
+    onMounted(() => {
+      buildRows()
+    })
 
     return {
-      refreshKey,
       actionButtons,
       tableConfig,
       columns,
-      getPatientVisits,
+      rows,
     }
   },
 })
