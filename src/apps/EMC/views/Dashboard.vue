@@ -59,11 +59,8 @@
             class="his-card"
           />
         </ion-col>
-        <ion-col size="9" style="max-height: 650px">
-          <visit-stats-chart
-            :days="days"
-            :visits="accumulativeVisits"
-          />
+        <ion-col size="9" style="max-height: 680px">
+          <line-chart :options="chartOptions" :series="chartSeries" />
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -72,27 +69,29 @@
 <script lang="ts">
 import { computed, defineComponent, onMounted, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import VisitStatsChart from "../Components/charts/CompleteIncompleteVisits.vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import DashboardCard from "../Components/DashboardCard.vue";
 import { people, calendar, alarm, time } from "ionicons/icons";
 import HisDate, { STANDARD_DATE_FORMAT } from "@/utils/Date";
 import Store from "@/composables/ApiStore";
 import { EmcStore } from "../Config/emcStore";
+import LineChart from "../Components/charts/LineChart.vue";
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   components: {
     Layout,
-    VisitStatsChart,
     IonGrid,
     IonRow,
     IonCol,
     DashboardCard,
+    LineChart
   },
   setup() {
     const today = HisDate.toStandardHisFormat(new Date());
     const quarter = HisDate.getDateQuarter(today);
     const tomorrow = HisDate.add(today, "day", 1).format(STANDARD_DATE_FORMAT);
+    const visits = ref<any>();
     const missedAppointments = ref<number>()
     const appointmentsDue = ref<number>()
     const dueForVL = ref<number>()
@@ -100,21 +99,33 @@ export default defineComponent({
     const patientsOnDTG = ref<number>()
     const txCurrent30 = ref<number>()
     const txCurrent60 = ref<number>()
-    
-    const visits = ref<any>();
-    const days = computed<string[]>(() => visits.value && Object.keys(visits.value) || []);
-    const accumulativeVisits = computed(() => {
-      const complete: Array<number> = []
-      const incomplete: Array<number> = []
-      days.value.forEach(day => {
-        complete.push(visits.value[day].complete)
-        incomplete.push(visits.value[day].incomplete)
+    const chartOptions = {
+      title: {
+        text: "Complete / incomplete visits",
+        align: "left",
+      },
+    }
+    const chartSeries = computed(() => {
+      if(isEmpty(visits.value)) return []
+      const dates = Object.keys(visits.value)
+      const complete: any[][] = []
+      const incomplete: any[][] = []
+      dates.forEach(day => {
+        const time = new Date(day).getTime();
+        complete.push([time, visits.value[day].complete])
+        incomplete.push([time, visits.value[day].incomplete])
       })
-      return {
-        complete,
-        incomplete
-      }
-    })
+      return [
+      {
+        name: "Complete Visits",
+        data: complete,
+      },
+      {
+        name: "Incomplete Visits",
+        data: incomplete,
+      },
+    ]
+    });
 
     const loadData = async (reload = false) => {
       patientsOnDTG.value = (await Store.get(EmcStore.PATIENT_ON_DTG, { quarter, reload })).length
@@ -138,11 +149,11 @@ export default defineComponent({
       appointmentsDue,
       dueForVL,
       defaulters,
-      days,
-      accumulativeVisits,
       patientsOnDTG,
       txCurrent30,
       txCurrent60,
+      chartOptions,
+      chartSeries,
       loadData,
     };
   },
