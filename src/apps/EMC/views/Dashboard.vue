@@ -1,6 +1,11 @@
 <template>
   <layout>
-    <h1>Dashboard</h1>
+    <h1 class=" his-lg-text ion-padding-start">
+      Dashboard 
+      <ion-button class="ion-float-end ion-margin-end" @click="loadData(true)">
+        Refresh
+      </ion-button>
+    </h1>
     <ion-grid>
       <ion-row>
         <ion-col size="3">
@@ -112,14 +117,14 @@ export default defineComponent({
     })
 
     const loadData = async (reload = false) => {
-      patientsOnDTG.value = (await Store.get(EmcStore.PATIENT_ON_DTG, { quarter })).length
-      visits.value = await Store.get(EmcStore.PATIENT_VISITS, { quarter })
-      appointmentsDue.value = (await Store.get(EmcStore.APPOINTMENTS_DUE, { date: tomorrow })).length
-      missedAppointments.value = (await Store.get(EmcStore.MISSED_APPOINTMENTS, { date: today, quarter })).length
-      txCurrent30.value = (await Store.get(EmcStore.TX_CURRENT_30, { quarter })).length
-      txCurrent60.value = (await Store.get(EmcStore.TX_CURRENT_60, { quarter })).length
-      dueForVL.value = (await Store.get(EmcStore.DUE_FOR_VL, { quarter })).length
-      defaulters.value = (await Store.get(EmcStore.PATIENT_VISITS, { quarter })).length
+      patientsOnDTG.value = (await Store.get(EmcStore.PATIENT_ON_DTG, { quarter, reload })).length
+      visits.value = await Store.get(EmcStore.PATIENT_VISITS, { quarter, reload })
+      appointmentsDue.value = (await Store.get(EmcStore.APPOINTMENTS_DUE, { date: tomorrow, reload })).length
+      missedAppointments.value = (await Store.get(EmcStore.MISSED_APPOINTMENTS, { date: today, quarter, reload })).length
+      txCurrent30.value = (await Store.get(EmcStore.TX_CURRENT_30, { quarter, reload })).length
+      txCurrent60.value = (await Store.get(EmcStore.TX_CURRENT_60, { quarter, reload })).length
+      dueForVL.value = (await Store.get(EmcStore.DUE_FOR_VL, { quarter, reload })).length
+      defaulters.value = (await Store.get(EmcStore.PATIENT_VISITS, { quarter, reload })).length
     }
 
     onMounted(async () => loadData())
