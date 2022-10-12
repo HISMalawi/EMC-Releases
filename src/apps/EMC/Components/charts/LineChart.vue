@@ -61,7 +61,7 @@ export default defineComponent({
           offsetX: 0,
           offsetY: 0,
           style: {
-            color: "#000000",
+            color: "#a7a7a7",
             fontSize: "25px",
             fontFamily: "Helvetica",
           },
