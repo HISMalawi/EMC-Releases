@@ -57,7 +57,8 @@ import { Role } from "@/interfaces/role";
 import { isValidForm, resolveFormValues } from "../../utils/form";
 import { loader } from "@/utils/loader";
 import { isEmpty } from "lodash";
-import { toastSuccess } from "@/utils/Alerts";
+import { toastSuccess, toastWarning } from "@/utils/Alerts";
+import { RecordConflictError } from "@/services/service";
 
 export default defineComponent({
   name: "UserModal",
@@ -126,7 +127,7 @@ export default defineComponent({
         required: isEmpty(props.user),
         validation: async ({value}, form) => {
           if (value && value !== form.password.value) {
-            return ["Passwords do not match"];
+            return ["Passwords not matching"];
           }
           return null;
         }
@@ -143,16 +144,24 @@ export default defineComponent({
       if(!(await isValidForm(form))) return
       loader.show();
       const { formData } = resolveFormValues(form, true);
-      let user = {...formData, roles: formData.roles.map((r: Option) => r.label)} 
-      if(isEmpty(props.user)){
-        user = await UserService.createUser(user);
-        toastSuccess('User created successfully');
-      } else {
-        user = await UserService.updateUser(props.user['user_id'], user);
-        toastSuccess('User updated successfully');
+      let user = {...formData, roles: formData.roles.map((r: Option) => r.label)}
+      try {
+        if(isEmpty(props.user)){
+          user = await UserService.createUser(user);
+          toastSuccess('User created successfully');
+        } else {
+          user = await UserService.updateUser(props.user['user_id'], user);
+          toastSuccess('User updated successfully');
+        }
+        loader.hide();
+        modal.hide(user);
+      } catch (error) {
+        loader.hide();
+        if(error instanceof RecordConflictError) {
+          return form.username.error = "Username already exists"
+        }
+        toastWarning(error, 2000)
       }
-      loader.hide();
-      modal.hide(user);
     }
 
     onMounted(() => {
