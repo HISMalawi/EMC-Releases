@@ -59,7 +59,7 @@
             class="his-card"
           />
         </ion-col>
-        <ion-col size="9" style="max-height: 680px">
+        <ion-col size="9">
           <line-chart :options="chartOptions" :series="chartSeries" />
         </ion-col>
       </ion-row>

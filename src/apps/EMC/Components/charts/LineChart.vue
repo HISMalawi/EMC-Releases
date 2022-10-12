@@ -1,10 +1,10 @@
 <template>
-  <ion-card class="his-card">
-    <ion-card-content style="min-height: 45vh;">
+  <ion-card class="his-card" style="height: 100%;">
+    <ion-card-content>
       <apex-chart
         width="100%"
-        height="100%"
-        type="line"
+        :height="height"
+        type="line"        
         :options="chartOptions"
         :series="series"
         @click="(e: any, c: any, config: any) => $emit('pointSelection', config)"
@@ -16,7 +16,7 @@
 <script lang="ts">
 import { computed, defineComponent, PropType } from "vue";
 import { IonCard, IonCardContent } from "@ionic/vue";
-import ApexChart from "vue3-apexcharts";
+import ApexChart from "vue3-apexcharts"
 
 export default defineComponent({
   name: "LineChart",
@@ -28,9 +28,13 @@ export default defineComponent({
     options: {
       type: Object as PropType<Record<string, any>>,
       default: () => []
+    },
+    height: {
+      type: [String, Number],
+      default: 560
     }
   },
-  components: { ApexChart, IonCard, IonCardContent },
+  components: { IonCard, IonCardContent, ApexChart },
   emits: ["pointSelection"],
   setup(props) {
     const chartOptions = computed(() => {
@@ -41,7 +45,6 @@ export default defineComponent({
         },
         xaxis: {
           type: 'datetime',
-          tickAmount: 30,
           labels: {
             show: true,
             rotate: -75,
