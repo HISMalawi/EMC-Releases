@@ -8,7 +8,7 @@
     </h1>
     <ion-grid>
       <ion-row>
-        <ion-col size="3">
+        <ion-col size-lg="3">
           <dashboard-card
             :value="missedAppointments"
             label="Missed Appointments"
@@ -16,7 +16,7 @@
             :icon="calendar"
           />
         </ion-col>
-        <ion-col size="3">
+        <ion-col size-lg="3">
           <dashboard-card
             :value="appointmentsDue"
             label="Appointments Due"
@@ -24,7 +24,7 @@
             :icon="alarm"
           />
         </ion-col>
-        <ion-col size="3">
+        <ion-col size-lg="3">
           <dashboard-card
             :value="dueForVL"
             label="Due for Viral Load"
@@ -32,7 +32,7 @@
             :icon="time"
           />
         </ion-col>
-        <ion-col size="3">
+        <ion-col size-lg="3">
           <dashboard-card
             :value="defaulters"
             label="Defaulters (this Quarter)"
@@ -42,7 +42,7 @@
         </ion-col>
       </ion-row>
       <ion-row>
-        <ion-col size="3">
+        <ion-col size-lg="3">
           <dashboard-card
             label="Patients on DTG"
             :value="patientsOnDTG"
@@ -59,7 +59,7 @@
             class="his-card"
           />
         </ion-col>
-        <ion-col size="9">
+        <ion-col size-lg="9">
           <line-chart :options="chartOptions" :series="chartSeries" />
         </ion-col>
       </ion-row>
@@ -67,7 +67,7 @@
   </layout>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue";
+import { computed, defineComponent, onMounted, reactive, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import DashboardCard from "../Components/DashboardCard.vue";
@@ -91,7 +91,6 @@ export default defineComponent({
     const today = HisDate.toStandardHisFormat(new Date());
     const quarter = HisDate.getDateQuarter(today);
     const tomorrow = HisDate.add(today, "day", 1).format(STANDARD_DATE_FORMAT);
-    const visits = ref<any>();
     const missedAppointments = ref<number>()
     const appointmentsDue = ref<number>()
     const dueForVL = ref<number>()
@@ -99,37 +98,49 @@ export default defineComponent({
     const patientsOnDTG = ref<number>()
     const txCurrent30 = ref<number>()
     const txCurrent60 = ref<number>()
-    const chartOptions = {
-      title: {
-        text: "Complete / incomplete visits",
-        align: "left",
-      },
-    }
-    const chartSeries = computed(() => {
-      if(isEmpty(visits.value)) return []
-      const dates = Object.keys(visits.value)
-      const complete: any[][] = []
-      const incomplete: any[][] = []
+    const chartSeries = ref<any[]>([]);
+    const chartOptions = ref<Record<string, any>>({})
+
+    const buildChartData = (data: Record<string, any>) => {
+      if(isEmpty(data)) return
+      const dates = Object.keys(data)
+      const complete: number[] = []
+      const incomplete: number[] = []
+      const categories: string[] = []
       dates.forEach(day => {
-        const time = new Date(day).getTime();
-        complete.push([time, visits.value[day].complete])
-        incomplete.push([time, visits.value[day].incomplete])
+        categories.push(HisDate.toStandardHisDisplayFormat(day))
+        complete.push(data[day].complete)
+        incomplete.push(data[day].incomplete)
       })
-      return [
-      {
-        name: "Complete Visits",
-        data: complete,
-      },
-      {
-        name: "Incomplete Visits",
-        data: incomplete,
-      },
-    ]
-    });
+      chartOptions.value = {
+        title: {
+          text: "Complete / incomplete visits",
+          align: "left",
+        },
+        xaxis: {
+          categories,
+          tickAmount: 30,
+          labels: {
+            show: true,
+            rotate: -75,
+          }
+        },
+      }
+      chartSeries.value = [
+        {
+          name: "Complete Visits",
+          data: complete,
+        },
+        {
+          name: "Incomplete Visits",
+          data: incomplete,
+        },
+      ]
+    }
 
     const loadData = async (reload = false) => {
       patientsOnDTG.value = (await Store.get(EmcStore.PATIENT_ON_DTG, { quarter, reload })).length
-      visits.value = await Store.get(EmcStore.PATIENT_VISITS, { quarter, reload })
+      buildChartData(await Store.get(EmcStore.PATIENT_VISITS, { quarter, reload }))
       appointmentsDue.value = (await Store.get(EmcStore.APPOINTMENTS_DUE, { date: tomorrow, reload })).length
       missedAppointments.value = (await Store.get(EmcStore.MISSED_APPOINTMENTS, { date: today, quarter, reload })).length
       txCurrent30.value = (await Store.get(EmcStore.TX_CURRENT_30, { quarter, reload })).length

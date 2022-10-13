@@ -44,7 +44,6 @@ export default defineComponent({
           type: 'line',
         },
         xaxis: {
-          type: 'datetime',
           labels: {
             show: true,
             rotate: -75,
