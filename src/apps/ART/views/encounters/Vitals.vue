@@ -44,7 +44,8 @@ export default defineComponent({
     vitals: {} as any,
     weightForHeight: {} as any,
     medianWeightandHeight: {} as any,
-    canEditHeight: false as boolean
+    canEditHeight: false as boolean,
+    patientAgeAtPrevRecordedHeight: -1 as number
   }),
   watch: {
     ready: {
@@ -62,7 +63,12 @@ export default defineComponent({
       this.fields = this.getFields();
     },
     getOptions() {
-      const recentHeight = this.recentHeight && this.age > 18 ? this.recentHeight : "";
+      let recentHeight = ''
+      if (this.recentHeight) {
+        if (this.age > 18 || this.patientAgeAtPrevRecordedHeight >= 18 ) {
+          recentHeight = this.recentHeight || ''
+        }
+      }
       const options = [
         {
           label: "Weight",
@@ -300,7 +306,7 @@ export default defineComponent({
             if (this.canCheckWeightHeight()) {
               const lastHeight = await this.patient.getRecentHeightObs();
               if (!isEmpty(lastHeight)) {
-                const patientAgeAtPrevRecordedHeight = dayjs(lastHeight['obs_datetime'])
+                this.patientAgeAtPrevRecordedHeight = dayjs(lastHeight['obs_datetime'])
                   .diff(this.patient.getBirthdate(), 'year')
                 this.recentHeight = lastHeight['value_numeric'];
                 this.recentHeightObsID = lastHeight['obs_id'];
@@ -308,7 +314,7 @@ export default defineComponent({
                  * For a scenario where a patient's height was last updated when they were a minor
                  * and they return as an adult, provide an option to update their height.
                  */
-                this.canEditHeight = patientAgeAtPrevRecordedHeight < 18 || this.age < 18
+                this.canEditHeight = this.patientAgeAtPrevRecordedHeight < 18 || this.age < 18
               } else {
                 this.canEditHeight = true
               }
