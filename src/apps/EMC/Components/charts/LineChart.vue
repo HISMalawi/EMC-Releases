@@ -54,7 +54,7 @@ export default defineComponent({
           align: 'left'
         },
         noData: {
-          text: "No Data Available",
+          text: "Loading data...",
           align: "center",
           verticalAlign: "middle",
           offsetX: 0,
