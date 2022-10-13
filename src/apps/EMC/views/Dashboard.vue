@@ -135,7 +135,7 @@ export default defineComponent({
       txCurrent30.value = (await Store.get(EmcStore.TX_CURRENT_30, { quarter, reload })).length
       txCurrent60.value = (await Store.get(EmcStore.TX_CURRENT_60, { quarter, reload })).length
       dueForVL.value = (await Store.get(EmcStore.DUE_FOR_VL, { quarter, reload })).length
-      defaulters.value = (await Store.get(EmcStore.PATIENT_VISITS, { quarter, reload })).length
+      defaulters.value = (await Store.get(EmcStore.DEFAULTERS, {date: today, quarter, reload })).length
     }
 
     onMounted(async () => loadData())
