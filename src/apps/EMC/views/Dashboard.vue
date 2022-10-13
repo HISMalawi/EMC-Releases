@@ -2,7 +2,7 @@
   <layout>
     <h1 class=" his-lg-text ion-padding-start">
       Dashboard 
-      <ion-button class="ion-float-end ion-margin-end" @click="loadData(true)">
+      <ion-button class="ion-float-end ion-margin-end" @click="() => loadData(true)">
         Refresh
       </ion-button>
     </h1>
@@ -79,6 +79,8 @@ import LineChart from "../Components/charts/LineChart.vue";
 import { isEmpty } from "lodash";
 
 export default defineComponent({
+  name: "Dashboard",
+  inheritAttrs: false,
   components: {
     Layout,
     IonGrid,
