@@ -67,6 +67,11 @@ export default defineComponent({
     mounted() {
       this.initTable()
     },
+    watch: {
+       totalOPDVisits(newValue, oldValue) {
+         this.initTable()
+       }
+    },
     methods: {
       initTable() {
         const rows: RowInterface[][] = []
