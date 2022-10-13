@@ -67,9 +67,9 @@
   </layout>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onMounted, reactive, ref } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import { IonGrid, IonRow, IonCol } from "@ionic/vue";
+import { IonGrid, IonRow, IonCol, IonButton } from "@ionic/vue";
 import DashboardCard from "../Components/DashboardCard.vue";
 import { people, calendar, alarm, time } from "ionicons/icons";
 import HisDate, { STANDARD_DATE_FORMAT } from "@/utils/Date";
@@ -85,7 +85,8 @@ export default defineComponent({
     IonRow,
     IonCol,
     DashboardCard,
-    LineChart
+    LineChart,
+    IonButton,
   },
   setup() {
     const today = HisDate.toStandardHisFormat(new Date());
