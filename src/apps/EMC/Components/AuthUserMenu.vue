@@ -14,14 +14,14 @@
 <script lang="ts">
 import { AuthService } from '@/services/auth_service';
 import { alertConfirmation } from '@/utils/Alerts';
-import { IonContent, popoverController } from '@ionic/vue';
+import { IonContent, IonItem, IonLabel, IonList, popoverController } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 
 export default defineComponent({
   name: 'AuthUserMenu',
-  components: { IonContent },
+  components: { IonContent, IonList, IonItem, IonLabel },
   setup() {
     const router = useRouter()
     const userProfile = async () => {
