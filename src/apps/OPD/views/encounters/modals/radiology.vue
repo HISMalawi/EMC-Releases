@@ -79,7 +79,7 @@ export default defineComponent({
         await this.radiologyService.createEncounter()
         const obsObj = await this.radiologyService.obsObj(data) 
         const savedObsData = await this.radiologyService.saveObservationList(obsObj)
-        await this.radiologyService.printOrders(data, this.patient)
+        await this.radiologyService.printOrders(savedObsData, this.patient)
         if(this.isPacsEnabled) {
           try {
             await this.radiologyService.submitToPacs(savedObsData, this.patient)

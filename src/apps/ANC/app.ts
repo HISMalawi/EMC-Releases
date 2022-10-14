@@ -146,7 +146,8 @@ const ANC: AppInterface = {
             name: 'National ID',
             isPrimary: true,
             useForSearch: true,
-            prefix: () => ''
+            prefix: () => '',
+            keyboardName: 'Qwerty'
         }
     }
 }

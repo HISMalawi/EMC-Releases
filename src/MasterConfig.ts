@@ -1,1 +1,1 @@
-export const __MIN_API_VERSION__ = '4.16.0'
+export const __MIN_API_VERSION__ = '4.16.1'

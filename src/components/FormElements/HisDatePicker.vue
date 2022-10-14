@@ -1,22 +1,52 @@
 <template>
   <view-port>
-    <div class="view-port-content">
+    <div class="view-port-content-calendar">
       <ion-grid>
         <ion-row>
-          <ion-col size="9">
+          <ion-col size-md="8" size-sm="12">
             <DatePicker 
+              is-expanded
               color="blue"
               ref="calendar"
-              is-expanded  
-              v-model="date"
+              modelValue=""
+              :min-date="minDate"
+              :max-date="maxDate"
+              :attributes="[
+                {
+                  highlight: true,
+                  dates: [date]
+                }
+              ]"
+              disable-page-swipe
               class="custom-calendar"
-            />
+            >
+              <template v-slot:day-content="{ day }">
+                <div
+                  v-bind:class="{
+                    'selected': day.id === date,
+                    'date-disabled': day.isDisabled
+                  }"
+                  class="his-lg-text"
+                  @click="!day.isDisabled && select(day.id)"
+                >
+                  <span><b>{{ day.day }}</b></span>
+                  <sup v-if="dateSupValues[day.id]" 
+                    :style="`color: ${day.id === date ? 'white' : '#5eff7f'}`"
+                    class="sup-value his-md-text">
+                    <b>{{ dateSupValues[day.id] }}</b>
+                  </sup>
+                </div>
+              </template>
+            </DatePicker>
           </ion-col>
-          <ion-col size="3">
+          <ion-col size-md="4" size-sm="12" class="his-card-calendar">
             <ion-list>
-              <ion-item class="his-sm-text" v-for="(item, index) in infoItems" :key="index"> 
-                <ion-label>{{item.label}}</ion-label>
-                <b>{{item.value}}</b>
+              <ion-item class="his-sm-text" v-for="(item, index) in (dateInfoItems[date] || [])" :key="index"> 
+                <ion-label class="ion-text-wrap">
+                  <b>{{item.label}}</b>
+                  <p/>
+                  <span>{{item.value}}</span>
+                </ion-label>
               </ion-item>
             </ion-list>
           </ion-col>
@@ -49,35 +79,56 @@ export default defineComponent({
   mixins: [FieldMixinVue],
   data: () => ({
     date: '',
-    infoItems: [] as Option[],
-    selectedDates: {} as Record<string, Option[]>
+    prevDate: '',
+    minDate: '' as string,
+    maxDate: '' as string,
+    dateInfoItems: {} as Record<string, Option[]>,
+    dateSupValues: {} as Record<string, number | string>
   }),
-  watch: {
-    date: {
-      async handler(date: string) {
-        if (date) {
-          const formatedDate: string = HisDate.toStandardHisFormat(date)
-          if (this.onValue) {
-            const ok = await this.onValue(formatedDate, this)
-            if (!ok) return
-          }
-          this.$emit('onValue', formatedDate)
-          if (typeof this.config.infoItems === 'function') {
-            if (this.selectedDates[formatedDate]) {
-              this.infoItems = this.selectedDates[formatedDate]
-            } else {
-              this.infoItems = await this.config.infoItems(formatedDate) || []
-              this.selectedDates[formatedDate] = this.infoItems
-            }
-          }
-        }
-      },
-      immediate: true
-    }
-  },
   async created() {
     if (!this.date && typeof this.defaultValue === 'function') {
-      this.date = await this.defaultValue()
+      this.select((await this.defaultValue()))
+    }
+    if (typeof this.config.minDate === 'function') {
+      this.minDate = this.config.minDate(this.fdata)
+    }
+    if (typeof this.config.maxDate === 'function') {
+      this.maxDate = this.config.maxDate(this.fdata)
+    }
+  },
+  methods: {
+    focusDate(date: string) {
+      const calendar: any = this.$refs.calendar
+      calendar.move(date).then(() => { calendar.focusDate(date); })
+    },
+    async select(date: string) {
+      const calendar: any = this.$refs.calendar
+      this.prevDate = this.date
+      this.date = HisDate.toStandardHisFormat(date)
+      if (typeof this.onValue === 'function') {
+        if (!(await this.onValue(this.date, this))) {
+          if (this.prevDate)  {
+            this.date = this.prevDate
+            this.focusDate(this.date)
+          } else {
+            this.date = ''
+            this.$emit('onValue', null)
+          }
+          return
+        } 
+      }
+      this.$emit('onValue', this.date)
+      this.focusDate(this.date)
+      if (typeof this.config.infoItems === 'function') {
+        if (!this.dateInfoItems[this.date]) {
+          this.dateInfoItems[this.date] = await this.config.infoItems(this.date) || []
+        }
+      }
+      if (typeof this.config.supValue === 'function') {
+        if (!this.dateSupValues[this.date]) {
+          this.dateSupValues[this.date] = await this.config.supValue(this.date, this.fdata)
+        }
+      }
     }
   },
   mounted() {
@@ -89,8 +140,10 @@ export default defineComponent({
 })
 </script>
 <style>
-.view-port-content {
+.view-port-content-calendar {
+  overflow-x: auto;
   background: #fff;
+  height: 100%;
 }
 ::-webkit-scrollbar {
   width: 0px;
@@ -98,12 +151,22 @@ export default defineComponent({
 ::-webkit-scrollbar-track {
   display: none;
 }
-
+.his-card-calendar {
+  border: 1px solid #cccbcb;
+    background: var(--his-card-primary-color);
+    padding: var(--his-card-primary-padding);
+    border-radius: var(--his-card-primary-border-radius);
+    -webkit-box-shadow: var(--his-card-primary-shadow-webkit);
+    -moz-box-shadow: var(--his-card-primary-shadow-moz);
+    box-shadow: var(--his-card-primary-shadow);
+  height: 74vh !important;
+  overflow-y: auto;
+}
 .custom-calendar.vc-container {
-  --day-border: 1px solid #b8c2cc;
-  --day-border-highlight: 1px solid #b8c2cc;
-  --day-width: 80px;
-  --day-height: 82px;
+  --day-border: 1px solid #414142;
+  --day-border-highlight: 1px solid #93979b;
+  --day-width: 8vw;
+  --day-height: 11vh;
   --weekday-bg: #f8fafc;
   --weekday-border: 1px solid #eaeaea;
   border-radius: 0 !important;
@@ -111,14 +174,10 @@ export default defineComponent({
 }
 .custom-calendar.vc-container .vc-header {
   background-color: #f1f5f8;
-  padding: 10px 0;
+  padding: 0.4rem;
 }
 .custom-calendar.vc-container .vc-weeks {
   padding: 0;
-}
-.custom-calendar.vc-container .vc-day-content {
-  padding: 50px;
-  background: none;
 }
 .custom-calendar.vc-container .vc-weekday {
   background-color: var(--weekday-bg);
@@ -127,7 +186,7 @@ export default defineComponent({
   padding: 5px;
 }
 .custom-calendar.vc-container .vc-day {
-    padding: 30px 5px 3px 5px;
+    padding: 2em 0.8em 0.8em 0.8em;
     text-align: center;
     height: var(--day-height);
     min-width: var(--day-width);
@@ -163,10 +222,21 @@ export default defineComponent({
   color: white;
   text-align: center;
 }
-.appointments {
+.selected{
+  font-size: 3vh;
+  height: 100%;
+  margin-top: 0 !important;
+  color: white;
+  text-align: center;
+}
+.sup-value {
   position: absolute;
   top: 15px;
   right: 5px;
-  color: greenyellow;
+  color: white;
+}
+.date-disabled {
+  color: #ccc;
 }
 </style>
+

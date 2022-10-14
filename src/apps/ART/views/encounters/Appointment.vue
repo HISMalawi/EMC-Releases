@@ -9,100 +9,157 @@
 </template> 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Field, Option } from "@/components/Forms/FieldInterface"
+import { Field } from "@/components/Forms/FieldInterface"
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations";
-import { toastWarning, toastSuccess } from "@/utils/Alerts"
+import { alertConfirmation } from "@/utils/Alerts"
 import EncounterMixinVue from '../../../../views/EncounterMixin.vue';
 import {AppointmentService} from '@/apps/ART/services/appointment_service'
 import { PatientPrintoutService } from "@/services/patient_printout_service";
 import App from "@/apps/app_lib"
-import { AppInterface } from "@/apps/interfaces/AppInterface";
+import { isEmpty } from "lodash";
+import HisDate from "@/utils/Date"
+import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
+import dayjs from "dayjs";
+import { delayPromise } from "@/utils/Timers";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
   components: { HisStandardForm },
   data: () => ({
-    appointmentDate: "" as any,
-    medicationRunOutDate: "" as any,
-    appointment: {} as any,
-    app: App.getActiveApp() as AppInterface,
-    
+    appointment: {} as any
   }),
   watch: {
     ready: {
-      async handler(ready: boolean) {
+      handler(ready: boolean) {
         if (ready) {
           this.appointment = new AppointmentService(this.patientID, this.providerID)
-          this.init()
+          this.fields = [
+            this.getAppointmentField()
+          ]
         }
       },
       immediate: true
-    },
+    }
   },
   methods: {
-    async onFinish(formData: any, computedData: any) {
-      const encounter = await this.appointment.createEncounter()
-
-      if (!encounter) return toastWarning('Unable to create encounter')
-
-      const appointmentObs = await this.resolveObs(computedData, 'obs');
-      const systemDateObs = await this.appointment.buildValueDate('Estimated date', this.appointmentDate);
-      appointmentObs.push(systemDateObs);
-
-      const obs = await this.appointment.saveObservationList(appointmentObs)
-
-      if (!obs) return toastWarning('Unable to create Obs')
-
-      toastSuccess('Encounter created')
+    async onFinish(_: any, computedData: any) {
+      await this.appointment.createEncounter()
+      await this.appointment.saveObservationList(
+        (await this.resolveObs(computedData))
+      )
       const printer = new PatientPrintoutService(this.patientID);
+      // TODO: remove the program checks here
       const appsThatDoNotPrint = ['CxCa', 'ANC']
-      if(!appsThatDoNotPrint.includes(this.app.applicationName)) {
+      if(!appsThatDoNotPrint.includes(`${App.getActiveApp()?.applicationName}`)) {
         await printer.printVisitSummaryLbl();
       }
       this.nextTask()
     },
-    async init() {
-      try {
-        const appointments = await this.appointment.getNextAppointment();
-        this.appointmentDate = appointments.appointment_date;
-        this.medicationRunOutDate = appointments.drugs_run_out_date; 
-        this.fields = this.getFields();
-      } catch(e) {
-        toastWarning('Next appointment is not available')
-        this.gotoPatientDashboard()
-      }
-    },
-    getFields(): Array<Field> {
-      return [
-        {
-          id: "set_appointment",
-          helpText: "Appointments booking",
-          type: FieldType.TT_APPOINTMENTS_ENTRY,
-          validation: (val: any) => Validation.required(val),
-          computedValue: (d: Option) => {
-            return {
-              tag: 'obs',
-              obs: this.appointment.buildValueDate('Appointment date', d.value)
+    getAppointmentField(): Field {
+      const d = (date: string) => HisDate.toStandardHisDisplayFormat(date)
+      const exists = (strOne: string, strTwo: string) => new RegExp(strOne, 'i').test(`${strTwo}`)
+      let clinicDays = ''
+      let clinicHolidays = ''
+      let appointmentLimit = -1
+      let nextAppointment = this.appointment.date
+      let drugRunoutDate: string | null = null
+      const dateAppointments: Record<string, number> = {}
+      const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+      return {
+        id: "set_appointment",
+        helpText: "Appointments booking",
+        type: FieldType.TT_DATE_PICKER,
+        init: async () => {
+          try {
+            const res = await this.appointment.getNextAppointment()
+            nextAppointment = res.appointment_date
+            drugRunoutDate = res.drugs_run_out_date
+          } catch(e) {
+            console.warn(e)
+            await delayPromise(400)
+            if (!(await alertConfirmation('Next appointment/drug-runout date is not available, do you want to proceed anyway?'))) {
+              this.gotoPatientDashboard()
+              return true
             }
-          },
-          config: {
-            patientAge: this.patient.getAge(),
-            hiddenFooterBtns: [
-              'Clear'
+          }
+          const limitRes = (await ART_GLOBAL_PROP.appointmentLimit());
+          appointmentLimit = limitRes ? parseInt(limitRes) : 0
+          return true
+        },
+        onValue: async (date: string) => {
+          if (dateAppointments[date] === undefined) {
+            const res = await AppointmentService.getDailiyAppointments(date)
+            dateAppointments[date] = Array.isArray(res) ? res.length : 0
+          }
+          if (appointmentLimit >= 1 && dateAppointments[date] >= appointmentLimit) {
+            if((await alertConfirmation(
+              `${dateAppointments[date]} clients were booked on ${d(date)}`, 
+              {
+                header: `APPOINTMENT LIMIT (${appointmentLimit}) REACHED`,
+                cancelBtnLabel: "Proceed",
+                confirmBtnLabel: "New date"
+              }
+            ))) return false;
+          }
+          // Check clinic holidays
+          if (isEmpty(clinicHolidays)) {
+            clinicHolidays = await ART_GLOBAL_PROP.clinicHolidays()
+          }
+          if(exists(date, clinicHolidays)) {
+            if (!(await alertConfirmation(`${d(date)} is a clinic holiday, do you want to set an appointment?`))) 
+              return false;
+          }
+          //Check clinic days
+          if (isEmpty(clinicDays)) {
+            clinicDays = this.patient.getAge() >= 18
+              ? (await ART_GLOBAL_PROP.adultClinicDays())
+              : (await ART_GLOBAL_PROP.peadsClinicDays())
+          }
+          if(!exists(weekDays[dayjs(date).day()], clinicDays)){
+            if(!(await alertConfirmation(`${d(date)} is not a clinic day. Do you want to proceed with this date?`))) 
+              return false;
+          }
+          return true
+        },
+        validation: (val: any) => Validation.required(val),
+        defaultValue: () => nextAppointment,
+        computedValue: (date: string) => {
+          return [
+            this.appointment.buildValueDate('Appointment date', date),
+            this.appointment.buildValueDate('Estimated date', nextAppointment)
+          ]
+        },
+        config: {
+          hiddenFooterBtns: [
+            'Clear'
+          ],
+          minDate: () => this.appointment.date,
+          maxDate: () => drugRunoutDate,
+          supValue: (date: string) => `${dateAppointments[date]}`,
+          infoItems: (date: string) => {
+            return [
+              { 
+                label: 'Medication Run out Date',
+                value: drugRunoutDate ? d(drugRunoutDate) : 'Not available'
+              },
+              {
+                label: 'User set appointment date',
+                value: d(date)
+              },
+              {
+                label: 'Appointments',
+                value: dateAppointments[date]
+              },
+              {
+                label: 'Appointment limit (per/day)',
+                value: appointmentLimit
+              }
             ]
-          },
-          options: () =>  {return [{
-            label: "",
-            value: "",
-            other: {
-             runOutDate : this.medicationRunOutDate,
-             appointmentDate: this.appointmentDate
-            }
-          }]},
+          }
         }
-      ]
+      }
     }
   }
 });

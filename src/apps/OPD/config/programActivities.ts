@@ -67,7 +67,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: 'dispensation',
     name: 'Dispensation',
-    encounterTypeName: 'dispensing',
+    workflowID:"Dispensing",
     icon: 'dispensing.png',
     availableOnActivitySelection: false
   },

@@ -67,6 +67,59 @@ export function AncReportComposable(reportTitle='Report') {
             setTimeout(() => { printW.print(); printW.close() }, 3500)
         }
     }
+
+    async function presentDrillDown(title: string, patientIds: number[]) {
+        (await modalController.create({
+            component: DrilldownTable,
+            cssClass: 'large-modal',
+            componentProps: {
+                title: title || 'Drilldown',
+                columns: [
+                    [
+                        table.thTxt('National ID'),
+                        table.thTxt('First name'),
+                        table.thTxt('Last name'),
+                        table.thTxt('Birthdate'),
+                        table.thTxt('Action')
+                    ]
+                ],
+                rows: patientIds,
+                rowParser: async (patientIds: number[]) => {
+                    const row = []
+                    for(const id of patientIds) {
+                        if (reportData.drill[id]) {
+                            row.push(reportData.drill[id])
+                            continue
+                        }
+                        try {
+                            const patient = new Patientservice((await Patientservice.findByID(id))) 
+                            reportData.drill[id] = [
+                                table.td(patient.getNationalID()),
+                                table.td(patient.getGivenName()),
+                                table.td(patient.getFamilyName()),
+                                table.tdDate(`${patient.getBirthdate()}`),
+                                table.tdBtn('Show', () => {
+                                    router.push({ path: `/patient/dashboard/${id}`})
+                                    modalController.dismiss({})
+                                })
+                            ]
+                            row.push(reportData.drill[id])
+                        } catch (e) {
+                            console.error(e)
+                        }
+                    }
+                    return row
+                },
+                showFilters: true,
+                footerColor: 'light',
+                showReportStamp: false,
+                paginated: true,
+                rowsPerPage: 20,
+                onFinish: () => modalController.dismiss()
+            }
+        })).present()
+    }
+
     /**
      * Show drilldown table based on provided patient identifiers
      * @param title 
@@ -75,57 +128,7 @@ export function AncReportComposable(reportTitle='Report') {
      */
     function drill(title: string, patientIds: number[]) {
         if (patientIds.length) {
-            return table.tdLink(patientIds.length, async () => {
-                (await modalController.create({
-                    component: DrilldownTable,
-                    cssClass: 'large-modal',
-                    componentProps: {
-                        title: title || 'Drilldown',
-                        columns: [
-                            [
-                                table.thTxt('National ID'),
-                                table.thTxt('First name'),
-                                table.thTxt('Last name'),
-                                table.thTxt('Birthdate'),
-                                table.thTxt('Action')
-                            ]
-                        ],
-                        rows: patientIds,
-                        rowParser: async (patientIds: number[]) => {
-                            const row = []
-                            for(const id of patientIds) {
-                                if (reportData.drill[id]) {
-                                    row.push(reportData.drill[id])
-                                    continue
-                                }
-                                try {
-                                    const patient = new Patientservice((await Patientservice.findByID(id))) 
-                                    reportData.drill[id] = [
-                                        table.td(patient.getNationalID()),
-                                        table.td(patient.getGivenName()),
-                                        table.td(patient.getFamilyName()),
-                                        table.tdDate(`${patient.getBirthdate()}`),
-                                        table.tdBtn('Show', () => {
-                                            router.push({ path: `/patient/dashboard/${id}`})
-                                            modalController.dismiss({})
-                                        })
-                                    ]
-                                    row.push(reportData.drill[id])
-                                } catch (e) {
-                                    console.error(e)
-                                }
-                            }
-                            return row
-                        },
-                        showFilters: true,
-                        footerColor: 'light',
-                        showReportStamp: false,
-                        paginated: true,
-                        rowsPerPage: 20,
-                        onFinish: () => modalController.dismiss()
-                    }
-                })).present()
-            })
+            return table.tdLink(patientIds.length, () => presentDrillDown(title, patientIds))
         }
         return table.td(0)
     }
@@ -214,6 +217,7 @@ export function AncReportComposable(reportTitle='Report') {
     return {
         fd,
         drill,
+        presentDrillDown,
         getMonthlyReportFields,
         showPrintWindow,
         buildTimeIntervalFields,
