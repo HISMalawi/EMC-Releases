@@ -198,7 +198,7 @@ export default defineComponent({
       const isRelocation = formData.task.value === 'Relocations'
       const columns = [
         "Drug",
-        "Total units",
+        "Total Tins",
         "Expiry date",
         "Authorization code",
       ];
