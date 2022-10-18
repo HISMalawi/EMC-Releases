@@ -57,12 +57,12 @@
   <ion-note v-if="model.error" color="danger">{{ model.error }}</ion-note>
 </template>
 <script lang="ts">
-import { IonCheckbox, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonInput, IonLabel, IonNote } from "@ionic/vue";
+import { IonCheckbox, IonChip, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonInput, IonItem, IonLabel, IonList, IonNote } from "@ionic/vue";
 import { computed, defineComponent, onBeforeUnmount, onMounted, PropType, ref, watch } from "vue";
 import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 import { Option } from '@/components/Forms/FieldInterface';
 import { chevronDown, chevronUp, close, closeCircle } from "ionicons/icons"
-import { filter, isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   name: "SelectInput",
@@ -106,6 +106,9 @@ export default defineComponent({
     IonNote,
     IonIcon,
     IonCheckbox,
+    IonList,
+    IonChip,
+    IonItem
     // IonInfiniteScroll, 
     // IonInfiniteScrollContent
   },
