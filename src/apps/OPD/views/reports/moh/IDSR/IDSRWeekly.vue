@@ -77,7 +77,7 @@ export default defineComponent({
       this.range = form.epiweek.label.split(" ")[0]
       try {
         const idsr = await this.report.requestIDSRWeekly()
-        const visits = await this.report.getClinicRegistrations()
+        const visits = await this.report.getAttendance()
         if(idsr && visits) {
           this.reportID = "data"
           this.TotalOPDVisits = visits.length

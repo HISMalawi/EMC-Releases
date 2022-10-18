@@ -71,7 +71,7 @@ export default defineComponent({
       this.periodDates = this.report.getReportPeriod()
       try {
         const hmis = await this.report.requestHMIS17()
-        const visits = await this.report.getClinicRegistrations()
+        const visits = await this.report.getAttendance()
         if(hmis && visits) {
           this.reportID = "data"
           this.TotalOPDVisits = visits.length
