@@ -230,7 +230,7 @@ export const DataTable = defineComponent({
         h(IonRow, [
           h(IonCol, { size: '7' },
             h(IonRow, [
-              props.config.showSearchField !== false && h(IonCol, { size: '3', class: "ion-margin-bottom" },
+              props.config.showSearchField !== false && !isEmpty(tableRows.value) && h(IonCol, { size: '3', class: "ion-margin-bottom" },
                 h(IonSearchbar, {
                   placeholder: 'Search here...',
                   class: 'box ion-no-padding',
@@ -386,7 +386,7 @@ export const DataTable = defineComponent({
             h(IonButton, {
               color: "light",
               size: 'medium',
-              disabled: filters.pagination.page === filters.pagination.end,
+              disabled: filters.pagination.page === filters.pagination.end || isEmpty(filteredRows.value),
               onClick: () => filters.pagination.page++
             }, h(
               IonIcon, { icon: caretForward }
