@@ -67,7 +67,7 @@ export default defineComponent({
         label: "Select Cleaning Tool",
         type: "select",
         value: tool,
-        gridSize: 8,
+        gridSize: 5,
         options: Object.values(CtIndicator).map(indicator => {
           return { label: indicator.toLowerCase(), value: indicator }
         }),
