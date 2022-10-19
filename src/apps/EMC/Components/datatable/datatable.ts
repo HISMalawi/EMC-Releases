@@ -1,5 +1,5 @@
 import { computed, defineComponent, h, onMounted, PropType, reactive, ref, watch } from "vue";
-import { TableColumnInterface, TableFilterInterface, ActionButtonInterface, RowActionButtonInterface, CustomFilterInterface, TableConfigInterface } from "./types";
+import { TableColumnInterface, TableFilterInterface, ActionButtonInterface, RowActionButtonInterface, CustomFilterInterface, TableConfigInterface, Option } from "./types";
 import './datatable.css'
 import get from 'lodash/get';
 import isEmpty from "lodash/isEmpty";
@@ -8,6 +8,7 @@ import range from "lodash/range";
 import { IonButton, IonCol, IonGrid, IonIcon, IonInput, IonItem, IonLabel, IonRow, IonSearchbar, IonSelect, IonSelectOption, IonSkeletonText } from "@ionic/vue";
 import { arrowDown, arrowUp, swapVertical, caretBack, caretForward } from "ionicons/icons";
 import DateRangePicker from "../inputs/DateRangePicker.vue";
+import { SelectInput } from "./select";
 
 export const DataTable = defineComponent({
   name: "DataTable",
@@ -81,6 +82,7 @@ export const DataTable = defineComponent({
     );
 
     const emitCustomFilters = () => {
+      console.log("Emit filters", customFiltersValues)
       if (props.customFilters.every(f => {
         if (f.required === false) return true
         if (typeof customFiltersValues[f.id] === 'object') {
@@ -228,7 +230,7 @@ export const DataTable = defineComponent({
         h(IonRow, [
           h(IonCol, { size: '7' },
             h(IonRow, [
-              props.config.showSearchField !== false && h(IonCol, { size: '4', class: "ion-margin-bottom" },
+              props.config.showSearchField !== false && h(IonCol, { size: '3', class: "ion-margin-bottom" },
                 h(IonSearchbar, {
                   placeholder: 'Search here...',
                   class: 'box ion-no-padding',
@@ -250,19 +252,13 @@ export const DataTable = defineComponent({
                     })
                   )
                 } else if (filter.type === 'select') {
-                  return h(IonCol, { size: filter.gridSize || 4 },
-                    h(IonItem, { class: "box ion-padding-start", lines: "none", style: { display: 'inline-block', '--min-height': '11px', width: '100%' } }, [
-                      h(IonLabel, filter.label),
-                      h(IonSelect, {
-                        value: (computed(() => filter.value || "")).value,
-                        onIonChange: (e: Event) => {
-                          customFiltersValues[filter.id] = (e.target as HTMLInputElement).value;
-                        }
-                      },
-                        filter.options?.map((option, index) =>
-                          h(IonSelectOption, { value: option, key: index }, option.toLowerCase())
-                        )),
-                    ])
+                  return h(IonCol, { size: filter.gridSize || 3 }, 
+                    h(SelectInput, { 
+                      options: filter.options, 
+                      placeholder: filter.label || filter.placeholder || 'Select Item',
+                      value: filter.value,
+                      onSelect: (v: Option | Option[]) => customFiltersValues[filter.id] = v
+                    })
                   )
                 } else {
                   return h(IonCol, { size: 4 },

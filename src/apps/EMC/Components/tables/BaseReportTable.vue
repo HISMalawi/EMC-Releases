@@ -11,7 +11,7 @@
               <h1 v-html="title"></h1>
               <h3 v-html="subtitle" v-if="subtitle" style="color:#818181;"></h3>
               <h5 v-if="useDateRangeFilter"> Period: {{ period }} </h5>
-              <h5 v-else-if="useQuarterFilter"> Quarter: {{ quarter }} </h5>
+              <h5 v-else-if="useQuarterFilter"> Quarter: {{ quarter.value }} </h5>
               <h5 v-else-if="useDateFilter">Date: {{ dayjs(date).format("DD/MMM/YYYY") }}</h5>
               <h5 v-if="totalClients">Total Clients: {{ totalClients }}</h5>
             </ion-col>
@@ -50,6 +50,7 @@ import DataTable, {
   exportToCSV
 } from "@/apps/EMC/Components/datatable";
 import { ArtReportService } from "@/apps/ART/services/reports/art_report_service";
+import { Option } from '@/components/Forms/FieldInterface';
 
 export default defineComponent({
   name: "BaseReportTable",
@@ -81,8 +82,8 @@ export default defineComponent({
       default: "",
     },
     quarter: {
-      type: String,
-      default: "",
+      type: Object as PropType<Option>,
+      default: () => ({}),
     },
     totalClients: {
       type: Number,
@@ -164,10 +165,8 @@ export default defineComponent({
               period.endDate = props.period.split(" - ")[1] || "";
             } 
             if (props.useQuarterFilter) {
-              const [qtrName, year] = props.quarter.split(" ");
-              const {start, end } = ArtReportService.buildQtrObj(qtrName, parseInt(year));
-              period.startDate = start;
-              period.endDate = end;
+              period.startDate = props.quarter?.other?.start;
+              period.endDate = props.quarter?.other?.end;
             }
             exportToCSV(
               convertToCsv(
@@ -201,7 +200,7 @@ export default defineComponent({
           label: "Quarter:",
           type: "select",
           value: props.quarter,
-          options: ArtReportService.getReportQuarters().map(q => q.name),
+          options: ArtReportService.getReportQuarters().map(q => ({label: q.name, value: q.name, other: q})),
         })
       } else if (props.useDateFilter) {
         f.push({

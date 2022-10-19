@@ -13,19 +13,20 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from "vue";
+import { computed, defineComponent, reactive, ref } from "vue";
 import { loader } from "@/utils/loader";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { CustomFilterInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
 import { AGE_GROUP, SurvivalAnalysisReportService } from "@/apps/ART/services/reports/survival_analysis_report_service";
 import { get, isEmpty } from "lodash";
+import { Option } from "@/components/Forms/FieldInterface";
 
 export default defineComponent({
   name: "SurvivalAnalysis",
   components: { BaseReportTable },
   setup() {
-    const quarter = ref("")
-    const ageGroup = ref("")
+    const quarter = reactive({} as Option)
+    const ageGroup = reactive({} as Option)
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
       { path: "quarter", label: "Reg Cohort", initialSort: true, initialSortOrder: 'asc' },
@@ -43,18 +44,18 @@ export default defineComponent({
 
     const fetchData =  async (filters: Record<string, any>, regenerate=false) => {
       await loader.show()
-      quarter.value = filters.quarter
-      ageGroup.value = filters.ageGroup
+      Object.assign(quarter, filters.quarter)
+      Object.assign(ageGroup, filters.ageGroup)
       const report = new SurvivalAnalysisReportService()
       report.setRegenerate(regenerate)
-      report.setQuarter(filters.quarter)
-      report.setAgeGroup(filters.ageGroup)
+      report.setQuarter(filters.quarter.value)
+      report.setAgeGroup(filters.ageGroup.value)
       const data: any = await report.getSurvivalAnalysis()
       const rs: any[] = []
       Object.keys(data)
         .filter((d: string) => !isEmpty(data[d]))
-        .forEach((quarter: string) => {
-          const outcomes: Record<string, any> = data[quarter]
+        .forEach((q: string) => {
+          const outcomes: Record<string, any> = data[q]
           const interval = Object.keys(Object.values(outcomes)[0])[0];
           const alive = get(outcomes, `On antiretrovirals.${interval}`, 0);
           const died = get(outcomes, `Patient died.${interval}`, 0);
@@ -63,7 +64,7 @@ export default defineComponent({
           const transferred = get(outcomes, `Patient transferred out.${interval}`, 0);
           const unknown = get(outcomes, `N/A.${interval}`, 0);
           rs.push({
-            quarter,
+            quarter: q,
             interval,
             alive,
             died,
@@ -83,8 +84,8 @@ export default defineComponent({
       id: "ageGroup",
       type: "select",
       label: "Sub Group:",
-      value: ageGroup.value,
-      options: Object.values(AGE_GROUP).map(age => age.toString()),
+      value: ageGroup,
+      options: Object.values(AGE_GROUP).map(age => ({ label: age, value: age })),
     }])
 
     const onRegenerate = async () => {

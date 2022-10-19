@@ -1,3 +1,12 @@
+export interface Option {
+  label: string;
+  value: string | number;
+  other?: any;
+  isChecked?: boolean;
+  disabled?: boolean;
+  description?: string;
+}
+
 export interface TableColumnInterface {
   label: string;
   path: string;
@@ -56,7 +65,7 @@ export interface CustomFilterInterface {
   value?: any;
   gridSize?: number; // numbers between 1 and 12
   type: "text" | "number" | "date" | "select" | "dateRange";
-  options?: string[];
+  options?: Option[];
   placeholder?: string;
   required?: boolean;
 }

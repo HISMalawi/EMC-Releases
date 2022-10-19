@@ -268,3 +268,54 @@ input[type="search"]::-webkit-search-cancel-button {
 .sc-ion-searchbar-md-h {
   --box-shadow: none !important;
 }
+
+.outer-input-box {
+  width: 100%; 
+  height: fit-content; 
+  background-color: #fff;
+}
+  
+.inner-input-box {
+  position: relative; 
+  width: 100%; 
+}
+  
+.search-input {
+  height: 2.5rem;
+  width: 100%;
+  display: inline-block;
+}
+  
+.input-options {
+  position: absolute;
+  width: 100%;
+  max-height: 25rem;
+  overflow-y: auto;
+  background-color: #fff;
+  z-index: 100;
+  border-radius: 0.25rem;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+.input-icon {
+  font-size: 12px !important;
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 2.5rem;
+  width: 2rem;
+  color: rgb(138, 138, 138);
+  padding-right: .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 90;
+}
+.input-option-checkbox {
+  --size: 18px !important;
+}
+.input-placeholder {
+  color: #a0a0a0;
+  margin: 0.5rem;
+}

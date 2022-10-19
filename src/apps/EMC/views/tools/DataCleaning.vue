@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from "vue";
+import { computed, defineComponent, reactive, ref } from "vue";
 import { loader } from "@/utils/loader";
 import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
@@ -23,16 +23,15 @@ import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
 import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "../../utils/common";
+import { Option } from "@/components/Forms/FieldInterface";
 
 export default defineComponent({
   name: "DataCleaning",
   components: { BaseReportTable },
   setup() {
     const rows = ref<any[]>([]);
-    const tool = ref<CtIndicator>();
-    const title = computed(() => `Data Cleaning Tools${
-      tool.value ? ': '+ tool.value : ""
-    }`);
+    const tool = reactive({} as Option);
+    const title = computed(() => `Data Cleaning Tools ${ tool?.value || "" }`);
     const period = ref("-");
     
     const columns: TableColumnInterface[] = [
@@ -48,9 +47,9 @@ export default defineComponent({
       const report = new DataCleaningReportService()
       report.setStartDate(filters.dateRange.startDate)
       report.setEndDate(filters.dateRange.endDate)
-      tool.value = filters.tool
+      Object.assign(tool, filters.tool)
       period.value = report.getDateIntervalPeriod()
-      rows.value = await report.getCleaningToolReport(tool.value!)
+      rows.value = await report.getCleaningToolReport(tool.value as CtIndicator)
       await loader.hide();
     }  
 
@@ -67,9 +66,11 @@ export default defineComponent({
         id: "tool",
         label: "Select Cleaning Tool",
         type: "select",
-        value: tool.value,
+        value: tool,
         gridSize: 8,
-        options: Object.values(CtIndicator),
+        options: Object.values(CtIndicator).map(indicator => {
+          return { label: indicator.toLowerCase(), value: indicator }
+        }),
       }
     ])
 

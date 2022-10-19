@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from "vue";
+import { computed, defineComponent, reactive, ref } from "vue";
 import { loader } from "@/utils/loader";
 import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
@@ -24,14 +24,15 @@ import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
 import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";
+import { Option } from "@/components/Forms/FieldInterface";
 
 export default defineComponent({
   name: "RegimenFormulation",
   components: { BaseReportTable },
   setup() {
     const rows = ref<any[]>([]);
-    const regimen = ref<string>("");
-    const formulation = ref<string>("");
+    const regimen = reactive({} as Option);
+    const formulation = reactive({} as Option);
     const period = ref("-");
     const report = new RegimenReportService()
     
@@ -46,16 +47,16 @@ export default defineComponent({
       report.setStartDate(filters.dateRange.startDate)
       report.setEndDate(filters.dateRange.endDate)
       period.value = report.getDateIntervalPeriod()
-      regimen.value = filters.regimen
-      formulation.value = filters.formulation
-      rows.value = await report.getRegimenFormulationReport(regimen.value, formulation.value)
+      Object.assign(regimen, filters.regimen)
+      Object.assign(formulation, filters.formulation)
+      rows.value = await report.getRegimenFormulationReport(regimen.value as string, formulation.value as string)
       await loader.hide();
     }  
 
     const regenerateReport = async () => {
       if(!period.value || !regimen.value || !formulation.value) return
       await loader.show();
-      rows.value = await report.getRegimenFormulationReport(regimen.value, formulation.value)
+      rows.value = await report.getRegimenFormulationReport(regimen.value as string, formulation.value as string)
       await loader.hide();
     }
 
@@ -70,17 +71,17 @@ export default defineComponent({
     const filters = computed<CustomFilterInterface[]>(() => [
       {
         id: "regimen",
-        label: "Regimen",
+        label: "Select Regimen",
         type: "select",
-        value: regimen.value,
-        options: REGIMENS,
+        value: regimen,
+        options: REGIMENS.map(r => ({ label: r, value:r })),
       },
       {
         id: "formulation",
         label: "Formulation",
         type: "select",
-        value: formulation.value,
-        options: FORMULATIONS,
+        value: formulation,
+        options: FORMULATIONS.map(f => ({label: f, value: f})),
       },
     ])
 
