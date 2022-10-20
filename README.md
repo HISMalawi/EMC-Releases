@@ -31,13 +31,14 @@ Run `ionic serve`
 
 ## Versioning and Tagging
 
-1. Open the terminal and run either of the following to update system version:
-    a). `npm version patch` for patch/bug fixes version
-    b). `npm version minor` for minor revision
-    c). `npm version major` for major revision
+Open the terminal and run the following to update system version:
+```
+npm version [<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease [--preid=<prerelease-id>] | from-git]
 
-2. Commit version tag by running `git push origin [TAG NAME]`. Tag name is based on the output of the above
-   npm version commands
+eg npm version patch
+```
+
+This will update system version and push the new tag to github
 
 ### Minimum API Version
 You can manually configure the minimum API version by editing package.json and updating
