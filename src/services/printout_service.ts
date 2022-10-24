@@ -70,11 +70,11 @@ export class PrintoutService extends Service {
     }
 
     setDefaultPrinter(printer: Record<string, any>) {
-        sessionStorage.setItem('defaultPrinter', JSON.stringify(printer))
+        localStorage.setItem('defaultPrinter', JSON.stringify(printer))
     }
 
     async getDefaultPrinter() {
-        const printer = sessionStorage.getItem('defaultPrinter')
+        const printer = localStorage.getItem('defaultPrinter')
         if (printer) return JSON.parse(printer)
         return {}
     }
