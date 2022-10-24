@@ -11,12 +11,6 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 @CapacitorPlugin(name = "LabelPrinter")
 public class LabelPrinter extends Plugin {
 
-    private Context context;
-
-    public LabelPrinter (Context context) {
-        this.context = context;
-    }
-
     @PluginMethod
     public void echo(PluginCall call) {
         String value = call.getString("value");
