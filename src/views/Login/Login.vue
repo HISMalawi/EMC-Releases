@@ -76,6 +76,8 @@ import usePlatform from '@/composables/usePlatform';
 import { computed, watch } from 'vue';
 import { KeyboardType } from "@/composables/usePlatform"
 import { find } from 'lodash';
+import { toastSuccess } from '@/utils/Alerts';
+import { LabelPrinter } from '@/plugins/LabelPrinter'
 
 export default {
   name: "login",
@@ -118,6 +120,7 @@ export default {
       const apiV = await auth.getApiVersion()
       version.value = `${appV} / ${apiV}`
       profile.value = activePlatformProfile.value?.profileName || ''
+      toastSuccess((await LabelPrinter.echo({value: "Hello World"})).value, 100000)
     })
     return {
       version,
