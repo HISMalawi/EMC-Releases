@@ -8,6 +8,7 @@ import { optionsActionSheet } from '@/utils/ActionSheets';
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash';
 import { PrinterDevice, LabelPrinter } from "@/plugins/LabelPrinter";
+import nprogress from "nprogress";
 
 export class PrintoutService extends Service {
     constructor() {
@@ -87,19 +88,20 @@ export class PrintoutService extends Service {
     }
 
     async getAllPrinters () {
-        return LabelPrinter.discover()
+        nprogress.start()
+        return LabelPrinter.discover().finally(() => nprogress.done())
     }
 
     async selectDefaultPrinter(): Promise<string> {
-        const printers = await this.getAllPrinters()
-        if (printers.length === 0) {
+        const { devices } = await this.getAllPrinters()
+        if (devices.length === 0) {
             toastWarning('No printers found. Please connect a printer.')
             return ""
         }
         const option = await optionsActionSheet(
             "Select Printer",
             "Please, select default printer",
-            printers.map(p => p.deviceID),
+            devices,
             [
                 { name: 'Cancel', slot:'start', color: 'danger' },
                 { name: 'Continue', slot: 'end', role: 'action' }

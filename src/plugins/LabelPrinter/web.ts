@@ -21,9 +21,9 @@ export class LabelPrinterWeb extends WebPlugin implements LabelPrinterPlugin {
       throw new Error(`Test label printed failed on ${printer.deviceID}`)
     }
   }
-  async discover(): Promise<PrinterDevice[]> {
-    return [{
-      deviceID: "webPrinter"
-    }]
+  async discover(): Promise<{devices: string[]}> {
+    return {
+      devices: ["webPrinter"]
+    }
   }
 }

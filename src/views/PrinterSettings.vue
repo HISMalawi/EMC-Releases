@@ -12,10 +12,8 @@ import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { PrintoutService } from "@/services/printout_service";
 import { isEmpty } from "lodash";
-import { PrinterDescription } from "@/interfaces/PrintServiceInterfaces";
 import { loadingController } from "@ionic/core";
-import { toastDanger, toastWarning } from "@/utils/Alerts";
-import { PrinterDevice } from "@/plugins/LabelPrinter";
+import { toastDanger, toastSuccess, toastWarning } from "@/utils/Alerts";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -44,17 +42,17 @@ export default defineComponent({
     async onFinish() {
       this.$router.back();
     },
-    isDefaultPrinter(printer: PrinterDevice) {
-      return printer.deviceID === this.defaultPrinter;
+    isDefaultPrinter(printer: string) {
+      return printer === this.defaultPrinter;
     },
-    sortPrinters(printers: PrinterDevice[]) {
+    sortPrinters(printers: string[]) {
       return printers.sort((a, b) => {
         if (this.isDefaultPrinter(a) && !this.isDefaultPrinter(b)) {
           return -1;
         } else if (!this.isDefaultPrinter(a) && this.isDefaultPrinter(b)) {
           return 1;
         } else {
-          return a.deviceID.localeCompare(b.deviceID);
+          return a.localeCompare(b);
         }
       });
     },
@@ -115,14 +113,14 @@ export default defineComponent({
             this.printFieldContext = context
           },
           options: async () => {
-            const printers = await this.printerService.getAllPrinters();
-            const sortedPrinters = this.sortPrinters(printers);
+            const { devices } = await this.printerService.getAllPrinters();
+            const sortedPrinters = this.sortPrinters(devices);
             return [{
               other: {
                 rowColors: this.defaultPrinterStyle(),
                 columns: ["Available Devices"],
-                rows: sortedPrinters.map((printer: any) => [
-                  printer.id,
+                rows: sortedPrinters.map((printer: string) => [
+                  printer,
                   {
                     type: "button",
                     name: "Test Printer",

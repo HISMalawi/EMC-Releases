@@ -9,6 +9,6 @@ export interface WriteOptions {
 
 export interface LabelPrinterPlugin {
   test(device: PrinterDevice): Promise<void>;
-  discover(): Promise<PrinterDevice[]>;
+  discover(): Promise<{devices: string[]}>;
   write(opts: WriteOptions): Promise<void>;
 }
