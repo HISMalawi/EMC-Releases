@@ -18,6 +18,7 @@ import java.util.List;
 public class LabelPrinter {
     private UsbManager mUsbManager;
     private PendingIntent mPermissionIntent;
+    private JSArray discoveredDevices;
     private static final String EPL_TEST_STRING = "\n" +
             "N\n" +
             "q801\n" +
@@ -27,7 +28,6 @@ public class LabelPrinter {
             "A35,30,0,2,2,2,N,\"Hello World\"\n" +
             "P1\n";
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
-    private JSArray discoveredDevices;
 
     LabelPrinter() {
         mUsbManager = (UsbManager) Globals.getActivity().getSystemService(Globals.getContext().USB_SERVICE);
@@ -37,7 +37,6 @@ public class LabelPrinter {
     JSArray discover() throws ConnectionException {
         discoveredDevices = new JSArray();
         setDiscoveredUsbDevices();
-        setDiscoveredBluetoothDevices();
         return discoveredDevices;
     }
 
@@ -46,42 +45,7 @@ public class LabelPrinter {
     }
 
     void write(String deviceID, String rawString)  {
-        new Thread(() -> {
-            printToUsbDevice(deviceID, rawString);
-        }).start();
-
-        new Thread(() -> {
-            try {
-                printToBluetooth(deviceID, rawString);
-            } catch (ConnectionException e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
-
-    private Boolean printToBluetooth(String deviceID, String rawString) throws ConnectionException {
-        BtDiscoveryHandler handler = new BtDiscoveryHandler();
-        try {
-            BluetoothDiscoverer.findPrinters(Globals.getContext(), handler);
-            while(!handler.discoveryComplete) {
-                Thread.sleep(100);
-            }
-            if (handler.printers != null && handler.printers.size() > 0) {
-                for(int i=0; i < handler.printers.size(); ++i) {
-                    if (deviceID.equals(handler.printers.get(i).address)) {
-                        Connection conn = new BluetoothConnection(deviceID);
-                        Looper.prepare();
-                        conn.open();
-                        conn.write(rawString.getBytes(StandardCharsets.UTF_8));
-                        conn.close();
-                        return true;
-                    }
-                }
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return false;
+        printToUsbDevice(deviceID, rawString);
     }
 
     private Boolean printToUsbDevice(String deviceID, String rawString) {
@@ -113,23 +77,6 @@ public class LabelPrinter {
         return false;
     }
 
-    private void setDiscoveredBluetoothDevices() throws ConnectionException {
-        BtDiscoveryHandler handler = new BtDiscoveryHandler();
-        try {
-            BluetoothDiscoverer.findPrinters(Globals.getContext(), handler);
-            while(!handler.discoveryComplete) {
-                Thread.sleep(100);
-            }
-            if (handler.printers != null && handler.printers.size() > 0) {
-                for(int i=0; i < handler.printers.size(); ++i) {
-                    discoveredDevices.put(handler.printers.get(i).address);
-                }
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void setDiscoveredUsbDevices() {
         UsbDeviceDiscoveryHandler handler = new UsbDeviceDiscoveryHandler();
         UsbDiscoverer.findPrinters(Globals.getContext(), handler);
@@ -152,26 +99,6 @@ public class LabelPrinter {
         }
     }
 
-    private class BtDiscoveryHandler implements DiscoveryHandler {
-        public List<DiscoveredPrinterBluetooth> printers;
-        public boolean discoveryComplete = false;
-
-        BtDiscoveryHandler() {
-            printers = new LinkedList<>();
-        }
-
-        public void foundPrinter(final DiscoveredPrinter printer) {
-            printers.add((DiscoveredPrinterBluetooth) printer);
-        }
-
-        public void discoveryFinished() {
-            discoveryComplete = true;
-        }
-
-        public void discoveryError(String message) {
-            discoveryComplete = true;
-        }
-    }
     private class UsbDeviceDiscoveryHandler implements DiscoveryHandler {
         public List<DiscoveredPrinterUsb> printers;
         public boolean discoveryComplete = false;

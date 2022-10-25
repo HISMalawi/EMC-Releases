@@ -15,15 +15,6 @@ public class LabelPrinterPlugin extends Plugin {
     LabelPrinter implementation = new LabelPrinter();
 
     @PluginMethod
-    public void echo(PluginCall call) {
-        String value = call.getString("value");
-
-        JSObject ret = new JSObject();
-        ret.put("value", value + " from plugin");
-        call.resolve(ret);
-    }
-
-    @PluginMethod
     public void write(PluginCall call) {
         String deviceID = call.getString("deviceID");
         String rawString = call.getString("rawString");
