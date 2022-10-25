@@ -15,6 +15,7 @@ import { isEmpty } from "lodash";
 import { PrinterDescription } from "@/interfaces/PrintServiceInterfaces";
 import { loadingController } from "@ionic/core";
 import { toastDanger, toastWarning } from "@/utils/Alerts";
+import { PrinterDevice } from "@/plugins/LabelPrinter";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -22,7 +23,7 @@ export default defineComponent({
     return {
       printFieldContext: null as any,
       printerService: {} as PrintoutService,
-      defaultPrinter: {} as Record<string, any>,
+      defaultPrinter: "",
       refreshKey: 0,
       fields: [] as any,
       refreshInterval: null as any,
@@ -43,17 +44,17 @@ export default defineComponent({
     async onFinish() {
       this.$router.back();
     },
-    isDefaultPrinter(printer: PrinterDescription) {
-      return printer.id === this.defaultPrinter.id;
+    isDefaultPrinter(printer: PrinterDevice) {
+      return printer.deviceID === this.defaultPrinter;
     },
-    sortPrinters(printers: PrinterDescription[]) {
+    sortPrinters(printers: PrinterDevice[]) {
       return printers.sort((a, b) => {
         if (this.isDefaultPrinter(a) && !this.isDefaultPrinter(b)) {
           return -1;
         } else if (!this.isDefaultPrinter(a) && this.isDefaultPrinter(b)) {
           return 1;
         } else {
-          return a.name.localeCompare(b.name);
+          return a.deviceID.localeCompare(b.deviceID);
         }
       });
     },
@@ -114,7 +115,7 @@ export default defineComponent({
             this.printFieldContext = context
           },
           options: async () => {
-            const printers: PrinterDescription[] = await this.printerService.getAllPrinters();
+            const printers = await this.printerService.getAllPrinters();
             const sortedPrinters = this.sortPrinters(printers);
             return [{
               other: {
