@@ -1,8 +1,7 @@
 import { download } from '@/utils/files';
 import { randomUUID } from '@/utils/UUID';
 import { WebPlugin } from '@capacitor/core';
-import dayjs from 'dayjs';
-import type { PrinterDevice, LabelPrinterPlugin, WriteOptions } from './definitions';
+import type { LabelPrinterPlugin, WriteOptions } from './definitions';
 
 
 export class LabelPrinterWeb extends WebPlugin implements LabelPrinterPlugin {
