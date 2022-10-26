@@ -53,7 +53,7 @@ export class PrintoutService extends Service {
             toastWarning(e as any)
         }
     }
-    //TODO: remove this.. it's not supposed to be in this service
+    //TODO: remove this.. it's not supposed to be in this service.
     async printLocation(locationId: number) {
         await this.printLbl(`labels/location?location_id=${locationId}`)
     }
