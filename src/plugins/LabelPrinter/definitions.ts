@@ -1,5 +1,8 @@
 export interface PrinterDevice {
   deviceID: string;
+  name?: string;
+  port?: "BLUETOOTH" | "USB";
+  address?: string;
 }
 
 export interface WriteOptions {
@@ -8,7 +11,6 @@ export interface WriteOptions {
 }
 
 export interface LabelPrinterPlugin {
-  test(device: PrinterDevice): Promise<void>;
   discover(): Promise<{devices: string[]}>;
   write(opts: WriteOptions): Promise<void>;
 }

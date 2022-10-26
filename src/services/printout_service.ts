@@ -1,6 +1,6 @@
 import { Service } from "./service";
 import ApiClient from "./api_client";
-import { toastWarning } from "@/utils/Alerts";
+import { toastSuccess, toastWarning } from "@/utils/Alerts";
 import { EventChannels } from "@/utils/EventBus";
 import EventBus from "@/utils/EventBus";
 import { BluetoothSerial } from "@awesome-cordova-plugins/bluetooth-serial";
@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import { isEmpty } from 'lodash';
 import { PrinterDevice, LabelPrinter } from "@/plugins/LabelPrinter";
 import nprogress from "nprogress";
+
 
 export class PrintoutService extends Service {
     constructor() {
@@ -20,31 +21,11 @@ export class PrintoutService extends Service {
         if (!rawString) {
             throw 'Unable to print Label. Try again later'
         }
-        let deviceID = await this.getDefaultPrinter()
-        if(!deviceID) deviceID = await this.selectDefaultPrinter()
-        if(!deviceID) throw new Error ("No printer device found")
-        LabelPrinter.write({ deviceID, rawString })
-        // if (activePlatformProfile.value.printer === PrinterType.WEB) {
-        //     this.printToBrowser(url)
-        // } else if (activePlatformProfile.value.printer === PrinterType.BLUETOOTH) {
-        //     let printer = await this.getDefaultPrinter();
-        //     if(isEmpty(printer)) {
-        //         printer = await this.selectDefaultPrinter();
-        //     }
-        //     if (isEmpty(printer)) {
-        //         throw 'No default printer selected!!!'
-        //     } 
-        //     switch(printer.type) {
-        //         case 'BLUETOOTH DEVICE':
-        //             this.printToBluetoothDevice(printer, preFetch)
-        //             break
-        //         case 'USB DEVICE':
-        //             this.printToUsbDevice(printer, preFetch)
-        //             break
-        //     }
-        // } else {
-        //     toastWarning('No printing profile for current platform')
-        // }
+        let printer = await this.getDefaultPrinter()
+        if(isEmpty(printer)) printer = await this.selectDefaultPrinter()
+        if(isEmpty(printer)) throw new Error ("No printer device found")
+        if(printer?.port === "USB") return LabelPrinter.write({ deviceID: printer.deviceID, rawString })
+        return this.printToBluetoothDevice(printer!, rawString)
     }
 
     async batchPrintLbls(urls: string[], showPrintImage = true) {
@@ -83,61 +64,93 @@ export class PrintoutService extends Service {
         await this.printLbl(`drugs/${drugId}/barcode?quantity=${quantity}`)
     }
 
-    async getDefaultPrinter(): Promise<string> {
-        return localStorage.getItem('defaultPrinter') || ""
+    async getDefaultPrinter(): Promise<PrinterDevice | undefined> {
+        const p = localStorage.getItem('defaultPrinter')
+        try {
+            return p && JSON.parse(p)
+        } catch (error) {
+            toastWarning(`${error}` , )
+        }
+    }
+
+    async getUsbPrinters (): Promise<PrinterDevice[]> {
+        const { devices } = await LabelPrinter.discover()
+        return devices.map(printer => ({
+            deviceID: printer,
+            name: printer,
+            port: "USB"
+        }))
+    }
+
+    async getBluetoothPrinters (): Promise<PrinterDevice[]> {
+        const devices: any[] = await BluetoothSerial.list();
+        return devices .map((p: any) => ({
+            deviceID: p.name,
+            name: `${p.name} (${p.address})`,
+            port: "BLUETOOTH",
+            address: p.address
+        }))
     }
 
     async getAllPrinters () {
         nprogress.start()
-        return LabelPrinter.discover().finally(() => nprogress.done())
+        const uPrinters = await this.getUsbPrinters();
+        const bPrinters = await this.getBluetoothPrinters()
+        nprogress.done()
+        return [...uPrinters, ...bPrinters]
     }
 
-    async selectDefaultPrinter(): Promise<string> {
-        const { devices } = await this.getAllPrinters()
-        if (devices.length === 0) {
+    async selectDefaultPrinter(): Promise<PrinterDevice | undefined> {
+        const printers = await this.getAllPrinters()
+        if (printers.length === 0) {
             toastWarning('No printers found. Please connect a printer.')
-            return ""
+            return
         }
         const option = await optionsActionSheet(
             "Select Printer",
             "Please, select default printer",
-            devices,
+            printers.map(p => p.name || p.deviceID),
             [
                 { name: 'Cancel', slot:'start', color: 'danger' },
                 { name: 'Continue', slot: 'end', role: 'action' }
             ]
         )
 
-        if(option.action === 'Cancel') return ""
-        this.setDefaultPrinter(option.selection)
-        return option.selection
+        if(option.action === 'Cancel') return
+
+        const printer = printers.find(p => {
+            return p.name === option.selection || 
+                p.deviceID === option.selection
+        }) as PrinterDevice
+
+        this.setDefaultPrinter(printer)
+
+        return printer
     }
 
-    setDefaultPrinter (printer: string) {
-        localStorage.setItem('defaultPrinter', printer)
+    setDefaultPrinter (printer: PrinterDevice) {
+        if(!isEmpty(printer)) {
+            localStorage.setItem('defaultPrinter', JSON.stringify(printer))
+        }
     }
 
-    async printTestLbl(printer: string) {
+    async printTestLbl(printer: PrinterDevice) {
+        const rawString = `\nN\nq801\nQ329,026\nZT\nB50,180,0,1,5,15,120,N,"Barcode"\nA35,30,0,2,2,2,N,""\nA35,76,0,2,2,2,N,"Test Label Printing"\nA35,122,0,2,2,2,N,"Date: ${dayjs().format('DD/MMM/YYYY')}"\nP1\n`
         try {
             EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')
-            await LabelPrinter.test({ deviceID: printer})
+            if(printer?.port === "USB") return LabelPrinter.write({ deviceID: printer.deviceID, rawString })
+            return this.printToBluetoothDevice(printer!, rawString)
         } catch (error) {
             toastWarning(`${error}`)
         }
     }
 
-    // printToBrowser(url: string) {
-    //     ApiClient.expandPath(url).then((path: any) => {
-    //         document.location = path
-    //     }).catch(e => toastWarning(e))
-    // }
-
-    // printToBluetoothDevice(printer: PrinterDescription, labelData: string) {
-    //     BluetoothSerial.connect(printer.address).subscribe(async () => {
-    //         BluetoothSerial.write(labelData)
-    //             .catch((e) => toastWarning(e))
-    //             .finally(() => BluetoothSerial.disconnect())
-    //     }, e => toastWarning(e))
-    // }
+    printToBluetoothDevice(printer: PrinterDevice, labelData: string) {
+        BluetoothSerial.connect(printer?.address || '').subscribe(async () => {
+            BluetoothSerial.write(labelData)
+                .catch((e) => toastWarning(e))
+                .finally(() => BluetoothSerial.disconnect())
+        }, e => toastWarning(e))
+    }
 
 }

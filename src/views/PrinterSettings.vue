@@ -14,6 +14,7 @@ import { PrintoutService } from "@/services/printout_service";
 import { isEmpty } from "lodash";
 import { loadingController } from "@ionic/core";
 import { toastDanger, toastSuccess, toastWarning } from "@/utils/Alerts";
+import { PrinterDevice } from "@/plugins/LabelPrinter";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -21,7 +22,7 @@ export default defineComponent({
     return {
       printFieldContext: null as any,
       printerService: {} as PrintoutService,
-      defaultPrinter: "",
+      defaultPrinter: {} as PrinterDevice,
       refreshKey: 0,
       fields: [] as any,
       refreshInterval: null as any,
@@ -30,7 +31,7 @@ export default defineComponent({
   },
   async mounted() {
     this.printerService = new PrintoutService();
-    this.defaultPrinter = await this.printerService.getDefaultPrinter();
+    this.defaultPrinter = await this.printerService.getDefaultPrinter() || {} as PrinterDevice;
     this.fields = this.getFields();
   },
   unmounted() {
@@ -42,17 +43,18 @@ export default defineComponent({
     async onFinish() {
       this.$router.back();
     },
-    isDefaultPrinter(printer: string) {
-      return printer === this.defaultPrinter;
+    isDefaultPrinter(printer: PrinterDevice) {
+      if(printer.name && this.defaultPrinter.name) return printer.name === this.defaultPrinter.name;
+      return printer.deviceID === this.defaultPrinter.deviceID
     },
-    sortPrinters(printers: string[]) {
+    sortPrinters(printers: PrinterDevice[]) {
       return printers.sort((a, b) => {
         if (this.isDefaultPrinter(a) && !this.isDefaultPrinter(b)) {
           return -1;
         } else if (!this.isDefaultPrinter(a) && this.isDefaultPrinter(b)) {
           return 1;
         } else {
-          return a.localeCompare(b);
+          return (a.name || a.deviceID).localeCompare(b.name || b.deviceID);
         }
       });
     },
@@ -113,14 +115,14 @@ export default defineComponent({
             this.printFieldContext = context
           },
           options: async () => {
-            const { devices } = await this.printerService.getAllPrinters();
-            const sortedPrinters = this.sortPrinters(devices);
+            const printers = await this.printerService.getAllPrinters();
+            const sortedPrinters = this.sortPrinters(printers);
             return [{
               other: {
                 rowColors: this.defaultPrinterStyle(),
                 columns: ["Available Devices"],
-                rows: sortedPrinters.map((printer: string) => [
-                  printer,
+                rows: sortedPrinters.map((printer: PrinterDevice) => [
+                  printer.name || printer.deviceID,
                   {
                     type: "button",
                     name: "Test Printer",
