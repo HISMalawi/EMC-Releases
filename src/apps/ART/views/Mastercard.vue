@@ -240,6 +240,11 @@ export default defineComponent({
           asyncValue: () => this.patient.getInitialHeight() 
         },
         { 
+          label: "Cur H(CM)", 
+          value: '...',
+          asyncValue: () => this.patient.getRecentHeight() 
+        },
+        { 
           label: "BMI(CM)", 
           value: '...',
           asyncValue: () => this.patient.getInitialBMI() 
