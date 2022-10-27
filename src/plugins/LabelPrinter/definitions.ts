@@ -8,6 +8,7 @@ export interface PrinterDevice {
 export interface WriteOptions {
   deviceID: string;
   rawString: string;
+  url?: string;
 }
 
 export interface LabelPrinterPlugin {

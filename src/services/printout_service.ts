@@ -23,7 +23,7 @@ export class PrintoutService extends Service {
         let printer = await this.getDefaultPrinter()
         if(isEmpty(printer)) printer = await this.selectDefaultPrinter()
         if(isEmpty(printer)) throw new Error ("No printer device found")
-        if(printer?.port === "USB") return LabelPrinter.write({ deviceID: printer.deviceID, rawString })
+        if(printer?.port === "USB") return LabelPrinter.write({ deviceID: printer.deviceID, rawString, url })
         return this.printToBluetoothDevice(printer!, rawString)
     }
 
@@ -73,22 +73,32 @@ export class PrintoutService extends Service {
     }
 
     async getUsbPrinters (): Promise<PrinterDevice[]> {
-        const { devices } = await LabelPrinter.discover()
-        return devices.map(printer => ({
-            deviceID: printer,
-            name: printer,
-            port: "USB"
-        }))
+        try {
+            const { devices } = await LabelPrinter.discover()
+            return devices.map(printer => ({
+                deviceID: printer,
+                name: printer,
+                port: "USB"
+            }))
+        } catch (error) {
+            console.log(error)
+        }
+        return []
     }
 
     async getBluetoothPrinters (): Promise<PrinterDevice[]> {
-        const devices: any[] = await BluetoothSerial.list();
-        return devices .map((p: any) => ({
-            deviceID: p.name,
-            name: `${p.name} (${p.address})`,
-            port: "BLUETOOTH",
-            address: p.address
-        }))
+       try {
+            const devices: any[] = await BluetoothSerial.list();
+            return devices .map((p: any) => ({
+                deviceID: p.name,
+                name: `${p.name} (${p.address})`,
+                port: "BLUETOOTH",
+                address: p.address
+            }))
+       } catch (error) {
+            console.log(error)
+       }
+       return []
     }
 
     async getAllPrinters () {
@@ -100,31 +110,38 @@ export class PrintoutService extends Service {
     }
 
     async selectDefaultPrinter(): Promise<PrinterDevice | undefined> {
+        let defualtPrinter: PrinterDevice | undefined  = undefined;
+
         const printers = await this.getAllPrinters()
         if (printers.length === 0) {
-            toastWarning('No printers found. Please connect a printer.')
+            toastWarning('No printers found. Please connect a printer or make sure a bluetooth printer is paired')
             return
         }
-        const option = await optionsActionSheet(
-            "Select Printer",
-            "Please, select default printer",
-            printers.map(p => p.name || p.deviceID),
-            [
-                { name: 'Cancel', slot:'start', color: 'danger' },
-                { name: 'Continue', slot: 'end', role: 'action' }
-            ]
-        )
+        if(printers.every(p => p.deviceID === "webPrinter")) {
+            defualtPrinter = printers[0];
+        }
+        if(isEmpty(defualtPrinter)){
+            const option = await optionsActionSheet(
+                "Select Printer",
+                "Please, select default printer",
+                printers.map(p => p.name || p.deviceID),
+                [
+                    { name: 'Cancel', slot:'start', color: 'danger' },
+                    { name: 'Continue', slot: 'end', role: 'action' }
+                ]
+            )
+    
+            if(option.action === 'Cancel') return
+    
+            defualtPrinter = printers.find(p => {
+                return p.name === option.selection || 
+                    p.deviceID === option.selection
+            }) as PrinterDevice
+        }
+        
+        if(defualtPrinter) this.setDefaultPrinter(defualtPrinter)
 
-        if(option.action === 'Cancel') return
-
-        const printer = printers.find(p => {
-            return p.name === option.selection || 
-                p.deviceID === option.selection
-        }) as PrinterDevice
-
-        this.setDefaultPrinter(printer)
-
-        return printer
+        return defualtPrinter
     }
 
     setDefaultPrinter (printer: PrinterDevice) {
