@@ -46,7 +46,9 @@ export class AncLabResultService extends AppEncounterService {
     }
 
     async loadSubsequentVisit() {
-        const res: any = await Service.getJson(`programs/${this.programID}/patients/${this.patientID}/subsequent_visit`)
+        const res: any = await Service.getJson(`programs/${this.programID}/patients/${this.patientID}/subsequent_visit`, {
+            date: this.date
+        })
         if (res) {
             this.hivStatus = res['hiv_status']
             /**
