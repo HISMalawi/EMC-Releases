@@ -1,6 +1,7 @@
 import { AppEncounterService } from "@/services/app_encounter_service";
 import { Service } from "@/services/service";
 import { PrintoutService } from "@/services/printout_service";
+import dayjs from "dayjs";
 
 export class AncLabResultService extends AppEncounterService {
     hivStatus: string;
@@ -70,6 +71,10 @@ export class AncLabResultService extends AppEncounterService {
 
     async loadArtStatus() {
         const res = await Service.getJson(`programs/${this.programID}/patients/${this.patientID}/art_hiv_status`)
+        const artStartDate = res['arv_start_date'] || ''
+        if (artStartDate && dayjs(this.date).isBefore(artStartDate)) {
+            return
+        }
         if (res) {
             this.hivStatus = res['hiv_status'] || this.hivStatus
             this.artStatus = res['art_status'] || ''
