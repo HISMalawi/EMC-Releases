@@ -7,6 +7,7 @@
       <input 
         :readonly="activePlatformProfile.keyboard === KeyboardType.HIS_KEYBOARD_ONLY" 
         id="barcode-inputbox" 
+        placeholder="Scan barcode or QR Code"
         v-model="barcodeText"
       />
     </ion-col>
