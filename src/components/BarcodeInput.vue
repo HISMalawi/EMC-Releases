@@ -1,5 +1,5 @@
 <template>
-  <ion-row v-on="cameraEvent">
+  <ion-row>
     <ion-col size="2">
       <img id="barcode-img" src="/assets/images/barcode.svg"/>
     </ion-col>
@@ -42,18 +42,10 @@ export default defineComponent({
         emit('onValue', newValue)
       }
     })
-
-
-    const cameraEvent = computed(() =>
-      activePlatformProfile.value.scanner === ScannerType.CAMERA_SCANNER
-        ? { click: () => router.push('camera_scanner') }
-        : {}
-    )
     
     return  {
       KeyboardType,
       activePlatformProfile,
-      cameraEvent,
     }
   },
   data: () => ({
