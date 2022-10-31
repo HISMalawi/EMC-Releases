@@ -7,6 +7,7 @@
                     :key="index"
                     > 
                     <ion-input
+                        :readonly="activePlatformProfile.keyboard === 'HIS_KEYBOARD_ONLY'"
                         mode='md'
                         inputmode="numeric"
                         type="number"
@@ -46,6 +47,7 @@ import {
     IonGrid
 } from "@ionic/vue"
 import { isEmpty } from 'lodash'
+import Platform from "@/composables/usePlatform"
 
 export default defineComponent({
     components: { 
@@ -68,7 +70,7 @@ export default defineComponent({
         }
     },
     setup(props, {emit}) {
-        onMounted(() => emit('onFieldActivated', this))
+        const  { activePlatformProfile } = Platform()
         onActivated(() => emit('onFieldActivated', this))
         const showKeyboard = ref(false)
         const activeIndex = ref('')
@@ -137,6 +139,7 @@ export default defineComponent({
         }, { deep: true, immediate: true })
 
         return {
+            activePlatformProfile,
             keypress,
             activeIndex,
             onAddressClick,

@@ -23,18 +23,8 @@
                     }"
                     :src="barcodeLogo"/>
                 </ion-col>
-                <ion-col size-lg="7" size-sm="8"  v-if="!useVirtualInput"> 
-                  <input 
-                    :readonly="useVirtualInput" 
-                    v-model="patientBarcode" 
-                    class="barcode-input" 
-                    ref="scanBarcode"
-                  />
-                </ion-col>
-                 <ion-col v-if="useVirtualInput" size-lg="6" size-sm="6" style="text-align: center; margin: auto;line-height: 1.2;"> 
-                  <p>Click Here</p>
-                  <p>To Scan QR code Or Barcode</p>
-                  <p> using Camera</p>
+                <ion-col size-lg="7" size-sm="8" > 
+                  <p class="vertically-align ion-padding-end ion-text-center">Scan QR code Or Barcode</p>
                 </ion-col>
               </ion-row>
             </div>
@@ -161,7 +151,7 @@
 
 <script lang="ts">
 import HisApp from "@/apps/app_lib"
-import { defineAsyncComponent, defineComponent } from "vue";
+import { defineAsyncComponent, defineComponent, watch } from "vue";
 import { barcode } from "ionicons/icons";
 import HisDate from "@/utils/Date"
 import { AppInterface, FolderInterface } from "@/apps/interfaces/AppInterface";
@@ -200,6 +190,9 @@ import {
 } from "@ionic/vue";
 import usePlatform from "@/composables/usePlatform";
 import { alertConfirmation } from "@/utils/Alerts";
+import HomeNotification from "@/components/HomeComponents/HomeNotifications.vue"
+import useBarcode from "@/composables/useBarcode";
+import { useRouter } from "vue-router";
 import Store from "@/composables/ApiStore"
 
 export default defineComponent({
@@ -225,7 +218,16 @@ export default defineComponent({
     HomeNotification: defineAsyncComponent(() => import("@/components/HomeComponents/HomeNotifications.vue"))
   },
   setup() {
-    const { useVirtualInput } = usePlatform()
+    const { activePlatformProfile } = usePlatform()
+    const barcode  = useBarcode();
+    const router = useRouter();
+
+    watch(barcode, (newValue) => {
+      if (newValue.length > 4) {
+        router.push('/patients/confirm?patient_barcode='+newValue);
+      }
+    });
+
     const {
       notificationData, 
       notificationCount, 
@@ -245,7 +247,7 @@ export default defineComponent({
       pieChart,
       arrowBack,
       settings,
-      useVirtualInput
+      activePlatformProfile
     }
   },
   data() {
@@ -258,7 +260,6 @@ export default defineComponent({
       appVersion: "",
       activeTab: 1,
       ready: false,
-      patientBarcode: "",
       overviewComponent: {} as any,
       isBDE: false,
       showSegmentBackArrow: false as boolean,
@@ -329,13 +330,6 @@ export default defineComponent({
         this.loadApplicationData();
       }
     },
-    checkForbarcode(){
-      if(this.patientBarcode.match(/.+\$$/i) != null){
-        const patientBarcode = this.patientBarcode.replaceAll(/\$/gi, '');
-        this.patientBarcode = '';
-        this.$router.push('/patients/confirm?patient_barcode='+patientBarcode);
-      }
-    },
     async signOut() {
       const ok = await alertConfirmation('Are you sure you want to logout ?')
       if (!ok) return
@@ -354,8 +348,9 @@ export default defineComponent({
       auth.clearSession()
     },
     openCamera(){
-      if(this.useVirtualInput)
-      this.$router.push('/camera_scanner')
+      if(this.activePlatformProfile.scanner === 'CAMERA_SCANNER') {
+        this.$router.push('/camera_scanner')
+      }
     }
   },
   async created() {
@@ -379,11 +374,6 @@ export default defineComponent({
       this.loadApplicationData();
     }
   },
-  watch: {
-    patientBarcode: function() {
-      this.checkForbarcode();
-    }
-  }
 });
 </script>
 

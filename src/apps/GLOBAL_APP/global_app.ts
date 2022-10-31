@@ -7,6 +7,7 @@ import Summary from "@/components/HomeSummary.vue"
 import { PatientDemographicsExchangeService } from "@/services/patient_demographics_exchange_service"
 import dayjs from "dayjs"
 import { delayPromise } from "@/utils/Timers"
+import platform, { PrinterType } from '@/composables/usePlatform';
 import GLOBAL_STORE from "@/apps/GLOBAL_APP/global_store"
 
 export default {
@@ -36,6 +37,15 @@ export default {
       pathUrl: "/settings/host",
       files: [
         
+      ]
+    },
+    {
+      name: 'Printer Settings',
+      icon: 'printer-settings.png',
+      pathUrl: '/settings/printer',
+      condition: () => UserService.isAdmin() && platform().activePlatformProfile.value.printer === PrinterType.BLUETOOTH,
+      files: [
+
       ]
     },
     {

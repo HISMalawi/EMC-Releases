@@ -32,9 +32,8 @@
       </div>
     </div>
   </div>
-  <center>
   <div id="keyboard" :style="btnStyles"  class="keyboard">
-    <span v-bind:key="k" v-for="k in LOGIN_KEYBOARD">
+    <span v-bind:key="i" v-for="(k, i) in LOGIN_KEYBOARD">
       <div class="rows">
         <div class="cells" v-bind:key="r" v-for="r in k">
           <button
@@ -64,7 +63,6 @@
       </div>
     </span>
   </div>
-  </center>
 </template>
 
 <script lang="ts">
@@ -72,6 +70,7 @@ import { toastWarning, toastDanger } from "@/utils/Alerts";
 import { defineComponent } from 'vue';
 import { AuthService, InvalidCredentialsError } from "@/services/auth_service"
 import { LOGIN_KEYBOARD } from "@/components/Keyboard/KbLayouts"
+import usePlatform from "@/composables/usePlatform";
 
 export default defineComponent({
   props: {
@@ -94,7 +93,6 @@ export default defineComponent({
         id: "",
       },
       display: "none",
-      keyboardLeft: "",
       keyboardTop: "",
       btnCaption: "",
       Caps: {
@@ -113,12 +111,9 @@ export default defineComponent({
         ? (this.btnCaption = "Login")
         : (this.btnCaption = "Next");
 
-      const main = document.getElementsByClassName("main")[0];
-      const width = main.getBoundingClientRect().width;
       let inputPos = e.currentTarget.getBoundingClientRect().top;
       inputPos = parseInt(inputPos);
 
-      this.keyboardLeft = width / 2 - 447 + "px;";
       this.keyboardTop = inputPos + 20 + "px;";
       this.display = "table";
       window.scrollTo(0,9999);
@@ -179,7 +174,7 @@ export default defineComponent({
           if (e instanceof InvalidCredentialsError ) {
             toastWarning("Invalid username or password");
           } else {
-            toastDanger(e, 50000)
+            toastDanger(`${e}`, 50000)
           }
         }
       } else {
@@ -189,7 +184,7 @@ export default defineComponent({
   },
   computed: {
     btnStyles(): string {
-      return `display: ${this.display}; top: ${this.keyboardTop}`;
+      return `display: ${this.display}; top: ${this.keyboardTop};`;
     },
   },
 });
@@ -222,16 +217,13 @@ export default defineComponent({
   text-align: center;
   position: absolute;
   background-color: white;
-  width: 56%;
-  margin: auto;
-  background-color: rgba(255, 255, 255, 0.9);
+  width: 100%;
   border: 1px solid rgb(204, 204, 204);
   word-wrap: normal !important;
-  left: 0; 
-  right: 0; 
-  margin-left: auto; 
-  margin-right: auto; 
+  margin: 0 auto;
   max-width: 300px;
+  left: 0; 
+  right: 0;
 }
 
 .rows {

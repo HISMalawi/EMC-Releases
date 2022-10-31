@@ -13,12 +13,12 @@
         </ion-label>
       </ion-toolbar>
     </ion-header>
-    <ion-content fullscreen="false">
-      <inputs :useVirtualInput="useVirtualInput"/>
+    <ion-content fullscreen="false" style="width=100%;">
+      <inputs :useVirtualInput="useVirtualInputOnly"/>
     </ion-content>
     <ion-footer>
       <ion-toolbar>
-        <span>
+        <span slot="start">
           <img
             id="coat"
             :src="coatImg"
@@ -30,30 +30,36 @@
             alt="PEPFAR logo"
           />
         </span>
-        <select v-model="platform" slot="end" class="devices">
-          <option
-            v-for="(device, index) in devices" 
-            :key="index"
-            :value="device.value"
-            :selected="device.value === platform"
-          >
-            {{ device.label }}
-          </option>
-        </select>
-        <ion-button
-          slot="end"
-          class="config"
-          router-link="/settings/host"
-          v-if="showConfig">
-          Configuration
-        </ion-button>
+        <ion-item class="his-sm-text" style="width:45%" slot="end"> 
+          <ion-label>Device Profile</ion-label>
+          <ion-select v-model="profile" :value="profile"> 
+            <ion-select-option
+              v-for="(p, index) in deviceProfiles" 
+              :key="index"
+              :value="p.label"
+            > 
+              {{ p.label }}
+            </ion-select-option>
+          </ion-select>
+          <ion-button
+            color="dark"
+            fill="outline"
+            size="large"
+            slot="end"
+            router-link="/settings/host">
+            Network
+          </ion-button>
+        </ion-item>
       </ion-toolbar>
     </ion-footer>
   </ion-page>
 </template>
 <script lang="ts">
 import Inputs from "./LoginCustomPage.vue";
-import { 
+import {
+  IonItem,
+  IonSelect,
+  IonSelectOption,
   IonButton, 
   IonPage, 
   IonContent, 
@@ -61,17 +67,20 @@ import {
   IonHeader,
   IonToolbar,
   IonTitle,
-  IonLabel
+  IonLabel,
 } from "@ionic/vue";
 import img from '@/utils/Img';
 import { onMounted, ref } from '@vue/runtime-core';
 import { AuthService } from '@/services/auth_service';
 import usePlatform from '@/composables/usePlatform';
 import { computed, watch } from 'vue';
+import { KeyboardType } from "@/composables/usePlatform"
+import { find } from 'lodash';
 
 export default {
   name: "login",
   components: {
+    IonItem,
     Inputs,
     IonButton,
     IonTitle,
@@ -81,21 +90,26 @@ export default {
     IonToolbar,
     IonContent,
     IonFooter,
+    IonSelect,
+    IonSelectOption,
   },
   setup() {
-    const { platformType, setPlatformType } = usePlatform()
-    const useVirtualInput = computed(() => platformType.value === 'mobile')
-    const platform = ref(platformType.value || 'Platform')
+    const {
+      activePlatformProfile,
+      platformProfiles
+    } = usePlatform()
     const version = ref('')
-    const devices = ref([
-      {label: 'Mobile', value: 'mobile'},
-      {label: "Desktop", value: "desktop"}
-    ])
-
-    watch(platform, p => {
-      if (['mobile', 'desktop'].includes(p)) setPlatformType(p as 'mobile' | 'desktop')  
+    const profile = ref('' as string)
+    const useVirtualInputOnly = computed(
+      () => activePlatformProfile.value.keyboard === KeyboardType.HIS_KEYBOARD_ONLY
+    )
+    const deviceProfiles: any = Object.keys(platformProfiles.value).map(key => ({
+      label: key,
+      value: { profileName: key, ...platformProfiles.value[key] },
+    }))
+    watch(profile, (v: string) => {
+      activePlatformProfile.value = (find(deviceProfiles, { label: v }) || {}).value
     })
-
     onMounted(async () => {
       const auth = new AuthService()
       await auth.loadConfig()
@@ -103,12 +117,14 @@ export default {
       auth.setActiveVersion(appV)
       const apiV = await auth.getApiVersion()
       version.value = `${appV} / ${apiV}`
+      profile.value = activePlatformProfile.value?.profileName || ''
     })
     return {
-      devices,
       version,
-      platform,
-      useVirtualInput,
+      profile,
+      deviceProfiles,
+      useVirtualInputOnly,
+      activePlatformProfile,
       coatImg: img('login-logos/Malawi-Coat_of_arms_of_arms.png'),
       pepfarImg: img('login-logos/PEPFAR.png'),
       showConfig: localStorage.getItem("useLocalStorage") === "true"
