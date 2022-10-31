@@ -96,6 +96,10 @@ export class OpdReportService extends Service {
         return this.getReport('registration');
     }
 
+    getAttendance(){
+        return this.getReport(`programs/${this.programID}/reports/attendance`)
+    }
+
     getDrugsGivenWithoutPrescription() {
         return this.getReport('drugs_given_without_prescription')
     }

@@ -560,6 +560,7 @@ export default defineComponent({
         this.toOption('3HP (RFP + INH)', {
           appendOptionParams: () => {
             if (completedTpt) return disableOption(`Completed TPT treatment`)
+            if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
             if (this.currentWeight < 20) return disableOption('Weight below regulation')
             if (everTakenTpt && this.tptStatus.tpt !== '3HP (RFP + INH)' && !this.tptStatus.completed) {
@@ -571,6 +572,7 @@ export default defineComponent({
         this.toOption('INH 300 / RFP 300 (3HP)', {
           appendOptionParams: () => { 
             if (completedTpt) return disableOption(`Completed TPT treatment`)
+            if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
             if (this.currentWeight < 30) return disableOption('Weight below regulation') 
             if (everTakenTpt && this.tptStatus.tpt !== 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) {
@@ -583,6 +585,7 @@ export default defineComponent({
         this.toOption('IPT', {
           appendOptionParams: () => {
             if (completedTpt) return disableOption(`Completed TPT treatment`)
+            if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
             if (everTakenTpt && this.tptStatus.tpt !== 'IPT' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
@@ -1301,17 +1304,25 @@ export default defineComponent({
             tag: 'consultation',
             obs: this.consultation.buildValueText("Previous TB treatment history", data.value)
           }),
-          options: () => this.mapStrToOptions([
-            "Currently on IPT",
-            "Currently on 3HP (RFP + INH)",
-            "Currently on INH 300 / RFP 300 (3HP)",
-            "Complete course of 3HP in the past (3 months RFP+INH)",
-            "Complete course of IPT in the past (min. 6 months of INH)",
-            "Aborted course of 3HP (RFP + INH) in the past",
-            "Aborted course of INH 300 / RFP 300 (3HP) in the past",
-            "Aborted course of IPT in the past",
-            "Never taken IPT or 3HP"
-          ])
+          options: (f: any) => {
+            let options: string[] = []
+            if(/no/i.test(f.on_tb_treatment.value)) {
+              options = [
+                "Currently on IPT",
+                "Currently on 3HP (RFP + INH)",
+                "Currently on INH 300 / RFP 300 (3HP)"
+              ]
+            }
+            options = options.concat([
+              "Complete course of 3HP in the past (3 months RFP+INH)",
+              "Complete course of IPT in the past (min. 6 months of INH)",
+              "Aborted course of 3HP (RFP + INH) in the past",
+              "Aborted course of INH 300 / RFP 300 (3HP) in the past",
+              "Aborted course of IPT in the past",
+              "Never taken IPT or 3HP"
+            ])
+            return this.mapStrToOptions(options)
+          }
         },
         ...generateDateFields({
           id: 'date_started_tpt',

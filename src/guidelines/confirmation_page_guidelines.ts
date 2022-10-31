@@ -35,8 +35,8 @@ export enum FlowState {
 }
 
 export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = {
-    "Do not proceed if patient is not found in the system" : {
-        priority: 1,
+    "[DDE NOT ENABLED] Do not proceed if patient is not found in the system" : {
+        weight: 98,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -72,8 +72,8 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         }
     },
-    "[DDE] Show invalid attributes for a patient whose remote": {
-        priority: 2,
+    "[DDE ENABLED] Show invalid attributes for a patient whose remote": {
+        weight: 78,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async (facts: any) => {
@@ -100,8 +100,8 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         }
     },
-    "[DDE] Do not proceed if NPID is not found and Provide history of voided NPIDS" : {
-        priority: 2,
+    "[DDE ENABLED] Do not proceed if NPID is not found and Provide history of voided NPIDS" : {
+        weight: 98,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async (facts: any) => {
@@ -146,8 +146,8 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             }
         }
     },
-    "[DDE] Notify the user to proceed with Remote NPID if local NPID does not match remote": {
-        priority: 1,
+    "[DDE NOT ENABLED] Notify the user to proceed with Remote NPID if local NPID does not match remote": {
+        weight: 77,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({dde}: any) => {
@@ -177,7 +177,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Warn if patient is missing National ID and assign them one": {
-        priority: 2,
+        weight: 75,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -202,7 +202,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Detect NPID over 5 duplicates and prompt the user to resolve them" : {
-        priority: 1,
+        weight: 76,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({ scannedNpid }: any) => {
@@ -234,7 +234,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Detect NPID duplicates and prompt the user to resolve them" : {
-        priority: 1,
+        weight: 99,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({ scannedNpid }: any) => {
@@ -261,7 +261,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Warn before proceeding if patient is deceased based on current Patient state": {
-        priority: 3,
+        weight: 50,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
             alert: async () => {
@@ -291,7 +291,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Warn before proceeding if patient stopped treatment based on current Patient state": {
-        priority: 3,
+        weight: 49,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
             alert: async () => {
@@ -321,7 +321,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[ART patient visit purpose] Select purpose of visit if patient is Transferred out or Drug refill": {
-        priority: 3,
+        weight: 70,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
             alert: async ({patientType, currentOutcome}: any) => {
@@ -402,7 +402,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Prompt patient enrollment in current programme if not enrolled" : {
-        priority: 4,
+        weight: 30,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -431,7 +431,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "(ART Filing numbers) Prompt dormant filing number reactivation if patient has a dormant filing number": {
-        priority: 3,
+        weight: 25,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -469,7 +469,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE OFF] Prompt the user to update patient demographics when data is incomplete": {
-        priority: 2,
+        weight: 92,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -507,7 +507,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE] Alert When remote Patient demographics dont match Local Demographics ": {
-        priority: 3,
+        weight: 93,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({dde}: any) => {
@@ -543,7 +543,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE] Alert to print newer NPID when the scanned NPID doesnt match active NPID": {
-        priority: 2,
+        weight: 69,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({ currentNpid }: any) => {
@@ -571,7 +571,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "assign newer NPID when the current one is invalid": {
-        priority: 3,
+        weight: 68,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({ currentNpid }: any) => {
@@ -603,7 +603,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE ON] Warn program managers when Patient has incomplete demographics. Dont force them to update though": {
-        priority: 2,
+        weight: 91,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -644,7 +644,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[DDE ON] Force Users to update Incomplete Patient demographics": {
-        priority: 2,
+        weight: 92,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -682,7 +682,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Warn the user when patient has high viral load": {
-        priority: 6,
+        weight: 45,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
@@ -707,7 +707,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "[ANC] Warn last LMP is more than 8 months ago and ask to initiate new pregnancy": {
-        priority: 10,
+        weight: 32,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
             alert: async ({anc}: any) => {
@@ -740,7 +740,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }        
     },
     "[ANC] Exit if client is NOT ELIGIBLE for ANC": {
-        priority: 1,
+        weight: 89,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async () => {
