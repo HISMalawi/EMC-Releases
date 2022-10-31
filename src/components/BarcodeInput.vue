@@ -33,12 +33,7 @@ export default defineComponent({
     const router = useRouter();
     const { activePlatformProfile } = usePlatform()
 
-    const barcode = computed(() => {
-      if(activePlatformProfile.value.profileName?.match(/mobile/i)) {
-        return useBarcode()
-      }
-      return "" 
-    });
+    const barcode =  useBarcode()
 
     watch(barcode, (newValue) => {
       if (newValue) {
