@@ -26,7 +26,6 @@
           :actions-buttons="actionBtns" 
           :row-actions-buttons="rowActionButtons" 
           :custom-filters="filters" 
-          color="custom"
           @custom-filter="onCustomFilter"
           @drilldown="onDrilldown"
         />
@@ -41,21 +40,13 @@ import { IonCard, IonCardContent, IonCardHeader, IonGrid, IonRow, IonCol } from 
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
 import dayjs from "dayjs";
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import DataTable, { 
-  ActionButtonInterface, 
-  TableColumnInterface, 
-  RowActionButtonInterface, 
-  CustomFilterInterface, 
-  convertToCsv, 
-  exportToCSV
-} from "@/apps/EMC/Components/datatable";
 import { ArtReportService } from "@/apps/ART/services/reports/art_report_service";
 import { Option } from '@/components/Forms/FieldInterface';
+import { ActionButtonInterface, convertToCsv, CustomFilterInterface, DataTable, exportToCSV, RowActionButtonInterface, TableColumnInterface } from '@uniquedj95/vtable'
 
 export default defineComponent({
   name: "BaseReportTable",
   components: {
-    DataTable,
     IonCard,
     IonCardHeader,
     IonCardContent,
@@ -63,6 +54,7 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
+    DataTable,
   },
   props: {
     title: {

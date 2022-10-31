@@ -49,7 +49,7 @@ export default defineComponent({
     const rowActionBtns: RowActionButtonInterface[] = [
       { 
         icon: pencil,
-        action: async (row) => {
+        action: async (row: any) => {
           const updatedUser = await modal.show(UserModalVue, { user: row })
           if(isEmpty(updatedUser)) return
           Object.assign(row, toSummaryDetails(updatedUser))
@@ -58,8 +58,8 @@ export default defineComponent({
       {
         color: "danger",
         icon: personRemove,
-        condition: (row) => row.deactivated_on === null,
-        action: async (row, i) => {
+        condition: (row: any) => row.deactivated_on === null,
+        action: async (row: any) => {
           if(!(await alertConfirmation("Are you sure you want to deactivate this user?"))) return
           try {
             const { user } = await UserService.deactivateUser(row['user_id'])
@@ -73,8 +73,8 @@ export default defineComponent({
       {
         color: "warning",
         icon: personAdd,
-        condition: (row) => row.deactivated_on !== null,
-        action: async (row, i) => {
+        condition: (row: any) => row.deactivated_on !== null,
+        action: async (row: any) => {
           try {
             await UserService.activateUser(row['user_id'])
             row["deactivated_on"] = null
