@@ -11,7 +11,8 @@ export interface DescriptionInterface {
 export interface GuideLineInterface {
     title?: string;
     concept?: string;
-    priority: number;
+    weight?: number;
+    priority?: number;
     conditions: Record<string, Function>;
     actions?: Record<string, any>; //TODO: should <key, Function>
     data?: Record<string, any>;
@@ -50,8 +51,17 @@ function isCondition(facts: Record<string, any>, conditions: Record<string, Func
  * @param findings 
  * @returns 
  */
-function sortByRelevance(findings: Array<GuideLineInterface>) {
-    return findings.sort((a, b) => a.priority < b.priority ? -1 : 1)
+function sortByPriority(findings: GuideLineInterface[]) {
+    return findings.sort((a, b) => (a.priority && b.priority) && a.priority < b.priority ? -1 : 1)
+}
+
+function sortByWeight(findings: GuideLineInterface[]) {
+    return findings.sort((a, b) => (a.weight && b.weight) && a.weight > b.weight ? -1 : 1)
+}
+
+export function logFindingsByWeight(guidelines: Record<string, GuideLineInterface>) {
+    const findings: any = Object.keys(guidelines).map(i => ({ name: i, weight: guidelines[i].weight}))
+    console.log(sortByWeight(findings).map((i: any) => `${i.weight} -> ${i.name}`))
 }
 
 /**
@@ -66,12 +76,11 @@ export function matchToGuidelines(
     facts: Record<string, any>, 
     guidelines: Record<string, GuideLineInterface>,
     target='', 
-    targetEvent=''): Array<GuideLineInterface> {
-
+    targetEvent='',
+    sortBy='priority' as 'priority' | 'weight'): Array<GuideLineInterface> {
     const matches = []
     for(const guidelineIndex in guidelines) {
         const data: GuideLineInterface = guidelines[guidelineIndex]
- 
         const targetValidations = [
             (data.target && target && data.target != target),
             (data.targetEvent && targetEvent 
@@ -90,5 +99,5 @@ export function matchToGuidelines(
             matches.push(data)
         }
     }
-    return sortByRelevance(matches)
+    return sortBy === 'priority' ? sortByPriority(matches) : sortByWeight(matches)
 }

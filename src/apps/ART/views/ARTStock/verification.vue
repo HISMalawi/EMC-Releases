@@ -39,7 +39,7 @@ export default defineComponent({
                 "current_quantity": element['current_quantity'],
                 "reason": formData.reason.value
             };
-            const f = await this.stockService.updateItem(element['pharmacy_batch_id'], vals)
+            const f = await this.stockService.updateItem(element['id'], vals)
             if(!f) {
               errors.push('could not stock for ' + items[index].shortName);
             }

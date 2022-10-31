@@ -1,13 +1,13 @@
 import { Role } from "@/interfaces/role"
 import ApiClient from "./api_client"
 import HisDate from "@/utils/Date"
-import { __MIN_API_VERSION__ } from "@/MasterConfig"
+import PACK_CONF from "../../package.json"
 
 export class InvalidAPIVersionError extends Error {
     message: string
     constructor(version: string) {
         super()
-        this.message = `Your current API Version of "${version}" does not meet "${__MIN_API_VERSION__}". Contact administrator to update your API Version`
+        this.message = `Your current API Version of "${version}" does not meet "${PACK_CONF['min-api-version']}". Contact administrator to update your API Version`
     }
 }
 
@@ -64,7 +64,7 @@ export class AuthService {
             this.userID = user.user_id
             this.sessionDate = await this.getSystemDate()
             this.systemVersion = await this.getApiVersion()
-            this.coreVersion = await this.getHeadVersion()
+            this.coreVersion = this.getHeadVersion()
         } else {
             throw 'Unable to login'
         }
@@ -101,7 +101,7 @@ export class AuthService {
             .split('.')
             .map(v => parseInt(v || '0'))
         const [curMajor, curMinor, curPatch] = toVersionArr(apiVersion)
-        const [minMajor, minMinor, minPatch] = toVersionArr(__MIN_API_VERSION__)
+        const [minMajor, minMinor, minPatch] = toVersionArr(PACK_CONF['min-api-version'])
         if (curMajor >= minMajor && curMinor >= minMinor && curPatch >= minPatch) { 
             return true
         }
@@ -139,18 +139,8 @@ export class AuthService {
         return localStorage.getItem(AuthVariable.CORE_VERSION)
     }
 
-    async getHeadVersion(): Promise<string> {
-        const req = async (file: string) => {
-            try {
-                const res = await (await fetch(file, { method: 'GET' }))?.text()
-                return res && res.length <= 25 ? res : '-'
-            } catch (e) {
-                console.error(`${e}`)
-            }
-            return '-'
-        } 
-        const version = await req('HEAD')
-        return version != '-' ? version : (await req('HEAD.txt')) 
+    getHeadVersion(): string {
+        return PACK_CONF['version']
     }
 
     cachingIsEnabled() {
