@@ -1306,7 +1306,7 @@ export default defineComponent({
           }),
           options: (f: any) => {
             let options: string[] = []
-            if(!/yes/i.test(f.on_tb_treatment.value)) {
+            if(/no/i.test(f.on_tb_treatment.value)) {
               options = [
                 "Currently on IPT",
                 "Currently on 3HP (RFP + INH)",
