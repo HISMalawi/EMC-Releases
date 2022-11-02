@@ -14,7 +14,7 @@
 import { defineComponent, ref } from "vue";
 import { loader } from "@/utils/loader";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
-import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
+import { TableColumnInterface } from "@uniquedj95/vtable";
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
 import dayjs from "dayjs";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";

@@ -15,7 +15,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
-import { ActionButtonInterface, RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
+import { ActionButtonInterface, RowActionButtonInterface, TableColumnInterface } from '@uniquedj95/vtable';
 import { UserService } from "@/services/user_service";
 import get from "lodash/get";
 import { alertConfirmation, toastSuccess, toastWarning } from "@/utils/Alerts";

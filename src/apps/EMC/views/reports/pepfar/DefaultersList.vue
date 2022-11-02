@@ -16,7 +16,7 @@ import { defineComponent, ref } from "vue";
 import { loader } from "@/utils/loader";
 import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
-import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
+import { RowActionButtonInterface, TableColumnInterface } from "@uniquedj95/vtable";
 import { DefaulterReportService } from "@/apps/ART/services/reports/defaulters_report_service";
 import HisDate from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";

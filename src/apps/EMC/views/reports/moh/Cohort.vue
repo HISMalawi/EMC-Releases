@@ -55,7 +55,7 @@ import { toCsv } from "@/utils/Export";
 import { Service } from "@/services/service";
 import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
 import { DTFormField } from "@/apps/EMC/interfaces/dt_form_field";
-import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
+import { RowActionButtonInterface, TableColumnInterface } from "@uniquedj95/vtable";
 import HisDate from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";

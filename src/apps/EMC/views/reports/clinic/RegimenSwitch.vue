@@ -14,7 +14,7 @@
 import { defineComponent, ref } from "vue";
 import { loader } from "@/utils/loader";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
-import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
+import { TableColumnInterface } from "@uniquedj95/vtable";
 import { RegimenReportService } from "@/apps/ART/services/reports/regimen_report_service";
 import { toGenderString } from "@/utils/Strs";
 import HisDate from "@/utils/Date";

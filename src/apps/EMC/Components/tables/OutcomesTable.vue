@@ -12,13 +12,9 @@
 <script lang="ts">
 import { computed, defineComponent, PropType } from "vue";
 import { alertConfirmation } from "@/utils/Alerts";
-import DataTable, { 
-  RowActionButtonInterface, 
-  TableColumnInterface, 
-  TableConfigInterface 
-} from "../datatable";
 import dayjs from "dayjs";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import { DataTable, RowActionButtonInterface, TableColumnInterface, TableConfigInterface } from '@uniquedj95/vtable'
 
 export default defineComponent({
   name: "OutcomesTable",

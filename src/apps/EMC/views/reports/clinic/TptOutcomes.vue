@@ -16,7 +16,7 @@
 import { defineComponent, ref } from "vue";
 import { loader } from "@/utils/loader";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
-import { TableColumnInterface } from "@/apps/EMC/Components/datatable";
+import { TableColumnInterface } from "@uniquedj95/vtable";
 import { ClinicReportService } from "@/apps/ART/services/reports/clinic_report_service";
 import { Patientservice } from "@/services/patient_service";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";

@@ -50,7 +50,7 @@ import { genderOptions } from "../utils/DTFormElements";
 import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
 import { DTFormField } from "../interfaces/dt_form_field";
 import { loader } from "@/utils/loader";
-import DataTable, { RowActionButtonInterface, TableColumnInterface, TableConfigInterface } from "../Components/datatable";
+import { DataTable, RowActionButtonInterface, TableColumnInterface, TableConfigInterface } from '@uniquedj95/vtable';
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";

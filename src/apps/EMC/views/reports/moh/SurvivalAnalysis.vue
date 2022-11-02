@@ -16,7 +16,7 @@
 import { computed, defineComponent, reactive, ref } from "vue";
 import { loader } from "@/utils/loader";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
-import { CustomFilterInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
+import { CustomFilterInterface, TableColumnInterface } from "@uniquedj95/vtable";
 import { AGE_GROUP, SurvivalAnalysisReportService } from "@/apps/ART/services/reports/survival_analysis_report_service";
 import { get, isEmpty } from "lodash";
 import { Option } from "@/components/Forms/FieldInterface";

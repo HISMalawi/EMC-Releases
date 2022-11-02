@@ -17,18 +17,17 @@ import { defineComponent, reactive, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
 import LineChart from "@/apps/EMC/Components/charts/LineChart.vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
-import { range, uniq } from "lodash";
+import { uniq } from "lodash";
 import DateRangePicker, { DateRange } from "@/apps/EMC/Components/inputs/DateRangePicker.vue";
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
 import { loader } from "@/utils/loader";
-import { RowActionButtonInterface, TableColumnInterface } from "../../Components/datatable";
+import { RowActionButtonInterface, TableColumnInterface } from "@uniquedj95/vtable";
 import { Patientservice } from "@/services/patient_service";
 import { modal } from "@/utils/modal";
 import DrilldownTableVue from "../../Components/tables/DrilldownTable.vue";
 import { useRouter } from "vue-router";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
-import { options } from "ionicons/icons";
 import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
@@ -128,7 +127,7 @@ export default defineComponent({
         const sIndex = seriesIndex <= 0 ? 0 : seriesIndex
         const columns: TableColumnInterface[] = [
           { path: "arv_number", label: "ARV Number", initialSort: true, initialSortOrder: 'asc' },
-          { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
+          { path: "birthdate", label: "Date of Birth", formatter: (v: string) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
           { path: "gender", label: "Gender", formatter: toGenderString },
           { path: "address", label: "Address" }
         ]
@@ -148,7 +147,7 @@ export default defineComponent({
         const rowActionButtons: RowActionButtonInterface[] = [{ 
           label: "Select", 
           default: true, 
-          action: (row) => {
+          action: (row: any) => {
             router.push(`/emc/patient/${row['person_id']}`)
           } 
         }]

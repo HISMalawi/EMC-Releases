@@ -16,7 +16,7 @@
 import { computed, defineComponent, ref } from "vue";
 import { loader } from "@/utils/loader";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
-import { CustomFilterInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
+import { CustomFilterInterface, TableColumnInterface } from "@uniquedj95/vtable";
 import { REGIMENS } from "@/apps/ART/services/reports/regimen_report_service";
 import { ViralLoadReportService } from "@/apps/ART/services/reports/viral_load_report";
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";

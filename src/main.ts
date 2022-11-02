@@ -27,6 +27,7 @@ import '@/css/his-keyboard.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import '@uniquedj95/vtable/dist/lib/datatable.css'
 
 const app = createApp(App)
   .use(IonicVue)

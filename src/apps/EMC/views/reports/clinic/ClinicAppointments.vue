@@ -17,7 +17,7 @@ import { PatientReportService } from "@/apps/ART/services/reports/patient_report
 import { loader } from "@/utils/loader";
 import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
-import { RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
+import { RowActionButtonInterface, TableColumnInterface } from "@uniquedj95/vtable";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
 import { toGenderString } from "@/utils/Strs";

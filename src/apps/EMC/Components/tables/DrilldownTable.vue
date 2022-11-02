@@ -32,7 +32,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { IonButton, IonPage, IonHeader, IonToolbar, IonContent, IonButtons, IonFooter, IonTitle, IonIcon } from "@ionic/vue";
-import DataTable, { ActionButtonInterface, TableColumnInterface, RowActionButtonInterface } from "@/apps/EMC/Components/datatable";
+import { DataTable, ActionButtonInterface, TableColumnInterface, RowActionButtonInterface } from "@uniquedj95/vtable";
 import { close } from "ionicons/icons";
 import { modal } from "@/utils/modal";
 

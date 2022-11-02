@@ -18,7 +18,7 @@ import { computed, defineComponent, reactive, ref } from "vue";
 import { loader } from "@/utils/loader";
 import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
-import { CustomFilterInterface, RowActionButtonInterface, TableColumnInterface } from "@/apps/EMC/Components/datatable";
+import { CustomFilterInterface, RowActionButtonInterface, TableColumnInterface } from "@uniquedj95/vtable";
 import { FORMULATIONS, RegimenReportService, REGIMENS } from "@/apps/ART/services/reports/regimen_report_service";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
