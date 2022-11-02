@@ -10,12 +10,14 @@ export default function useBarcode() {
       reactToPaste: true,
       minLength: 1,
       onScan: function (sCode: string) {
-        const rawBarcode= keyBuffer.value.join('').replaceAll(/\$/gi, '');
-        barcode.value = rawBarcode.includes("-")
-          ? rawBarcode 
-          : sCode.replaceAll(/\$/gi, '');
-
-        keyBuffer.value = [];
+        if(keyBuffer.value.length) {
+          if(keyBuffer.value.includes('$')) {
+            barcode.value = keyBuffer.value.join('').replaceAll(/\$/gi, '');
+            keyBuffer.value = [];
+          }
+          return
+        }
+        barcode.value = sCode.replaceAll(/\$/gi, '');
       },
       onScanError(debug) {
         console.log("onScanError: " + JSON.stringify(debug));
