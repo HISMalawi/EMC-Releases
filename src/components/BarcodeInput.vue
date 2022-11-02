@@ -9,18 +9,18 @@
         id="barcode-inputbox" 
         placeholder="Scan barcode or QR Code"
         v-model="barcodeText"
+        :autofocus="true"
       />
     </ion-col>
   </ion-row>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from 'vue';
+import { defineComponent, watch } from 'vue';
 import {IonCol,IonRow} from "@ionic/vue";
 import handleVirtualInput from "@/components/Keyboard/KbHandler"
-import usePlatform, { ScannerType, KeyboardType } from '@/composables/usePlatform';
+import usePlatform, { KeyboardType } from '@/composables/usePlatform';
 import useBarcode from '@/composables/useBarcode';
-import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'BarcodeInput',
@@ -31,19 +31,11 @@ export default defineComponent({
   props: ['clearValue', 'virtualText'],
   emits: ['onScan', 'onValue'],
   setup(_props, { emit }) {
-    const router = useRouter();
     const { activePlatformProfile } = usePlatform()
-
     const barcode =  useBarcode()
-
-    watch(barcode, (newValue) => {
-      if (newValue) {
-        emit('onScan', newValue)
-        emit('onValue', newValue)
-      }
-    })
     
     return  {
+      barcode,
       KeyboardType,
       activePlatformProfile,
     }
@@ -56,6 +48,7 @@ export default defineComponent({
       if(this.barcodeText.match(/.+\$$/i) != null){
         const text = this.barcodeText.replace(/\$/ig, '');
         this.$emit('onScan', text)
+        this.$emit('onValue', text)
         this.barcodeText = ''
       }
     }
@@ -67,11 +60,13 @@ export default defineComponent({
     virtualText(val) {
       this.barcodeText = handleVirtualInput(val, this.barcodeText)
     },
-    barcodeText: function(text) {
-      if (text) {
-        this.checkForbarcode();
-        this.$emit('onValue', text)
+    barcode(code) {
+      if(this.barcodeText) {
+        this.checkForbarcode()
+        return
       }
+      this.$emit('onScan', code)
+      this.$emit('onValue', code)
     }
   }
 });
