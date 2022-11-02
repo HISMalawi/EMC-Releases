@@ -5,6 +5,7 @@ import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { AncLabResultService } from "@/apps/ANC/Services/anc_lab_result_service"
 import { AncSocialHistoryService } from "@/apps/ANC/Services/anc_social_history_service"
 import router from "@/router";
+import { PatientProgramService } from "@/services/patient_program_service";
 
 /**
  * Callback method for Encounters that integrate with ART system
@@ -18,6 +19,8 @@ async function onPMTCTworkflowTask(params: any) {
             const enc = new PatientTypeService(params.patientID, -1);
             await enc.createEncounter()
             await enc.savePatientType('New patient')
+            const art = new PatientProgramService(params.patientID)
+            await art.enrollProgram()
         })
     } else {
         params.router.push('/patient/dashboard/'+params.patientID)

@@ -50,7 +50,7 @@ export default defineComponent({
         try {
           if (formData.task.value === "Relocations") {
             extras["location_id"] = formData.relocation_location.value;
-            const f = await this.stockService.relocateItems(d.pharmacy_batch_id, {
+            const f = await this.stockService.relocateItems(d.id, {
               ...res,
               ...extras,
             });
@@ -60,7 +60,7 @@ export default defineComponent({
               );
             }
           } else {
-            const f = await this.stockService.disposeItems(d.pharmacy_batch_id, {
+            const f = await this.stockService.disposeItems(d.id, {
               ...res,
               ...extras,
             });
@@ -198,7 +198,7 @@ export default defineComponent({
       const isRelocation = formData.task.value === 'Relocations'
       const columns = [
         "Drug",
-        "Total units",
+        "Total Tins",
         "Expiry date",
         "Authorization code",
       ];
@@ -210,7 +210,7 @@ export default defineComponent({
         const data = [
           StockService.getShortName(d.drug_id),
           d.tins,
-          HisDate.toStandardHisDisplayFormat(d.expiry),
+          HisDate.toStandardHisDisplayFormat(d.expiry_date),
           formData.authorization.value.toUpperCase()
         ]
         if (isRelocation) data.push(formData.relocation_location.label)

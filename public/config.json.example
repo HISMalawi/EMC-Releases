@@ -1,5 +1,5 @@
 {
-	"apiURL": "0.0.0.0",
+	"apiURL": "localhost",
 	"apiPort": "3000",
 	"apiProtocol": "http",
 	"isPocSite": false,
@@ -43,5 +43,5 @@
 			"applicationDescription": "Picture archieving system",
 			"comment": "redirecting to pacs image viewer; used in OPD"
 		}
-	]
+	}
 }

@@ -121,7 +121,7 @@ export default defineComponent({
                     maxAge = 0
                 } else if (group === '90 plus years') {
                     minAge = 90
-                    maxAge = 1000
+                    maxAge = 10000
                 } else {
                     const [min, max] = group.split('-')
                     minAge = parseInt(min)

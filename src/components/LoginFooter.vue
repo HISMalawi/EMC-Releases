@@ -5,26 +5,28 @@
       <img id="coat" :src="coatImg" alt="Malawi Coat of Arms logo" />
       <img id="pepfar" :src="pepfarImg" alt="PEPFAR logo" />
     </span>
-
-    <ion-item slot="end" color="primary" size="large" v-if="isPocSite">
-      <ion-label>Select Platform: </ion-label>
-      <ion-select :value="platform" v-model="platform" >
-        <ion-select-option
-          v-for="(device, index) in platformOptions"
-          :key="index"
-          :value="device"
-        >
-          {{ device }}
-        </ion-select-option>
-      </ion-select>
+    <ion-item class="his-sm-text" style="width:45%" slot="end" lines="none"> 
+      <template v-if="isPocSite">
+        <ion-label>Device Profile</ion-label>
+        <ion-select v-model="profile" :value="profile"> 
+          <ion-select-option
+            v-for="(p, index) in deviceProfiles" 
+            :key="index"
+            :value="p.label"
+          > 
+            {{ p.label }}
+          </ion-select-option>
+        </ion-select>
+      </template>
+      <ion-button
+        color="dark"
+        fill="outline"
+        size="large"
+        slot="end"
+        :router-link="settingsUrl">
+        Network
+      </ion-button>
     </ion-item>
-    <ion-button
-      slot="end"
-      :router-link="settingsUrl"
-      v-if="showConfigBtn"
-    >
-      Configuration
-    </ion-button>
   </ion-toolbar>
 </ion-footer>
 </template>
@@ -34,6 +36,7 @@ import usePlatform from '@/composables/usePlatform'
 import img from '@/utils/Img'
 import { computed, defineComponent, ref, watch } from 'vue'
 import { IonFooter, IonToolbar, IonButton, IonSelect, IonSelectOption, IonItem, IonLabel } from "@ionic/vue";
+import { find } from 'lodash';
 
 export default defineComponent({
   name: "LoginFooter",
@@ -56,26 +59,24 @@ export default defineComponent({
       default: true,
     }
   },
-  setup() {
-    const { platformType, setPlatformType } = usePlatform()
-    const platform = ref(platformType.value || "Platform")
-    const settingsUrl = computed(() => platformType.value === "desktop" ?
-      "/settings/network_settings" : "/settings/host"
-    )
-    const platformOptions = ref([
-      "mobile", "desktop"
-    ])
+  setup(props) {
+    const settingsUrl = computed(() => props.isPocSite ? "/settings/host" : "/settings/network_settings")
+    const { activePlatformProfile, platformProfiles } = usePlatform()
+    const profile = ref(activePlatformProfile.value.profileName || "")
+    const deviceProfiles: any = Object.keys(platformProfiles.value).map(key => ({
+      label: key,
+      value: { profileName: key, ...platformProfiles.value[key] },
+    }))
 
-    watch(platform, (p) => {
-      if (["mobile", "desktop"].includes(p))
-        setPlatformType(p as "mobile" | "desktop");
-    });
+    watch(profile, (v: string) => {
+      activePlatformProfile.value = (find(deviceProfiles, { label: v }) || {}).value
+    })
 
     return {
       coatImg: img("login-logos/Malawi-Coat_of_arms_of_arms.png"),
       pepfarImg: img("login-logos/PEPFAR.png"),
-      platformOptions,
-      platform,
+      deviceProfiles,
+      profile,
       settingsUrl,
     }
   },

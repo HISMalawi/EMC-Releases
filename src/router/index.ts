@@ -131,6 +131,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/HostConfig.vue')
   },
   {
+    path: '/settings/printer',
+    name: 'Printer settings',
+    component: () => import('@/views/PrinterSettings.vue')
+  },
+  {
     path: '/lab/results/:patient_id',
     name: 'Lab Results',
     component: () => import('@/views/LabResults.vue')

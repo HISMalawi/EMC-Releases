@@ -20,7 +20,17 @@ const ApiClient = (() => {
             throw 'Unable to retrieve configuration file/ Invalid config.json'
         }
         try {
-            const { apiURL, apiPort, apiProtocol, appConf, apps, thirdpartyApps, isPocSite, defaultApp } = await response.json()
+            const { 
+                apiURL, 
+                apiPort, 
+                apiProtocol, 
+                appConf, 
+                apps, 
+                thirdpartyApps,
+                isPocSite, 
+                defaultApp,
+                platformProfiles 
+            } = await response.json()
             sessionStorage.setItem("apiURL", apiURL);
             sessionStorage.setItem("apiPort", apiPort);
             sessionStorage.setItem("apiProtocol", apiProtocol);
@@ -29,6 +39,7 @@ const ApiClient = (() => {
             sessionStorage.setItem("thirdpartyApps", JSON.stringify(thirdpartyApps))
             sessionStorage.setItem("isPocSite", isPocSite)
             sessionStorage.setItem("defaultApp", defaultApp)
+            sessionStorage.setItem("platformProfiles", JSON.stringify(platformProfiles))
             return {
                 host: apiURL,
                 port: apiPort,

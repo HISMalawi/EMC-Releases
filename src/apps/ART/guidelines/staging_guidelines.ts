@@ -273,11 +273,11 @@ export const CHILD_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
         }
     },
     "Children under twelve who tested positive via HIV DNA Polymerase Chain Reaction test": {
-        concept: 'HIV DNA POLYMERASE CHAIN REACTION',
+        concept: 'HIV DNA polymerase chain reaction',
         priority: 4,
         conditions: {
             ageInMonths: (age: number) => age < 12,
-            testType: (testType: string) => testType === "HIV DNA POLYMERASE CHAIN REACTION",
+            testType: (testType: string) => testType === "HIV DNA polymerase chain reaction",
         }
     },
     "Children who are less than 24 months": {

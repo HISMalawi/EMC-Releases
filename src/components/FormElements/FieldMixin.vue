@@ -3,12 +3,6 @@ import { isPlatform } from '@ionic/core'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    data: () => ({
-        isReadyOnly: false as boolean
-    }),
-    created() {
-        this.isReadyOnly = !isPlatform('desktop')
-    },
     emits: [
         'onValue',
         'onFieldActivated'

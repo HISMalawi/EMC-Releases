@@ -87,7 +87,7 @@
 import { computed, defineComponent } from 'vue';
 import { LOGIN_KEYBOARD } from "@/components/Keyboard/KbLayouts"
 import LoginFooter from "@/components/LoginFooter.vue";
-import usePlatform from "@/composables/usePlatform";
+import usePlatform, { KeyboardType } from "@/composables/usePlatform";
 import { 
   IonContent,
   IonHeader,
@@ -130,7 +130,6 @@ export default defineComponent({
         id: "",
       },
       display: "none",
-      keyboardLeft: "",
       keyboardTop: "",
       btnCaption: "",
       Caps: {
@@ -142,7 +141,7 @@ export default defineComponent({
   setup() {
     return {
       useVirtualInput: computed(() => {
-        return usePlatform().platformType.value === 'mobile'
+        return usePlatform().activePlatformProfile.value.keyboard === KeyboardType.HIS_KEYBOARD_ONLY
       })
     }
   },
@@ -154,12 +153,9 @@ export default defineComponent({
         ? (this.btnCaption = "Login")
         : (this.btnCaption = "Next");
 
-      const main = document.getElementsByClassName("main")[0];
-      const width = main.getBoundingClientRect().width;
       let inputPos = e.currentTarget.getBoundingClientRect().top;
       inputPos = parseInt(inputPos);
 
-      this.keyboardLeft = width / 2 - 447 + "px;";
       this.keyboardTop = inputPos + 20 + "px;";
       this.display = "table";
       window.scrollTo(0,9999);
@@ -215,7 +211,7 @@ export default defineComponent({
   },
   computed: {
     btnStyles(): string {
-      return `display: ${this.display}; top: ${this.keyboardTop}`;
+      return `display: ${this.display}; top: ${this.keyboardTop};`;
     },
   },
 });
@@ -248,16 +244,13 @@ export default defineComponent({
   text-align: center;
   position: absolute;
   background-color: white;
-  width: 56%;
-  margin: auto;
-  background-color: rgba(255, 255, 255, 0.9);
+  width: 100%;
   border: 1px solid rgb(204, 204, 204);
   word-wrap: normal !important;
-  left: 0; 
-  right: 0; 
-  margin-left: auto; 
-  margin-right: auto; 
+  margin: 0 auto;
   max-width: 300px;
+  left: 0; 
+  right: 0;
 }
 
 .rows {

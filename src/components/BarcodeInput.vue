@@ -5,20 +5,22 @@
     </ion-col>
     <ion-col size="10">
       <input 
-        :readonly="useVirtualInput" 
-        ref="barcode" 
+        :readonly="activePlatformProfile.keyboard === KeyboardType.HIS_KEYBOARD_ONLY" 
         id="barcode-inputbox" 
+        placeholder="Scan barcode or QR Code"
         v-model="barcodeText"
       />
     </ion-col>
   </ion-row>
 </template>
 
-<script>
-import { defineComponent, ref } from 'vue';
+<script lang="ts">
+import { computed, defineComponent, ref, watch } from 'vue';
 import {IonCol,IonRow} from "@ionic/vue";
 import handleVirtualInput from "@/components/Keyboard/KbHandler"
-import usePlatform from '@/composables/usePlatform';
+import usePlatform, { ScannerType, KeyboardType } from '@/composables/usePlatform';
+import useBarcode from '@/composables/useBarcode';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'BarcodeInput',
@@ -27,21 +29,23 @@ export default defineComponent({
     IonCol,
   },
   props: ['clearValue', 'virtualText'],
-  setup() {
-    const barcode = ref(null)
-    const { useVirtualInput, platformType } = usePlatform()
-    if (platformType.value === 'desktop') {
-      setInterval(() => {
-        try {
-          barcode.value.focus()
-        } catch(e) {
-          //No focus
-        }
-      }, 1500)
-    }
+  emits: ['onScan', 'onValue'],
+  setup(_props, { emit }) {
+    const router = useRouter();
+    const { activePlatformProfile } = usePlatform()
+
+    const barcode =  useBarcode()
+
+    watch(barcode, (newValue) => {
+      if (newValue) {
+        emit('onScan', newValue)
+        emit('onValue', newValue)
+      }
+    })
+    
     return  {
-      barcode,
-      useVirtualInput
+      KeyboardType,
+      activePlatformProfile,
     }
   },
   data: () => ({
