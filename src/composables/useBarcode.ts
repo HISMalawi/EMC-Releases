@@ -23,7 +23,7 @@ export default function useBarcode() {
         console.log("onScanError: " + JSON.stringify(debug));
       },
       onKeyDetect(keyCode, event) {
-        if(event.key.match(/backspace/i)) {
+        if(event.key.match(/backspace/i) && keyBuffer.value.length) {
           keyBuffer.value.pop();
           return
         }
