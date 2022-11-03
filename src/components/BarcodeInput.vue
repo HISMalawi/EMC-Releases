@@ -66,8 +66,8 @@ export default defineComponent({
       typedBarcode,
       KeyboardType,
       activePlatformProfile,
-      iconSize: computed(() => props.size === 'small' ? 3 : 1),
-      inputSize: computed(() => props.size === 'small' ? 9 : 11),
+      iconSize: computed(() => props.size === 'small' ? 3 : 2),
+      inputSize: computed(() => props.size === 'small' ? 9 : 10),
       useCameraScanner,
     }
   },
@@ -79,12 +79,13 @@ input:focus {
   border-color: #719ECE;
 }
 #barcode-img {
-  height: 80%;
+  max-height: 10vh !important;
+  width: 100% !important;
 }
 #barcode-inputbox {
   font-weight: bold;
-  padding: 5px;
-  font-size: 22px;
+  margin-top: .2em;
+  font-size: var(--his-lg-text);
   border-style: solid;
   border-width: 0px 0px 1px 0px;
   border-color: #ccc;
