@@ -1,7 +1,7 @@
 <template>
   <ion-grid>
     <ion-row>
-      <ion-col :size="iconSize" >
+      <ion-col :size="iconSize" @click="useCameraScanner">
         <img id="barcode-img" src="/assets/images/barcode.svg"/>
       </ion-col>
       <ion-col :size="inputSize">
@@ -21,6 +21,7 @@ import { computed, defineComponent, PropType, ref, watch } from 'vue';
 import {IonCol,IonGrid,IonRow} from "@ionic/vue";
 import usePlatform, { KeyboardType } from '@/composables/usePlatform';
 import useBarcode from '@/composables/useBarcode';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 
 export default defineComponent({
   name: 'BarcodeInput',
@@ -39,6 +40,16 @@ export default defineComponent({
     const scannedBarcode =  useBarcode()
     const typedBarcode = ref('')
 
+    const useCameraScanner = () => {
+      try {
+        BarcodeScanner.scan().then(data => {
+          scannedBarcode.value = data.text
+        })
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
     watch(() => props.clearValue, () => typedBarcode.value = '')
     watch(() => props.virtualText, (v) => typedBarcode.value = v || '')
     watch(scannedBarcode, (scannedCode) => {
@@ -56,7 +67,8 @@ export default defineComponent({
       KeyboardType,
       activePlatformProfile,
       iconSize: computed(() => props.size === 'small' ? 3 : 1),
-      inputSize: computed(() => props.size === 'small' ? 9 : 11)
+      inputSize: computed(() => props.size === 'small' ? 9 : 11),
+      useCameraScanner,
     }
   },
 });

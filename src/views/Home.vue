@@ -179,6 +179,10 @@ import { alertConfirmation } from "@/utils/Alerts";
 import { useRouter } from "vue-router";
 import Store from "@/composables/ApiStore"
 import BarcodeInput from "@/components/BarcodeInput.vue";
+import { Patientservice } from "@/services/patient_service";
+import { MALAWI_NATIONAL_ID_TYPE } from "@/constants";
+import { isEmpty } from "lodash";
+import { parseMalawiNationalIDQRCode } from "@/utils/scanner";
 
 export default defineComponent({
   name: "Home",
@@ -207,7 +211,16 @@ export default defineComponent({
     const router = useRouter();
     const { activePlatformProfile } = usePlatform()
 
-    const onBarcode = (code: string) => {
+    const onBarcode = async (code: string) => {
+      if (code.length > 30 && (await Store.get('IS_MW_NATIONAL_ID_SCANNER_ENABLED'))) {
+        const nid = parseMalawiNationalIDQRCode(code)
+        if(!nid) return
+        const patient = await Patientservice.findByOtherID(MALAWI_NATIONAL_ID_TYPE, nid.malawiNationalID)
+        if (isEmpty(patient)) {
+          return router.push({ path: "/patient/registration", query: nid })
+        }
+        router.push({ path: "/patients/confirm", query: {'person_id': patient[0]['patient_id']}})
+      }
       if (code.length > 4) {
         router.push('/patients/confirm?patient_barcode='+code);
       }
@@ -253,9 +266,6 @@ export default defineComponent({
     };
   },
   computed: {
-    barcodeLogo(): string {
-      return Img('barcode.svg')
-    },
     appOverview(): any {
       return this.app.homeOverviewComponent
     },
@@ -332,11 +342,6 @@ export default defineComponent({
       }
       auth.clearSession()
     },
-    openCamera(){
-      if(this.activePlatformProfile.scanner === 'CAMERA_SCANNER') {
-        this.$router.push('/camera_scanner')
-      }
-    }
   },
   async created() {
     this.activeTab = await Store.get('ACTIVE_HOME_TAB')
