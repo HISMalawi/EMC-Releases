@@ -1,7 +1,7 @@
 <template>
   <ion-grid>
     <ion-row>
-      <ion-col :size="iconSize">
+      <ion-col :size="iconSize" >
         <img id="barcode-img" src="/assets/images/barcode.svg"/>
       </ion-col>
       <ion-col :size="inputSize">
@@ -9,7 +9,7 @@
           :readonly="activePlatformProfile.keyboard === KeyboardType.HIS_KEYBOARD_ONLY" 
           id="barcode-inputbox" 
           placeholder="Scan barcode or QR Code"
-          v-model="barcodeText"
+          v-model="typedBarcode"
         />
       </ion-col>
     </ion-row>
@@ -17,17 +17,14 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType } from 'vue';
-import {IonCol,IonRow} from "@ionic/vue";
+import { computed, defineComponent, PropType, ref, watch } from 'vue';
+import {IonCol,IonGrid,IonRow} from "@ionic/vue";
 import usePlatform, { KeyboardType } from '@/composables/usePlatform';
 import useBarcode from '@/composables/useBarcode';
 
 export default defineComponent({
   name: 'BarcodeInput',
-  components: {
-    IonRow,
-    IonCol,
-  },
+  components: { IonRow,  IonCol, IonGrid },
   props: {
     clearValue: String, 
     virtualText: String,
@@ -37,46 +34,31 @@ export default defineComponent({
     }
   },
   emits: ['onScan', 'onValue'],
-  setup(props) {
+  setup(props, { emit }) {
     const { activePlatformProfile } = usePlatform()
-    const barcode =  useBarcode()
+    const scannedBarcode =  useBarcode()
+    const typedBarcode = ref('')
+
+    watch(() => props.clearValue, () => typedBarcode.value = '')
+    watch(() => props.virtualText, (v) => typedBarcode.value = v || '')
+    watch(scannedBarcode, (scannedCode) => {
+      if(typedBarcode.value && !typedBarcode.value.match(/.+\$$/i)) return
+      const finalCode = typedBarcode.value 
+        ? typedBarcode.value.replace(/\$/ig, '')
+        : scannedCode
+
+      emit("onScan", finalCode)
+      emit("onValue", finalCode)
+      typedBarcode.value = ''
+    })
     return  {
-      barcode,
+      typedBarcode,
       KeyboardType,
       activePlatformProfile,
       iconSize: computed(() => props.size === 'small' ? 3 : 1),
       inputSize: computed(() => props.size === 'small' ? 9 : 11)
     }
   },
-  data: () => ({
-    barcodeText: '',
-  }),
-  methods: {
-    checkForbarcode(){
-      if(this.barcodeText.match(/.+\$$/i) != null){
-        const text = this.barcodeText.replace(/\$/ig, '');
-        this.$emit('onScan', text)
-        this.$emit('onValue', text)
-        this.barcodeText = ''
-      }
-    }
-  },
-  watch: {
-    clearValue() {
-      this.barcodeText = ''
-    },
-    virtualText(val) {
-      this.barcodeText = val
-    },
-    barcode(code) {
-      if(this.barcodeText) {
-        this.checkForbarcode()
-        return
-      }
-      this.$emit('onScan', code)
-      this.$emit('onValue', code)
-    }
-  }
 });
 </script>
 <style scoped>
