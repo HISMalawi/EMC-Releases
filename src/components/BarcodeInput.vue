@@ -1,24 +1,24 @@
 <template>
-  <ion-row>
-    <ion-col size="2">
-      <img id="barcode-img" src="/assets/images/barcode.svg"/>
-    </ion-col>
-    <ion-col size="10">
-      <input 
-        :readonly="activePlatformProfile.keyboard === KeyboardType.HIS_KEYBOARD_ONLY" 
-        id="barcode-inputbox" 
-        placeholder="Scan barcode or QR Code"
-        v-model="barcodeText"
-        :autofocus="true"
-      />
-    </ion-col>
-  </ion-row>
+  <ion-grid>
+    <ion-row>
+      <ion-col :size="iconSize">
+        <img id="barcode-img" src="/assets/images/barcode.svg"/>
+      </ion-col>
+      <ion-col :size="inputSize">
+        <input 
+          :readonly="activePlatformProfile.keyboard === KeyboardType.HIS_KEYBOARD_ONLY" 
+          id="barcode-inputbox" 
+          placeholder="Scan barcode or QR Code"
+          v-model="barcodeText"
+        />
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </template>
 
 <script lang="ts">
-import { defineComponent, watch } from 'vue';
+import { computed, defineComponent, PropType } from 'vue';
 import {IonCol,IonRow} from "@ionic/vue";
-import handleVirtualInput from "@/components/Keyboard/KbHandler"
 import usePlatform, { KeyboardType } from '@/composables/usePlatform';
 import useBarcode from '@/composables/useBarcode';
 
@@ -28,16 +28,24 @@ export default defineComponent({
     IonRow,
     IonCol,
   },
-  props: ['clearValue', 'virtualText'],
+  props: {
+    clearValue: String, 
+    virtualText: String,
+    size: {
+      type: String as PropType<"small" | "medium" | "Large">,
+      default: "large"
+    }
+  },
   emits: ['onScan', 'onValue'],
-  setup(_props, { emit }) {
+  setup(props) {
     const { activePlatformProfile } = usePlatform()
     const barcode =  useBarcode()
-    
     return  {
       barcode,
       KeyboardType,
       activePlatformProfile,
+      iconSize: computed(() => props.size === 'small' ? 3 : 1),
+      inputSize: computed(() => props.size === 'small' ? 9 : 11)
     }
   },
   data: () => ({
@@ -58,7 +66,7 @@ export default defineComponent({
       this.barcodeText = ''
     },
     virtualText(val) {
-      this.barcodeText = handleVirtualInput(val, this.barcodeText)
+      this.barcodeText = val
     },
     barcode(code) {
       if(this.barcodeText) {
@@ -73,23 +81,22 @@ export default defineComponent({
 </script>
 <style scoped>
 input:focus {
-  outline: none !important;
+  outline: 1px solid #ccc !important;
   border-color: #719ECE;
-  box-shadow: 0 0 5px #202020;
 }
 #barcode-img {
-  width: 70%;
+  height: 80%;
 }
 #barcode-inputbox {
   font-weight: bold;
   padding: 5px;
-  font-size: 2.9em;
+  font-size: 22px;
   border-style: solid;
-  border-width: 0px 0px 2px 0px;
+  border-width: 0px 0px 1px 0px;
   border-color: #ccc;
   background-color: white;
   width: 100%;
-  height: 90%;
+  height: 85%;
 }
 @media (min-width: 200px) and (max-width: 900px) { 
   #barcode-img {

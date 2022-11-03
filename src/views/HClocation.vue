@@ -5,17 +5,17 @@
         <ion-title>Scan work-station location</ion-title>
       </ion-toolbar>
     </ion-header>
-    <ion-content>
+    <ion-content class="ion-padding-top">
       <barcode-input 
         class="his-card"
         :clearValue="clearValue"
-        :virtualText="kbText"
+        :virtualText="barcodeText"
         @onValue="onbarcodeText" 
         @onScan="onScan">
       </barcode-input>
     </ion-content>
     <his-keyboard
-      v-if="useVirtual"
+      v-if="useVirtualKeyboard"
       :kbConfig="NUMBERS" 
       :onKeyPress="onKbClick"> 
     </his-keyboard>
@@ -60,6 +60,7 @@ import {
 import HisKeyboard from '@/components/Keyboard/HisKeyboard.vue';
 import {NUMBERS} from "@/components/Keyboard/HisKbConfigurations"
 import usePlatform, { ScannerType } from '@/composables/usePlatform';
+import kbHandler from '@/components/Keyboard/KbHandler';
 
 export default defineComponent({
   name: 'HC location',
@@ -78,9 +79,7 @@ export default defineComponent({
     const { activePlatformProfile } = usePlatform()
     const barcodeText = ref('')
     const clearValue = ref('')
-    const kbText = ref('')
-
-    const useVirtual = computed(() => activePlatformProfile.value.scanner === ScannerType.CAMERA_SCANNER)
+    const useVirtualKeyboard = computed(() => activePlatformProfile.value.scanner === ScannerType.CAMERA_SCANNER)
   
     async function searchLocation() {
       if (!barcodeText.value.includes('$')) {
@@ -97,7 +96,6 @@ export default defineComponent({
       }
       clearValue.value = barcodeText.value
       barcodeText.value = ''
-      kbText.value = barcodeText.value
     }
 
     function onbarcodeText(t: string) {
@@ -105,7 +103,8 @@ export default defineComponent({
     }
 
     function onKbClick(t: string) {
-      kbText.value = t
+      barcodeText.value = kbHandler(t, barcodeText.value)
+      console.log("barcode", barcodeText.value)
     }
 
     async function onScan(t: string) {
@@ -118,8 +117,7 @@ export default defineComponent({
       onScan,
       onKbClick,
       searchLocation,
-      useVirtual,
-      kbText,
+      useVirtualKeyboard,
       clearValue,
       barcodeText,
       NUMBERS

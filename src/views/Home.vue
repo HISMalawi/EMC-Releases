@@ -12,21 +12,8 @@
       <ion-toolbar class="full-component-view">
         <ion-row>
           <ion-col>
-            <div class="tool-bar-medium-card" @click="openCamera">
-              <ion-row> 
-                <ion-col size-lg="5" size-sm="4"> 
-                  <img 
-                    :style="{
-                      width: '230px', 
-                      height: '90px',
-                      margin: '0'
-                    }"
-                    :src="barcodeLogo"/>
-                </ion-col>
-                <ion-col size-lg="7" size-sm="8" > 
-                  <p class="vertically-align ion-padding-end ion-text-center">Scan QR code Or Barcode</p>
-                </ion-col>
-              </ion-row>
+            <div class="tool-bar-medium-card">
+              <barcode-input @onScan="onBarcode" size="small" />
             </div>
           </ion-col>
           <ion-col size="5">
@@ -152,7 +139,6 @@
 <script lang="ts">
 import HisApp from "@/apps/app_lib"
 import { defineAsyncComponent, defineComponent, watch } from "vue";
-import { barcode } from "ionicons/icons";
 import HisDate from "@/utils/Date"
 import { AppInterface, FolderInterface } from "@/apps/interfaces/AppInterface";
 import { Service } from "@/services/service"
@@ -190,10 +176,9 @@ import {
 } from "@ionic/vue";
 import usePlatform from "@/composables/usePlatform";
 import { alertConfirmation } from "@/utils/Alerts";
-import HomeNotification from "@/components/HomeComponents/HomeNotifications.vue"
-import useBarcode from "@/composables/useBarcode";
 import { useRouter } from "vue-router";
 import Store from "@/composables/ApiStore"
+import BarcodeInput from "@/components/BarcodeInput.vue";
 
 export default defineComponent({
   name: "Home",
@@ -213,20 +198,20 @@ export default defineComponent({
     IonSegment,
     IonSegmentButton,
     IonLabel,
+    BarcodeInput,
     ProgramIcon: defineAsyncComponent(() => import("@/components/DataViews/DashboardAppIcon.vue")),
     HomeFolder: defineAsyncComponent(() => import("@/components/HomeComponents/HomeFolders.vue")),
     HomeNotification: defineAsyncComponent(() => import("@/components/HomeComponents/HomeNotifications.vue"))
   },
   setup() {
-    const { activePlatformProfile } = usePlatform()
-    const barcode  = useBarcode();
     const router = useRouter();
+    const { activePlatformProfile } = usePlatform()
 
-    watch(barcode, (newValue) => {
-      if (newValue.length > 4) {
-        router.push('/patients/confirm?patient_barcode='+newValue);
+    const onBarcode = (code: string) => {
+      if (code.length > 4) {
+        router.push('/patients/confirm?patient_barcode='+code);
       }
-    });
+    }
 
     const {
       notificationData, 
@@ -238,7 +223,6 @@ export default defineComponent({
       notificationData,
       notificationCount,
       notifications,
-      barcode,
       apps,
       person, 
       search,
@@ -247,7 +231,8 @@ export default defineComponent({
       pieChart,
       arrowBack,
       settings,
-      activePlatformProfile
+      activePlatformProfile,
+      onBarcode,
     }
   },
   data() {
