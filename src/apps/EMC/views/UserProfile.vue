@@ -12,7 +12,7 @@
               <text-input v-model="userForm.username" />
             </ion-col>
             <ion-col size="12" class="ion-margin-vertical">
-              <SelectInput v-model="userForm.roles" :options="roles" />
+              <SelectInput v-model="userForm.roles" :options="roles" multiple :key="refreshKey" />
             </ion-col>
             <ion-col size="12" class="ion-margin-vertical">
               <TextInput v-model="userForm.givenName" />
@@ -21,7 +21,7 @@
               <TextInput v-model="userForm.familyName" />
             </ion-col>
             <ion-col size="12" class="ion-margin-vertical">
-              <IonButton class="ion-margin-end ion-margin-vertical ion-float-end" @click="submit(userForm)">Save</IonButton>
+              <IonButton class="ion-margin-end ion-margin-vertical ion-float-end" @click="updateProfile">Save</IonButton>
             </ion-col>
           </ion-row>
         </div>
@@ -39,7 +39,7 @@
               <TextInput v-model="passwordForm.confirmPassword" :form="passwordForm" password />
             </ion-col>
             <ion-col size="12" class="ion-margin-vertical">
-              <IonButton class="ion-margin-end ion-margin-vertical ion-float-end" @click="submit(passwordForm)">Save</IonButton>
+              <IonButton class="ion-margin-end ion-margin-vertical ion-float-end" @click="updatePassword">Save</IonButton>
             </ion-col>
           </ion-row>
         </div>
@@ -50,9 +50,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive } from "vue";
+import { defineComponent, onMounted, reactive, ref } from "vue";
 import { IonButton, IonCol, IonGrid, IonRow } from "@ionic/vue";
-import { User } from "@/interfaces/user";
 import TextInput from "@/apps/EMC/Components/inputs/TextInput.vue";
 import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
 import { DTForm } from "@/apps/EMC/interfaces/dt_form_field";
@@ -60,8 +59,7 @@ import get from "lodash/get";
 import { Option } from "@/components/Forms/FieldInterface";
 import { UserService } from "@/services/user_service";
 import { Role } from "@/interfaces/role";
-import { isValidForm, resolveFormValues } from "@/apps/EMC/utils/form";
-import { loader } from "@/utils/loader";
+import { submitForm } from "@/apps/EMC/utils/form";
 import { toastSuccess } from "@/utils/Alerts";
 import Layout from "../Components/Layout.vue";
 
@@ -78,8 +76,9 @@ export default defineComponent({
   },
 
   setup(){
-    const roles = reactive<Option[]>([]);
-    const user = reactive({} as User);
+    const roles = ref<Option[]>([]);
+    const userId = ref<number>(-1);
+    const refreshKey = ref(1)
 
     const passwordForm = reactive<DTForm>({
       password: {
@@ -123,46 +122,54 @@ export default defineComponent({
         disabled: true,
       },
       roles: {
-        value: '',
+        value: [],
         label: 'Roles',
         required: true,
       },
     });
 
-    const submit = async (form: DTForm, type= "Profile" as "Profile" | "Password") => {
-      if(!(await isValidForm(form))) return
-      loader.show();
-      const { formData } = resolveFormValues(form, true);
-      await UserService.updateUser(user['user_id'], {...formData, roles: [formData.roles]});
-      toastSuccess(type + ' updated successfully');
-      loader.hide();
-    }
+    const updateProfile = () => submitForm(userForm, async (user) => {
+      await UserService.updateUser(userId.value, {...user, roles: [user.roles.map((r: Option) => r.label).join(", ")]});
+      toastSuccess('User profile has been updated successfully');
+    })
+
+    const updatePassword = () => submitForm(passwordForm, async (password) => {
+      await UserService.updateUser(userId.value, password);
+      toastSuccess('Password updated successfully');
+    })
 
     onMounted(async () => {
-      UserService.getAllRoles().then((userRoles: Role[]) => {
-        Object.assign(roles, userRoles.map(r => ({
+       UserService.getAllRoles().then((userRoles: Role[]) => {
+        roles.value =  userRoles.map(r => ({
           value: r.role,
           label: r.role,
           other: r,
-        })));
+        }));
       });
 
       const authUser = await UserService.getCurrentUser();
 
       if(authUser){
-        Object.assign(user, authUser);
+        userId.value = authUser.user_id;
         userForm.username.value = authUser.username;
         userForm.givenName.value = get(authUser, 'person.names[0].given_name', '')
         userForm.familyName.value = get(authUser, 'person.names[0].family_name', '')
-        userForm.roles.value = get(authUser, 'roles[0].role', '')
+        userForm.roles.value = authUser.roles.map(r => ({
+          value: r.role,
+          label: r.role,
+          other: r,
+        }))
       }
+      refreshKey.value++;
     })
 
     return {
       userForm,
       passwordForm,
       roles,
-      submit,
+      refreshKey,
+      updateProfile,
+      updatePassword,
     }
   }
 })
