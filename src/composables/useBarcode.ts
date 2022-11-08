@@ -27,6 +27,7 @@ export default function useBarcode() {
           keyBuffer.value.pop();
           return
         }
+        if(event.key.match(/enter/i)) keyBuffer.value.push('$');
         if(event.key.length === 1) keyBuffer.value.push(event.key);
         console.log("onKeyDetect: " + keyCode, event.key);
       },
