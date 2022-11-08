@@ -25,7 +25,7 @@
                 :allowEstimation="true"
                 :estimationLabel="'Estimate Age'"
                 minDate="1920-01-01"
-                @isEstimated="(estimate: boolean) => isBirthdateEstimated = estimate"/>
+                @isEstimated="(estimate) => isBirthdateEstimated = estimate"/>
             </ion-col>
             <ion-col size="4" class="ion-margin-top ion-margin-bottom">
               <SelectInput v-model="patient.gender" :options="genderOptions" />
@@ -69,7 +69,7 @@
 <script lang="ts">
 import { defineComponent, reactive, ref, watch } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
-import { IonGrid, IonRow, IonCol,IonCheckbox, loadingController } from "@ionic/vue";
+import { IonGrid, IonRow, IonCol,IonCheckbox } from "@ionic/vue";
 import { alertConfirmation } from "@/utils/Alerts";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Option } from "@/components/Forms/FieldInterface";
