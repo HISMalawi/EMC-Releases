@@ -12,7 +12,7 @@
               <text-input v-model="userForm.username" />
             </ion-col>
             <ion-col size="12" class="ion-margin-vertical">
-              <SelectInput v-model="userForm.roles" :options="roles" multiple :key="refreshKey" />
+              <SelectInput v-model="userForm.roles" :options="roles" multiple :key="refreshRoles" />
             </ion-col>
             <ion-col size="12" class="ion-margin-vertical">
               <TextInput v-model="userForm.givenName" />
@@ -78,7 +78,7 @@ export default defineComponent({
   setup(){
     const roles = ref<Option[]>([]);
     const userId = ref<number>(-1);
-    const refreshKey = ref(1)
+    const refreshRoles = ref(1)
 
     const passwordForm = reactive<DTForm>({
       password: {
@@ -128,27 +128,8 @@ export default defineComponent({
       },
     });
 
-    const updateProfile = () => submitForm(userForm, async (user) => {
-      await UserService.updateUser(userId.value, {...user, roles: [user.roles.map((r: Option) => r.label).join(", ")]});
-      toastSuccess('User profile has been updated successfully');
-    })
-
-    const updatePassword = () => submitForm(passwordForm, async (password) => {
-      await UserService.updateUser(userId.value, password);
-      toastSuccess('Password updated successfully');
-    })
-
-    onMounted(async () => {
-       UserService.getAllRoles().then((userRoles: Role[]) => {
-        roles.value =  userRoles.map(r => ({
-          value: r.role,
-          label: r.role,
-          other: r,
-        }));
-      });
-
+    const initUser = async () => {
       const authUser = await UserService.getCurrentUser();
-
       if(authUser){
         userId.value = authUser.user_id;
         userForm.username.value = authUser.username;
@@ -160,14 +141,37 @@ export default defineComponent({
           other: r,
         }))
       }
-      refreshKey.value++;
+    }
+
+    const updateProfile = () => submitForm(userForm, async (user) => {
+      await UserService.updateUser(userId.value, {...user, roles: user.roles.map((r: Option) => r.label)});
+      toastSuccess('User profile has been updated successfully', 3000);
+      initUser()
+    })
+
+    const updatePassword = () => submitForm(passwordForm, async (password) => {
+      await UserService.updateUser(userId.value, password);
+      toastSuccess('Password updated successfully', 3000);
+      for (const k in passwordForm) passwordForm[k].value = ''
+    })
+
+    onMounted(async () => {
+      await UserService.getAllRoles().then((userRoles: Role[]) => {
+        roles.value =  userRoles.map(r => ({
+          value: r.role,
+          label: r.role,
+          other: r,
+        }));
+      });
+      await initUser()
+      refreshRoles.value++;
     })
 
     return {
       userForm,
       passwordForm,
       roles,
-      refreshKey,
+      refreshRoles,
       updateProfile,
       updatePassword,
     }
