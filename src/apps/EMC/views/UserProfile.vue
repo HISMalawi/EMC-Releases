@@ -62,6 +62,7 @@ import { Role } from "@/interfaces/role";
 import { submitForm } from "@/apps/EMC/utils/form";
 import { toastSuccess } from "@/utils/Alerts";
 import Layout from "../Components/Layout.vue";
+import { User } from "@/interfaces/user";
 
 export default defineComponent({
   name: "UserModal",
@@ -144,7 +145,9 @@ export default defineComponent({
     }
 
     const updateProfile = () => submitForm(userForm, async (user) => {
-      await UserService.updateUser(userId.value, {...user, roles: user.roles.map((r: Option) => r.label)});
+      const u: User = await UserService.updateUser(userId.value, {...user, roles: user.roles.map((r: Option) => r.label)});
+      sessionStorage.setItem("username", u.username);
+      sessionStorage.setItem("userRoles", JSON.stringify(u.roles));
       toastSuccess('User profile has been updated successfully', 3000);
       initUser()
     })
