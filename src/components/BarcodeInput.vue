@@ -2,7 +2,7 @@
   <ion-grid>
     <ion-row>
       <ion-col :size="iconSize" @click="useCameraScanner">
-        <img id="barcode-img" src="/assets/images/barcode.svg"/>
+        <img id="barcode-img" class="clickable" src="/assets/images/barcode.svg"/>
       </ion-col>
       <ion-col :size="inputSize">
         <input 
@@ -10,6 +10,8 @@
           id="barcode-inputbox" 
           placeholder="Scan barcode or QR Code"
           v-model="typedBarcode"
+          :autofocus="true"
+          :style="{ fontSize, textShadow: 'wrap' }"
         />
       </ion-col>
     </ion-row>
@@ -68,6 +70,7 @@ export default defineComponent({
       activePlatformProfile,
       iconSize: computed(() => props.size === 'small' ? 3 : 2),
       inputSize: computed(() => props.size === 'small' ? 9 : 10),
+      fontSize: computed(() => props.size === 'small' ? '15px' : '42px'),
       useCameraScanner,
     }
   },
@@ -75,7 +78,7 @@ export default defineComponent({
 </script>
 <style scoped>
 input:focus {
-  outline: 1px solid #ccc !important;
+  outline: none !important;
   border-color: #719ECE;
 }
 #barcode-img {
@@ -84,8 +87,7 @@ input:focus {
 }
 #barcode-inputbox {
   font-weight: bold;
-  margin-top: .2em;
-  font-size: var(--his-lg-text);
+  padding: .3em;
   border-style: solid;
   border-width: 0px 0px 1px 0px;
   border-color: #ccc;
