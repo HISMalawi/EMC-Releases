@@ -52,7 +52,7 @@ import { DTFormField } from "../interfaces/dt_form_field";
 import { loader } from "@/utils/loader";
 import { DataTable, RowActionButtonInterface, TableColumnInterface, TableConfigInterface } from '@uniquedj95/vtable';
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
-import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import HisDate, { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
 import { toGenderString } from "@/utils/Strs";
 
@@ -78,7 +78,7 @@ export default defineComponent({
       { path: "given_name", label: "First name" },
       { path: "family_name", label: "Last name" },
       { path: "gender", label: "Gender", formatter: toGenderString },
-      { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
+      { path: "birthdate", label: "Date of Birth (AGE)", formatter: (v) => `${dayjs(v).format(DISPLAY_DATE_FORMAT)} (${HisDate.getAgeInYears(v)})` },
     ]
     const tableConfig: TableConfigInterface = { 
       showSearchField: false,
