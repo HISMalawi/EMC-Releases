@@ -82,7 +82,7 @@ input:focus {
   border-color: #719ECE;
 }
 #barcode-img {
-  max-height: 10vh !important;
+  max-height: 200px !important;
   width: 100% !important;
 }
 #barcode-inputbox {
