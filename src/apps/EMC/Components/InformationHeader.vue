@@ -23,6 +23,8 @@ import HisDate from "@/utils/Date";
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash';
 import router from '@/router';
+import ApiStore from '@/composables/ApiStore';
+import { get } from '@ionic-native/core/decorators/common';
 
 export default defineComponent({
   components: {
@@ -56,6 +58,7 @@ export default defineComponent({
     const hivTestDate = ref('')
     const hivTestPlace = ref('')
     const stagingCondition = ref('')
+    const latestVLResult = ref('')
 
     const getDobAndAgeAtInitiation = () => {
       const dob = props.patient.getBirthdate()
@@ -64,6 +67,20 @@ export default defineComponent({
         : ''
       
       return `${HisDate.toStandardHisDisplayFormat(dob)} (${ageAtInitiation})`
+    }
+
+    const getLatestVLResult = async () => {
+      const orders = await ApiStore.get('PATIENT_LAB_ORDERS', { patientID: props.patient.getID() });
+      const results = orders.reduce((rs: any[], order: any) => {
+        const r = order.tests
+          .filter((t: any) => t.name.match(/hiv/i) && !isEmpty(t.result))
+          .map((t: any) => t.result);
+        return rs.concat(r.reduce((a: any, c: any) => a.concat(c), []));
+      }, [])
+      .sort((a: any, b: any) => new Date(a.date) > new Date(b.date) ? -1 : 1);
+      return isEmpty(results) 
+        ? '' 
+        : `${results[0].value_modifier}${results[0].value} (${HisDate.toStandardHisDisplayFormat(results[0].date)})`;
     }
 
     const patientInfo = computed(() => [
@@ -161,7 +178,7 @@ export default defineComponent({
       { label: "Initial TB Status", value: initTBStatus.value },
       { label: "Pregnant at Initiation", value: pregnantAtInitiation.value },
       { label: "Breastfeeding at Initiation", value: breastFeedingAtInitiation.value },
-      { label: "Latest VL Result and Result Date", value: "=1000 (24/jan/2022)" },
+      { label: "Latest VL Result and Result Date", value:  latestVLResult.value },
       { label: "TI", value: receivedART.value  },
       { label: "Agrees to follow up", value: agreesToFollowUp.value },
       { label: "Reason for starting ART", value: reasonForStartingART.value },
@@ -190,6 +207,7 @@ export default defineComponent({
       reasonForStartingART.value = await props.patient.getReasonForStartingART()
       hivTestPlace.value = await props.patient.getHIVTestLocation()
       stagingCondition.value = await props.patient.getStagingCondition()
+      latestVLResult.value = await getLatestVLResult()
       await setHIVTestDate()
     })
 
