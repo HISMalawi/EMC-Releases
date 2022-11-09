@@ -32,6 +32,10 @@ export default defineComponent({
     height: {
       type: [String, Number],
       default: 560
+    },
+    placeholder: {
+      type: String,
+      default: "Loading data..."
     }
   },
   components: { IonCard, IonCardContent, ApexChart },
@@ -54,7 +58,7 @@ export default defineComponent({
           align: 'left'
         },
         noData: {
-          text: "Loading data...",
+          text: props.placeholder,
           align: "center",
           verticalAlign: "middle",
           offsetX: 0,
