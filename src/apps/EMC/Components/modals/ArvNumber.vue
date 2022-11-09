@@ -18,11 +18,11 @@
       </ion-row>
     </ion-grid>
   </ion-content>
-  <ion-footer>
+  <ion-footer class="ion-padding-horizontal">
     <ion-toolbar>
       <ion-button color="primary" @click="modal.hide()" slot="end">Close</ion-button>
-      <ion-button color="danger" @click="voidARV" v-if="hasValidARVNumber" slot="end">Void ARV Number</ion-button>
-      <ion-button class="ion-margin-end" color="success" @click="onFinish" slot="end">Save</ion-button>
+      <ion-button color="danger" @click="voidARV" v-if="hasValidARVNumber" slot="start">Void ARV Number</ion-button>
+      <ion-button color="success" @click="onFinish" slot="end">Save</ion-button>
     </ion-toolbar>
   </ion-footer>
 </template>
