@@ -28,6 +28,7 @@
           :custom-filters="filters" 
           @custom-filter="onCustomFilter"
           @drilldown="onDrilldown"
+          color="custom"
         />
       </ion-card-content>
     </ion-card>
