@@ -77,6 +77,7 @@ export async function submitForm (form: DTForm, callback: SubmitFormCallback, op
   if(!await isValidForm(form)) return
   try {
     const showloader = options?.showloader || false
+    if (showloader) loader.show()
     const {formData, computedFormData} = resolveFormValues(form, options?.underscoreKeys)
     await callback(formData, computedFormData)
     if(showloader) await loader.hide()
