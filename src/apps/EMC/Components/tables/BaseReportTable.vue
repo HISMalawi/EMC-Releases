@@ -42,7 +42,17 @@ import dayjs from "dayjs";
 import Layout from "@/apps/EMC/Components/Layout.vue";
 import { ArtReportService } from "@/apps/ART/services/reports/art_report_service";
 import { Option } from '@/components/Forms/FieldInterface';
-import { ActionButtonInterface, convertToCsv, CustomFilterInterface, DataTable, exportToCSV, RowActionButtonInterface, TableColumnInterface } from '@uniquedj95/vtable'
+import { 
+  ActionButtonInterface, 
+  convertToCsv, 
+  CustomFilterInterface, 
+  DataTable, 
+  exportToCSV, 
+  RowActionButtonInterface, 
+  TableColumnInterface 
+} from '@uniquedj95/vtable'
+import { toastWarning } from "@/utils/Alerts";
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   name: "BaseReportTable",
@@ -181,6 +191,7 @@ export default defineComponent({
           id: "dateRange",
           label: "Date Range",
           type: "dateRange",
+          gridSize: 5,
           value: {
             startDate: props.period.split("-")[0],
             endDate: props.period.split("-")[1],
@@ -205,8 +216,18 @@ export default defineComponent({
       return f;
     })
 
-    const onCustomFilter = (filters: Record<string, any>) => {
-      emit("customFilter", filters);
+    const onCustomFilter = (customfilters: Record<string, any>) => {
+      if ("dateRange" in customfilters && (dayjs(customfilters.dateRange.startDate).isAfter(customfilters.dateRange.endDate))) {
+        return toastWarning("Invalid date range")
+      }
+      if (filters.value.every(f => {
+        if (f.required === false) return true;
+        if (!isEmpty(customfilters[f.id]) && typeof customfilters[f.id] === 'object') return Object.values(customfilters[f.id]).every(v => !isEmpty(v));
+        return !isEmpty(customfilters[f.id]);
+      })) {
+        return emit("customFilter", customfilters);
+      }
+      toastWarning("Invalid filters")
     }
 
     const onDrilldown = (data: {column: TableColumnInterface; row: any}) => {
