@@ -80,7 +80,7 @@ export default defineComponent({
       default: () => [],
     },
     asyncOptions: {
-      type: Function as PropType<(filter: string, page: number) => Promise<Option[]>>,
+      type: Function as PropType<(filter: string, page: number) => Promise<Option[]> | Option[]>,
       required: false,
     },
     allowCustom: {
@@ -140,6 +140,7 @@ export default defineComponent({
       selectedOption.value = undefined
       if(isEmpty(model.value.value)) return
       if (Array.isArray(model.value.value) && props.multiple) {
+        console.log(model.value.value)
         return model.value.value.forEach((option: Option) => {
           const index = filteredOptions.value.findIndex(({ value }: Option) => value === option.value)
           if(index === -1) {
