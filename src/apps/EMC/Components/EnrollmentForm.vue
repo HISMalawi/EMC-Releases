@@ -17,7 +17,7 @@ import { IonGrid, IonRow, IonCol, IonButton } from "@ionic/vue";
 import dayjs from "dayjs";
 import { defineComponent, reactive, ref } from "vue";
 import { DTForm } from "../interfaces/dt_form_field";
-import { isValidForm } from "../utils/form";
+import { submitForm } from "../utils/form";
 import DateInput from "./inputs/DateInput.vue";
 
 export default defineComponent({
@@ -29,14 +29,19 @@ export default defineComponent({
     IonCol,
     IonButton,
   },
+  props: ["birthdate"],
   emits: ["enrollProgram"],
-  setup(_props, { emit }) {
+  setup(props, { emit }) {
     const today = dayjs().format("YYYY-MM-DD");
     const form = reactive<DTForm>({
       date: {
         value: "",
         label: "Date of Enrollment",
         required: true,
+        validation: async (date) => {
+          if(dayjs(date.value).isBefore(props.birthdate)) return ["Date of enrollment cannot be before date of birth"]
+          return null
+        }
       },
     })
 
@@ -45,9 +50,7 @@ export default defineComponent({
       form.date.error = "";
     }
 
-    const enrollProgram = async () => {
-      if(await isValidForm(form)) emit("enrollProgram", form.date.value);
-    }
+    const enrollProgram = async () => submitForm(form, ({ date }) => emit("enrollProgram", date))
 
     return {
       form,

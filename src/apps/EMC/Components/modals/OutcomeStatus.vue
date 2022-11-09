@@ -15,7 +15,7 @@
       </ion-row>
       <ion-row v-if="!isEnrolled" class="his-card" style="margin-bottom: .4rem;">
         <ion-col size="12">
-          <enrollment-form :patientProgram="patientProgram" @enrollProgram="enrollProgram" />
+          <enrollment-form :patientProgram="patientProgram" :birthdate="birthdate" @enrollProgram="enrollProgram" />
         </ion-col>
       </ion-row>
       <template v-else>
