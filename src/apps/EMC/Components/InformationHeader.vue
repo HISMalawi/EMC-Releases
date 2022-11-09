@@ -157,17 +157,17 @@ export default defineComponent({
       { label: "Date of starting first line ARV Regimen", value: props.artStartDate },
       { label: "Initial Weight (KG)", value: initWeight.value },
       { label: "Initial Height (CM)", value: initHeight.value },
-      { label: "BMI", value: initBmi.value },
+      { label: "Initial BMI", value: initBmi.value },
       { label: "Initial TB Status", value: initTBStatus.value },
       { label: "Pregnant at Initiation", value: pregnantAtInitiation.value },
       { label: "Breastfeeding at Initiation", value: breastFeedingAtInitiation.value },
+      { label: "Latest VL Result and Result Date", value: "=1000 (24/jan/2022)" },
       { label: "TI", value: receivedART.value  },
       { label: "Agrees to follow up", value: agreesToFollowUp.value },
       { label: "Reason for starting ART", value: reasonForStartingART.value },
       { label: "HIV test date", value: hivTestDate.value },
       { label: "HIV test place", value: hivTestPlace.value },
-      { label: "Staging codition", value: stagingCondition.value },
-      { label: "", value: "Edit Clinic Registration/Staging conditions details", other: {
+      { label: "Staging codition", value: stagingCondition.value, other: {
         onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
       }},
     ])
