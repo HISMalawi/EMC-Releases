@@ -109,7 +109,7 @@ import { initialTbStatusOptions, HIVTestOptions, tptHistoryOptions } from '@/app
 import dayjs from "dayjs";
 import { VitalsService } from "@/apps/ART/services/vitals_service";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
-import { isValidForm, resolveFormValues, resolveObs } from "../utils/form";
+import { isValidForm, resolveFormValues, resolveObs, submitForm } from "../utils/form";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { loader } from "@/utils/loader";
 import { PatientProgramService } from "@/services/patient_program_service";
@@ -294,7 +294,7 @@ export default defineComponent({
         value: '',
         label: "Date started TPT",
         validation: async (date, form) => {
-          return form.tptHistory.value.label.match(/currently/i) && 
+          return form.tptHistory?.value?.label?.match(/currently/i) && 
             StandardValidations.required(date)
         }
       },
@@ -302,8 +302,8 @@ export default defineComponent({
         value: '',
         label: "INH Amount Received",
         validation: async (amount, form) => {
-          const history = form.tptHistory.value.label
-          return history.match(/currently/i) && 
+          const history = form.tptHistory?.value?.label
+          return history?.match(/currently/i) && 
             (history.match(/ipt/i) || history.includes('3HP (RFP + INH)')) && 
             StandardValidations.required(amount)
         },
@@ -323,8 +323,8 @@ export default defineComponent({
         value: '',
         label: "Rifapentine Amount Received",
         validation: async (amount, form) => {
-          const history = form.tptHistory.value.label
-          return history.match(/currently/i) && history.includes('3HP (RFP + INH)') && 
+          const history = form.tptHistory?.value?.label
+          return history?.match(/currently/i) && history.includes('3HP (RFP + INH)') && 
             StandardValidations.required(amount)
         },
         computedValue: (amount, form) => {
@@ -343,8 +343,8 @@ export default defineComponent({
         value: '',
         label: "INH / RFP Amount Received",
         validation: async (amount, form) => {
-          const history = form.tptHistory.value.label
-          return history.match(/currently/i) && history.includes('INH 300 / RFP 300 (3HP)') && 
+          const history = form.tptHistory?.value?.label
+          return history?.match(/currently/i) && history.includes('INH 300 / RFP 300 (3HP)') && 
             StandardValidations.required(amount)
         },
         computedValue: (amount, form) => {
@@ -363,7 +363,7 @@ export default defineComponent({
         value: '',
         label: "TPT Transfer From",
         validation: async (date, form) => {
-          return form.tptHistory.value.label.match(/currently/i) && 
+          return form.tptHistory?.value?.label?.match(/currently/i) && 
             StandardValidations.required(date)
         },
         computedValue: (facility: Option) => ({
@@ -452,47 +452,49 @@ export default defineComponent({
     }
 
     const onSubmit = async () => {
-      if(!(await isValidForm(form))) return
-      loader.show()
       patientTypeService.setDate(form.initialVisitDate.value)
       registrationService.setDate(form.initialVisitDate.value)
       vitalsService.setDate(form.initialVisitDate.value)
       consultationService.setDate(form.initialVisitDate.value)
       PatientTypeService.setSessionDate(form.initialVisitDate.value)
       
-      const {formData, computedFormData} = resolveFormValues(form)
-      if(!form.arvNumber.disabled && formData.arvNumber) {
-        await patient.value?.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`)
-      }
+      await submitForm(form, async (formData, computedData) => {
+        if(!form.arvNumber.disabled && formData.arvNumber) {
+          await patient.value?.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`)
+        }
 
-      await patientTypeService.createEncounter()
-      const pTypeObs = await resolveObs(computedFormData, 'patient type')
-      await patientTypeService.saveObservationList(pTypeObs)
+        if(!form.arvNumber.disabled && formData.arvNumber) {
+          await patient.value?.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`)
+        }
 
-      await registrationService.createEncounter()
-      const regObs = await resolveObs(computedFormData, 'registration')
-      await registrationService.saveObservationList(regObs)
+        await patientTypeService.createEncounter()
+        const pTypeObs = await resolveObs(computedData, 'patient type')
+        await patientTypeService.saveObservationList(pTypeObs)
 
-      if(formData.everRegisteredAtClinic === 'Yes') {
-        await vitalsService.createEncounter()
-        const vitalsObs = await resolveObs(computedFormData, 'vitals')
-        await vitalsService.saveObservationList(vitalsObs)
+        await registrationService.createEncounter()
+        const regObs = await resolveObs(computedData, 'registration')
+        await registrationService.saveObservationList(regObs)
 
-        await consultationService.createEncounter()
-        const consultationObs = await resolveObs(computedFormData, 'consultation')
-        await consultationService.saveObservationList(consultationObs)
-      }
+        if(formData.everRegisteredAtClinic === 'Yes') {
+          await vitalsService.createEncounter()
+          const vitalsObs = await resolveObs(computedData, 'vitals')
+          await vitalsService.saveObservationList(vitalsObs)
 
-      // enroll patient into HIV program
-      if(isNewPatient) {
-        const patientProgram =  new PatientProgramService(patient.value!.getID())
-        patientProgram.setProgramDate(formData.initialVisitDate)
-        await patientProgram.enrollProgram();
-      }
+          await consultationService.createEncounter()
+          const consultationObs = await resolveObs(computedData, 'consultation')
+          await consultationService.saveObservationList(consultationObs)
+        }
 
-      await loader.hide()
-      await toastSuccess('Saved successfully')
-      router.push(`/emc/staging/${patientId.value}`)
+        // enroll patient into HIV program
+        if(isNewPatient) {
+          const patientProgram =  new PatientProgramService(patient.value!.getID())
+          patientProgram.setProgramDate(formData.initialVisitDate)
+          await patientProgram.enrollProgram();
+        }
+
+        await toastSuccess('Saved successfully')
+        router.push(`/emc/staging/${patientId.value}`)
+      })
     }
 
     onMounted(async () => {

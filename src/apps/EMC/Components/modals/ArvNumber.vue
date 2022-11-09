@@ -31,10 +31,9 @@
 import { computed, defineComponent, onMounted, PropType, reactive, ref } from "vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { Option } from "@/components/Forms/FieldInterface";
-import { PatientRegistrationService } from "@/services/patient_registration_service";
 import { DTForm } from "@/apps/EMC/interfaces/dt_form_field";
 import TextInput from "../inputs/TextInput.vue";
-import { isValidForm, resolveFormValues } from "@/apps/EMC/utils/form";
+import { submitForm } from "@/apps/EMC/utils/form";
 import { loader } from "@/utils/loader";
 import EventBus from "@/utils/EventBus";
 import { EmcEvents } from "../../interfaces/emc_event";
@@ -79,26 +78,17 @@ export default defineComponent({
       },
     })
 
-    const onFinish = async () => {
-      await loader.show("Updating patient...");
-      if(!(await isValidForm(form))) return loader.hide();
-      try {
-        const { formData } = resolveFormValues(form)
-        if(formData.arvNumber !== arvNumber.value.split("-")[2]){
-          if(hasValidARVNumber.value) {
-            await props.patient.updateARVNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`);
-          } else {
-            await props.patient.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`);
-          }
+    const onFinish = async () => submitForm(form, async (formData) => {
+      if(formData.arvNumber !== arvNumber.value.split("-")[2]){
+        if(hasValidARVNumber.value) {
+          await props.patient.updateARVNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`);
+        } else {
+          await props.patient.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`);
         }
-        await loader.hide();
         await modal.hide();
         EventBus.emit(EmcEvents.RELOAD_PATIENT_DATA)
-      } catch (error) {
-        await loader.hide();
-        console.log(error)
-      } 
-    }
+      }
+    }) 
 
     const voidARV = async () => {
       const confirm = await alertConfirmation(`Are you sure you want to void this ARV Number ${arvNumber.value}?`);

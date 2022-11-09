@@ -133,13 +133,11 @@ import { ObsValue } from "@/services/observation_service";
 import { BMIService } from "@/services/bmi_service";
 import { DispensationService } from "@/apps/ART/services/dispensation_service";
 import { DTForm } from "../../interfaces/dt_form_field";
-import { isValidForm, optionsToGroupObs, resolveFormValues, resolveObs } from "../../utils/form";
+import { optionsToGroupObs, resolveObs, submitForm } from "../../utils/form";
 import { toOptions } from "../../utils/DTFormElements";
-import { loader } from "@/utils/loader";
 import { modal } from "@/utils/modal";
 import { EmcEvents } from "../../interfaces/emc_event";
 import EventBus from "@/utils/EventBus";
-import { find, uniqBy } from "lodash";
 import { uniqueBy } from "@/utils/Arrays";
 
 export default defineComponent({
@@ -478,8 +476,6 @@ export default defineComponent({
     }
 
     const onSubmit = async () => {
-      await loader.show()
-      if(!(await isValidForm(form))) return loader.hide()
       await PatientObservationService.setSessionDate(form.visitDate.value)
       vitals.setDate(form.visitDate.value)
       consultations.setDate(form.visitDate.value)
@@ -489,101 +485,100 @@ export default defineComponent({
       appointment.setDate(form.visitDate.value)
       dispensation.setDate(form.visitDate.value)
 
-      const { formData, computedFormData } = resolveFormValues(form)
-      
-      await vitals.createEncounter()
-      const vitalsObs = await resolveObs(computedFormData, 'vitals')
-      const bmiObs = await buildBmiObs(formData)
-      await vitals.saveObservationList([...vitalsObs, bmiObs])
+      await submitForm (form, async (formData, computedFormData) => {
+        await vitals.createEncounter()
+        const vitalsObs = await resolveObs(computedFormData, 'vitals')
+        const bmiObs = await buildBmiObs(formData)
+        await vitals.saveObservationList([...vitalsObs, bmiObs])
 
-      await consultations.createEncounter()
-      const consultationObs = await resolveObs(computedFormData, 'consultation')
-      if(isFemale.value) consultationObs.concat(await buildFpmObs())
-      if(hasContraindications.value) 
-        consultationObs.concat(await optionsToGroupObs("Malawi ART side effects", contraIndications.value))
-      if(hasSideEffects.value) 
-        consultationObs.concat(await optionsToGroupObs("Other side effect", sideEffects.value))
-      consultationObs.concat(await getTbSymptomsObs())
-      await consultations.saveObservationList(consultationObs)
+        await consultations.createEncounter()
+        const consultationObs = await resolveObs(computedFormData, 'consultation')
+        if(isFemale.value) consultationObs.concat(await buildFpmObs())
+        if(hasContraindications.value) 
+          consultationObs.concat(await optionsToGroupObs("Malawi ART side effects", contraIndications.value))
+        if(hasSideEffects.value) 
+          consultationObs.concat(await optionsToGroupObs("Other side effect", sideEffects.value))
+        consultationObs.concat(await getTbSymptomsObs())
+        await consultations.saveObservationList(consultationObs)
 
-      await prescription.createEncounter()
-      const drugOrders: any[] = []
-      let duration = 0
-      if(!isEmpty(formData.regimen) && formData.totalArvsGiven) {
-        const arvDrugs: any[] = formData.regimen.other
-        duration = Math.min(...arvDrugs.map(drug =>(formData.totalArvsGiven / (drug.am + drug.pm)) + 2))
-        arvDrugs.forEach((drug: any) => drugOrders.push(
-          toDrugOrder(drug, formData.totalArvsGiven, duration, formData.visitDate)
-        ))
-      }
-
-      if(formData.totalCPTGiven) {
-        uniqueBy((await RegimenService.getRegimenExtras('Cotrimoxazole', formData.weight)), 'concept_name')
-        .filter((drug: any) => drug.frequency === 'Daily (QOD)')
-        .forEach((drug: any) => drugOrders.push(toDrugOrder(drug, formData.totalCPTGiven, duration, formData.visitDate)))
-      }
-
-      if(formData.tbMed?.value) {
-        const iptRegimens = uniqueBy((await RegimenService.getRegimenExtras('INH', formData.weight)), ['concept_name', 'frequency'])
-        const pyridoxine = iptRegimens.find((d: any) => d['concept_name'] === 'Pyridoxine')
-
-        if(pyridoxine && formData.totalPyridoxineGiven) {
-          drugOrders.push(toDrugOrder(pyridoxine, formData.totalPyridoxineGiven, duration, formData.visitDate))
-        }
-
-        if(formData.totalIPTGiven) {
-          const INH = iptRegimens.find((drug: any) =>  drug['concept_name'] === "Isoniazid" && (
-            (hasGiven6H.value && drug.frequency === 'Daily (QOD)') || 
-            (hasGivenRFP.value && drug.frequency === 'Weekly (QW)')
+        await prescription.createEncounter()
+        const drugOrders: any[] = []
+        let duration = 0
+        if(!isEmpty(formData.regimen) && formData.totalArvsGiven) {
+          const arvDrugs: any[] = formData.regimen.other
+          duration = Math.min(...arvDrugs.map(drug =>(formData.totalArvsGiven / (drug.am + drug.pm)) + 2))
+          arvDrugs.forEach((drug: any) => drugOrders.push(
+            toDrugOrder(drug, formData.totalArvsGiven, duration, formData.visitDate)
           ))
-          drugOrders.push(toDrugOrder(INH, formData.totalIPTGiven, duration, formData.visitDate))
         }
 
-        if(formData.totalRFPGiven && hasGivenRFP.value) {
-          const rfpRegimens = await RegimenService.getRegimenExtras('Rifapentine', formData.weight)
-          if(rfpRegimens.length) drugOrders.push(toDrugOrder(rfpRegimens[0], formData.totalRFPGiven, duration, formData.visitDate))
+        if(formData.totalCPTGiven) {
+          uniqueBy((await RegimenService.getRegimenExtras('Cotrimoxazole', formData.weight)), 'concept_name')
+          .filter((drug: any) => drug.frequency === 'Daily (QOD)')
+          .forEach((drug: any) => drugOrders.push(toDrugOrder(drug, formData.totalCPTGiven, duration, formData.visitDate)))
         }
 
-        if(formData.total3HPGiven && hasGiven3HP.value) {
-          const threeHPRegimens = await RegimenService.getRegimenExtras('INH / RFP', formData.weight)
-          drugOrders.push(toDrugOrder(threeHPRegimens[0], formData.total3HPGiven, duration, formData.visitDate))
-        }
-      }
+        if(formData.tbMed?.value) {
+          const iptRegimens = uniqueBy((await RegimenService.getRegimenExtras('INH', formData.weight)), ['concept_name', 'frequency'])
+          const pyridoxine = iptRegimens.find((d: any) => d['concept_name'] === 'Pyridoxine')
 
-      const orders: any[] = await prescription.createDrugOrder(drugOrders)
-      const dispensations = orders.map(order => {
-        const drug = drugOrders.find(drug => drug.drug_inventory_id === order.drug_inventory_id)
-        return dispensation.buildDispensations(order.order_id, drug.qty, 1)
+          if(pyridoxine && formData.totalPyridoxineGiven) {
+            drugOrders.push(toDrugOrder(pyridoxine, formData.totalPyridoxineGiven, duration, formData.visitDate))
+          }
+
+          if(formData.totalIPTGiven) {
+            const INH = iptRegimens.find((drug: any) =>  drug['concept_name'] === "Isoniazid" && (
+              (hasGiven6H.value && drug.frequency === 'Daily (QOD)') || 
+              (hasGivenRFP.value && drug.frequency === 'Weekly (QW)')
+            ))
+            drugOrders.push(toDrugOrder(INH, formData.totalIPTGiven, duration, formData.visitDate))
+          }
+
+          if(formData.totalRFPGiven && hasGivenRFP.value) {
+            const rfpRegimens = await RegimenService.getRegimenExtras('Rifapentine', formData.weight)
+            if(rfpRegimens.length) drugOrders.push(toDrugOrder(rfpRegimens[0], formData.totalRFPGiven, duration, formData.visitDate))
+          }
+
+          if(formData.total3HPGiven && hasGiven3HP.value) {
+            const threeHPRegimens = await RegimenService.getRegimenExtras('INH / RFP', formData.weight)
+            drugOrders.push(toDrugOrder(threeHPRegimens[0], formData.total3HPGiven, duration, formData.visitDate))
+          }
+        }
+
+        const orders: any[] = await prescription.createDrugOrder(drugOrders)
+        const dispensations = orders.map(order => {
+          const drug = drugOrders.find(drug => drug.drug_inventory_id === order.drug_inventory_id)
+          return dispensation.buildDispensations(order.order_id, drug.qty, 1)
+        })
+        await dispensation.saveDispensations(dispensations.flat(1))
+
+        await reception.createEncounter()
+        const receptionObs = await resolveObs(computedFormData, 'reception')
+        await reception.saveObservationList(receptionObs)
+
+        if(prevDrugs.value.length > 0) {
+          await adherence.createEncounter()
+          const adherenceObs = await Promise.all(prevDrugs.value.map(async (drug: any) => {
+            const expected = adherence.calculateExpected(drug.quantity, drug.equivalent_daily_dose, drug.order.start_date, drug.frequency)
+            const adh = adherence.calculateAdherence(drug.quantity, formData.pillCount, expected)
+            return [
+              await adherence.buildAdherenceObs(drug.order_id, drug.drug_inventory_id, adh),
+              await adherence.buildPillCountObs(drug.order_id, formData.pillCount)
+            ]
+          }))
+          await adherence.saveObservationList(adherenceObs.flat(1))
+        }
+
+        await appointment.createEncounter()
+        const appointmentObs = await resolveObs(computedFormData, 'appointment')
+        await appointment.saveObservationList(appointmentObs)
+        await toastSuccess('Patient visit saved successfully')
+
+        await PatientObservationService.resetSessionDate()
+
+        await modal.hide()
+        EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA);
       })
-      await dispensation.saveDispensations(dispensations.flat(1))
-
-      await reception.createEncounter()
-      const receptionObs = await resolveObs(computedFormData, 'reception')
-      await reception.saveObservationList(receptionObs)
-
-      if(prevDrugs.value.length > 0) {
-        await adherence.createEncounter()
-        const adherenceObs = await Promise.all(prevDrugs.value.map(async (drug: any) => {
-          const expected = adherence.calculateExpected(drug.quantity, drug.equivalent_daily_dose, drug.order.start_date, drug.frequency)
-          const adh = adherence.calculateAdherence(drug.quantity, formData.pillCount, expected)
-          return [
-            await adherence.buildAdherenceObs(drug.order_id, drug.drug_inventory_id, adh),
-            await adherence.buildPillCountObs(drug.order_id, formData.pillCount)
-          ]
-        }))
-        await adherence.saveObservationList(adherenceObs.flat(1))
-      }
-
-      await appointment.createEncounter()
-      const appointmentObs = await resolveObs(computedFormData, 'appointment')
-      await appointment.saveObservationList(appointmentObs)
-      await toastSuccess('Patient visit saved successfully')
-
-      await PatientObservationService.resetSessionDate()
-
-      await loader.hide()
-      await modal.hide()
-      EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA);
     }
 
     const onClear = async () => {

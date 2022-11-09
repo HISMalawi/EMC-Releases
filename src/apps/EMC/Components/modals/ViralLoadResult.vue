@@ -62,7 +62,6 @@ import {
   IonCheckbox,
   IonItem
 } from "@ionic/vue";
-import { toastWarning } from "@/utils/Alerts";
 import { DTForm } from "../../interfaces/dt_form_field";
 import { Patientservice } from "@/services/patient_service";
 import DateInput from "../inputs/DateInput.vue";
@@ -74,8 +73,7 @@ import { OrderService } from "@/services/order_service";
 import { LabOrderService } from "@/apps/ART/services/lab_order_service";
 import { Option } from "@/components/Forms/FieldInterface";
 import { ConceptName } from "@/interfaces/conceptName";
-import { loader } from "@/utils/loader";
-import { isValidForm, resolveFormValues } from "../../utils/form";
+import { submitForm } from "../../utils/form";
 import { PatientLabResultService } from "@/services/patient_lab_result_service";
 import { ConceptService } from "@/services/concept_service";
 import EventBus from "@/utils/EventBus";
@@ -176,48 +174,39 @@ export default defineComponent({
       }
     });
 
-    const saveResults = async () => {
-      await loader.show();
-      if(!(await isValidForm(form))) return loader.hide();
-      try {
-        const { formData } = resolveFormValues(form);
-        await LabOrderService.setSessionDate(formData.orderDate)
-        const orderService = new LabOrderService(props.patient.getID(), -1)
-        const vlConceptId = await ConceptService.getConceptID("HIV viral load")
-        const encounter = await orderService.createEncounter();
-        if(!encounter) throw new Error('Unable to create lab order encounter');
-        const formattedOrders  = await OrderService.buildLabOrders(encounter, [{
-          'specimenConcept': formData.specimenConcept.value,
-          'reason': formData.reason.value,
-          'concept_id': vlConceptId
-        }]);
-        const orders = await  OrderService.saveOrdersArray(encounter.encounter_id, formattedOrders);
-        if(!orders) throw new Error('Unable to save lab orders');
+    const saveResults = async () => submitForm(form, async (formData) => {
+      await LabOrderService.setSessionDate(formData.orderDate)
+      const orderService = new LabOrderService(props.patient.getID(), -1)
+      const vlConceptId = await ConceptService.getConceptID("HIV viral load")
+      const encounter = await orderService.createEncounter();
+      if(!encounter) throw new Error('Unable to create lab order encounter');
+      const formattedOrders  = await OrderService.buildLabOrders(encounter, [{
+        'specimenConcept': formData.specimenConcept.value,
+        'reason': formData.reason.value,
+        'concept_id': vlConceptId
+      }]);
+      const orders = await  OrderService.saveOrdersArray(encounter.encounter_id, formattedOrders);
+      if(!orders) throw new Error('Unable to save lab orders');
 
-        await PatientLabResultService.setSessionDate(formData.resultDate)
-        const resultService = new PatientLabResultService(props.patient.getID())
-        resultService.setTestID(orders[0].tests[0].id)
-        resultService.setResultDate(formData.resultDate)
-        const resultEnc = await resultService.createEncounter()
-        if(!resultEnc) throw new Error("Unable to create lab result encounter")
-        await resultService.createLabResult([{
-          "indicator": {
-            "concept_id": vlConceptId,
-          },
-          "value": ldl.value ? "LDL" : parseInt(formData.result),
-          "value_modifier": ldl.value ? "=" : formData.modifier.value,
-          "value_type": ldl.value ? "text" : "numeric"
-        }])
+      await PatientLabResultService.setSessionDate(formData.resultDate)
+      const resultService = new PatientLabResultService(props.patient.getID())
+      resultService.setTestID(orders[0].tests[0].id)
+      resultService.setResultDate(formData.resultDate)
+      const resultEnc = await resultService.createEncounter()
+      if(!resultEnc) throw new Error("Unable to create lab result encounter")
+      await resultService.createLabResult([{
+        "indicator": {
+          "concept_id": vlConceptId,
+        },
+        "value": ldl.value ? "LDL" : parseInt(formData.result),
+        "value_modifier": ldl.value ? "=" : formData.modifier.value,
+        "value_type": ldl.value ? "text" : "numeric"
+      }])
 
-        await PatientLabResultService.resetSessionDate()
-        await loader.hide()
-        await modal.hide()
-        EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA)
-      } catch (error) {
-        toastWarning(`${error}`)
-        return loader.hide()
-      }
-    }
+      await PatientLabResultService.resetSessionDate()
+      await modal.hide()
+      EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA)
+    })
 
     const resetResults = () => {
       ldl.value = false

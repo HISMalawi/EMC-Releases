@@ -3,6 +3,8 @@ import { DTForm } from "../interfaces/dt_form_field"
 import { Option } from "@/components/Forms/FieldInterface";
 import { toUnderscores } from "@/utils/Strs";
 import { isEmpty } from "lodash";
+import { loader } from "@/utils/loader";
+import { toastWarning } from '@/utils/Alerts';
 
 export async function isValidForm (form: DTForm) {
   for (const key in form) {
@@ -63,4 +65,23 @@ export async function optionsToGroupObs (conceptName: string, options: Option[])
   return await Promise.all(options.map(async (option) => {
     return ObservationService.buildGroupValueCoded(conceptName, option.label, option.isChecked ? 'Yes' : 'No')
   }))
+}
+
+type SubmitFormCallback = (formData: Record<string, any>, computedData: Record<string, any>) => Promise<void> | void
+interface SubmitOptios {
+  showloader?: boolean;
+  underscoreKeys?: boolean;
+}
+
+export async function submitForm (form: DTForm, callback: SubmitFormCallback, options?: SubmitOptios) {
+  if(!await isValidForm(form)) return
+  try {
+    const showloader = options?.showloader || false
+    const {formData, computedFormData} = resolveFormValues(form, options?.underscoreKeys)
+    await callback(formData, computedFormData)
+    if(showloader) await loader.hide()
+  } catch (error) {
+    toastWarning(`${error}`)
+    loader.hide()
+  }
 }

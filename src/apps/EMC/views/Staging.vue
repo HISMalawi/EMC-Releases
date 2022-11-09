@@ -56,7 +56,7 @@ import SelectInput from "../Components/inputs/SelectInput.vue";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import dayjs from "dayjs";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
-import { isValidForm, resolveFormValues, resolveObs } from "../utils/form";
+import { isValidForm, resolveFormValues, resolveObs, submitForm } from "../utils/form";
 import { StagingService } from "@/apps/ART/services/staging_service";
 import { loader } from "@/utils/loader";
 
@@ -179,17 +179,14 @@ export default defineComponent({
     }
 
     const onSubmit = async () => {
-      if(!(await isValidForm(form))) return
-      loader.show()
-      const { computedFormData} = resolveFormValues(form)
-      await stagingService.value?.createEncounter()
-      const obs = await resolveObs(computedFormData)
-      await stagingService.value?.saveObservationList(obs)
-
-      await loader.hide()
-      await toastSuccess('Saved successfully')
-      await StagingService.resetSessionDate()
-      router.push(`/emc/patient/${patientId.value}`)
+      await submitForm(form, async (_, computedFormData) => {
+        await stagingService.value?.createEncounter()
+        const obs = await resolveObs(computedFormData)
+        await stagingService.value?.saveObservationList(obs)
+        await toastSuccess('Saved successfully')
+        await StagingService.resetSessionDate()
+        router.push(`/emc/patient/${patientId.value}`)
+      })
     }
 
     onMounted(async () => {

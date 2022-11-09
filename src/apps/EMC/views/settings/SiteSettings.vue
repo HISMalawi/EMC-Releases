@@ -38,12 +38,10 @@
 <script lang="ts">
 import { defineComponent, onMounted, reactive } from "vue";
 import { IonButton, IonCol, IonGrid, IonRow } from "@ionic/vue";
-import { User } from "@/interfaces/user";
 import TextInput from "@/apps/EMC/Components/inputs/TextInput.vue";
 import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
 import { DTForm } from "@/apps/EMC/interfaces/dt_form_field";
-import { isValidForm, resolveFormValues } from "@/apps/EMC/utils/form";
-import { loader } from "@/utils/loader";
+import { submitForm } from "@/apps/EMC/utils/form";
 import { toastSuccess } from "@/utils/Alerts";
 import Layout from "@/apps/EMC/Components/Layout.vue";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
@@ -87,32 +85,20 @@ export default defineComponent({
       },
     });
 
-    const updateName = async () => {
-      if(!(await isValidForm(nameForm))) return
-      loader.show();
-      const data = resolveFormValues(nameForm, true).formData;
-      await GLOBAL_PROP.setHealthCenterID(data.name.label);
+    const updateName = () => submitForm(nameForm, async ({ name }) => {
+      await GLOBAL_PROP.setHealthCenterID(name.value);
       toastSuccess('Site name updated successfully');
-      loader.hide();
-    }
+    })
 
-    const updatePrefix = async () => {
-      if(!(await isValidForm(prefixForm))) return
-      loader.show();
-      const data = resolveFormValues(prefixForm, true).formData;
-      await GLOBAL_PROP.setSitePrefix(data.prefix);
+    const updatePrefix = async () => submitForm(prefixForm, async ({ prefix }) => {
+      await GLOBAL_PROP.setSitePrefix(prefix);
       toastSuccess('Site Prefix updated successfully');
-      loader.hide();
-    }
+    })
 
-    const updateUUID = async () => {
-      if(!(await isValidForm(uuidForm))) return
-      loader.show();
-      const data = resolveFormValues(uuidForm, true).formData;
-      await GLOBAL_PROP.setSiteUUID(data.uuid);
+    const updateUUID = async () => submitForm(uuidForm, async ({ uuid }) => {
+      await GLOBAL_PROP.setSiteUUID(uuid);
       toastSuccess('Site Prefix updated successfully');
-      loader.hide();
-    } 
+    })
 
     onMounted( async () => {
       prefixForm.prefix.value = await GLOBAL_PROP.sitePrefix();

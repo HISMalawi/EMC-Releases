@@ -3,7 +3,7 @@
     <ion-toolbar>
       <ion-title>Edit Patient Demographics</ion-title>
       <ion-buttons slot="end">
-        <ion-button @click="closeModal">
+        <ion-button @click="modal.hide()">
           <ion-icon slot="icon-only" name="close"></ion-icon>
         </ion-button>
       </ion-buttons>
@@ -27,7 +27,7 @@
             :allowEstimation="true"
             :estimationLabel="'Estimate Age'"
             minDate="1900-01-01"
-            @isEstimated="(estimate: boolean) => isBirthdateEstimated = estimate"/>
+            @isEstimated="(estimate) => isBirthdateEstimated = estimate"/>
         </ion-col>
         <ion-col size="12" class="ion-margin-top ion-margin-bottom">
           <SelectInput v-model="patient.gender" :options="genderOptions" />
@@ -46,7 +46,7 @@
   </ion-content>
   <ion-footer>
     <ion-toolbar>
-      <ion-button color="primary" @click="closeModal" slot="end">Close</ion-button>
+      <ion-button color="primary" @click="modal.hide()" slot="end">Close</ion-button>
       <ion-button class="ion-margin-end" color="success" @click="onFinish" slot="end">Save</ion-button>
     </ion-toolbar>
   </ion-footer>
@@ -54,7 +54,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, reactive, ref } from "vue";
-import { IonGrid, IonRow, IonCol, modalController } from "@ionic/vue";
+import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Option } from "@/components/Forms/FieldInterface";
 import { LocationService } from "@/services/location_service";
@@ -65,12 +65,12 @@ import TextInput from "../inputs/TextInput.vue";
 import DateInput from "../inputs/DateInput.vue";
 import SelectInput from "../inputs/SelectInput.vue";
 import { getLandmarks, getVillagesByName } from "@/utils/HisFormHelpers/LocationFieldOptions";
-import { isValidForm, resolveFormValues } from "@/apps/EMC/utils/form";
+import { submitForm } from "@/apps/EMC/utils/form";
 import { Patientservice } from "@/services/patient_service";
-import { loader } from "@/utils/loader";
 import EventBus from "@/utils/EventBus";
 import { EmcEvents } from "../../interfaces/emc_event";
 import { genderOptions } from "../../utils/DTFormElements";
+import { modal } from "@/utils/modal";
 
 export default defineComponent({
   components: {
@@ -141,10 +141,6 @@ export default defineComponent({
       }
     })
 
-    const closeModal = (data?: any) => {
-      modalController.dismiss(data);
-    };
-
     const resolveAddress = async (village: Option) => {
       const address = {
         'current_district': "N/A",
@@ -163,44 +159,35 @@ export default defineComponent({
       return address;
     }
 
-    const onFinish = async () => {
-      await loader.show("Updating patient...");
-      if(!(await isValidForm(patient))) return loader.hide();
-      try {
-        const { formData } = resolveFormValues(patient)
-        const updatedPatient = {} as any;
-        if(formData.givenName !== props.patientService.getGivenName()) updatedPatient["given_name"] = formData.givenName;
-        if(formData.familyName !== props.patientService.getFamilyName()) updatedPatient["family_name"] = formData.familyName;
-        if(formData.middleName !== props.patientService.getMiddleName()) updatedPatient["middle_name"] = formData.middleName;
-        if(formData.birthdate !== props.patientService.getBirthdate()) updatedPatient["birthdate"] = formData.birthdate;
-        if(formData.cellPhoneNumber !== props.patientService.getPhoneNumber()) updatedPatient["cell_phone_number"] = formData.cellPhoneNumber;
-        if(formData.landmark.label !== props.patientService.getClosestLandmark()) updatedPatient["landmark"] = formData.landmark.label;
-        if(formData.homeVillage !== props.patientService.getCurrentVillage()) {
-          Object.assign(updatedPatient, {
-            ...updatedPatient,
-            ...(await resolveAddress(formData.homeVillage))
-          })
-        }
-        if(!isEmpty(updatedPatient)) {
-          const person = new PatientRegistrationService();
-          person.setPersonID(props.patientService.getID());
-          await person.updatePerson(updatedPatient);
-        }
-        await loader.hide();
-        closeModal();
-        EventBus.emit(EmcEvents.RELOAD_PATIENT_DATA);
-      } catch (error) {
-        await loader.hide();
-        console.log(error)
-      } 
-    }
+    const onFinish = async () => submitForm(patient, async (formData) => {
+      const updatedPatient = {} as any;
+      if(formData.givenName !== props.patientService.getGivenName()) updatedPatient["given_name"] = formData.givenName;
+      if(formData.familyName !== props.patientService.getFamilyName()) updatedPatient["family_name"] = formData.familyName;
+      if(formData.middleName !== props.patientService.getMiddleName()) updatedPatient["middle_name"] = formData.middleName;
+      if(formData.birthdate !== props.patientService.getBirthdate()) updatedPatient["birthdate"] = formData.birthdate;
+      if(formData.cellPhoneNumber !== props.patientService.getPhoneNumber()) updatedPatient["cell_phone_number"] = formData.cellPhoneNumber;
+      if(formData.landmark.label !== props.patientService.getClosestLandmark()) updatedPatient["landmark"] = formData.landmark.label;
+      if(formData.homeVillage !== props.patientService.getCurrentVillage()) {
+        Object.assign(updatedPatient, {
+          ...updatedPatient,
+          ...(await resolveAddress(formData.homeVillage))
+        })
+      }
+      if(!isEmpty(updatedPatient)) {
+        const person = new PatientRegistrationService();
+        person.setPersonID(props.patientService.getID());
+        await person.updatePerson(updatedPatient);
+      }
+      await modal.hide()
+      EventBus.emit(EmcEvents.RELOAD_PATIENT_DATA);
+    })
  
     return {
       patient,
       getLandmarks,
       genderOptions,
       isBirthdateEstimated,
-      closeModal,
+      modal,
       onFinish, 
       getVillagesByName
     };

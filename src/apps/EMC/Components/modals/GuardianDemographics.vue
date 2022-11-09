@@ -26,7 +26,7 @@
   </ion-content>
   <ion-footer>
     <ion-toolbar>
-      <ion-button color="primary" @click="closeModal" slot="end">Close</ion-button>
+      <ion-button color="primary" @click="modal.hide()" slot="end">Close</ion-button>
       <ion-button class="ion-margin-end" color="success" @click="onFinish" slot="end">Save</ion-button>
     </ion-toolbar>
   </ion-footer>
@@ -34,18 +34,17 @@
 
 <script lang="ts">
 import { defineComponent, reactive } from "vue";
-import { IonGrid, IonRow, IonCol, modalController } from "@ionic/vue";
+import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Option } from "@/components/Forms/FieldInterface";
 import { PatientRegistrationService } from "@/services/patient_registration_service";
 import { DTForm } from "@/apps/EMC/interfaces/dt_form_field";
 import TextInput from "../inputs/TextInput.vue";
-import { isValidForm, resolveFormValues } from "@/apps/EMC/utils/form";
-import { loader } from "@/utils/loader";
-import { toUnderscores } from "@/utils/Strs";
+import { submitForm } from "@/apps/EMC/utils/form";
 import { RelationsService } from "@/services/relations_service";
 import EventBus from "@/utils/EventBus";
 import { EmcEvents } from "../../interfaces/emc_event";
+import { modal } from "@/utils/modal";
 
 export default defineComponent({
   components: {
@@ -84,52 +83,39 @@ export default defineComponent({
       },
     })
 
-    const closeModal = (data?: any) => {
-      modalController.dismiss(data);
-    };
-
-    const onFinish = async () => {
-      await loader.show("Processing...");
-      if(!(await isValidForm(guardian))) return
-      try {
-        const { formData } = resolveFormValues(guardian)
-        const person: Record<string, any> = {
-          'home_district': "N/A",
-          'home_traditional_authority': "N/A",
-          'home_village': "N/A",
-          'current_district': "N/A",
-          'current_traditional_authority': "N/A",
-          'current_village': "N/A",
-          'middle_name': "",
-          'gender': "N/A",
-          'birthdate': "N/A",
-          'birthdate_estimated': "N/A",
-          'landmark': "N/A",
-          'relationship': "N/A",
-          'patient_type': "",
-          'isPatient': false,
-          'patient_id': props.patientId
-        };
-        for (const key in formData) {
-          person[toUnderscores(key)] = formData[key]
-        }
-
-        const registrationService = new PatientRegistrationService()
-        await registrationService.registerGuardian(person)
-        const guardianId = registrationService.getPersonID()      
-        await RelationsService.createRelation(props.patientId, guardianId, 13)
-        await loader.hide();
-        closeModal();
-        EventBus.emit(EmcEvents.RELOAD_GUARDIAN_DATA)
-      } catch (error) {
-        await loader.hide();
-        console.log(error)
-      } 
-    }
+    const onFinish = async () => submitForm(guardian, async (formData) => {
+      const person: Record<string, any> = {
+        'home_district': "N/A",
+        'home_traditional_authority': "N/A",
+        'home_village': "N/A",
+        'current_district': "N/A",
+        'current_traditional_authority': "N/A",
+        'current_village': "N/A",
+        'middle_name': "",
+        'gender': "N/A",
+        'birthdate': "N/A",
+        'birthdate_estimated': "N/A",
+        'landmark': "N/A",
+        'relationship': "N/A",
+        'patient_type': "",
+        'isPatient': false,
+        'patient_id': props.patientId,
+        ...formData
+      };
+      const registrationService = new PatientRegistrationService()
+      await registrationService.registerGuardian(person)
+      const guardianId = registrationService.getPersonID()      
+      await RelationsService.createRelation(props.patientId, guardianId, 13)
+      await modal.hide()
+      EventBus.emit(EmcEvents.RELOAD_GUARDIAN_DATA)
+    }, 
+    { 
+      underscoreKeys: true 
+    })
  
     return {
       guardian,
-      closeModal,
+      modal,
       onFinish,
     };
   },
