@@ -6,7 +6,7 @@
           <date-range-picker :range="range" @rangeChange="fetchData" />
         </ion-col>
         <ion-col size="12">
-          <line-chart :series="series" :options="options" @pointSelection="pointSelection" />
+          <line-chart :series="series" :options="options" @pointSelection="pointSelection" placeholder="select date period" />
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -17,7 +17,7 @@ import { defineComponent, reactive, ref } from "vue";
 import Layout from "@/apps/EMC/Components/Layout.vue";
 import LineChart from "@/apps/EMC/Components/charts/LineChart.vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
-import { uniq } from "lodash";
+import { isEmpty, uniq } from "lodash";
 import DateRangePicker, { DateRange } from "@/apps/EMC/Components/inputs/DateRangePicker.vue";
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
 import { loader } from "@/utils/loader";
@@ -121,8 +121,8 @@ export default defineComponent({
     }
 
     const pointSelection = async (config: any) => {
+      if(isEmpty(series.value)) return 
       try {
-        loader.show()
         const { dataPointIndex, seriesIndex } = config
         const sIndex = seriesIndex <= 0 ? 0 : seriesIndex
         const columns: TableColumnInterface[] = [
@@ -142,7 +142,6 @@ export default defineComponent({
             "address": `${p.getCurrentVillage()}`
           })
         }
-        loader.hide()
 
         const rowActionButtons: RowActionButtonInterface[] = [{ 
           label: "Select", 
@@ -160,7 +159,6 @@ export default defineComponent({
         })
 
       } catch (e) {
-        loader.hide()
         console.log(e)
       }
     }
