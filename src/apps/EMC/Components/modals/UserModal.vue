@@ -55,9 +55,8 @@ import { Option } from "@/components/Forms/FieldInterface";
 import { UserService } from "@/services/user_service";
 import { Role } from "@/interfaces/role";
 import { isValidForm, resolveFormValues } from "../../utils/form";
-import { loader } from "@/utils/loader";
 import { isEmpty } from "lodash";
-import { toastSuccess, toastWarning } from "@/utils/Alerts";
+import { toastWarning } from "@/utils/Alerts";
 import { RecordConflictError } from "@/services/service";
 
 export default defineComponent({
@@ -92,8 +91,10 @@ export default defineComponent({
         value: get(props.user, 'person.names[0].given_name', ''),
         label: 'First Name',
         required: true,
+        validation: async (name) => `${name.value}`.length > 2 ? null : ['Name must be atleast 3 characters long']
       },
       familyName: {
+        validation: async (name) => `${name.value}`.length > 2 ? null : ['Name must be atleast 3 characters long'],
         value: get(props.user, 'person.names[0].family_name', ''),
         label: 'Last Name',
         required: true,
@@ -142,25 +143,20 @@ export default defineComponent({
 
     const submit = async () => {
       if(!(await isValidForm(form))) return
-      loader.show();
       const { formData } = resolveFormValues(form, true);
       let user = {...formData, roles: formData.roles.map((r: Option) => r.label)}
       try {
         if(isEmpty(props.user)){
           user = await UserService.createUser(user);
-          toastSuccess('User created successfully');
         } else {
           user = await UserService.updateUser(props.user['user_id'], user);
-          toastSuccess('User updated successfully');
         }
-        loader.hide();
         modal.hide(user);
       } catch (error) {
-        loader.hide();
         if(error instanceof RecordConflictError) {
           return form.username.error = "Username already exists"
         }
-        toastWarning(error, 2000)
+        toastWarning(JSON.stringify(error), 2000)
       }
     }
 

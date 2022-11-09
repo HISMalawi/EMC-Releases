@@ -89,9 +89,9 @@ export default defineComponent({
       {
         label: "Add New User",
         action: async () => {
-          const { user } = await modal.show(UserModalVue)
-          if(isEmpty(user)) return
-          rows.value.push(toSummaryDetails(user))
+          const data = await modal.show(UserModalVue)
+          if(isEmpty(data?.user)) return
+          rows.value.push(toSummaryDetails(data.user))
         }
       }
     ]
