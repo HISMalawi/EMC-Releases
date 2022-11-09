@@ -151,7 +151,7 @@ export default defineComponent({
     };
 
     watch(date, newDate => {
-      model.value.value = newDate;
+      if(newDate) model.value.value = newDate
     })
 
     watch(() => props.modelValue.value, (date) => {
