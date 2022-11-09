@@ -128,7 +128,7 @@ import { ReceptionService } from "@/apps/ART/services/reception_service";
 import { AdherenceService } from "@/apps/ART/services/adherence_service";
 import { AppointmentService } from "@/apps/ART/services/appointment_service";
 import { PrescriptionService } from "@/apps/ART/services/prescription_service";
-import dayjs from "dayjs";
+import dayjs, { ConfigType } from "dayjs";
 import { ObsValue } from "@/services/observation_service";
 import { BMIService } from "@/services/bmi_service";
 import { DispensationService } from "@/apps/ART/services/dispensation_service";
@@ -139,6 +139,7 @@ import { modal } from "@/utils/modal";
 import { EmcEvents } from "../../interfaces/emc_event";
 import EventBus from "@/utils/EventBus";
 import { uniqueBy } from "@/utils/Arrays";
+import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 
 export default defineComponent({
   components: {
@@ -182,6 +183,7 @@ export default defineComponent({
     const prevDrugs = ref<any[]>([]);
     const showHeightField = computed(() => !(prevHeight.value && props.patient.getAge() > 18))
     const isFemale = computed(() => props.patient.isFemale())
+    const drugRunOutDate = ref<ConfigType>('');
 
     const form = reactive<DTForm>({
       visitDate: {
@@ -247,9 +249,7 @@ export default defineComponent({
           if(dayjs(date.value).isBefore(dayjs(form.visitDate.value))) {
             return ["Appointment date cannot be before visit date"]
           }
-          const arvs = parseInt(form.totalArvsGiven.value) || 0
-          const remainingDrugs = parseInt(form.pillCount.value) || 0
-          if(dayjs(date.value).isAfter(dayjs(form.visitDate.value).add(arvs + remainingDrugs, 'days'))) {
+          if(dayjs(date.value).isAfter(dayjs(drugRunOutDate.value))) {
             return ["Appointment date cannot be after drug run out date"]
           }
           return null
@@ -407,6 +407,13 @@ export default defineComponent({
         form.patientPresent.value = "Yes"
         form.patientPresent.disabled = true
       }
+    })
+
+    watch([() => form.totalArvsGiven.value, () => form.pillCount.value], () => {
+      const arvs = parseInt(form.totalArvsGiven.value) || 0
+      const remainingDrugs = parseInt(form.pillCount.value) || 0
+      drugRunOutDate.value = dayjs(form.visitDate.value).add(arvs + remainingDrugs, 'days')
+      form.nextAppointmentDate.label = `Next Appointment Date (Drug run out date: ${drugRunOutDate.value.format(DISPLAY_DATE_FORMAT)})`
     })
 
     const hasGiven3HP = computed(() => form.tbMed.value?.label === '3HP (INH 300 / RFP 300)')
