@@ -20,7 +20,7 @@
       </ion-row>
       <template v-else>
         <ion-row v-if="outcomes" class="his-card" style="margin-bottom: .4rem;">
-          <outcome-form :outcomes="outcomes" @saveOutcome="saveOutcome" />
+          <outcome-form :date-enrolled="enrollDate" :birthdate="birthdate" :outcomes="outcomes" @saveOutcome="saveOutcome" />
         </ion-row>    
         <ion-row class="his-card" style="padding: 0 !important;" :style="{ minHeight: totalStates ? '0' : '30vh'}" >
           <ion-col size="12" class="ion-no-padding">
@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue";
+import { computed, defineComponent, onMounted, PropType, ref } from "vue";
 import { 
   IonCol, 
   IonGrid, 
@@ -60,10 +60,10 @@ import { Option } from "@/components/Forms/FieldInterface";
 import OutcomesTable from "../tables/OutcomesTable.vue";
 import EnrollmentForm from "../EnrollmentForm.vue";
 import OutcomeForm from "../OutcomeForm.vue";
-import { loader } from "@/utils/loader";
 import { modal } from "@/utils/modal";
 import EventBus from "@/utils/EventBus";
 import { EmcEvents } from "../../interfaces/emc_event";
+import { Patientservice } from "@/services/patient_service";
 
 export default defineComponent({
   components: {
@@ -82,14 +82,15 @@ export default defineComponent({
     OutcomeForm,
   },
   props: {
-    patientId: {
-      type: Number,
+    patient: {
+      type: Object as PropType<Patientservice>,
       required: true
     },
   },
   setup(props) {
-    const { toStandardHisDisplayFormat } = HisDate
-    const patientProgram = new PatientProgramService(props.patientId);
+    const { toStandardHisDisplayFormat, toStandardHisFormat } = HisDate
+    const patientProgram = new PatientProgramService(props.patient.getID());
+    const birthdate = computed(() => toStandardHisFormat(props.patient.getBirthdate()))
     const program = ref<Record<string, any>>();
     const isEnrolled = computed(() => !isEmpty(program.value));
     const enrollDate = ref('');
@@ -101,24 +102,20 @@ export default defineComponent({
     );
 
     const saveOutcome = async ({ date, status, nextFacility}: any) => {
-      loader.show();
       patientProgram.setStateDate(date);
       patientProgram.setStateId(status.value);
       if(nextFacility) {
         await patientProgram.transferOutEncounter(nextFacility.other);
       }
       await patientProgram.updateState();
-      await loader.hide()
       await toastSuccess('Outcome saved successfully', 1000);
       await modal.hide();
       EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA);
     }
 
     const enrollProgram = async (date: string) => {
-      await loader.show();
       patientProgram.setProgramDate(date);
       await patientProgram.enrollProgram();
-      await loader.hide();
       await toastSuccess("Program enrolled successfully", 1000);
       await modal.hide();
       EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA);
@@ -159,6 +156,7 @@ export default defineComponent({
       patientProgram,
       isEnrolled,
       enrollDate,
+      birthdate,
       enrollmentStatus,
       outcomes,
       program,

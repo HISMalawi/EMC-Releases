@@ -26,7 +26,7 @@ import { IonGrid, IonRow, IonCol, IonButton } from "@ionic/vue";
 import dayjs from "dayjs";
 import { computed, defineComponent, PropType, reactive } from "vue";
 import { DTForm } from "../interfaces/dt_form_field";
-import { isValidForm, resolveFormValues } from "../utils/form";
+import { submitForm } from "../utils/form";
 import DateInput from "./inputs/DateInput.vue";
 import SelectInput from "./inputs/SelectInput.vue";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
@@ -40,6 +40,14 @@ export default defineComponent({
       type: Array as PropType<Option[]>,
       required: true,
     },
+    dateEnrolled: {
+      type: String,
+      required: true
+    },
+    birthdate: {
+      type: String,
+      required: true
+    }
   },
   components: {
     DateInput,
@@ -50,13 +58,18 @@ export default defineComponent({
     SelectInput,
   },
   emits: ["saveOutcome"],
-  setup(_props, { emit }) {
+  setup(props, { emit }) {
     const today = dayjs().format("YYYY-MM-DD");
     const form = reactive<DTForm>({
       date: {
         value: "",
         label: "Outcome Date",
         required: true,
+        validation: async (date) => {
+          if(dayjs(date.value).isBefore(props.birthdate)) return ["Outcome date cannot be before date of birth"]
+          if(dayjs(date.value).isBefore(props.dateEnrolled)) return ["Outcome date cannot be before enrollment date"]
+          return null
+        }
       },
       status: {
         value: "",
@@ -82,12 +95,7 @@ export default defineComponent({
       }
     }
 
-    const onSave = async () => {
-      if(await isValidForm(form)) {
-        const data = resolveFormValues(form).formData;
-        emit("saveOutcome", data);
-      }
-    }
+    const onSave = () => submitForm(form, data => emit("saveOutcome", data))
 
     return {
       form,
