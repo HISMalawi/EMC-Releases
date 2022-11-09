@@ -131,30 +131,36 @@ export default defineComponent({
           { path: "gender", label: "Gender", formatter: toGenderString },
           { path: "address", label: "Address" }
         ]
-        const rows: any[] = []
-        for(const patient of series.value[sIndex].raw[dataPointIndex]) {
-          const data = await Patientservice.findByID(patient)
-          const p = new Patientservice(data)
-          rows.push({
-            "arv_number": p.getArvNumber(),
-            "birthdate": p.getBirthdate(),
-            "gender": p.getGender(),
-            "address": `${p.getCurrentVillage()}`
-          })
+
+        const rows = ref<any[]>([])
+
+        const popolulateRows = async () => {
+          for(const patient of series.value[sIndex].raw[dataPointIndex]) {
+            const data = await Patientservice.findByID(patient)
+            const p = new Patientservice(data)
+            rows.value.push({
+              "arv_number": p.getArvNumber(),
+              "birthdate": p.getBirthdate(),
+              "gender": p.getGender(),
+              "address": `${p.getCurrentVillage()}`
+            })
+          }
         }
+        
+        popolulateRows()
 
         const rowActionButtons: RowActionButtonInterface[] = [{ 
           label: "Select", 
           default: true, 
           action: (row: any) => {
-            router.push(`/emc/patient/${row['person_id']}`)
+            router.push(`/emc/patient/${row['patient_id']}`)
           } 
         }]
 
         await modal.show(DrilldownTableVue, {
           title: `Patient Drilldown`,
           columns,
-          rows,
+          rows: rows.value,
           rowActionButtons,
         })
 
