@@ -53,3 +53,7 @@ export function toNumString(num: number | string) {
     }
     return num
 }
+
+export function toSentenceCase (str: string) {
+    return str.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase())
+}

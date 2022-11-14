@@ -1,100 +1,98 @@
 <template>
-  <ion-row>
-    <ion-col size="2">
-      <img id="barcode-img" src="/assets/images/barcode.svg"/>
-    </ion-col>
-    <ion-col size="10">
-      <input 
-        :readonly="activePlatformProfile.keyboard === KeyboardType.HIS_KEYBOARD_ONLY" 
-        id="barcode-inputbox" 
-        placeholder="Scan barcode or QR Code"
-        v-model="barcodeText"
-      />
-    </ion-col>
-  </ion-row>
+  <ion-grid>
+    <ion-row>
+      <ion-col :size="iconSize" @click="useCameraScanner" style="max-height: 100px;">
+        <img id="barcode-img" class="clickable" src="/assets/images/barcode.svg"/>
+      </ion-col>
+      <ion-col :size="inputSize">
+        <input 
+          :readonly="activePlatformProfile.keyboard === KeyboardType.HIS_KEYBOARD_ONLY" 
+          id="barcode-inputbox" 
+          placeholder="Scan barcode or QR Code"
+          v-model="typedBarcode"
+          :autofocus="true"
+          :style="{ fontSize, textShadow: 'wrap' }"
+        />
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from 'vue';
-import {IonCol,IonRow} from "@ionic/vue";
-import handleVirtualInput from "@/components/Keyboard/KbHandler"
-import usePlatform, { ScannerType, KeyboardType } from '@/composables/usePlatform';
+import { computed, defineComponent, PropType, ref, watch } from 'vue';
+import {IonCol,IonGrid,IonRow} from "@ionic/vue";
+import usePlatform, { KeyboardType } from '@/composables/usePlatform';
 import useBarcode from '@/composables/useBarcode';
-import { useRouter } from 'vue-router';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 
 export default defineComponent({
   name: 'BarcodeInput',
-  components: {
-    IonRow,
-    IonCol,
+  components: { IonRow,  IonCol, IonGrid },
+  props: {
+    clearValue: String, 
+    virtualText: String,
+    size: {
+      type: String as PropType<"small" | "medium" | "Large">,
+      default: "large"
+    }
   },
-  props: ['clearValue', 'virtualText'],
   emits: ['onScan', 'onValue'],
-  setup(_props, { emit }) {
-    const router = useRouter();
+  setup(props, { emit }) {
     const { activePlatformProfile } = usePlatform()
+    const scannedBarcode =  useBarcode()
+    const typedBarcode = ref('')
 
-    const barcode =  useBarcode()
-
-    watch(barcode, (newValue) => {
-      if (newValue) {
-        emit('onScan', newValue)
-        emit('onValue', newValue)
+    const useCameraScanner = () => {
+      try {
+        BarcodeScanner.scan().then(data => {
+          scannedBarcode.value = data.text
+        })
+      } catch (error) {
+        console.log(error)
       }
+    }
+
+    watch(() => props.clearValue, () => typedBarcode.value = '')
+    watch(() => props.virtualText, (v) => typedBarcode.value = v || '')
+    watch(scannedBarcode, (scannedCode) => {
+      if(typedBarcode.value && !typedBarcode.value.match(/.+\$$/i)) return
+      const finalCode = typedBarcode.value 
+        ? typedBarcode.value.replace(/\$/ig, '')
+        : scannedCode
+
+      emit("onScan", finalCode)
+      emit("onValue", finalCode)
+      typedBarcode.value = ''
     })
-    
     return  {
+      typedBarcode,
       KeyboardType,
       activePlatformProfile,
+      iconSize: computed(() => props.size === 'small' ? 3 : 2),
+      inputSize: computed(() => props.size === 'small' ? 9 : 10),
+      fontSize: computed(() => props.size === 'small' ? '15px' : '42px'),
+      useCameraScanner,
     }
   },
-  data: () => ({
-    barcodeText: '',
-  }),
-  methods: {
-    checkForbarcode(){
-      if(this.barcodeText.match(/.+\$$/i) != null){
-        const text = this.barcodeText.replace(/\$/ig, '');
-        this.$emit('onScan', text)
-        this.barcodeText = ''
-      }
-    }
-  },
-  watch: {
-    clearValue() {
-      this.barcodeText = ''
-    },
-    virtualText(val) {
-      this.barcodeText = handleVirtualInput(val, this.barcodeText)
-    },
-    barcodeText: function(text) {
-      if (text) {
-        this.checkForbarcode();
-        this.$emit('onValue', text)
-      }
-    }
-  }
 });
 </script>
 <style scoped>
 input:focus {
   outline: none !important;
   border-color: #719ECE;
-  box-shadow: 0 0 5px #202020;
 }
 #barcode-img {
-  width: 70%;
+  height: 100% !important;
 }
 #barcode-inputbox {
   font-weight: bold;
-  padding: 5px;
-  font-size: 2.9em;
+  padding: .5em;
   border-style: solid;
-  border-width: 0px 0px 2px 0px;
+  border-width: 0px 0px 1px 0px;
   border-color: #ccc;
   background-color: white;
   width: 100%;
-  height: 90%;
+  height: 85%;
 }
 @media (min-width: 200px) and (max-width: 900px) { 
   #barcode-img {

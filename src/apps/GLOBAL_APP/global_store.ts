@@ -87,6 +87,10 @@ const DEFS: Record<string, StoreDef> = {
             return !isCacheEnabled() || !(params.patientID && Array.isArray(state) && state.length
                 && state[0].patient_id === params.patientID)
         }
+    },
+    'IS_MW_NATIONAL_ID_SCANNER_ENABLED': {
+        get: () => GLOBAL_PROP.malawiNationalIDScannerEnabled(),
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
     }
 }
 export default DEFS
