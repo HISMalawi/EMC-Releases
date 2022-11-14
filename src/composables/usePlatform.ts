@@ -57,7 +57,7 @@ export default function usePlatform () {
   const platformProfiles = ref({} as Record<string, PlatformProfileInterface>)
   const configuredProfile: string | null = localStorage.getItem(PLATFORM_SESSION_KEY.ACTIVE_PLOFILE)
   // Profiles in configuration file
-  const profiles: string | null = sessionStorage.getItem(PLATFORM_SESSION_KEY.PLATFORM_PROFILES)
+  const profiles: string | null = localStorage.getItem(PLATFORM_SESSION_KEY.PLATFORM_PROFILES)
 
   if (typeof profiles === 'string') {
     platformProfiles.value = JSON.parse(profiles)
