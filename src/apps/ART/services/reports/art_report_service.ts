@@ -13,9 +13,11 @@ export class ArtReportService extends Service {
     startDate: string;
     endDate: string;
     date: string;
-    quarter: string
+    quarter: string;
+    occupation: string;
     constructor() {
         super()
+        this.occupation = ''
         this.endDate = ''
         this.startDate = ''
         this.quarter = ''
@@ -39,12 +41,22 @@ export class ArtReportService extends Service {
         this.quarter = quarter
     }
 
+    setOccupation(occupation: string) {
+        this.occupation = occupation
+    }
+
     getReport(url: string, params={}) {
         return Service.getJson(url, this.buildRequest(params))
     }
 
     buildRequest(config: Record<string, any> = {}) {
-        const payload: any = {'date': this.date, 'program_id': this.programID}
+        const payload: any = {
+            'date': this.date, 
+            'program_id': this.programID,
+        }
+        if (this.occupation) {
+            payload['occupation'] = this.occupation
+        }
         if (this.startDate && this.endDate) {
             payload['start_date'] = this.startDate
             payload['end_date'] = this.endDate

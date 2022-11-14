@@ -86,6 +86,7 @@ export default defineComponent({
         this.startDate = HisDate.toStandardHisFormat(form.quarter.other.start)
         this.endDate = HisDate.toStandardHisFormat(form.quarter.other.end)
       }
+      this.report.setOccupation(config.occupation)
       this.report.setQuarter(this.quarter)
       this.report.setStartDate(this.startDate)
       this.report.setEndDate(this.endDate)

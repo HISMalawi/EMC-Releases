@@ -53,6 +53,7 @@ export default defineComponent({
             this.report = new PatientReportService()
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
+            this.report.setOccupation(config.occupation)
             this.period = this.report.getDateIntervalPeriod()
             const data = await this.report.getClientsDueForVl()
             this.exportedReportTitle = `${PatientReportService.getLocationName()} Clinic Clients due for VL (clients with appointments in specified period) ${this.period}`

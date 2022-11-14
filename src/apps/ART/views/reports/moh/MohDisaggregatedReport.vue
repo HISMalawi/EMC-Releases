@@ -118,16 +118,20 @@ export default defineComponent({
             this.report = new DisaggregatedReportService()
             this.mohCohort = new MohCohortReportService()
             if (form.quarter) {
+                this.mohCohort.setOccupation(config.occupation)
                 this.mohCohort.setQuarter(form.quarter.label)
                 this.mohCohort.setStartDate(form.quarter.other.start)
                 this.mohCohort.setEndDate(form.quarter.other.end)
                 this.report.setQuarter(form.quarter.label)
+                this.report.setOccupation(config.occupation)
                 this.report.setStartDate(form.quarter.other.start)
                 this.report.setEndDate(form.quarter.other.end)
                 this.period = form.quarter.label === 'Custom'
                     ? this.report.getDateIntervalPeriod()
                     : form.quarter.label
             } else {
+                this.report.setOccupation(config.occupation)
+                this.mohCohort.setOccupation(config.occupation)
                 this.mohCohort.setStartDate(config.start_date)
                 this.mohCohort.setEndDate(config.end_date)
                 this.report.setStartDate(config.start_date)
