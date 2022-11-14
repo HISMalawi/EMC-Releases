@@ -45,6 +45,7 @@ export default defineComponent({
         const res = {
           'reallocation_code': formData.authorization.value,
           quantity: total,
+          date: formData.date.value,
           reason: formData.reasons.value,
         };
         try {
