@@ -1,37 +1,34 @@
 <template>
-    <report-template
-        :title="title"
-        :rows="rows"
-        :paginated="true"
-        :customBtns="[
-            {
-                name: 'DATE',
-                size: 'large',
-                slot: 'end',
-                color: 'warning',
-                visible: true,
-                onClick: setReport
-            }
-        ]"
-        :columns="columns"> 
-    </report-template>
+    <ion-page>
+        <report-template
+            :title="title"
+            :rows="rows"
+            :paginated="true"
+            :period="period"
+            :fields="fields"
+            :columns="columns"
+            :onReportConfiguration="onPeriod"
+            > 
+        </report-template>
+    </ion-page>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue'
 import { StockReportService } from "@/apps/ART/services/reports/stock_report_service"
 import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
-import ReportTemplate from "@/apps/ART/views/reports/BasicReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
-import { MultiStepPopupForm } from "@/utils/PopupKeyboard"
 import { toastDanger } from '@/utils/Alerts'
-import { loadingController, modalController } from '@ionic/core'
+import { FieldType } from '@/components/Forms/BaseFormElements'
+import { Field, Option } from "@/components/Forms/FieldInterface";
+import Validation from "@/components/Forms/validations/StandardValidations";
+import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 
 export default defineComponent({
     mixins: [ReportMixin],
     components: { ReportTemplate },
     data: () => ({
-        title: 'Audit trail',
+        title: 'Audit Trail',
         rows: [] as Array<any>,
         columns: [
             [
@@ -40,41 +37,42 @@ export default defineComponent({
                 table.thTxt('Transaction date'), 
                 table.thTxt('Net Quantity'),
             ]
-        ]
+        ],
+        fields: [
+            {
+                id: "start_date",
+                helpText: "Start Date",
+                type: FieldType.TT_FULL_DATE,
+                validation: (val: Option) => Validation.required(val),
+            },
+            {
+                id: "end_date",
+                helpText: "End Date",
+                type: FieldType.TT_FULL_DATE,
+                validation: (val: Option) => Validation.required(val),
+            },
+        ] as Field[]
     }),
-    mounted() {
-        this.setReport()
-    },
     methods: {
-        setReport() {
+        async onPeriod(_: any, c: any) {
             this.rows = []
-            MultiStepPopupForm(this.getDateDurationFields(),
-            async (_: any, c: any) => {
-                await modalController.dismiss();
-                (await loadingController.create({
-                    message: 'Please wait',
-                    backdropDismiss: false
-                })).present()
-                this.report = new StockReportService()
-                this.report.setStartDate(c.start_date)
-                this.report.setEndDate(c.end_date)
-                this.title = `Audit trail ${this.report.getDateIntervalPeriod()}`
-                this.report.loadTrail()
-                    .then((stock: any) => {
-                        stock.forEach((s: any) => {
-                            this.rows.push([
-                                table.td(s.drug_name),
-                                table.td(s.transaction_type),
-                                table.tdDate(s.transaction_date),
-                                table.tdNum(s.amount_committed_to_stock),
-                            ])
-                        })
-                        loadingController.dismiss()
-                    }).catch((e: any) => {
-                        loadingController.dismiss()
-                        toastDanger(e)
+            this.report = new StockReportService()
+            this.report.setStartDate(c.start_date)
+            this.report.setEndDate(c.end_date)
+            this.period = this.report.getDateIntervalPeriod()
+            this.report.loadTrail()
+                .then((stock: any) => {
+                    stock.forEach((s: any) => {
+                        this.rows.push([
+                            table.td(s.drug_name),
+                            table.td(s.transaction_type),
+                            table.tdDate(s.transaction_date),
+                            table.tdNum(s.amount_committed_to_stock),
+                        ])
                     })
-            })
+                }).catch((e: any) => {
+                    toastDanger(e)
+                })
         }
     }
 })
