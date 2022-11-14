@@ -64,7 +64,7 @@
                             </table>
                         </div> 
                         <div class='barcode-section'> 
-                            <barcode @onScan="onScan"/>
+                            <barcode @onScan="onScan" class="his-card"/>
                         </div>
                     </div>
                     <!-- PRESCRIPTION END -->

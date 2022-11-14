@@ -1,7 +1,7 @@
 <template>
   <ion-grid>
     <ion-row>
-      <ion-col :size="iconSize" @click="useCameraScanner">
+      <ion-col :size="iconSize" @click="useCameraScanner" style="max-height: 100px;">
         <img id="barcode-img" class="clickable" src="/assets/images/barcode.svg"/>
       </ion-col>
       <ion-col :size="inputSize">
@@ -82,12 +82,11 @@ input:focus {
   border-color: #719ECE;
 }
 #barcode-img {
-  max-height: 200px !important;
-  width: 100% !important;
+  height: 100% !important;
 }
 #barcode-inputbox {
   font-weight: bold;
-  padding: .3em;
+  padding: .5em;
   border-style: solid;
   border-width: 0px 0px 1px 0px;
   border-color: #ccc;
