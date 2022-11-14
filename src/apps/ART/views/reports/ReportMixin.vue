@@ -27,7 +27,14 @@ export default defineComponent({
     }),
     methods: {
         formatGender(gender: string) {
-            return gender === 'M' || gender.toLowerCase() === 'male' ? "Male" : "Female"
+            const upCaseGender = `${gender}`.toUpperCase()
+            if (upCaseGender === 'M' || upCaseGender === 'MALE') {
+                return 'Male'
+            }
+            if (upCaseGender === 'F' || upCaseGender === 'FEMALE') {
+                return 'Female'
+            }
+            return gender
         },
         toDate(date: string) {
             return HisDate.toStandardHisDisplayFormat(date)
