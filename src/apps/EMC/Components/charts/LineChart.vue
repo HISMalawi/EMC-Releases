@@ -48,9 +48,16 @@ export default defineComponent({
           type: 'line',
         },
         xaxis: {
+          type: 'datetime',
+          tickAmount: 2,
           labels: {
             show: true,
             rotate: -75,
+          }
+        },
+        tooltip: {
+          x: {
+            format: 'dd/MMM/yyyy'
           }
         },
         title: {
