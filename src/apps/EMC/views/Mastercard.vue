@@ -27,7 +27,7 @@
 </layout>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onMounted, reactive, ref, watch } from "vue";
+import { computed, defineComponent, onMounted, ref } from "vue";
 import HisDate from "@/utils/Date";
 import { Patient } from "@/interfaces/patient";
 import { RelationshipService } from "@/services/relationship_service";

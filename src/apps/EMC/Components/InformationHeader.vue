@@ -24,7 +24,6 @@ import dayjs from 'dayjs';
 import { isEmpty } from 'lodash';
 import router from '@/router';
 import ApiStore from '@/composables/ApiStore';
-import { get } from '@ionic-native/core/decorators/common';
 import EventBus from '@/utils/EventBus';
 import { EmcEvents } from '../interfaces/emc_event';
 
