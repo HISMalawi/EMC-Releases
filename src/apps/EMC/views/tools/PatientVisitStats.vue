@@ -142,7 +142,8 @@ export default defineComponent({
               "arv_number": p.getArvNumber(),
               "birthdate": p.getBirthdate(),
               "gender": p.getGender(),
-              "address": `${p.getCurrentVillage()}`
+              "address": `${p.getCurrentVillage()}`,
+              ...data,
             })
           }
         }
