@@ -16,6 +16,7 @@
     :placeholder="estimationLabel"
     :disabled="model.disabled"
     :min="1"
+    @ionInput="onEstimate"
     @ionFocus="() => model.error = ''"
     @ionBlur="validate"
   />
@@ -66,6 +67,8 @@ import { computed, defineComponent, PropType, ref, watch } from "vue";
 import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 import HisDate from "@/utils/Date";
 import dayjs from "dayjs";
+import StandardValidations from "@/components/Forms/validations/StandardValidations";
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   name: "DateInput",
@@ -109,10 +112,15 @@ export default defineComponent({
     const month = ref<number>(props.modelValue.value ? dayjs(props.modelValue.value).month() + 1 : 0);
     const year = ref<number | undefined>(props.modelValue.value ? dayjs(props.modelValue.value).year() : undefined);
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    const model = computed({
+      get: () => props.modelValue as DTFormField,
+      set: (value) => emit("update:modelValue", value)
+    })
 
     const date = computed(() => {
       if (isEstimated.value && age.value) {
-        return  HisDate.toStandardHisFormat(HisDate.estimateDateFromAge(age.value));
+        return HisDate.toStandardHisFormat(HisDate.estimateDateFromAge(age.value));
       }
       if (day.value && month.value && year.value) {
         const date = `${year.value}-${month.value}-${day.value}`
@@ -122,10 +130,10 @@ export default defineComponent({
       return ``;
     });
 
-    const model = computed({
-      get: () => props.modelValue as DTFormField,
-      set: (value) => emit("update:modelValue", value)
-    })
+    const onEstimate = (e: any) => {
+      model.value.error = StandardValidations.isNumber({value: e.target.value})?.join()
+      if(!model.value.error) age.value = parseInt(e.target.value)
+    }
 
     const validate = async () => {
       if (model.value.required && !model.value.value) {
@@ -171,6 +179,7 @@ export default defineComponent({
 
     return {
       validate,
+      onEstimate,
       isEstimated,
       model,
       age,
