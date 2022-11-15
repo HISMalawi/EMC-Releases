@@ -205,6 +205,7 @@ export default defineComponent({
 
       await PatientLabResultService.resetSessionDate()
       await modal.hide()
+      EventBus.emit(EmcEvents.RELOAD_LATEST_VL_RESULT)
       EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA)
     })
 

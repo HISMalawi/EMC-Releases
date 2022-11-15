@@ -25,6 +25,8 @@ import { isEmpty } from 'lodash';
 import router from '@/router';
 import ApiStore from '@/composables/ApiStore';
 import { get } from '@ionic-native/core/decorators/common';
+import EventBus from '@/utils/EventBus';
+import { EmcEvents } from '../interfaces/emc_event';
 
 export default defineComponent({
   components: {
@@ -209,6 +211,10 @@ export default defineComponent({
       stagingCondition.value = await props.patient.getStagingCondition()
       latestVLResult.value = await getLatestVLResult()
       await setHIVTestDate()
+      EventBus.on(EmcEvents.RELOAD_LATEST_VL_RESULT, async () => {
+        ApiStore.invalidate('PATIENT_LAB_ORDERS')
+        latestVLResult.value = await getLatestVLResult()
+      })
     })
 
     return {
