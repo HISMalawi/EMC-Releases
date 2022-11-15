@@ -56,9 +56,8 @@ import SelectInput from "../Components/inputs/SelectInput.vue";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import dayjs from "dayjs";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
-import { isValidForm, resolveFormValues, resolveObs, submitForm } from "../utils/form";
+import { resolveObs, submitForm } from "../utils/form";
 import { StagingService } from "@/apps/ART/services/staging_service";
-import { loader } from "@/utils/loader";
 
 export default defineComponent({
   components: {
