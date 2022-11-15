@@ -86,6 +86,7 @@ export default defineComponent({
             this.cohort = await this.report.getTBPrevReport()
             this.setRows('F')
             this.setRows('M')
+            this.setTotalMaleRow()
         },
         makeDrilldown(data: Array<any>, context: string) {
             if (data.length) {
@@ -109,6 +110,38 @@ export default defineComponent({
                 return table.tdLink(data.length, () => this.drilldownAsyncRows(context, columns, asyncRows))
             }
             return table.td(0)
+        },
+        aggregate(gender: 'M' | 'F', group: '6H' | '3HP', indicator: string): Array<any> {
+            return Object.values(this.cohort).reduce((patients: any, c: any) => {
+                return [...c[gender][group][indicator], ...patients]
+            }, []) as Array<any>
+        },
+        setTotalMaleRow() {
+            this.rows.push([
+                table.td('All'),
+                table.td('Male'),
+                this.makeDrilldown(this.aggregate('M', '3HP', 'started_new_on_art'), 
+                    'All male started new on 3HP'),
+                this.makeDrilldown(this.aggregate('M', '6H', 'started_new_on_art'), 
+                    `All male started new on ART 6H`),
+                this.makeDrilldown(this.aggregate('M', '3HP', 'started_previously_on_art'), 
+                    `All male started previously on ART 3HP`),
+                this.makeDrilldown(this.aggregate('M', '6H', 'started_previously_on_art'),
+                    `All male started previously on ART 6H`
+                ),
+                this.makeDrilldown(this.aggregate('M', '3HP', 'completed_new_on_art'),
+                    `All male completed new on ART 3HP`
+                ),
+                this.makeDrilldown(this.aggregate('M', '6H', 'completed_new_on_art'),
+                    `All male completed new on ART 6H`
+                ),
+                this.makeDrilldown(this.aggregate('M', '3HP', 'completed_previously_on_art'),
+                    `All male completed previously on ART 3HP`
+                ),
+                this.makeDrilldown(this.aggregate('M', '6H', 'completed_previously_on_art'),
+                    `All male completed previously on ART 6H`
+                )
+            ])
         },
         async setRows(gender: string) {
             for(const i in AGE_GROUPS) {
