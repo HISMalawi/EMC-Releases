@@ -165,6 +165,7 @@ export default defineComponent({
       if(formData.familyName !== props.patientService.getFamilyName()) updatedPatient["family_name"] = formData.familyName;
       if(formData.middleName !== props.patientService.getMiddleName()) updatedPatient["middle_name"] = formData.middleName;
       if(formData.birthdate !== props.patientService.getBirthdate()) updatedPatient["birthdate"] = formData.birthdate;
+      if(formData.gender.value !== props.patientService.getGender()) updatedPatient["gender"] = formData.gender.value;
       if(formData.cellPhoneNumber !== props.patientService.getPhoneNumber()) updatedPatient["cell_phone_number"] = formData.cellPhoneNumber;
       if(formData.landmark.label !== props.patientService.getClosestLandmark()) updatedPatient["landmark"] = formData.landmark.label;
       if(formData.homeVillage !== props.patientService.getCurrentVillage()) {
