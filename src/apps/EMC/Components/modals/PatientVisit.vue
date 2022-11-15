@@ -139,7 +139,7 @@ import { modal } from "@/utils/modal";
 import { EmcEvents } from "../../interfaces/emc_event";
 import EventBus from "@/utils/EventBus";
 import { uniqueBy } from "@/utils/Arrays";
-import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import { DISPLAY_DATE_FORMAT, STANDARD_DATE_FORMAT } from "@/utils/Date";
 
 export default defineComponent({
   components: {
@@ -414,6 +414,7 @@ export default defineComponent({
       const remainingDrugs = parseInt(form.pillCount.value) || 0
       drugRunOutDate.value = dayjs(form.visitDate.value).add(arvs + remainingDrugs, 'days')
       form.nextAppointmentDate.label = `Next Appointment Date (Drug run out date: ${drugRunOutDate.value.format(DISPLAY_DATE_FORMAT)})`
+      form.nextAppointmentDate.value = dayjs(drugRunOutDate.value).format(STANDARD_DATE_FORMAT)
     })
 
     const hasGiven3HP = computed(() => form.tbMed.value?.label === '3HP (INH 300 / RFP 300)')
