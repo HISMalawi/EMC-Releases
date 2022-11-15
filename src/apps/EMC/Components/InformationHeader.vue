@@ -99,17 +99,8 @@ export default defineComponent({
       },
       { label: "National Patient ID", value: props.patient.getNationalID() },
       {
-        label: "Given Name",
-        value: props.patient.getGivenName(),
-        other: {
-          onClickHandler: () => {
-            emit('updatePatient', 'given_name')
-          }
-        },
-      },
-      {
-        label: "Family Name",
-        value: props.patient.getFamilyName(),
+        label: "Name",
+        value: props.patient.getGivenName() + " " + props.patient.getFamilyName(),
         other: {
           onClickHandler: () => {
             emit('updatePatient', 'given_name')
@@ -185,7 +176,8 @@ export default defineComponent({
       { label: "Latest VL Result and Result Date", value:  latestVLResult.value },
       { label: "TI", value: receivedART.value  },
       { label: "Agrees to follow up", value: agreesToFollowUp.value },
-      { label: "HIV test place and date", value: `${hivTestPlace.value || 'N/A'} ${hivTestDate.value}` },
+      { label: "HIV test place", value: hivTestPlace.value },
+      {  label: "HIV test date", value: hivTestDate.value },
       { label: "WHO stage", value: whoSTage.value },
       { label: "Reason for starting ART", value: reasonForStartingART.value },
       { label: "Staging codition", value: stagingCondition.value, other: {
@@ -195,7 +187,7 @@ export default defineComponent({
 
     const setHIVTestDate = async () => {
       const date = await props.patient.getHIVTestDate()
-      if(date) hivTestDate.value = `(${HisDate.toStandardHisDisplayFormat(date)})`
+      if(date) hivTestDate.value = HisDate.toStandardHisDisplayFormat(date)
     }
 
     const init = () => {
