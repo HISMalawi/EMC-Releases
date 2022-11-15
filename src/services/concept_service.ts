@@ -75,9 +75,11 @@ export class ConceptService extends Service {
         if (concept) return concept.concept_names[0].name
     }
 
-    static getCachedConceptName(conceptId: number) {
+    static getCachedConceptName(concept: number | string) {
         const concepts = ConceptNameDictionary.filter(item => {
-            return item.concept_id === conceptId
+            return typeof concept === 'string' 
+                ? item.short?.toLowerCase() === concept.toLowerCase()
+                : item.concept_id === concept
         })
         
         if (concepts.length >= 1) return concepts[0].name

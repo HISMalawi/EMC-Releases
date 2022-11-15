@@ -636,22 +636,26 @@ export default [
    {
       "categories": [],
       "concept_id": 7455,
-      "name": "TB suspected"
+      "name": "TB suspected",
+      "short": "sup",
    },
    {
       "categories": [],
       "concept_id": 7454,
-      "name": "TB NOT suspected"
+      "name": "TB NOT suspected",
+      "short": "nosup"
    },
    {
       "categories": [],
       "concept_id": 7458,
-      "name": "Confirmed TB on treatment"
+      "name": "Confirmed TB on treatment",
+      "short": "RX",
    },
    {
       "categories": [],
       "concept_id": 7456,
-      "name": "Confirmed TB NOT on treatment"
+      "name": "Confirmed TB NOT on treatment",
+      "short": "Norx",
    },
    {
       "categories": [],

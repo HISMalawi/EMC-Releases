@@ -41,6 +41,7 @@ import { PatientObservationService } from '@/services/patient_observation_servic
 import EventBus from '@/utils/EventBus';
 import { EmcEvents } from '../../interfaces/emc_event';
 import { modal } from '@/utils/modal';
+import { ConceptService } from '@/services/concept_service';
 
 interface ActionButtonInterface {
   label: string;
@@ -175,7 +176,7 @@ export default defineComponent({
             table.td(data.outcome === 'Defaulted' ? '' : data.bmi),
             table.td(pregnant || ''),
             table.td(breastfeeding ||''),
-            table.td(data['tb_status'].match(/Unknown/i) || data.outcome === 'Defaulted' ? '' : data['tb_status']),
+            table.td(data['tb_status'].match(/Unknown/i) || data.outcome === 'Defaulted' ? '' : (await ConceptService.getCachedConceptName(data['tb_status'])) || ''),
             table.td(data['side_effects'].length ? 'Yes' : data.outcome !== 'Defaulted' ? 'No' : ''),
             table.tdLink(data.outcome === 'Defaulted' ? '' : data.regimen, () => showDrugsDispensed(data.pills_dispensed, date)),
             table.td(nextAppointment || ''),
