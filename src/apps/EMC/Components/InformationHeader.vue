@@ -60,6 +60,7 @@ export default defineComponent({
     const hivTestPlace = ref('')
     const stagingCondition = ref('')
     const latestVLResult = ref('')
+    const whoSTage = ref('')
 
     const getDobAndAgeAtInitiation = () => {
       const dob = props.patient.getBirthdate()
@@ -182,9 +183,9 @@ export default defineComponent({
       { label: "Latest VL Result and Result Date", value:  latestVLResult.value },
       { label: "TI", value: receivedART.value  },
       { label: "Agrees to follow up", value: agreesToFollowUp.value },
+      { label: "HIV test place and date", value: `${hivTestPlace.value} (${hivTestDate.value})` },
+      { label: "WHO stage", value: whoSTage.value },
       { label: "Reason for starting ART", value: reasonForStartingART.value },
-      { label: "HIV test date", value: hivTestDate.value },
-      { label: "HIV test place", value: hivTestPlace.value },
       { label: "Staging codition", value: stagingCondition.value, other: {
         onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
       }},
@@ -209,6 +210,7 @@ export default defineComponent({
       hivTestPlace.value = await props.patient.getHIVTestLocation()
       stagingCondition.value = await props.patient.getStagingCondition()
       latestVLResult.value = await getLatestVLResult()
+      props.patient.getWhoStage().then(v => whoSTage.value = v)
       await setHIVTestDate()
       EventBus.on(EmcEvents.RELOAD_LATEST_VL_RESULT, async () => {
         ApiStore.invalidate('PATIENT_LAB_ORDERS')
