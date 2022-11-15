@@ -71,18 +71,20 @@ export default defineComponent({
       return `${HisDate.toStandardHisDisplayFormat(dob)} (${ageAtInitiation})`
     }
 
-    const getLatestVLResult = async () => {
-      const orders = await ApiStore.get('PATIENT_LAB_ORDERS', { patientID: props.patient.getID() });
-      const results = orders.reduce((rs: any[], order: any) => {
+    const setLatestVLResult = (force = false) => {
+      if(force) ApiStore.invalidate('PATIENT_LAB_ORDERS')
+      ApiStore.get('PATIENT_LAB_ORDERS', { patientID: props.patient.getID() }).then(orders => {
+        const results = orders.reduce((rs: any[], order: any) => {
         const r = order.tests
           .filter((t: any) => t.name.match(/hiv/i) && !isEmpty(t.result))
           .map((t: any) => t.result);
-        return rs.concat(r.reduce((a: any, c: any) => a.concat(c), []));
-      }, [])
-      .sort((a: any, b: any) => new Date(a.date) > new Date(b.date) ? -1 : 1);
-      return isEmpty(results) 
-        ? '' 
-        : `${results[0].value_modifier}${results[0].value} (${HisDate.toStandardHisDisplayFormat(results[0].date)})`;
+          return rs.concat(r.reduce((a: any, c: any) => a.concat(c), []));
+        }, [])
+        .sort((a: any, b: any) => new Date(a.date) > new Date(b.date) ? -1 : 1);
+        latestVLResult.value = isEmpty(results) 
+          ? '' 
+          : `${results[0].value_modifier}${results[0].value} (${HisDate.toStandardHisDisplayFormat(results[0].date)})`;
+      });
     }
 
     const patientInfo = computed(() => [
@@ -183,7 +185,7 @@ export default defineComponent({
       { label: "Latest VL Result and Result Date", value:  latestVLResult.value },
       { label: "TI", value: receivedART.value  },
       { label: "Agrees to follow up", value: agreesToFollowUp.value },
-      { label: "HIV test place and date", value: `${hivTestPlace.value} (${hivTestDate.value})` },
+      { label: "HIV test place and date", value: `${hivTestPlace.value || 'N/A'} ${hivTestDate.value}` },
       { label: "WHO stage", value: whoSTage.value },
       { label: "Reason for starting ART", value: reasonForStartingART.value },
       { label: "Staging codition", value: stagingCondition.value, other: {
@@ -193,30 +195,24 @@ export default defineComponent({
 
     const setHIVTestDate = async () => {
       const date = await props.patient.getHIVTestDate()
-      if(date) hivTestDate.value = HisDate.toStandardHisDisplayFormat(date)
+      if(date) hivTestDate.value = `(${HisDate.toStandardHisDisplayFormat(date)})`
     }
 
-    
-    onMounted(async () => {
-      initWeight.value = await props.patient.getInitialWeight()
-      initHeight.value = await props.patient.getInitialHeight()
-      initBmi.value = await props.patient.getInitialBMI()
-      initTBStatus.value = await props.patient.getInitialTBStatus()
-      pregnantAtInitiation.value = await props.patient.hasPregnancyAtARTInitiation()
-      breastFeedingAtInitiation.value = await props.patient.breastFeedingAtARTInitiation()
-      receivedART.value = await props.patient.everReceivedART()
-      agreesToFollowUp.value = await props.patient.agreesToFollowUp()
-      reasonForStartingART.value = await props.patient.getReasonForStartingART()
-      hivTestPlace.value = await props.patient.getHIVTestLocation()
-      stagingCondition.value = await props.patient.getStagingCondition()
-      latestVLResult.value = await getLatestVLResult()
-      props.patient.getWhoStage().then(v => whoSTage.value = v)
-      await setHIVTestDate()
-      EventBus.on(EmcEvents.RELOAD_LATEST_VL_RESULT, async () => {
-        ApiStore.invalidate('PATIENT_LAB_ORDERS')
-        latestVLResult.value = await getLatestVLResult()
-      })
-    })
+    props.patient.getInitialWeight().then(v => initWeight.value = v)
+    props.patient.getInitialHeight().then(v => initHeight.value = v)
+    props.patient.getInitialBMI().then(v => initBmi.value = v)
+    props.patient.getInitialTBStatus().then(v => initTBStatus.value = v)
+    props.patient.hasPregnancyAtARTInitiation().then(v => pregnantAtInitiation.value = v)
+    props.patient.breastFeedingAtARTInitiation().then(v => breastFeedingAtInitiation.value = v)
+    props.patient.everReceivedART().then(v => receivedART.value = v)
+    props.patient.agreesToFollowUp().then(v => agreesToFollowUp.value = v)
+    props.patient.getReasonForStartingART().then(v => reasonForStartingART.value = v)
+    props.patient.getHIVTestLocation().then(v => hivTestPlace.value = v)
+    props.patient.getStagingCondition().then(v => stagingCondition.value = v)
+    props.patient.getWhoStage().then(v => whoSTage.value = v)
+    setLatestVLResult()
+    setHIVTestDate()
+    EventBus.on(EmcEvents.RELOAD_LATEST_VL_RESULT,  () =>  setLatestVLResult())
 
     return {
       patientInfo,
