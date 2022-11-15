@@ -198,21 +198,28 @@ export default defineComponent({
       if(date) hivTestDate.value = `(${HisDate.toStandardHisDisplayFormat(date)})`
     }
 
-    props.patient.getInitialWeight().then(v => initWeight.value = v)
-    props.patient.getInitialHeight().then(v => initHeight.value = v)
-    props.patient.getInitialBMI().then(v => initBmi.value = v)
-    props.patient.getInitialTBStatus().then(v => initTBStatus.value = v)
-    props.patient.hasPregnancyAtARTInitiation().then(v => pregnantAtInitiation.value = v)
-    props.patient.breastFeedingAtARTInitiation().then(v => breastFeedingAtInitiation.value = v)
-    props.patient.everReceivedART().then(v => receivedART.value = v)
-    props.patient.agreesToFollowUp().then(v => agreesToFollowUp.value = v)
-    props.patient.getReasonForStartingART().then(v => reasonForStartingART.value = v)
-    props.patient.getHIVTestLocation().then(v => hivTestPlace.value = v)
-    props.patient.getStagingCondition().then(v => stagingCondition.value = v)
-    props.patient.getWhoStage().then(v => whoSTage.value = v)
-    setLatestVLResult()
-    setHIVTestDate()
+    const init = () => {
+      props.patient.getInitialWeight().then(v => initWeight.value = v)
+      props.patient.getInitialHeight().then(v => initHeight.value = v)
+      props.patient.getInitialBMI().then(v => initBmi.value = v)
+      props.patient.getInitialTBStatus().then(v => initTBStatus.value = v)
+      props.patient.hasPregnancyAtARTInitiation().then(v => pregnantAtInitiation.value = v)
+      props.patient.breastFeedingAtARTInitiation().then(v => breastFeedingAtInitiation.value = v)
+      props.patient.everReceivedART().then(v => receivedART.value = v)
+      props.patient.agreesToFollowUp().then(v => agreesToFollowUp.value = v)
+      props.patient.getReasonForStartingART().then(v => reasonForStartingART.value = v)
+      props.patient.getHIVTestLocation().then(v => hivTestPlace.value = v)
+      props.patient.getStagingCondition().then(v => stagingCondition.value = v)
+      props.patient.getWhoStage().then(v => whoSTage.value = v)
+      setLatestVLResult()
+      setHIVTestDate()
+    }
+
+   onMounted(() => {
+    init();
     EventBus.on(EmcEvents.RELOAD_LATEST_VL_RESULT,  () =>  setLatestVLResult())
+    EventBus.on(EmcEvents.RELOAD_STAGING_INFORMATION, () => init())
+   })
 
     return {
       patientInfo,

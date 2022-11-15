@@ -39,7 +39,7 @@ export default [
     component: () => import("@/apps/EMC/views/ClinicRegistration.vue")
   },
   {
-    path: "/emc/staging/:id",
+    path: "/emc/staging/:id/:new",
     name: "HIV staging",
     component: () => import("@/apps/EMC/views/Staging.vue")
   },

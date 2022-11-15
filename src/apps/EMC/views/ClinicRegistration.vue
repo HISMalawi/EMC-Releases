@@ -109,9 +109,8 @@ import { initialTbStatusOptions, HIVTestOptions, tptHistoryOptions } from '@/app
 import dayjs from "dayjs";
 import { VitalsService } from "@/apps/ART/services/vitals_service";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
-import { isValidForm, resolveFormValues, resolveObs, submitForm } from "../utils/form";
+import { resolveObs, submitForm } from "../utils/form";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
-import { loader } from "@/utils/loader";
 import { PatientProgramService } from "@/services/patient_program_service";
 import { ConsultationService } from "@/apps/ART/services/consultation_service";
 import { RegimenService } from "@/services/regimen_service";
@@ -493,7 +492,7 @@ export default defineComponent({
         }
 
         await toastSuccess('Saved successfully')
-        router.push(`/emc/staging/${patientId.value}`)
+        router.push(`/emc/staging/${patientId.value}/${isNewPatient}`)
       })
     }
 

@@ -58,6 +58,8 @@ import dayjs from "dayjs";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
 import { resolveObs, submitForm } from "../utils/form";
 import { StagingService } from "@/apps/ART/services/staging_service";
+import EventBus from "@/utils/EventBus";
+import { EmcEvents } from "../interfaces/emc_event";
 
 export default defineComponent({
   components: {
@@ -75,7 +77,8 @@ export default defineComponent({
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const patientId = ref(parseInt(route.params.id.toString() || ''))
+    const patientId = parseInt(route.params.id.toString() || '')
+    const isEditMode = route.params.new.toString().match(/false/i) ? true : false
     const patient = ref<Patientservice>()
     const stagingService = ref<StagingService>()
     const reasonsForArt = ref<Option[]>([])
@@ -184,14 +187,15 @@ export default defineComponent({
         await stagingService.value?.saveObservationList(obs)
         await toastSuccess('Saved successfully')
         await StagingService.resetSessionDate()
-        router.push(`/emc/patient/${patientId.value}`)
+        if(isEditMode) EventBus.emit(EmcEvents.RELOAD_STAGING_INFORMATION)
+        router.push(`/emc/patient/${patientId}`)
       })
     }
 
     onMounted(async () => {
-      const data = await Patientservice.findByID(patientId.value)
+      const data = await Patientservice.findByID(patientId)
       patient.value = new Patientservice(data)
-      stagingService.value = new StagingService(patientId.value, patient.value.getAge(), -1)
+      stagingService.value = new StagingService(patientId, patient.value.getAge(), -1)
       stagingCoditions.value = [
         ...stagingService.value.getStagingConditions(1).map(condition => ({ label: condition.name, value: condition.concept_id, other: condition })),
         ...stagingService.value.getStagingConditions(2).map(condition => ({ label: condition.name, value: condition.concept_id, other: condition })),
