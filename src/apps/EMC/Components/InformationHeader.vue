@@ -26,6 +26,7 @@ import router from '@/router';
 import ApiStore from '@/composables/ApiStore';
 import EventBus from '@/utils/EventBus';
 import { EmcEvents } from '../interfaces/emc_event';
+import { toGenderString } from '@/utils/Strs';
 
 export default defineComponent({
   components: {
@@ -118,7 +119,7 @@ export default defineComponent({
       },
       {
         label: "Sex",
-        value: props.patient.getGender(),
+        value: toGenderString(props.patient.getGender()),
         other: {
           onClickHandler: () => {
             emit('updatePatient', 'gender')
