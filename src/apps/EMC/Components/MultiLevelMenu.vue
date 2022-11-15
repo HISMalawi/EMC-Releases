@@ -5,8 +5,8 @@
         <template v-if="showItem(item)">
           <template v-if="!item.children">
             <ion-menu-toggle auto-hide="true">
-              <ion-item button :router-link="item.url">
-                <img v-if="item.img" :src="`/assets/images/${item.img}`" class="ion-margin-end icon" />
+              <ion-item button @click="goTo(item.url)">
+                <img v-if="item.img" :src="img(item.img)" class="ion-margin-end icon" />
                 <ion-icon v-if="item.icon" slot="start" :icon="item.icon"></ion-icon>
                 <ion-label >{{ item.title }}</ion-label>
               </ion-item>
@@ -14,7 +14,7 @@
           </template>
           <template v-else>
             <ion-item button detail :detail-icon="item.isExpanded ? chevronDown : chevronForward" class="header" @click="() => item.isExpanded = !item.isExpanded">
-              <img v-if="item.img" :src="`/assets/images/${item.img}`" class="ion-margin-end icon" />
+              <img v-if="item.img" :src="img(item.img)" class="ion-margin-end icon" />
               <ion-icon v-if="item.icon" slot="start" :icon="item.icon"></ion-icon>
               <ion-label >{{ item.title }}</ion-label>
             </ion-item>
@@ -23,8 +23,8 @@
                 <template v-if="showItem(subItem)">
                   <template v-if="!subItem.children">
                     <ion-menu-toggle auto-hide="true">
-                      <ion-item button :router-link="subItem.url" :style="{ paddingLeft:  '16px' }">
-                        <img v-if="subItem.img" :src="`/assets/images/${subItem.img}`" class="ion-margin-end icon" />
+                      <ion-item button :style="{ paddingLeft:  '16px' }" @click="goTo(subItem.url)">
+                        <img v-if="subItem.img" :src="img(subItem.img)" class="ion-margin-end icon" />
                         <ion-icon v-if="subItem.icon" slot="start" :icon="subItem.icon"></ion-icon>
                         <ion-label >{{ subItem.title }}</ion-label>
                       </ion-item>
@@ -32,7 +32,7 @@
                   </template>
                   <template v-else>
                     <ion-item button detail :detail-icon="subItem.isExpanded ? chevronDown : chevronForward" :style="{ paddingLeft: '16px' }" class="header" @click="toggle(subItem)">
-                      <img v-if="subItem.img" :src="`/assets/images/${subItem.img}`" class="ion-margin-end icon" />
+                      <img v-if="subItem.img" :src="img(subItem.img)" class="ion-margin-end icon" />
                       <ion-icon v-if="subItem.icon" slot="start" :icon="subItem.icon"></ion-icon>
                       <ion-label >{{ subItem.title }}</ion-label>
                     </ion-item>
@@ -40,8 +40,8 @@
                       <template v-for="subItem2 of subItem.children" :key="subItem2.id">
                         <template v-if="showItem(subItem2)">
                           <ion-menu-toggle auto-hide="true">
-                            <ion-item button :style="{ paddingLeft: '32px' }" routerLinkActive="active" :router-link="subItem2.url">
-                              <img v-if="subItem2.img" :src="`/assets/images/${subItem2.img}`" class="ion-margin-end icon" />
+                            <ion-item button :style="{ paddingLeft: '32px' }" routerLinkActive="active" @click="goTo(subItem2.url)">
+                              <img v-if="subItem2.img" :src="img(subItem2.img)" class="ion-margin-end icon" />
                               <ion-icon v-if="subItem2.icon" slot="start" :icon="subItem2.icon" ></ion-icon>
                               <ion-label >{{ subItem2.title }}</ion-label>
                             </ion-item>
@@ -65,6 +65,8 @@ import { IonItem, IonList, IonLabel, IonIcon, IonMenuToggle } from "@ionic/vue";
 import { defineComponent, PropType, ref } from "vue";
 import { MenuItem } from "../interfaces/menu";
 import { chevronDown, chevronForward } from "ionicons/icons";
+import { useRouter } from "vue-router";
+import img from "@/utils/Img";
 
 export default defineComponent({
   name: "MultiLevelMenu",
@@ -82,6 +84,7 @@ export default defineComponent({
     IonMenuToggle,
   },
   setup(props) {
+    const router = useRouter()
     const optionHeight = ref(50)
     const activeChildrenLength = ref(0)
     const menuList = ref([...props.items])
@@ -102,6 +105,8 @@ export default defineComponent({
         : 0;
     }
 
+    const goTo = (url?: string) => url && router.push(url)
+
     return {
       activeChildrenLength,
       optionHeight,
@@ -111,6 +116,8 @@ export default defineComponent({
       toggle,
       showItem,
       getActiveChildrens,
+      goTo,
+      img,
     }
   },
 })
