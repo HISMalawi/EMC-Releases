@@ -36,6 +36,7 @@ export default defineComponent({
         fieldComponent: '' as string,
         regimenExtras: [] as Array<any>,
         programInfo: [] as any,
+        allDrugs: [] as any,
         facts: {
             age: -1 as number,
             gender: '' as string,
@@ -395,8 +396,10 @@ export default defineComponent({
                     onload: () => this.facts.prescriptionType = 'Custom',
                     validation: (val: Option) => Validation.required(val),
                     options: async () => {
-                        const drugs = await this.prescription.getCustomIngridients()
-                        return drugs.map((drug: any ) => ({
+                        if (isEmpty(this.allDrugs)) {
+                            this.allDrugs = await this.prescription.getCustomIngridients()
+                        }
+                        return this.allDrugs.map((drug: any ) => ({
                             label: drug.name,
                             value: drug.drug_id,
                             other: { ...drug }
