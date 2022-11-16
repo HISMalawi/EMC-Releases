@@ -129,11 +129,18 @@ export default defineComponent({
         if (typeof item.init === 'function') {
           await item.init()
         }
+
+        if (typeof item.condition === 'function') {
+          item.visible = item.condition()
+        } else {
+          item.visible = true
+        }
+
         if (typeof item.asyncValue === 'function') {
           item.asyncValue(item).then((value: any) => item.value = value || '')
         } else if (typeof item.staticValue === 'function') {
           item.value = item.staticValue()
-        } 
+        }
       }
     }
   },
@@ -228,6 +235,12 @@ export default defineComponent({
             attribute: "",
             category: "guardian",
           }
+        },
+        {
+          label: 'Is Preg.',
+          value: '...',
+          condition: () => this.patient.isFemale(),
+          asyncValue: async () => (await this.patient.isPregnant()) ? 'Yes' : 'No'
         },
         { 
           label: "Init W(KG)", 
