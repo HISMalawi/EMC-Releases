@@ -45,15 +45,14 @@ import { ArtReportService } from "@/apps/ART/services/reports/art_report_service
 import { Option } from '@/components/Forms/FieldInterface';
 import { 
   ActionButtonInterface, 
-  convertToCsv, 
   CustomFilterInterface, 
   DataTable, 
-  exportToCSV, 
   RowActionButtonInterface, 
   TableColumnInterface 
 } from '@uniquedj95/vtable'
 import { toastWarning } from "@/utils/Alerts";
 import { isEmpty } from "lodash";
+import { exportToCSV } from "../../utils/exports";
 
 export default defineComponent({
   name: "BaseReportTable",
@@ -171,14 +170,12 @@ export default defineComponent({
               period.startDate = props.quarter?.other?.start;
               period.endDate = props.quarter?.other?.end;
             }
-            exportToCSV(
-              convertToCsv(
-                props.columns, 
-                rows, 
-                period,
-              ), 
-              filename.value
-            );
+            exportToCSV({
+              rows, 
+              columns: props.columns, 
+                quarter: period,
+                filename: filename.value
+            });
           }
         })
       }
