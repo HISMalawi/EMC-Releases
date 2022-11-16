@@ -415,9 +415,6 @@ export default defineComponent({
                                 slot: 'end',
                                 color: 'primary',
                                 visible: false,
-                                visibleOnStateChange: (state: Record<string, any>) => {
-                                    return state.index === 1
-                                },
                                 onClick: () => {
                                     this.fieldComponent = 'arv_regimens'
                                 }
