@@ -79,7 +79,7 @@ export default defineComponent({
 
     const uuidForm = reactive<DTForm>({
       uuid: {
-        value: Service.getSiteUUID() || '',
+        value: '',
         label: 'Site UUID',
         required: true,
       },
@@ -87,17 +87,21 @@ export default defineComponent({
 
     const updateName = () => submitForm(nameForm, async ({ name }) => {
       await GLOBAL_PROP.setHealthCenterID(name.value);
-      toastSuccess('Site name updated successfully');
+      await toastSuccess('Site name updated successfully');
+      sessionStorage.setItem('locationName', name.label);
+      document.location.reload();
     })
 
     const updatePrefix = async () => submitForm(prefixForm, async ({ prefix }) => {
       await GLOBAL_PROP.setSitePrefix(prefix);
-      toastSuccess('Site Prefix updated successfully');
+      await toastSuccess('Site Prefix updated successfully');
+      document.location.reload();
     })
 
     const updateUUID = async () => submitForm(uuidForm, async ({ uuid }) => {
       await GLOBAL_PROP.setSiteUUID(uuid);
-      toastSuccess('Site Prefix updated successfully');
+      await toastSuccess('Site Prefix updated successfully');
+      document.location.reload();
     })
 
     onMounted( async () => {
