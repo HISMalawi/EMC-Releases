@@ -50,7 +50,6 @@ import CohortFt from "@/apps/ART/views/reports/moh/CohortReport/CohortFT.vue"
 import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonCol, IonRow, IonGrid } from "@ionic/vue";
 import Url from "@/utils/Url";
-import router from "@/router";
 import { toCsv } from "@/utils/Export";
 import { Service } from "@/services/service";
 import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
@@ -60,6 +59,7 @@ import HisDate from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";
 import dayjs from "dayjs";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "Cohort",
@@ -75,6 +75,7 @@ export default defineComponent({
     SelectInput
   },
   setup () {
+    const router = useRouter();
     const componentKey = ref(0);
     const quarter = reactive<DTFormField>({value: '', placeholder: "Select Quarter"});
     const period = ref<string>('');
@@ -105,7 +106,7 @@ export default defineComponent({
 
     const disaggregateReport = () => {
       if (disaggregatedParams.value) {
-        router.push(`/emc/report/moh/cohort_disaggregated?${disaggregatedParams.value}`);
+        router.push(`/emc_moh_cohort_disaggregated?${disaggregatedParams.value}`);
       } else {
         toastWarning('Please select a period');
       }

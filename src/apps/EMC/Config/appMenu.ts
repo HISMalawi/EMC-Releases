@@ -27,45 +27,45 @@ export const menuItems: MenuItem[] = [
         children: [
           {
             title: 'Cohort',
-            id: 'cohort',
+            id: 'emc_moh_cohort',
             img: 'reports/cohort.png',
-            url: '/emc/report/moh/cohort',
+            url: '/emc_moh_cohort',
           },
           {
             title: 'Cohort Disagreggated',
-            id: 'cohort_disaggregated',
+            id: 'emc_moh_cohort_disaggregated',
             img: 'reports/split.png',
-            url: '/emc/report/moh/cohort_disaggregated'
+            url: '/emc_moh_cohort_disaggregated'
           },
           {
             title: 'Survival analysis',
-            id: 'emc_survival_analysis',
+            id: 'emc_moh_survival_analysis',
             img: 'reports/refill.png',
-            url: '/emc/report/moh/survival_analysis'
+            url: '/emc_moh_survival_analysis'
           },
           {
             title: 'Viral load',
-            id: 'viral_load',
+            id: 'emc_moh_viral_load',
             img: 'reports/vl.png',
-            url: '/emc/report/moh/viral_load'
+            url: '/emc_moh_viral_load'
           },
           {
             title: 'Regimen distribution by Weight',
-            id: 'regimen_distribution_weight',
+            id: 'emc_moh_regimen_distribution_weight',
             img: 'reports/electronics.png',
-            url: '/emc/report/moh/regimen_distribution_weight'
+            url: '/emc_moh_regimen_distribution_weight'
           },
           {
             title: 'TX CURR MMD',
             id: 'emc_moh_tx_curr_mmd',
             img: 'reports/px.png',
-            url: '/emc/report/moh/tx_curr_mmd'
+            url: '/emc_moh_tx_curr_mmd'
           },
           {
             title: 'TPT new initiation',
-            id: 'tpt_initiation',
+            id: 'emc_moh_tpt_initiation',
             img: 'reports/new_initiation.png',
-            url: '/emc/report/moh/tpt_initiation'
+            url: '/emc_moh_tpt_initiation'
           }
         ]
       },
@@ -76,51 +76,51 @@ export const menuItems: MenuItem[] = [
         children: [
           {
             title: 'PEPFAR Disagreggated Report',
-            id: 'pepfar_disaggregated',
+            id: 'emc_pepfar_disaggregated',
             img: 'reports/split.png',
-            url: '/emc/report/pepfar/pepfar_disaggregated'
+            url: '/emc_pepfar_disaggregated'
           },
           {
             title: 'Defaulter List',
-            id: 'pepfar_defaulter_list',
+            id: 'emc_pepfar_defaulter',
             img: 'reports/defaulter-list.png',
-            url: '/emc/report/pepfar/defaulters'
+            url: '/emc_pepfar_defaulters'
           },
           {
             title: 'TX CURR MMD',
-            id: 'tx_curr_mmd',
+            id: 'emc_pepfar_tx_curr_mmd',
             img: 'reports/px.png',
-            url: '/emc/report/pepfar/tx_curr_mmd'
+            url: '/emc_pepfar_tx_curr_mmd'
           },
           {
             title: 'TX ML',
-            id: 'tx_ml',
+            id: 'emc_pepfar_tx_ml',
             img: 'reports/tx-ml.png',
-            url: '/emc/report/pepfar/tx_ml'
+            url: '/emc_pepfar_tx_ml'
           },
           {
             title: 'TX RTT',
-            id: 'tx_rtt',
+            id: 'emc_pepfar_tx_rtt',
             img: 'reports/restart.png',
-            url: '/emc/report/pepfar/tx_rtt'
+            url: '/emc_pepfar_tx_rtt'
           },
           {
             title: 'TB Prev',
-            id: 'tb_prev',
+            id: 'emc_pepfar_tb_prev',
             img: 'reports/previous.png',
-            url: '/emc/report/pepfar/tb_prev'
+            url: '/emc_pepfar_tb_prev'
           },
           {
             title: 'VL coverage',
-            id: 'vl_coverage',
+            id: 'emc_pepfar_vl_coverage',
             img: 'reports/viral_load.png',
-            url: '/emc/report/pepfar/vl_coverage'
+            url: '/emc_pepfar_vl_coverage'
           },
           {
             title: 'SC ARVDISP',
-            id: 'sc_arvdisp',
+            id: 'emc_pepfar_sc_arvdisp',
             img: 'reports/previous.png',
-            url: '/emc/report/pepfar/sc_arvdisp'
+            url: '/emc_pepfar_sc_arvdisp'
           }
         ]
       },
@@ -131,69 +131,69 @@ export const menuItems: MenuItem[] = [
         children: [
           {
             title: 'Clinic appointments',
-            id: 'clinic_appointments',
+            id: 'emc_clinic_appointments',
             img: 'reports/appointments.png',
-            url: '/emc/report/clinic/appointments'
+            url: 'emc_clinic_appointments'
           },
           {
             title: 'Defaulter list',
-            id: 'clinic_defaulters',
+            id: 'emc_clinic_defaulters',
             img: 'reports/defaulter-list.png',            
-            url: '/emc/report/clinic/defaulters'
+            url: '/emc_clinic_defaulters'
           },
           {
             title: 'Missed appointments',
-            id: 'missed_appointments',
+            id: 'emc_clinic_missed_appointments',
             img: 'reports/appointment-missed.png',
-            url: '/emc/report/clinic/missed_appointments'
+            url: '/emc_clinic_missed_appointments'
           },
           {
             title: 'Regimen dispensation',
-            id: 'regimen_dispensation',
+            id: 'emc_clinic_regimen_dispensation',
             img: 'reports/regimen-give.png',
-            url: '/emc/report/clinic/regimen_dispensation'
+            url: '/emc_clinic_regimen_dispensation'
           },
           {
             title: 'Regimen switch',
-            id: 'regimen_switch',
+            id: 'emc_clinic_regimen_switch',
             img: 'reports/regimen-switch.png',
-            url: '/emc/report/clinic/regimen_switch'
+            url: '/emc_clinic_regimen_switch'
           },
           {
             title: 'Regimens and formulation - patient level',
-            id: 'regimen_formulation',
+            id: 'emc_clinic_regimen_formulation',
             img: 'reports/medical.png',
-            url: '/emc/report/clinic/regimen_formulation'
+            url: '/emc_clinic_regimen_formulation'
           },
           {
             title: 'Pregnant Patients',
-            id: 'preganant_patients',
+            id: 'emc_clinic_preganant_patients',
             img: 'reports/pregnant.png',
-            url: '/emc/report/clinic/pregnant_patients'
+            url: '/emc_clinic_pregnant_patients'
           },
           {
             title: 'Incomplete visits',
-            id: 'incomplete_visits',
+            id: 'emc_clinic_incomplete_visits',
             img: 'reports/refill.png',
-            url: '/emc/report/clinic/incomplete_visits'
+            url: '/emc_clinic_incomplete_visits'
           },
           {
             title: 'Clients due for VL',
-            id: 'clients_due_for_vl',
+            id: 'emc_clinic_clients_due_for_vl',
             img: 'reports/viral_load.png',
-            url: '/emc/report/clinic/clients_due_for_vl',
+            url: '/emc_clinic_clients_due_for_vl',
           },
           {
             title: 'TPT Outcomes',
-            id: 'tpt_outcomes',
+            id: 'emc_clinic_tpt_outcomes',
             img: 'reports/stats.png',
-            url: '/emc/report/clinic/tpt_outcomes',
+            url: '/emc_clinic_tpt_outcomes',
           },
           {
             title: 'TX RTT',
-            id: 'clinic_tx_rtt',
+            id: 'emc_clinic_clinic_tx_rtt',
             img: 'reports/restart.png',
-            url: '/emc/report/clinic/tx_rtt'
+            url: '/emc_clinic_clinic/tx_rtt'
           },
         ]
       }
@@ -206,27 +206,27 @@ export const menuItems: MenuItem[] = [
     children: [
       {
         title: "Data Cleaning",
-        id: "data_cleaning",
+        id: "emc_data_cleaning",
         img: 'clean.jpg',
-        url: '/emc/tools/data_cleaning',
+        url: '/emc_data_cleaning',
       },
       {
         title: "Patient Merging",
-        id: "patient_merging",
+        id: "emc_patient_merging",
         img: 'merge.png',
-        url: '/emc/tools/patient_merging'
+        url: '/emc_patient_merging'
       },
       {
         title: "Patient Visit Stats",
-        id: "patient_visit_stats",
+        id: "emc_patient_visit_stats",
         img: 'reports/line-chart.png',
-        url: '/emc/tools/patient_visit_stats'
+        url: '/emc_patient_visit_stats'
       },
       {
         title: "Data Cleaning Verificaton",
-        id: "cleaning_verification",
+        id: "emc_cleaning_verification",
         img: 'Checkmark.svg',
-        url: '/emc/tools/cleaning_verification'
+        url: '/emc_cleaning_verification'
       }
     ]
   },
