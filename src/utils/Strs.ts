@@ -61,3 +61,7 @@ export function toNumString(num: number | string) {
 export function toGenderString(gender: string) {
     return gender.toLowerCase() === 'm' || gender.toLowerCase() === 'male' ? "Male" : "Female"
 }
+
+export function toSentenceCase (str: string) {
+    return str.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase())
+}

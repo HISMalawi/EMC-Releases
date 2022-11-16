@@ -145,11 +145,6 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Portal settings',
     component: () => import('@/views/PortalSettings.vue')
   },
-  {
-    path: '/camera_scanner',
-    name: 'Camera scanner',
-    component: () => import("@/components/CameraScanner.vue")
-  }
 ]
 
 const router = createRouter({
