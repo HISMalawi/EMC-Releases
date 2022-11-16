@@ -31,8 +31,8 @@
             <SelectInput v-model="form.whoConditions" :options="stagingCoditions" multiple />
           </ion-col>
         </ion-row>
-          <ion-button class="ion-margin-top ion-float-end" size="large" @click="onSubmit" color="success">Finish</ion-button>
-          <ion-button class="ion-margin-top ion-float-end" size="large" @click="onClear" color="warning">Clear</ion-button>
+          <ion-button class="ion-margin-top ion-float-right" size="large" @click="onSubmit" color="success">Finish</ion-button>
+          <ion-button class="ion-margin-top ion-float-right" size="large" @click="onClear" color="warning">Clear</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>

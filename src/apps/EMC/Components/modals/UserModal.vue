@@ -35,8 +35,8 @@
     </ion-grid>
   </IonContent>
   <IonFooter>
-    <IonButton class="ion-margin-end ion-margin-vertical ion-float-end" @click="submit">Save</IonButton>
-    <IonButton class="ion-margin-vertical ion-float-end" color="light" @click="modal.hide()">Close</IonButton>
+    <IonButton class="ion-margin-end ion-margin-vertical ion-float-right" @click="submit">Save</IonButton>
+    <IonButton class="ion-margin-vertical ion-float-right" color="light" @click="modal.hide()">Close</IonButton>
   </IonFooter>
 </IonPage>
 </template>

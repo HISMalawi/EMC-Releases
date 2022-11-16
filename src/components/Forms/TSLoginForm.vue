@@ -6,7 +6,7 @@
           <b style="color: #8b4513">National </b>
           <b style="color: #cd853f">EMR</b>
         </ion-label>
-        <ion-label class="ion-padding ion-float-end">
+        <ion-label class="ion-padding ion-float-right">
           Version: <b>{{ version }}</b>
         </ion-label>
       </ion-title>

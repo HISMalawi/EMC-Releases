@@ -76,9 +76,9 @@
             </ion-col>
           </template>
         </ion-row>
-          <ion-button class="ion-margin-top ion-float-end" size="large" @click="onSubmit" color="success">Next</ion-button>
-          <ion-button class="ion-margin-top ion-float-end" size="large" @click="onClear" color="warning">Clear</ion-button>
-          <ion-button class="ion-margin-top ion-float-end" size="large" @click="$router.back()" color="primary" v-if="!isNewPatient">Back</ion-button>
+          <ion-button class="ion-margin-top ion-float-right" size="large" @click="onSubmit" color="success">Next</ion-button>
+          <ion-button class="ion-margin-top ion-float-right" size="large" @click="onClear" color="warning">Clear</ion-button>
+          <ion-button class="ion-margin-top ion-float-right" size="large" @click="$router.back()" color="primary" v-if="!isNewPatient">Back</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>

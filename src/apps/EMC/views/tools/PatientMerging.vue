@@ -5,7 +5,7 @@
         <ion-col size="12" class="padding">
           <h2 class="ion-margin-start">
             Patient Merging
-            <ion-button class="ion-float-end ion-margin-end" :disabled="!enableMergeBtn" @click="merge">
+            <ion-button class="ion-float-right ion-margin-end" :disabled="!enableMergeBtn" @click="merge">
               Merge Selected Patients
             </ion-button>
           </h2>

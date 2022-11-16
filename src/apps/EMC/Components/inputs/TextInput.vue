@@ -22,7 +22,7 @@
       />
     </div>
     <div v-if="suffix" style="background: #f2f2f2; height: 100%; padding: .5rem; flex-grow: 1;">
-      <ion-label class="checkbox-label bold ion-float-end">{{ suffix }}</ion-label>
+      <ion-label class="checkbox-label bold ion-float-right">{{ suffix }}</ion-label>
     </div>
   </div>
   <ion-note v-if="model.error" color="danger">{{ model.error }}</ion-note>

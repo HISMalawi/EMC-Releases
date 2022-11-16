@@ -58,8 +58,8 @@
               <TextInput v-model="guardian.cellPhoneNumber" allowUnknown />
             </ion-col>
           </ion-row>
-          <ion-button class="ion-margin-top ion-float-end" @click="onFinish" size="large" color="success">Finish</ion-button>
-          <ion-button class="ion-margin-top ion-float-end" @click="onClear" size="large" color="warning">Clear</ion-button>
+          <ion-button class="ion-margin-top ion-float-right" @click="onFinish" size="large" color="success">Finish</ion-button>
+          <ion-button class="ion-margin-top ion-float-right" @click="onClear" size="large" color="warning">Clear</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>

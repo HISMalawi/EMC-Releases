@@ -12,11 +12,11 @@
           />  
         </ion-col>
         <ion-col :size="quarter.value?.label === 'Custom' ? 6 : 10">
-          <ion-button class="ion-float-end" color="primary" @click="exportToCsv" >Export CSV</ion-button>
-          <ion-button class="ion-float-end" color="primary" @click="printSpec" >Print Report</ion-button>
-          <ion-button class="ion-float-end" color="secondary" @click="disaggregateReport">Disaggregated</ion-button>
-          <ion-button class="ion-float-end" color="warning" @click="fetchData(true)">Fresh Report</ion-button>
-          <ion-button class="ion-float-end" color="success" @click="fetchData">Archived Report</ion-button>
+          <ion-button class="ion-float-right" color="primary" @click="exportToCsv" >Export CSV</ion-button>
+          <ion-button class="ion-float-right" color="primary" @click="printSpec" >Print Report</ion-button>
+          <ion-button class="ion-float-right" color="secondary" @click="disaggregateReport">Disaggregated</ion-button>
+          <ion-button class="ion-float-right" color="warning" @click="fetchData(true)">Fresh Report</ion-button>
+          <ion-button class="ion-float-right" color="success" @click="fetchData">Archived Report</ion-button>
         </ion-col>
 
       </ion-row>

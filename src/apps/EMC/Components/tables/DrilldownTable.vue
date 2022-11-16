@@ -20,7 +20,7 @@
     />
   </IonContent>
   <IonFooter>
-    <IonButton class="ion-margin ion-float-end" @click="modal.hide()">Close</IonButton>
+    <IonButton class="ion-margin ion-float-right" @click="modal.hide()">Close</IonButton>
     <!-- <IonButtons>
     </IonButtons>
     <IonToolbar>

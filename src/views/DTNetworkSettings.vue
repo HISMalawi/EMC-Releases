@@ -21,8 +21,8 @@
                   <TextInput v-model="form.port" />
                 </ion-col>
                 <ion-col size="12" class="ion-margin-vertical">
-                  <IonButton class="ion-margin-top ion-float-end" color="success" @click="submit">Submit</IonButton>
-                  <IonButton class="ion-margin-top ion-float-end" @click="$router.back()">Back</IonButton>
+                  <IonButton class="ion-margin-top ion-float-right" color="success" @click="submit">Submit</IonButton>
+                  <IonButton class="ion-margin-top ion-float-right" @click="$router.back()">Back</IonButton>
                 </ion-col>
               </ion-row>
             </div>

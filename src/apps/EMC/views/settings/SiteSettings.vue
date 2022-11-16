@@ -11,21 +11,21 @@
             </ion-col>
             <ion-col size="1" class="ion-margin-vertical">
               <br>
-              <IonButton class="ion-margin-top ion-float-end" @click="updateName">Submit</IonButton>
+              <IonButton class="ion-margin-top ion-float-right" @click="updateName">Submit</IonButton>
             </ion-col>
             <ion-col size="11" class="ion-margin-vertical">
               <TextInput v-model="prefixForm.prefix" />
             </ion-col>
             <ion-col size="1" class="ion-margin-vertical">
               <br>
-              <IonButton class="ion-margin-top ion-float-end" @click="updatePrefix">Submit</IonButton>
+              <IonButton class="ion-margin-top ion-float-right" @click="updatePrefix">Submit</IonButton>
             </ion-col>
             <ion-col size="11" class="ion-margin-vertical">
               <TextInput v-model="uuidForm.uuid" />
             </ion-col>
             <ion-col size="1" class="ion-margin-vertical">
               <br>
-              <IonButton class="ion-margin-top ion-float-end" @click="updateUUID">Submit</IonButton>
+              <IonButton class="ion-margin-top ion-float-right" @click="updateUUID">Submit</IonButton>
             </ion-col>
           </ion-row>
         </div>

@@ -2,7 +2,7 @@
   <layout>
     <h1 class=" his-lg-text ion-padding-start">
       Dashboard 
-      <ion-button class="ion-float-end ion-margin-end" @click="() => loadData(true)">
+      <ion-button class="ion-margin-end ion-float-right" @click="() => loadData(true)">
         Refresh
       </ion-button>
     </h1>

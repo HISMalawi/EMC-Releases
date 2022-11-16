@@ -21,7 +21,7 @@
               <TextInput v-model="userForm.familyName" />
             </ion-col>
             <ion-col size="12" class="ion-margin-vertical">
-              <IonButton class="ion-margin-end ion-margin-vertical ion-float-end" @click="updateProfile">Save</IonButton>
+              <IonButton class="ion-margin-end ion-margin-vertical ion-float-right" @click="updateProfile">Save</IonButton>
             </ion-col>
           </ion-row>
         </div>
@@ -39,7 +39,7 @@
               <TextInput v-model="passwordForm.confirmPassword" :form="passwordForm" password />
             </ion-col>
             <ion-col size="12" class="ion-margin-vertical">
-              <IonButton class="ion-margin-end ion-margin-vertical ion-float-end" @click="updatePassword">Save</IonButton>
+              <IonButton class="ion-margin-end ion-margin-vertical ion-float-right" @click="updatePassword">Save</IonButton>
             </ion-col>
           </ion-row>
         </div>
