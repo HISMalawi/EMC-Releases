@@ -2,8 +2,8 @@
 <ion-footer style="position:absolute; width: 100%; bottom: 0; left: 0; padding-right: 1rem; padding-left: 1rem;">
   <ion-toolbar>
     <span>
-      <img id="coat" :src="coatImg" alt="Malawi Coat of Arms logo" />
-      <img id="pepfar" :src="pepfarImg" alt="PEPFAR logo" />
+      <img id="coat" :src="img('login-logos/Malawi-Coat_of_arms_of_arms.png')" alt="Malawi Coat of Arms logo" />
+      <img id="pepfar" :src="img('login-logos/PEPFAR.png')" alt="PEPFAR logo" />
     </span>
     <ion-item class="his-sm-text" style="width:45%" slot="end" lines="none"> 
       <template v-if="isPocSite">
@@ -73,11 +73,10 @@ export default defineComponent({
     })
 
     return {
-      coatImg: img("login-logos/Malawi-Coat_of_arms_of_arms.png"),
-      pepfarImg: img("login-logos/PEPFAR.png"),
       deviceProfiles,
       profile,
       settingsUrl,
+      img,
     }
   },
 })
