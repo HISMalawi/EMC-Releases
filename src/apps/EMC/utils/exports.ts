@@ -20,13 +20,11 @@ interface CsvOptions {
   columns: TableColumnInterface[];
   rows: any[];
   filename: string;
-  quarter?: {
-    startDate: string;
-    endDate: string;
-  };
+  quarter?: string;
+  period?: string;
 }
 
-function convertToCsv({columns, rows, quarter}: CsvOptions) {
+function convertToCsv({columns, rows, quarter, period}: CsvOptions) {
   let str = columns.filter((column) => column.exportable !== false)
     .map((column) => column.label)
     .join(",");
@@ -43,7 +41,8 @@ function convertToCsv({columns, rows, quarter}: CsvOptions) {
   ).join("\n");
 
   str += "\n" + `Date Created:  ${new Date()}`;
-  if (!isEmpty(quarter)) str += "\n" + `Quarter: ${quarter?.startDate} to ${quarter?.endDate}`;
+  if (quarter) str += "\n" + `Quarter: ${quarter}`;
+  if (period) str += "\n" + `Quarter: ${period}`;
   str += "\n" + `e-Mastercard Version : ${Service.getAppVersion()}`;
   str += "\n" + `API Version ${Service.getApiVersion()}`;
   str += "\n" + `Site UUID: ${Service.getSiteUUID()}`;

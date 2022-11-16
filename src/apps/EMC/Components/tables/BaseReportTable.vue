@@ -160,23 +160,13 @@ export default defineComponent({
         btns.push({
           label: "CSV",
           color: "primary",
-          action: async (_a, rows) => {
-            const period = {} as any;
-            if (props.useDateRangeFilter) {
-              period.startDate = props.period.split(" - ")[0] || "";
-              period.endDate = props.period.split(" - ")[1] || "";
-            } 
-            if (props.useQuarterFilter) {
-              period.startDate = props.quarter?.other?.start;
-              period.endDate = props.quarter?.other?.end;
-            }
-            exportToCSV({
-              rows, 
-              columns: props.columns, 
-                quarter: period,
-                filename: filename.value
-            });
-          }
+          action: async (_a, rows) => exportToCSV({
+            rows, 
+            columns: props.columns, 
+            quarter: props.quarter?.label,
+            period: props.period,
+            filename: filename.value
+          })
         })
       }
       return btns;
