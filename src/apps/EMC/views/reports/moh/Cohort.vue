@@ -232,9 +232,9 @@ export default defineComponent({
       toCsv([headers], [
         ...rows,
         [`Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}`],
-        ['Quarter: ' + (quarter.value?.match(/custom/i) 
+        ['Quarter: ' + (quarter.value?.label.match(/custom/i) 
           ? `${dateRange.startDate} - ${dateRange.endDate}` 
-          : quarter.value)
+          : quarter.value.value)
         ],
         [`HIS-Core Version: ${Service.getCoreVersion()}`],
         [`API Version: ${Service.getApiVersion()}`],
