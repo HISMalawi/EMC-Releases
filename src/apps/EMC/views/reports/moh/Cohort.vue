@@ -183,7 +183,7 @@ export default defineComponent({
       disaggregatedParams.value = Url.parameterizeObjToString({
         'start_date': startDate,
         'end_date': endDate,
-        'quarter': quarter.value
+        'quarter': quarter.value.label
       })
 
       const response = await report.requestCohort(data);
