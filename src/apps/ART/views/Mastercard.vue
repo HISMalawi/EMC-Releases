@@ -236,12 +236,6 @@ export default defineComponent({
             category: "guardian",
           }
         },
-        {
-          label: 'Is Preg.',
-          value: '...',
-          condition: () => this.patient.isFemale(),
-          asyncValue: async () => (await this.patient.isPregnant()) ? 'Yes' : 'No'
-        },
         { 
           label: "Init W(KG)", 
           value: '...',
@@ -256,6 +250,18 @@ export default defineComponent({
           label: "Init BMI", 
           value: '...',
           asyncValue: () => this.patient.getInitialBMI() 
+        },
+        {
+          label: 'init Preg',
+          value: '...',
+          condition: () => this.patient.isFemale(),
+          asyncValue: () => this.patient.getInitialObs('Is patient pregnant', 'value_coded')
+        },
+        {
+          label: 'init Breastfeeding',
+          value: '...',
+          condition: () => this.patient.isFemale(),
+          asyncValue: () => this.patient.getInitialObs('Is patient breast feeding', 'value_coded')
         },
         { 
           label: "TI", 
@@ -386,6 +392,16 @@ export default defineComponent({
         {
           label: 'BMI',
           value: data.bmi
+        },
+        {
+          label: "Is pregnant",
+          value: data.isPregnant,
+          visible: this.patient.isFemale()
+        },
+        {
+          label: "Is breastfeeding",
+          value: data.isBreastfeeding,
+          visible: this.patient.isFemale()
         }
       ]
     },
@@ -400,6 +416,12 @@ export default defineComponent({
       const pillsDispensed = (drugs?.pills_given || []).map((d: any) =>  {
         return `${d['short_name'] || d['name']} <b>(${d.quantity || '?'})</b>`
       }).join('<br/>')
+      let isPregnant = 'N/A'
+      let isBreastfeeding = 'N/A'
+      if (this.patient.isFemale()) {
+        isPregnant = await ObservationService.getFirstValueCoded(this.patientId, 'Is patient pregnant', date)
+        isBreastfeeding = await ObservationService.getFirstValueCoded(this.patientId, 'Is patient breast feeding', date) 
+      }
       r[1] = table.td(data.weight)
       r[2] = table.td(data.regimen)
       r[3] = table.td(data.viral_load)
@@ -413,7 +435,11 @@ export default defineComponent({
           cssClass: "large-modal",
           componentProps: {
             title: date,
-            visitData: this.buildDetails(data)  
+            visitData: this.buildDetails({
+              ...data,
+              isPregnant,
+              isBreastfeeding
+            })
           }
         })
         ).present()
