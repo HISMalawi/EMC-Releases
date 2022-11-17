@@ -3,7 +3,7 @@
     <multi-column-view :items="items" :numberOfColumns="numberOfColumns" v-slot="{entries}">
       <ion-list>
         <span v-for="option in entries" :key="option.label">
-          <ion-item v-if="option.visible" style="padding: 0 !important; margin: 0 !important;">
+          <ion-item v-if="typeof option.visible === 'boolean' ? option.visible : true" style="padding: 0 !important; margin: 0 !important;">
             <div :style="{width: '100%', display: 'flex', justifyContent: 'space-between', fontSize: '12px', margin: 0, padding: 0}">
               <span>{{ option.label }}: </span>
               <span v-if="option.other && option.other.editable" @click="onClick(option)">
