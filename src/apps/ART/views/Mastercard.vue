@@ -48,6 +48,7 @@ import table, { ColumnInterface } from "@/components/DataViews/tables/ReportData
 import Pagination from "@/components/Pagination.vue"
 import Preloader from "@/components/TextSkeleton.vue"
 import MastercardDetails from "@/components/MastercardDetails.vue";
+import { toDate } from "@/utils/Strs";
 
 export default defineComponent({
   components: {
@@ -419,8 +420,14 @@ export default defineComponent({
       let isPregnant = 'N/A'
       let isBreastfeeding = 'N/A'
       if (this.patient.isFemale()) {
-        isPregnant = await ObservationService.getFirstValueCoded(this.patientId, 'Is patient pregnant', date)
-        isBreastfeeding = await ObservationService.getFirstValueCoded(this.patientId, 'Is patient breast feeding', date) 
+        const pregObs = await ObservationService.getFirstObs(this.patientId, 'Is patient pregnant', date)
+        if (pregObs && toDate(pregObs.obs_datetime) === date) {
+          isPregnant = pregObs.value_coded
+        }
+        const bfeed = await ObservationService.getFirstObs(this.patientId, 'Is patient breast feeding', date)
+        if (bfeed && toDate(bfeed.obs_datetime) === date) {
+          isBreastfeeding = bfeed.value_coded
+        }
       }
       r[1] = table.td(data.weight)
       r[2] = table.td(data.regimen)
