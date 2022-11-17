@@ -34,6 +34,9 @@ export default defineComponent({
             if (upCaseGender === 'F' || upCaseGender === 'FEMALE') {
                 return 'Female'
             }
+            if (/fbf|fnp|fp/i.test(gender)) {
+                return upCaseGender
+            }
             return gender
         },
         toDate(date: string) {

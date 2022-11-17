@@ -145,7 +145,7 @@ export default defineComponent({
   
       this.rows.push([
         table.td('All'),
-        table.td('FBf'),
+        table.td('FBF'),
         this.drillDown(fp('FBf', totals.due_for_vl), 'Due for VL FBf'),
         this.drillDown(fp('FBf', totals.drawn_routine), 'Routine (Sample Drawn) FBf'),
         this.drillDown(fp('FBf', totals.drawn_targeted), 'Targetted (Sample Drawn) FBf'),

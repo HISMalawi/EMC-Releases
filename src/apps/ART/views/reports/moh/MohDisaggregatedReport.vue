@@ -274,7 +274,7 @@ export default defineComponent({
 
                 this.sortIndexes[sortIndex].push([
                     table.td(ageGroups[i]),
-                    table.td(gender),
+                    table.td(this.formatGender(gender)),
                     this.drill(txNew, `Tx new (new on ART) | ${group} | ${gender}`),
                     this.drill(txCurr, `Tx curr (receiving ART) | ${group} | ${gender}`),
                     this.drill(txGivenIpt, `TX curr (received IPT) | ${group} | ${gender}`),
