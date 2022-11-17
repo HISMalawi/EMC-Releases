@@ -175,7 +175,7 @@ export default defineComponent({
             ])
             this.rows.push([
                 table.td('All'),
-                table.td('FBf'),
+                table.td('FBF'),
                 ...fP('FBf', 'started_new_on_art', 'Started new on ART'),
                 ...fP('FBf', 'started_previously_on_art', 'Started previously on ART'),
                 ...fP('FBf', 'completed_new_on_art', 'Completed new on ART'),

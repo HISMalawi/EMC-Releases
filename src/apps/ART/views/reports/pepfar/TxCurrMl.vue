@@ -184,7 +184,7 @@ export default defineComponent({
             ])
             this.rows.push([
                 table.td('All'),
-                table.td('FBf'),
+                table.td('FBF'),
                 fP('FBf', 'Died'),
                 fP('FBf', 'IIT <3 mo'),
                 fP('FBf', 'IIT 3-5 mo'),

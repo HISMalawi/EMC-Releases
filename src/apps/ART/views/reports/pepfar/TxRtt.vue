@@ -123,7 +123,7 @@ export default defineComponent({
             ])
             this.rows.push([
                 table.td('All'),
-                table.td('FBf'),
+                table.td('FBF'),
                 fP('FBf', '<3 months'),
                 fP('FBf', '3-5 months'),
                 fP('FBf', '6+ months')
