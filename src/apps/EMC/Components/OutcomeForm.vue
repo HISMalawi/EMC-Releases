@@ -5,10 +5,10 @@
         <p>Add New Outcome</p>
       </ion-col>  
       <ion-col size="6" class="ion-margin-top-vertical">
-        <SelectInput v-model="form.status" :form="form" :options="outcomes" />
+        <DateInput v-model="form.date" :form="form" :max-date="today" />
       </ion-col>
       <ion-col size="6" class="ion-margin-top-vertical">
-        <DateInput v-model="form.date" :form="form" :max-date="today" />
+        <SelectInput v-model="form.status" :form="form" :options="outcomes" />
       </ion-col>
       <ion-col size="12" v-if="isTransferredOut" class="ion-margin-top-vertical">
         <SelectInput v-model="form.nextFacility" :form="form" :asyncOptions="getFacilities" />
