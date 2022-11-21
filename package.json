@@ -1,6 +1,6 @@
 {
   "name": "HIS-Core",
-  "version": "5.0.0-emc-gamma",
+  "version": "5.0.0-emc-delta",
   "min-api-version": "4.16.1",
   "private": true,
   "scripts": {
