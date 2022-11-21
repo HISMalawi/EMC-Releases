@@ -5,6 +5,7 @@ import platform, { FileExportType } from "@/composables/usePlatform"
 import { toastDanger, toastSuccess, toastWarning } from "./Alerts"
 import writeBlob from "capacitor-blob-writer"; 
 import { PDFGenerator } from '@ionic-native/pdf-generator'
+import { Service } from "@/services/service"
 
 function convertToCsv(list: Array<any>) {
   return list.reduce((accum: string, row: Array<any>) => {
@@ -60,8 +61,9 @@ export function toCsv(header: Array<any>, rows: Array<any>, fileName='document')
   const csvContent = convertToCsv(header.concat(rows))
   const { activePlatformProfile } = platform()
   const fileWithExt = `${fileName}.csv`
+  const isPocSite = Service.isPocSite()
 
-  if (activePlatformProfile.value.fileExport === FileExportType.WEB) {
+  if (!isPocSite || activePlatformProfile.value.fileExport === FileExportType.WEB) {
     const csvData = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.setAttribute('id', 'csv')
