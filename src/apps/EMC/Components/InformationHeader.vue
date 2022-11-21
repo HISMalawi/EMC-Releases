@@ -1,7 +1,7 @@
 <template>
   <multi-column-view :items="patientInfo" :numberOfColumns="3" v-slot="{entries}">
     <ion-list class="his-card ion-margin-end">
-      <ion-item v-for="(option, i) in entries" :key="i" :lines="i === entries.length - 1 ? 'none': ''">
+      <ion-item v-for="(option, i) in entries" :key="i" :lines="i === entries.length - 1 ? 'none': ''" :button="clickable(option)" @click="onClickHandler(option)">
         <div :style="{width: '100%', display: 'flex', justifyContent: 'space-between'}">
           <span v-if="option.label">{{ option.label }}: </span>
           <span v-else></span>
@@ -27,6 +27,14 @@ import ApiStore from '@/composables/ApiStore';
 import EventBus from '@/utils/EventBus';
 import { EmcEvents } from '../interfaces/emc_event';
 import { toGenderString } from '@/utils/Strs';
+
+interface InfoItem {
+  label: string;
+  value: string | number;
+  other?: {
+    onClickHandler: () => Promise<void> | void;
+  };
+}
 
 export default defineComponent({
   components: {
@@ -63,6 +71,16 @@ export default defineComponent({
     const latestVLResult = ref('')
     const whoSTage = ref('')
 
+    const clickable = (item: InfoItem) => {
+      return item.other && typeof item.other.onClickHandler === 'function';
+    }
+
+    const onClickHandler = async (item: InfoItem) => {
+      if(clickable(item)){
+        await item.other?.onClickHandler()
+      }
+    }
+
     const getDobAndAgeAtInitiation = () => {
       const dob = props.patient.getBirthdate()
       const ageAtInitiation = props.artStartDate !== "N/A" 
@@ -89,34 +107,16 @@ export default defineComponent({
     }
 
     const patientInfo = computed(() => [
-      { 
-        label: "ARV Number", 
-        value: props.patient.getArvNumber(),
-        other: {
-          onClickHandler: () => {
-            emit('updateARVNumber')
-          }
-        }
-      },
+      { label: "ARV Number", value: props.patient.getArvNumber(), other: {
+        onClickHandler: () => emit('updateARVNumber')
+      }},
       { label: "National Patient ID", value: props.patient.getNationalID() },
-      {
-        label: "Name",
-        value: props.patient.getGivenName() + " " + props.patient.getFamilyName(),
-        other: {
-          onClickHandler: () => {
-            emit('updatePatient', 'given_name')
-          }
-        },
-      },
-      {
-        label: "DOB and Age at Initiation",
-        value: getDobAndAgeAtInitiation(),
-        other: {
-          onClickHandler: () => {
-            emit('updatePatient', 'birthdate')
-          }
-        },
-      },
+      { label: "Name", value: props.patient.getGivenName() + " " + props.patient.getFamilyName(), other: {
+        onClickHandler: () =>   emit('updatePatient', 'given_name')
+      }},
+      { label: "DOB and Age at Initiation", value: getDobAndAgeAtInitiation(), other: {
+          onClickHandler: () => emit('updatePatient', 'birthdate')
+      }},
       {
         label: "Sex",
         value: toGenderString(props.patient.getGender()),
@@ -242,6 +242,8 @@ export default defineComponent({
 
     return {
       patientInfo,
+      onClickHandler,
+      clickable,
     }
   },
 })
