@@ -68,7 +68,6 @@ import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 import HisDate from "@/utils/Date";
 import dayjs from "dayjs";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
-import { isEmpty } from "lodash";
 
 export default defineComponent({
   name: "DateInput",
@@ -118,49 +117,46 @@ export default defineComponent({
       set: (value) => emit("update:modelValue", value)
     })
 
-    const date = computed(() => {
-      if (isEstimated.value && age.value) {
-        return HisDate.toStandardHisFormat(HisDate.estimateDateFromAge(age.value));
-      }
-      if (day.value && month.value && year.value) {
-        const date = `${year.value}-${month.value}-${day.value}`
-        if(date.match(/^\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$/))
-          return HisDate.toStandardHisFormat(date);
-      }
-      return ``;
-    });
-
     const onEstimate = (e: any) => {
       model.value.error = StandardValidations.isNumber({value: e.target.value})?.join()
       if(!model.value.error) age.value = parseInt(e.target.value)
     }
 
     const validate = async () => {
-      if (model.value.required && !model.value.value) {
+      let date = "";
+      if (isEstimated.value && age.value) {
+        date = HisDate.toStandardHisFormat(HisDate.estimateDateFromAge(age.value));
+      } else if (day.value || month.value || year.value) {
+        const d = `${year.value}-${month.value}-${day.value}`
+        if(d.match(/^\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$/)) {
+          date = HisDate.toStandardHisFormat(d);
+        } else {
+          return model.value.error = "Invalid date"
+        }
+      }
+
+      if (model.value.required && !date) {
         return model.value.error = "This field is required";
       }
-      if (props.minDate && dayjs(model.value.value).isBefore(dayjs(props.minDate))) {
+      if (props.minDate && dayjs(date).isBefore(dayjs(props.minDate))) {
         return model.value.error = isEstimated.value 
-          ? `Estimated period must be less than or equal to ${dayjs().diff(props.minDate, 'years')} years ago`
+          ? `Estimated period must be less than or equal to ${dayjs(date).diff(props.minDate, 'years')} years`
           : `Date must be after ${props.minDate}`
       }
-      if (props.maxDate && dayjs(model.value.value).isAfter(dayjs(props.maxDate))) {
+      if (props.maxDate && dayjs(date).isAfter(dayjs(props.maxDate))) {
         return model.value.error = isEstimated.value
-          ? `Estimated period must be more than or equal to ${dayjs(model.value.value).diff(props.maxDate, 'years')} years ago`
+          ? `Estimated period must be more than or equal to ${dayjs(date).diff(props.maxDate, 'years')} years`
           : `Date must be before ${props.maxDate}`
       }
       if (model.value.validation) {
-        const errors = await model.value.validation({label: model.value.value, value: model.value.value}, props.form);
+        const errors = await model.value.validation({label: date, value: date}, props.form);
         if (errors && errors.length) {
           return model.value.error += errors.toString();
         }
       }
-      return model.value.error = "";
+      model.value.error = "";
+      model.value.value = date;
     };
-
-    watch(date, newDate => {
-      if(newDate) model.value.value = newDate
-    })
 
     watch(() => props.modelValue.value, (date) => {
       day.value = date ? dayjs(date).date() : undefined;

@@ -32,6 +32,7 @@ import SelectInput from "./inputs/SelectInput.vue";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
 import { Option } from "@/components/Forms/FieldInterface";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
+import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 
 export default defineComponent({
   name: "OutcomeForm",
@@ -66,8 +67,8 @@ export default defineComponent({
         label: "Outcome Date",
         required: true,
         validation: async (date) => {
-          if(dayjs(date.value).isBefore(props.birthdate)) return ["Outcome date cannot be before date of birth"]
-          if(dayjs(date.value).isBefore(props.dateEnrolled)) return ["Outcome date cannot be before enrollment date"]
+          if(dayjs(date.value).isBefore(props.birthdate)) return [`Outcome date cannot be before date of birth - ${dayjs(props.birthdate).format(DISPLAY_DATE_FORMAT)}` ]
+          if(dayjs(date.value).isBefore(props.dateEnrolled)) return [`Outcome date cannot be before enrollment date- ${dayjs(props.dateEnrolled).format(DISPLAY_DATE_FORMAT)}`]
           return null
         }
       },
