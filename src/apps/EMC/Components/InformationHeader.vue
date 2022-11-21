@@ -167,20 +167,46 @@ export default defineComponent({
           ),
         },
       },
-      { label: "Date of starting first line ARV Regimen", value: props.artStartDate },
-      { label: "Initial Weight (KG)", value: initWeight.value },
-      { label: "Initial Height (CM)", value: initHeight.value },
-      { label: "Initial BMI", value: initBmi.value },
-      { label: "Initial TB Status", value: initTBStatus.value },
-      { label: "Pregnant at Initiation", value: pregnantAtInitiation.value },
-      { label: "Breastfeeding at Initiation", value: breastFeedingAtInitiation.value },
+      { label: "Agrees to follow up", value: agreesToFollowUp.value, other: {
+        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+      }},
+      { label: "Date of starting first line ARV Regimen", value: props.artStartDate, other: {
+        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+      }},
+      { label: "Initial Weight (KG)", value: initWeight.value, other: {
+        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+      }},
+      { label: "Initial Height (CM)", value: initHeight.value, other: {
+        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+      }},
+      { label: "Initial BMI", value: initBmi.value, other: {
+        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+      }},
+      { label: "Initial TB Status", value: initTBStatus.value, other: {
+        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+      }},
+      { label: "Pregnant at Initiation", value: pregnantAtInitiation.value, other: {
+        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+      }},
+      { label: "Breastfeeding at Initiation", value: breastFeedingAtInitiation.value, other: {
+        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+      }},
       { label: "Latest VL Result and Result Date", value:  latestVLResult.value },
-      { label: "TI", value: receivedART.value  },
-      { label: "Agrees to follow up", value: agreesToFollowUp.value },
-      { label: "HIV test place", value: hivTestPlace.value },
-      {  label: "HIV test date", value: hivTestDate.value },
-      { label: "WHO stage", value: whoSTage.value },
-      { label: "Reason for starting ART", value: reasonForStartingART.value },
+      { label: "TI", value: receivedART.value, other: {
+        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+      }},
+      { label: "HIV test place", value: hivTestPlace.value, other: {
+        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+      }},
+      {  label: "HIV test date", value: hivTestDate.value, other: {
+        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+      }},
+      { label: "WHO stage", value: whoSTage.value, other: {
+        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+      }},
+      { label: "Reason for starting ART", value: reasonForStartingART.value, other: {
+        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+      }},
       { label: "Staging codition", value: stagingCondition.value, other: {
         onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
       }},
