@@ -586,6 +586,7 @@ export default defineComponent({
 
         await modal.hide()
         EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA);
+        EventBus.emit(EmcEvents.RELOAD_STAGING_INFORMATION);
       })
     }
 
