@@ -36,12 +36,7 @@ export default [
   {
     path: "/emc/registration/:id/:new",
     name: "new registration",
-    component: () => import("@/apps/EMC/views/ClinicRegistration.vue")
-  },
-  {
-    path: "/emc/staging/:id/:new",
-    name: "HIV staging",
-    component: () => import("@/apps/EMC/views/Staging.vue")
+    component: () => import("@/apps/EMC/views/HIVReception.vue")
   },
   {
     name: "emc_data_cleaning",

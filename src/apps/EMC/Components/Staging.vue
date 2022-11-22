@@ -1,53 +1,46 @@
 <template>
-  <Layout>
-    <ion-grid>
-      <ion-row class="his-card">
-        <ion-col size="12">
-          <ion-title class="ion-text-center ion-margin-vertical ion-padding-bottom bold">
-            Staging
-          </ion-title>
-          <ion-row class="ion-margin-top ion-margin-bottom">
-          <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-            <SelectInput v-model="form.reasonsForEligibity" :options="reasonsForArt" />
-          </ion-col>
-          <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-            <SelectInput v-model="form.whoStage" :options="whoStages" />
-          </ion-col>
-          <ion-col size="12" class="ion-margin-top ion-margin-bottom">
-            <yes-no-input v-model="form.cd4countAvailable" inline />
-          </ion-col>
-          <template v-if="form.cd4countAvailable.value === 'Yes'">
-            <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <DateInput v-model="form.cd4CountDate" :min-date="patientDob" :max-date="today" />
-            </ion-col>
-            <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <text-input v-model="form.cd4Count"  />
-            </ion-col>
-            <ion-col size="12" class="ion-margin-top ion-margin-bottom">
-              <SelectInput v-model="form.cd4CountLocation" :asyncOptions="getFacilities" allowCustom />
-            </ion-col>
-          </template>
-          <ion-col size="12" class="ion-margin-top ion-padding-top" >
-            <SelectInput v-model="form.whoConditions" :options="stagingCoditions" multiple />
-          </ion-col>
-        </ion-row>
-          <ion-button class="ion-margin-top ion-float-right" size="large" @click="onSubmit" color="success">Finish</ion-button>
-          <ion-button class="ion-margin-top ion-float-right" size="large" @click="onClear" color="warning">Clear</ion-button>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </Layout>
+  <ion-title class="ion-text-center ion-margin-vertical ion-padding-bottom bold">
+    Staging
+  </ion-title>
+  <ion-row class="ion-margin-top ion-margin-bottom">
+    <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+      <SelectInput v-model="form.reasonsForEligibity" :options="reasonsForArt" />
+    </ion-col>
+    <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+      <SelectInput v-model="form.whoStage" :options="whoStages" />
+    </ion-col>
+    <ion-col size="12" class="ion-margin-top ion-margin-bottom">
+      <yes-no-input v-model="form.cd4countAvailable" inline />
+    </ion-col>
+    <template v-if="form.cd4countAvailable.value === 'Yes'">
+      <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+        <DateInput v-model="form.cd4CountDate" :min-date="patientDob" :max-date="today" />
+      </ion-col>
+      <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+        <text-input v-model="form.cd4Count"  />
+      </ion-col>
+      <ion-col size="12" class="ion-margin-top ion-margin-bottom">
+        <SelectInput v-model="form.cd4CountLocation" :asyncOptions="getFacilities" allowCustom />
+      </ion-col>
+    </template>
+    <ion-col size="12" class="ion-margin-top ion-padding-top" >
+      <SelectInput v-model="form.whoConditions" :options="stagingCoditions" multiple />
+    </ion-col>
+    <ion-col size="12" class="ion-margin-top">
+      <ion-button class="ion-margin-top ion-float-right" size="large" @click="onSubmit" color="success">Finish</ion-button>
+      <ion-button class="ion-margin-top ion-float-right" size="large" color="warning" @click="onClear">Clear</ion-button>
+      <ion-button class="ion-margin-top ion-float-right" size="large" @click="$emit('onPrevious')" color="primary">Previous</ion-button>
+    </ion-col>
+  </ion-row>
 </template>
 
 <script lang="ts">
-import {  computed, defineComponent, onMounted, reactive, ref } from "vue";
-import Layout from "@/apps/EMC/Components/Layout.vue";
-import { IonGrid, IonRow, IonCol, IonButton, IonTitle } from "@ionic/vue";
+import { computed, defineComponent, onMounted, PropType, reactive, ref } from "vue";
+import { IonRow, IonCol, IonButton, IonTitle } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
-import {  alertConfirmation, toastSuccess } from "@/utils/Alerts";
+import { alertConfirmation } from "@/utils/Alerts";
 import { Option } from "@/components/Forms/FieldInterface";
 import { STANDARD_DATE_FORMAT } from "@/utils/Date";
-import { useRoute, useRouter } from "vue-router";
 import { DTForm } from "../interfaces/dt_form_field";
 import TextInput from "../Components/inputs/TextInput.vue";
 import DateInput from "../Components/inputs/DateInput.vue"
@@ -56,15 +49,11 @@ import SelectInput from "../Components/inputs/SelectInput.vue";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import dayjs from "dayjs";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
-import { resolveObs, submitForm } from "../utils/form";
+import { submitForm } from "../utils/form";
 import { StagingService } from "@/apps/ART/services/staging_service";
-import EventBus from "@/utils/EventBus";
-import { EmcEvents } from "../interfaces/emc_event";
 
 export default defineComponent({
   components: {
-    Layout,
-    IonGrid,
     IonRow,
     IonCol,
     IonButton,
@@ -74,12 +63,18 @@ export default defineComponent({
     YesNoInput,
     SelectInput,
   },
-  setup() {
-    const route = useRoute()
-    const router = useRouter()
-    const patientId = parseInt(route.params.id.toString() || '')
-    const isEditMode = route.params.new.toString().match(/false/i) ? true : false
-    const patient = ref<Patientservice>()
+  props: {
+    patient: {
+      type: Object as PropType<Patientservice>,
+      required: true,
+    },
+    isNewPatient: {
+      type: Boolean,
+      default: true,
+    }
+  },
+  emits: ["onValue", "onPrevious", "onFinish"],
+  setup(props, { emit }) {
     const stagingService = ref<StagingService>()
     const reasonsForArt = ref<Option[]>([])
     const stagingCoditions = ref<Option[]>([])
@@ -88,7 +83,7 @@ export default defineComponent({
 
     const today = dayjs().format(STANDARD_DATE_FORMAT)
     const patientDob = computed(() => {
-      const date = patient.value?.getBirthdate() 
+      const date = props.patient.getBirthdate() 
       return date ? dayjs(date).format(STANDARD_DATE_FORMAT) : ''
     })
 
@@ -181,21 +176,17 @@ export default defineComponent({
     }
 
     const onSubmit = async () => {
-      await submitForm(form, async (_, computedFormData) => {
-        await stagingService.value?.createEncounter()
-        const obs = await resolveObs(computedFormData)
-        await stagingService.value?.saveObservationList(obs)
-        await toastSuccess('Saved successfully')
-        await StagingService.resetSessionDate()
-        if(isEditMode) EventBus.emit(EmcEvents.RELOAD_STAGING_INFORMATION)
-        router.push(`/emc/patient/${patientId}`)
+      await submitForm(form, async (formData, computedData) => {
+        emit("onValue", {
+          type: "staging",
+          data: { formData, computedData }
+        })
+        emit("onFinish")
       })
     }
 
     onMounted(async () => {
-      const data = await Patientservice.findByID(patientId)
-      patient.value = new Patientservice(data)
-      stagingService.value = new StagingService(patientId, patient.value.getAge(), -1)
+      stagingService.value = new StagingService(props.patient.getID(), props.patient.getAge(), -1)
       stagingCoditions.value = [
         ...stagingService.value.getStagingConditions(1).map(condition => ({ label: condition.name, value: condition.concept_id, other: condition })),
         ...stagingService.value.getStagingConditions(2).map(condition => ({ label: condition.name, value: condition.concept_id, other: condition })),
@@ -211,7 +202,6 @@ export default defineComponent({
     }) 
  
     return {
-      patient,
       today,
       patientDob,
       form,

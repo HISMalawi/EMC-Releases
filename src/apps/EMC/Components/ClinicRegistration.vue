@@ -1,101 +1,92 @@
 <template>
-  <Layout>
-    <ion-grid>
-      <ion-row class="his-card">
-        <ion-col size="12">
-          <ion-title class="ion-text-center ion-margin-vertical ion-padding-bottom bold">
-            HIV Clinic Registration
-          </ion-title>
-          <ion-row class="ion-margin-top ion-margin-bottom">
-          <ion-col size="5" class="ion-margin-top ion-margin-bottom">
-            <text-input v-model="form.arvNumber" :form="form" :prefix="`${sitePrefix}-ARV-`" :disabled="!isNewPatient" />
-          </ion-col>
-          <ion-col size="7" class="ion-margin-top ion-margin-bottom">
-            <DateInput v-model="form.initialVisitDate" :min-date="patientDob" :max-date="today" :form="form" />
-          </ion-col>
-          <ion-col size="5" class="ion-margin-top ion-margin-bottom">
-            <yes-no-input v-model="form.shouldFollowUp" inline />
-          </ion-col>
-          <ion-col size="7" class="ion-margin-top ion-margin-bottom">
-            <yes-no-input v-model="form.receivedArvTreatmentBefore" inline />
-          </ion-col>
-          <template v-if="form.receivedArvTreatmentBefore.value === 'Yes'">
-            <ion-col size="12" class="ion-margin-top ion-margin-bottom">
-              <DateInput v-model="form.dateLastTakenArvs" :form="form" :min-date="patientDob" :max-date="today" />
-            </ion-col>
-            <ion-col size="12" class="ion-margin-top ion-margin-bottom">
-              <yes-no-input v-model="form.everRegisteredAtClinic" inline />
-            </ion-col>
-          </template>
-          <template v-if="form.everRegisteredAtClinic.value === 'Yes'">
-            <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <SelectInput v-model="form.artInitiationLocation" :form="form" :asyncOptions="getFacilities" allowCustom />
-            </ion-col>
-            <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <DateInput v-model="form.artStartDate" :form="form" :min-date="patientDob" :max-date="today" />
-            </ion-col>
-            <ion-col size="3" class="ion-margin-top ion-margin-bottom">
-              <NumberInput v-model="form.initialWeight" :form="form" :min="1" allowUnknown />
-            </ion-col>
-            <ion-col size="3" class="ion-margin-top ion-margin-bottom">
-              <NumberInput v-model="form.initialHeight" :form="form" :min="1" allowUnknown />
-            </ion-col>
-            <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <SelectInput v-model="form.initialTBStatus" :form="form" :options="initialTbStatusOptions" />
-            </ion-col>
-            <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <SelectInput v-model="form.tptHistory" :form="form" :options="tptHistoryOptions" />
-            </ion-col>
-            <template v-if="tptDrugs.length">
-              <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-                <DateInput v-model="form.tptStartDate" :min-date="patientDob" :max-date="today" :form="form" />
-              </ion-col>
-              <ion-col size="6" class="ion-margin-top ion-margin-bottom" v-if="tptDrugs.includes('INH or H (Isoniazid 300mg tablet)')">
-                <NumberInput v-model="form.inhQty" :form="form" :min="1" />
-              </ion-col>
-              <ion-col size="6" class="ion-margin-top ion-margin-bottom" v-if="tptDrugs.includes('Rifapentine (150mg)')">
-                <NumberInput v-model="form.rifapentineQty" :form="form" :min="1" />
-              </ion-col>
-              <ion-col size="6" class="ion-margin-top ion-margin-bottom" v-if="tptDrugs.includes('INH 300 / RFP 300 (3HP)')">
-                <NumberInput v-model="form.threeHPQty" :form="form" :min="1" />
-              </ion-col>
-              <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-                <SelectInput v-model="form.tptStartLocation" :form="form" :asyncOptions="getFacilities" allowCustom />
-              </ion-col>
-            </template>
-          </template>
-          <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-            <SelectInput v-model="form.confirmatoryTest" :form="form" :options="HIVTestOptions" />
-          </ion-col>
-          <template v-if="form.confirmatoryTest.value.label !== 'Not done'">
-            <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <SelectInput v-model="form.confirmatoryTestLocation" :form="form" :asyncOptions="getFacilities" allowCustom />
-            </ion-col>
-            <ion-col size="6" class="ion-margin-top ion-margin-bottom">
-              <DateInput v-model="form.confirmatoryTestDate" :form="form" :min-date="patientDob" :max-date="today" />
-            </ion-col>
-          </template>
-        </ion-row>
-          <ion-button class="ion-margin-top ion-float-right" size="large" @click="onSubmit" color="success">Next</ion-button>
-          <ion-button class="ion-margin-top ion-float-right" size="large" @click="onClear" color="warning">Clear</ion-button>
-          <ion-button class="ion-margin-top ion-float-right" size="large" @click="$router.back()" color="primary" v-if="!isNewPatient">Back</ion-button>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </Layout>
+  <ion-title class="ion-text-center ion-margin-vertical ion-padding-bottom bold">
+    HIV Clinic Registration
+  </ion-title>
+  <ion-row class="ion-margin-top ion-margin-bottom">
+  <ion-col size="5" class="ion-margin-top ion-margin-bottom">
+    <text-input v-model="form.arvNumber" :form="form" :prefix="`${sitePrefix}-ARV-`" :disabled="!isNewPatient" />
+  </ion-col>
+  <ion-col size="7" class="ion-margin-top ion-margin-bottom">
+    <DateInput v-model="form.initialVisitDate" :min-date="patientDob" :max-date="today" :form="form" />
+  </ion-col>
+  <ion-col size="5" class="ion-margin-top ion-margin-bottom">
+    <yes-no-input v-model="form.shouldFollowUp" inline />
+  </ion-col>
+  <ion-col size="7" class="ion-margin-top ion-margin-bottom">
+    <yes-no-input v-model="form.receivedArvTreatmentBefore" inline />
+  </ion-col>
+  <template v-if="form.receivedArvTreatmentBefore.value === 'Yes'">
+    <ion-col size="12" class="ion-margin-top ion-margin-bottom">
+      <DateInput v-model="form.dateLastTakenArvs" :form="form" :min-date="patientDob" :max-date="today" />
+    </ion-col>
+    <ion-col size="12" class="ion-margin-top ion-margin-bottom">
+      <yes-no-input v-model="form.everRegisteredAtClinic" inline />
+    </ion-col>
+  </template>
+  <template v-if="form.everRegisteredAtClinic.value === 'Yes'">
+    <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+      <SelectInput v-model="form.artInitiationLocation" :form="form" :asyncOptions="getFacilities" allowCustom />
+    </ion-col>
+    <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+      <DateInput v-model="form.artStartDate" :form="form" :min-date="patientDob" :max-date="today" />
+    </ion-col>
+    <ion-col size="3" class="ion-margin-top ion-margin-bottom">
+      <NumberInput v-model="form.initialWeight" :form="form" :min="1" allowUnknown />
+    </ion-col>
+    <ion-col size="3" class="ion-margin-top ion-margin-bottom">
+      <NumberInput v-model="form.initialHeight" :form="form" :min="1" allowUnknown />
+    </ion-col>
+    <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+      <SelectInput v-model="form.initialTBStatus" :form="form" :options="initialTbStatusOptions" />
+    </ion-col>
+    <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+      <SelectInput v-model="form.tptHistory" :form="form" :options="tptHistoryOptions" />
+    </ion-col>
+    <template v-if="tptDrugs.length">
+      <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+        <DateInput v-model="form.tptStartDate" :min-date="patientDob" :max-date="today" :form="form" />
+      </ion-col>
+      <ion-col size="6" class="ion-margin-top ion-margin-bottom" v-if="tptDrugs.includes('INH or H (Isoniazid 300mg tablet)')">
+        <NumberInput v-model="form.inhQty" :form="form" :min="1" />
+      </ion-col>
+      <ion-col size="6" class="ion-margin-top ion-margin-bottom" v-if="tptDrugs.includes('Rifapentine (150mg)')">
+        <NumberInput v-model="form.rifapentineQty" :form="form" :min="1" />
+      </ion-col>
+      <ion-col size="6" class="ion-margin-top ion-margin-bottom" v-if="tptDrugs.includes('INH 300 / RFP 300 (3HP)')">
+        <NumberInput v-model="form.threeHPQty" :form="form" :min="1" />
+      </ion-col>
+      <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+        <SelectInput v-model="form.tptStartLocation" :form="form" :asyncOptions="getFacilities" allowCustom />
+      </ion-col>
+    </template>
+    </template>
+    <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+      <SelectInput v-model="form.confirmatoryTest" :form="form" :options="HIVTestOptions" />
+    </ion-col>
+    <template v-if="form.confirmatoryTest.value.label !== 'Not done'">
+      <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+        <SelectInput v-model="form.confirmatoryTestLocation" :form="form" :asyncOptions="getFacilities" allowCustom />
+      </ion-col>
+      <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+        <DateInput v-model="form.confirmatoryTestDate" :form="form" :min-date="patientDob" :max-date="today" />
+      </ion-col>
+    </template>
+    <ion-col size="12" class="ion-margin-top">
+      <ion-button class="ion-margin-top ion-float-right" size="large" @click="onSubmit" color="success">Next</ion-button>
+      <ion-button class="ion-margin-top ion-float-right" size="large" color="warning" @click="onClear">Clear</ion-button>
+      <ion-button class="ion-margin-top ion-float-right" size="large" @click="$router.back()" color="primary" v-if="!isNewPatient">Back</ion-button>
+    </ion-col>
+  </ion-row>
 </template>
 
 <script lang="ts">
-import {  computed, defineComponent, onMounted, reactive, ref, watch } from "vue";
-import Layout from "@/apps/EMC/Components/Layout.vue";
-import { IonGrid, IonRow, IonCol, IonButton, IonTitle } from "@ionic/vue";
+import {  computed, defineComponent, onMounted, PropType, reactive, ref, watch } from "vue";
+import { IonRow, IonCol, IonTitle } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
-import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
-import {  alertConfirmation, toastSuccess } from "@/utils/Alerts";
+import {  alertConfirmation } from "@/utils/Alerts";
 import { Option } from "@/components/Forms/FieldInterface";
 import { STANDARD_DATE_FORMAT } from "@/utils/Date";
 import { isEmpty } from "lodash";
-import { useRoute, useRouter } from "vue-router";
 import { DTForm } from "../interfaces/dt_form_field";
 import TextInput from "../Components/inputs/TextInput.vue";
 import DateInput from "../Components/inputs/DateInput.vue"
@@ -109,41 +100,46 @@ import { initialTbStatusOptions, HIVTestOptions, tptHistoryOptions } from '@/app
 import dayjs from "dayjs";
 import { VitalsService } from "@/apps/ART/services/vitals_service";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
-import { resolveObs, submitForm } from "../utils/form";
+import { submitForm } from "../utils/form";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
-import { PatientProgramService } from "@/services/patient_program_service";
 import { ConsultationService } from "@/apps/ART/services/consultation_service";
 import { RegimenService } from "@/services/regimen_service";
 
 export default defineComponent({
   components: {
-    Layout,
-    IonGrid,
     IonRow,
     IonCol,
-    IonButton,
     IonTitle,
     TextInput,
     DateInput,
     YesNoInput,
     SelectInput,
     NumberInput
-},
-  setup() {
-    const route = useRoute()
-    const router = useRouter()
-    const patientId = ref(parseInt(route.params.id.toString() || ''))
-    const isNewPatient = route.params.new.toString().match(/true/i) ? true : false
-    const patient = ref<Patientservice>()
+  },
+  props: {
+    patient: {
+      type: Object as PropType<Patientservice>,
+      required: true,
+    },
+    isNewPatient: {
+      type: Boolean,
+      default: true,
+    },
+    sitePrefix: {
+      type: String,
+      required: true
+    }
+  },
+  emits: ["onValue", "onNext"],
+  setup(props, { emit }) {
     const customRegimenIngredients = ref<any[]>([])
-    const sitePrefix = ref("");
-    const registrationService = new ClinicRegistrationService(patientId.value, -1)
-    const consultationService = new ConsultationService(patientId.value, -1)
-    const vitalsService = new VitalsService(patientId.value, -1)
-    const patientTypeService = new PatientTypeService(patientId.value, -1);
+    const registrationService = new ClinicRegistrationService(props.patient.getID(), -1)
+    const consultationService = new ConsultationService(props.patient.getID(), -1)
+    const vitalsService = new VitalsService(props.patient.getID(), -1)
+    const patientTypeService = new PatientTypeService(props.patient.getID(), -1);
     const today = dayjs().format(STANDARD_DATE_FORMAT)
     const patientDob = computed(() => {
-      const date = patient.value?.getBirthdate() 
+      const date = props.patient.getBirthdate() 
       return date ? dayjs(date).format(STANDARD_DATE_FORMAT) : ''
     })
 
@@ -155,7 +151,9 @@ export default defineComponent({
         required: true,
         validation: async (arvNumber, form) => {
           if(form.arvNumber.disabled) return null
-          const patients = await Patientservice.findByOtherID(4, `${sitePrefix.value}-ARV-${arvNumber.value}`);
+          const isNumberErr = StandardValidations.isNumber(arvNumber)
+          if(isNumberErr !== null) return isNumberErr
+          const patients = await Patientservice.findByOtherID(4, `${props.sitePrefix}-ARV-${arvNumber.value}`);
           return isEmpty(patients) ?  null : ['ARV Number already exists'];
         },
       },
@@ -455,52 +453,22 @@ export default defineComponent({
       registrationService.setDate(form.initialVisitDate.value)
       vitalsService.setDate(form.initialVisitDate.value)
       consultationService.setDate(form.initialVisitDate.value)
-      PatientTypeService.setSessionDate(form.initialVisitDate.value)
       
       await submitForm(form, async (formData, computedData) => {
-        if(!form.arvNumber.disabled && formData.arvNumber) {
-          await patient.value?.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`)
-        }
-
-        if(!form.arvNumber.disabled && formData.arvNumber) {
-          await patient.value?.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`)
-        }
-
-        await patientTypeService.createEncounter()
-        const pTypeObs = await resolveObs(computedData, 'patient type')
-        await patientTypeService.saveObservationList(pTypeObs)
-
-        await registrationService.createEncounter()
-        const regObs = await resolveObs(computedData, 'registration')
-        await registrationService.saveObservationList(regObs)
-
-        if(formData.everRegisteredAtClinic === 'Yes') {
-          await vitalsService.createEncounter()
-          const vitalsObs = await resolveObs(computedData, 'vitals')
-          await vitalsService.saveObservationList(vitalsObs)
-
-          await consultationService.createEncounter()
-          const consultationObs = await resolveObs(computedData, 'consultation')
-          await consultationService.saveObservationList(consultationObs)
-        }
-
-        // enroll patient into HIV program
-        if(isNewPatient) {
-          const patientProgram =  new PatientProgramService(patient.value!.getID())
-          patientProgram.setProgramDate(formData.initialVisitDate)
-          await patientProgram.enrollProgram();
-        }
-
-        await toastSuccess('Saved successfully')
-        router.push(`/emc/staging/${patientId.value}/${isNewPatient}`)
+        emit("onValue", {
+          type: 'registration',
+          data: {
+            formData,
+            computedData,
+            arvNumberEditable: !form.arvNumber.disabled
+          }
+        })
+        emit("onNext")
       })
     }
 
     onMounted(async () => {
-      const data = await Patientservice.findByID(patientId.value)
-      patient.value = new Patientservice(data)
-      sitePrefix.value = await GLOBAL_PROP.sitePrefix();
-      const arvNumber = patient.value.getArvNumber()
+      const arvNumber = props.patient.getArvNumber()
       if(arvNumber && arvNumber !== 'Unknown') {
         form.arvNumber.value = arvNumber.split('-')[2]
         form.arvNumber.disabled = true
@@ -512,15 +480,12 @@ export default defineComponent({
     }) 
  
     return {
-      patient,
       today,
       patientDob,
       form,
-      sitePrefix,
       initialTbStatusOptions,
       tptHistoryOptions,
       HIVTestOptions,
-      isNewPatient,
       tptDrugs,
       getFacilities,
       onClear,
