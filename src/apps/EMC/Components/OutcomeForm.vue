@@ -33,6 +33,9 @@ import StandardValidations from "@/components/Forms/validations/StandardValidati
 import { Option } from "@/components/Forms/FieldInterface";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import EventBus from "@/utils/EventBus";
+import { EmcEvents } from "../interfaces/emc_event";
+import { alertConfirmation } from "@/utils/Alerts";
 
 export default defineComponent({
   name: "OutcomeForm",
@@ -89,10 +92,13 @@ export default defineComponent({
 
     const isTransferredOut = computed(() => form.status.value?.label === "Patient transferred out");
 
-    const onReset = () => {
-      for (const key in form) {
-        form[key].value = '';
-        form[key].error = '';
+    const onReset = async () => {
+      if((await alertConfirmation("are you sure you want to clear all fields"))) {
+        for (const key in form) {
+          form[key].value = '';
+          form[key].error = '';
+        }
+        EventBus.emit(EmcEvents.ON_CLEAR)
       }
     }
 

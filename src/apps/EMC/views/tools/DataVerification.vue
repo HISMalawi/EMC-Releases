@@ -42,6 +42,9 @@ import { DataCleaningReportService } from "@/apps/ART/services/reports/data_clea
 import TextInput from "@/apps/EMC/Components/inputs/TextInput.vue";
 import DateInput from "@/apps/EMC/Components/inputs/DateInput.vue"
 import YesNoInput from "@/apps/EMC/Components/inputs/YesNoInput.vue"; 
+import { alertConfirmation } from "@/utils/Alerts";
+import EventBus from "@/utils/EventBus";
+import { EmcEvents } from "../../interfaces/emc_event";
 
 export default defineComponent({
   components: {
@@ -96,9 +99,12 @@ export default defineComponent({
       }
     }
 
-    const onClear = () => {
-      for(const key in form) {
-        form[key].value = "";
+    const onClear = async () => {
+      if((await alertConfirmation('Are you sure you want to clear all fields?'))) {
+        for(const key in form) {
+          form[key].value = "";
+        }
+        EventBus.emit(EmcEvents.ON_CLEAR);
       }
     }
 

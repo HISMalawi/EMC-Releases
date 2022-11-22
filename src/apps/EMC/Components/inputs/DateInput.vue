@@ -63,11 +63,13 @@
 </template>
 <script lang="ts">
 import { IonCheckbox, IonInput, IonLabel, IonNote } from "@ionic/vue";
-import { computed, defineComponent, PropType, ref, watch } from "vue";
+import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
 import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 import HisDate from "@/utils/Date";
 import dayjs from "dayjs";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
+import EventBus from "@/utils/EventBus";
+import { EmcEvents } from "../../interfaces/emc_event";
 
 export default defineComponent({
   name: "DateInput",
@@ -95,7 +97,7 @@ export default defineComponent({
     estimationLabel: {
       type: String,
       default: "Estimate"
-    }
+    },
   },
   components: {
     IonLabel,
@@ -158,6 +160,14 @@ export default defineComponent({
       model.value.value = date;
     };
 
+    const resetValues = () => {
+      age.value = undefined;
+      day.value = undefined;
+      month.value = 0;
+      year.value = undefined;
+      model.value.error = "";
+    }
+
     watch(() => props.modelValue.value, (date) => {
       day.value = date ? dayjs(date).date() : undefined;
       month.value = date ? dayjs(date).month() + 1 : 0;
@@ -165,13 +175,11 @@ export default defineComponent({
     })
 
     watch(isEstimated, newValue => {
-      age.value = undefined;
-      day.value = undefined;
-      month.value = 0;
-      year.value = undefined;
-      model.value.error = "";
+      resetValues()
       emit("isEstimated", newValue);
     })
+
+    onMounted(() => EventBus.on(EmcEvents.ON_CLEAR, resetValues))
 
     return {
       validate,

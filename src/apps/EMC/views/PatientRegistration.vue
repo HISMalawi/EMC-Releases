@@ -86,6 +86,8 @@ import { getLandmarks, getVillagesByName } from "@/utils/HisFormHelpers/Location
 import { isValidForm, resolveFormValues } from "../utils/form";
 import { toUnderscores } from "@/utils/Strs";
 import { loader } from "@/utils/loader";
+import EventBus from "@/utils/EventBus";
+import { EmcEvents } from "../interfaces/emc_event";
 
 export default defineComponent({
   components: {
@@ -209,6 +211,7 @@ export default defineComponent({
           guardian[key].value = undefined
           guardian[key].error = ""
         }
+        EventBus.emit(EmcEvents.ON_CLEAR);
       }
     }
 

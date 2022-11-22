@@ -104,6 +104,8 @@ import { submitForm } from "../utils/form";
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { ConsultationService } from "@/apps/ART/services/consultation_service";
 import { RegimenService } from "@/services/regimen_service";
+import EventBus from "@/utils/EventBus";
+import { EmcEvents } from "../interfaces/emc_event";
 
 export default defineComponent({
   components: {
@@ -445,6 +447,7 @@ export default defineComponent({
           form[key].error = ""
         }
       }
+      EventBus.emit(EmcEvents.ON_CLEAR)
     }
 
     const onSubmit = async () => {

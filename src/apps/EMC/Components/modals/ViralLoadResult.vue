@@ -79,6 +79,7 @@ import { ConceptService } from "@/services/concept_service";
 import EventBus from "@/utils/EventBus";
 import { EmcEvents } from "../../interfaces/emc_event";
 import { modal } from "@/utils/modal";
+import { alertConfirmation } from "@/utils/Alerts";
 
 export default defineComponent({
   components: {
@@ -209,11 +210,14 @@ export default defineComponent({
       EventBus.emit(EmcEvents.RELOAD_PATIENT_VISIT_DATA)
     })
 
-    const resetResults = () => {
-      ldl.value = false
-      for(const key in form) {
-        form[key].value = '';
-        form[key].error = ''
+    const resetResults = async () => {
+      if((await alertConfirmation("Are you sure you want to clear all fields?"))){
+        ldl.value = false
+        for(const key in form) {
+          form[key].value = '';
+          form[key].error = ''
+        }
+        EventBus.emit(EmcEvents.ON_CLEAR);
       }
     };
 

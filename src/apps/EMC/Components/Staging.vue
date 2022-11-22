@@ -51,6 +51,8 @@ import dayjs from "dayjs";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
 import { submitForm } from "../utils/form";
 import { StagingService } from "@/apps/ART/services/staging_service";
+import EventBus from "@/utils/EventBus";
+import { EmcEvents } from "../interfaces/emc_event";
 
 export default defineComponent({
   components: {
@@ -166,12 +168,12 @@ export default defineComponent({
     });
 
     const onClear = async () => {
-      const confirm = await alertConfirmation('Are you sure you want to clear all fields?')
-      if(confirm) {
+      if((await alertConfirmation('Are you sure you want to clear all fields?'))) {
         for(const key in form) {
           form[key].value = undefined
           form[key].error = ""
         }
+        EventBus.emit(EmcEvents.ON_CLEAR)
       }
     }
 

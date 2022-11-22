@@ -13,10 +13,13 @@
 </template>
 
 <script lang="ts">
+import { alertConfirmation } from "@/utils/Alerts";
+import EventBus from "@/utils/EventBus";
 import { IonGrid, IonRow, IonCol, IonButton } from "@ionic/vue";
 import dayjs from "dayjs";
 import { defineComponent, reactive, ref } from "vue";
 import { DTForm } from "../interfaces/dt_form_field";
+import { EmcEvents } from "../interfaces/emc_event";
 import { submitForm } from "../utils/form";
 import DateInput from "./inputs/DateInput.vue";
 
@@ -45,9 +48,12 @@ export default defineComponent({
       },
     })
 
-    const onReset = () => {
-      form.date.value = "";
-      form.date.error = "";
+    const onReset = async () => {
+      if((await alertConfirmation("Are you sure you want to clear all fields"))){
+        form.date.value = "";
+        form.date.error = "";
+        EventBus.emit(EmcEvents.ON_CLEAR)
+      }
     }
 
     const enrollProgram = async () => submitForm(form, ({ date }) => emit("enrollProgram", date))

@@ -590,13 +590,13 @@ export default defineComponent({
     }
 
     const onClear = async () => {
-      const confirm = await alertConfirmation('Are you sure you want to clear all fields?')
-      if(confirm) {
+      if((await alertConfirmation('Are you sure you want to clear all fields?'))) {
         for(const key in form) {
           form[key].value = ''
           form[key].error = ''
           form[key].disabled = false;
         }
+        EventBus.emit(EmcEvents.ON_CLEAR);
       }
     }
 
