@@ -21,6 +21,21 @@
     @ionBlur="validate"
   />
   <div v-else style="display: flex; justify-content: flex-start;">
+    <div class="ion-margin-top ion-padding-end" >
+      <DatePicker 
+        mode="date"
+        v-model="pickerDate"
+        :min-date="minDate" 
+        :max-date="maxDate"
+        :masks="{ input: 'YYYY-MM-DD' }"
+      >
+        <template v-slot="{ showPopover }">
+          <ion-button @click="showPopover">
+            <ion-icon :icon="calendar" ></ion-icon>
+          </ion-button>
+        </template>
+      </DatePicker>
+    </div>
     <ion-input 
       v-model="day" 
       :min="1" 
@@ -70,6 +85,8 @@ import dayjs from "dayjs";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
 import EventBus from "@/utils/EventBus";
 import { EmcEvents } from "../../interfaces/emc_event";
+import { calendar } from "ionicons/icons";
+import { DatePicker } from "v-calendar";
 
 export default defineComponent({
   name: "DateInput",
@@ -104,6 +121,7 @@ export default defineComponent({
     IonInput,
     IonNote,
     IonCheckbox,
+    DatePicker,
   },
   emits: ["update:modelValue", "isEstimated"],
   setup(props, { emit}) {
@@ -113,7 +131,8 @@ export default defineComponent({
     const month = ref<number>(props.modelValue.value ? dayjs(props.modelValue.value).month() + 1 : 0);
     const year = ref<number | undefined>(props.modelValue.value ? dayjs(props.modelValue.value).year() : undefined);
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    
+    const pickerDate = ref(props.modelValue.value as string)
+
     const model = computed({
       get: () => props.modelValue as DTFormField,
       set: (value) => emit("update:modelValue", value)
@@ -160,12 +179,21 @@ export default defineComponent({
       model.value.value = date;
     };
 
+    watch (pickerDate, (date) => {
+      day.value = dayjs(date).date()
+      month.value = dayjs(date).month() + 1;
+      year.value = dayjs(date).year();
+      validate();
+    })
+
+
     const resetValues = () => {
       age.value = undefined;
       day.value = undefined;
       month.value = 0;
       year.value = undefined;
       model.value.error = "";
+      pickerDate.value = ""
     }
 
     watch(() => props.modelValue.value, (date) => {
@@ -184,6 +212,7 @@ export default defineComponent({
     return {
       validate,
       onEstimate,
+      pickerDate,
       isEstimated,
       model,
       age,
@@ -191,6 +220,7 @@ export default defineComponent({
       month,
       year,
       months,
+      calendar,
     };
   }
 });
