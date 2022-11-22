@@ -37,6 +37,9 @@ import { PatientTypeService } from '@/apps/ART/services/patient_type_service';
 import { resolveObs } from '../utils/form';
 import { PatientProgramService } from '@/services/patient_program_service';
 import { StagingService } from '@/apps/ART/services/staging_service';
+import { EncounterService } from '@/services/encounter_service';
+import { isEmpty, get } from 'lodash';
+import { Encounter } from '@/interfaces/encounter';
 
 export default defineComponent({
   components: {
@@ -60,6 +63,8 @@ export default defineComponent({
     const isStaging = computed(() => activeForm.value === 'Staging');
     const isRegistration = computed(() => activeForm.value === 'Staging');
     const patient = ref({} as Patientservice)
+    const initialVisitDate = ref('')
+    const firstVisitEncounters = ref([] as number[])
     
     const onValue = (form: any) => data[form.type] = form.data;
     const onNext = () => activeForm.value = "Staging"
@@ -78,6 +83,12 @@ export default defineComponent({
       try {
         loader.show();
         
+        // Void first visit encounters
+        if(!isNewPatient && !isEmpty(firstVisitEncounters.value)) {
+          firstVisitEncounters.value.forEach(encounter => {
+            EncounterService.voidEncounter(encounter, 'Duplicate')
+          });
+        }
 
         // ARV Number
         if(arvNumberEditable && formData.arvNumber) {
@@ -115,7 +126,7 @@ export default defineComponent({
           const patientProgram = new PatientProgramService(patientId)
           patientProgram.setProgramDate(formData.initialVisitDate)
           await patientProgram.enrollProgram();
-        }
+        } 
         
         await loader.hide()
         await ClinicRegistrationService.resetSessionDate()
@@ -133,6 +144,21 @@ export default defineComponent({
       patient.value = new Patientservice(p);
       Store.get('SITE_PREFIX').then(prefix => sitePrefix.value = prefix);
       isReady.value = true;
+      if(!isNewPatient) {
+        // get first visit encounters
+        EncounterService.getEncounters(patientId, {"encounter_type_id": 9}).then((enc: Encounter[]) => {
+          if(isEmpty(enc)) return
+          const encounterTypes = [9, 53, 6, 5, 52]
+          initialVisitDate.value = get(enc, '[0].encounter_datetime', '')
+          if(initialVisitDate.value) {
+            EncounterService.getEncounters(patientId, { date: initialVisitDate.value }).then((encounters: Encounter[]) => {
+              firstVisitEncounters.value = encounters
+                .filter(enc => encounterTypes.includes(enc.encounter_type))
+                .map(enc => enc.encounter_id)
+            })
+          }
+        });
+      }
     })
     return {
       activeForm,
