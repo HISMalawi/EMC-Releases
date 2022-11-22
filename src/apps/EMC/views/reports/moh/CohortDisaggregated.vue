@@ -245,22 +245,25 @@ export default defineComponent({
         { path: "address", label: "Address" }
       ]
       const patients = data.row[data.column.path]
-      const rows: any[] = []
-      for(const patient of patients) {
-        const data = await Patientservice.findByID(patient)
-        const p = new Patientservice(data)
-        rows.push({
-          "arv_number": p.getArvNumber(),
-          "birthdate": p.getBirthdate(),
-          "gender": p.getGender(),
-          "address": `${p.getCurrentVillage()}`
-        })
+      const rows = ref<any[]>([])      
+      const setRows = async () => {
+        for(const patient of patients) {
+          const data = await Patientservice.findByID(patient)
+          const p = new Patientservice(data)
+          rows.value.push({
+            "arv_number": p.getArvNumber(),
+            "birthdate": p.getBirthdate(),
+            "gender": p.getGender(),
+            "address": `${p.getCurrentVillage()}`
+          })
+        }
       }
 
+      setRows();
       await modal.show(DrilldownTableVue, {
         title: `${data.row.age_group} ${data.column.label} | ${data.row.gender}s`,
         columns,
-        rows,
+        rows: rows.value,
       })
     }
 
