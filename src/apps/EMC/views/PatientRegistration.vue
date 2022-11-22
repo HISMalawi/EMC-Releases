@@ -25,6 +25,7 @@
                 :allowEstimation="true"
                 :estimationLabel="'Estimate Age'"
                 minDate="1920-01-01"
+                :maxDate="today"
                 @isEstimated="(estimate) => isBirthdateEstimated = estimate"/>
             </ion-col>
             <ion-col size="4" class="ion-margin-top ion-margin-bottom">
@@ -88,6 +89,8 @@ import { toUnderscores } from "@/utils/Strs";
 import { loader } from "@/utils/loader";
 import EventBus from "@/utils/EventBus";
 import { EmcEvents } from "../interfaces/emc_event";
+import dayjs from "dayjs";
+import { STANDARD_DATE_FORMAT } from "@/utils/Date";
 
 export default defineComponent({
   components: {
@@ -102,6 +105,7 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
+    const today = dayjs().format(STANDARD_DATE_FORMAT);
     const isBirthdateEstimated = ref(false);
     const guardianAbsent = ref(false);
     const landmarks = getLandmarks();
@@ -292,6 +296,7 @@ export default defineComponent({
     }
  
     return {
+      today,
       patient,
       guardian,
       landmarks,

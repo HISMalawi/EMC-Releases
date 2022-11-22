@@ -8,7 +8,7 @@
     <ion-grid style="width: 100%">
       <ion-row>
         <ion-col size="12" class="ion-margin-vertical">
-          <DateInput v-model="form.orderDate" :form="form" />
+          <DateInput v-model="form.orderDate" :form="form" :minDate="birthdate" :maxDate="today"/>
         </ion-col>
         <ion-col size="6" class="ion-margin-vertical">
           <SelectInput v-model="form.reason" :options="reasons" />
@@ -17,7 +17,7 @@
           <SelectInput v-model="form.specimenConcept" :options="specimens" />
         </ion-col>
         <ion-col size="12" class="ion-margin-vertical">
-          <DateInput v-model="form.resultDate" :form="form" />
+          <DateInput v-model="form.resultDate" :form="form" :minDate="form.orderDate.value" :max-date="today"/>
         </ion-col>
         <ion-col size="6" class="ion-margin-vertical">
           <SelectInput v-model="form.modifier" :options="modifiers"/>
@@ -80,6 +80,7 @@ import EventBus from "@/utils/EventBus";
 import { EmcEvents } from "../../interfaces/emc_event";
 import { modal } from "@/utils/modal";
 import { alertConfirmation } from "@/utils/Alerts";
+import { STANDARD_DATE_FORMAT } from "@/utils/Date";
 
 export default defineComponent({
   components: {
@@ -110,6 +111,8 @@ export default defineComponent({
     const modifiers = toOptions(['=', '>', '<', '>=', '<=']);
     const reasons = toOptions(["Routine", "Targeted", "Confirmatory", "Stat", "Repeat / Missing"])
     const specimens = ref<Option[]>([])
+    const today = dayjs().format(STANDARD_DATE_FORMAT)
+    const birthdate = dayjs(props.patient.getBirthdate()).format(STANDARD_DATE_FORMAT)
 
     const form = reactive<DTForm>({
       orderDate: {
@@ -120,10 +123,10 @@ export default defineComponent({
           if (!dayjs(date.value).isValid()) {
             return ['Invalid date'];
           }
-          if(dayjs(date.value).isAfter(dayjs())) {
+          if(dayjs(date.value).isAfter(today)) {
             return ['Order date cannot be in the future'];
           }
-          if(dayjs(date.value).isBefore(dayjs(props.patient.getBirthdate()))) {
+          if(dayjs(date.value).isBefore(birthdate)) {
             return ['Order date cannot be before patient\'s date of birth'];
           }
           return null
@@ -137,7 +140,7 @@ export default defineComponent({
           if (!dayjs(date.value).isValid()) {
             return ['Invalid date'];
           }
-          if(dayjs(date.value).isAfter(dayjs())) {
+          if(dayjs(date.value).isAfter(today)) {
             return ['Result date cannot be in the future'];
           }
           if(dayjs(date.value).isBefore(dayjs(form.orderDate.value))) {
@@ -244,6 +247,8 @@ export default defineComponent({
     })
 
     return {
+      today,
+      birthdate,
       form,
       modifiers,
       reasons,

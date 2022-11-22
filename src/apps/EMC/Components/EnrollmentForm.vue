@@ -2,7 +2,7 @@
   <ion-grid>
     <ion-row>
       <ion-col size="12">
-        <DateInput v-model="form.date" :form="form" :max-date="today" />
+        <DateInput v-model="form.date" :form="form" :minDate="birthdate" :max-date="today" />
       </ion-col>
       <ion-col>
         <ion-button color="warning" @click="onReset">Reset</ion-button>
@@ -43,6 +43,7 @@ export default defineComponent({
         required: true,
         validation: async (date) => {
           if(dayjs(date.value).isBefore(props.birthdate)) return ["Date of enrollment cannot be before date of birth"]
+          if(dayjs(date.value).isAfter(today)) return ["Date of enrollment cannot be in the future"]
           return null
         }
       },

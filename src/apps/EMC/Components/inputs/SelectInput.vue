@@ -22,7 +22,7 @@
       <div style="display: flex; flex-wrap: wrap; width: 100%;" @click="onShowOptions">
         <ion-chip v-for="(tag, index) of tags" :key="index">
           <ion-label>{{ tag.label }}</ion-label>
-          <ion-icon :icon="closeCircle" color="danger" @click="diselect(tag)" style="z-index: 90"></ion-icon>
+          <ion-icon :icon="closeCircle" color="danger" @click="diselect(tag)" style="z-index: 20"></ion-icon>
         </ion-chip>
         <ion-input 
           :disabled="model.disabled" 

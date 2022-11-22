@@ -5,7 +5,7 @@
         <p>Add New Outcome</p>
       </ion-col>  
       <ion-col size="6" class="ion-margin-top-vertical">
-        <DateInput v-model="form.date" :form="form" :max-date="today" />
+        <DateInput v-model="form.date" :form="form" :minDate="dateEnrolled" :max-date="today" />
       </ion-col>
       <ion-col size="6" class="ion-margin-top-vertical">
         <SelectInput v-model="form.status" :form="form" :options="outcomes" />

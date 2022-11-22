@@ -27,6 +27,7 @@
             :allowEstimation="true"
             :estimationLabel="'Estimate Age'"
             minDate="1900-01-01"
+            :maxDate="today"
             @isEstimated="(estimate) => isBirthdateEstimated = estimate"/>
         </ion-col>
         <ion-col size="12" class="ion-margin-top ion-margin-bottom">
@@ -71,6 +72,8 @@ import EventBus from "@/utils/EventBus";
 import { EmcEvents } from "../../interfaces/emc_event";
 import { genderOptions } from "../../utils/DTFormElements";
 import { modal } from "@/utils/modal";
+import dayjs from "dayjs";
+import { STANDARD_DATE_FORMAT } from "@/utils/Date";
 
 export default defineComponent({
   components: {
@@ -88,6 +91,7 @@ export default defineComponent({
     }
   },
   setup(props) {
+    const today = dayjs().format(STANDARD_DATE_FORMAT)
     const isBirthdateEstimated = ref(false);
     const patient = reactive<DTForm>({
       givenName: {
@@ -184,6 +188,7 @@ export default defineComponent({
     })
  
     return {
+      today,
       patient,
       getLandmarks,
       genderOptions,
