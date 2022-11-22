@@ -159,8 +159,7 @@ export default defineComponent({
       },
       initialVisitDate: {
         value: '',
-        label: 'Initial Visit Date',
-        placeholder: "Enter Initial Visit Date",
+        label: 'Registration Date',
         required: true,
       },
       shouldFollowUp: {
