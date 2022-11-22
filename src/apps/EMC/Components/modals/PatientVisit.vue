@@ -8,7 +8,7 @@
     <ion-grid style="width: 100%">
       <ion-row>
         <ion-col size="6" class="ion-margin-vertical">
-          <DateInput v-model="form.visitDate" :form="form" />
+          <DateInput v-model="form.visitDate" :form="form" :minDate="birthdate" :maxDate="today"/>
         </ion-col>
         <ion-col size="6" class="ion-margin-vertical">
           <NumberInput v-model="form.weight" :form="form" :min="1"/>
@@ -79,7 +79,7 @@
           <NumberInput v-model="form.pillCount" :form="form" :min="1"/>
         </ion-col>
         <ion-col :size="prevDrugs.length > 0 ? 6 : 12" class="ion-margin-vertical">
-          <DateInput v-model="form.nextAppointmentDate" :form="form" />
+          <DateInput v-model="form.nextAppointmentDate" :form="form" :minDate="form.visitDate.value" :maxDate="drugRunOutDate.toString()"/>
         </ion-col>
       </ion-row>   
     </ion-grid>
@@ -184,6 +184,8 @@ export default defineComponent({
     const showHeightField = computed(() => !(prevHeight.value && props.patient.getAge() > 18))
     const isFemale = computed(() => props.patient.isFemale())
     const drugRunOutDate = ref<ConfigType>('');
+    const today = dayjs().format(STANDARD_DATE_FORMAT);
+    const birthdate = dayjs(props.patient.getBirthdate()).format(STANDARD_DATE_FORMAT);
 
     const form = reactive<DTForm>({
       visitDate: {
@@ -191,10 +193,10 @@ export default defineComponent({
         label: "Visit Date",
         required: true,
         validation: async (date: Option) => {
-          if(dayjs(date.value).isAfter(dayjs())) {
+          if(dayjs(date.value).isAfter(today)) {
             return ["Visit date cannot be after today's date"]
           }
-          if(dayjs(date.value).isBefore(dayjs(props.patient.getBirthdate()))) {
+          if(dayjs(date.value).isBefore(birthdate)) {
             return ["Visit date cannot be before patient's birth date"]
           }
           return null
@@ -633,6 +635,7 @@ export default defineComponent({
     });
 
     return {
+      today,
       form,
       regimens,
       contraIndications,
@@ -648,6 +651,8 @@ export default defineComponent({
       hasContraindications,
       hasSideEffects,
       prevDrugs,
+      drugRunOutDate,
+      birthdate,
       onSubmit,
       setPatientPresent,
       setGuardianPresent,
