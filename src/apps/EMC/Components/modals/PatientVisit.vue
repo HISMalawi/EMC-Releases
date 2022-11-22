@@ -348,7 +348,7 @@ export default defineComponent({
         placeholder: "Select a TB medication",
       },
       hasContraindications: {
-        value: undefined as "Yes" | "No"  | undefined,
+        value: "No",
         label: "Has Side Effects / Contraindications ?",
         validation: async (state: Option, form: any) => StandardValidations.validateSeries([
           ()  => StandardValidations.required(state),
@@ -359,7 +359,7 @@ export default defineComponent({
         ])
       },
       hasSideEffects: {
-        value: undefined as "Yes" | "No"  | undefined,
+        value: "No",
         label: "Has Other Side Effects ?",
         validation: async (state: Option, form: any) => StandardValidations.validateSeries([
           ()  => StandardValidations.required(state),
