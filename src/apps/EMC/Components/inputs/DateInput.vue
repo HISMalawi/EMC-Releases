@@ -225,3 +225,9 @@ export default defineComponent({
   }
 });
 </script>
+
+<style>
+.vc-popover-content-wrapper {
+  z-index: 1000 !important;
+}
+</style>
