@@ -19,11 +19,11 @@
       <ion-col size="6" class="ion-margin-top ion-margin-bottom">
         <text-input v-model="form.cd4Count"  />
       </ion-col>
-      <ion-col size="12" class="ion-margin-top ion-margin-bottom">
+      <ion-col size="6" class="ion-margin-top ion-margin-bottom">
         <SelectInput v-model="form.cd4CountLocation" :asyncOptions="getFacilities" allowCustom />
       </ion-col>
     </template>
-    <ion-col size="12" class="ion-margin-top ion-padding-top" >
+    <ion-col size="6" class="ion-margin-top ion-padding-top" >
       <SelectInput v-model="form.whoConditions" :options="stagingCoditions" multiple />
     </ion-col>
     <ion-col size="12" class="ion-margin-top">
