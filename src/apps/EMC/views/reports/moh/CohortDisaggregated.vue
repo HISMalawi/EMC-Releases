@@ -27,8 +27,6 @@ import { get, isEmpty } from "lodash";
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
 import { Patientservice } from "@/services/patient_service";
 import { useRoute } from "vue-router";
-import { empty } from "rxjs";
-import Url from "@/utils/Url";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";
