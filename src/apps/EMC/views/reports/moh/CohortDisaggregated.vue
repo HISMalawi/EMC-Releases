@@ -108,7 +108,7 @@ export default defineComponent({
           txNew: getTotalAggregations('txNew', 'Male'),
           txCurr: getTotalAggregations('txCurr', 'Male'),
           txGivenIpt: getTotalAggregations('txGivenIpt', 'Male'),
-          txScreenTB: getTotalAggregations('txGivenIpt', 'Male'),
+          txScreenTB: getTotalAggregations('txScreenTB', 'Male'),
           ...getTotalRegimensAggregations("Male"),
           total: getTotalAggregations('regimenTotals', 'Male'),
         }]
@@ -140,7 +140,7 @@ export default defineComponent({
         txNew: fnpTD('txNew'),
         txCurr: fnpTD('txCurr'),
         txGivenIpt: fnpTD('txGivenIpt'),
-        txScreenTB: fnpTD('txGivenIpt'),
+        txScreenTB: fnpTD('txScreenTB'),
         ...fnpRegimensRow(),
         total: fnpTD('regimenTotals'),
       }]
@@ -167,12 +167,11 @@ export default defineComponent({
           txCurr = get(cohortData, `${group}.${category.gender}.tx_curr`, [])
           txGivenIpt = await report.getTxIpt()
           txScreenTB = await report.getTxCurrTB()
+          addAggregation('txNew', category.altGender, txNew)
+          addAggregation('txCurr', category.altGender, txCurr)
+          addAggregation('txGivenIpt', category.altGender, txGivenIpt)
+          addAggregation('txScreenTB', category.altGender, txScreenTB)
         }
-
-        addAggregation('txNew', category.altGender, txNew)
-        addAggregation('txCurr', category.altGender, txCurr)
-        addAggregation('txGivenIpt', category.altGender, txGivenIpt)
-        addAggregation('txScreenTB', category.altGender, txScreenTB)
 
         switch(report.getGender()) {
           case 'breastfeeding':
