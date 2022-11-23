@@ -25,7 +25,7 @@
           <cohort-v :indicators="indicators" style="font-weight: 600"> </cohort-v>
           <div id="report-content">
             <cohort-h :reportparams="period" :clinicName="clinicName"></cohort-h>
-            <cohort-ft @onClickIndicator="onDrilldown" :indicators="indicators"> </cohort-ft>
+            <cohort-ft @onClickIndicator="onDrilldown" :indicators="indicators" site="E-Mastercard"> </cohort-ft>
           </div>
         </ion-col>
       </ion-row>

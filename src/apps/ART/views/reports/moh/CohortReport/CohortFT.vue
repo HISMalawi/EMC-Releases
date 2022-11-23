@@ -11,11 +11,11 @@
     <tr class="section-description">
       <td class="numbers">&nbsp;</td>
       <td style="font-weight: bold;" colspan="2">Patients registration details</td>
-      <td style="font-weight: normal; text-align:center;">PoC</td>
+      <td style="font-weight: normal; text-align:center;">{{ site }}</td>
       <td style="font-weight: normal; text-align:center;">Clinic own*</td>
       <td style="font-weight: normal; text-align:center;">Checked data</td>
       <td class="vertical-separator">&nbsp;</td>
-      <td style="font-weight: normal; text-align:center;">PoC</td>
+      <td style="font-weight: normal; text-align:center;">{{ site }}</td>
       <td style="font-weight: normal; text-align:center;">Clinic own*</td>
       <td style="font-weight: normal; text-align:center;">Checked data</td>
     </tr>
@@ -495,7 +495,7 @@
     <tr class="horisonatl-separator">
       <td class="numbers">&nbsp;</td>
       <td colspan="6" style="text-align: left;">&nbsp;</td>
-      <td style="text-align: center;">PoC</td>
+      <td style="text-align: center;">{{ site }}</td>
       <td style="text-align: center;">Clinic own**</td>
       <td style="text-align: center;">Checked data</td>
     </tr>
@@ -1259,6 +1259,10 @@ export default defineComponent({
     indicators: {
       type: Object,
       default: () => ({})
+    },
+    site: {
+      type: String,
+      default: "PoC"
     }
   },
   emits: ['onClickIndicator'],
