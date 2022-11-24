@@ -32,7 +32,7 @@ export default defineComponent({
     const columns: TableColumnInterface[] = [
       { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "name", label: "ARV drug category" },
-      { path: "units", label: "# of bottles (units) dispensed", drillable: true },
+      { path: "dispensations", label: "# of bottles (units) dispensed", drillable: true },
     ]
 
     const fetchData =  async (filters: Record<string, any>) => {
@@ -45,7 +45,6 @@ export default defineComponent({
       const data: any = await report.getSCReport()
       rows.value = data.map((d: any, index: number) => ({
         ...d,
-        units: d.dispensations.length ? d.units : 0,
         index: index + 1,
       }))
       await loader.hide();
