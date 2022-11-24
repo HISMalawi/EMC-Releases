@@ -54,10 +54,9 @@ export default defineComponent({
       period.value = report.getDateIntervalPeriod()
       const data: any = await report.getTxMlReport()
       let index = 1;
-      const rs: any[] = []
       for(const gender of ["F", "M"]) {
         for(const group of AGE_GROUPS){
-          rs.push({
+          rows.value.push({
             "index": index++,
             "age_group": group,
             "gender": gender === "F" ? "Female" : "Male",
@@ -70,7 +69,6 @@ export default defineComponent({
           })
         }
       }
-      rows.value = rs
       await loader.hide();
     }
 
