@@ -65,7 +65,7 @@ export default defineComponent({
             "6hp_started_new_art": get(cohort[group][gender], '6H.started_new_on_art', []),
             "3hp_started_previous_art": get(cohort[group][gender], '3HP.started_previously_on_art', []),
             "6hp_started_previous_art": get(cohort[group][gender], '6H.started_previously_on_art', []),
-            "3hp_completed_new_art": get(cohort[group][gender], '3H.completed_new_on_art', []),
+            "3hp_completed_new_art": get(cohort[group][gender], '3HP.completed_new_on_art', []),
             "6hp_completed_new_art": get(cohort[group][gender], '6H.completed_new_on_art', []),
             "3hp_completed_previous_art": get(cohort[group][gender], '3HP.completed_previously_on_art', []),
             "6hp_completed_previous_art": get(cohort[group][gender], '6H.completed_previously_on_art', []),
