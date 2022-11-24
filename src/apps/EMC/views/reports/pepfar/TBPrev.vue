@@ -52,28 +52,26 @@ export default defineComponent({
       report.setStartDate(dateRange.startDate)
       report.setEndDate(dateRange.endDate)
       period.value = report.getDateIntervalPeriod()
-      const data: any = await report.getTBPrevReport()
+      const cohort: any = await report.getTBPrevReport()
+      await loader.hide();
       let index = 1;
-      const rs: any[] = []
       for(const gender of ["F", "M"]) {
         for(const group of AGE_GROUPS){
-          rs.push({
+          rows.value.push({
             index: index++,
             "age_group": group,
             gender: gender === "F" ? "Female" : "Male",
-            "3hp_started_new_art": get(data[group][gender], '3HP.started_new_on_art', []),
-            "6hp_started_new_art": get(data[group][gender], '6H.started_new_on_art', []),
-            "3hp_started_previous_art": get(data[group][gender], '3HP.started_previously_on_art', []),
-            "6hp_started_previous_art": get(data[group][gender], '6H.started_previously_on_art', []),
-            "3hp_completed_new_art": get(data[group][gender], '3H.completed_new_on_art', []),
-            "6hp_completed_new_art": get(data[group][gender], '6H.completed_new_on_art', []),
-            "3hp_completed_previous_art": get(data[group][gender], '3HP.completed_previously_on_art', []),
-            "6hp_completed_previous_art": get(data[group][gender], '6H.completed_previously_on_art', []),
+            "3hp_started_new_art": get(cohort[group][gender], '3HP.started_new_on_art', []),
+            "6hp_started_new_art": get(cohort[group][gender], '6H.started_new_on_art', []),
+            "3hp_started_previous_art": get(cohort[group][gender], '3HP.started_previously_on_art', []),
+            "6hp_started_previous_art": get(cohort[group][gender], '6H.started_previously_on_art', []),
+            "3hp_completed_new_art": get(cohort[group][gender], '3H.completed_new_on_art', []),
+            "6hp_completed_new_art": get(cohort[group][gender], '6H.completed_new_on_art', []),
+            "3hp_completed_previous_art": get(cohort[group][gender], '3HP.completed_previously_on_art', []),
+            "6hp_completed_previous_art": get(cohort[group][gender], '6H.completed_previously_on_art', []),
           })
         }
       }
-      rows.value = rs
-      await loader.hide();
     }
 
     const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
