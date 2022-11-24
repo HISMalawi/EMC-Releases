@@ -81,7 +81,7 @@ export default defineComponent({
         txNew: getTotalAggregations('txNew', 'Male'),
         txCurr: getTotalAggregations('txCurr', 'Male'),
         txGivenIpt: getTotalAggregations('txGivenIpt', 'Male'),
-        txScreenTB: getTotalAggregations('txGivenIpt', 'Male'),
+        txScreenTB: getTotalAggregations('txScreenTB', 'Male'),
       }]
     }
 
@@ -103,7 +103,7 @@ export default defineComponent({
         txNew: fnpTD('txNew'),
         txCurr: fnpTD('txCurr'),
         txGivenIpt: fnpTD('txGivenIpt'),
-        txScreenTB: fnpTD('txGivenIpt'),
+        txScreenTB: fnpTD('txScreenTB'),
       }]
     }
 
@@ -128,12 +128,12 @@ export default defineComponent({
           txCurr = get(cohortData, `${group}.${category.gender}.tx_curr`, [])
           txGivenIpt = await report.getTxIpt()
           txScreenTB = await report.getTxCurrTB()
+          addAggregation('txNew', category.altGender, txNew)
+          addAggregation('txCurr', category.altGender, txCurr)
+          addAggregation('txGivenIpt', category.altGender, txGivenIpt)
+          addAggregation('txScreenTB', category.altGender, txScreenTB)
         }
 
-        addAggregation('txNew', category.altGender, txNew)
-        addAggregation('txCurr', category.altGender, txCurr)
-        addAggregation('txGivenIpt', category.altGender, txGivenIpt)
-        addAggregation('txScreenTB', category.altGender, txScreenTB)
 
         switch(report.getGender()) {
           case 'breastfeeding':
@@ -199,22 +199,26 @@ export default defineComponent({
         { path: "address", label: "Address" }
       ]
       const patients = data.row[data.column.path]
-      const rows: any[] = []
-      for(const patient of patients) {
-        const data = await Patientservice.findByID(patient)
-        const p = new Patientservice(data)
-        rows.push({
-          "arv_number": p.getArvNumber(),
-          "birthdate": p.getBirthdate(),
-          "gender": p.getGender(),
-          "address": `${p.getCurrentVillage()}`
-        })
+      const rows = ref<Array<any>>([])
+      const getPatients = async () => {
+        for(const patient of patients) {
+          const data = await Patientservice.findByID(patient)
+          const p = new Patientservice(data)
+          rows.value.push({
+            "arv_number": p.getArvNumber(),
+            "birthdate": p.getBirthdate(),
+            "gender": p.getGender(),
+            "address": `${p.getCurrentVillage()}`
+          })
+        }
       }
 
+      getPatients();
+
       await modal.show(DrilldownTableVue, {
-        title: `${data.row.age_group} ${data.column.label} | ${data.row.gender}s`,
         columns,
-        rows,
+        rows: rows.value,
+        title: `${data.row.age_group} ${data.column.label} | ${data.row.gender}s`,
       })
     }
 
