@@ -35,8 +35,8 @@ export default defineComponent({
       { path: "given_name", label: "First name", exportable: false },
       { path: "family_name", label: "Last name", exportable: false },
       { path: "gender", label: "Gender", formatter: toGenderString },
-      { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
-      { path: "appointment_date", label: "Appointment Date", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
+      { path: "birthdate", label: "DOB", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
+      { path: "appointment_date", label: "Appointment", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
       { path: "days_missed", label: "Days Missed" },
       { path: "current_outcome", label: "Current Outcome" },
       { path: "address", label: "Contact Details", exportable: false }
