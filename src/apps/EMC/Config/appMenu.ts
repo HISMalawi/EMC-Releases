@@ -193,7 +193,7 @@ export const menuItems: MenuItem[] = [
             title: 'TX RTT',
             id: 'emc_clinic_clinic_tx_rtt',
             img: 'reports/restart.png',
-            url: '/emc_clinic_clinic/tx_rtt'
+            url: '/emc_clinic_tx_rtt'
           },
         ]
       }
