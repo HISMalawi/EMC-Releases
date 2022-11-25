@@ -24,13 +24,13 @@ export default defineComponent({
   name: "RegimenSwitch",
   components: { BaseReportTable },
   setup() {
-    const { toStandardHisDisplayFormat } = HisDate
+    const { toStandardHisDisplayFormat, getAgeInYears } = HisDate
     const period = ref("");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
       { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
       { path: "gender", label: "Gender", formatter: toGenderString },
-      { path: "birthdate", label: "DOB", formatter: toStandardHisDisplayFormat },
+      { path: "birthdate", label: "DOB (Age in Years)", formatter: (date: string) => `${toStandardHisDisplayFormat(date)} (${getAgeInYears(date)})`},
       { path: "art_start_date", label: "Start Date", formatter: toStandardHisDisplayFormat },
       { path: "current_weight", label: "Weight (Kg)" },
       { path: "previous_regimen", label: "Prev Regimen" },
