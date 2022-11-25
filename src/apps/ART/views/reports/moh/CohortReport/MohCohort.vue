@@ -101,7 +101,8 @@ export default defineComponent({
       this.disaggregatedReportParams = Url.parameterizeObjToString({ 
         'start_date': this.startDate,
         'end_date': this.endDate,
-        'quarter': this.quarter
+        'quarter': this.quarter,
+        'occupation': config.occupation
       })
       const request = await this.report.requestCohort(data)
       if (request.ok) {
