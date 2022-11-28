@@ -8,7 +8,8 @@ export class StockReportService extends ArtReportService {
     }   
 
     async loadStock() {
-        this.stock = await ArtReportService.getJson(`pharmacy/items`, { paginate: false })
+        this.stock = await this.getReport(`pharmacy/items`, { paginate: false })
+        // this.stock = await ArtReportService.getJson()
     }
     
     getStockReport() {
@@ -29,6 +30,7 @@ export class StockReportService extends ArtReportService {
             if (!pharmacyData[drugId]) {
                 pharmacyData[drugId] = {
                     'current_quantity': 0,
+                    'quantity_dispensed': 0,
                     'expiry_dates': [],
                     'pack_size': data.pack_size,
                     'drug_name': data["drug_name"] === null ? data["drug_legacy_name"] : data["drug_name"]
@@ -39,6 +41,9 @@ export class StockReportService extends ArtReportService {
 
             pharmacyData[drugId]["current_quantity"] += parseFloat(data.current_quantity);
             pharmacyData[drugId]["expiry_dates"].push(data["expiry_date"]);
+            if (data.quantity_dispensed){
+                pharmacyData[drugId]["quantity_dispensed"] += parseFloat(data.quantity_dispensed);
+            }
         }
         return Object.values(pharmacyData).map((drug: any) => {
             let currentQuantity: any = '0'
@@ -50,6 +55,7 @@ export class StockReportService extends ArtReportService {
             const expiryDate = drug.expiry_dates.sort((a: any, b: any) => +new Date(a) - +new Date(b))[0]
             return {
                 drugName: drug.drug_name,
+                quantintyDispensed: drug.quantity_dispensed,
                 currentQuantity,
                 quantityIsTabs: drug.pack_size === null,
                 expiryDate
