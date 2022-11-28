@@ -79,7 +79,7 @@
           <NumberInput v-model="form.pillCount" :form="form" :min="1"/>
         </ion-col>
         <ion-col :size="prevDrugs.length > 0 ? 6 : 12" class="ion-margin-vertical">
-          <DateInput v-model="form.nextAppointmentDate" :form="form" :minDate="form.visitDate.value" :maxDate="drugRunOutDate.toString()"/>
+          <DateInput v-model="form.nextAppointmentDate" :form="form" :minDate="form.visitDate.value" :maxDate="drugRunOutDate"/>
         </ion-col>
       </ion-row>   
     </ion-grid>
@@ -183,7 +183,7 @@ export default defineComponent({
     const prevDrugs = ref<any[]>([]);
     const showHeightField = computed(() => !(prevHeight.value && props.patient.getAge() > 18))
     const isFemale = computed(() => props.patient.isFemale())
-    const drugRunOutDate = ref<ConfigType>('');
+    const drugRunOutDate = ref<string>('');
     const today = dayjs().format(STANDARD_DATE_FORMAT);
     const birthdate = dayjs(props.patient.getBirthdate()).format(STANDARD_DATE_FORMAT);
 
@@ -248,10 +248,10 @@ export default defineComponent({
           obs: appointment.buildValueDate('Appointment date', nextAppointmentDate)
         }),
         validation: async (date, form) => {
-          if(dayjs(date.value).isBefore(dayjs(form.visitDate.value))) {
+          if(dayjs(date.value).isBefore(form.visitDate.value)) {
             return ["Appointment date cannot be before visit date"]
           }
-          if(dayjs(date.value).isAfter(dayjs(drugRunOutDate.value))) {
+          if(dayjs(date.value).isAfter(drugRunOutDate.value)) {
             return ["Appointment date cannot be after drug run out date"]
           }
           return null
@@ -414,9 +414,9 @@ export default defineComponent({
     watch([() => form.totalArvsGiven.value, () => form.pillCount.value], () => {
       const arvs = parseInt(form.totalArvsGiven.value) || 0
       const remainingDrugs = parseInt(form.pillCount.value) || 0
-      drugRunOutDate.value = dayjs(form.visitDate.value).add(arvs + remainingDrugs, 'days')
-      form.nextAppointmentDate.label = `Next Appointment Date (Drug run out date: ${drugRunOutDate.value.format(DISPLAY_DATE_FORMAT)})`
-      form.nextAppointmentDate.value = dayjs(drugRunOutDate.value).format(STANDARD_DATE_FORMAT)
+      drugRunOutDate.value = dayjs(form.visitDate.value).add(arvs + remainingDrugs, 'days').format(STANDARD_DATE_FORMAT)
+      form.nextAppointmentDate.label = `Next Appointment Date (Drug run out date: ${dayjs(drugRunOutDate.value).format(DISPLAY_DATE_FORMAT)})`
+      form.nextAppointmentDate.value = drugRunOutDate.value
     })
 
     const hasGiven3HP = computed(() => form.tbMed.value?.label === '3HP (INH 300 / RFP 300)')
