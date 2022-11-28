@@ -18,12 +18,6 @@
             <ion-row v-for="(entry, ind) in drugs[selectedDrug].entries" :key="ind"> 
               <ion-col> 
                 <ion-item> 
-                  <ion-label position="floating">Product Code</ion-label>
-                  <ion-input readonly placeholder="e.g. ABC123" :value="entry.productCode" @click="enterProductCode(ind)"></ion-input>
-                </ion-item>
-              </ion-col>
-              <ion-col> 
-                <ion-item> 
                   <ion-label position="floating">Total Tins</ion-label>
                   <ion-input readonly placeholder="0" :value="fmtNumber(entry.tins)" @click="enterTins(ind)"></ion-input>
                 </ion-item>
@@ -115,7 +109,6 @@ export default defineComponent({
           tins: null,
           expiry: null,
           batchNumber: null,
-          productCode: null,
         };
         const d = {
           label: element.label,
@@ -174,24 +167,6 @@ export default defineComponent({
         this.setDrugValue(index, 'batchNumber', batch)
       })
     },
-    enterProductCode(index: number) {
-      this.launchKeyPad({
-        id: 'code',
-        helpText: this.getModalTitle('Enter Product Code'),
-        type: FieldType.TT_TEXT,
-        config: {
-          customKeyboard: [CHARACTERS_AND_NUMBERS_LO, [['Delete']]]
-        },
-        defaultValue: () => this.getDrugValue(index, 'productCode'),
-      }, 
-      (v: Option) => {
-        const code = {...v}
-        const value = `${code.value}`.toUpperCase()
-        code.label = value
-        code.value = value
-        this.setDrugValue(index, 'productCode', code)
-      })
-    },
     enterExpiry(index: number) {
       this.launchKeyPad({
         id: 'expiry',
@@ -226,8 +201,7 @@ export default defineComponent({
         tabs: this.drugs[this.selectedDrug].packSizes[0],
         tins: null,
         expiry: null,
-        batchNumber: null,
-        productCode: null,
+        batchNumber: null
       });
     },
     selectDrug(index: any) {
@@ -237,8 +211,7 @@ export default defineComponent({
       return (
         !isEmpty(drug.tins) &&
         !isEmpty(drug.expiry) &&
-        !isEmpty(drug.batchNumber) &&
-        !isEmpty(drug.productCode)
+        !isEmpty(drug.batchNumber)
       );
     },
   },
@@ -268,7 +241,6 @@ export default defineComponent({
           e.tins = null
           e.expiry = null
           e.batchNumber = null
-          e.productCode = null
           return e
         })
         return d
