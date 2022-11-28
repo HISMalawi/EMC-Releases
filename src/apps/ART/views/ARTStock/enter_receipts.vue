@@ -166,7 +166,6 @@ export default defineComponent({
         "Total units",
         "Expiry date",
         "Batch number",
-        "Product code"
       ];
       const rows = d.map((j: any) => {
         const d = j.value;
