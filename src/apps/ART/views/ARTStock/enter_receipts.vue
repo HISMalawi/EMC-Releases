@@ -131,7 +131,7 @@ export default defineComponent({
                 if (e.tins) score += 1
                 if (e.expiry) score += 1
                 if (e.batchNumber) score += 1
-                return score >= 1 && score <= 3 
+                return score >= 1 && score <= 2
               }).some(Boolean)
             })
             if (!isEmpty(partialBatches)) {
