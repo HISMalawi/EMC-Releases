@@ -22,7 +22,8 @@ import { toastDanger } from '@/utils/Alerts'
 import { FieldType } from '@/components/Forms/BaseFormElements'
 import { Field, Option } from "@/components/Forms/FieldInterface";
 import Validation from "@/components/Forms/validations/StandardValidations";
-import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
+import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue";
+import HisDate from "@/utils/Date";
 
 export default defineComponent({
     mixins: [ReportMixin],
@@ -35,7 +36,7 @@ export default defineComponent({
                 table.thTxt('Medication'), 
                 table.thTxt('Transaction type'),
                 table.thTxt('Transaction date'), 
-                table.thTxt('Net Quantity'),
+                table.thTxt('Net Quantity')
             ]
         ],
         fields: [
@@ -69,7 +70,25 @@ export default defineComponent({
                             table.td(s.drug_name),
                             table.td(s.transaction_type),
                             table.tdDate(s.transaction_date),
-                            table.tdNum(s.amount_committed_to_stock),
+                            table.tdLink(s.cum_per_day_stock_commited, async () =>  {
+                                const data = await this.report.getTrailDetails(s.transaction_date, s.drug_id, s.transaction_type);
+                                this.drilldownData(
+                                    `${s.drug_name} ${s.transaction_type.toLowerCase()} on ${HisDate.toStandardHisDisplayFormat(s.transaction_date)}`,
+                                    [[
+                                        table.thTxt('Product Code'),
+                                        table.thTxt('Batch Number'),
+                                        table.thTxt('Medication'),
+                                        table.thTxt('Amount')
+                                    ]],
+                                    data.map((d: any) => [
+                                        table.td(d.product_code),
+                                        table.td(d.batch_number),
+                                        table.td(d.drug_name),
+                                        table.td(d.amount_committed_to_stock)
+                                    ]),
+                                    false
+                                )
+                            })
                         ])
                     })
                 }).catch((e: any) => {

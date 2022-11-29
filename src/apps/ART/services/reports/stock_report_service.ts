@@ -17,7 +17,15 @@ export class StockReportService extends ArtReportService {
     }
 
     loadTrail() {
-        return this.getReport('pharmacy/audit_trail')
+        return this.getReport('pharmacy/audit_trail/grouped')
+    }
+
+    getTrailDetails(date: string, drugId: number, transactionType: string) {
+        return this.getReport('pharmacy/audit_trail', {
+            'transaction_date': date,
+            'drug_id': drugId,
+            'transaction_reason': transactionType
+        })
     }
 
     /**Code adapted from BHT-Core Art system */
@@ -31,7 +39,6 @@ export class StockReportService extends ArtReportService {
                 pharmacyData[drugId] = {
                     'current_quantity': 0,
                     'quantity_dispensed': 0,
-                    'expiry_dates': [],
                     'pack_size': data.pack_size,
                     'drug_name': data["drug_name"] === null ? data["drug_legacy_name"] : data["drug_name"]
                 }
@@ -40,7 +47,6 @@ export class StockReportService extends ArtReportService {
             if (data.current_quantity === 0) continue;
 
             pharmacyData[drugId]["current_quantity"] += parseFloat(data.current_quantity);
-            pharmacyData[drugId]["expiry_dates"].push(data["expiry_date"]);
             if (data.quantity_dispensed){
                 pharmacyData[drugId]["quantity_dispensed"] += parseFloat(data.quantity_dispensed);
             }
@@ -52,13 +58,11 @@ export class StockReportService extends ArtReportService {
             }else {
                 currentQuantity = Math.trunc(drug.current_quantity / drug.pack_size);
             }
-            const expiryDate = drug.expiry_dates.sort((a: any, b: any) => +new Date(a) - +new Date(b))[0]
             return {
                 drugName: drug.drug_name,
                 quantintyDispensed: drug.quantity_dispensed,
                 currentQuantity,
                 quantityIsTabs: drug.pack_size === null,
-                expiryDate
             }
         })
     }
