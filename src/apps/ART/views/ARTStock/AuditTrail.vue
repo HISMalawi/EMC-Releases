@@ -44,12 +44,14 @@ export default defineComponent({
                 helpText: "Start Date",
                 type: FieldType.TT_FULL_DATE,
                 validation: (val: Option) => Validation.required(val),
+                computedValue: (v: Option) => v.value
             },
             {
                 id: "end_date",
                 helpText: "End Date",
                 type: FieldType.TT_FULL_DATE,
                 validation: (val: Option) => Validation.required(val),
+                computedValue: (v: Option) => v.value
             },
         ] as Field[]
     }),
