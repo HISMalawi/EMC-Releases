@@ -132,6 +132,7 @@ export default defineComponent({
             ancestryTA,
             ancestryVillage,
             currentDistrict,
+            currentVillage,
             currentTA
         } = this.patient.getAddresses()
         this.editPersonData = {
@@ -143,6 +144,7 @@ export default defineComponent({
             'home_traditional_authority': ancestryTA,
             'home_village': ancestryVillage,
             'current_district': currentDistrict,
+            'current_village': currentVillage,
             'current_traditional_authority': currentTA,
             'cell_phone_number': this.patient.getPhoneNumber(),
             'landmark': this.patient.getClosestLandmark()
@@ -714,6 +716,7 @@ export default defineComponent({
                     ['Home TA', this.editPersonData.home_traditional_authority,  editButton('home_region')],
                     ['Home Village', this.editPersonData.home_village,  editButton('home_region')],
                     ['Current district',this.editPersonData.current_district, editButton('current_region')],
+                    ['Current Village',this.editPersonData.current_village, editButton('current_region')],
                     ['Current T/A', this.editPersonData.current_traditional_authority, editButton('current_region')],
                     ['Landmark', this.editPersonData.landmark, editButton('default_landmarks')],
                 ]
