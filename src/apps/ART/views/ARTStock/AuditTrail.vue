@@ -89,6 +89,12 @@ export default defineComponent({
                                     ]),
                                     false
                                 )
+                            }, 
+                            {
+                                style: {
+                                    textAlign: "right",
+                                    paddingRight: "2rem"
+                                }
                             })
                         ])
                     })
