@@ -32,7 +32,6 @@ export default defineComponent({
             [
                 table.thTxt('Medication'),
                 table.thTxt('Quantity Dispensed'),
-                table.thTxt('Earliest Expiry date'), 
                 table.thTxt('Stock on hand(Tins)')
             ]
         ]
@@ -52,7 +51,6 @@ export default defineComponent({
                 this.rows.push([
                     table.td(s.drugName),
                     table.td(s.quantityDispensed),
-                    table.tdDate(s.expiryDate),
                     table.td(
                         (s.quantityIsTabs 
                         ? `${toNumString(s.currentQuantity)} (tabs)`
