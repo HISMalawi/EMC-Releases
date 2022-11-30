@@ -92,13 +92,11 @@ export default defineComponent({
         {
           id: "select drugs",
           helpText: "Select drugs",
-          type: FieldType.TT_MULTIPLE_SELECT,
+          type: FieldType.TT_INFINITE_SCROLL_MULTIPLE_SELECT,
           requireNext: true,
           validation: (val: any) => Validation.required(val),
-          options: async (_: any, filter='') => {
-            let d = [] as Array<any>
-            if (typeof filter === 'string') d = await DrugCmsService.search(filter);
-            else d= await DrugCmsService.getDrugs();
+          options: async (_: any, filter='a') => {
+            const d = await DrugCmsService.search(filter || "a");
             this.drugs = this.formatDrugs(d)
             return this.drugs
           },
@@ -227,7 +225,7 @@ export default defineComponent({
     formatDrugs(drugs: Array<any>) {
       return drugs.map((drug: any) => {
         return {
-          label: drug.short_name,
+          label: `${drug.short_name} (${drug.code})`,
           value: drug,
         };
       });
