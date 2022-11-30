@@ -9,7 +9,7 @@
               detail
               :color="index === selectedDrug ? 'secondary' : ''"
               @click="selectDrug(index)">
-              {{ `${drug.shortName} (${drug.packSizes[0]})` }}
+              {{ `${drug.short_name} (${drug.pack_size})` }}
             </ion-item>
           </ion-list>
         </ion-col>
@@ -105,7 +105,7 @@ export default defineComponent({
       )
       incomingDrugs.forEach((element: any) => {
         const val = {
-          tabs: element.value.packSizes[0],
+          tabs: element.value.pack_size,
           tins: null,
           expiry: null,
           batchNumber: null,
@@ -123,7 +123,7 @@ export default defineComponent({
       if (this.drugs.length >= 1) this.selectDrug(0)
     },
     getModalTitle(context: string) {
-      return `${context} (${this.drugs[this.selectedDrug].shortName})`
+      return `${context} (${this.drugs[this.selectedDrug].short_name})`
     },
     getDrugValue(index: number, type: string) {
       return this.drugs[this.selectedDrug].entries[index][type]
@@ -198,7 +198,7 @@ export default defineComponent({
     },
     addRow() {
       this.drugs[this.selectedDrug].entries.push({
-        tabs: this.drugs[this.selectedDrug].packSizes[0],
+        tabs: this.drugs[this.selectedDrug].pack_size,
         tins: null,
         expiry: null,
         batchNumber: null
@@ -228,7 +228,7 @@ export default defineComponent({
       this.drugs.forEach((element: any) => {
         const j = element.entries.filter((el: any) => this.validateEntry(el));
         j.forEach((e: any) => {
-          f.push({label: element.shortName, value: { ...e, ...element }});
+          f.push({label: element.short_name, value: { ...e, ...element }});
         });
       });
       return f;

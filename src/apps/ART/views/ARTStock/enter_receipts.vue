@@ -20,6 +20,7 @@ import { StockService } from "./stock_service";
 import { toastDanger, toastSuccess, toastWarning } from "@/utils/Alerts";
 import { isEmpty } from "lodash";
 import { toNumString } from "@/utils/Strs";
+import { DrugCmsService } from "@/services/drug_cms_service";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -94,15 +95,24 @@ export default defineComponent({
           type: FieldType.TT_MULTIPLE_SELECT,
           requireNext: true,
           validation: (val: any) => Validation.required(val),
-          options: () => this.drugs,
+          options: async (_: any, filter='') => {
+            let d = [] as Array<any>
+            if (typeof filter === 'string') d = await DrugCmsService.search(filter);
+            else d= await DrugCmsService.getDrugs();
+            this.drugs = this.formatDrugs(d)
+            return this.drugs
+          },
           unload: (val: any) => (this.selectedDrugs = val),
           config: {
             showKeyboard: true,
+            isFilterDataViaApi: true,
             footerBtns: [
               {
                 name: "Select all",
                 slot: "end",
-                onClick: () => {
+                onClick: async () => {
+                  const allDrugs = await DrugCmsService.getDrugs({ pagenate: false})
+                  this.drugs = this.formatDrugs(allDrugs)
                   this.selectAll(this.drugs);
                 },
               },
@@ -170,8 +180,8 @@ export default defineComponent({
       const rows = d.map((j: any) => {
         const d = j.value;
         return [
-          d.shortName,
-          d.tabs,
+          d.short_name,
+          d.pack_size,
           toNumString(d.tins),
           HisDate.toStandardHisDisplayFormat(d.expiry),
           d.batchNumber,
@@ -197,9 +207,9 @@ export default defineComponent({
           items: [
             {
               'barcode': barcode,
-              'drug_id': element.drugID,
+              'drug_id': element.drug_inventory_id,
               'expiry_date': element.expiry,
-              'quantity': parseInt(element.tabs) * parseInt(element.tins),
+              'quantity': parseInt(element.pack_size) * parseInt(element.tins),
               'delivery_date': formdata.date.value,
             },
           ],
@@ -213,10 +223,10 @@ export default defineComponent({
         return l;
       });
     },
-    formatDrugs() {
-      return this.stockService.drugList().map((drug: any) => {
+    formatDrugs(drugs: Array<any>) {
+      return drugs.map((drug: any) => {
         return {
-          label: drug.shortName,
+          label: drug.short_name,
           value: drug,
         };
       });
@@ -225,7 +235,6 @@ export default defineComponent({
   created() {
     this.stockService = new StockService();
     this.fields = this.getFields();
-    this.drugs = this.formatDrugs();
   },
 });
 </script>
