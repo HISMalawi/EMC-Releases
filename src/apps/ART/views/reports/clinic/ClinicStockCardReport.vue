@@ -31,7 +31,7 @@ export default defineComponent({
         columns: [
             [
                 table.thTxt('Medication'),
-                table.thTxt('Quantity Dispensed'),
+                table.thTxt('Quantity Dispensed (Tabs)'),
                 table.thTxt('Stock on hand(Tins)')
             ]
         ]
@@ -50,7 +50,7 @@ export default defineComponent({
             this.report.groupStock().forEach((s: any) => {
                 this.rows.push([
                     table.td(s.drugName),
-                    table.td(s.quantityDispensed),
+                    table.td(s.quantintyDispensed),
                     table.td(
                         (s.quantityIsTabs 
                         ? `${toNumString(s.currentQuantity)} (tabs)`

@@ -38,7 +38,7 @@ export class StockReportService extends ArtReportService {
             if (!pharmacyData[drugId]) {
                 pharmacyData[drugId] = {
                     'current_quantity': 0,
-                    'quantity_dispensed': 0,
+                    'dispensed_quantity': 0,
                     'pack_size': data.pack_size,
                     'drug_name': data["drug_name"] === null ? data["drug_legacy_name"] : data["drug_name"]
                 }
@@ -47,8 +47,8 @@ export class StockReportService extends ArtReportService {
             if (data.current_quantity === 0) continue;
 
             pharmacyData[drugId]["current_quantity"] += parseFloat(data.current_quantity);
-            if (data.quantity_dispensed){
-                pharmacyData[drugId]["quantity_dispensed"] += parseFloat(data.quantity_dispensed);
+            if (data.dispensed_quantity){
+                pharmacyData[drugId]["dispensed_quantity"] += parseFloat(data.dispensed_quantity);
             }
         }
         return Object.values(pharmacyData).map((drug: any) => {
@@ -60,7 +60,7 @@ export class StockReportService extends ArtReportService {
             }
             return {
                 drugName: drug.drug_name,
-                quantintyDispensed: drug.quantity_dispensed,
+                quantintyDispensed: drug.dispensed_quantity,
                 currentQuantity,
                 quantityIsTabs: drug.pack_size === null,
             }
