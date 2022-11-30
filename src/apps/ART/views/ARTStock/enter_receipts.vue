@@ -211,6 +211,7 @@ export default defineComponent({
               'expiry_date': element.expiry,
               'quantity': parseInt(element.pack_size) * parseInt(element.tins),
               'delivery_date': formdata.date.value,
+              'product_code': element.code,
             },
           ],
         });
