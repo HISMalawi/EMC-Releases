@@ -46,6 +46,7 @@ export default defineComponent({
       const report = new RegimenReportService()
       report.setStartDate(filters.dateRange.startDate)
       report.setEndDate(filters.dateRange.endDate)
+      report.setReportType("moh")
       period.value = report.getDateIntervalPeriod()
       const data: any = await report.getRegimenReport()
       rows.value = Object.values(data).map((d: any) => {
