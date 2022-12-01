@@ -30,7 +30,8 @@ export default defineComponent({
     const period = ref("-");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
-      { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
+      { path: "number", label: "#", initialSort: true, initialSortOrder: 'asc' },
+      { path: "arv_number", label: "ARV Number", preSort: sortByARV },
       { path: "given_name", label: "First name", exportable: false },
       { path: "family_name", label: "Last name", exportable: false },
       { path: "gender", label: "Gender", formatter: toGenderString },
