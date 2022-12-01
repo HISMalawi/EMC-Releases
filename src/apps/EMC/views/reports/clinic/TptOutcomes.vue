@@ -58,7 +58,7 @@ export default defineComponent({
       const data: any[] = await report.getTtpOutcomes() || []
       rows.value = data.sort((a, b) => a.tpt_type > b.tpt_type ? 1 : 0).map((_data, index) => ({
         ..._data,
-        number: index
+        number: index + 1
       }))
       await loader.hide();
     }
