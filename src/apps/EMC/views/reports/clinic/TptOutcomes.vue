@@ -36,8 +36,8 @@ export default defineComponent({
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
       { path: "number", label: "#", initialSort: true, initialSortOrder: 'asc' },
-      { path: "age_group", label: "Age Group", exportable: false },
-      { path: "tpt_type", label: "TPT Type", exportable: false },
+      { path: "age_group", label: "Age Group" },
+      { path: "tpt_type", label: "TPT Type" },
       { path: "started_tpt", label: "Started TPT", drillable: true, sortable: false },
       { path: "completed_tpt", label: "Completed TPT", drillable: true, sortable: false },
       { path: "not_completed_tpt", label: "Not completed TPT", drillable: true, sortable: false },
