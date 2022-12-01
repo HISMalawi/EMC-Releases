@@ -436,6 +436,12 @@ export default defineComponent({
         && formData.routine_tb_therapy.value.match(/complete/i) ? true : false
         : true
     },
+    patientOnTpt(formData: any) {
+      if (formData.routine_tb_therapy != null) {
+        return /Currently/i.test(formData.routine_tb_therapy.value)
+      }
+      return this.tptStatus.tpt !== null && !this.completed3HP
+    },
     /**
      * Checks if 3HP can be auto selected based on FormData and 
      * if  it is enabled in global preferences
@@ -470,7 +476,7 @@ export default defineComponent({
         && listData.filter(i => is3HPorTPT(i)).map(i => !i.isChecked)
           .every(Boolean)
   
-      if (noTpTPresent && this.tptAutoSelectionMode(formData)) {
+      if (noTpTPresent && this.patientOnTpt(formData)) {
         const modal = await optionsActionSheet(
           'Reasons for declining TPT', 
           '',
