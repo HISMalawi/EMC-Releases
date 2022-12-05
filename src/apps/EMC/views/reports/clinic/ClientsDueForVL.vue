@@ -47,7 +47,7 @@ export default defineComponent({
       report.setStartDate(dateRange.startDate)
       report.setEndDate(dateRange.endDate)
       period.value = report.getDateIntervalPeriod()
-      rows.value = await report.getClientsDueForVl()
+      rows.value = (await report.getClientsDueForVl()).map((row: any, i: number) => ({...row, number: ++i}))
       await loader.hide();
     }
 
