@@ -71,7 +71,6 @@ import { IonItem, IonList, IonLabel, IonIcon, IonMenuToggle } from "@ionic/vue";
 import { defineComponent, PropType, ref } from "vue";
 import { MenuItem } from "../interfaces/menu";
 import { chevronDown, chevronForward } from "ionicons/icons";
-import { useRouter } from "vue-router";
 import img from "@/utils/Img";
 
 export default defineComponent({
@@ -90,7 +89,6 @@ export default defineComponent({
     IonMenuToggle,
   },
   setup(props) {
-    const router = useRouter()
     const optionHeight = ref(50)
     const activeChildrenLength = ref(0)
     const menuList = ref([...props.items])
@@ -111,8 +109,6 @@ export default defineComponent({
         : 0;
     }
 
-    const goTo = (url?: string) => url && router.push(url)
-
     return {
       activeChildrenLength,
       optionHeight,
@@ -122,7 +118,6 @@ export default defineComponent({
       toggle,
       showItem,
       getActiveChildrens,
-      goTo,
       img,
     }
   },
