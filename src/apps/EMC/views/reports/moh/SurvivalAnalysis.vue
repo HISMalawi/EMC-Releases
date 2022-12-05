@@ -29,7 +29,7 @@ export default defineComponent({
     const ageGroup = reactive({} as Option)
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
-      { path: "quarter", label: "Reg Cohort", initialSort: true, initialSortOrder: 'desc' },
+      { path: "quarter", label: "Reg Cohort", initialSort: true, initialSortOrder: 'asc', preSort: (v) => parseInt(v.split(' ')[1]) },
       { path: "interval", label: "Interval (Months)" },
       { path: "subgroup", label: "Sub group" },
       { path: "totalReg", label: "Total Reg (database)" },
