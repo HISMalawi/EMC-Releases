@@ -1,6 +1,7 @@
 import { TableColumnInterface } from '@uniquedj95/vtable';
-import { get, isEmpty } from 'lodash';
+import { get } from 'lodash';
 import { Service } from '@/services/service';
+import dayjs from 'dayjs';
 
 function sanitize(str: string) {
   try {
@@ -40,7 +41,7 @@ function convertToCsv({columns, rows, quarter, period}: CsvOptions) {
     .join(",")
   ).join("\n");
 
-  str += "\n" + `Date Created:  ${new Date()}`;
+  str += "\n" + `Date Created:  ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}`;
   if (quarter) str += "\n" + `Quarter: ${quarter}`;
   if (period) str += "\n" + `Quarter: ${period}`;
   str += "\n" + `e-Mastercard Version : ${Service.getAppVersion()}`;
