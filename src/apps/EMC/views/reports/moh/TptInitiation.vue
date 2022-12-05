@@ -35,7 +35,7 @@ export default defineComponent({
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
       { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
-      { path: "Location", label: "District" },
+      { path: "location", label: "District" },
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "3hp_started_new_art", label: "3H (Started New on ART)", drillable: true },
@@ -58,6 +58,7 @@ export default defineComponent({
           rs.push({
             index: index++,
             "age_group": group,
+            location: data.Location,
             gender: gender === "F" ? "Female" : "Male",
             "3hp_started_new_art": data[group]["3HP_new"][gender],
             "6hp_started_new_art": data[group]["6H_new"][gender],
