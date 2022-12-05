@@ -85,7 +85,7 @@ export default defineComponent({
       type: "select",
       label: "Sub Group:",
       value: ageGroup,
-      options: Object.values(AGE_GROUP).map(age => ({ label: age, value: age })),
+      options: Object.values(AGE_GROUP).map(age => ({ label: age.match(/Women/i) ? 'Option B+': age, value: age })),
     }])
 
     const onRegenerate = async () => {
