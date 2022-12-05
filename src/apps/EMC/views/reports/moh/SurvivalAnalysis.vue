@@ -90,7 +90,7 @@ export default defineComponent({
 
     const onRegenerate = async () => {
       if(quarter.value && ageGroup.value) {
-        fetchData({quarter: quarter.value, ageGroup: ageGroup.value}, true)
+        fetchData({quarter: quarter, ageGroup: ageGroup}, true)
       }
     }
 
