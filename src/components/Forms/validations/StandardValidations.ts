@@ -43,8 +43,18 @@ function isName(value: any): null | Array<string> {
     return !value || !value.label.match(validation) ? ['Invalid name Input']: null
 }
 
-function isNumber(val: any): null | Array<string> {
-    return isNaN(parseInt(val.value)) ? ['Value must be a number'] : null
+function isNumber(val: any, type = "ALL" as "POSITIVE_INTEGERS" | "NEGATIVE_INTEGERS" | "DECIMALS" |"ALL"): null | Array<string> {
+    const num = Number(val.value);
+    switch(type){
+        case "POSITIVE_INTEGERS": 
+            return Number.isInteger(num) && num > 0 ? null : ["Value must be a positive whole number"];
+        case "NEGATIVE_INTEGERS":
+            return Number.isInteger(num) && num < 0 ? null : ["Value must be a negative whole number"];
+        case "DECIMALS":
+            return /^\d\.\d/.test(`${num}`) ? null : ["Value must be a decimal number"];
+        default:
+            return !Number.isNaN(num) ? null : ['Value must be a number']
+    }
 }
 
 function hasLengthRangeOf(val: any, min: number, max: number): null | Array<string> {
