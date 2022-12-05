@@ -43,6 +43,7 @@ import { ProgramService } from "@/services/program_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import { modal } from "@/utils/modal";
 import { alertConfirmation } from "@/utils/Alerts";
+import StandardValidations from "@/components/Forms/validations/StandardValidations";
 
 export default defineComponent({
   components: {
@@ -71,6 +72,8 @@ export default defineComponent({
         placeholder: "Enter ARV Number",
         required: true,
         validation: async (arv: Option) => {
+          const isNumberErr = StandardValidations.isNumber(arv, "POSITIVE_INTEGERS")
+          if(isNumberErr !== null) return isNumberErr
           if(arv.value === arvNumber.value.split("-")[2]) return null
           const patients = await Patientservice.findByOtherID(4, `${sitePrefix.value}-ARV-${arv.value}`);
           return isEmpty(patients) ?  null : ['ARV Number already exists'];

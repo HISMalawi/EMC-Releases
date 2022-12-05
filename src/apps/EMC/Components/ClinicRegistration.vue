@@ -153,7 +153,7 @@ export default defineComponent({
         required: true,
         validation: async (arvNumber, form) => {
           if(form.arvNumber.disabled) return null
-          const isNumberErr = StandardValidations.isNumber(arvNumber)
+          const isNumberErr = StandardValidations.isNumber(arvNumber, "POSITIVE_INTEGERS")
           if(isNumberErr !== null) return isNumberErr
           const patients = await Patientservice.findByOtherID(4, `${props.sitePrefix}-ARV-${arvNumber.value}`);
           return isEmpty(patients) ?  null : ['ARV Number already exists'];
