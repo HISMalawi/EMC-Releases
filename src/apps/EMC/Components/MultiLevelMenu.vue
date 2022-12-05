@@ -5,11 +5,13 @@
         <template v-if="showItem(item)">
           <template v-if="!item.children">
             <ion-menu-toggle auto-hide="true">
-              <ion-item button @click="goTo(item.url)">
-                <img v-if="item.img" :src="img(item.img)" class="ion-margin-end icon" />
-                <ion-icon v-if="item.icon" slot="start" :icon="item.icon"></ion-icon>
-                <ion-label >{{ item.title }}</ion-label>
-              </ion-item>
+              <router-link :to="item.url || '#'" #="{ isActive, isExactActive}">
+                <ion-item button :color="isActive && isExactActive ? 'primary' : ''">
+                  <img v-if="item.img" :src="img(item.img)" class="ion-margin-end icon" />
+                  <ion-icon v-if="item.icon" :icon="item.icon" slot="start"></ion-icon>
+                  <ion-label>{{ item.title }}</ion-label>
+                </ion-item>
+              </router-link>
             </ion-menu-toggle>
           </template>
           <template v-else>
@@ -23,11 +25,13 @@
                 <template v-if="showItem(subItem)">
                   <template v-if="!subItem.children">
                     <ion-menu-toggle auto-hide="true">
-                      <ion-item button :style="{ paddingLeft:  '16px' }" @click="goTo(subItem.url)">
-                        <img v-if="subItem.img" :src="img(subItem.img)" class="ion-margin-end icon" />
-                        <ion-icon v-if="subItem.icon" slot="start" :icon="subItem.icon"></ion-icon>
-                        <ion-label >{{ subItem.title }}</ion-label>
-                      </ion-item>
+                      <router-link :to="subItem.url || '#'" #="{ isActive, isExactActive}">
+                        <ion-item button :color="isActive && isExactActive ? 'primary' : ''" :style="{ paddingLeft:  '16px' }">
+                          <img v-if="subItem.img" :src="img(subItem.img)" class="ion-margin-end icon" />
+                          <ion-icon v-if="subItem.icon" :icon="item.icon" slot="start"></ion-icon>
+                          <ion-label>{{ item.title }}</ion-label>
+                        </ion-item>
+                      </router-link>
                     </ion-menu-toggle>
                   </template>
                   <template v-else>
@@ -40,11 +44,13 @@
                       <template v-for="subItem2 of subItem.children" :key="subItem2.id">
                         <template v-if="showItem(subItem2)">
                           <ion-menu-toggle auto-hide="true">
-                            <ion-item button :style="{ paddingLeft: '32px' }" routerLinkActive="active" @click="goTo(subItem2.url)">
-                              <img v-if="subItem2.img" :src="img(subItem2.img)" class="ion-margin-end icon" />
-                              <ion-icon v-if="subItem2.icon" slot="start" :icon="subItem2.icon" ></ion-icon>
-                              <ion-label >{{ subItem2.title }}</ion-label>
-                            </ion-item>
+                            <router-link :to="subItem2.url || '#'" #="{ isActive, isExactActive}">
+                              <ion-item button :color="isActive && isExactActive ? 'primary' : ''" :style="{ paddingLeft: '32px' }">
+                                <img v-if="subItem2.img" :src="img(subItem2.img)" class="ion-margin-end icon" />
+                                <ion-icon v-if="subItem2.icon" :icon="subItem2.icon" slot="start"></ion-icon>
+                                <ion-label>{{ subItem2.title }}</ion-label>
+                              </ion-item>
+                            </router-link>
                           </ion-menu-toggle>
                         </template>
                       </template>
@@ -187,5 +193,9 @@ export default defineComponent({
 .custom-side-menu .active {
   background: var(--ion-color-primary);
   color: var(--ion-color-dark) !important;
+}
+
+a {
+  text-decoration: none !important;
 }
 </style>

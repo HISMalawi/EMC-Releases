@@ -12,7 +12,9 @@
       </ion-toolbar>
     </ion-header >
     <ion-content>
-      <multi-level-menu :items="menuItems" />
+      <keep-alive>
+        <multi-level-menu :items="menuItems" />
+      </keep-alive>
     </ion-content>
   </ion-menu>
   <ion-page id="main-content">
