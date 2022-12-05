@@ -21,12 +21,10 @@
 
       </ion-row>
       <ion-row class="his-card">
-        <ion-col size="12" :key="componentKey">
+        <ion-col size="12" :key="componentKey" id="report-content">
           <cohort-v :indicators="indicators" style="font-weight: 600"> </cohort-v>
-          <div id="report-content">
-            <cohort-h :reportparams="period" :clinicName="clinicName"></cohort-h>
-            <cohort-ft @onClickIndicator="onDrilldown" :indicators="indicators" site="E-Mastercard"> </cohort-ft>
-          </div>
+          <cohort-h :reportparams="period" :clinicName="clinicName"></cohort-h>
+          <cohort-ft @onClickIndicator="onDrilldown" :indicators="indicators" site="E-Mastercard"> </cohort-ft>
         </ion-col>
       </ion-row>
     </ion-grid>
