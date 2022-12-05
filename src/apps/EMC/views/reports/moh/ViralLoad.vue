@@ -21,6 +21,7 @@ import { REGIMENS } from "@/apps/ART/services/reports/regimen_report_service";
 import { ViralLoadReportService } from "@/apps/ART/services/reports/viral_load_report";
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
 import { get } from "lodash";
+import HisDate from "@/utils/Date";
 
 export default defineComponent({
   name: "ViralLoad",
@@ -66,11 +67,11 @@ export default defineComponent({
 
     const regenerateReport = async () => {
       const [startDate, endDate ] = period.value.split(' - ')
-      if(startDate && endDate && minVL.value && maxVL.value) {
+      if(startDate && endDate) {
         await fetchData({
           dateRange: {
-            startDate,
-            endDate 
+            startDate: HisDate.toStandardHisFormat(startDate),
+            endDate: HisDate.toStandardHisFormat(endDate)
           }, 
           minVL: minVL.value, 
           maxVL: maxVL.value
@@ -84,12 +85,14 @@ export default defineComponent({
         placeholder: "Min Viral Load",
         type: "number",
         value: minVL.value,
+        required: false,
       },
       {
         id: "maxVL",
         placeholder: "Max Viral Load",
         type: "number",
         value: maxVL.value,
+        required: false,
       },
     ])
 
