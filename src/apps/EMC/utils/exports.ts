@@ -1,4 +1,4 @@
-import { TableColumnInterface } from '@uniquedj95/vtable';
+import { sortRows, TableColumnInterface, TableFilterInterface } from '@uniquedj95/vtable';
 import { get } from 'lodash';
 import { Service } from '@/services/service';
 import dayjs from 'dayjs';
@@ -23,15 +23,16 @@ interface CsvOptions {
   filename: string;
   quarter?: string;
   period?: string;
+  filters?: TableFilterInterface;
 }
 
-function convertToCsv({columns, rows, quarter, period}: CsvOptions) {
+function convertToCsv({columns, rows, quarter, period, filters}: CsvOptions) {
   let str = columns.filter((column) => column.exportable !== false)
     .map((column) => column.label)
     .join(",");
 
   str += "\n";
-  str += rows.map((row) => columns
+  str += sortRows(rows, filters?.sort || []).map((row) => columns
     .filter(column => column.exportable !== false)
     .map(column => {
       let value = get(row, column.path);

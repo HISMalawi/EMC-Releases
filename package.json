@@ -25,7 +25,7 @@
     "@ionic/vue-router": "^5.4.0",
     "@popperjs/core": "^2.10.1",
     "@types/lodash": "^4.14.170",
-    "@uniquedj95/vtable": "^1.2.3",
+    "@uniquedj95/vtable": "^1.2.4",
     "apexcharts": "^3.36.0",
     "capacitor-blob-writer": "^1.1.0",
     "cordova-pdf-generator": "^2.1.1",

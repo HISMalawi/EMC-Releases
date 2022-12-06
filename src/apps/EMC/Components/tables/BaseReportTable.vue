@@ -160,8 +160,9 @@ export default defineComponent({
         btns.push({
           label: "CSV",
           color: "primary",
-          action: async (_a, rows) => exportToCSV({
+          action: async (_a, rows, filters) => exportToCSV({
             rows, 
+            filters,
             columns: props.columns, 
             quarter: props.quarter?.label,
             period: props.period,
