@@ -467,7 +467,7 @@ export default defineComponent({
                 onVisitDate: (card: any) => {
                     if (card.isInit) return
                     const d  = this.getPatientAlertCardInfo()
-                    if(typeof d === 'object' && d.then) {
+                    if(typeof d === 'object' && typeof d.then === 'function') {
                         card.isLoading = true
                         this.getPatientAlertCardInfo()
                             .then((data) => {

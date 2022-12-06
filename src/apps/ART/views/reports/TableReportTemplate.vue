@@ -290,7 +290,7 @@ export default defineComponent({
         }
         loadingController.dismiss()
       }catch(e) {
-        toastDanger(e)
+        toastDanger(`${e}`)
         console.error(e)
         loadingController.dismiss()
       }
@@ -312,7 +312,7 @@ export default defineComponent({
         )
         loadingController.dismiss()
       }catch(e) {
-        toastDanger(e)
+        toastDanger(`${e}`)
         console.error(e)
         loadingController.dismiss()
       }

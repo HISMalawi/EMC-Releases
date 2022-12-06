@@ -67,7 +67,7 @@ export default defineComponent({
                 this.hisFormKey = Math.floor(Math.random() * 5000)
                 toastSuccess('Lab result saved!')
             }catch(e) {
-                toastDanger(e)
+                toastDanger(`${e}`)
                 console.error(e)
             }
         },

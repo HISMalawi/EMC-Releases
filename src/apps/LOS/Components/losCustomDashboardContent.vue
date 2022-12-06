@@ -214,7 +214,7 @@ export default defineComponent({
                 }
             }catch(e) {
                 console.error(e)
-                toastDanger(e)
+                toastDanger(`${e}`)
             }
         },
         getLabOrderRows(data: any): Array<RowInterface[]> {
@@ -234,7 +234,7 @@ export default defineComponent({
                                 await this.service.voidOrder(d.order_id, reason)
                                 this.removeLabOrderRow(d.order_id)
                             } catch (e) {
-                                toastDanger(e)
+                                toastDanger(`${e}`)
                             }
                         },
                         [
