@@ -73,7 +73,16 @@ export default defineComponent({
     isNewPatient: {
       type: Boolean,
       default: true,
-    }
+    },
+
+    observations: {
+      type: Object as PropType<Record<string, any>>,
+      default: () => ({})
+    },
+    initialVisitDate: {
+      type: String,
+      default: ""
+    } 
   },
   emits: ["onValue", "onPrevious", "onFinish"],
   setup(props, { emit }) {
@@ -91,7 +100,7 @@ export default defineComponent({
 
     const form = reactive<DTForm>({
       reasonsForEligibity: {
-        value: '',
+        value: props.observations['Reason for ART eligibility'] || '',
         label: 'Reason for Starting',
         placeholder: "Select Reason for Starting",
         required: true,
@@ -100,7 +109,7 @@ export default defineComponent({
         })
       },
       whoStage: {
-        value: '',
+        value: props.observations['Who stage'] || '',
         label: 'Select Stage',
         placeholder: "Select Stage",
         required: true,
@@ -109,12 +118,12 @@ export default defineComponent({
         }),
       },
       cd4countAvailable: {
-        value: '',
+        value:  props.observations['CD4 count'] ? 'Yes' : props.isNewPatient ? '' : 'No',
         label: 'Recent CD4 Count results available?',
         required: true,
       },
       cd4CountDate: {
-        value: '',
+        value: props.observations['Cd4 count datetime'] || '',
         label: 'CD4 Count date',
         placeholder: 'CD4 Count date',
         computedValue: (date: string) => ({
@@ -126,7 +135,7 @@ export default defineComponent({
         }
       },
       cd4Count: {
-        value: '',
+        value: props.observations['CD4 count'] || '',
         label: 'CD4 Count',
         placeholder: 'CD4 Count e.g. <100 or >500',
         computedValue: (cd4Count: string) => {
@@ -148,7 +157,7 @@ export default defineComponent({
         }
       },
       cd4CountLocation: {
-        value: '',
+        value: props.observations['Cd4 count location'] || '',
         label: 'CD4 Count location',
         computedValue: (facility: Option) => ({
           obs: StagingService.buildValueText('Cd4 count location', facility.label)
@@ -158,7 +167,7 @@ export default defineComponent({
         }
       },
       whoConditions: {
-        value: '',
+        value: props.observations['Who stages criteria present'] || '',
         required: true,
         label: "Select Staging Conditions",
         computedValue: (conditions: Option[]) => ({
