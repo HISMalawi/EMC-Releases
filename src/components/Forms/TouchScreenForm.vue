@@ -515,7 +515,7 @@ export default defineComponent({
           await this.onFinish(formData ,computedData)
         }catch(e) { 
           console.error(e)
-          toastDanger(e) 
+          toastDanger(`${e}`) 
         }
       }
       this.state = 'onfinish'

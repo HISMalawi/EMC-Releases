@@ -152,7 +152,7 @@ export default defineComponent({
                 } 
                 toastSuccess('State has been updated')
             } catch(e) {
-                toastDanger(e)
+                toastDanger(`${e}`)
             }
         },
         async onEnrollProgram() {
@@ -166,7 +166,7 @@ export default defineComponent({
                 toastSuccess('Patient has been enrolled!')
             }catch(e) {
                 this.activeProgram = {}
-                toastDanger(e)
+                toastDanger(`${e}`)
             }
         },
         async onVoidState(state: any, activeProgram: any, stateIndex: number) {
@@ -178,7 +178,7 @@ export default defineComponent({
                     activeProgram.other.programStates.splice(stateIndex, 1)
                     toastSuccess('State has been voided')
                 }catch(e) {
-                  toastDanger(e)
+                  toastDanger(`${e}`)
                 }
             })
         },
@@ -199,7 +199,7 @@ export default defineComponent({
                     toastSuccess('Program removed')
                 } catch(e) {
                     console.error(e)
-                    toastDanger(e)
+                    toastDanger(`${e}`)
                 }
             })
         },

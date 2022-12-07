@@ -23,7 +23,7 @@ function required(value: Option | Option[]): null | Array<string> {
 
 function isMWPhoneNumber(val: any) {
     //Regex source: https://gist.github.com/kwalter94/1861f1f0fa192382a75a445ad70f07ec
-    const validation = /^(\+?265|0)(((88|9[89])\d{7})|(1\d{6})|(2\d{8})|(31\d{8}))$/
+    const validation = /^(\+?265|0)(((8[89]|9[89])\d{7})|(1\d{6})|(2\d{8})|(31\d{8}))$/
     return !val || !val.value.match(validation) ? ['Not a valid phone number']: null
 }
 

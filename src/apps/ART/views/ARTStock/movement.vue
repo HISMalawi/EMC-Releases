@@ -74,7 +74,7 @@ export default defineComponent({
           if (e instanceof BadRequestError && !isEmpty(e.errors)) {
             errors = errors.concat(e.errors)
           } else {
-            errors.push(e)
+            errors.push(`${e}`)
           }
           console.log(e)
         }
