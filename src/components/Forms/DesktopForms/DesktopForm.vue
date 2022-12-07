@@ -157,7 +157,7 @@ export default defineComponent({
                     this.isSubmitting = true
                     await this.onSubmitForm(this.formData, this.computedData)
                 } catch(e) {
-                    toastDanger(e)
+                    toastDanger(`${e}`)
                 }
                 this.isSubmitting = false
             } else {
