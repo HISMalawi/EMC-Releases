@@ -41,6 +41,7 @@
     "nprogress": "^0.2.0",
     "onscan.js": "^1.5.2",
     "phonegap-plugin-barcodescanner": "^8.1.0",
+    "rxjs": "^7.6.0",
     "swrv": "^1.0.0-beta.8",
     "tiny-emitter": "^2.1.0",
     "v-calendar": "^3.0.0-alpha.5",
