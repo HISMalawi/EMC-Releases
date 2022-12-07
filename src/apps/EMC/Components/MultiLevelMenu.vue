@@ -28,8 +28,8 @@
                       <router-link :to="subItem.url || '#'" #="{ isActive, isExactActive}">
                         <ion-item button :color="isActive && isExactActive ? 'primary' : ''" :style="{ paddingLeft:  '16px' }">
                           <img v-if="subItem.img" :src="img(subItem.img)" class="ion-margin-end icon" />
-                          <ion-icon v-if="subItem.icon" :icon="item.icon" slot="start"></ion-icon>
-                          <ion-label>{{ item.title }}</ion-label>
+                          <ion-icon v-if="subItem.icon" :icon="subItem.icon" slot="start"></ion-icon>
+                          <ion-label>{{ subItem.title }}</ion-label>
                         </ion-item>
                       </router-link>
                     </ion-menu-toggle>
