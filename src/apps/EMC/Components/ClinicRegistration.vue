@@ -216,10 +216,13 @@ export default defineComponent({
       artInitiationLocation: {
         value: props.observations['Location of ART initiation'] || '',
         label: 'Location of ART Initiation',
-        computedValue: async (facility: Option) => {
+        computedValue: async (facility: Option | string) => {
           return {
             tag:'registration',
-            obs: registrationService.buildValueText('Location of ART initiation', facility.label)
+            obs: registrationService.buildValueText(
+              'Location of ART initiation', 
+              typeof facility === 'string' ? facility : facility.label
+            )
           }
         },
         validation: async (location: Option, f: DTForm) => {
@@ -275,7 +278,10 @@ export default defineComponent({
         placeholder: 'select TB status',
         computedValue: (status: Option) => ({
           tag: 'registration',
-          obs: registrationService.buildValueCoded("TB Status at Initiation", status.label)
+          obs: registrationService.buildValueCoded(
+            "TB Status at Initiation", 
+            typeof status === 'string' ? status : status.label
+          )
         }),
         validation: async (status: Option, f: DTForm) => {
           return f.everRegisteredAtClinic.value === 'Yes' && StandardValidations.required(status)
@@ -370,10 +376,11 @@ export default defineComponent({
           return form.tptHistory?.value?.label?.match(/currently/i) && 
             StandardValidations.required(date)
         },
-        computedValue: (facility: Option) => ({
+        computedValue: (facility: Option | string) => ({
           tag:'consultation',
           obs: consultationService.buildValueText(
-            'Location TPT last received', facility.label
+            'Location TPT last received',
+            typeof facility === 'string' ? facility : facility.label
           )
         }),
       },
@@ -385,7 +392,10 @@ export default defineComponent({
         computedValue(test: Option){
           return {
             tag: 'registration',
-            obs: registrationService.buildValueCoded('Confirmatory hiv test type', test.value)
+            obs: registrationService.buildValueCoded(
+              'Confirmatory hiv test type',
+              typeof test === 'string' ? test : test.value
+            )
           }
         }
       },
@@ -394,13 +404,15 @@ export default defineComponent({
         label: 'Location of Confirmatory',
         placeholder: 'Select location',
         validation: async (location: Option, f: DTForm) => {
-          return f.confirmatoryTest.value.label !== 'Not done' && StandardValidations.required(location)
+          return !(f.confirmatoryTest.value.label === 'Not done' || f.confirmatoryTest.value === 'Not done') && 
+            StandardValidations.required(location)
         },
-        computedValue(facility: Option){
+        computedValue(facility: Option | string){
           return {
             tag: 'registration',
             obs: registrationService.buildValueText(
-              'Confirmatory HIV test location', facility.label
+              'Confirmatory HIV test location', 
+              typeof facility === 'string' ? facility : facility.label
             )
           }
         }
@@ -409,7 +421,8 @@ export default defineComponent({
         value: props.observations['Confirmatory HIV test date'] || '',
         label: 'Confirmatory HIV Test Date',
         validation: async (date: Option, f: DTForm) => {
-          return f.confirmatoryTest.value.label !== 'Not done' && StandardValidations.required(date)
+          return !(f.confirmatoryTest.value.label === 'Not done' || f.confirmatoryTest.value === 'Not done') && 
+            StandardValidations.required(date)
         },
         computedValue: (date: string) => ({
           tag: 'registration',

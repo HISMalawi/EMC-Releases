@@ -105,7 +105,9 @@ export default defineComponent({
         placeholder: "Select Reason for Starting",
         required: true,
         computedValue: (reason: Option) => ({
-          obs: stagingService.value?.buildReasonForArtObs(reason.label)
+          obs: stagingService.value?.buildReasonForArtObs(
+            typeof reason === 'string' ? reason : reason.label
+          )
         })
       },
       whoStage: {
@@ -114,7 +116,9 @@ export default defineComponent({
         placeholder: "Select Stage",
         required: true,
         computedValue: (stage: Option) => ({
-          obs: stagingService.value?.buildWhoStageObs(stage.label)
+          obs: stagingService.value?.buildWhoStageObs(
+            typeof stage === 'string' ? stage : stage.label  
+          )
         }),
       },
       cd4countAvailable: {
@@ -160,7 +164,10 @@ export default defineComponent({
         value: props.observations['Cd4 count location'] || '',
         label: 'CD4 Count location',
         computedValue: (facility: Option) => ({
-          obs: StagingService.buildValueText('Cd4 count location', facility.label)
+          obs: StagingService.buildValueText(
+            'Cd4 count location', 
+            typeof facility === 'string' ? facility : facility.label
+          )
         }),
         validation: async (location: Option, f: DTForm) => {
           return f.cd4countAvailable.value === 'Yes' && StandardValidations.required(location)
@@ -171,7 +178,9 @@ export default defineComponent({
         required: true,
         label: "Select Staging Conditions",
         computedValue: (conditions: Option[]) => ({
-          obs: conditions.map(x => stagingService.value?.buildWhoCriteriaObs(x.label))
+          obs: typeof conditions === 'string' 
+            ? stagingService.value?.buildWhoCriteriaObs(conditions)
+            : conditions.map(x => stagingService.value?.buildWhoCriteriaObs(x.label))
         })
       }
     });
