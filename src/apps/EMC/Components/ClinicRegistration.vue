@@ -63,7 +63,7 @@
     <ion-col size="6" class="ion-margin-top ion-margin-bottom">
       <SelectInput v-model="form.confirmatoryTest" :form="form" :options="HIVTestOptions" />
     </ion-col>
-    <template v-if="form.confirmatoryTest.value.label !== 'Not done'">
+    <template v-if="isConfirmatoryTestDone">
       <ion-col size="6" class="ion-margin-top ion-margin-bottom">
         <SelectInput v-model="form.confirmatoryTestLocation" :form="form" :asyncOptions="getFacilities" allowCustom />
       </ion-col>
@@ -130,7 +130,15 @@ export default defineComponent({
     sitePrefix: {
       type: String,
       required: true
-    }
+    },
+    observations: {
+      type: Object as PropType<Record<string, any>>,
+      default: () => ({})
+    },
+    initialVisitDate: {
+      type: String,
+      default: ""
+    } 
   },
   emits: ["onValue", "onNext"],
   setup(props, { emit }) {
@@ -160,12 +168,12 @@ export default defineComponent({
         },
       },
       initialVisitDate: {
-        value: '',
+        value: props.initialVisitDate,
         label: 'Registration Date',
         required: true,
       },
       shouldFollowUp: {
-        value: '',
+        value: props.observations['Agrees to followup'] || '',
         label: 'Agrees to follow up ?',
         computedValue: (agrees: string) => ({
           tag: 'registration',
@@ -177,7 +185,7 @@ export default defineComponent({
         required: true,
       },
       receivedArvTreatmentBefore: {
-        value: '',
+        value: props.observations['Ever received ART'] || '',
         label: 'Ever received ARVs for treatment or prophylaxis?',
         computedValue: (receivedTreatment: string) => ({
           tag: 'registration',
@@ -186,9 +194,8 @@ export default defineComponent({
         required: true,
       },
       dateLastTakenArvs: {
-        value: '',
+        value: props.observations['Date ART last taken'] || '',
         label: 'Date last taken ARVs',
-        placeholder: "Enter Date last taken ARVs",
         computedValue: (date: string) => ({
           tag: 'registration',
           obs: registrationService.buildValueDate('Date ART last taken', date)
@@ -197,7 +204,7 @@ export default defineComponent({
           StandardValidations.required(date),
       },
       everRegisteredAtClinic: {
-        value: '',
+        value: props.observations['Ever registered at ART clinic'] || '',
         label: 'Ever registred at an ART clinic',
         computedValue: (everRegistered: string) => ({
           tag: 'registration',
@@ -207,7 +214,7 @@ export default defineComponent({
           StandardValidations.required(everRegistered),
       },
       artInitiationLocation: {
-        value: '',
+        value: props.observations['Location of ART initiation'] || '',
         label: 'Location of ART Initiation',
         computedValue: async (facility: Option) => {
           return {
@@ -221,9 +228,8 @@ export default defineComponent({
         }
       },
       artStartDate: {
-        value: '',
+        value: props.observations['Date ART started'] || '',
         label: 'Date started ART',
-        placeholder: 'Date started ART',
         computedValue: (date: string) => ({
           tag: 'registration',
           obs: registrationService.buildValueDate('Date ART started', date)
@@ -234,7 +240,7 @@ export default defineComponent({
         }
       },
       initialWeight: {
-        value: '',
+        value: props.observations['weight'] || '',
         label: 'Initial Weight',
         placeholder: 'Enter weight',
         computedValue: (weight: number) => ({
@@ -249,7 +255,7 @@ export default defineComponent({
         }
       },
       initialHeight: {
-        value: '',
+        value: props.observations['Height'] || '',
         label: 'Initial Height',
         placeholder: 'Enter height',
         computedValue: (height: number) => ({
@@ -264,7 +270,7 @@ export default defineComponent({
         }
       },
       initialTBStatus: {
-        value: '',
+        value: props.observations["TB Status at Initiation"] || '',
         label: 'Initial TB Status',
         placeholder: 'select TB status',
         computedValue: (status: Option) => ({
@@ -276,7 +282,7 @@ export default defineComponent({
         }
       },
       tptHistory: {
-        value: '',
+        value: props.observations["Previous TB treatment history"] || '',
         label: "TPT History",
         placeholder: "Select TPT history",
         computedValue: (history: Option) => ({
@@ -289,7 +295,7 @@ export default defineComponent({
         }
       },
       tptStartDate: {
-        value: '',
+        value: props.observations['TPT Drugs Received'] || '',
         label: "Date started TPT",
         validation: async (date, form) => {
           return form.tptHistory?.value?.label?.match(/currently/i) && 
@@ -358,7 +364,7 @@ export default defineComponent({
         },
       },
       tptStartLocation: {
-        value: '',
+        value: props.observations['Location TPT last received'] || '',
         label: "TPT Transfer From",
         validation: async (date, form) => {
           return form.tptHistory?.value?.label?.match(/currently/i) && 
@@ -372,7 +378,7 @@ export default defineComponent({
         }),
       },
       confirmatoryTest: {
-        value: '',
+        value: props.observations['Confirmatory hiv test type'] || '',
         label: 'Confirmatory Test',
         placeholder: 'Select confirmatory test',
         required: true,
@@ -384,7 +390,7 @@ export default defineComponent({
         }
       },
       confirmatoryTestLocation: {
-        value: '',
+        value: props.observations['Confirmatory HIV test location'] || '',
         label: 'Location of Confirmatory',
         placeholder: 'Select location',
         validation: async (location: Option, f: DTForm) => {
@@ -400,7 +406,7 @@ export default defineComponent({
         }
       },
       confirmatoryTestDate: {
-        value: '',
+        value: props.observations['Confirmatory HIV test date'] || '',
         label: 'Confirmatory HIV Test Date',
         validation: async (date: Option, f: DTForm) => {
           return f.confirmatoryTest.value.label !== 'Not done' && StandardValidations.required(date)
@@ -418,6 +424,8 @@ export default defineComponent({
         }),
       }
     });
+
+    const isConfirmatoryTestDone = computed(() => !(form.confirmatoryTest.value.label === 'Not done' || form.confirmatoryTest.value === 'Not done'))
 
     watch(form.receivedArvTreatmentBefore, state => {
       if (state.value === 'No') {
@@ -485,6 +493,7 @@ export default defineComponent({
       today,
       patientDob,
       form,
+      isConfirmatoryTestDone,
       initialTbStatusOptions,
       tptHistoryOptions,
       HIVTestOptions,

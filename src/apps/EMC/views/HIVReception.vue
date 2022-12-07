@@ -9,6 +9,8 @@
               :patient="patient" 
               :isNewPatient="isNewPatient"
               :sitePrefix="sitePrefix"
+              :initialVisitDate="initialVisitDate"
+              :observations="observations"
               @onValue="onValue"
               @onNext="onNext"
               @onPrevious="onPrevious"
@@ -40,6 +42,8 @@ import { StagingService } from '@/apps/ART/services/staging_service';
 import { EncounterService } from '@/services/encounter_service';
 import { isEmpty, get } from 'lodash';
 import { Encounter } from '@/interfaces/encounter';
+import { Observation } from '@/interfaces/observation';
+import { ConceptService } from '@/services/concept_service';
 
 export default defineComponent({
   components: {
@@ -65,6 +69,7 @@ export default defineComponent({
     const patient = ref({} as Patientservice)
     const initialVisitDate = ref('')
     const firstVisitEncounters = ref([] as number[])
+    const observations = reactive({} as Record<string, any>)
     
     const onValue = (form: any) => data[form.type] = form.data;
     const onNext = () => activeForm.value = "Staging"
@@ -138,28 +143,41 @@ export default defineComponent({
         toastWarning(`${error}`)
       }
     }
+
+    const parseObs = async (obs: Observation[]) => {
+      for (const v of obs) {
+        if(!firstVisitEncounters.value.includes(v.encounter_id)) firstVisitEncounters.value.push(v.encounter_id)
+        const concept = await ConceptService.getConceptName(v.concept_id);
+        let value = '' as any
+        if(v.value_datetime) value = v.value_datetime;
+        else if(v.value_drug) value = v.value_datetime;
+        else if(v.value_text) value = v.value_text;
+        else if(v.value_numeric) value = v.value_numeric;
+        else if(v.value_coded) value = await ConceptService.getConceptName(v.value_coded);
+        if(v.value_modifier) value = v.value_modifier + value;
+        observations[concept] = value
+      }
+    }
     
     onMounted(async () => {
       const p = await Patientservice.findByID(patientId);
       patient.value = new Patientservice(p);
-      Store.get('SITE_PREFIX').then(prefix => sitePrefix.value = prefix);
-      isReady.value = true;
+      Store.get('SITE_PREFIX').then(prefix => sitePrefix.value = prefix);      
       if(!isNewPatient) {
-        // get first visit encounters
-        EncounterService.getEncounters(patientId, {"encounter_type_id": 9}).then((enc: Encounter[]) => {
-          if(isEmpty(enc)) return
-          const encounterTypes = [9, 53, 6, 5, 52]
-          initialVisitDate.value = get(enc, '[0].encounter_datetime', '')
-          if(initialVisitDate.value) {
-            EncounterService.getEncounters(patientId, { date: initialVisitDate.value }).then((encounters: Encounter[]) => {
-              firstVisitEncounters.value = encounters
-                .filter(enc => encounterTypes.includes(enc.encounter_type))
-                .map(enc => enc.encounter_id)
-            })
+        const enc = await EncounterService.getEncounters(patientId, {"encounter_type_id": 9})
+        if(isEmpty(enc)) return isReady.value = true;
+        initialVisitDate.value = get(enc, '[0].encounter_datetime', '')
+        if(initialVisitDate.value) {
+          const encounters: Encounter[] = await  EncounterService.getEncounters(patientId, { date: initialVisitDate.value });
+          for (const enc of encounters){
+            if([9, 53, 6, 5, 52].includes(enc.encounter_type))
+              await parseObs(enc.observations)
           }
-        });
+        }
       }
+      isReady.value = true;
     })
+
     return {
       activeForm,
       patient,
@@ -168,6 +186,8 @@ export default defineComponent({
       isRegistration,
       sitePrefix,
       isReady,
+      initialVisitDate,
+      observations,
       onValue,
       onFinish,
       onNext,
