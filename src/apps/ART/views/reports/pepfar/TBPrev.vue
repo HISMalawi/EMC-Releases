@@ -23,6 +23,7 @@ import { TbPrevReportService } from '@/apps/ART/services/reports/tb_prev_report_
 import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service"
+import { uniq } from 'lodash'
 
 export default defineComponent({
     mixins: [ReportMixin],
@@ -86,6 +87,8 @@ export default defineComponent({
             this.cohort = await this.report.getTBPrevReport()
             this.setRows('F')
             this.setRows('M')
+            this.setTotalMaleRow()
+            this.setMaternityRows()
         },
         makeDrilldown(data: Array<any>, context: string) {
             if (data.length) {
@@ -109,6 +112,97 @@ export default defineComponent({
                 return table.tdLink(data.length, () => this.drilldownAsyncRows(context, columns, asyncRows))
             }
             return table.td(0)
+        },
+        aggregate(gender: 'M' | 'F', group: '6H' | '3HP', indicator: string): Array<any> {
+            return Object.values(this.cohort).reduce((patients: any, c: any) => {
+                return [...c[gender][group][indicator], ...patients]
+            }, []) as Array<any>
+        },
+        async setMaternityRows() {
+            const indicators = [
+                'started_new_on_art',
+                'started_previously_on_art',
+                'completed_new_on_art',
+                'completed_previously_on_art'
+            ].reduce((aggregated: any, indicator: string) => [
+                ...aggregated,
+                { group: '3HP', indicator, data: this.aggregate('F', '3HP', indicator) },
+                { group: '6H', indicator, data: this.aggregate('F', '6H', indicator) }
+            ], [])
+            const maternalStatus = await this.report.getMaternalStatus(
+                uniq(indicators.reduce((totals: any, cur: any) => [...totals, ...cur.data], []).map((d: any) => d.patient_id))
+            )
+            const groupBy = (indicator: string, group: '6H' | '3HP') => indicators
+                .reduce((all: any, i: any) => {
+                    return i.indicator === indicator && group === i.group ? [...all, ...i.data] : all
+                }, [])
+            const fP = (s: 'FP' | 'FBf', indicator: string, title: string) => {
+                return [
+                    this.makeDrilldown(
+                        groupBy(indicator, '3HP').filter((patient: any) => maternalStatus[s].includes(patient.patient_id)), `All ${title} (3HP)`
+                    ),
+                    this.makeDrilldown(
+                        groupBy(indicator, '6H').filter((patient: any) => maternalStatus[s].includes(patient.patient_id)), `All ${title} (6H)`
+                    )
+                ]
+            }
+            const allPregnant = maternalStatus.FBf.concat(maternalStatus.FP)
+            const fnP = (indicator: string, title: string) => {
+                return [
+                    this.makeDrilldown(
+                        groupBy(indicator, '3HP').filter((patient: any) => !allPregnant.includes(patient.patient_id)), `All ${title} (3HP)`
+                    ),
+                    this.makeDrilldown(
+                        groupBy(indicator, '6H').filter((patient: any) => !allPregnant.includes(patient.patient_id)), `All ${title} (6H)`
+                    )
+                ]
+            }
+            this.rows.push([
+                table.td('All'),
+                table.td('FP'),
+                ...fP('FP', 'started_new_on_art', 'Started new on ART'),
+                ...fP('FP', 'started_previously_on_art', 'Started previously on ART'),
+                ...fP('FP', 'completed_new_on_art', 'Completed new on ART'),
+                ...fP('FP', 'completed_previously_on_art', 'Completed previously on ART')
+            ])
+            this.rows.push([
+                table.td('All'),
+                table.td('FNP'),
+                ...fnP('started_new_on_art', 'Started new on ART'),
+                ...fnP('started_previously_on_art', 'Started previously on ART'),
+                ...fnP('completed_new_on_art', 'Completed new on ART'),
+                ...fnP('completed_previously_on_art', 'Completed previously on ART')
+            ])
+            this.rows.push([
+                table.td('All'),
+                table.td('FBF'),
+                ...fP('FBf', 'started_new_on_art', 'Started new on ART'),
+                ...fP('FBf', 'started_previously_on_art', 'Started previously on ART'),
+                ...fP('FBf', 'completed_new_on_art', 'Completed new on ART'),
+                ...fP('FBf', 'completed_previously_on_art', 'Completed previously on ART')
+            ])
+        },
+        setTotalMaleRow() {
+            this.rows.push([
+                table.td('All'),
+                table.td('Male'),
+                this.makeDrilldown(this.aggregate('M', '3HP', 'started_new_on_art'), 
+                    'All male started new on 3HP'),
+                this.makeDrilldown(this.aggregate('M', '6H', 'started_new_on_art'), 
+                    `All male started new on ART 6H`),
+                this.makeDrilldown(this.aggregate('M', '3HP', 'started_previously_on_art'), 
+                    `All male started previously on ART 3HP`),
+                this.makeDrilldown(this.aggregate('M', '6H', 'started_previously_on_art'),
+                    `All male started previously on ART 6H`),
+                this.makeDrilldown(this.aggregate('M', '3HP', 'completed_new_on_art'),
+                    `All male completed new on ART 3HP`),
+                this.makeDrilldown(this.aggregate('M', '6H', 'completed_new_on_art'),
+                    `All male completed new on ART 6H`),
+                this.makeDrilldown(this.aggregate('M', '3HP', 'completed_previously_on_art'),
+                    `All male completed previously on ART 3HP`),
+                this.makeDrilldown(this.aggregate('M', '6H', 'completed_previously_on_art'),
+                    `All male completed previously on ART 6H`)
+            ])
         },
         async setRows(gender: string) {
             for(const i in AGE_GROUPS) {
