@@ -20,7 +20,8 @@ export const DRUG_FREQUENCIES: Array<{label: string; code: string; value: number
   { label : "EVERY OTHER DAY (QOD)", code : "QOD", value : 0.5 },
   { label : "ONCE A WEEK (QWK)", code : "QWK", value : 0.14 },
   { label : "ONCE A MONTH", code : "ONCE A MONTH", value : 0.03 },
-  { label : "TWICE A MONTH", code : "TWICE A MONTH", value : 0.071 }
+  { label : "TWICE A MONTH", code : "TWICE A MONTH", value : 0.071 },
+  { label : "Unknown", code : "Unknown", value : 0 }
 ]
 
 export const ANTI_MALARIA_DRUGS = [

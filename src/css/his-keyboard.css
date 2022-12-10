@@ -25,6 +25,18 @@
     padding: 2px;
 }
 
+.his-keyboard-btn.btn-Unknown-Keypad, .his-keyboard-btn.btn-Confirm-Keypad {
+    width: 10vw !important;
+    position: absolute;
+    font-size: 0.9rem;
+}
+.his-keyboard-btn.btn-Confirm-Keypad {
+    margin-top: 50px;
+    --background: #2dd36f;
+    margin-left: -15px;
+}
+ 
+
 .his-keyboard-btn {
     font-weight: bold;
     width: 100%;
