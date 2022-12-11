@@ -143,6 +143,7 @@ import { alertConfirmation, toastSuccess, toastWarning } from '@/utils/Alerts';
 import PrescriptionSummary from "@/apps/OPD/components/PrescriptionSummary.vue";
 import { DrugPrescriptionService } from '../../services/drug_prescription_service';
 import HisDate from "@/utils/Date"
+import { PatientPrintoutService } from "@/services/patient_printout_service"
 
 export default defineComponent({
   name: "HisInfiniteScrollMultipleSelect",
@@ -364,6 +365,7 @@ export default defineComponent({
       const drugOrder = await this.prescriptionService.createDrugOrder(drugOrders);
       if(!drugOrder) return toastWarning('Unable to create drug orders!')
       toastSuccess('Drug order has been created')
+      this.printVisitSummary()
       nextTask(this.patientID, this.$router)
     },
      mapToOrders(): any[] {
@@ -387,12 +389,17 @@ export default defineComponent({
       date.setDate(date.getDate() + parseInt(duration))
       return HisDate.toStandardHisFormat(date)
     },
+    printVisitSummary(){
+      const lbl = new PatientPrintoutService(this.patientID)
+      return lbl.printVisitSummaryLbl(DrugPrescriptionService.getSessionDate())
+    }
   },
   created() {
     this.keyboard = QWERTY;
     this.page =  1;
     this.limit =  10;
-  } 
+  },
+  
 });
 </script>
 <style scoped> 
