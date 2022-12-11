@@ -79,9 +79,9 @@
     </view-port>
     <his-keyboard v-if="switchKeyboard"  :kbConfig="keyboard" :onKeyPress="keypress"/>
     <div class="content" v-if="!switchKeyboard">
-      <prescription-frequency :list="list" :onClick="frequencyKeypress"  />
-      <prescription-keypad :onKeyPress="dosageKeypress" :title="'Dosage'" />
-      <prescription-keypad :onKeyPress="durationKeypress" :title="'Duration'"/>
+      <prescription-frequency :list="list" :onClick="frequencyKeypress" @click="isComplete" />
+      <prescription-keypad :onKeyPress="dosageKeypress" :title="'Dosage'" @click="isComplete" />
+      <prescription-keypad :onKeyPress="durationKeypress" :title="'Duration'" @click="isComplete" />
     </div>
   </div>
   <ion-footer style="position: absolute; bottom:0"> 
@@ -95,7 +95,7 @@
           <ion-button @click="clearPrescription" slot="end" size="large" color="warning" v-if="!showSummaryPage"> 
               Clear
           </ion-button>
-          <ion-button  @click="goToSummary" slot="end" size="large" color="success" v-if="!showSummaryPage"> 
+          <ion-button :disabled="disableNextBtn"  @click="goToSummary" slot="end" size="large" color="success" v-if="!showSummaryPage"> 
               Next 
           </ion-button>
           <ion-button @click="goToPrescription" slot="end" size="large" color="primary" v-if="showSummaryPage" > 
@@ -186,6 +186,7 @@ export default defineComponent({
     list: DRUG_FREQUENCIES.map(f => f.label),
     showMalariaDrugs: false,
     hasMalaria: false,
+    disableNextBtn:true
   
   }),
   watch: {
@@ -273,22 +274,24 @@ export default defineComponent({
       event.target.complete();
     },
     isComplete(){
-    const value = this.checkedItems[0]
-    if(!value.other["frequency"]  || !value.other["duration"] || !value.other["dosage"]){
-          toastWarning(`complete prescription details for ${value.label}`)
-          return false
-        }
-    return true
+      const value = this.checkedItems[0]
+      if(!value.other["frequency"]  || !value.other["duration"] || !value.other["dosage"]){
+        this.disableNextBtn = true
+            // toastWarning(`complete prescription details for ${value.label}`)
+        return false
+      }
+      this.disableNextBtn = false
+      return true
     },
     inputFieldType(){
-        if(!this.switchKeyboard  && this.isComplete()){
-          this.switchKeyboard = true
-          return true
-        }
-        else{
-          this.switchKeyboard = false
-          return false
-        }
+      if(!this.switchKeyboard  && this.isComplete()){
+        this.switchKeyboard = true
+        return true
+      }
+      else{
+        this.switchKeyboard = false
+        return false
+      }
     },
     async predefinedMalariaDrug(){
       this.hasMalaria = await this.prescriptionService.hasMalaria()
@@ -335,6 +338,7 @@ export default defineComponent({
           if((this.checkedItems.findIndex(item => item.value === entry.value)) === -1) {
             this.checkedItems.unshift(entry);
             this.inputFieldType()
+            this.isComplete()
           }
         } else {
           this.unCheck(entry);
@@ -342,7 +346,10 @@ export default defineComponent({
       });
     },
     unCheck(entry: Option) {
-      if(this.checkedItems.length == 1) this.switchKeyboard = true
+      if(this.checkedItems.length == 1){
+        this.disableNextBtn = true
+        this.switchKeyboard = true
+      }
       this.checkedItems = this.checkedItems.filter(item => item.value !== entry.value);
     },
     clearPrescription(){
