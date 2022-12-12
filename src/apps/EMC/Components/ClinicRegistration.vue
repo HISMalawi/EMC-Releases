@@ -173,7 +173,11 @@ export default defineComponent({
         required: true,
       },
       shouldFollowUp: {
-        value: props.observations['Agrees to followup'] || '',
+        value: props.observations['Agrees to followup'] 
+          ? props.observations['Agrees to followup'].match(/yes|home visit/i) 
+            ? 'Yes'
+            : 'No'
+          : '',
         label: 'Agrees to follow up ?',
         computedValue: (agrees: string) => ({
           tag: 'registration',
