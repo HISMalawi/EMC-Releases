@@ -440,8 +440,11 @@ export default defineComponent({
     });
 
     const tptDrugs = computed(() => {
-      const tptHistory = form.tptHistory.value?.label
-      if(tptHistory?.match(/currently/i)){
+      const tptHistory = typeof form.tptHistory.value === 'string' 
+        ? form.tptHistory.value 
+        : form.tptHistory.value?.label
+      
+        if(tptHistory?.match(/currently/i)){
         if(tptHistory.match(/ipt/i)) {
           return ["INH or H (Isoniazid 300mg tablet)"]
         } else if(tptHistory.includes("3HP (RFP + INH)")){
