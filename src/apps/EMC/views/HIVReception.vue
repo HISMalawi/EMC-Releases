@@ -86,50 +86,52 @@ export default defineComponent({
     const onFinish = async () => {
       const { arvNumberEditable, formData, computedData } = data.registration
       const { computedData: stagingData } = data.staging
-      await ClinicRegistrationService.setSessionDate(formData.initialVisitDate)
-      const registrationService = new ClinicRegistrationService(patientId, -1)
-      const consultationService = new ConsultationService(patientId, -1)
-      const vitalsService = new VitalsService(patientId, -1)
-      const patientTypeService = new PatientTypeService(patientId, -1);
-      const stagingService = new StagingService(patientId, patient.value.getAge(), -1)
-
+      
       try {
         loader.show();
         
         // Void first visit encounters
         if(!isNewPatient && !isEmpty(firstVisitEncounters.value)) {
-          firstVisitEncounters.value.forEach(async (encounter) => {
+          for(const encounter of firstVisitEncounters.value) {
             await EncounterService.voidEncounter(encounter, 'Duplicate')
-          });
+          }
         }
+
+        // set session date
+        await ClinicRegistrationService.setSessionDate(formData.initialVisitDate)
 
         // ARV Number
         if(arvNumberEditable && formData.arvNumber) {
           await patient.value.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`)
         }
 
-        // Patient Type Encunter
+        // Patient Type Encunter      
+        const patientTypeService = new PatientTypeService(patientId, -1);
         await patientTypeService.createEncounter()
         const pTypeObs = await resolveObs(computedData, 'patient type')
         await patientTypeService.saveObservationList(pTypeObs)
 
         // Registration Encounter
+        const registrationService = new ClinicRegistrationService(patientId, -1)
         await registrationService.createEncounter()
         const regObs = await resolveObs(computedData, 'registration')
         await registrationService.saveObservationList(regObs)
 
         // Vitals and Consultation Encounters
         if(formData.everRegisteredAtClinic === 'Yes') {
+          const vitalsService = new VitalsService(patientId, -1)
           await vitalsService.createEncounter()
           const vitalsObs = await resolveObs(computedData, 'vitals')
           await vitalsService.saveObservationList(vitalsObs)
 
+          const consultationService = new ConsultationService(patientId, -1)
           await consultationService.createEncounter()
           const consultationObs = await resolveObs(computedData, 'consultation')
           await consultationService.saveObservationList(consultationObs)
         }
 
         // Staging encounter
+        const stagingService = new StagingService(patientId, patient.value.getAge(), -1)
         await stagingService.createEncounter()
         const obs = await resolveObs(stagingData)
         await stagingService.saveObservationList(obs)        
