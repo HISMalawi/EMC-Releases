@@ -70,6 +70,14 @@ export default defineComponent({
     const initialVisitDate = ref('')
     const firstVisitEncounters = ref([] as number[])
     const observations = reactive({} as Record<string, any>)
+    const isEnrolled = ref(false);
+
+    const setEnrollementStatus = () => {
+      const programService = new PatientProgramService(patientId);
+      programService.getPrograms().then((programs: any[]) => {
+        isEnrolled.value = programs.some(p => p.program.name === "HIV PROGRAM")
+      })
+    }
     
     const onValue = (form: any) => data[form.type] = form.data;
     const onNext = () => activeForm.value = "Staging"
@@ -90,8 +98,8 @@ export default defineComponent({
         
         // Void first visit encounters
         if(!isNewPatient && !isEmpty(firstVisitEncounters.value)) {
-          firstVisitEncounters.value.forEach(encounter => {
-            EncounterService.voidEncounter(encounter, 'Duplicate')
+          firstVisitEncounters.value.forEach(async (encounter) => {
+            await EncounterService.voidEncounter(encounter, 'Duplicate')
           });
         }
 
@@ -127,7 +135,7 @@ export default defineComponent({
         await stagingService.saveObservationList(obs)        
         
         // enroll patient into HIV program
-        if(isNewPatient) {
+        if(isNewPatient || !isEnrolled.value) {
           const patientProgram = new PatientProgramService(patientId)
           patientProgram.setProgramDate(formData.initialVisitDate)
           await patientProgram.enrollProgram();
@@ -162,6 +170,7 @@ export default defineComponent({
     onMounted(async () => {
       const p = await Patientservice.findByID(patientId);
       patient.value = new Patientservice(p);
+      setEnrollementStatus()
       Store.get('SITE_PREFIX').then(prefix => sitePrefix.value = prefix);      
       if(!isNewPatient) {
         const enc = await EncounterService.getEncounters(patientId, {"encounter_type_id": 9})
