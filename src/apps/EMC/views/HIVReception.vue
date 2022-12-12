@@ -168,9 +168,8 @@ export default defineComponent({
     }
     
     onMounted(async () => {
-      const p = await Patientservice.findByID(patientId);
-      patient.value = new Patientservice(p);
       setEnrollementStatus()
+      patient.value = await Store.get("ACTIVE_PATIENT", { patientID: patientId });
       Store.get('SITE_PREFIX').then(prefix => sitePrefix.value = prefix);      
       if(!isNewPatient) {
         const enc = await EncounterService.getEncounters(patientId, {"encounter_type_id": 9})
