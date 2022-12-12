@@ -216,15 +216,13 @@ export default defineComponent({
       artInitiationLocation: {
         value: props.observations['Location of ART initiation'] || '',
         label: 'Location of ART Initiation',
-        computedValue: async (facility: Option | string) => {
-          return {
-            tag:'registration',
-            obs: registrationService.buildValueText(
-              'Location of ART initiation', 
-              typeof facility === 'string' ? facility : facility.label
-            )
-          }
-        },
+        computedValue: (facility: Option | string) => ({
+          tag:'registration',
+          obs: consultationService.buildValueText(
+            'Location of ART initiation',
+            typeof facility === 'string' ? facility : facility.label
+          )
+        }),
         validation: async (location: Option, f: DTForm) => {
           return f.everRegisteredAtClinic.value === 'Yes' &&
            StandardValidations.required(location)
@@ -317,17 +315,14 @@ export default defineComponent({
             (history.match(/ipt/i) || history.includes('3HP (RFP + INH)')) && 
             StandardValidations.required(amount)
         },
-        computedValue: (amount, form) => {
-          const drug = customRegimenIngredients.value.find(d => d.name === 'INH or H (Isoniazid 300mg tablet)')
-          return {
-            tag: 'consultation',
-            obs:  consultationService.buildObs('TPT Drugs Received', {
-              'value_drug': drug?.drug_id || 0,
-              'value_datetime': form?.tptStartDate.value || null,
-              'value_numeric': amount || 0
-            })
-          }
-        },
+        computedValue: (amount, form) => ({
+          tag: 'consultation',
+          obs:  consultationService.buildObs('TPT Drugs Received', {
+            'value_drug': customRegimenIngredients.value.find(d => d.name === 'INH or H (Isoniazid 300mg tablet)')?.drug_id || 0,
+            'value_datetime': form?.tptStartDate.value || null,
+            'value_numeric': amount || 0
+          })
+        }),
       },
       rifapentineQty: {
         value: '',
@@ -337,17 +332,14 @@ export default defineComponent({
           return history?.match(/currently/i) && history.includes('3HP (RFP + INH)') && 
             StandardValidations.required(amount)
         },
-        computedValue: (amount, form) => {
-          const drug = customRegimenIngredients.value.find(d => d.name === 'Rifapentine (150mg)')
-          return {
-            tag: 'consultation',
-            obs: consultationService.buildObs('TPT Drugs Received', {
-              'value_drug': drug?.drug_id || 0,
-              'value_datetime': form?.tptStartDate.value || null,
-              'value_numeric': amount || 0
-            })
-          }
-        },
+        computedValue: (amount, form) => ({
+          tag: 'consultation',
+          obs: consultationService.buildObs('TPT Drugs Received', {
+            'value_drug': customRegimenIngredients.value.find(d => d.name === 'Rifapentine (150mg)')?.drug_id || 0,
+            'value_datetime': form?.tptStartDate.value || null,
+            'value_numeric': amount || 0
+          })
+        }),
       },
       threeHPQty: {
         value: '',
@@ -357,17 +349,14 @@ export default defineComponent({
           return history?.match(/currently/i) && history.includes('INH 300 / RFP 300 (3HP)') && 
             StandardValidations.required(amount)
         },
-        computedValue: (amount, form) => {
-          const drug = customRegimenIngredients.value.find(d => d.name === 'INH 300 / RFP 300 (3HP)')
-          return {
-            tag: 'consultation',
-            obs: consultationService.buildObs('TPT Drugs Received', {
-              'value_drug': drug?.drug_id || 0,
-              'value_datetime': form?.tptStartDate.value || null,
-              'value_numeric': amount || 0
-            })
-          }
-        },
+        computedValue: (amount, form) => ({
+          tag: 'consultation',
+          obs: consultationService.buildObs('TPT Drugs Received', {
+            'value_drug': customRegimenIngredients.value.find(d => d.name === 'INH 300 / RFP 300 (3HP)')?.drug_id || 0,
+            'value_datetime': form?.tptStartDate.value || null,
+            'value_numeric': amount || 0
+          })
+        }),
       },
       tptStartLocation: {
         value: props.observations['Location TPT last received'] || '',
