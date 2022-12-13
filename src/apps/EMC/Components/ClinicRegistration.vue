@@ -295,7 +295,10 @@ export default defineComponent({
         placeholder: "Select TPT history",
         computedValue: (history: Option) => ({
           tag: "consultation",
-          obs: consultationService.buildValueText("Previous TB treatment history", history.label)
+          obs: consultationService.buildValueText(
+            "Previous TB treatment history", 
+            typeof history === 'string' ? history : history.label
+          )
         }),
         validation: async (history, form) => {
           return form.everRegisteredAtClinic.value === 'Yes' && 
