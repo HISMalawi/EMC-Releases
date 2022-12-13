@@ -174,7 +174,12 @@ export default defineComponent({
         }
       },
       whoConditions: {
-        value: props.observations['Who stages criteria present'] || '',
+        value: props.observations['Who stages criteria present'] 
+          ? [{
+              label: props.observations['Who stages criteria present'],
+              value: props.observations['Who stages criteria present'],
+            }]
+          : '',
         required: true,
         label: "Select Staging Conditions",
         computedValue: (conditions: Option[]) => ({
@@ -208,10 +213,10 @@ export default defineComponent({
     onMounted(async () => {
       stagingService.value = new StagingService(props.patient.getID(), props.patient.getAge(), -1)
       stagingCoditions.value = [
-        ...stagingService.value.getStagingConditions(1).map(condition => ({ label: condition.name, value: condition.concept_id, other: condition })),
-        ...stagingService.value.getStagingConditions(2).map(condition => ({ label: condition.name, value: condition.concept_id, other: condition })),
-        ...stagingService.value.getStagingConditions(3).map(condition => ({ label: condition.name, value: condition.concept_id, other: condition })),
-        ...stagingService.value.getStagingConditions(4).map(condition => ({ label: condition.name, value: condition.concept_id, other: condition })),
+        ...stagingService.value.getStagingConditions(1).map(condition => ({ label: condition.name, value: condition.name, other: condition })),
+        ...stagingService.value.getStagingConditions(2).map(condition => ({ label: condition.name, value: condition.name, other: condition })),
+        ...stagingService.value.getStagingConditions(3).map(condition => ({ label: condition.name, value: condition.name, other: condition })),
+        ...stagingService.value.getStagingConditions(4).map(condition => ({ label: condition.name, value: condition.name, other: condition })),
       ].sort((a, b) => a.label.localeCompare(b.label))
 
       whoStages.value = stagingService.value.getAllWhoStages().map(stage => ({
