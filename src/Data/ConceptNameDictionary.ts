@@ -783,6 +783,16 @@ export default [
       "name": "Previous TB treatment history"
    },
    {
+      "categories": [],
+      "concept_id": 10603,
+      "name": "TPT Drugs Received"
+   },
+   {
+      "categories": [],
+      "concept_id": 10604,
+      "name": "Location TPT Last Received"
+   },
+   {
       "categories": ['bp_measures'],
       "concept_id": 5085,
       "name": "Systolic blood pressure"

@@ -363,7 +363,7 @@ export default defineComponent({
         }),
       },
       tptStartLocation: {
-        value: props.observations['Location TPT last received'] || '',
+        value: props.observations['Location TPT Last Received'] || '',
         label: "TPT Transfer From",
         validation: async (date, form) => {
           return form.tptHistory?.value?.label?.match(/currently/i) && 
@@ -372,7 +372,7 @@ export default defineComponent({
         computedValue: (facility: Option | string) => ({
           tag:'consultation',
           obs: consultationService.buildValueText(
-            'Location TPT last received',
+            'Location TPT Last Received',
             typeof facility === 'string' ? facility : facility.label
           )
         }),
