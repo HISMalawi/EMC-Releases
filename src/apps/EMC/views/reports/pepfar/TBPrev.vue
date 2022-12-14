@@ -78,7 +78,8 @@ export default defineComponent({
       const columns: TableColumnInterface[] = [
         { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
         { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
-        { path: "tpt_initiation_date", label: "TPT Initiation Date", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) }
+        { path: "tpt_initiation_date", label: "TPT Initiation Date", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
+        { path: "outcome", label: "Outcome" }
       ]
       const rows = data.row[data.column.path]
 
