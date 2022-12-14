@@ -1,6 +1,7 @@
 <template>
     <div>
-      <view-port :showFull="!showKeyboard" style="padding: 0;">
+      <view-port :showFull="!showKeyboard" style="padding: 0; height:82vh;" >
+        <his-text-input :value="selected" @onValue="onKBValue" @click="keyboardStatus"/>
         <ion-grid>
           <ion-row>
             <ion-col size="12">
@@ -19,23 +20,25 @@
             <ion-col size="4">
               <ion-list :style="{overflowY: 'auto', height:'80vh', margin: 0}"> 
                 <ion-item
-                  v-for="(data, index) in listData" :key="index"
+                  v-for="(data, index) in groupNames" :key="index"
                   @click="getSpecificComplaints(data.value)"
                   :detail="true"
                   :color="ActiveCategory === data.label ? 'light':''"
+                  v-show="data.other.display"
                 > 
                   <ion-label>
                     <ion-text class="his-md-text">
                       {{ data.label }}
                     </ion-text>
                   </ion-label>
-                </ion-item>
+                </ion-item> 
               </ion-list>
             </ion-col>
-            <ion-col :style="{overflowY: 'auto', height:'78vh'}" v-if="ActiveCategory">
+            <ion-col :style="{overflowY: 'auto', height:'75vh'}" v-if="ActiveCategory">
               <div style="">
+                <!-- v-show="entry.isChecked"  -->
                 <ion-list class='view-port-content'>
-                  <ion-item v-for="(entry, index) in activeCategoryItems" :key="index" :color="entry.isChecked ? 'light':''">
+                  <ion-item v-for="(entry, index) in activeCategoryItems" :key="index" v-show="entry.other.display"  :color="entry.isChecked ? 'light':''">
                     <ion-label> 
                       <ion-text class="his-md-text">
                         {{ entry.label }} 
@@ -50,9 +53,11 @@
                 </ion-list>
               </div>
             </ion-col>
+            <his-keyboard v-if="showKeyboard" :kbConfig="keyboard" :onKeyPress="keypress"/>
           </ion-row>
         </ion-grid>
       </view-port>
+      
     </div>
 </template>
 <script lang="ts">
@@ -63,20 +68,33 @@ import SelectMixin from "@/components/FormElements/SelectMixin.vue"
 import { PatientComplaintsService } from "@/apps/OPD/services/patient_complaints_service";
 import { isEmpty } from "lodash";
 import { ConceptName } from "@/interfaces/conceptName";
+import HisKeyboard from "@/components/Keyboard/HisKeyboard.vue"
 
 export default defineComponent({
-  components: { IonCheckbox, IonText, IonChip },
+  components: { IonCheckbox, IonText, IonChip,HisKeyboard },
   name: "HisComplaintsPicker",
   mixins: [SelectMixin],
   data: () => ({
     complaintsList: {} as Record<string, Option[]>,
     ActiveCategory: '',
+    allComplainList: {} as any,
+    displayComplainList: {} as any,
+    groupNames: [] as any,
+    showKeyboard: false,
+    groupData: [] as any
   }),
   methods: {
     async init() {
       this.$emit('onFieldActivated', this)
       const data = await PatientComplaintsService.getComplaintsList('Presenting complaint group')
       this.listData = this.mapListToOptions(data)
+      this.groupData = data
+      this.groupNames = this.listData
+      for(const data in this.listData){
+        const category = this.listData[data].label
+        const complaints = await PatientComplaintsService.getComplaintsList(category)
+        this.allComplainList[category] = this.mapListToOptions(complaints, category)
+      }
       this.$emit('onValue', this.getChecked(this.complaintsList))
     },
     async onselect(option: Option, event: any){
@@ -96,21 +114,77 @@ export default defineComponent({
         this.$emit('onValue', this.getChecked(this.complaintsList))
       })
     },
+    async onKBValue(value: string) {
+      if(value != ""){
+        for(const group in this.groupNames){
+          this.groupNames[group].other['display'] =false
+        }
+        for(const position in this.listData){
+          let groupNames = ""
+          const category = this.listData[position].label
+          const allComplainList = []
+          const complaints = this.allComplainList[category]
+          for(const item in complaints){
+            const complaint =complaints[item].label
+            if(complaint.toLowerCase().match(value.toLowerCase())&& category){
+              complaints[item].other['display'] = true
+              allComplainList.push(complaints[item])
+              groupNames = category
+              this.ActiveCategory = category
+            }
+            else{
+              complaints[item].other['display'] = false
+              allComplainList.push(complaints[item])
+            }
+          }
+          if(groupNames != ""){
+            for(const g in this.groupNames){
+              if(this.groupNames[g].label == category)
+              this.groupNames[g].other['display'] =true
+            }
+          }
+          this.allComplainList[category] = allComplainList
+        }
+        console.log(this.ActiveCategory)
+        console.log(this.ActiveCategory)
+        this.complaintsList[this.ActiveCategory] = this.allComplainList[this.ActiveCategory]
+      }
+      else
+      {
+        for(const position in this.listData){
+          const category = this.listData[position].label
+          const allComplainList = []
+          const complaints = this.allComplainList[category]
+          for(const item in complaints){
+            complaints[item].other['display'] = true
+            allComplainList.push(complaints[item])
+          }
+          this.allComplainList[category] = allComplainList
+        }
+        this.groupNames = this.mapListToOptions(this.groupData)
+        console.log(this.groupNames)
+        this.ActiveCategory =""
+        
+      }
+    },
+    keyboardStatus(){
+      this.showKeyboard = !this.showKeyboard
+    },
     async getSpecificComplaints(category: string) {
       if (!(category in this.complaintsList)) {
-        const complaints = await PatientComplaintsService.getComplaintsList(category)
-        this.complaintsList[category] = this.mapListToOptions(complaints, category)
+        this.complaintsList[category] = this.allComplainList[category]
       }
       this.ActiveCategory = category
     },
     mapListToOptions(list: ConceptName[], category = ''){
       if(isEmpty(list)) return []
+      const display = {display:true}
       return list.map(item => {
         const option: Option = {
           label: item.name,
           value: item.name,
           isChecked: false,
-          other: item
+          other: {...item,...display}
         }
         if(category) option.other.parent = category
         return option
