@@ -1,6 +1,5 @@
 <template>
-  <prescription-summary v-if="showSummaryPage" :checkedItems="checkedItems"  />
-  <div v-if="!showSummaryPage">
+  <div>
     <div style="width: 97.8%;margin:auto;">
       <div id="cummulative" class="cummulative_hight" style="border: 1px solid #999;border-bottom: none; 
             background-color: #f6f2ca; height: 224px;
@@ -89,19 +88,13 @@
           <ion-button :router-link="cancelDestination" slot="start" size="large" color="danger">
               Cancel
           </ion-button>
-          <ion-button @click="predefinedMalariaDrug" slot="end" size="large" color="primary" v-if="switchKeyboard && !showSummaryPage"> 
+          <ion-button @click="predefinedMalariaDrug" slot="end" size="large" color="primary" v-if="switchKeyboard"> 
             Predefined Malaria Drugs
           </ion-button>
-          <ion-button @click="clearPrescription" slot="end" size="large" color="warning" v-if="!showSummaryPage"> 
+          <ion-button @click="clearPrescription" slot="end" size="large" color="warning" > 
               Clear
           </ion-button>
-          <ion-button :disabled="disableNextBtn"  @click="goToSummary" slot="end" size="large" color="success" v-if="!showSummaryPage"> 
-              Next 
-          </ion-button>
-          <ion-button @click="goToPrescription" slot="end" size="large" color="primary" v-if="showSummaryPage" > 
-            Back
-          </ion-button>
-          <ion-button  @click="savePrescription" slot="end" size="large" color="success" v-if="showSummaryPage"> 
+          <ion-button :disabled="disableNextBtn"  @click="savePrescription" slot="end" size="large" color="success" > 
               Finish 
           </ion-button>
       </ion-toolbar>
@@ -140,7 +133,6 @@ import {
 } from "@ionic/vue";
 import { alertConfirmation, toastSuccess, toastWarning } from '@/utils/Alerts';
 
-import PrescriptionSummary from "@/apps/OPD/components/PrescriptionSummary.vue";
 import { DrugPrescriptionService } from '../../services/drug_prescription_service';
 import HisDate from "@/utils/Date"
 import { PatientPrintoutService } from "@/services/patient_printout_service"
@@ -149,7 +141,6 @@ export default defineComponent({
   name: "HisInfiniteScrollMultipleSelect",
   mixins: [FieldMixinVue,EncounterMixinVue],
   components: { 
-    PrescriptionSummary,
     PrescriptionKeypad,
     IonCheckbox, 
     IonText, 
@@ -169,7 +160,6 @@ export default defineComponent({
   },
   data: () => ({
     switchKeyboard: true,
-    showSummaryPage: false,
     keyboard: QWERTY,
     listData: [] as Array<Option>,
     checkedItems: [] as Array<Option>,
@@ -236,9 +226,6 @@ export default defineComponent({
       this.prescriptionService = new DrugPrescriptionService(this.patientID, this.providerID) 
       return await this.prescriptionService.loadDrugs(this.filter2, this.page, this.limit)
     },
-    goToSummary() { if(this.isComplete()) this.showSummaryPage = true },
-
-    goToPrescription() {this.showSummaryPage = false },
 
     async dosageKeypress(value: string) { this.checkedItems[0].other["dosage"] = value },
     
