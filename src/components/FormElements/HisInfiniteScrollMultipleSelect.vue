@@ -40,7 +40,6 @@ import handleVirtualInput from "@/components/Keyboard/KbHandler"
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
 import FieldMixinVue from './FieldMixin.vue';
 import HisKeyboard from "@/components/Keyboard/HisKeyboard.vue"
-import { clone, cloneDeep, isEmpty } from "lodash";
 import { 
   IonCheckbox, 
   IonText, 
@@ -52,7 +51,7 @@ import {
   IonInfiniteScroll, 
   IonInfiniteScrollContent 
 } from "@ionic/vue";
-import EventBus from "@/utils/EventBus";
+import { uniqueBy } from "@/utils/Arrays";
 
 export default defineComponent({
   name: "HisInfiniteScrollMultipleSelect",
@@ -147,10 +146,10 @@ export default defineComponent({
       this.page++;
       const data = await this.getListData();
       if (data.length > 0) {
-        this.listData = [
+        this.listData = uniqueBy([
           ...this.listData, 
           ...data.filter(entry => !this.listData.find(item => item.value === entry.value))
-        ];
+        ], 'label');
       } else {
         this.disableScroll = true;
       }

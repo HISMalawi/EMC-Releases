@@ -8,7 +8,8 @@ export class StockReportService extends ArtReportService {
     }   
 
     async loadStock() {
-        this.stock = await ArtReportService.getJson(`pharmacy/items`, { paginate: false })
+        this.stock = await this.getReport(`pharmacy/items`, { paginate: false })
+        // this.stock = await ArtReportService.getJson()
     }
     
     getStockReport() {
@@ -16,7 +17,15 @@ export class StockReportService extends ArtReportService {
     }
 
     loadTrail() {
-        return this.getReport('pharmacy/audit_trail')
+        return this.getReport('pharmacy/audit_trail/grouped')
+    }
+
+    getTrailDetails(date: string, drugId: number, transactionType: string) {
+        return this.getReport('pharmacy/audit_trail', {
+            'transaction_date': date,
+            'drug_id': drugId,
+            'transaction_reason': transactionType
+        })
     }
 
     /**Code adapted from BHT-Core Art system */
@@ -29,7 +38,7 @@ export class StockReportService extends ArtReportService {
             if (!pharmacyData[drugId]) {
                 pharmacyData[drugId] = {
                     'current_quantity': 0,
-                    'expiry_dates': [],
+                    'dispensed_quantity': 0,
                     'pack_size': data.pack_size,
                     'drug_name': data["drug_name"] === null ? data["drug_legacy_name"] : data["drug_name"]
                 }
@@ -38,7 +47,9 @@ export class StockReportService extends ArtReportService {
             if (data.current_quantity === 0) continue;
 
             pharmacyData[drugId]["current_quantity"] += parseFloat(data.current_quantity);
-            pharmacyData[drugId]["expiry_dates"].push(data["expiry_date"]);
+            if (data.dispensed_quantity){
+                pharmacyData[drugId]["dispensed_quantity"] += parseFloat(data.dispensed_quantity);
+            }
         }
         return Object.values(pharmacyData).map((drug: any) => {
             let currentQuantity: any = '0'
@@ -47,12 +58,11 @@ export class StockReportService extends ArtReportService {
             }else {
                 currentQuantity = Math.trunc(drug.current_quantity / drug.pack_size);
             }
-            const expiryDate = drug.expiry_dates.sort((a: any, b: any) => +new Date(a) - +new Date(b))[0]
             return {
                 drugName: drug.drug_name,
+                quantintyDispensed: drug.dispensed_quantity,
                 currentQuantity,
                 quantityIsTabs: drug.pack_size === null,
-                expiryDate
             }
         })
     }

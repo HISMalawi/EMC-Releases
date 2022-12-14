@@ -597,7 +597,7 @@ export default defineComponent({
             helpText: 'Possible Duplicate(s)',
             type: FieldType.TT_PERSON_MATCH_VIEW,
             condition: async (_: any, c: any) => {
-                if (this.ddeEnabled && !this.editPerson) {
+                if (this.ddeEnabled && this.editPerson <= 0) {
                     createdPerson = PersonField.resolvePerson(c)
                     duplicatePatients = await this.ddeInstance
                         .checkPotentialDuplicates(createdPerson)
