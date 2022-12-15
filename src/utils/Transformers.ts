@@ -5,7 +5,9 @@ function convertArrayToTurples(items: Array<any>, size=2) {
     }, [])
 }
 
-function orderObj(unordered: any, sorter: Function) {
+type Sorter = (a: any, b:any) => number
+
+function orderObj(unordered: any, sorter: Sorter) {
   return Object.keys(unordered)
     .sort((a: any, b: any) => sorter(a, b))
     .reduce((obj: any, key: any) => { 
