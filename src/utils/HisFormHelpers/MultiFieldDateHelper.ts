@@ -24,15 +24,15 @@ export interface DateFieldInterface {
     helpText: string;
     init?: (f: any, c: any) => boolean | Promise<boolean>;
     summaryLabel?: string;
-    condition?: Function;
+    condition?: (value: any) => Promise<boolean> | boolean;
     required?: boolean;
-    defaultValue?: Function;
-    beforeNext?: Function;
+    defaultValue?: (form: any) => Promise<string| undefined> | string | undefined;
+    beforeNext?: (fullDate: string, f: any) => any;
     minDate?(formData: any, computeForm: any): string;
     maxDate?(formData: any, computeForm: any): string | null;
     unload?(data: any, state: string, formData: any,  computeForm: any): void; 
-    computeValue: Function;
-    appearInSummary?: Function;
+    computeValue: (fullDate: string, isEstimate: boolean) => Promise<any> | any;
+    appearInSummary?: (value: Option) => Promise<boolean> | boolean;
     estimation: EstimationInterface;
     config?: any;
 }
