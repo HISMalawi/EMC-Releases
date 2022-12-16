@@ -1,5 +1,6 @@
 import { Service } from "@/services/service";
 import HisDate from "@/utils/Date"
+import Url from "@/utils/Url";
 import dayjs from "dayjs";
 
 export interface QuarterInterface {
@@ -41,6 +42,13 @@ export class ArtReportService extends Service {
 
     getReport(url: string, params={}) {
         return Service.getJson(url, this.buildRequest(params))
+    }
+
+    getMaternalStatus(patientIds: number[], reportDefinition = 'pepfar') {
+        const params = Url.parameterizeObjToString(this.buildRequest({ 'report_definition': reportDefinition }))
+        return Service.postJson(`vl_maternal_status?${params}`, {
+            'patient_ids': patientIds
+        })
     }
 
     buildRequest(config: Record<string, any> = {}) {
