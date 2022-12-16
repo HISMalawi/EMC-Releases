@@ -1,4 +1,3 @@
-import Url from "@/utils/Url";
 import { get, uniq } from "lodash";
 import { ArtReportService } from "./art_report_service";
 import { AGE_GROUPS } from "./patient_report_service";
