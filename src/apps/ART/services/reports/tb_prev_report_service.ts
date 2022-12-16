@@ -56,11 +56,11 @@ export class TbPrevReportService extends ArtReportService {
 
     getAggregatedMaleData (cohort: Record<string, any>) {
         const data: Record<string, any> = { gender: "Male", 'age_group': "All" }
-        indicators.forEach(indicator => {
-            data[`3hp_${indicator}`] = this.aggregate(cohort, 'F', '3HP', indicator)
-            data[`6h_${indicator}`] = this.aggregate(cohort, 'F', '6H', indicator)
-        })
-        data.push(data)
+        for (const indicator of indicators) {
+            data[`3hp_${indicator}`] = this.aggregate(cohort, 'M', '3HP', indicator)
+            data[`6h_${indicator}`] = this.aggregate(cohort, 'M', '6H', indicator)
+        }
+        return data;
     }
 
     async getAggregatedMaternalStatus(cohort: Record<string, any>) {
@@ -79,7 +79,7 @@ export class TbPrevReportService extends ArtReportService {
             .reduce((all: any, i: any) => i.indicator === indicator && tpt === i.group ? [...all, ...i.data] : all, [])
             .filter((p: any) => gender === 'FNP' ? !allPregnant.includes(p.patient_id) : maternalStatus[gender].includes(p.patient_id))
 
-        for (const gender of ['FP', 'FNP', 'FBF']) {
+        for (const gender of ['FP', 'FNP', 'FBf']) {
             const tmp: Record<string, any> = { gender, 'age_group': 'All' }
             for (const indicator of indicators) {
                 tmp[`3hp_${indicator}`] = groupBy(indicator, '3HP', gender)
