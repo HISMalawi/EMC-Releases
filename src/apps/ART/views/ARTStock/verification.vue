@@ -88,6 +88,10 @@ export default defineComponent({
               label: "Supervision",
               value: "Supervision",
             },
+            {
+              label: "Handover",
+              value: "Handover",
+            },
           ],
         },
         {
