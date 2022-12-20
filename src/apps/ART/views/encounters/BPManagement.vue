@@ -402,7 +402,7 @@ export default defineComponent({
         toastSuccess('Patient is now enrolled in HTN')
       } catch (e) {
         console.error(e)
-        toastWarning(e)
+        toastWarning(`${e}`)
       }
     },
     async setHtnTransferred(transferred: 'Yes' | 'No'){

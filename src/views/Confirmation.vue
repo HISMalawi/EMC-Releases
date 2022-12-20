@@ -609,7 +609,7 @@ export default defineComponent({
      * Functions definitions that are executed.
      */
     async runFlowState(state: FlowState) {
-      const states: Record<string, Function> = {}
+      const states: Record<string, () => any> = {}
       states[FlowState.GO_HOME] = () => {
           this.$router.push('/')
           return FlowState.FORCE_EXIT

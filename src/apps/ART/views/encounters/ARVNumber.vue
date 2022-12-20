@@ -58,8 +58,8 @@ export default defineComponent({
             await this.patient.updateARVNumber(newArvNumber)
           else await this.patient.createArvNumber(newArvNumber)
           this.$router.back()
-        } catch (error) {
-          toastWarning(error)
+        } catch (e) {
+          toastWarning(`${e}`)
         }
       }   
     },
