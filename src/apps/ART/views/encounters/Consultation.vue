@@ -1244,14 +1244,16 @@ export default defineComponent({
           ]), 
           condition: (formData: any) => formData.on_tb_treatment.value.match(/no/i),
           options: (_: any, checked: Array<Option>) => this.getTBSymptoms(checked),
-          computedValue: (vals: Option[]) => {
+          computedValue: async (vals: Option[], formData: any) => {
             this.presentedTBSymptoms = this.inArray(vals, d => d.value === "Yes")
+            const obs = vals.map(async (data: Option) => ({
+              ...(await this.consultation.buildValueCoded("Routine TB Screening", data.label)),
+              child: (await this.consultation.buildValueCoded(data.label, data.value))
+            }))
+            if (!this.hasTBSymptoms(formData))obs.push(this.consultation.buildValueCoded("TB Status", "TB NOT suspected"))
             return {
               tag: 'consultation',
-              obs: vals.map(async (data: Option) => ({
-                ...(await this.consultation.buildValueCoded("Routine TB Screening", data.label)),
-                child: (await this.consultation.buildValueCoded(data.label, data.value))
-              }))
+              obs
             } 
           }
         },
