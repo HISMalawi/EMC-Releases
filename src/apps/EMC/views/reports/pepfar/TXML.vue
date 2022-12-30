@@ -9,6 +9,7 @@
     useDateRangeFilter
     @custom-filter="fetchData"
     @drilldown="onDrilldown"
+    showIndices
   />
 </template>
 
@@ -33,7 +34,6 @@ export default defineComponent({
     const period = ref("-");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
-      { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender", formatter: toGenderString },
       ...txMlIndicators.map(indicator => ({ path: indicator, label: indicator, drillable: true })),

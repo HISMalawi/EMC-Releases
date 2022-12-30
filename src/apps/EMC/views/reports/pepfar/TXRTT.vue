@@ -9,6 +9,7 @@
     useDateRangeFilter
     @custom-filter="fetchData"
     @drilldown="onDrilldown"
+    showIndices
   />
 </template>
 
@@ -35,7 +36,6 @@ export default defineComponent({
     const period = ref("-");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
-      { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "return_less_than_3_mo", label: "Returned <3 mo", drillable: true },
@@ -43,7 +43,7 @@ export default defineComponent({
       { path: "return_6_plus_mo", label: "Returned 6+ mo", drillable: true },
     ]
 
-    const sortData = (ls: Array<any>, comparator: Function) => {
+    const sortData = (ls: Array<any>, comparator: (months: number) => boolean) => {
       return ls.filter(i => comparator(i.months)).map(i => i.patient_id)
     }
 
@@ -54,13 +54,11 @@ export default defineComponent({
       report.setEndDate(dateRange.endDate)
       period.value = report.getDateIntervalPeriod()
       const data: any = await report.getTxRttReport()
-      let index = 1;
       const rs: any[] = []
       for(const gender of ["F", "M"]) {
         for(const group of AGE_GROUPS){
           const patients = get(data, `${group}.${gender}`, []);
           rs.push({
-            index: index++,
             "age_group": group,
             gender: gender === "F" ? "Female" : "Male",
             "return_less_than_3_mo": sortData(patients, (months: number) => months < 3),

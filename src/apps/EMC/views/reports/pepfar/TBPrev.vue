@@ -8,6 +8,7 @@
     useDateRangeFilter
     @custom-filter="fetchData"
     @drilldown="onDrilldown"
+    showIndices
   />
 </template>
 
@@ -34,7 +35,6 @@ export default defineComponent({
     const toDisplayString = (label: string) => label.replaceAll('_', " ");
 
     const columns: TableColumnInterface[] = [
-      { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender", formatter: toGenderString },
       ...indicators.map(indicator => [
