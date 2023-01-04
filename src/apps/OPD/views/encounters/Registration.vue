@@ -1,5 +1,5 @@
 <template>
-    <his-standard-form :cancelDestinationPath="cancelDestination" :fields="fields" :onFinishAction="onSubmit"/>
+    <his-standard-form :cancelDestinationPath="cancelDestination" :fields="fields" :onFinish="onSubmit" />
 </template>
 
 <script lang="ts">
