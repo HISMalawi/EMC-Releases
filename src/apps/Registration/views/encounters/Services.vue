@@ -4,16 +4,13 @@
 
 <script lang="ts">
 import { defineComponent} from 'vue'
-import HisStandardForm from "@/components/Forms/TouchScreenForm.vue";
+import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import EncounterMixinVue from '@/views/EncounterMixin.vue';
 import { PatientServicesService } from '@/apps/Registration/services/patient_services_service'; 
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
-import { getFacilities } from '@/utils/HisFormHelpers/LocationFieldOptions';
 import { toastWarning } from '@/utils/Alerts';
-import { Patientservice } from '@/services/patient_service';
-import { MALAWI_NATIONAL_ID_TYPE } from '@/constants';
 
 export default defineComponent({
     components: { HisStandardForm },

@@ -1,10 +1,10 @@
 <template>
-    <his-standard-form :cancelDestinationPath="cancelDestination" :fields="fields" :onFinish="onSubmit" />
+    <his-standard-form :cancelDestinationPath="cancelDestination" :fields="fields" :onFinishAction="onSubmit" />
 </template>
 
 <script lang="ts">
 import { defineComponent} from 'vue'
-import HisStandardForm from "@/components/Forms/TouchScreenForm.vue";
+import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import EncounterMixinVue from '@/views/EncounterMixin.vue';
 import { PatientVisitRegistrationService } from "@/apps/OPD/services/patient_registration_service"
 import Validation from '@/components/Forms/validations/StandardValidations';
