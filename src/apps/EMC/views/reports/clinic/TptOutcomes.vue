@@ -5,6 +5,7 @@
     :columns="columns" 
     :rows="rows" 
     :period="period" 
+    :show-indices="true"
     useDateRangeFilter 
     @custom-filter="getData"
     @drilldown="onDrilldown"
@@ -35,7 +36,6 @@ export default defineComponent({
     const title = ref("TPT Outcomes Clinic Report");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
-      { path: "number", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age Group" },
       { path: "tpt_type", label: "TPT Type" },
       { path: "started_tpt", label: "Started TPT", drillable: true, sortable: false },
@@ -56,10 +56,7 @@ export default defineComponent({
       report.setEndDate(dateRange.endDate)
       period.value = report.getDateIntervalPeriod()
       const data: any[] = await report.getTtpOutcomes() || []
-      rows.value = data.sort((a, b) => a.tpt_type > b.tpt_type ? 1 : 0).map((_data, index) => ({
-        ..._data,
-        number: index + 1
-      }))
+      rows.value = data.sort((a, b) => a.tpt_type > b.tpt_type ? 1 : 0)
       await loader.hide();
     }
 
