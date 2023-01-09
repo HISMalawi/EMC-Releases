@@ -195,4 +195,9 @@ export default [
     path: "/emc_moh_cohort",
     component: () => import("@/apps/EMC/views/reports/moh/Cohort.vue")
   },
+  {
+    name: "emc_clinic_retention",
+    path: "/emc_clinic_retention",
+    component: () => import("@/apps/EMC/views/reports/clinic/ClinicRetention.vue")
+  }
 ];

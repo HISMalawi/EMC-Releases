@@ -195,6 +195,12 @@ export const menuItems: MenuItem[] = [
             img: 'reports/restart.png',
             url: '/emc_clinic_tx_rtt'
           },
+          {
+            title: 'Clinic Retention',
+            id: 'emc_clinic_retention',
+            img: 'reports/retention.png',
+            url: '/emc_clinic_retention'
+          },
         ]
       }
     ]
