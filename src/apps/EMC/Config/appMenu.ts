@@ -201,6 +201,12 @@ export const menuItems: MenuItem[] = [
             img: 'reports/retention.png',
             url: '/emc_clinic_retention'
           },
+          {
+            title: 'Viral Load',
+            id: 'emc_viral_load_report',
+            img: 'reports/vl.png',
+            url: '/emc_viral_load_report'
+          },
         ]
       }
     ]

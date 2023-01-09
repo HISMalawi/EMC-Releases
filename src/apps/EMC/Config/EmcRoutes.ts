@@ -199,5 +199,10 @@ export default [
     name: "emc_clinic_retention",
     path: "/emc_clinic_retention",
     component: () => import("@/apps/EMC/views/reports/clinic/ClinicRetention.vue")
+  },
+  {
+    name: "emc_viral_load_report",
+    path: "/emc_viral_load_report",
+    component: () => import("@/apps/EMC/views/reports/clinic/ClinicViralLoad.vue")
   }
 ];
