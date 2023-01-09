@@ -204,5 +204,10 @@ export default [
     name: "emc_viral_load_report",
     path: "/emc_viral_load_report",
     component: () => import("@/apps/EMC/views/reports/clinic/ClinicViralLoad.vue")
+  },
+  {
+    name: "emc_other_outcomes",
+    path: "/emc_other_outcomes",
+    component: () => import("@/apps/EMC/views/reports/clinic/OtherOutcomes.vue")
   }
 ];

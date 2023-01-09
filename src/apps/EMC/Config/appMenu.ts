@@ -207,6 +207,12 @@ export const menuItems: MenuItem[] = [
             img: 'reports/vl.png',
             url: '/emc_viral_load_report'
           },
+          {
+            title: 'Other Outcomes',
+            id: 'emc_other_outcomes',
+            img: 'reports/defaulter-list.png',
+            url: '/emc_other_outcomes'
+          },
         ]
       }
     ]
