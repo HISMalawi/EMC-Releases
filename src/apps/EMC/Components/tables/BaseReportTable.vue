@@ -30,7 +30,11 @@
           @custom-filter="onCustomFilter"
           @drilldown="onDrilldown"
           color="custom"
-        />
+        >
+          <template v-for="(_, name) in $slots" #[name]="{ filter }">
+            <slot :name="name" :filter="filter"></slot>
+          </template>
+        </data-table>
       </ion-card-content>
     </ion-card>
   </Layout>

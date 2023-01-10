@@ -10,13 +10,16 @@
     useDateRangeFilter
     @custom-filter="fetchData"
     @drilldown="onDrilldown"
-  />
+  >
+    <template #tests>
+      <SelectInput v-model="selectedTests" :options="availableTests" multiple v-if="availableTests.length" /> 
+    </template>
+  </base-report-table>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, reactive, ref } from "vue";
 import { loader } from "@/utils/loader";
-import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { CustomFilterInterface, TableColumnInterface } from "@uniquedj95/vtable";
 import HisDate from "@/utils/Date";
@@ -29,22 +32,24 @@ import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
 import { Patientservice } from "@/services/patient_service";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
 import { modal } from "@/utils/modal";
+import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
+import { DTFormField } from "@/apps/EMC/interfaces/dt_form_field";
 
 export default defineComponent({
   name: "ClinicLabResults",
-  components: { BaseReportTable },
+  components: { BaseReportTable, SelectInput },
   setup() {
     const period = ref("-");
     const type = reactive({} as Option);
     const report = new LabReportService()
-    const selectedTests = ref<Array<any>>([])
+    const selectedTests = reactive<DTFormField>({value: [], placeholder: "Select test(s) results"})
     const availableTests = ref<Array<any>>([])
     
     const columns = computed<TableColumnInterface[]>(() => type.value === "disaggregated" 
       ? [
           { path: "age_group", label: "Age Group" },
           { path: "gender", label: "Gender", formatter: toGenderString },
-          ...selectedTests.value.map(t => ({ path: t.label, label: t.label, drillable: true }))
+          ...selectedTests.value.map((t: any) => ({ path: t.label, label: t.label, drillable: true }))
         ]
       : [
           { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
@@ -110,7 +115,7 @@ export default defineComponent({
       for(const age_group of AGE_GROUPS) {
         const maleRow: Record<string, any> = { age_group, gender: "Male"}
         const femaleRow: Record<string, any> = { age_group, gender: "Female"}
-        selectedTests.value.forEach(({label, other}) => {
+        selectedTests.value.forEach(({label, other}: any) => {
             const filterByGender = (gender: string) => other
               .filter((i: any) => i.gender === gender && i.age_group === age_group)
               .map((i: any) => i.patient_id)
@@ -126,7 +131,7 @@ export default defineComponent({
     }
 
     const buildPatientLevelRows = () => {
-      return selectedTests.value.map(({other}) => other).flat(1);
+      return selectedTests.value.map(({other}: any) => other).flat(1);
     }
 
     const rows = computed(() => {
@@ -137,16 +142,9 @@ export default defineComponent({
     const filters = computed<CustomFilterInterface[]>(() => [
       {
         id: "tests",
-        label: "Select test(s) results",
         type: "select",
-        multiple: true,
         required: false,
-        value: selectedTests.value,
-        options: availableTests.value,
-        onUpdate: (v: any) => {
-          console.log(v)
-          selectedTests.value = v
-        }
+        slotName: "tests",
       },
       {
         id: "type",
@@ -155,7 +153,6 @@ export default defineComponent({
         required: false,
         value: type,
         onUpdate: (v: any) => {
-          console.log(v);
           type.label = v.label
           type.value = v.value
         },
@@ -201,6 +198,8 @@ export default defineComponent({
       filters,
       fetchData,
       onDrilldown,
+      availableTests,
+      selectedTests,
     }
   }
 })
