@@ -209,5 +209,10 @@ export default [
     name: "emc_other_outcomes",
     path: "/emc_other_outcomes",
     component: () => import("@/apps/EMC/views/reports/clinic/OtherOutcomes.vue")
+  },
+  {
+    name: "emc_lab_results",
+    path: "/emc_lab_results",
+    component: () => import("@/apps/EMC/views/reports/clinic/ClinicLabResults.vue")
   }
 ];

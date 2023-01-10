@@ -213,6 +213,12 @@ export const menuItems: MenuItem[] = [
             img: 'reports/defaulter-list.png',
             url: '/emc_other_outcomes'
           },
+          {
+            title: 'Lab Test(s) Results',
+            id: 'emc_lab_results',
+            img: 'reports/lab-results.png',
+            url: '/emc_lab_results'
+          },
         ]
       }
     ]
