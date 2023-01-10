@@ -6,6 +6,22 @@ export default [
    },
    {
       "categories": [],
+      "concept_id": 7459,
+      "name": "TB Status"
+   },
+   {
+      "categories": [],
+      "concept_id": 7454,
+      "name": "TB Not Suspected",
+      "shortName": "Nosup"
+   },
+   {
+      "categories": [],
+      "concept_id": 7455,
+      "name": "TB Suspected",
+   },
+   {
+      "categories": [],
       "concept_id": 6195,
       "name": "Why does the woman not use birth control"
    },

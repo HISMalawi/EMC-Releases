@@ -21,6 +21,7 @@ import { toastWarning, toastDanger, toastSuccess } from "@/utils/Alerts";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { BadRequestError } from  "@/services/service"
 import { isEmpty } from "lodash";
+import dayjs from "dayjs";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -45,6 +46,7 @@ export default defineComponent({
         const res = {
           'reallocation_code': formData.authorization.value,
           quantity: total,
+          date: formData.date.value,
           reason: formData.reasons.value,
         };
         try {
@@ -74,7 +76,7 @@ export default defineComponent({
           if (e instanceof BadRequestError && !isEmpty(e.errors)) {
             errors = errors.concat(e.errors)
           } else {
-            errors.push(e)
+            errors.push(`${e}`)
           }
           console.log(e)
         }
@@ -130,12 +132,12 @@ export default defineComponent({
           type: FieldType.TT_MULTIPLE_SELECT,
           requireNext: true,
           validation: (val: any) => Validation.required(val),
-          options: async (_: any, checked: Option[]) => {
+          options: async (f: any, checked: Option[]) => {
             const items: Option[] = await this.getItems()
             return items.map((i: any) => {
               i.isChecked = checked.filter(c => c.label === i.label).length >= 1 
               return i
-            })
+            }).filter(item => !(dayjs(f.date.value).isBefore(item.value.delivery_date)))
           },
           unload: (val: any) => (this.selectedDrugs = val),
         },

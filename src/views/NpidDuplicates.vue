@@ -126,7 +126,7 @@ export default defineComponent({
         }
     },
     methods: {
-        async onAction(action: Function, context='proceed') {
+        async onAction(action: () => any, context='proceed') {
             const ok = await alertConfirmation(`
                 Are you sure you want to ${context}?
             `)

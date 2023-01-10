@@ -127,7 +127,7 @@ export default defineComponent({
             try {
                 this.onFinish(this.value)
             } catch(e) {
-                toastDanger(e)
+                toastDanger(`${e}`)
                 console.error(e)
             }
             this.onClose()

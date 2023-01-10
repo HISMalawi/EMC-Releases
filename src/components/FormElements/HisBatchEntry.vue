@@ -9,19 +9,13 @@
               detail
               :color="index === selectedDrug ? 'secondary' : ''"
               @click="selectDrug(index)">
-              {{ `${drug.shortName} (${drug.packSizes[0]})` }}
+              {{ `${drug.short_name} (${drug.pack_size})` }}
             </ion-item>
           </ion-list>
         </ion-col>
         <ion-col>
           <ion-grid v-if="selectedDrug !== null" class="scroll-list"> 
             <ion-row v-for="(entry, ind) in drugs[selectedDrug].entries" :key="ind"> 
-              <ion-col> 
-                <ion-item> 
-                  <ion-label position="floating">Product Code</ion-label>
-                  <ion-input readonly placeholder="e.g. ABC123" :value="entry.productCode" @click="enterProductCode(ind)"></ion-input>
-                </ion-item>
-              </ion-col>
               <ion-col> 
                 <ion-item> 
                   <ion-label position="floating">Total Tins</ion-label>
@@ -111,11 +105,10 @@ export default defineComponent({
       )
       incomingDrugs.forEach((element: any) => {
         const val = {
-          tabs: element.value.packSizes[0],
+          tabs: element.value.pack_size,
           tins: null,
           expiry: null,
           batchNumber: null,
-          productCode: null,
         };
         const d = {
           label: element.label,
@@ -130,7 +123,7 @@ export default defineComponent({
       if (this.drugs.length >= 1) this.selectDrug(0)
     },
     getModalTitle(context: string) {
-      return `${context} (${this.drugs[this.selectedDrug].shortName})`
+      return `${context} (${this.drugs[this.selectedDrug].short_name})`
     },
     getDrugValue(index: number, type: string) {
       return this.drugs[this.selectedDrug].entries[index][type]
@@ -174,24 +167,6 @@ export default defineComponent({
         this.setDrugValue(index, 'batchNumber', batch)
       })
     },
-    enterProductCode(index: number) {
-      this.launchKeyPad({
-        id: 'code',
-        helpText: this.getModalTitle('Enter Product Code'),
-        type: FieldType.TT_TEXT,
-        config: {
-          customKeyboard: [CHARACTERS_AND_NUMBERS_LO, [['Delete']]]
-        },
-        defaultValue: () => this.getDrugValue(index, 'productCode'),
-      }, 
-      (v: Option) => {
-        const code = {...v}
-        const value = `${code.value}`.toUpperCase()
-        code.label = value
-        code.value = value
-        this.setDrugValue(index, 'productCode', code)
-      })
-    },
     enterExpiry(index: number) {
       this.launchKeyPad({
         id: 'expiry',
@@ -223,11 +198,10 @@ export default defineComponent({
     },
     addRow() {
       this.drugs[this.selectedDrug].entries.push({
-        tabs: this.drugs[this.selectedDrug].packSizes[0],
+        tabs: this.drugs[this.selectedDrug].pack_size,
         tins: null,
         expiry: null,
-        batchNumber: null,
-        productCode: null,
+        batchNumber: null
       });
     },
     selectDrug(index: any) {
@@ -237,8 +211,7 @@ export default defineComponent({
       return (
         !isEmpty(drug.tins) &&
         !isEmpty(drug.expiry) &&
-        !isEmpty(drug.batchNumber) &&
-        !isEmpty(drug.productCode)
+        !isEmpty(drug.batchNumber)
       );
     },
   },
@@ -255,7 +228,7 @@ export default defineComponent({
       this.drugs.forEach((element: any) => {
         const j = element.entries.filter((el: any) => this.validateEntry(el));
         j.forEach((e: any) => {
-          f.push({label: element.shortName, value: { ...e, ...element }});
+          f.push({label: element.short_name, value: { ...e, ...element }});
         });
       });
       return f;
@@ -268,7 +241,6 @@ export default defineComponent({
           e.tins = null
           e.expiry = null
           e.batchNumber = null
-          e.productCode = null
           return e
         })
         return d

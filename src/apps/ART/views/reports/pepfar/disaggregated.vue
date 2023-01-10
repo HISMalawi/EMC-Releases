@@ -31,6 +31,7 @@ import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service"
 import { toastWarning } from '@/utils/Alerts'
 import { MohCohortReportService } from "@/apps/ART/services/reports/moh_cohort_service"
 import { DisaggregatedReportService } from "@/apps/ART/services/reports/disaggregated_service"
+import { REGIMENS } from "@/apps/ART/services/reports/regimen_report_service"
 
 export default defineComponent({
     mixins: [ReportMixin],
@@ -46,9 +47,29 @@ export default defineComponent({
                 table.thNum('Tx new (new on ART)'),
                 table.thNum('TX curr (receiving ART)'),
                 table.thNum('TX curr (received IPT)'),
-                table.thNum('TX curr (screened for TB)')
+                table.thNum('TX curr (screened for TB)'),
+                ...(REGIMENS.map(r => table.thNum(r))),
+                table.thNum('Unknown'),
+                table.thNum('Total (regimen)')
             ]
         ],
+        rowDataRefs: [
+            'txNew', 
+            'txCurr', 
+            'txGivenIpt', 
+            'txScreenTB', 
+            ...REGIMENS,
+            'N/A', 
+            'regimenTotals'
+        ],
+        dataRefLabels: {
+           'txNew': 'Tx new (new on ART)',
+           'txCurr': 'Tx curr (receiving ART)',
+           'txGivenIpt': 'TX curr (received IPT)',
+           'txScreenTB': 'TX curr (screened for TB)',
+           'N/A': 'Unknown',
+           'regimenTotals': 'Regimen Totals'
+        } as any,
         aggregations: [] as Array<any>,
         mohCohort: {} as any,
         maleFemaleAgeGroupData: {} as any,
@@ -101,6 +122,23 @@ export default defineComponent({
                 .filter(i => compareFunction(i))
                 .reduce((items, item) => items.concat(item.data), [])
         },
+        addAggregation(col: string, gender: string, data = []) {
+            this.aggregations.push({ col, gender, data })
+        },
+        async getRegimenRows(group: string, gender: string) {
+            let totals: any = []
+            const row: any = []
+            const distribution = await this.report.getRegimenDistribution()
+            const refs = [...REGIMENS, 'N/A']
+            refs.forEach((i: any) => {
+                if (distribution[i]) totals = totals.concat(distribution[i])
+                row.push(this.drill(distribution[i], `Regimen ${i} | ${group} | ${gender}`))
+                this.addAggregation(i, gender, distribution[i])
+            })
+            row.push(this.drill(totals, `Regimen Totals | ${group} | ${gender}`))
+            this.addAggregation('regimenTotals', gender, totals)
+            return row
+        },
         setHeaderInfoList() {
             const totalAlive = this.getTotals((i: any) => i.col === 'txCurr' && i.gender.match(/male|female/i))
             this.headerList = [
@@ -121,6 +159,9 @@ export default defineComponent({
             await this.setFemaleBreastFeedingRows(6)
             await this.setFemaleNotPregnantRows(5)
         },
+        getColumnLabel(col: string) {
+            return col in this.dataRefLabels ? this.dataRefLabels[col] : col
+        },
         async getValue(prop: string, gender: string, data: any) {
             let res: any = []
             switch(prop) {
@@ -138,19 +179,14 @@ export default defineComponent({
         },
         setTotalMalesRow(sortIndex: number) {
             const maleTD = (column: string, columnDescription: string) => {
-                const data = this.aggregations.filter(i => i.col === column && i.gender === 'Male')
-                    .reduce((accum: any, cur: any) => accum.concat(cur.data), [])
+                const data = this.aggregations.filter((a: any) => a.gender === 'Male' && a.col === column)
+                    .reduce((accum: any, cur: any) => accum.concat(cur.data), []) 
                 return this.drill(data, columnDescription)
             }
-            const row = [
-                table.td('All'),
-                table.td('Male'),
-                maleTD('txNew', 'Tx New (new on ART) Males'),
-                maleTD('txCurr', 'Total Curr (received ART) Males'),
-                maleTD('txGivenIpt', 'Total Curr (received IPT) Males'),
-                maleTD('txScreenTB', 'Total Curr (screened for TB) Males')
-            ]
-            this.sortIndexes[sortIndex] = [row]
+            const rows: any = this.rowDataRefs.map(columnName => 
+                maleTD(columnName, `${this.getColumnLabel(columnName)} | All Male`)
+            )
+            this.sortIndexes[sortIndex] = [[table.td('All'), table.td('Male'), ...rows]]
         },
         setFemaleNotPregnantRows(sortIndex: number) {
             // Gets all pregnant females from a particular column and checks if given patient ID 
@@ -161,23 +197,14 @@ export default defineComponent({
                 .includes(patientID)
             // Get total sum of all females by a particular column
             const fnpTD = (column: string, columnDescription: string) => {
-                const data = this.aggregations.filter((a: any) => 
-                        a.gender === 'Female' && a.col === column
-                    )
-                    .reduce((accum: any, cur: any) =>
-                        accum.concat(cur.data.filter((i: any) => !isPregnant(i, column))), 
-                    [])
+                const data = this.aggregations.filter((a: any) => a.gender === 'Female' && a.col === column)
+                    .reduce((accum: any, cur: any) => accum.concat(cur.data.filter((i: any) => !isPregnant(i, column))), [])
                 return this.drill(data, columnDescription)
             }
-            const row = [ 
-                table.td('All'), 
-                table.td('FNP'),
-                fnpTD('txNew', 'Tx New (new on ART) FNP'),
-                fnpTD('txCurr', 'Tx Curr (received ART) FNP'),
-                fnpTD('txGivenIpt', 'Tx Curr (received IPT) FNP'),
-                fnpTD('txScreenTB', 'Tx Curr (screened for TB) FNP')
-            ]
-            this.sortIndexes[sortIndex] = [row]
+            const rows: any = this.rowDataRefs.map(column => 
+                fnpTD(column, `${this.getColumnLabel(column)} | FNP`)
+            )
+            this.sortIndexes[sortIndex] = [[table.td('All'), table.td('FNP'), ...rows]]
         },
         setFemaleRows(sortIndex: number) {
             this.report.setGender('female')
@@ -216,29 +243,26 @@ export default defineComponent({
                     const value = (prop: string) => this.getValue(
                         prop, category, this.maleFemaleAgeGroupData[group]
                     )
-                    // Adds aggregation entry of a column
-                    const addAggregation = (col: string, data: any) => 
-                        this.aggregations.push({ gender, col, data }
-                    )
                     txNew = await value('tx_new')
                     txCurr= await value('tx_curr')
                     txGivenIpt = await value('tx_given_ipt')
                     txScreenTB = await value('tx_screened_for_tb')
-                    addAggregation('txNew', txNew)
-                    addAggregation('txCurr', txCurr)
-                    addAggregation('txGivenIpt', txGivenIpt)
-                    addAggregation('txScreenTB', txScreenTB)
+                    this.addAggregation('txNew', gender, txNew)
+                    this.addAggregation('txCurr',gender, txCurr)
+                    this.addAggregation('txGivenIpt',gender, txGivenIpt)
+                    this.addAggregation('txScreenTB',gender, txScreenTB)
                 }
 
                 if (!this.sortIndexes[sortIndex]) this.sortIndexes[sortIndex] = []
 
                 this.sortIndexes[sortIndex].push([
                     table.td(ageGroups[i]),
-                    table.td(gender),
+                    table.td(this.formatGender(gender)),
                     this.drill(txNew, `Tx new (new on ART) | ${group} | ${gender}`),
                     this.drill(txCurr, `Tx curr (receiving ART) | ${group} | ${gender}`),
                     this.drill(txGivenIpt, `TX curr (received IPT) | ${group} | ${gender}`),
-                    this.drill(txScreenTB, `TX curr (screened for TB) | ${group} | ${gender}`)
+                    this.drill(txScreenTB, `TX curr (screened for TB) | ${group} | ${gender}`),
+                    ...(await this.getRegimenRows(group, gender))
                 ])
             }
         },

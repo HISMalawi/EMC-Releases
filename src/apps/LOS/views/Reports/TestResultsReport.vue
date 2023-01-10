@@ -156,7 +156,7 @@ export default defineComponent({
             }
         },
         setPatientLevelRows(results: Array<Option>) {
-            this.columns = [this.patientLevelColumns]
+            this.columns = this.patientLevelColumns
             results.forEach(({other}: Option)  => {
                 other.forEach((d: any) => {
                     this.rows.push([

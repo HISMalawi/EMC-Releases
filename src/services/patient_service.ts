@@ -126,14 +126,18 @@ export class Patientservice extends Service {
         return this.isFemale() && age >= 12 && age <= 50
     }
 
-    async getInitialObs(concept: string) {
+    async getInitialObs(concept: string, attr='value_numeric') {
         try {
             const initialObs = await ObservationService.getAll(
               this.getID(),
               concept
             );
+            if (!initialObs) return
             const lastIndex = initialObs.length - 1;
-            return initialObs[lastIndex].value_numeric;
+            if (attr === 'value_coded') {
+                return ConceptService.getConceptName(initialObs[lastIndex][attr])
+            }
+            return initialObs[lastIndex][attr];
         } catch (e) {
             console.error(e)
         }

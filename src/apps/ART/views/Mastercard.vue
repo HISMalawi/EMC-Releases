@@ -48,6 +48,7 @@ import table, { ColumnInterface } from "@/components/DataViews/tables/ReportData
 import Pagination from "@/components/Pagination.vue"
 import Preloader from "@/components/TextSkeleton.vue"
 import MastercardDetails from "@/components/MastercardDetails.vue";
+import { toDate } from "@/utils/Strs";
 
 export default defineComponent({
   components: {
@@ -129,11 +130,18 @@ export default defineComponent({
         if (typeof item.init === 'function') {
           await item.init()
         }
+
+        if (typeof item.condition === 'function') {
+          item.visible = item.condition()
+        } else {
+          item.visible = true
+        }
+
         if (typeof item.asyncValue === 'function') {
           item.asyncValue(item).then((value: any) => item.value = value || '')
         } else if (typeof item.staticValue === 'function') {
           item.value = item.staticValue()
-        } 
+        }
       }
     }
   },
@@ -243,6 +251,18 @@ export default defineComponent({
           label: "Init BMI", 
           value: '...',
           asyncValue: () => this.patient.getInitialBMI() 
+        },
+        {
+          label: 'init Preg',
+          value: '...',
+          condition: () => this.patient.isFemale(),
+          asyncValue: () => this.patient.getInitialObs('Is patient pregnant', 'value_coded')
+        },
+        {
+          label: 'init Breastfeeding',
+          value: '...',
+          condition: () => this.patient.isFemale(),
+          asyncValue: () => this.patient.getInitialObs('Is patient breast feeding', 'value_coded')
         },
         { 
           label: "TI", 
@@ -373,6 +393,16 @@ export default defineComponent({
         {
           label: 'BMI',
           value: data.bmi
+        },
+        {
+          label: "Is pregnant",
+          value: data.isPregnant,
+          visible: this.patient.isFemale()
+        },
+        {
+          label: "Is breastfeeding",
+          value: data.isBreastfeeding,
+          visible: this.patient.isFemale()
         }
       ]
     },
@@ -387,6 +417,18 @@ export default defineComponent({
       const pillsDispensed = (drugs?.pills_given || []).map((d: any) =>  {
         return `${d['short_name'] || d['name']} <b>(${d.quantity || '?'})</b>`
       }).join('<br/>')
+      let isPregnant = 'N/A'
+      let isBreastfeeding = 'N/A'
+      if (this.patient.isFemale()) {
+        const pregObs = await ObservationService.getFirstObs(this.patientId, 'Is patient pregnant', date)
+        if (pregObs && toDate(pregObs.obs_datetime) === date) {
+          isPregnant = pregObs.value_coded
+        }
+        const bfeed = await ObservationService.getFirstObs(this.patientId, 'Is patient breast feeding', date)
+        if (bfeed && toDate(bfeed.obs_datetime) === date) {
+          isBreastfeeding = bfeed.value_coded
+        }
+      }
       r[1] = table.td(data.weight)
       r[2] = table.td(data.regimen)
       r[3] = table.td(data.viral_load)
@@ -400,7 +442,11 @@ export default defineComponent({
           cssClass: "large-modal",
           componentProps: {
             title: date,
-            visitData: this.buildDetails(data)  
+            visitData: this.buildDetails({
+              ...data,
+              isPregnant,
+              isBreastfeeding
+            })
           }
         })
         ).present()

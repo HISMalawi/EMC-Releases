@@ -130,7 +130,7 @@ export default defineComponent({
             this.showDetails(this.encounters[0])
           }
         } catch (e) {
-          toastDanger(e)
+          toastDanger(`${e}`)
         }
       }, 'void-modal custom-modal-backdrop') 
     },

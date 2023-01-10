@@ -118,18 +118,18 @@ export default defineComponent({
       default: '',
     },
     config: {
-      type: Object
+      type: Object as PropType<Record<string, any>>
     },
     fields: {
-      type: Object as PropType<Field[]>,
+      type: Array as PropType<Field[]>,
       default: () => []
     },
     columns: {
-      type: Object as PropType<Array<ColumnInterface[]>>,
+      type: Array as PropType<Array<ColumnInterface[]>>,
       required: true
     },
     rows: {
-      type: Object as PropType<Array<RowInterface[]>>,
+      type: Array as PropType<Array<RowInterface[]>>,
       required: true
     },
     paginated: {
@@ -153,7 +153,7 @@ export default defineComponent({
       required: false
     },
     rowParser: {
-      type: Function
+      type: Function as PropType<((data: any) => any[][])>
     },
     showFilters: {
       type: Boolean,
@@ -163,7 +163,7 @@ export default defineComponent({
       type: Number
     },
     asyncRows: {
-      type: Function
+      type: Function as PropType<() => Promise<any[][]>>
     },
     footerColor: {
       type: String,

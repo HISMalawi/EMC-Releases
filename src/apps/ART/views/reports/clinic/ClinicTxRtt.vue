@@ -112,7 +112,7 @@ export default defineComponent({
             ])
             this.rows.push([
                 table.td('All'),
-                table.td('FBf'),
+                table.td('FBF'),
                 fp('FBf', 'Returned <3 mo'),
                 fp('FBf', 'Returned 3-5 mo'),
                 fp('FBf', 'Returned 6+ mo')
