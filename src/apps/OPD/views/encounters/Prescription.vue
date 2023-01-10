@@ -78,7 +78,7 @@
     </view-port>
     <his-keyboard v-if="switchKeyboard"  :kbConfig="keyboard" :onKeyPress="keypress"/>
     <div class="content" v-if="!switchKeyboard">
-      <prescription-frequency :list="list" :onClick="frequencyKeypress" @click="isComplete" />
+      <prescription-frequency :list="list" :onClick="frequencyKeypress"  />
       <prescription-keypad :onKeyPress="dosageKeypress" :title="'Dosage'" @click="isComplete" />
       <prescription-keypad :onKeyPress="durationKeypress" :title="'Duration'" @click="isComplete" />
     </div>
@@ -177,7 +177,8 @@ export default defineComponent({
     list: DRUG_FREQUENCIES.map(f => f.label),
     showMalariaDrugs: false,
     hasMalaria: false,
-    disableNextBtn:true
+    disableNextBtn:true,
+    confirmBtn: false
   
   }),
   watch: {
@@ -229,10 +230,14 @@ export default defineComponent({
 
     async dosageKeypress(value: string) { this.checkedItems[0].other["dosage"] = value },
     
-    async frequencyKeypress(value: any){ this.checkedItems[0].other["frequency"] = value.target._value },
+    async frequencyKeypress(value: any){ 
+      this.checkedItems[0].other["frequency"] = value.target._value 
+      this.isComplete()
+    },
 
     async durationKeypress(value: string) {
       if (value.match(/Confirm/i)){
+        this.confirmBtn = true
         this.inputFieldType()
       }else
       this.checkedItems[0].other["duration"] = value
@@ -265,9 +270,10 @@ export default defineComponent({
       const value = this.checkedItems[0]
       if(!value.other["frequency"]  || !value.other["duration"] || !value.other["dosage"]){
         this.disableNextBtn = true
-            // toastWarning(`complete prescription details for ${value.label}`)
+        this.confirmBtn ? toastWarning(`complete prescription details for ${value.label}`) : this.confirmBtn = false
         return false
       }
+      this.confirmBtn = false
       this.disableNextBtn = false
       return true
     },
@@ -344,6 +350,7 @@ export default defineComponent({
       this.checkedItems = [],
       this.filter2 = ''
       this.selected = ''
+      this.switchKeyboard = true
     },
     async savePrescription() {
       const drugOrders = this.mapToOrders()

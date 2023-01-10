@@ -145,8 +145,6 @@ export default defineComponent({
           }
           this.allComplainList[category] = allComplainList
         }
-        console.log(this.ActiveCategory)
-        console.log(this.ActiveCategory)
         this.complaintsList[this.ActiveCategory] = this.allComplainList[this.ActiveCategory]
       }
       else
