@@ -5,7 +5,7 @@
             </center>
         <ion-list>
             <ion-radio-group :value="activeLabel">
-                <ion-item class="his-md-text" v-for="(label, index) in list"  :key="index" :onClick="frequencyKeypress" >
+                <ion-item class="his-md-text" v-for="(label, index) in list"  :key="index" @click="frequencyKeypress(label)">
                     <ion-radio slot="start" :value="label"></ion-radio>
                     <ion-label>{{ label }} </ion-label>
                 </ion-item>
@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import ActionSheetMixin from "@/components/DataViews/actionsheet/ActionSheetMixin.vue"
+// import ActionSheetMixin from "@/components/DataViews/actionsheet/ActionSheetMixin.vue"
 import { 
     IonList, 
     IonItem,
@@ -32,7 +32,7 @@ export default defineComponent({
         IonRadio,
         IonRadioGroup 
     },
-    mixins: [ActionSheetMixin],
+    // mixins: [ActionSheetMixin],
     data: () => ({
         activeLabel: '' as string
     }),
@@ -40,11 +40,12 @@ export default defineComponent({
         list: {
             type: Object as PropType<string[]>,
             required: true
-        }
+        },
+        label: String
     },
     methods: {
         async frequencyKeypress(label: any){
-            this.$emit("frequencyKeypress")
+            this.$emit("frequencyKeypress", label)
         }
     }
 })

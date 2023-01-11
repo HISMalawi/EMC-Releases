@@ -78,7 +78,7 @@
     </view-port>
     <his-keyboard v-if="switchKeyboard"  :kbConfig="keyboard" :onKeyPress="keypress"/>
     <div class="content" v-if="!switchKeyboard">
-      <prescription-frequency :list="list" :onClick="frequencyKeypress"  />
+      <prescription-frequency :list="list" @frequencyKeypress="label = $event"  @click="frequencyKeypress()"/>
       <prescription-keypad :onKeyPress="dosageKeypress" :title="'Dosage'" @click="isComplete" />
       <prescription-keypad :onKeyPress="durationKeypress" :title="'Duration'" @click="isComplete" />
     </div>
@@ -169,6 +169,7 @@ export default defineComponent({
     selectedItems: [] as any,
     malariaDrug: [],
     prescriptionService: {} as any,
+    label: String as any,
    
     page: 1,
     limit: 10,
@@ -230,10 +231,7 @@ export default defineComponent({
 
     async dosageKeypress(value: string) { this.checkedItems[0].other["dosage"] = value },
     
-    async frequencyKeypress(value: any){ 
-      this.checkedItems[0].other["frequency"] = value.target._value 
-      this.isComplete()
-    },
+    async frequencyKeypress(){ this.checkedItems[0].other["frequency"] = this.label },
 
     async durationKeypress(value: string) {
       if (value.match(/Confirm/i)){
@@ -270,7 +268,10 @@ export default defineComponent({
       const value = this.checkedItems[0]
       if(!value.other["frequency"]  || !value.other["duration"] || !value.other["dosage"]){
         this.disableNextBtn = true
-        this.confirmBtn ? toastWarning(`complete prescription details for ${value.label}`) : this.confirmBtn = false
+        if(this.confirmBtn){
+          toastWarning(`complete prescription details for ${value.label}`) 
+          this.confirmBtn = false
+        }
         return false
       }
       this.confirmBtn = false
@@ -322,6 +323,8 @@ export default defineComponent({
             x.value != 'Lumefantrine + Arthemether 4 x 6'
           )
           this.checkedItems.unshift(malariaDrug)
+          if(this.isComplete())
+            this.disableNextBtn = false
         }},
       });
       modal.present();
