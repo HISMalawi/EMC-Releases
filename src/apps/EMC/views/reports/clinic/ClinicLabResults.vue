@@ -57,6 +57,7 @@ export default defineComponent({
           { path: "birthdate", label: "Birthdate", formatter: HisDate.toStandardHisDisplayFormat },
           { path: "order_date", label: "Ordered", formatter: HisDate.toStandardHisDisplayFormat },
           { path: "test", label: "Specimen" },
+          { path: "test_name", label: "Test" },
           { path: "result", label: "Result" },
           { path: "result_date", label: "Released", formatter: HisDate.toStandardHisDisplayFormat }
         ]
@@ -71,7 +72,7 @@ export default defineComponent({
           }
           tests[measure.name].push({
             ...result,
-            test:  measure.name,
+            test_name:  measure.name,
             result: `${measure.modifier} ${measure.value}`,
           })
         })
