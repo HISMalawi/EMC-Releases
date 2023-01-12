@@ -195,4 +195,24 @@ export default [
     path: "/emc_moh_cohort",
     component: () => import("@/apps/EMC/views/reports/moh/Cohort.vue")
   },
+  {
+    name: "emc_clinic_retention",
+    path: "/emc_clinic_retention",
+    component: () => import("@/apps/EMC/views/reports/clinic/ClinicRetention.vue")
+  },
+  {
+    name: "emc_viral_load_report",
+    path: "/emc_viral_load_report",
+    component: () => import("@/apps/EMC/views/reports/clinic/ClinicViralLoad.vue")
+  },
+  {
+    name: "emc_other_outcomes",
+    path: "/emc_other_outcomes",
+    component: () => import("@/apps/EMC/views/reports/clinic/OtherOutcomes.vue")
+  },
+  {
+    name: "emc_lab_results",
+    path: "/emc_lab_results",
+    component: () => import("@/apps/EMC/views/reports/clinic/ClinicLabResults.vue")
+  }
 ];

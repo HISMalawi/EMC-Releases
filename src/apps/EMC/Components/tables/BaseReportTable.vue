@@ -26,10 +26,15 @@
           :actions-buttons="actionBtns" 
           :row-actions-buttons="rowActionButtons" 
           :custom-filters="filters" 
+          :config="{ showIndices }"
           @custom-filter="onCustomFilter"
           @drilldown="onDrilldown"
           color="custom"
-        />
+        >
+          <template v-for="(_, name) in $slots" #[name]="{ filter }">
+            <slot :name="name" :filter="filter"></slot>
+          </template>
+        </data-table>
       </ion-card-content>
     </ion-card>
   </Layout>
@@ -142,6 +147,10 @@ export default defineComponent({
       type: Array as PropType<CustomFilterInterface[]>,
       default: () => [],
     },
+    showIndices: {
+      type: Boolean,
+      default: false
+    }
   },
   emits: ["regenerate", "customFilter", "drilldown"],
   setup(props, { emit }) {
@@ -160,10 +169,10 @@ export default defineComponent({
         btns.push({
           label: "CSV",
           color: "primary",
-          action: async (_a, rows, filters) => exportToCSV({
+          action: async (_a, rows, filters, columns) => exportToCSV({
             rows, 
             filters,
-            columns: props.columns, 
+            columns, 
             quarter: props.quarter?.label,
             period: props.period,
             filename: filename.value

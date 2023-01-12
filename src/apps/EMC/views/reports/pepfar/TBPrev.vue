@@ -8,6 +8,7 @@
     useDateRangeFilter
     @custom-filter="fetchData"
     @drilldown="onDrilldown"
+    showIndices
   />
 </template>
 
@@ -18,9 +19,7 @@ import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { TableColumnInterface } from "@uniquedj95/vtable";
 import { modal } from "@/utils/modal";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
-import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
-import { TbPrevReportService } from "@/apps/ART/services/reports/tb_prev_report_service";
-import { get } from "lodash";
+import { indicators, TbPrevReportService } from "@/apps/ART/services/reports/tb_prev_report_service";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
 import { toGenderString } from "@/utils/Strs";
@@ -32,18 +31,16 @@ export default defineComponent({
   setup() {
     const period = ref("-");
     const rows = ref<any[]>([]);
+
+    const toDisplayString = (label: string) => label.replaceAll('_', " ");
+
     const columns: TableColumnInterface[] = [
-      { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender", formatter: toGenderString },
-      { path: "3hp_started_new_art", label: "3H (Started New on ART)", drillable: true },
-      { path: "6hp_started_new_art", label: "6H (Started New on ART)", drillable: true },
-      { path: "3hp_started_previous_art", label: "3H (Started Previously on ART)", drillable: true },
-      { path: "6hp_started_previous_art", label: "6H (Started Previously on ART)", drillable: true },
-      { path: "3hp_completed_new_art", label: "3H (Completed New on ART)", drillable: true },
-      { path: "6hp_completed_new_art", label: "6H (Completed New on ART)", drillable: true },
-      { path: "3hp_completed_previous_art", label: "3H (Completed Previously on ART)", drillable: true },
-      { path: "6hp_completed_previous_art", label: "6H (Completed Previously on ART)", drillable: true },
+      ...indicators.map(indicator => [
+        { path: `3hp_${indicator}`, label: `3HP (${toDisplayString(indicator)})`, drillable: true },
+        { path: `6h_${indicator}`, label: `6H (${toDisplayString(indicator)})`, drillable: true },
+      ]).flat(),
     ]
 
     const fetchData =  async ({ dateRange }: Record<string, any>) => {
@@ -53,32 +50,19 @@ export default defineComponent({
       report.setEndDate(dateRange.endDate)
       period.value = report.getDateIntervalPeriod()
       const cohort: any = await report.getTBPrevReport()
+      rows.value = report.buildReportData(cohort);
+      rows.value.push(report.getAggregatedMaleData(cohort))
+      rows.value.push(...(await report.getAggregatedMaternalStatus(cohort)))
       await loader.hide();
-      let index = 1;
-      for(const gender of ["F", "M"]) {
-        for(const group of AGE_GROUPS){
-          rows.value.push({
-            index: index++,
-            "age_group": group,
-            gender: gender === "F" ? "Female" : "Male",
-            "3hp_started_new_art": get(cohort[group][gender], '3HP.started_new_on_art', []),
-            "6hp_started_new_art": get(cohort[group][gender], '6H.started_new_on_art', []),
-            "3hp_started_previous_art": get(cohort[group][gender], '3HP.started_previously_on_art', []),
-            "6hp_started_previous_art": get(cohort[group][gender], '6H.started_previously_on_art', []),
-            "3hp_completed_new_art": get(cohort[group][gender], '3HP.completed_new_on_art', []),
-            "6hp_completed_new_art": get(cohort[group][gender], '6H.completed_new_on_art', []),
-            "3hp_completed_previous_art": get(cohort[group][gender], '3HP.completed_previously_on_art', []),
-            "6hp_completed_previous_art": get(cohort[group][gender], '6H.completed_previously_on_art', []),
-          })
-        }
-      }
     }
 
     const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
       const columns: TableColumnInterface[] = [
         { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
+        { path: "gender", label: "Gender", formatter: toGenderString },
         { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
-        { path: "tpt_initiation_date", label: "TPT Initiation Date", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) }
+        { path: "tpt_initiation_date", label: "TPT Initiation Date", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
+        { path: "outcome", label: "Outcome" }
       ]
       const rows = data.row[data.column.path]
 

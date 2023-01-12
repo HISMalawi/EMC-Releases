@@ -32,11 +32,11 @@ export default defineComponent({
       { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
       { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "birthdate", label: "DOB", formatter},
-      { path: "art_start_date", label: "Start Date", formatter },
+      { path: "art_start_date", label: "ART Start Date", formatter },
       { path: "current_weight", label: "Weight (Kg)" },
-      { path: "current_regimen", label: "Regimen" },
+      { path: "current_regimen", label: "Curr. Reg" },
       { path: "medications", label: "ARVs"},
-      { path: "dispensation_date", label: "Dispensation Date", formatter },
+      { path: "dispensation_date", label: "Curr. reg Dispensed", formatter },
       { path: "vl_result", label: "VL Result" },
       { path: "vl_result_date", label: "Date of VL Result", formatter }
     ]

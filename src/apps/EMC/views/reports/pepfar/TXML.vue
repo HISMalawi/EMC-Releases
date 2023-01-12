@@ -9,6 +9,7 @@
     useDateRangeFilter
     @custom-filter="fetchData"
     @drilldown="onDrilldown"
+    showIndices
   />
 </template>
 
@@ -19,10 +20,8 @@ import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { TableColumnInterface } from "@uniquedj95/vtable";
 import { modal } from "@/utils/modal";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
-import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
-import { TxReportService } from "@/apps/ART/services/reports/tx_report_service";
+import { txMlIndicators, TxReportService } from "@/apps/ART/services/reports/tx_report_service";
 import { Patientservice } from "@/services/patient_service";
-import { get } from "lodash";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
 import { toGenderString } from "@/utils/Strs";
@@ -35,15 +34,9 @@ export default defineComponent({
     const period = ref("-");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
-      { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender", formatter: toGenderString },
-      { path: "died", label: "Died", drillable: true },
-      { path: "iit_less_than_3_mo", label: "IIT <3 mo", drillable: true },
-      { path: "iit_3_to_5_mo", label: "IIT 3-5 mo", drillable: true },
-      { path: "iit_6_plus_mo", label: "IIT 6+ mo", drillable: true },
-      { path: "transferred_out", label: "Transferred out", drillable: true },
-      { path: "refused", label: "Refused (Stopped)", drillable: true },
+      ...txMlIndicators.map(indicator => ({ path: indicator, label: indicator, drillable: true })),
     ]
 
     const fetchData =  async ({ dateRange }: Record<string, any>) => {
@@ -52,23 +45,10 @@ export default defineComponent({
       report.setStartDate(dateRange.startDate)
       report.setEndDate(dateRange.endDate)
       period.value = report.getDateIntervalPeriod()
-      const data: any = await report.getTxMlReport()
-      let index = 1;
-      for(const gender of ["F", "M"]) {
-        for(const group of AGE_GROUPS){
-          rows.value.push({
-            "index": index++,
-            "age_group": group,
-            "gender": gender === "F" ? "Female" : "Male",
-            "died": get(data, `${group}.${gender}[0]`, []),
-            "iit_less_than_3_mo": get(data, `${group}.${gender}[1]`, []),
-            "iit_3_to_5_mo": get(data, `${group}.${gender}[2]`, []),
-            "iit_6_plus_mo": get(data, `${group}.${gender}[3]`, []),
-            "transferred_out": get(data, `${group}.${gender}[4]`, []),
-            "refused": get(data, `${group}.${gender}[5]`, []),
-          })
-        }
-      }
+      const data: any = await report.getTxMlReport();
+      rows.value = report.buildTxMlReportData(data);
+      rows.value.push(report.getAggregatedTxMLMaleData(data))
+      rows.value.push(...(await report.getAggregatedTxMLMaternalStatus(data)))
       await loader.hide();
     }
 
@@ -79,23 +59,27 @@ export default defineComponent({
         { path: "gender", label: "Gender", formatter: toGenderString },
         { path: "address", label: "Address" }
       ]
-      const patients = data.row[data.column.path]
-      const rows: any[] = []
-      for(const patient of patients) {
-        const data = await Patientservice.findByID(patient)
-        const p = new Patientservice(data)
-        rows.push({
-          "arv_number": p.getArvNumber(),
-          "birthdate": p.getBirthdate(),
-          "gender": p.getGender(),
-          "address": `${p.getCurrentVillage()}`
-        })
+
+      const drillRows = ref<any[]>([])
+      const fetchDrilldownData = async () => {
+        for(const patient of data.row[data.column.path]) {
+          const data = await Patientservice.findByID(patient)
+          const p = new Patientservice(data)
+          drillRows.value.push({
+            "arv_number": p.getArvNumber(),
+            "birthdate": p.getBirthdate(),
+            "gender": p.getGender(),
+            "address": `${p.getCurrentVillage()}`
+          })
+        }
       }
 
+      fetchDrilldownData();
+
       await modal.show(DrilldownTableVue, {
-        title: `${data.row.age_group} ${data.column.label} ${data.row.gender}s`,
         columns,
-        rows,
+        rows: drillRows.value,
+        title: `${data.row.age_group} ${data.column.label} ${data.row.gender}s`,
       })
     }
 

@@ -35,7 +35,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, PropType, reactive, ref } from "vue";
+import { computed, defineComponent, onMounted, PropType, reactive, ref, watch } from "vue";
 import { IonRow, IonCol, IonButton, IonTitle } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import { alertConfirmation } from "@/utils/Alerts";
@@ -73,48 +73,67 @@ export default defineComponent({
     isNewPatient: {
       type: Boolean,
       default: true,
-    }
+    },
+
+    observations: {
+      type: Object as PropType<Record<string, any>>,
+      default: () => ({})
+    },
+    initialVisitDate: {
+      type: String,
+      default: ""
+    } 
   },
   emits: ["onValue", "onPrevious", "onFinish"],
   setup(props, { emit }) {
-    const stagingService = ref<StagingService>()
-    const reasonsForArt = ref<Option[]>([])
     const stagingCoditions = ref<Option[]>([])
-    const whoStages = ref<Option[]>([])
     const selectedConditions = ref<Option[]>([])
-
     const today = dayjs().format(STANDARD_DATE_FORMAT)
+    
     const patientDob = computed(() => {
       const date = props.patient.getBirthdate() 
       return date ? dayjs(date).format(STANDARD_DATE_FORMAT) : ''
     })
 
+    const stagingService = new StagingService(props.patient.getID(), props.patient.getAge(), -1)
+    const reasonsForArt = stagingService
+      .getAllReasonsForART()
+      .map(r => ({ label: r.name, value: r.name}))
+
+    const whoStages = stagingService
+      .getAllWhoStages()
+      .map(stage => ({ label: stage.name, value: stage.name }))
+
     const form = reactive<DTForm>({
       reasonsForEligibity: {
-        value: '',
+        value: props.observations['Reason for ART eligibility'] || '',
         label: 'Reason for Starting',
         placeholder: "Select Reason for Starting",
         required: true,
         computedValue: (reason: Option) => ({
-          obs: stagingService.value?.buildReasonForArtObs(reason.label)
+          obs: stagingService.buildReasonForArtObs(
+            typeof reason === 'string' ? reason : reason.label
+          )
         })
       },
       whoStage: {
-        value: '',
+        value: props.observations['Who stage'] || '',
         label: 'Select Stage',
         placeholder: "Select Stage",
         required: true,
         computedValue: (stage: Option) => ({
-          obs: stagingService.value?.buildWhoStageObs(stage.label)
+          obs: stagingService.buildWhoStageObs(
+            typeof stage === 'string' ? stage : stage.label  
+          )
         }),
       },
       cd4countAvailable: {
-        value: '',
+        value:  props.observations['CD4 count'] ? 'Yes' : props.isNewPatient ? '' : 'No',
         label: 'Recent CD4 Count results available?',
         required: true,
       },
       cd4CountDate: {
-        value: '',
+        value: props.observations['Cd4 count datetime'] || '',
         label: 'CD4 Count date',
         placeholder: 'CD4 Count date',
         computedValue: (date: string) => ({
@@ -126,7 +145,7 @@ export default defineComponent({
         }
       },
       cd4Count: {
-        value: '',
+        value: props.observations['CD4 count'] || '',
         label: 'CD4 Count',
         placeholder: 'CD4 Count e.g. <100 or >500',
         computedValue: (cd4Count: string) => {
@@ -141,28 +160,38 @@ export default defineComponent({
         validation: async (cd4Count: Option, f: DTForm) => {
           return f.cd4countAvailable.value === 'Yes' && StandardValidations.validateSeries([
             () => StandardValidations.required(cd4Count),
-            () => stagingService.value?.cd4CountIsValid(cd4Count.value.toString()) 
+            () => stagingService.cd4CountIsValid(cd4Count.value.toString()) 
               ? null
               : ['Please start with a modifier. e.g. >, <, or =']
           ])
         }
       },
       cd4CountLocation: {
-        value: '',
+        value: props.observations['Cd4 count location'] || '',
         label: 'CD4 Count location',
         computedValue: (facility: Option) => ({
-          obs: StagingService.buildValueText('Cd4 count location', facility.label)
+          obs: StagingService.buildValueText(
+            'Cd4 count location', 
+            typeof facility === 'string' ? facility : facility.label
+          )
         }),
         validation: async (location: Option, f: DTForm) => {
           return f.cd4countAvailable.value === 'Yes' && StandardValidations.required(location)
         }
       },
       whoConditions: {
-        value: '',
+        value: props.observations['Who stages criteria present'] 
+          ? [{
+              label: props.observations['Who stages criteria present'],
+              value: props.observations['Who stages criteria present'],
+            }]
+          : '',
         required: true,
         label: "Select Staging Conditions",
         computedValue: (conditions: Option[]) => ({
-          obs: conditions.map(x => stagingService.value?.buildWhoCriteriaObs(x.label))
+          obs: typeof conditions === 'string' 
+            ? stagingService.buildWhoCriteriaObs(conditions)
+            : conditions.map(x => stagingService.buildWhoCriteriaObs(x.label))
         })
       }
     });
@@ -173,6 +202,7 @@ export default defineComponent({
           form[key].value = undefined
           form[key].error = ""
         }
+        form.whoConditions.value = [];
         EventBus.emit(EmcEvents.ON_CLEAR)
       }
     }
@@ -187,21 +217,19 @@ export default defineComponent({
       })
     }
 
-    onMounted(async () => {
-      stagingService.value = new StagingService(props.patient.getID(), props.patient.getAge(), -1)
-      stagingCoditions.value = [
-        ...stagingService.value.getStagingConditions(1).map(condition => ({ label: condition.name, value: condition.concept_id, other: condition })),
-        ...stagingService.value.getStagingConditions(2).map(condition => ({ label: condition.name, value: condition.concept_id, other: condition })),
-        ...stagingService.value.getStagingConditions(3).map(condition => ({ label: condition.name, value: condition.concept_id, other: condition })),
-        ...stagingService.value.getStagingConditions(4).map(condition => ({ label: condition.name, value: condition.concept_id, other: condition })),
-      ].sort((a, b) => a.label.localeCompare(b.label))
+    const setStagingConditions = (stage?: string) => {
+      let stageNum = 1
+      if(stage?.match(/2|stage ii/i)) stageNum = 2
+      if(stage?.match(/3|stage iii/i)) stageNum = 3
+      if(stage?.match(/4|stage iv/i)) stageNum = 4
+      stagingCoditions.value = stagingService
+        .getStagingConditions(stageNum)
+        .map(c => ({ label: c.name, value: c.name, other: c }))
+        .sort((a, b) => a.label.localeCompare(b.label))
+    }
 
-      whoStages.value = stagingService.value.getAllWhoStages().map(stage => ({
-        label: stage.name, value: stage.name
-      }))
-
-      reasonsForArt.value = stagingService.value.getAllReasonsForART().map(r => ({ label: r.name, value: r.name}))
-    }) 
+    watch(()=> form.whoStage.value, (stage) => setStagingConditions(stage?.label))
+    onMounted(() => setStagingConditions())
  
     return {
       today,

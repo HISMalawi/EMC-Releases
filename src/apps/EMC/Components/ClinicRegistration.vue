@@ -63,7 +63,7 @@
     <ion-col size="6" class="ion-margin-top ion-margin-bottom">
       <SelectInput v-model="form.confirmatoryTest" :form="form" :options="HIVTestOptions" />
     </ion-col>
-    <template v-if="form.confirmatoryTest.value.label !== 'Not done'">
+    <template v-if="isConfirmatoryTestDone">
       <ion-col size="6" class="ion-margin-top ion-margin-bottom">
         <SelectInput v-model="form.confirmatoryTestLocation" :form="form" :asyncOptions="getFacilities" allowCustom />
       </ion-col>
@@ -130,7 +130,15 @@ export default defineComponent({
     sitePrefix: {
       type: String,
       required: true
-    }
+    },
+    observations: {
+      type: Object as PropType<Record<string, any>>,
+      default: () => ({})
+    },
+    initialVisitDate: {
+      type: String,
+      default: ""
+    } 
   },
   emits: ["onValue", "onNext"],
   setup(props, { emit }) {
@@ -160,12 +168,16 @@ export default defineComponent({
         },
       },
       initialVisitDate: {
-        value: '',
+        value: props.initialVisitDate,
         label: 'Registration Date',
         required: true,
       },
       shouldFollowUp: {
-        value: '',
+        value: props.observations['Agrees to followup'] 
+          ? props.observations['Agrees to followup'].match(/yes|home visit/i) 
+            ? 'Yes'
+            : 'No'
+          : '',
         label: 'Agrees to follow up ?',
         computedValue: (agrees: string) => ({
           tag: 'registration',
@@ -177,7 +189,7 @@ export default defineComponent({
         required: true,
       },
       receivedArvTreatmentBefore: {
-        value: '',
+        value: props.observations['Ever received ART'] || '',
         label: 'Ever received ARVs for treatment or prophylaxis?',
         computedValue: (receivedTreatment: string) => ({
           tag: 'registration',
@@ -186,9 +198,8 @@ export default defineComponent({
         required: true,
       },
       dateLastTakenArvs: {
-        value: '',
+        value: props.observations['Date ART last taken'] || '',
         label: 'Date last taken ARVs',
-        placeholder: "Enter Date last taken ARVs",
         computedValue: (date: string) => ({
           tag: 'registration',
           obs: registrationService.buildValueDate('Date ART last taken', date)
@@ -197,7 +208,7 @@ export default defineComponent({
           StandardValidations.required(date),
       },
       everRegisteredAtClinic: {
-        value: '',
+        value: props.observations['Ever registered at ART clinic'] || '',
         label: 'Ever registred at an ART clinic',
         computedValue: (everRegistered: string) => ({
           tag: 'registration',
@@ -207,23 +218,23 @@ export default defineComponent({
           StandardValidations.required(everRegistered),
       },
       artInitiationLocation: {
-        value: '',
+        value: props.observations['Location of ART initiation'] || '',
         label: 'Location of ART Initiation',
-        computedValue: async (facility: Option) => {
-          return {
-            tag:'registration',
-            obs: registrationService.buildValueText('Location of ART initiation', facility.label)
-          }
-        },
+        computedValue: (facility: Option | string) => ({
+          tag:'registration',
+          obs: consultationService.buildValueText(
+            'Location of ART initiation',
+            typeof facility === 'string' ? facility : facility.label
+          )
+        }),
         validation: async (location: Option, f: DTForm) => {
           return f.everRegisteredAtClinic.value === 'Yes' &&
            StandardValidations.required(location)
         }
       },
       artStartDate: {
-        value: '',
+        value: props.observations['Date ART started'] || '',
         label: 'Date started ART',
-        placeholder: 'Date started ART',
         computedValue: (date: string) => ({
           tag: 'registration',
           obs: registrationService.buildValueDate('Date ART started', date)
@@ -234,7 +245,7 @@ export default defineComponent({
         }
       },
       initialWeight: {
-        value: '',
+        value: props.observations['weight'] || '',
         label: 'Initial Weight',
         placeholder: 'Enter weight',
         computedValue: (weight: number) => ({
@@ -249,7 +260,7 @@ export default defineComponent({
         }
       },
       initialHeight: {
-        value: '',
+        value: props.observations['Height'] || '',
         label: 'Initial Height',
         placeholder: 'Enter height',
         computedValue: (height: number) => ({
@@ -264,24 +275,30 @@ export default defineComponent({
         }
       },
       initialTBStatus: {
-        value: '',
+        value: props.observations["TB Status at Initiation"] || '',
         label: 'Initial TB Status',
         placeholder: 'select TB status',
         computedValue: (status: Option) => ({
           tag: 'registration',
-          obs: registrationService.buildValueCoded("TB Status at Initiation", status.label)
+          obs: registrationService.buildValueCoded(
+            "TB Status at Initiation", 
+            typeof status === 'string' ? status : status.label
+          )
         }),
         validation: async (status: Option, f: DTForm) => {
           return f.everRegisteredAtClinic.value === 'Yes' && StandardValidations.required(status)
         }
       },
       tptHistory: {
-        value: '',
+        value: props.observations["Previous TB treatment history"] || '',
         label: "TPT History",
         placeholder: "Select TPT history",
         computedValue: (history: Option) => ({
           tag: "consultation",
-          obs: consultationService.buildValueText("Previous TB treatment history", history.label)
+          obs: consultationService.buildValueText(
+            "Previous TB treatment history", 
+            typeof history === 'string' ? history : history.label
+          )
         }),
         validation: async (history, form) => {
           return form.everRegisteredAtClinic.value === 'Yes' && 
@@ -289,7 +306,7 @@ export default defineComponent({
         }
       },
       tptStartDate: {
-        value: '',
+        value: props.observations['TPT Drugs Received'] || '',
         label: "Date started TPT",
         validation: async (date, form) => {
           return form.tptHistory?.value?.label?.match(/currently/i) && 
@@ -305,17 +322,14 @@ export default defineComponent({
             (history.match(/ipt/i) || history.includes('3HP (RFP + INH)')) && 
             StandardValidations.required(amount)
         },
-        computedValue: (amount, form) => {
-          const drug = customRegimenIngredients.value.find(d => d.name === 'INH or H (Isoniazid 300mg tablet)')
-          return {
-            tag: 'consultation',
-            obs:  consultationService.buildObs('TPT Drugs Received', {
-              'value_drug': drug?.drug_id || 0,
-              'value_datetime': form?.tptStartDate.value || null,
-              'value_numeric': amount || 0
-            })
-          }
-        },
+        computedValue: (amount, form) => ({
+          tag: 'consultation',
+          obs:  consultationService.buildObs('TPT Drugs Received', {
+            'value_drug': customRegimenIngredients.value.find(d => d.name === 'INH or H (Isoniazid 300mg tablet)')?.drug_id || 0,
+            'value_datetime': form?.tptStartDate.value || null,
+            'value_numeric': amount || 0
+          })
+        }),
       },
       rifapentineQty: {
         value: '',
@@ -325,17 +339,14 @@ export default defineComponent({
           return history?.match(/currently/i) && history.includes('3HP (RFP + INH)') && 
             StandardValidations.required(amount)
         },
-        computedValue: (amount, form) => {
-          const drug = customRegimenIngredients.value.find(d => d.name === 'Rifapentine (150mg)')
-          return {
-            tag: 'consultation',
-            obs: consultationService.buildObs('TPT Drugs Received', {
-              'value_drug': drug?.drug_id || 0,
-              'value_datetime': form?.tptStartDate.value || null,
-              'value_numeric': amount || 0
-            })
-          }
-        },
+        computedValue: (amount, form) => ({
+          tag: 'consultation',
+          obs: consultationService.buildObs('TPT Drugs Received', {
+            'value_drug': customRegimenIngredients.value.find(d => d.name === 'Rifapentine (150mg)')?.drug_id || 0,
+            'value_datetime': form?.tptStartDate.value || null,
+            'value_numeric': amount || 0
+          })
+        }),
       },
       threeHPQty: {
         value: '',
@@ -345,65 +356,69 @@ export default defineComponent({
           return history?.match(/currently/i) && history.includes('INH 300 / RFP 300 (3HP)') && 
             StandardValidations.required(amount)
         },
-        computedValue: (amount, form) => {
-          const drug = customRegimenIngredients.value.find(d => d.name === 'INH 300 / RFP 300 (3HP)')
-          return {
-            tag: 'consultation',
-            obs: consultationService.buildObs('TPT Drugs Received', {
-              'value_drug': drug?.drug_id || 0,
-              'value_datetime': form?.tptStartDate.value || null,
-              'value_numeric': amount || 0
-            })
-          }
-        },
+        computedValue: (amount, form) => ({
+          tag: 'consultation',
+          obs: consultationService.buildObs('TPT Drugs Received', {
+            'value_drug': customRegimenIngredients.value.find(d => d.name === 'INH 300 / RFP 300 (3HP)')?.drug_id || 0,
+            'value_datetime': form?.tptStartDate.value || null,
+            'value_numeric': amount || 0
+          })
+        }),
       },
       tptStartLocation: {
-        value: '',
+        value: props.observations['Location TPT Last Received'] || '',
         label: "TPT Transfer From",
         validation: async (date, form) => {
           return form.tptHistory?.value?.label?.match(/currently/i) && 
             StandardValidations.required(date)
         },
-        computedValue: (facility: Option) => ({
+        computedValue: (facility: Option | string) => ({
           tag:'consultation',
           obs: consultationService.buildValueText(
-            'Location TPT last received', facility.label
+            'Location TPT Last Received',
+            typeof facility === 'string' ? facility : facility.label
           )
         }),
       },
       confirmatoryTest: {
-        value: '',
+        value: props.observations['Confirmatory hiv test type'] || '',
         label: 'Confirmatory Test',
         placeholder: 'Select confirmatory test',
         required: true,
         computedValue(test: Option){
           return {
             tag: 'registration',
-            obs: registrationService.buildValueCoded('Confirmatory hiv test type', test.value)
+            obs: registrationService.buildValueCoded(
+              'Confirmatory hiv test type',
+              typeof test === 'string' ? test : test.value
+            )
           }
         }
       },
       confirmatoryTestLocation: {
-        value: '',
+        value: props.observations['Confirmatory HIV test location'] || '',
         label: 'Location of Confirmatory',
         placeholder: 'Select location',
         validation: async (location: Option, f: DTForm) => {
-          return f.confirmatoryTest.value.label !== 'Not done' && StandardValidations.required(location)
+          return !(f.confirmatoryTest.value.label === 'Not done' || f.confirmatoryTest.value === 'Not done') && 
+            StandardValidations.required(location)
         },
-        computedValue(facility: Option){
+        computedValue(facility: Option | string){
           return {
             tag: 'registration',
             obs: registrationService.buildValueText(
-              'Confirmatory HIV test location', facility.label
+              'Confirmatory HIV test location', 
+              typeof facility === 'string' ? facility : facility.label
             )
           }
         }
       },
       confirmatoryTestDate: {
-        value: '',
+        value: props.observations['Confirmatory HIV test date'] || '',
         label: 'Confirmatory HIV Test Date',
         validation: async (date: Option, f: DTForm) => {
-          return f.confirmatoryTest.value.label !== 'Not done' && StandardValidations.required(date)
+          return !(f.confirmatoryTest.value.label === 'Not done' || f.confirmatoryTest.value === 'Not done') && 
+            StandardValidations.required(date)
         },
         computedValue: (date: string) => ({
           tag: 'registration',
@@ -419,6 +434,8 @@ export default defineComponent({
       }
     });
 
+    const isConfirmatoryTestDone = computed(() => !(form.confirmatoryTest.value.label === 'Not done' || form.confirmatoryTest.value === 'Not done'))
+
     watch(form.receivedArvTreatmentBefore, state => {
       if (state.value === 'No') {
         form.everRegisteredAtClinic.value = ''
@@ -426,8 +443,11 @@ export default defineComponent({
     });
 
     const tptDrugs = computed(() => {
-      const tptHistory = form.tptHistory.value?.label
-      if(tptHistory?.match(/currently/i)){
+      const tptHistory = typeof form.tptHistory.value === 'string' 
+        ? form.tptHistory.value 
+        : form.tptHistory.value?.label
+      
+        if(tptHistory?.match(/currently/i)){
         if(tptHistory.match(/ipt/i)) {
           return ["INH or H (Isoniazid 300mg tablet)"]
         } else if(tptHistory.includes("3HP (RFP + INH)")){
@@ -485,6 +505,7 @@ export default defineComponent({
       today,
       patientDob,
       form,
+      isConfirmatoryTestDone,
       initialTbStatusOptions,
       tptHistoryOptions,
       HIVTestOptions,

@@ -195,6 +195,30 @@ export const menuItems: MenuItem[] = [
             img: 'reports/restart.png',
             url: '/emc_clinic_tx_rtt'
           },
+          {
+            title: 'Clinic Retention',
+            id: 'emc_clinic_retention',
+            img: 'reports/retention.png',
+            url: '/emc_clinic_retention'
+          },
+          {
+            title: 'Viral Load',
+            id: 'emc_viral_load_report',
+            img: 'reports/vl.png',
+            url: '/emc_viral_load_report'
+          },
+          {
+            title: 'Other Outcomes',
+            id: 'emc_other_outcomes',
+            img: 'reports/defaulter-list.png',
+            url: '/emc_other_outcomes'
+          },
+          {
+            title: 'Lab Test(s) Results',
+            id: 'emc_lab_results',
+            img: 'reports/lab-results.png',
+            url: '/emc_lab_results'
+          },
         ]
       }
     ]

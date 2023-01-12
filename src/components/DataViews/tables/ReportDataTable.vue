@@ -95,14 +95,14 @@ export default defineComponent({
   props: {
     config: {
         type: Object as PropType<TableInterface>,
-        default: {}
+        default: () => ({})
     },
     columns: {
       type: Object as PropType<Array<ColumnInterface[]>>,
       required: true
     },
     rows: {
-      type: Object as PropType<Array<any[]>>,
+      type: Array as PropType<Array<any[]>>,
       default: () => []
     },
     newPage: {

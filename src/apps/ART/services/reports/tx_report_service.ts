@@ -1,5 +1,17 @@
 import { ArtReportService } from "./art_report_service";
 import Url from "@/utils/Url";
+import { get, uniq } from "lodash";
+import { AGE_GROUPS } from "./patient_report_service";
+
+const genders = ["F", "M"];
+export const txMlIndicators = [
+    'Died',
+    'IIT <3 mo',
+    'IIT 3-5 mo',
+    'IIT 6+ mo',
+    'Tranferred out',
+    'Refused (Stopped)'
+]
 
 export class TxReportService extends ArtReportService {
     org: string;
@@ -79,16 +91,55 @@ export class TxReportService extends ArtReportService {
         return this.getReport('tx_rtt')
     }
 
-    getMaternalStatus(patientIds: number[]) {
-        const params = Url.parameterizeObjToString({
-            'start_date': this.startDate,
-            'end_date': this.endDate,
-            'date': this.date,
-            'program_id': this.programID,
-            'report_definition': 'pepfar'
+    buildTxMlReportData (cohort: Record<string, any>) {
+        const data: Record<string, any>[] = [];
+        genders.forEach(gender => {
+            AGE_GROUPS.forEach(group => {
+                const tmp: Record<string, any> = { gender, 'age_group': group }
+                txMlIndicators.forEach((indicator, index) => {
+                    tmp[indicator] = get(cohort, `${group}.${gender}[${index}]`, [])
+                })
+                data.push(tmp)
+            })
         })
-        return ArtReportService.postJson(`vl_maternal_status?${params}`, {
-            'patient_ids': patientIds
-        })
+        return data
+    }
+
+    aggregateTxML(cohort: Record<string, any>, gender: 'M' | 'F', indicator: string): Array<any> {
+        return Object.values(cohort).reduce((patients: any, c: any) => {
+            return c[gender] ? [...c[gender][txMlIndicators.indexOf(indicator)], ...patients] : patients
+        }, []) as Array<any>
+    }
+
+    getAggregatedTxMLMaleData (cohort: Record<string, any>) {
+        const data: Record<string, any> = { gender: "Male", 'age_group': "All" }
+        for (const indicator of txMlIndicators) {
+            data[indicator] = this.aggregateTxML(cohort, 'M', indicator)
+        }
+        return data;
+    }
+
+    async getAggregatedTxMLMaternalStatus(cohort: Record<string, any>) {
+        const aggregated = txMlIndicators.reduce((aggregated: any, indicator: string) => [
+            ...aggregated,
+            { indicator, data: this.aggregateTxML(cohort, 'F', indicator) },
+        ], [])
+
+        const allFemales = uniq<number>(aggregated.reduce((totals: any, cur: any) => [...totals, ...cur.data], []).map((d: any) => d.patient_id))
+        const maternalStatus = await this.getMaternalStatus(allFemales)
+        const allPregnant = maternalStatus.FBf.concat(maternalStatus.FP)
+        const data: Record<string, any>[] = [];
+
+        for (const gender of ['FP', 'FNP', 'FBf']) {
+            const tmp: Record<string, any> = { gender, 'age_group': 'All' }
+            for (const indicator of txMlIndicators) {
+                tmp[indicator] = aggregated
+                    .reduce((all: any, i: any) => i.indicator === indicator ? [...all, ...i.data] : all, [])
+                    .filter((p: any) => gender === 'FNP' ? !allPregnant.includes(p.patient_id) : maternalStatus[gender].includes(p.patient_id))
+            }
+            data.push(tmp)
+        }
+
+        return data;
     }
 }

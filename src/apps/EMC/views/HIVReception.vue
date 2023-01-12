@@ -9,6 +9,8 @@
               :patient="patient" 
               :isNewPatient="isNewPatient"
               :sitePrefix="sitePrefix"
+              :initialVisitDate="initialVisitDate"
+              :observations="observations"
               @onValue="onValue"
               @onNext="onNext"
               @onPrevious="onPrevious"
@@ -40,6 +42,8 @@ import { StagingService } from '@/apps/ART/services/staging_service';
 import { EncounterService } from '@/services/encounter_service';
 import { isEmpty, get } from 'lodash';
 import { Encounter } from '@/interfaces/encounter';
+import { Observation } from '@/interfaces/observation';
+import { ConceptService } from '@/services/concept_service';
 
 export default defineComponent({
   components: {
@@ -65,6 +69,15 @@ export default defineComponent({
     const patient = ref({} as Patientservice)
     const initialVisitDate = ref('')
     const firstVisitEncounters = ref([] as number[])
+    const observations = reactive({} as Record<string, any>)
+    const isEnrolled = ref(false);
+
+    const setEnrollementStatus = () => {
+      const programService = new PatientProgramService(patientId);
+      programService.getPrograms().then((programs: any[]) => {
+        isEnrolled.value = programs.some(p => p.program.name === "HIV PROGRAM")
+      })
+    }
     
     const onValue = (form: any) => data[form.type] = form.data;
     const onNext = () => activeForm.value = "Staging"
@@ -73,56 +86,58 @@ export default defineComponent({
     const onFinish = async () => {
       const { arvNumberEditable, formData, computedData } = data.registration
       const { computedData: stagingData } = data.staging
-      await ClinicRegistrationService.setSessionDate(formData.initialVisitDate)
-      const registrationService = new ClinicRegistrationService(patientId, -1)
-      const consultationService = new ConsultationService(patientId, -1)
-      const vitalsService = new VitalsService(patientId, -1)
-      const patientTypeService = new PatientTypeService(patientId, -1);
-      const stagingService = new StagingService(patientId, patient.value.getAge(), -1)
-
+      
       try {
         loader.show();
         
         // Void first visit encounters
         if(!isNewPatient && !isEmpty(firstVisitEncounters.value)) {
-          firstVisitEncounters.value.forEach(encounter => {
-            EncounterService.voidEncounter(encounter, 'Duplicate')
-          });
+          for(const encounter of firstVisitEncounters.value) {
+            await EncounterService.voidEncounter(encounter, 'Duplicate')
+          }
         }
+
+        // set session date
+        await ClinicRegistrationService.setSessionDate(formData.initialVisitDate)
 
         // ARV Number
         if(arvNumberEditable && formData.arvNumber) {
           await patient.value.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`)
         }
 
-        // Patient Type Encunter
+        // Patient Type Encunter      
+        const patientTypeService = new PatientTypeService(patientId, -1);
         await patientTypeService.createEncounter()
         const pTypeObs = await resolveObs(computedData, 'patient type')
         await patientTypeService.saveObservationList(pTypeObs)
 
         // Registration Encounter
+        const registrationService = new ClinicRegistrationService(patientId, -1)
         await registrationService.createEncounter()
         const regObs = await resolveObs(computedData, 'registration')
         await registrationService.saveObservationList(regObs)
 
         // Vitals and Consultation Encounters
         if(formData.everRegisteredAtClinic === 'Yes') {
+          const vitalsService = new VitalsService(patientId, -1)
           await vitalsService.createEncounter()
           const vitalsObs = await resolveObs(computedData, 'vitals')
           await vitalsService.saveObservationList(vitalsObs)
 
+          const consultationService = new ConsultationService(patientId, -1)
           await consultationService.createEncounter()
           const consultationObs = await resolveObs(computedData, 'consultation')
           await consultationService.saveObservationList(consultationObs)
         }
 
         // Staging encounter
+        const stagingService = new StagingService(patientId, patient.value.getAge(), -1)
         await stagingService.createEncounter()
         const obs = await resolveObs(stagingData)
         await stagingService.saveObservationList(obs)        
         
         // enroll patient into HIV program
-        if(isNewPatient) {
+        if(isNewPatient || !isEnrolled.value) {
           const patientProgram = new PatientProgramService(patientId)
           patientProgram.setProgramDate(formData.initialVisitDate)
           await patientProgram.enrollProgram();
@@ -138,28 +153,41 @@ export default defineComponent({
         toastWarning(`${error}`)
       }
     }
+
+    const parseObs = async (obs: Observation[]) => {
+      for (const v of obs) {
+        if(!firstVisitEncounters.value.includes(v.encounter_id)) firstVisitEncounters.value.push(v.encounter_id)
+        const concept = await ConceptService.getConceptName(v.concept_id);
+        let value = '' as any
+        if(v.value_datetime) value = v.value_datetime;
+        else if(v.value_drug) value = v.value_datetime;
+        else if(v.value_text) value = v.value_text;
+        else if(v.value_numeric) value = v.value_numeric;
+        else if(v.value_coded) value = await ConceptService.getConceptName(v.value_coded);
+        if(v.value_modifier) value = v.value_modifier + value;
+        observations[concept] = value
+      }
+    }
     
     onMounted(async () => {
-      const p = await Patientservice.findByID(patientId);
-      patient.value = new Patientservice(p);
-      Store.get('SITE_PREFIX').then(prefix => sitePrefix.value = prefix);
-      isReady.value = true;
+      setEnrollementStatus()
+      patient.value = await Store.get("ACTIVE_PATIENT", { patientID: patientId });
+      Store.get('SITE_PREFIX').then(prefix => sitePrefix.value = prefix);      
       if(!isNewPatient) {
-        // get first visit encounters
-        EncounterService.getEncounters(patientId, {"encounter_type_id": 9}).then((enc: Encounter[]) => {
-          if(isEmpty(enc)) return
-          const encounterTypes = [9, 53, 6, 5, 52]
-          initialVisitDate.value = get(enc, '[0].encounter_datetime', '')
-          if(initialVisitDate.value) {
-            EncounterService.getEncounters(patientId, { date: initialVisitDate.value }).then((encounters: Encounter[]) => {
-              firstVisitEncounters.value = encounters
-                .filter(enc => encounterTypes.includes(enc.encounter_type))
-                .map(enc => enc.encounter_id)
-            })
+        const enc = await EncounterService.getEncounters(patientId, {"encounter_type_id": 9})
+        if(isEmpty(enc)) return isReady.value = true;
+        initialVisitDate.value = get(enc, '[0].encounter_datetime', '')
+        if(initialVisitDate.value) {
+          const encounters: Encounter[] = await  EncounterService.getEncounters(patientId, { date: initialVisitDate.value });
+          for (const enc of encounters){
+            if([9, 53, 6, 5, 52].includes(enc.encounter_type))
+              await parseObs(enc.observations)
           }
-        });
+        }
       }
+      isReady.value = true;
     })
+
     return {
       activeForm,
       patient,
@@ -168,6 +196,8 @@ export default defineComponent({
       isRegistration,
       sitePrefix,
       isReady,
+      initialVisitDate,
+      observations,
       onValue,
       onFinish,
       onNext,

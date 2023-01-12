@@ -24,6 +24,7 @@ import { DisaggregatedReportService } from "@/apps/ART/services/reports/disaggre
 import { toastWarning } from "@/utils/Alerts";
 import { get, isEmpty } from "lodash";
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
+import { REGIMENS } from "@/apps/ART/services/reports/regimen_report_service"
 import { Patientservice } from "@/services/patient_service";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
@@ -60,18 +61,41 @@ export default defineComponent({
       { path: "txNew", label: "Tx new (new on ART)", drillable: true },
       { path: "txCurr", label: "TX curr (receiving ART)", drillable: true },
       { path: "txGivenIpt", label: "TX curr (received IPT)", drillable: true },
-      { path: "txScreenTB", label: "TX curr (screened for TB)", drillable: true }
+      { path: "txScreenTB", label: "TX curr (screened for TB)", drillable: true },
+      ...REGIMENS.map(r => ({ path: r, label: r, drillable: true })),
+      { path: "N/A", label: "Unknown", drillable: true },
+      { path: "total", label: "Total", drillable: true },
     ]
 
     const addAggregation = (col: string, gender: string, data = [] as any[]) => {
       aggregations.push({col, gender, data});
     }
 
+    const getRegimenRow = async (group: string, gender: string) => {
+      const row: Record<string, any> = {}
+      const distribution = await report.getRegimenDistribution()
+      for (const regimen of [...REGIMENS, 'N/A']) {
+        const data = get(distribution, regimen, [])
+        row[regimen] = data
+        addAggregation(regimen, gender, data)
+      }
+      row.total = Object.values(row).reduce((acc, val) => acc.concat(val), [])
+      addAggregation('regimenTotals', gender, row.total)
+      return row
+    }
 
     const getTotalAggregations = (column: string, gender: string) => {
       return aggregations
         .filter(a => a.col === column && a.gender === gender)
         .reduce((acc, val) => acc.concat(val.data), [])
+    }
+
+    const getTotalRegimensAggregations = (gender: string) => {
+      const row: Record<string, any> = {}
+      for (const regimen of [...REGIMENS, 'N/A']) {
+        row[regimen] = getTotalAggregations(regimen, gender)
+      }
+      return row
     }
 
     const setTotalMalesRow = (index: number) => {
@@ -82,6 +106,8 @@ export default defineComponent({
         txCurr: getTotalAggregations('txCurr', 'Male'),
         txGivenIpt: getTotalAggregations('txGivenIpt', 'Male'),
         txScreenTB: getTotalAggregations('txScreenTB', 'Male'),
+        ...getTotalRegimensAggregations("Male"),
+        total: getTotalAggregations('regimenTotals', 'Male'),
       }]
     }
 
@@ -97,6 +123,14 @@ export default defineComponent({
         .filter((a: any) => a.gender === 'Female' && a.col === column)
         .reduce((accum: any, cur: any) => accum.concat(cur.data.filter((i: any) => !isPregnant(i, column))), [])
 
+      const fnpRegimensRow = () => {
+        const row: Record<string, any> = {}
+        for (const regimen of [...REGIMENS, 'N/A']) {
+          row[regimen] = fnpTD(regimen)
+        }
+        return row
+      }
+
       sortIndexes[index] = [{
         'age_group': "All",
         gender: "FNP",
@@ -104,6 +138,8 @@ export default defineComponent({
         txCurr: fnpTD('txCurr'),
         txGivenIpt: fnpTD('txGivenIpt'),
         txScreenTB: fnpTD('txScreenTB'),
+        ...fnpRegimensRow(),
+        total: fnpTD('regimenTotals'),
       }]
     }
 
@@ -154,6 +190,7 @@ export default defineComponent({
           txCurr,
           txGivenIpt,
           txScreenTB,
+          ...await getRegimenRow(group, category.altGender),
         })
       }
     }

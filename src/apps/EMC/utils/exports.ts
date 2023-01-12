@@ -36,7 +36,7 @@ function convertToCsv({columns, rows, quarter, period, filters}: CsvOptions) {
     .filter(column => column.exportable !== false)
     .map(column => {
       let value = get(row, column.path);
-      if (typeof column.formatter === 'function' && value) value = column.formatter(value)
+      if (typeof column.formatter === 'function' && value) value = column.formatter(value, row)
       return sanitize(column.drillable && Array.isArray(value) ? value.length : value);
     })
     .join(",")
