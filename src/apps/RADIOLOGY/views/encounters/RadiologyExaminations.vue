@@ -71,12 +71,17 @@ export default defineComponent({
         },
         async onFinish(_: any, computedValues: any) {
             await this.service.createEncounter()
-            await this.service.saveObservationList((await this.resolveObs(computedValues)))
+            await this.service.saveObservationList((await this.resolveObs(computedValues, 'obs')))
             for(const v of Object.values(computedValues) as any) {
                 if (typeof v.order === 'function') {
                     const res = await this.service.createOrder(v.order(this.service.getEncounterID()))
-                    if (typeof res === 'object' && res.accession_number) {
-                        this.service.printExamination(res.accession_number)
+                    if (typeof res === 'object') {
+                        if (typeof v.buildOrderObs === 'function') {
+                            await this.service.saveObs((await v.buildOrderObs(res.order_id)))
+                        }
+                        if (res.accession_number) {
+                            this.service.printExamination(res.accession_number)
+                        }
                     }
                 }
             }
@@ -91,8 +96,14 @@ export default defineComponent({
                 type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 computedValue: (v: Option) => {
+                    console.log(v)
                     return {
-                        obs: this.service.buildValueCoded('RADIOLOGY TEST', v.value),
+                        buildOrderObs: (orderID: number) => this.service.buildObs(
+                            'RADIOLOGY TEST', {
+                                'value_coded': v.value,
+                                'order_id': orderID
+                            }
+                        ),
                         order: (encounterID: number) => {
                             const data: any = {
                                 'encounter_id': encounterID,
@@ -129,6 +140,7 @@ export default defineComponent({
                 validation: (v: Option) => Validation.required(v),
                 computedValue: (v: Option) => {
                     return {
+                        tag: 'obs',
                         obs: this.service.buildValueCoded('Examination', v.value)
                     }
                 },
@@ -151,6 +163,7 @@ export default defineComponent({
                 condition: () => !isEmpty(this.detailedExaminationOptions),
                 computedValue: (v: Option) => {
                     return {
+                        tag: 'obs',
                         obs: this.service.buildValueCoded('Detailed examination', v.value),
                     }
                 },
@@ -166,6 +179,7 @@ export default defineComponent({
                 validation: (v: Option) => Validation.required(v),
                 computedValue: (v: Option) => {
                     return {
+                        tag: 'obs',
                         obs: this.service.buildValueText('Source of referral', v.label)
                     }
                 },
@@ -188,6 +202,7 @@ export default defineComponent({
             field.condition = (f: any) => f.referral_type.value === 'External'
             field.computedValue = (v: Option) => {
                 return {
+                    tag: 'obs',
                     obs: this.service.buildValueText('REFERRED FROM', v.label)
                 }
             }
@@ -203,6 +218,7 @@ export default defineComponent({
                 condition: (f: any) => f.referral_type.value === 'Internal',
                 computedValue: (v: Option) => {
                     return {
+                        tag: 'obs',
                         obs: this.service.buildValueText('REFERRED FROM', v.label)
                     }
                 },
@@ -252,6 +268,7 @@ export default defineComponent({
                 type: FieldType.TT_SELECT,
                 computedValue: (v: Option) => {
                     return {
+                        tag: 'obs',
                         obs: this.service.buildValueCoded('PAYING', v.value) 
                     }
                 },
@@ -270,6 +287,7 @@ export default defineComponent({
                 condition: (f: any) => f.paying.value === 'Yes',
                 computedValue: (v: Option) => {
                     return {
+                        tag: 'obs',
                         obs: this.service.buildValueCoded('PAYMENT TYPE', v.value)
                     }
                 },
@@ -289,6 +307,7 @@ export default defineComponent({
                 condition: (f: any) => f.payment_type.value === 'Cash',
                 computedValue: (v: Option) => {
                     return {
+                        tag: 'obs',
                         obs: this.service.buildValueText('RECEIPT NUMBER', v.value)
                     }
                 },
@@ -305,6 +324,7 @@ export default defineComponent({
                 type: FieldType.TT_TEXT,
                 computedValue: (v: Option) => {
                     return {
+                        tag: 'obs',
                         obs: this.service.buildValueText('INVOICE NUMBER', v.value)
                     }
                 },
@@ -320,6 +340,7 @@ export default defineComponent({
                 condition: (f: any) => f.receipt_number.value,
                 computedValue: (v: Option) => {
                     return {
+                        tag: 'obs',
                         obs: this.service.buildValueNumber('PAYMENT AMOUNT', v.value)
                     }
                 },
@@ -337,6 +358,7 @@ export default defineComponent({
                 condition: (f: any) => f.invoice_number.value,
                 computedValue: (v: Option) => {
                     return {
+                        tag: 'obs',
                         obs: this.service.buildValueNumber('INVOICE AMOUNT', v.value)
                     }
                 },
