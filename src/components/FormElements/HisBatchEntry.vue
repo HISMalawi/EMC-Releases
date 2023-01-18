@@ -69,7 +69,6 @@ import { FieldType } from "../Forms/BaseFormElements";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Service } from "@/services/service";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
-import { CHARACTERS_AND_NUMBERS_LO } from "../Keyboard/KbLayouts";
 import { toDate, toNumString } from "@/utils/Strs";
 
 export default defineComponent({
@@ -155,7 +154,7 @@ export default defineComponent({
         helpText: this.getModalTitle('Enter batch number'),
         type: FieldType.TT_TEXT,
         config: {
-          customKeyboard: [CHARACTERS_AND_NUMBERS_LO, [['Delete']]]
+          initialkb: 'qwerty'
         },
         defaultValue: () => this.getDrugValue(index, 'batchNumber'),
       }, 
