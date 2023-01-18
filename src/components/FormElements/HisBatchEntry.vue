@@ -182,7 +182,7 @@ export default defineComponent({
       },
       (v: Option) => this.setDrugValue(index, 'expiry', v))
     },
-    async launchKeyPad(currentField: Field, onFinish: Function) {
+    async launchKeyPad(currentField: Field, onFinish: (value: Option) => any) {
       const modal = await modalController.create({
         component: TouchField,
         backdropDismiss: false,
