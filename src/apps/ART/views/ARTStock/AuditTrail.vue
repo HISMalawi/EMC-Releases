@@ -26,6 +26,11 @@ import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue";
 import HisDate from "@/utils/Date";
 import { toNumString } from '@/utils/Strs'
 
+const thNumStyling = {
+    textAlign: "right", 
+    paddingRight: ".5rem" 
+};
+
 export default defineComponent({
     mixins: [ReportMixin],
     components: { ReportTemplate },
@@ -37,7 +42,7 @@ export default defineComponent({
                 table.thTxt('Medication'), 
                 table.thTxt('Transaction type'),
                 table.thTxt('Transaction date'), 
-                table.thTxt('Net Quantity')
+                table.thTxt('Net Quantity', {style: thNumStyling})
             ]
         ],
         fields: [
@@ -79,7 +84,7 @@ export default defineComponent({
                                         table.thTxt('Product Code'),
                                         table.thTxt('Batch Number'),
                                         table.thTxt('Medication'),
-                                        table.thTxt('Amount')
+                                        table.thTxt('Amount', { style: thNumStyling })
                                     ]],
                                     data.map((d: any) => [
                                         table.td(d.product_code),
@@ -93,7 +98,7 @@ export default defineComponent({
                             {
                                 style: {
                                     textAlign: "right",
-                                    paddingRight: "2rem"
+                                    paddingRight: ".5rem"
                                 }
                             })
                         ])
