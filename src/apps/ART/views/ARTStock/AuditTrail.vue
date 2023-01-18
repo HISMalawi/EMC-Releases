@@ -63,6 +63,9 @@ export default defineComponent({
         ] as Field[]
     }),
     methods: {
+        toTins(amount: number, packSize = 1){
+            return Math.abs(Math.trunc(amount / packSize))
+        },
         async onPeriod(_: any, c: any) {
             this.rows = []
             this.report = new StockReportService()
@@ -76,7 +79,7 @@ export default defineComponent({
                             table.td(s.drug_name),
                             table.td(s.transaction_type),
                             table.tdDate(s.transaction_date),
-                            table.tdLink(toNumString(Math.abs(s.cum_per_day_stock_commited)), async () =>  {
+                            table.tdLink(toNumString(this.toTins(s.cum_per_day_stock_commited, s.pack_size)), async () =>  {
                                 const data = await this.report.getTrailDetails(s.transaction_date, s.drug_id, s.transaction_type);
                                 this.drilldownData(
                                     `${s.drug_name} ${s.transaction_type.toLowerCase()} on ${HisDate.toStandardHisDisplayFormat(s.transaction_date)}`,
@@ -90,7 +93,7 @@ export default defineComponent({
                                         table.td(d.product_code),
                                         table.td(d.batch_number),
                                         table.td(d.drug_name),
-                                        table.tdNum(Math.abs(d.amount_committed_to_stock))
+                                        table.tdNum(this.toTins(d.amount_committed_to_stock, d.pack_size))
                                     ]),
                                     false
                                 )
