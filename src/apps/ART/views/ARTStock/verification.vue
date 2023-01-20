@@ -36,7 +36,7 @@ export default defineComponent({
       for (let index = 0; index < items.length; index++) {
         const element = items[index].value;
         const vals = {
-                "current_quantity": element['current_quantity'],
+                "current_quantity": element['current_quantity'] * StockService.getPackSize(element.drug_id),
                 "reason": formData.reason.value
             };
             const f = await this.stockService.updateItem(element['id'], vals)

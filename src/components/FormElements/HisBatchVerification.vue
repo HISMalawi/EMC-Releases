@@ -138,7 +138,7 @@ export default defineComponent({
         this.setDrugValue(index, 'current_quantity', v)
       })
     },
-    async launchKeyPad(currentField: Field, onFinish: Function) {
+    async launchKeyPad(currentField: Field, onFinish: (value: Option) => any) {
       const modal = await modalController.create({
         component: TouchField,
         backdropDismiss: false,
@@ -158,7 +158,9 @@ export default defineComponent({
           this.drugs[this.selectedDrug].drugID
         )
         this.drugs[index]["entries"] = vals.map((i: any) => {
-          i.originalQuantity = i['current_quantity']
+          if(!i.pack_size) i.pack_size = StockService.getPackSize(i.getPackSize)
+          i.originalQuantity = i['current_quantity'] / (i.pack_size || 1)
+          i.current_quantity = i.originalQuantity
           return i
         })
       }
