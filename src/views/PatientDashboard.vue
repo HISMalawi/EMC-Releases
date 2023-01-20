@@ -41,13 +41,13 @@
             <!-- Mobile dashboard view -->
             <div v-if="screenBreakPoint==='sm'">
                 <component
-                    v-if="activeTab === 1 && patientIsset" 
+                    v-if="appHasCustomContent && activeTab === 1 && patientIsset" 
                     v-bind:is="customDashboardContent"
                     :patient="patient"
                     :visitDate="activeVisitDate"
                     >  
                 </component>
-                <ion-grid v-if="activeTab === 1">
+                <ion-grid v-if="!appHasCustomContent && activeTab === 1">
                     <ion-row>
                         <ion-col size="12"
                             v-for="(card, cardIndex) in patientCards"
@@ -172,14 +172,14 @@
                         </ion-row>
                         <!--Custom Dashboard content-->
                         <component
-                            v-if="patientIsset" 
+                            v-if="appHasCustomContent && patientIsset" 
                             v-bind:is="customDashboardContent"
                             :patient="patient"
                             :visitDate="activeVisitDate"
                             >  
                         </component>
                         <!--Default patient dashboard content-->
-                        <div>
+                        <div v-if="!appHasCustomContent">
                             <ion-row> 
                                 <ion-col 
                                     size="6"
