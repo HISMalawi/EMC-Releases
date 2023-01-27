@@ -1,7 +1,7 @@
 <template>
     <div>
       <view-port :showFull="!showKeyboard" style="padding: 0; height:82vh;" >
-        <his-text-input :value="selected" @onValue="onKBValue" @click="keyboardStatus"/>
+        <his-text-input :value="selected" :placeholder="'Search'" @onValue="onKBValue" @click="keyboardStatus"/>
         <ion-grid>
           <ion-row>
             <ion-col size="12">
