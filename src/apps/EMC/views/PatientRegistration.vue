@@ -230,8 +230,8 @@ export default defineComponent({
       return {...person, ...other}
     }
 
-    const resolveAddress = async (village?: Option) => {
-      const TA = isEmpty(village)
+    const resolveAddress = async (village?: Option) => {  
+      const TA = (isEmpty(village) || !village?.other?.traditional_authority_id)
         ? null
         : await LocationService.getTraditionalAuthorityById(village!.other.traditional_authority_id)
       
