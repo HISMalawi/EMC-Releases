@@ -103,6 +103,10 @@ export default {
           pathUrl: '/view_duplicates'
         },
         {
+          name: "Multiple identifiers",
+          pathUrl: '/multiple_identifiers'
+        },
+        {
           name: "Manage Drug Sets",
           pathUrl: "/anc/drugset",
           condition: () => App.getActiveApp() ? App.getActiveApp()?.applicationName === 'ANC'
