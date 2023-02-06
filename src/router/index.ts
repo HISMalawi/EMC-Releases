@@ -158,9 +158,17 @@ router.beforeEach((to, from, next) => {
   alertController.getTop().then(v => v ? alertController.dismiss() : null)
   toastController.getTop().then(v => v ? toastController.dismiss() : null)
   popoverController.getTop().then(v => v ? popoverController.dismiss() : null)
-  
+  const isSession = sessionStorage.getItem('apiKey') || false
+
+  // EMC dashboard redirection hack
+  const isPocSite = sessionStorage.getItem('isPocSite') || ''
+  if (to.fullPath === '/home' && /true|false/i.test(isPocSite) 
+  && isPocSite === 'false' && isSession) {
+    document.location = '/emc/dashboard'
+    return
+  }
   const whitelistedUri = ['/login', '/settings/host', '/settings/network_settings']
-  if (!sessionStorage.getItem('apiKey') && !whitelistedUri.includes(to.path)) {
+  if (!isSession && !whitelistedUri.includes(to.path)) {
     next('/login')
   }
   next()
