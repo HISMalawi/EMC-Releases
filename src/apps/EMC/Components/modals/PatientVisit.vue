@@ -210,7 +210,12 @@ export default defineComponent({
           tag: 'vitals',
           obs: vitals.buildValueNumber('Weight', weight)
         }),
-        validation: (weight: Option) => vitals.validator({...weight, label: 'Weight'})
+        validation: (weight: Option, form: any) => {
+          if ((isEmpty(weight) || !weight.value) && form.patientPresent.value === 'No') {
+            return null
+          } 
+          return vitals.validator({...weight, label: 'Weight'})
+        } 
       },
       height: {
         value: undefined as number | undefined,
@@ -384,7 +389,10 @@ export default defineComponent({
 
     watch(form.patientPresent, isPresent => {
       if(isPresent.value === "No") {
+        form.weight.required = false
         form.guardianPresent.value = "Yes"
+      } else {
+        form.weight.required = true
       }
     })
 
@@ -498,9 +506,10 @@ export default defineComponent({
       await submitForm (form, async (formData, computedFormData) => {
         await vitals.createEncounter()
         const vitalsObs = await resolveObs(computedFormData, 'vitals')
-        const bmiObs = await buildBmiObs(formData)
-        await vitals.saveObservationList([...vitalsObs, bmiObs])
-
+        if (!isEmpty(vitalsObs)) {
+          const bmiObs = await buildBmiObs(formData)
+          await vitals.saveObservationList([...vitalsObs, bmiObs])
+        }
         await consultations.createEncounter()
         const consultationObs = await resolveObs(computedFormData, 'consultation')
         if(isFemale.value) consultationObs.concat(await buildFpmObs())
