@@ -1975,28 +1975,32 @@ export default [
    },
    {
       "categories": [
-         "cd4_count"
+         "cd4_count",
+         "reason_for_art"
       ],
       "concept_id": 8208,
       "name": "cd4 less than or equal to 750"
    },
    {
       "categories": [
-         "cd4_count"
+         "cd4_count",
+         "reason_for_art"
       ],
       "concept_id": 8262,
       "name": "cd4 less than or equal to 250"
    },
    {
       "categories": [
-         "cd4_count"
+         "cd4_count",
+         "reason_for_art"
       ],
       "concept_id": 8207,
       "name": "cd4 less than or equal to 350"
    },
    {
       "categories": [
-         "cd4_count"
+         "cd4_count",
+         "reason_for_art"
       ],
       "concept_id": 9389,
       "name": "cd4 less than or equal to 500"
@@ -2031,7 +2035,8 @@ export default [
    },
    {
       "categories": [
-         "whole_staging_numbers"
+         "whole_staging_numbers",
+         "reason_for_art"
       ],
       "concept_id": 7561,
       "name": "WHO STAGE I ADULT"
@@ -2045,14 +2050,16 @@ export default [
    },
    {
       "categories": [
-         "whole_staging_numbers"
+         "whole_staging_numbers",
+         "reason_for_art"
       ],
       "concept_id": 7049,
       "name": "WHO STAGE I PEDS"
    },
    {
       "categories": [
-         "whole_staging_numbers"
+         "whole_staging_numbers",
+         "reason_for_art"
       ],
       "concept_id": 7046,
       "name": "WHO STAGE II ADULT"
@@ -2066,14 +2073,16 @@ export default [
    },
    {
       "categories": [
-         "whole_staging_numbers"
+         "whole_staging_numbers",
+         "reason_for_art"
       ],
       "concept_id": 7050,
       "name": "WHO STAGE II PEDS"
    },
    {
       "categories": [
-         "whole_staging_numbers"
+         "whole_staging_numbers",
+         "reason_for_art"
       ],
       "concept_id": 7047,
       "name": "WHO STAGE III ADULT"
@@ -2087,28 +2096,31 @@ export default [
    },
    {
       "categories": [
-         "whole_staging_numbers"
+         "whole_staging_numbers",
+         "reason_for_art"
       ],
       "concept_id": 7051,
       "name": "WHO STAGE III PEDS"
    },
    {
       "categories": [
-         "whole_staging_numbers"
+         "whole_staging_numbers",
+         "reason_for_art"
       ],
       "concept_id": 7048,
       "name": "WHO STAGE IV ADULT"
    },
    {
       "categories": [
-         "whole_staging_numbers"
+         "whole_staging_numbers",
       ],
       "concept_id": 7044,
       "name": "WHO STAGE IV ADULT AND PEDS"
    },
    {
       "categories": [
-         "whole_staging_numbers"
+         "whole_staging_numbers",
+         "reason_for_art"
       ],
       "concept_id": 7052,
       "name": "WHO STAGE IV PEDS"
