@@ -582,7 +582,10 @@ export default defineComponent({
                             }
                         },
                         onClick: (form: any) => {
-                            return this.$router.push(`/patients/confirm?person_id=${form.results.value}`)
+                            if (form.results.other.patientID) {
+                                return this.$router.push(`/patients/confirm?person_id=${form.results.value}`)
+                            }
+                            return this.$router.push(`/patients/confirm?patient_barcode=${form.results.value}`)
                         }
                     }
                 ]
