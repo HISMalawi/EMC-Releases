@@ -1,6 +1,6 @@
 <template>
   <ion-label class=" ion-padding-bottom bold" v-if="model.label">
-    <span></span>{{ model.label }}
+    <span>{{ model.label }}</span>
     <span class="ion-float-right ion-margin-end checkbox-label" v-if="allowUnknown">
       {{ model.label }} Unknown?
       <ion-checkbox v-model="isUnknown"></ion-checkbox>

@@ -253,7 +253,7 @@ export default defineComponent({
           obs: vitalsService.buildValueNumber('weight', weight)
         }),
         validation: async (weight: Option, f: DTForm) => {
-          return f.everRegisteredAtClinic.value === 'Yes' && StandardValidations.validateSeries([
+          return f.everRegisteredAtClinic.value === 'Yes' && weight.value !== "Unknown" && StandardValidations.validateSeries([
             () => StandardValidations.required(weight),
             () => vitalsService.validator({...weight, label: 'Weight'})
           ])
@@ -268,7 +268,7 @@ export default defineComponent({
           obs: registrationService.buildValueNumber('Height', height)
         }),
         validation: async (height: Option, f: DTForm) => {
-          return f.everRegisteredAtClinic.value === 'Yes' && StandardValidations.validateSeries([
+          return f.everRegisteredAtClinic.value === 'Yes' && height.value !== "Unknown" && StandardValidations.validateSeries([
             () => StandardValidations.required(height),
             () => vitalsService.validator({ ...height, label: 'Height' })
           ])
