@@ -616,6 +616,7 @@ export default defineComponent({
                             score: `${score * 100}%`,
                             newPerson: createdPerson,
                             foundPerson: person,
+                            docID: person.id,
                             comparisons: [
                                 [
                                     'Name',
@@ -667,9 +668,9 @@ export default defineComponent({
                         }
                     },
                     {
-                        name: 'Confirm',
+                        name: 'Select',
                         slot: 'end',
-                        color: 'warning',
+                        color: 'success',
                         state: {
                             visible: {
                                 default: () => false,
@@ -677,7 +678,12 @@ export default defineComponent({
                             }
                         },
                         onClick: (form: any) => {
-                            this.$router.push(`/patients/confirm?person_id=${form.possible_duplicates.value}`)
+                            this.ddeInstance.importPatient(form.possible_duplicates.other.docID)
+                                .then((result: any) => {
+                                    this.$router.push(`/patients/confirm?person_id=${result.patient_id}`)
+                                }).catch(() => {
+                                    this.$router.push(`/patients/confirm?person_id=${form.possible_duplicates.value}`)
+                                })
                         }
                     }
                 ]
