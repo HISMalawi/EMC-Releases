@@ -80,7 +80,7 @@ export default defineComponent({
       default: () => [],
     },
     asyncOptions: {
-      type: Function as PropType<(filter: string, page: number) => Promise<Option[]> | Option[]>,
+      type: Function as PropType<(filter: string, page?: number) => Promise<Option[]> | Option[]>,
       required: false,
     },
     allowCustom: {
@@ -162,7 +162,7 @@ export default defineComponent({
 
     const filterOptions = async () => {
       const filtered = typeof props.asyncOptions === 'function' 
-        ? await props.asyncOptions(filter.value, currentPage.value)
+        ? await props.asyncOptions(filter.value)
         : props.options.filter(({label}) => label.toLowerCase().includes(filter.value.toLowerCase()))
 
       tags.value.forEach(tag => {
@@ -177,7 +177,7 @@ export default defineComponent({
     const pushMoreOptions = async (event: any) => {
       if(props.infiniteScrolling && typeof props.asyncOptions === 'function'){
         currentPage.value++;
-        const data = await props.asyncOptions(filter.value, currentPage.value);
+        const data = await props.asyncOptions(filter.value);
         if (data.length > 0) {
           filteredOptions.value = [
             ...filteredOptions.value, 
