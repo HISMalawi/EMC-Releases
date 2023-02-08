@@ -28,7 +28,7 @@
   <ion-note v-if="model.error" color="danger">{{ model.error }}</ion-note>
 </template>
 <script lang="ts">
-import { IonCheckbox, IonCol, IonInput, IonLabel, IonNote, IonRow } from "@ionic/vue";
+import { IonCheckbox, IonInput, IonLabel, IonNote } from "@ionic/vue";
 import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
 import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 
