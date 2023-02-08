@@ -123,10 +123,10 @@ export default defineComponent({
           if (!dayjs(date.value).isValid()) {
             return ['Invalid date'];
           }
-          if(dayjs(date.value).isAfter(today)) {
+          if(new Date(date.value) > new Date(today)) {
             return ['Order date cannot be in the future'];
           }
-          if(dayjs(date.value).isBefore(birthdate)) {
+          if(new Date(date.value) < new Date(birthdate)) {
             return ['Order date cannot be before patient\'s date of birth'];
           }
           return null
@@ -140,14 +140,11 @@ export default defineComponent({
           if (!dayjs(date.value).isValid()) {
             return ['Invalid date'];
           }
-          if(dayjs(date.value).isAfter(today)) {
+          if(new Date(date.value) > new Date(today)) {
             return ['Result date cannot be in the future'];
           }
-          if(dayjs(date.value).isBefore(dayjs(form.orderDate.value))) {
+          if(new Date(date.value) < new Date(form.orderDate.value)) {
             return ['Result date cannot be before order date'];
-          }
-          if(dayjs(date.value).isBefore(dayjs(props.patient.getBirthdate()))) {
-            return ['Result date cannot be before patient\'s date of birth'];
           }
           return null
         }

@@ -73,13 +73,13 @@ export class OrderService extends Service {
 
     static async getLatestMalariaTestResult(patientID: number, date = this.getSessionDate()) {
         const orders: Order[] = await this.getOrders(patientID)
-        const minDate = dayjs(date).subtract(7, 'day')
+        const minDate = dayjs(date).subtract(7, 'day').format("YYYY-MM-DD")
         const malariaOrders = orders.filter(order => {
             for (const test of order.tests) {
                 if(
                     !isEmpty(test.result) && 
                     test.name.match(/Malaria/i) && 
-                    dayjs(order.order_date).isAfter(minDate)
+                    new Date(order.order_date) > new Date(minDate)
                 ) return true
             }
             return false

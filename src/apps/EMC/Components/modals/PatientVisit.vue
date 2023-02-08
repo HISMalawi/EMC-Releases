@@ -128,7 +128,7 @@ import { ReceptionService } from "@/apps/ART/services/reception_service";
 import { AdherenceService } from "@/apps/ART/services/adherence_service";
 import { AppointmentService } from "@/apps/ART/services/appointment_service";
 import { PrescriptionService } from "@/apps/ART/services/prescription_service";
-import dayjs, { ConfigType } from "dayjs";
+import dayjs from "dayjs";
 import { ObsValue } from "@/services/observation_service";
 import { BMIService } from "@/services/bmi_service";
 import { DispensationService } from "@/apps/ART/services/dispensation_service";
@@ -193,10 +193,10 @@ export default defineComponent({
         label: "Visit Date",
         required: true,
         validation: async (date: Option) => {
-          if(dayjs(date.value).isAfter(today)) {
+          if(new Date(date.value) > new Date(today)) {
             return ["Visit date cannot be after today's date"]
           }
-          if(dayjs(date.value).isBefore(birthdate)) {
+          if(new Date(date.value) < new Date(birthdate)) {
             return ["Visit date cannot be before patient's birth date"]
           }
           return null
@@ -253,10 +253,10 @@ export default defineComponent({
           obs: appointment.buildValueDate('Appointment date', nextAppointmentDate)
         }),
         validation: async (date, form) => {
-          if(dayjs(date.value).isBefore(form.visitDate.value)) {
+          if(new Date(date.value) < new Date(form.visitDate.value)) {
             return ["Appointment date cannot be before visit date"]
           }
-          if(dayjs(date.value).isAfter(drugRunOutDate.value)) {
+          if(new Date(date.value) > new Date(drugRunOutDate.value)) {
             return ["Appointment date cannot be after drug run out date"]
           }
           return null

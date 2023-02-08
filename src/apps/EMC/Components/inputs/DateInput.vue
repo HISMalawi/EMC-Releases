@@ -159,12 +159,12 @@ export default defineComponent({
       if (model.value.required && !date) {
         return model.value.error = "This field is required";
       }
-      if (props.minDate && dayjs(date).isBefore(dayjs(props.minDate))) {
+      if (props.minDate && new Date(date) < new Date(props.minDate)) {
         return model.value.error = isEstimated.value 
           ? `Estimated period must be less than or equal to ${dayjs(date).diff(props.minDate, 'years')} years`
           : `Date must be after ${props.minDate}`
       }
-      if (props.maxDate && dayjs(date).isAfter(props.maxDate)) {
+      if (props.maxDate && new Date(date) > new Date(props.maxDate)) {
         return model.value.error = isEstimated.value
           ? `Estimated period must be more than or equal to ${dayjs(date).diff(props.maxDate, 'years')} years`
           : `Date must be before ${props.maxDate}`

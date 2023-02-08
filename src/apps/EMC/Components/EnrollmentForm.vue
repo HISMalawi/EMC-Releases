@@ -17,7 +17,7 @@ import { alertConfirmation } from "@/utils/Alerts";
 import EventBus from "@/utils/EventBus";
 import { IonGrid, IonRow, IonCol, IonButton } from "@ionic/vue";
 import dayjs from "dayjs";
-import { defineComponent, reactive, ref } from "vue";
+import { defineComponent, reactive } from "vue";
 import { DTForm } from "../interfaces/dt_form_field";
 import { EmcEvents } from "../interfaces/emc_event";
 import { submitForm } from "../utils/form";
@@ -42,8 +42,8 @@ export default defineComponent({
         label: "Date of Enrollment",
         required: true,
         validation: async (date) => {
-          if(dayjs(date.value).isBefore(props.birthdate)) return ["Date of enrollment cannot be before date of birth"]
-          if(dayjs(date.value).isAfter(today)) return ["Date of enrollment cannot be in the future"]
+          if(new Date(date.value) < new Date(props.birthdate)) return ["Date of enrollment cannot be before date of birth"]
+          if(new Date(date.value) > new Date(today)) return ["Date of enrollment cannot be in the future"]
           return null
         }
       },

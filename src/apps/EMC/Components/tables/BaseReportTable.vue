@@ -215,7 +215,7 @@ export default defineComponent({
     })
 
     const onCustomFilter = (customfilters: Record<string, any>) => {
-      if ("dateRange" in customfilters && (dayjs(customfilters.dateRange.startDate).isAfter(customfilters.dateRange.endDate))) {
+      if ("dateRange" in customfilters && (new Date(customfilters.dateRange.startDate) > new Date(customfilters.dateRange.endDate))) {
         return toastWarning("Invalid date range")
       }
       if (filters.value.every(f => {
