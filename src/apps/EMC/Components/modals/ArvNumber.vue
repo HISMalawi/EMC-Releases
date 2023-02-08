@@ -110,10 +110,6 @@ export default defineComponent({
 
     onMounted(async () => {
       sitePrefix.value = await GLOBAL_PROP.sitePrefix();
-      if (!hasValidARVNumber.value) {
-        const suggestedNumber = await ProgramService.getNextSuggestedARVNumber();
-        form.arvNumber.value = suggestedNumber.arv_number.replace(/^\D+|\s/g, "");
-      }
     }) 
  
     return {

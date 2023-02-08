@@ -91,7 +91,6 @@ import { DTForm } from "../interfaces/dt_form_field";
 import TextInput from "../Components/inputs/TextInput.vue";
 import DateInput from "../Components/inputs/DateInput.vue"
 import YesNoInput from "../Components/inputs/YesNoInput.vue";
-import { ProgramService } from "@/services/program_service";
 import { ClinicRegistrationService } from "@/apps/ART/services/registration_service";
 import SelectInput from "../Components/inputs/SelectInput.vue";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
@@ -494,9 +493,6 @@ export default defineComponent({
       if(arvNumber && arvNumber !== 'Unknown') {
         form.arvNumber.value = arvNumber.split('-')[2]
         form.arvNumber.disabled = true
-      } else {
-        const suggestedNumber = await ProgramService.getNextSuggestedARVNumber();
-        form.arvNumber.value = suggestedNumber.arv_number.replace(/^\D+|\s/g, "");
       }
       RegimenService.getCustomIngridients().then(drugs => customRegimenIngredients.value = drugs)
     }) 
