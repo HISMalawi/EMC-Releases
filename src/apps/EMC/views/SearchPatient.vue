@@ -102,15 +102,12 @@ export default defineComponent({
     const buildSearchByNameQuery = (name: string, gender: string) => {
       const query: Record<string, any> = {};
       const tempName = name.split(" ").filter(entry => /\S/.test(entry));
-
       if (tempName.length > 0) {
         query['given_name'] = tempName[0];
-        tempName[1] ? (query['family_name'] = tempName[1]) : null;
-        if (tempName[2]) {
-          query['middle_name'] = tempName[1];
-          query['family_name'] = tempName[2];
-        }
+        query['family_name'] = tempName[2] || tempName[1] || "";
+        query['middle_name'] = tempName[2] ? tempName[1] : "";
       }
+
       if (gender) {
         query.gender = gender;
       }
