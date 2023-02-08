@@ -38,6 +38,13 @@ export class PatientDemographicsExchangeService extends Service {
         return this.enabled
     }
 
+    importPatient(docID: string) {
+        return Service.getJson('dde/patients/import_by_doc_id', {
+            'doc_id': docID,
+            'program_id': Service.getProgramID()
+        })
+    }
+
     postMerge(persons: Array<any>) {
         const [primary, ...secondary] = persons.map((p) => {
             return {
@@ -147,7 +154,7 @@ export class PatientDemographicsExchangeService extends Service {
 
     diffsToTurple(diffs: any) {
         const turple: any = []
-        const formatValue: Function = (label: string, value: string) => {
+        const formatValue: any = (label: string, value: string) => {
             // Detect date labels and format them
             return typeof value === 'string' && label.match(/date/i) 
                 ? HisDate.toStandardHisDisplayFormat(value)
