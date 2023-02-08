@@ -24,7 +24,6 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import DrillTable from "@/components/DataViews/DrillTableModal.vue"
 import { modalController } from "@ionic/vue";
 import HisDate from "@/utils/Date"
-import {PatientDemographicsExchangeService} from "@/services/patient_demographics_exchange_service"
 import { toastDanger } from '@/utils/Alerts'
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 export default defineComponent({
@@ -47,8 +46,6 @@ export default defineComponent({
     }),
     async created() {
         this.fields = this.getFormFields()
-        this.dde = new PatientDemographicsExchangeService()
-        await this.dde.loadDDEStatus()
     },
     methods: {
         async onPeriod({identifier}: any) {
