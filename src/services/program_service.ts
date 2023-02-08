@@ -1,6 +1,7 @@
 import { Service } from '@/services/service'
 import Modal from "@/components/ApplicationModal.vue";
 import { modalController } from "@ionic/vue";
+import ApiClient from '@/services/api_client';
 
 export class ProgramService extends Service {
     constructor() {
@@ -60,8 +61,8 @@ export class ProgramService extends Service {
       
     }
     static voidARVNumber(arvNumber: string) {
-      return super.postJson(`/programs/1/void_arv_number/${arvNumber}`, {})
-  }
+      return ApiClient.post(`/programs/1/void_arv_number/${arvNumber}`, {});
+    }
     static getFastTrackStatus(patientID: number) {
         return super.getJson('/on_fast_track', {'person_id': patientID, date: super.getSessionDate()});
     }
