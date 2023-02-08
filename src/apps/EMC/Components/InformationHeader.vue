@@ -5,7 +5,7 @@
         <div :style="{width: '100%', display: 'flex', justifyContent: 'space-between'}">
           <span v-if="option.label">{{ option.label }}: </span>
           <span v-else></span>
-          <span v-if="option.other && typeof option.other.onClickHandler === 'function'" @click="option.other.onClickHandler">
+          <span v-if="clickable(option)">
             <a><b>{{ option.value || 'N/A' }}</b></a>
           </span>
           <span v-else><b>{{ option.value || 'N/A'}}</b></span>
