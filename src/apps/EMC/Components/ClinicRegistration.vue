@@ -433,7 +433,7 @@ export default defineComponent({
       }
     });
 
-    const isConfirmatoryTestDone = computed(() => !(form.confirmatoryTest.value.label === 'Not done' || form.confirmatoryTest.value === 'Not done'))
+    const isConfirmatoryTestDone = computed(() => !(form.confirmatoryTest.value?.label === 'Not done' || form.confirmatoryTest.value === 'Not done'))
 
     watch(form.receivedArvTreatmentBefore, state => {
       if (state.value === 'No') {

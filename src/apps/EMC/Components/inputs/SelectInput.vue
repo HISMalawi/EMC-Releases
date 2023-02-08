@@ -30,6 +30,7 @@
           v-model="filter" 
           class="search-input" 
           ref="searchInput" 
+          @keydown="handleKeyDown($event)"
         />
       </div>
       <div class="input-options" v-if="showOptions">
@@ -38,15 +39,13 @@
             v-for="(option, index) of filteredOptions" 
             :key="index"
             :lines="index + 1 === filteredOptions.length ? 'none' : ''"
+            :color="option.value === focusedOption?.value ? 'light' : ''"
             @click="onSelect(option)"
           >
             <ion-checkbox class="input-option-checkbox" slot="start" v-model="option.isChecked" v-if="multiple"></ion-checkbox>
             <ion-label>{{ option.label }}</ion-label>
           </ion-item>
         </ion-list>
-        <!-- <ion-infinite-scroll @ionInfinite="pushMoreOptions($event)" threshold="100px" :disabled="!infiniteScrolling" >
-          <ion-infinite-scroll-content loading-spinner="crescent" loading-text="Loading more data..." />
-        </ion-infinite-scroll> -->
       </div>
       <div class="input-icon">
         <ion-icon :icon="close" v-if="filter || tags.length > 0" @click="onReset"></ion-icon>
@@ -57,7 +56,7 @@
   <ion-note v-if="model.error" color="danger">{{ model.error }}</ion-note>
 </template>
 <script lang="ts">
-import { IonCheckbox, IonChip, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonInput, IonItem, IonLabel, IonList, IonNote } from "@ionic/vue";
+import { IonCheckbox, IonChip, IonIcon, IonInput, IonItem, IonLabel, IonList, IonNote } from "@ionic/vue";
 import { computed, defineComponent, onBeforeUnmount, onMounted, PropType, ref, watch } from "vue";
 import { DTForm, DTFormField } from "../../interfaces/dt_form_field";
 import { Option } from '@/components/Forms/FieldInterface';
@@ -109,8 +108,6 @@ export default defineComponent({
     IonList,
     IonChip,
     IonItem
-    // IonInfiniteScroll, 
-    // IonInfiniteScrollContent
   },
   emits: ["update:modelValue"],
   setup(props, { emit}) {
@@ -118,6 +115,7 @@ export default defineComponent({
     const customOption = ref('')
     const selectedOption = ref<Option>();
     const showOptions = ref(false)
+    const focusedOption = ref<Option>()
     const filter = ref('')
     const filteredOptions = ref<Option[]>([])
     const currentPage = ref(1)
@@ -174,22 +172,6 @@ export default defineComponent({
       filteredOptions.value = filtered
     }
 
-    const pushMoreOptions = async (event: any) => {
-      if(props.infiniteScrolling && typeof props.asyncOptions === 'function'){
-        currentPage.value++;
-        const data = await props.asyncOptions(filter.value);
-        if (data.length > 0) {
-          filteredOptions.value = [
-            ...filteredOptions.value, 
-            ...data.filter(entry => !filteredOptions.value.find(item => item.value === entry.value))
-          ];
-        } else {
-          event.target.disabled = true
-        }        
-      }
-      event.target.complete();
-    }
-
     const validate = async () => {
       if (model.value.required && isEmpty(model.value.value)) {
         return model.value.error = "This field is required";
@@ -243,14 +225,45 @@ export default defineComponent({
       filteredOptions.value.forEach(option => option.isChecked = false)
     }
 
+    const focusNextOption = (evt: KeyboardEvent) => {
+      evt.preventDefault()
+      const nextIndex = filteredOptions.value.indexOf(focusedOption.value as Option) + 1
+      focusedOption.value = filteredOptions.value[nextIndex] || filteredOptions.value[0]
+    }
+
+    const focusPreviousOption = (evt: KeyboardEvent) => {
+      evt.preventDefault()
+      const prevIndex = filteredOptions.value.indexOf(focusedOption.value as Option) - 1
+      focusedOption.value = filteredOptions.value[prevIndex] || filteredOptions.value[filteredOptions.value.length - 1]
+    }
+
+    const handleKeyDown = (evt: KeyboardEvent) => {
+      if(!showOptions.value) showOptions.value = true;
+      switch(evt.key) {
+        case 'ArrowDown': 
+          focusNextOption(evt);
+          break;
+        case 'ArrowUp':
+          focusPreviousOption(evt);
+          break;
+        case ' ':
+        case 'Enter':
+          onSelect(focusedOption.value as Option)
+          break;
+        case 'Escape': 
+          onCloseOptions();
+          break;
+      }
+    }
+
     watch(filter, async() => {
       currentPage.value++;
       await filterOptions()
     })
 
     watch([() => props.options, () => props.asyncOptions], async () => filterOptions())
-
     watch(() => props.modelValue.value, (v) => isEmpty(v) && setDefaults())
+    watch(showOptions, (v) => v && (focusedOption.value = selectedOption.value || filteredOptions.value[0]))
 
     onMounted(async () => {
       await filterOptions()
@@ -272,8 +285,8 @@ export default defineComponent({
       onShowOptions,
       onCloseOptions,
       diselect,
-      pushMoreOptions,
       onCustomValue,
+      handleKeyDown,
       model,
       customOption,
       isCustom,
@@ -283,6 +296,7 @@ export default defineComponent({
       closeCircle,
       selectedOption,
       showOptions,
+      focusedOption,
       showPlaceholder,
       filteredOptions,
       filter,
