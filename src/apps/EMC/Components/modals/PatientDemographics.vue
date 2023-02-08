@@ -152,14 +152,16 @@ export default defineComponent({
         'current_village': village.label 
       }
 
-      const TA = await LocationService.getTraditionalAuthorityById(village.other.traditional_authority_id)
-        if(TA.length > 0) {
-          address['current_traditional_authority'] = TA[0].name
-          const district = await LocationService.getDistrictByID(TA[0].district_id)
-          if(!isEmpty(district)) {
-            address['current_district'] = district[0].name
-          }
+      const TA = village.other?.traditional_authority_id 
+        ? await LocationService.getTraditionalAuthorityById(village.other.traditional_authority_id)
+        : null
+      if(!isEmpty(TA)) {
+        address['current_traditional_authority'] = TA[0].name
+        const district = await LocationService.getDistrictByID(TA[0].district_id)
+        if(!isEmpty(district)) {
+          address['current_district'] = district[0].name
         }
+      }
       return address;
     }
 
