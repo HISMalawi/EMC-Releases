@@ -70,8 +70,8 @@ export default defineComponent({
         label: "Outcome Date",
         required: true,
         validation: async (date) => {
-          if(dayjs(date.value).isBefore(props.birthdate)) return [`Outcome date cannot be before date of birth - ${dayjs(props.birthdate).format(DISPLAY_DATE_FORMAT)}` ]
-          if(dayjs(date.value).isBefore(props.dateEnrolled)) return [`Outcome date cannot be before enrollment date- ${dayjs(props.dateEnrolled).format(DISPLAY_DATE_FORMAT)}`]
+          if(new Date(date.value) < new Date(props.birthdate)) return [`Outcome date cannot be before date of birth - ${dayjs(props.birthdate).format(DISPLAY_DATE_FORMAT)}` ]
+          if(new Date(date.value) < new Date(props.dateEnrolled)) return [`Outcome date cannot be before enrollment date- ${dayjs(props.dateEnrolled).format(DISPLAY_DATE_FORMAT)}`]
           return null
         }
       },
