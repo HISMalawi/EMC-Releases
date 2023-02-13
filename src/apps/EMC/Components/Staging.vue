@@ -23,7 +23,7 @@
         <SelectInput v-model="form.cd4CountLocation" :asyncOptions="getFacilities" allowCustom />
       </ion-col>
     </template>
-    <ion-col size="6" class="ion-margin-top ion-padding-top" >
+    <ion-col size="6" class="ion-margin-top ion-margin-bottom" >
       <SelectInput v-model="form.whoConditions" :options="stagingCoditions" multiple />
     </ion-col>
     <ion-col size="12" class="ion-margin-top">
@@ -128,7 +128,7 @@ export default defineComponent({
         }),
       },
       cd4countAvailable: {
-        value:  props.observations['CD4 count'] ? 'Yes' : props.isNewPatient ? '' : 'No',
+        value:  props.observations['CD4 count'] ? 'Yes' : 'No',
         label: 'Recent CD4 Count results available?',
         required: true,
       },
@@ -140,7 +140,7 @@ export default defineComponent({
           obs: StagingService.buildValueDate('Cd4 count datetime', date)
         }),
         validation: async (date: Option, f: DTForm) => {
-          return f.cd4countAvailable.value === 'Yes' && 
+          return f.cd4countAvailable?.value === 'Yes' && 
             StandardValidations.required(date)
         }
       },
