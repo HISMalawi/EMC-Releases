@@ -15,7 +15,12 @@
       <keep-alive>
         <multi-level-menu :items="menuItems" />
       </keep-alive>
+
     </ion-content>
+    <ion-footer class="ion-padding-vertical ion-padding-start" color="primary">
+      <ion-label><b>EMC Version: </b>{{ emcVersion }}</ion-label><br>
+      <ion-label><b>API Version: </b>{{ apiVersion }}</ion-label>
+    </ion-footer>
   </ion-menu>
   <ion-page id="main-content">
     <ion-header class="toolbar-size">
@@ -88,7 +93,8 @@ export default defineComponent({
     const app = ref(HisApp.getActiveApp())
     const logo = computed(() => Img(app.value?.applicationIcon || '' ))
     const description = computed(() => app.value?.applicationDescription || '')
-
+    const emcVersion = Service.getCoreVersion();
+    const apiVersion = Service.getApiVersion();
     const showAuthUserMenu = async (e: Event) => {
       const authMenu = await popoverController.create({
         component: AuthUserMenuVue,
@@ -121,6 +127,8 @@ export default defineComponent({
       facility,
       user,
       description,
+      emcVersion,
+      apiVersion,
     }
   },
 });
