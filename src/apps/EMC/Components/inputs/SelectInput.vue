@@ -134,9 +134,15 @@ export default defineComponent({
       set: (value) => emit("update:modelValue", value)
     })
 
+    const onReset = () => {
+      filter.value = '';
+      selectedOption.value = undefined;
+      filteredOptions.value.forEach(option => option.isChecked = false)
+    }
+
     const setDefaults = () => {
       selectedOption.value = undefined
-      if(isEmpty(model.value.value)) return
+      if(isEmpty(model.value.value)) return onReset();
       if (Array.isArray(model.value.value) && props.multiple) {
         return model.value.value.forEach((option: Option) => {
           const index = filteredOptions.value.findIndex(({ value }: Option) => value === option.value)
@@ -219,12 +225,6 @@ export default defineComponent({
       return selectedOption.value = undefined
     }
 
-    const onReset = () => {
-      filter.value = '';
-      selectedOption.value = undefined;
-      filteredOptions.value.forEach(option => option.isChecked = false)
-    }
-
     const focusNextOption = (evt: KeyboardEvent) => {
       evt.preventDefault()
       const nextIndex = filteredOptions.value.indexOf(focusedOption.value as Option) + 1
@@ -262,7 +262,7 @@ export default defineComponent({
     })
 
     watch([() => props.options, () => props.asyncOptions], async () => filterOptions())
-    watch(() => props.modelValue.value, (v) => isEmpty(v) && setDefaults())
+    watch(() => props.modelValue.value, (v) => isEmpty(v) && setDefaults(), { deep: true, immediate: true})
     watch(showOptions, (v) => v && (focusedOption.value = selectedOption.value || filteredOptions.value[0]))
 
     onMounted(async () => {

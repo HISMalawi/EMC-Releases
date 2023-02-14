@@ -219,6 +219,7 @@ export default defineComponent({
 
     const setStagingConditions = (stage?: string) => {
       let stageNum = 1
+      if(stage) form.whoConditions.value = [];
       if(stage?.match(/2|stage ii/i)) stageNum = 2
       if(stage?.match(/3|stage iii/i)) stageNum = 3
       if(stage?.match(/4|stage iv/i)) stageNum = 4
