@@ -62,7 +62,7 @@ export class TxRttReportService extends TxReportService {
             { indicator, data: this.aggregate('F', indicator) },
         ], [])
 
-        const allFemales = uniq<number>(aggregated.reduce((totals: any, cur: any) => [...totals, ...cur.data], []).map((d: any) => d.patient_id))
+        const allFemales: number[] = uniq(aggregated.reduce((totals: any, cur: any) => [...totals, ...cur.data], []))
         const maternalStatus = await this.getMaternalStatus(allFemales)
         const allPregnant = maternalStatus.FBf.concat(maternalStatus.FP)
         const data: Record<string, any>[] = [];
