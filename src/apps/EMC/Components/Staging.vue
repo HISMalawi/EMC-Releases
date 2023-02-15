@@ -158,7 +158,7 @@ export default defineComponent({
           }
         },
         validation: async (cd4Count: Option, f: DTForm) => {
-          return f.cd4countAvailable.value === 'Yes' && StandardValidations.validateSeries([
+          return f.cd4countAvailable?.value === 'Yes' && StandardValidations.validateSeries([
             () => StandardValidations.required(cd4Count),
             () => stagingService.cd4CountIsValid(cd4Count.value.toString()) 
               ? null
@@ -176,7 +176,7 @@ export default defineComponent({
           )
         }),
         validation: async (location: Option, f: DTForm) => {
-          return f.cd4countAvailable.value === 'Yes' && StandardValidations.required(location)
+          return f.cd4countAvailable?.value === 'Yes' && StandardValidations.required(location)
         }
       },
       whoConditions: {
