@@ -16,22 +16,16 @@
       :async-rows="asyncRows" 
       :columns="columns"
       :row-actions-buttons="rowActionButtons"
+      :actions-buttons="actionButtons"
       color="custom"
     />
   </IonContent>
-  <IonFooter>
-    <IonButton class="ion-margin ion-float-right" @click="modal.hide()">Close</IonButton>
-    <!-- <IonButtons>
-    </IonButtons>
-    <IonToolbar>
-    </IonToolbar> -->
-  </IonFooter>
 </IonPage>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { IonButton, IonPage, IonHeader, IonToolbar, IonContent, IonButtons, IonFooter, IonTitle, IonIcon } from "@ionic/vue";
+import { IonButton, IonPage, IonHeader, IonToolbar, IonContent, IonButtons, IonTitle, IonIcon } from "@ionic/vue";
 import { DataTable, ActionButtonInterface, TableColumnInterface, RowActionButtonInterface } from "@uniquedj95/vtable";
 import { close } from "ionicons/icons";
 import { modal } from "@/utils/modal";
@@ -46,7 +40,6 @@ export default defineComponent({
     IonContent,
     IonToolbar,
     IonButtons,
-    IonFooter,
     IonTitle,
     IonIcon,
   },
