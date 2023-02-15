@@ -224,7 +224,12 @@ export default defineComponent({
           tag: 'vitals',
           obs: vitals.buildValueNumber('Height', height)
         }),
-        validation: (height: Option) => showHeightField.value && vitals.validator({...height, label: 'Height'})
+        validation: (height: Option) => {
+          if(!showHeightField.value || ((isEmpty(height) || !height.value) && form.patientPresent.value === 'No')) {
+            return null
+          }
+          return vitals.validator({...height, label: 'Height'})
+        }
       },
       isPregnant: {
         value: undefined as "Yes" | "No"  | undefined,
