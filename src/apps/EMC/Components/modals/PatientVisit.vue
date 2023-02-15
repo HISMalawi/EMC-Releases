@@ -392,6 +392,28 @@ export default defineComponent({
       },
     })
 
+    const getRegimens = async (weight: number, onTB?: boolean): Promise<Option[]> => {
+      const unknownReg = {
+        label: "Unkown",
+        value: "Unkown",
+        other: [{
+          "drug_id": 1046,
+          "drug_name": "Unknown ARV",
+          "am": 1,
+          "pm": 0,
+          "units": "",
+          "frequency":	"Daily (QOD)"
+        }]
+      }      
+      const regs = await RegimenService.getRegimensByWeight(weight, onTB)
+      if(isEmpty(regs)) return [unknownReg]
+      return Object.keys(regs).map(key => ({
+        label: key, 
+        value: key, 
+        other: regs[key] 
+      })).concat([unknownReg])
+    }
+
     watch(form.patientPresent, isPresent => {
       if(isPresent.value === "No") {
         form.weight.required = false
@@ -410,15 +432,7 @@ export default defineComponent({
     watch([form.weight, form.tbStatus], async () => {
       if(form.weight.value) {
         const onTB = !isEmpty(form.tbStatus.value) && !form.tbStatus.value.label.match(/TB Not Suspected/i)
-        const regs = await RegimenService.getRegimensByWeight(form.weight.value, onTB)
-        if(!isEmpty(regs)) {
-          regimens.value = Object.keys(regs).map(key => ({
-            label: key, 
-            value: key, 
-            other: regs[key] 
-          }))
-        }
-
+        regimens.value = await getRegimens(form.weight.value, onTB)
         form.patientPresent.value = "Yes"
         form.patientPresent.disabled = true
       }
@@ -620,16 +634,7 @@ export default defineComponent({
     onMounted (async () => {
       prevHeight.value = await props.patient.getRecentHeight()
       const recentWeight = await props.patient.getRecentWeight()
-      if (recentWeight) {
-        const regs = await RegimenService.getRegimensByWeight(recentWeight)
-        if(!isEmpty(regs)) {
-          regimens.value = Object.keys(regs).map(key => ({ 
-            label: key, 
-            value: key, 
-            other: regs[key] 
-          }))
-        }
-      }
+      if (recentWeight) regimens.value = await getRegimens(recentWeight)
       prevDrugs.value = await DrugOrderService.getLastDrugsReceived(props.patient.getID())
       form.pillCount.required = prevDrugs.value.length > 0
       contraIndications.value = ConceptService
