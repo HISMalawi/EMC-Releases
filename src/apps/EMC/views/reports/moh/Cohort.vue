@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref, watch } from "vue";
+import { defineComponent, reactive, ref, watch } from "vue";
 import { loader } from "@/utils/loader";
 import { modal } from "@/utils/modal";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
@@ -52,13 +52,12 @@ import { toCsv } from "@/utils/Export";
 import { Service } from "@/services/service";
 import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
 import { DTFormField } from "@/apps/EMC/interfaces/dt_form_field";
-import { ActionButtonInterface, RowActionButtonInterface, TableColumnInterface } from "@uniquedj95/vtable";
+import { RowActionButtonInterface, TableColumnInterface } from "@uniquedj95/vtable";
 import HisDate from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";
 import dayjs from "dayjs";
 import { useRouter } from "vue-router";
-import { exportToCSV } from "@/apps/EMC/utils/exports";
 
 export default defineComponent({
   name: "Cohort",
@@ -123,17 +122,6 @@ export default defineComponent({
       const indicator = find(cohort.value, {name: indicatorName})
       if(!indicator) return
       const rows: any[] = await report.getCohortDrillDown(indicator.id)
-      const actionBtns = computed<ActionButtonInterface[]>(() => [{
-        label: "CSV",
-        color: "primary",
-        action: async (_a, rows, filters, columns) => exportToCSV({
-          rows, 
-          filters,
-          columns, 
-          period: period.value.includes('Custom') ? period.value.substring(6) : period.value,
-          filename: `${indicatorName}-${dayjs().format('DD-MMM-YYYY')}`
-        })
-      }])
       const rowActionButtons: RowActionButtonInterface[] = [{
         label: "select",
         action: (r) => router.push(`/emc/patient/${r['person_id']}`)
@@ -141,7 +129,6 @@ export default defineComponent({
 
       await modal.show(DrilldownTableVue, {
         title: indicator['indicator_name'] || "Drill down",
-        actionButtons: actionBtns.value,
         rowActionButtons,
         columns,
         rows,
