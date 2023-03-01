@@ -27,6 +27,11 @@ const routes: Array<RouteRecordRaw> = [
     component : () => import('@/views/DuplicateIdentifiers.vue')
   },
   {
+    name: 'Multiple Identifiers',
+    path: '/multiple_identifiers',
+    component : () => import('@/views/MultipleIdentifiers.vue')
+  },
+  {
     name: 'Update site location',
     path:'/location/update/site',
     component: () => import('@/views/SiteLocation.vue')
