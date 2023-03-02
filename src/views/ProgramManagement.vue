@@ -23,6 +23,7 @@ import HisDate from "@/utils/Date"
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason"
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions"
 import Store from "@/composables/ApiStore"
+import { AppEncounterService } from '@/services/app_encounter_service'
 
 export default defineComponent({
     components: { HisStandardForm },
@@ -59,6 +60,7 @@ export default defineComponent({
                         ...this.getProgramOutcomeDateFields(),
                         this.getProgramStateField(),
                         this.getTransferOutFacilityFields(),
+                        ...this.getTransferoutReasonFields(),
                         ...this.getStateOutcomeDateFields()
                     ]
                 }
@@ -148,7 +150,10 @@ export default defineComponent({
                 await this.patientProgram.updateState()
                 this.fieldComponent = 'program_selection'
                 if (f.transfer_out_state) {
-                    await this.patientProgram.transferOutEncounter(f.transfer_out_state.other)
+                    await this.patientProgram.transferOutEncounter(
+                        f.transfer_out_state.other, 
+                        f.reason_for_transferrout.value
+                    )
                 } 
                 toastSuccess('State has been updated')
             } catch(e) {
@@ -231,6 +236,39 @@ export default defineComponent({
                     isFilterDataViaApi: true
                 }
             }
+        },
+        getTransferoutReasonFields(): Field[] {
+            return [
+                {
+                    id: "transferout_reasons",
+                    proxyID: 'reason_for_transferrout',
+                    helpText: "Reason for Transferring out",
+                    type: FieldType.TT_SELECT,
+                    validation: (v: Option) => Validation.required(v),
+                    options: () => {
+                        const opt: any = (val: string) => ({label: val, value: val})
+                        return [
+                            opt('Workplace transfer/lost job-related reasons'),
+                            opt('Relocation to another place/home village'),
+                            opt('Transport due to long distance'),
+                            opt('School'),
+                            opt('Business'),
+                            opt('Marriage'),
+                            opt('Unknown'),
+                            opt('Clinic not helping'),
+                            opt('Other')
+                        ]
+                    }
+                },
+                {
+                    id: 'transferout_other',
+                    proxyID: 'reason_for_transferrout',
+                    helpText: 'Other Reason for Transferring out',
+                    type: FieldType.TT_TEXT,
+                    condition: (f: any) => f.transferout_reasons.value === 'Other',
+                    validation: (v: Option) => Validation.required(v)
+                }
+            ]
         },
         getProgramStateField(): Field {
             return {
