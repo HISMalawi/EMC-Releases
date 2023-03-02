@@ -23,7 +23,6 @@ import HisDate from "@/utils/Date"
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason"
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions"
 import Store from "@/composables/ApiStore"
-import { AppEncounterService } from '@/services/app_encounter_service'
 
 export default defineComponent({
     components: { HisStandardForm },
