@@ -110,6 +110,8 @@ export class OrderService extends Service {
     }
 
     static isHighViralLoadResult(result: any) {
+        if(result.indicator?.name !== "HIV viral load") return false;
+        
         if(result.value_modifier === '=' && parseFloat(result.value) >= 1000) return true
 
         if((result.value_modifier  === '<' || result.value_modifier  === '&lt') 
