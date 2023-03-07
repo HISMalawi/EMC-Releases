@@ -18,7 +18,7 @@
             <ion-row v-for="(entry, ind) in drugs[selectedDrug].entries" :key="ind"> 
               <ion-col> 
                 <ion-item> 
-                  <ion-label position="floating">Total Tins</ion-label>
+                  <ion-label position="floating">Tins/Pallets</ion-label>
                   <ion-input readonly placeholder="0" :value="fmtNumber(entry.tins)" @click="enterTins(ind)"></ion-input>
                 </ion-item>
               </ion-col>
@@ -133,7 +133,7 @@ export default defineComponent({
     enterTins(index: number) {
       this.launchKeyPad({
         id: 'tins',
-        helpText: this.getModalTitle('Enter number of tins'),
+        helpText: this.getModalTitle('Enter number of tins/pallets'),
         type: FieldType.TT_NUMBER,
         defaultValue: () => this.getDrugValue(index, 'tins'),
         validation: (v: Option) => {

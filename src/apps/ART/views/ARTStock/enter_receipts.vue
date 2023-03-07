@@ -171,7 +171,7 @@ export default defineComponent({
       const columns = [
         "Drug",
         "Amount per unit",
-        "Total units",
+        "Tins/Pallets",
         "Expiry date",
         "Batch number",
       ];
