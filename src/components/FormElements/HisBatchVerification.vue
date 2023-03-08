@@ -17,13 +17,13 @@
           <ion-grid v-if="selectedDrug !== null" class="scroll-list"> 
             <h3 class="his-card" v-if="noStockForDrug"> No stock information available for drug</h3>
             <ion-row v-for="(entry, ind) in drugs[selectedDrug].entries" :key="ind"> 
-              <ion-col> 
+              <ion-col size-md="4"> 
                 <ion-item>
                   <ion-label position="floating">Expiry Date</ion-label>
                   <ion-input readonly :value="fmtDate(entry.expiry_date)"></ion-input>
                 </ion-item>
               </ion-col>
-              <ion-col> 
+              <ion-col size-md="4"> 
                 <ion-item>
                   <ion-label position="floating">Available Tins</ion-label>
                   <ion-input 
@@ -34,7 +34,7 @@
                   </ion-input>
                 </ion-item>
               </ion-col>
-              <ion-col> 
+              <ion-col size-md="4"> 
                 <ion-item>
                   <ion-label position="floating">Verified Stock</ion-label>
                   <ion-input 
@@ -45,6 +45,20 @@
                     @click="enterAmount(ind)"
                     >
                   </ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col size-md="12" class="ion-margin-top" v-if="entry.current_quantity != entry.originalQuantity"> 
+                <ion-item>
+                  <ion-label position="floating">Reason for stock modification</ion-label>
+                  <ion-input 
+                    readonly 
+                    placeholder="0"
+                    color="primary"
+                    :value="entry.reason"
+                    @click="selectReason(ind)"
+                    >
+                  </ion-input>
+                  <ion-icon :icon="chevronDown" slot="end" class="ion-padding-top"></ion-icon>
                 </ion-item>
               </ion-col>
             </ion-row>
@@ -62,6 +76,7 @@ import {
   IonCol,
   IonRow,
   modalController,
+  IonIcon,
 } from "@ionic/vue";
 import { StockService } from "@/apps/ART/views/ARTStock/stock_service";
 import ViewPort from "@/components/DataViews/ViewPort.vue";
@@ -73,14 +88,16 @@ import { FieldType } from "../Forms/BaseFormElements";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
 import { isEmpty } from "lodash";
 import { toDate, toNumString } from "@/utils/Strs";
+import { chevronDown } from "ionicons/icons";
 
 export default defineComponent({
-  components: { ViewPort, HisTextInput, IonGrid, IonCol, IonRow },
+  components: { ViewPort, HisTextInput, IonGrid, IonCol, IonRow, IonIcon },
   mixins: [FieldMixinVue],
   data: () => ({
     drugs: [] as any,
     selectedDrug: null as any,
     stockService: {} as any,
+    chevronDown,
   }),
   mounted() {
     this.init()
@@ -136,6 +153,25 @@ export default defineComponent({
       },
       (v: Option) => {
         this.setDrugValue(index, 'current_quantity', v)
+      })
+    },
+    async selectReason(index: number) {
+      const batchNumber = this.getDrugValue(index, 'batch_number');
+      this.launchKeyPad({
+        id: 'reason',
+        helpText: this.getModalTitle(`Select reason for Batch ${batchNumber} modification`),
+        type: FieldType.TT_SELECT,
+        defaultValue: () => this.getDrugValue(index, 'reason'),
+        validation: (v: Option) => Validation.required(v),
+        options: () => [
+          { label: "theft", value: "theft" },
+          { label: "took out for training", value: "took out for training" },
+          { label: "accidents", value: "accidents" },
+          { label: "flooding or natural disaster", value: "flooding or natural disaster" },
+        ]
+      },
+      (v: Option) => {
+        this.setDrugValue(index, 'reason', v)
       })
     },
     async launchKeyPad(currentField: Field, onFinish: (value: Option) => any) {
