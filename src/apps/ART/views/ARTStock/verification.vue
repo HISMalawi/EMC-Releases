@@ -31,31 +31,20 @@ export default defineComponent({
 
   methods: {
     async onFinish(formData: any) {
-      console.log(formData)
       const items = this.prepDrugs(formData);
-      const errors = [];
-      console.log({
-        verification_date: formData.date.value,
-        reason: formData.reason.value,
-        items,
-      });
-      // for (let index = 0; index < items.length; index++) {
-      //   const element = items[index].value;
-      //   const vals = {
-      //           "current_quantity": element['current_quantity'] * StockService.getPackSize(element.drug_id),
-      //           "reason": formData.reason.value
-      //       };
-      //       const f = await this.stockService.updateItem(element['id'], vals)
-      //       if(!f) {
-      //         errors.push('could not stock for ' + items[index].shortName);
-      //       }
-      // }
-      // if (errors.length === 0) {
-      //   toastSuccess("Stock succesfully updated");
-      //   this.$router.push("/");
-      // } else {
-      //   toastDanger("Could not save stock");
-      // }
+      try {
+        await this.stockService.batchUpdate({
+          verification_date: formData.date.value,
+          reason: formData.reason.value,
+          items,
+        });
+        toastSuccess("Stock succesfully updated");
+        this.$router.push("/");
+
+      } catch (e) {
+        toastDanger("Could not save stock");
+        console.error(e)
+      }
     },
     getFields(): Array<Field> {
       return [
@@ -137,12 +126,13 @@ export default defineComponent({
     },
     prepDrugs(formdata: any) {      
       return formdata.enter_batches.map((element: any) => ({
-        'drug_id': element.value.drugID,
-        'expiry_date': element.value.expiry_date,
-        'quantity': parseInt(element.value.pack_size) * parseInt(element.value.current_quantity),
+        'id': element.value.id,
+        'current_quantity': parseInt(element.value.pack_size) * parseInt(element.value.current_quantity),
+        "delivered_quantity": element.value.delivered_quantity,
         "pack_size": element.value.pack_size,
+        'expiry_date': element.value.expiry_date,
+        'delivery_date': element.value.delivery_date,
         "reason": element.value.reason,
-        "batch_number": element.value.batch_number,      
       }));
     },
     selectAll(listData: Array<Option>) {

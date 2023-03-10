@@ -240,6 +240,9 @@ export class StockService extends Service {
 	constructor() {
 		super()
 	}
+	batchUpdate(batch: Record<string, any>) {
+		return Service.postJson('/pharmacy/items/batch_update', batch)
+	}
 	postItems(items: any) {
 		return Service.postJson('/pharmacy/batches', items);
 	}
