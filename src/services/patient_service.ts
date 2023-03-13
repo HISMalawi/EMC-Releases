@@ -116,6 +116,12 @@ export class Patientservice extends Service {
             && ObservationService.obsInValidPeriod(obs)
     }
 
+    async isBreastfeeding() {
+        const obs = await ObservationService.getFirstObs(this.getID(), 'Is patient breast feeding')
+        return obs && (obs.value_coded.match(/Yes/i) ? true : false) 
+            && ObservationService.obsInValidPeriod(obs)
+    }
+
     async hasPregnancyObsToday() {
         const date = await ObservationService.getFirstObsDatetime(this.getID(), 'Is patient pregnant')
         return date && HisDate.toStandardHisFormat(date) === Service.getSessionDate() && this.isFemale()

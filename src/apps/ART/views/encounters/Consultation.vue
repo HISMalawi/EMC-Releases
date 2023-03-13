@@ -55,6 +55,7 @@ export default defineComponent({
     CxCaMaxAge: -1 as number,
     DueForCxCa: false as boolean,
     currentlyPregnant: false as boolean,
+    currentlyBreastfeeding: false,
     patientHitMenopause: false as boolean,
     hasPregnancyObsToday: false as boolean,
     autoSelect3HP: false as boolean,
@@ -247,6 +248,14 @@ export default defineComponent({
         )
       }
       return this.currentlyPregnant
+    },
+    isBreastFeeding(formData: any) {
+      if (formData.pregnant_breastfeeding) {
+        return this.inArray(formData.pregnant_breastfeeding, 
+          p => p.label === 'Breastfeeding' && p.value === 'Yes'
+        )
+      }
+      return this.currentlyBreastfeeding
     },
     isOnTubalLigation(formData: any) {
       return this.inArray(formData.current_fp_methods, d => d.value === "TUBAL LIGATION")
@@ -543,6 +552,7 @@ export default defineComponent({
       const completedTpt = this.didCompleted3HP(formData)
       const everTakenTpt = this.tptStatus.tpt !== null
       const autoSelect3HP = this.tptAutoSelectionMode(formData)
+      const isCurrentlyBreastfeeding = this.isBreastFeeding(formData)
 
       const disableOption = (text: string) => ({
         disabled: true,
@@ -577,6 +587,7 @@ export default defineComponent({
             if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
             if (this.currentlyPregnant) return disableOption('Pregnant patient')
+            if (isCurrentlyBreastfeeding) return disableOption('Patient is breast feeding')
             if (this.currentWeight < 20) return disableOption('Weight below regulation')
             if (everTakenTpt && this.tptStatus.tpt !== '3HP (RFP + INH)' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
@@ -590,6 +601,7 @@ export default defineComponent({
             if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
             if (this.currentlyPregnant) return disableOption('Pregnant patient')
+            if (isCurrentlyBreastfeeding) return disableOption('Patient is breast feeding')
             if (this.currentWeight < 30) return disableOption('Weight below regulation') 
             if (everTakenTpt && this.tptStatus.tpt !== 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
@@ -604,6 +616,7 @@ export default defineComponent({
             if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
             if (this.currentlyPregnant) return disableOption('Pregnant patient')
+            if (isCurrentlyBreastfeeding) return disableOption('Patient is breast feeding')
             if (everTakenTpt && this.tptStatus.tpt !== 'IPT' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
             }
@@ -876,6 +889,7 @@ export default defineComponent({
               if (this.patient.isChildBearing()) {
                 this.hasPregnancyObsToday = await this.patient.hasPregnancyObsToday()
                 this.currentlyPregnant = await this.patient.isPregnant()
+                this.currentlyBreastfeeding = await this.patient.isBreastfeeding();
               }
               this.onPermanentFPMethods = await this.consultation.getTLObs();
             }
