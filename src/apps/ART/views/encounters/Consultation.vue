@@ -576,6 +576,7 @@ export default defineComponent({
             if (completedTpt) return disableOption(`Completed TPT treatment`)
             if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
+            if (this.currentlyPregnant) return disableOption('Pregnant patient')
             if (this.currentWeight < 20) return disableOption('Weight below regulation')
             if (everTakenTpt && this.tptStatus.tpt !== '3HP (RFP + INH)' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
@@ -588,6 +589,7 @@ export default defineComponent({
             if (completedTpt) return disableOption(`Completed TPT treatment`)
             if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
+            if (this.currentlyPregnant) return disableOption('Pregnant patient')
             if (this.currentWeight < 30) return disableOption('Weight below regulation') 
             if (everTakenTpt && this.tptStatus.tpt !== 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
@@ -601,6 +603,7 @@ export default defineComponent({
             if (completedTpt) return disableOption(`Completed TPT treatment`)
             if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
+            if (this.currentlyPregnant) return disableOption('Pregnant patient')
             if (everTakenTpt && this.tptStatus.tpt !== 'IPT' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
             }
