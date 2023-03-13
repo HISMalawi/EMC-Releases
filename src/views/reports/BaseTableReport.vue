@@ -92,6 +92,8 @@ import HisDate from "@/utils/Date"
 import ReportFilter from "@/components/ReportFilter.vue"
 import Pagination from "@/components/Pagination.vue"
 import { toastDanger } from "@/utils/Alerts";
+import { EncryptionOptions } from "jspdf";
+import { infoActionSheet } from "@/utils/ActionSheets";
 
 export default defineComponent({
   components: { 
@@ -116,6 +118,10 @@ export default defineComponent({
     period: {
       type: String,
       default: '',
+    },
+    encryptPDF: {
+      type: Boolean,
+      default: false
     },
     config: {
       type: Object as PropType<Record<string, any>>
@@ -210,6 +216,16 @@ export default defineComponent({
     getFileName() {
       return `${Service.getLocationName()} ${this.title} ${this.period}`
     },
+    pdfEncryptionData(): Record<"encryption", EncryptionOptions> {
+      const password = Service.getUserName()
+      return {
+        encryption: {
+          userPassword: password,
+          ownerPassword: password,
+          userPermissions: ["print"]
+        }
+      }
+    },
     async onFinish(formData: any, computedData: any) {
       this.formData = formData
       this.computeFormData = computedData
@@ -265,8 +281,36 @@ export default defineComponent({
         color: "primary",
         visible: this.canExportPDf,
         onClick: async () => {
-          const {columns, rows} = toExportableFormat(this.columns, this.rows)
-          toTablePDF(columns, rows, this.getFileName())
+          let mode: 'pdfMode' | 'ignorePDFColumnexport' = 'pdfMode'
+          if (this.encryptPDF) {
+            const option = await infoActionSheet(
+              'Security warning',
+              'PDF may contain private data that will require a password to unlock',
+              'To access private data choose Secure PDF over Regular PDF',
+              [
+                { 
+                  name: "Secure PDF",
+                  slot: "start",
+                  color: "success"
+                },
+                { 
+                  name: "Regular PDF",
+                  slot: "start",
+                  color: "success"
+                }
+              ],
+              'his-danger-color'
+            )
+            mode = option === 'Secure PDF' ? 'pdfMode' : 'ignorePDFColumnexport'
+          }
+          const {columns, rows} = toExportableFormat(this.activeColumns, this.activeRows, mode)
+          toTablePDF(
+            columns, 
+            rows, 
+            this.getFileName(),
+            false,
+            this.encryptPDF && mode !='ignorePDFColumnexport' ? this.pdfEncryptionData() : {}
+          )
         }
       },
       {

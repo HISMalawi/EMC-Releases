@@ -5,6 +5,7 @@
         :rows="rows" 
         :fields="fields"
         :columns="columns"
+        :encryptPDF="true"
         :onReportConfiguration="onPeriod"
         > 
     </report-template>
@@ -33,8 +34,8 @@ export default defineComponent({
         const commonColumns = [
             [
                 table.thTxt('ARV#'),
-                table.thTxt('First name', {exportable: false}),
-                table.thTxt('Last name', {exportable: false}),
+                table.thTxt('First name', { csvExportable: false, pdfExportable: true }),
+                table.thTxt('Last name', { csvExportable: false, pdfExportable: true }),
                 table.thTxt('Birthdate'),
                 table.thTxt('Gender'),
                 table.thTxt('Outcome date'),
@@ -66,8 +67,8 @@ export default defineComponent({
                             columns: [
                                 [
                                     table.thTxt('ARV#'),
-                                    table.thTxt('First name', {exportable: false}),
-                                    table.thTxt('Last name', {exportable: false}), 
+                                    table.thTxt('First name', { csvExportable: false, pdfExportable: true }),
+                                    table.thTxt('Last name', { csvExportable: false, pdfExportable: true }), 
                                     table.thTxt('Birthdate'), 
                                     table.thTxt('Gender'),
                                     table.thTxt('Outcome date'),
