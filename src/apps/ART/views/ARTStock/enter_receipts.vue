@@ -171,7 +171,7 @@ export default defineComponent({
       const columns = [
         "Drug",
         "Amount per unit",
-        "Total units",
+        "Tins/Pallets",
         "Expiry date",
         "Batch number",
       ];
@@ -210,6 +210,7 @@ export default defineComponent({
               'quantity': parseInt(element.pack_size) * parseInt(element.tins),
               'delivery_date': formdata.date.value,
               'product_code': element.code,
+              "pack_size": element.pack_size,
             },
           ],
         });

@@ -149,9 +149,9 @@ function tdNum(td: string | number, params={} as any): RowInterface {
     data.td = toNumString(td)
     data.sortValue = parseInt(`${td}`)
     data.style = {
-        ...data.style,
         textAlign: "right",
-        paddingRight: "2rem"
+        paddingRight: ".5rem",
+        ...data.style,
     }
     return configCell(data)
 }
