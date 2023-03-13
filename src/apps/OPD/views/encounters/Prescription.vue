@@ -2,7 +2,7 @@
   <div>
     <div style="width: 97.8%;margin:auto;">
       <div id="cummulative" class="cummulative_hight" style="border: 1px solid #999;border-bottom: none; 
-            background-color: #f6f2ca; height: 224px;
+            background-color: #f6f2ca; height: 25vh;
             overflow: auto; padding: 5px;">
           <table style="width:100%;">
             <thead>
@@ -50,7 +50,7 @@
           </table>
       </div>
     </div>
-    <view-port style="margin-top:0px;" v-if="switchKeyboard">
+    <view-port style="margin-top:0px;height: 37vh;" v-if="switchKeyboard">
       <his-text-input :value="selected" @onValue="onKBValue"/>
       <ion-content style="width: 100%;" class="ion-padding-bottom">
         <div class="ion-content-scroll-host" :class="{'ion-margin-bottom ion-padding-bottom': disableScroll}">
@@ -334,6 +334,7 @@ export default defineComponent({
         if (entry.isChecked) {
           if((this.checkedItems.findIndex(item => item.value === entry.value)) === -1) {
             this.checkedItems.unshift(entry);
+            this.selected = ''
             this.inputFieldType()
             this.isComplete()
           }
@@ -350,10 +351,10 @@ export default defineComponent({
       this.checkedItems = this.checkedItems.filter(item => item.value !== entry.value);
     },
     clearPrescription(){
-      this.checkedItems = [],
-      this.filter2 = ''
+      // this.checkedItems = [],
+      // this.filter2 = ''
       this.selected = ''
-      this.switchKeyboard = true
+      // this.switchKeyboard = true
     },
     async savePrescription() {
       const drugOrders = this.mapToOrders()
@@ -430,7 +431,8 @@ export default defineComponent({
   height: 60vh;
 }
 .his-floating-keyboard{
-  bottom:70px;
+  /* bottom:70px; */
+  position: unset;
 }
 
 </style>
