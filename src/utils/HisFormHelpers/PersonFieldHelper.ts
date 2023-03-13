@@ -454,6 +454,7 @@ export default {
             label: patient.getPatientInfoString(),
             value: patient.getID() || patient.getNationalID(),
             other: {
+                patientID: patient.getID(),
                 npid: patient.getNationalID(),
                 person,
                 options: [
