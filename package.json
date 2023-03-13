@@ -1,6 +1,6 @@
 {
   "name": "HIS-Core",
-  "version": "1.6.8-asm",
+  "version": "1.7.0-alpha",
   "min-api-version": "4.16.1",
   "private": true,
   "scripts": {
