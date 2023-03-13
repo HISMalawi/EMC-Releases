@@ -20,7 +20,7 @@
                         :type="chartType"
                         :options="chartOptions"
                         :series="series"
-                        @click="pointSelection"
+                        @markerClick="pointSelection"
                     />
                 </div>
             </view-port>
@@ -89,6 +89,12 @@ export default defineComponent({
             },
             xaxis: {
                 type: 'datetime'
+            },
+            markers: {
+                size: 8,
+                hover: {
+                    sizeOffset: 3
+                }
             }
         } as any
     }),
