@@ -1,6 +1,6 @@
 <template>
     <his-standard-form
-        v-show="!canShowReport"
+        v-if="!canShowReport"
         @onFinish="onPeriod"
         :skipSummary="true" 
         :fields="fields">
@@ -8,7 +8,17 @@
     <ion-page v-if="canShowReport"> 
         <ion-header> 
             <ion-toolbar> 
-                <ion-title> Patient visit report </ion-title>
+                <ion-title> 
+                    Total Attendance: <a href="#" @click.prevent="() => drillPatients('Total attendance', totalAttendance)">
+                        {{ totalAttendance.length }}
+                    </a><br/> 
+                    Patient visit: <a href="#" @click.prevent="() => drillPatients('Total patient visits', totalPatientVisits)">
+                        {{ totalPatientVisits.length }}
+                    </a><br/> 
+                    Guardian visit: <a href="#" @click.prevent="() => drillPatients('Guardian visits', totalGuardianVisits)">
+                        {{ totalGuardianVisits.length }}
+                    </a>
+                </ion-title>
             </ion-toolbar>
         </ion-header>
         <ion-content> 
@@ -20,7 +30,7 @@
                         :type="chartType"
                         :options="chartOptions"
                         :series="series"
-                        @markerClick="pointSelection"
+                        @markerClick="onPointSelection"
                     />
                 </div>
             </view-port>
@@ -44,7 +54,8 @@ import {
     IonContent,
     IonFooter,
     IonButton,
-    loadingController
+    loadingController,
+modalController
 } from "@ionic/vue"
 import ViewPort from "@/components/DataViews/ViewPort.vue"
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service"
@@ -52,7 +63,8 @@ import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
 import { uniq } from 'lodash';
 import ApexChart from "vue3-apexcharts";
-
+import table from "@/components/DataViews/tables/ReportDataTable"
+import { Patientservice } from '@/services/patient_service';
 export default defineComponent({
     components: {
         ApexChart,
@@ -68,6 +80,8 @@ export default defineComponent({
     },
     mixins: [ReportMixin],
     data: () => ({
+        patients: {} as Record<string|number, Patientservice>,
+        reportData: {} as Record<string, any>,
         chartType: 'area',
         height: '100%',
         width: '100%',
@@ -100,33 +114,101 @@ export default defineComponent({
     }),
     created() {
         this.fields = this.getDateDurationFields()
+        this.canShowReport = true
+        this.onPeriod({}, { start_date: '2021-01-01', end_date: '2023-03-13'})
+    },
+    computed: {
+        totalAttendance(): number[] {
+            let totals: any = []
+            Object.keys(this.reportData).forEach((date: string) => {
+                totals = totals.concat(Object.keys(this.reportData[date])
+                    .map(p => ({ patient_id: p, date})))
+            })
+            return totals
+        },
+        totalPatientVisits(): any {
+            return Object.keys(this.patientPresent)
+                .reduce((a: any, k: string) => {
+                    return a.concat(this.patientPresent[k]
+                        .map((p: number) => ({ patient_id: p, date: k })))
+                }, [])
+        },
+        totalGuardianVisits(): any {
+            return Object.keys(this.guardianPresent)
+                .reduce((a: any, k: string) => {
+                    return a.concat(this.guardianPresent[k]
+                        .map((p: number) => ({ patient_id: p, date: k })))
+                }, [])
+        }
     },
     methods: {
         async onPeriod(_: any, conf: any) {
             await this.presentLoading()
+            this.reportData = {}
             this.canShowReport = true
             this.report = new PatientReportService()
             this.report.setStartDate(conf.start_date)
             this.report.setEndDate(conf.end_date)
-            const res = await this.report.getPatientVisitTypes()
-            this.series = this.buildSeries(res)
+            this.reportData = await this.report.getPatientVisitTypes()
+            this.series = this.buildSeries(this.reportData)
             loadingController.dismiss()
         },
         async presentLoading() {
-            const loading = await loadingController
-                .create({
-                    message: 'Please wait...',
-                    backdropDismiss: false
-                })
-            await loading.present()
+            (await loadingController.create({
+                message: 'Please wait...',
+                backdropDismiss: false
+            })).present()
         },
-        pointSelection(e: any, c: any, config: any) {
+        async drillPatients(title: string, patients: any[]) {
+            const columns = [
+                [
+                    table.thTxt('ARV Number'),
+                    table.thTxt('First name'),
+                    table.thTxt('Last name'),
+                    table.thTxt('Gender'),
+                    table.thTxt('Visit date'),
+                    table.thTxt('Action')
+                ]
+            ]
+            const rowParser = async (row: any) => {
+                const data = row.map(async (col: any) => {
+                    let patient: Patientservice|null = null
+                    if (this.patients[col.patient_id]) {
+                        patient = this.patients[col.patient_id]
+                    } else {
+                        const d = await Patientservice.findByID(col.patient_id)
+                        patient = new Patientservice(d)
+                        this.patients[col.patient_id] = patient
+                    }
+                    return [
+                        this.tdARV(patient.getArvNumber()),
+                        table.td(patient.getGivenName()),
+                        table.td(patient.getFamilyName()),
+                        table.td(patient.getGender()),
+                        table.tdDate(col.date),
+                        table.tdBtn('Show', async () => {
+                            await modalController.dismiss({})
+                            this.$router.push({ path: `/patient/dashboard/${col.patient_id}`})
+                        })
+                    ]
+                })
+                return Promise.all(data)
+            }
+            this.drilldownData(title, columns, patients, rowParser)
+        },
+        onPointSelection(e: any, c: any, { dataPointIndex, seriesIndex }: any) {
             try {
-                const { dataPointIndex, seriesIndex } = config
                 const sIndex = seriesIndex <= 0 ? 0 : seriesIndex
-                this.runTableDrill(this.series[sIndex].raw[dataPointIndex])
+                const dates: any = this.series[sIndex].data[dataPointIndex]
+                const patients: any = this.series[sIndex].raw[dataPointIndex]
+                const drillData = Array.from({ length: patients.length }, (k, i) => {
+                    const date = new Date(dates[0]).toISOString()
+                    return { patient_id: patients[i], date: this.toDate(date) }
+                })
+                this.drillPatients('Point selection', drillData)
             } catch (e) {
-                //TODO
+                console.error(e)
+                console.log('Error loading point selection data')
             }
         },
         buildSeries(data: any) {
@@ -169,7 +251,6 @@ export default defineComponent({
                     return patient && guardian
                 })
             }
-
             return [
                 {
                     name: 'Patient present',
@@ -191,3 +272,12 @@ export default defineComponent({
     }
 })
 </script>
+<style scoped>
+a {
+    font-weight: bold;
+    text-decoration: none;
+}
+#view-port {
+    height: 77vh;
+}
+</style>
