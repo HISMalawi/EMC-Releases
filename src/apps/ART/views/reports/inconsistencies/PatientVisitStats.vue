@@ -37,6 +37,9 @@
         </ion-content>
         <ion-footer> 
             <ion-toolbar color="dark">
+                <ion-button @click="canShowReport = false" slot="start" size="large">
+                    New Date
+                </ion-button>
                 <ion-button slot="end" size="large" router-link="/" color="success">
                     Finish
                 </ion-button>
@@ -114,8 +117,6 @@ export default defineComponent({
     }),
     created() {
         this.fields = this.getDateDurationFields()
-        this.canShowReport = true
-        this.onPeriod({}, { start_date: '2021-01-01', end_date: '2023-03-13'})
     },
     computed: {
         totalAttendance(): number[] {
@@ -146,6 +147,8 @@ export default defineComponent({
             await this.presentLoading()
             this.reportData = {}
             this.canShowReport = true
+            this.patientPresent = {}
+            this.guardianPresent = {}
             this.report = new PatientReportService()
             this.report.setStartDate(conf.start_date)
             this.report.setEndDate(conf.end_date)
@@ -184,7 +187,7 @@ export default defineComponent({
                         this.tdARV(patient.getArvNumber()),
                         table.td(patient.getGivenName()),
                         table.td(patient.getFamilyName()),
-                        table.td(patient.getGender()),
+                        table.td(this.formatGender(patient.getGender())),
                         table.tdDate(col.date),
                         table.tdBtn('Show', async () => {
                             await modalController.dismiss({})
@@ -202,12 +205,10 @@ export default defineComponent({
                 const dates: any = this.series[sIndex].data[dataPointIndex]
                 const patients: any = this.series[sIndex].raw[dataPointIndex]
                 const drillData = Array.from({ length: patients.length }, (k, i) => {
-                    const date = new Date(dates[0]).toISOString()
-                    return { patient_id: patients[i], date: this.toDate(date) }
+                    return { patient_id: patients[i], date: new Date(dates[0]).toISOString() }
                 })
                 this.drillPatients('Point selection', drillData)
             } catch (e) {
-                console.error(e)
                 console.log('Error loading point selection data')
             }
         },
