@@ -306,7 +306,7 @@ export function confirmationSummary(patient: Patientservice) {
             const data: any = []
             await Store.get('PATIENT_LAB_ORDERS', { patientID })
                 .then((orders) => {
-                    const VLOrders = OrderService.getViralLoadOrders(orders);
+                    const VLOrders = OrderService.getOrdersWithResults(orders);
                     for(let i = 0; i < 2 && i < VLOrders.length; i++) {
                         data.push({
                             value: orderToString(VLOrders[i]),

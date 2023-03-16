@@ -58,7 +58,7 @@ export class OrderService extends Service {
         return super.getJson('/lab/specimen_types', { 'test_type': testName });
     }
 
-    static getViralLoadOrders(orders: Order[]) {
+    static getOrdersWithResults(orders: Order[]) {
         return orders.filter(order => {
             try {
                 const result = order.tests[0].result;
