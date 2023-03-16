@@ -67,6 +67,11 @@ export default [
         component: () => import("@/apps/ART/views/FilingNumberManagement.vue")
     },
     {
+        name: 'art notes',
+        path: '/art/clinical_notes/:patient_id',
+        component: () => import("@/apps/ART/views/encounters/ArtNotes.vue")
+    },
+    {
         name: "Enter stock",
         path: "/art/stock/enter",
         component: () => import("@/apps/ART/views/ARTStock/enter_receipts.vue")
