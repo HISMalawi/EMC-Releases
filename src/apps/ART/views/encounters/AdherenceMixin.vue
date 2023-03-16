@@ -8,6 +8,8 @@ import EncounterMixinVue from '../../../../views/EncounterMixin.vue'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import HisDate from "@/utils/Date"
 import { isEmpty } from 'lodash'
+import Store from "@/composables/ApiStore"
+
 export default defineComponent({
     mixins: [EncounterMixinVue],
     data: () => ({
@@ -105,7 +107,7 @@ export default defineComponent({
                     type: FieldType.TT_ADHERENCE_INPUT,
                     init: async () => {
                         this.adherence = new AdherenceService(this.patientID, this.providerID)
-                        await this.adherence.loadPreviousDrugs()
+                        await this.adherence.loadPreviousDrugs((await Store.get('ASK_HANGING_PILLS')))
                         return true
                     },
                     condition: () => checkDrugsBefore ? this.adherence.receivedDrugsBefore() : true,

@@ -371,13 +371,19 @@ export class Patientservice extends Service {
         return this.getAddresses().currentTA
     }
 
+    
     getClosestLandmark() {
         return this.getAttribute(19)
     }
-
+    
+    getOccupation() {
+        return this.getAttribute(13)
+    }
+    
     getPhoneNumber() {
         return this.getAttribute(12) //get phone number
     }
+    
     getAttribute(personAttributeTypeID: number) {
         return getPersonAttribute(this.patient.person.person_attributes, personAttributeTypeID);
     }

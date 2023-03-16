@@ -31,24 +31,19 @@ export default defineComponent({
 
   methods: {
     async onFinish(formData: any) {
-      const items = formData.enter_batches;
-      const errors = [];
-      for (let index = 0; index < items.length; index++) {
-        const element = items[index].value;
-        const vals = {
-                "current_quantity": element['current_quantity'],
-                "reason": formData.reason.value
-            };
-            const f = await this.stockService.updateItem(element['id'], vals)
-            if(!f) {
-              errors.push('could not stock for ' + items[index].shortName);
-            }
-      }
-      if (errors.length === 0) {
+      const items = this.prepDrugs(formData);
+      try {
+        await this.stockService.batchUpdate({
+          verification_date: formData.date.value,
+          reason: formData.reason.value,
+          items,
+        });
         toastSuccess("Stock succesfully updated");
         this.$router.push("/");
-      } else {
+
+      } catch (e) {
         toastDanger("Could not save stock");
+        console.error(e)
       }
     },
     getFields(): Array<Field> {
@@ -88,6 +83,10 @@ export default defineComponent({
               label: "Supervision",
               value: "Supervision",
             },
+            {
+              label: "Handover",
+              value: "Handover",
+            },
           ],
         },
         {
@@ -104,7 +103,8 @@ export default defineComponent({
     buildResults(drugs: any) {
       const columns = [
         "Drug",
-        "Total units",
+        "Tins/Pallets",
+        "Reason for Modification",
         "Expiry date",
       ];
       const rows = drugs.map((j: any) => {
@@ -112,6 +112,7 @@ export default defineComponent({
         return [
           d.shortName,
           toNumString(d['current_quantity']),
+          d.reason,
           HisDate.toStandardHisDisplayFormat(d.expiry_date),
         ];
       });
@@ -123,25 +124,16 @@ export default defineComponent({
         },
       ];
     },
-    prepDrugs(formdata: any) {
-      const items: any[] = [];
-      const barcode = this.barcode;
-      
-      formdata.enter_batches.value.forEach((element: any) => {
-        items.push({
-          'batch_number': element.batchNumber,
-          items: [
-            {
-              'barcode': barcode,
-              'drug_id': element.drugID,
-              'expiry_date': element.expiry,
-              'quantity': parseInt(element.tabs) * parseInt(element.tins),
-              'delivery_date': formdata.date.value,
-            },
-          ],
-        });
-      });
-      return items;
+    prepDrugs(formdata: any) {      
+      return formdata.enter_batches.map((element: any) => ({
+        'id': element.value.id,
+        'current_quantity': parseInt(element.value.pack_size) * parseInt(element.value.current_quantity),
+        "delivered_quantity": element.value.delivered_quantity,
+        "pack_size": element.value.pack_size,
+        'expiry_date': element.value.expiry_date,
+        'delivery_date': element.value.delivery_date,
+        "reason": element.value.reason,
+      }));
     },
     selectAll(listData: Array<Option>) {
       return listData.map((l) => {
