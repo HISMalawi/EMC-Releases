@@ -116,7 +116,7 @@ export class Patientservice extends Service {
             && ObservationService.obsInValidPeriod(obs)
     }
 
-    async isBreastFeeding() {
+    async isBreastfeeding() {
         const obs = await ObservationService.getFirstObs(this.getID(), 'Is patient breast feeding')
         return obs && (obs.value_coded.match(/Yes/i) ? true : false) 
             && ObservationService.obsInValidPeriod(obs)
