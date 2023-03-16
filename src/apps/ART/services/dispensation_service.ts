@@ -38,7 +38,7 @@ export const DRUG_PACK_SIZES: Record<string, any> = {
     '1043': [ 60 ],
     '1044': [ 30],
     '1056': [ 24 ],
-    '1216': [3, 6, 12]
+    '1216': [3, 6, 8, 12]
 }
 
 export class DispensationService extends AppEncounterService {
