@@ -10,4 +10,5 @@ export interface DrugInterface{
     auto_expire_date: string;
     instructions: string;
     units: string;
+    quantity?: number;
 }

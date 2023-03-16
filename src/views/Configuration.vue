@@ -37,8 +37,12 @@ export default defineComponent({
           case ART_GLOBAL_PROP.FILING_NUMBERS:
             Store.invalidate('IS_ART_FILING_NUMBER_ENABLED')
             break;
+          case ART_GLOBAL_PROP.PILLS_REMAINING:
+            Store.invalidate('ASK_HANGING_PILLS')
+            break;
           case ART_GLOBAL_PROP.THREE_HP_AUTO_SELECT:
             Store.invalidate('ART_AUTO_3HP_SELECTION')
+            break;
         }
         toastSuccess('Property set')
       })

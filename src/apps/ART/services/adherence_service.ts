@@ -14,14 +14,14 @@ export class AdherenceService extends AppEncounterService {
         this.lastReceiptDate = ''
     }
 
-    async loadPreviousDrugs() {
+    async loadPreviousDrugs(optimiseHangingPills=false) {
         const date = new Date(this.date)
         date.setDate(date.getDate() - 1) // we don't want current date to count
         const d = (date: string | Date) => HisDate.toStandardHisFormat(date)
         const drugs = await AppEncounterService.getJson(
             `patients/${this.patientID}/drugs_received`, { date: d(date) }
-        )      
-        if (drugs) {
+        )
+        if (!isEmpty(drugs)) {
             this.lastReceiptDate = drugs.reduce((receiptDate: string | null,  drug: any) => {
                 return !receiptDate || (new Date(d(drug.order.start_date)) > new Date(receiptDate))
                     ?  d(drug.order.start_date)
@@ -29,8 +29,17 @@ export class AdherenceService extends AppEncounterService {
             }, null)
             const htnDrugs = BPManagementService.htnDrugReferences().map((d: any) => d.drug_id)
             this.lastDrugs = drugs.filter((drug: DrugInterface) => 
-               !htnDrugs.includes(drug.drug['drug_id']) && d(drug.order.start_date) === this.lastReceiptDate
+                !htnDrugs.includes(drug.drug['drug_id']) && d(drug.order.start_date) === this.lastReceiptDate
             )
+            if (optimiseHangingPills) {
+                const lastPillCounts: Record<number, number> = (await this.getPreviousDrugPillCount()) || {}
+                this.lastDrugs = this.lastDrugs.map((d: DrugInterface) => {
+                    if (lastPillCounts[d.drug.drug_id] && d.quantity) {
+                        d.quantity += lastPillCounts[d.drug.drug_id]
+                    }
+                    return d
+                })
+            }
         }
     }
 
@@ -42,6 +51,14 @@ export class AdherenceService extends AppEncounterService {
 
     buildPillCountObs(orderId: number, pillCount: number) {
         return this.buildValueNumber('Number of tablets brought to clinic', pillCount, null, orderId)
+    }
+    
+    getPreviousDrugPillCount() {
+        return AppEncounterService.getJson('last_drugs_pill_count', {
+            'patient_id': this.patientID,
+            'program_id': this.programID,
+            'date': this.lastReceiptDate
+        })
     }
 
     async buildAdherenceObs(orderId: number, drugId: number, adherence: number) {
@@ -77,7 +94,9 @@ export class AdherenceService extends AppEncounterService {
     }
 
     calcTimeElapsed(date1: string, timeUnit: 'week' | 'day') {
-        return dayjs(this.date).diff(date1, timeUnit)
+        // Consider this example: 2022-01-28 to 2022-01-01 diff is supposed to give us a difference of 28 days. 
+        // However, dayjs calculates it as a difference of 27 days. Adding a one to correct this issue for a better calculation
+        return dayjs(HisDate.toStandardHisFormat(this.date)).diff(HisDate.toStandardHisFormat(date1), timeUnit) + 1
     }
 
     calculateUnaccountedOrMissed(expected: string, actual: string) {

@@ -80,7 +80,9 @@ export default defineComponent({
                     toastWarning('Patient is not eligible for treatment Today! Please check HIV Clinic Consultation')
                     return this.gotoPatientDashboard()
                 }
-                await this.prescription.loadHangingPills()
+                if ((await Store.get('ASK_HANGING_PILLS'))) {
+                    await this.prescription.loadHangingPills()
+                }
                 await this.prescription.loadRegimenExtras()
                 await this.prescription.loadTreatmentState()
                 await this.prescription.loadDrugInduced()

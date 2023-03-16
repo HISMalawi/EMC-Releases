@@ -25,6 +25,10 @@ import ART_PROP from "@/apps/ART/art_global_props";
 import { StoreDef, isCacheEnabled } from "@/apps/GLOBAL_APP/global_store";
 
 export const appStore: Record<string, StoreDef> = {
+    'ASK_HANGING_PILLS':  {
+        get: () =>  ART_PROP.askPillsRemaining(),
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
+    },
     'ART_AUTO_3HP_SELECTION': {
         get: () =>  ART_PROP.threeHPAutoSelectEnabled(),
         canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'

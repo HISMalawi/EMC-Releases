@@ -4,7 +4,7 @@ export enum ART_GLOBAL_PROP {
     TARGET_LAB = 'target.lab',
     EXTENDED_LABS = 'extended_labs',
     VL_ROUTINE_CHECK = 'activate.vl.routine.check',
-    PILLS_REMAINING = 'ask.pills.remaining.at.home',
+    PILLS_REMAINING = 'ask_pills_remaining_at_home',
     FILING_NUMBERS = 'use.filing.number',
     DRUG_MANAGEMENT = 'activate.drug.management',
     HTN_ENHANCEMENT = 'activate.htn.enhancement',
