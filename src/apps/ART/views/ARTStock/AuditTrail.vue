@@ -26,6 +26,19 @@ import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue";
 import HisDate from "@/utils/Date";
 import { toNumString } from '@/utils/Strs'
 
+const thNumStyling = {
+    textAlign: "right", 
+    paddingRight: ".5rem" 
+};
+
+interface Drug {
+    "drug_inventory_id": number;
+    "name": string;
+    "short_name": string;
+    "pack_size": number;
+    "id": number;
+}
+
 export default defineComponent({
     mixins: [ReportMixin],
     components: { ReportTemplate },
@@ -37,7 +50,7 @@ export default defineComponent({
                 table.thTxt('Medication'), 
                 table.thTxt('Transaction type'),
                 table.thTxt('Transaction date'), 
-                table.thTxt('Net Quantity')
+                table.thTxt('Net Quantity', {style: thNumStyling})
             ]
         ],
         fields: [
@@ -58,6 +71,9 @@ export default defineComponent({
         ] as Field[]
     }),
     methods: {
+        toTins(amount: number, drug: Drug){
+            return Math.abs(Math.trunc(amount / drug.pack_size || 1))
+        },
         async onPeriod(_: any, c: any) {
             this.rows = []
             this.report = new StockReportService()
@@ -71,7 +87,7 @@ export default defineComponent({
                             table.td(s.drug_name),
                             table.td(s.transaction_type),
                             table.tdDate(s.transaction_date),
-                            table.tdLink(toNumString(Math.abs(s.cum_per_day_stock_commited)), async () =>  {
+                            table.tdLink(toNumString(this.toTins(s.cum_per_day_stock_commited, s.drug_cms)), async () =>  {
                                 const data = await this.report.getTrailDetails(s.transaction_date, s.drug_id, s.transaction_type);
                                 this.drilldownData(
                                     `${s.drug_name} ${s.transaction_type.toLowerCase()} on ${HisDate.toStandardHisDisplayFormat(s.transaction_date)}`,
@@ -79,13 +95,13 @@ export default defineComponent({
                                         table.thTxt('Product Code'),
                                         table.thTxt('Batch Number'),
                                         table.thTxt('Medication'),
-                                        table.thTxt('Amount')
+                                        table.thTxt('Amount', { style: thNumStyling })
                                     ]],
                                     data.map((d: any) => [
                                         table.td(d.product_code),
                                         table.td(d.batch_number),
                                         table.td(d.drug_name),
-                                        table.tdNum(Math.abs(d.amount_committed_to_stock))
+                                        table.tdNum(this.toTins(d.amount_committed_to_stock, d.drug_cms))
                                     ]),
                                     false
                                 )
@@ -93,7 +109,7 @@ export default defineComponent({
                             {
                                 style: {
                                     textAlign: "right",
-                                    paddingRight: "2rem"
+                                    paddingRight: ".5rem"
                                 }
                             })
                         ])

@@ -7,6 +7,7 @@
     :disabled="disabled"
     :readonly="readOnly"
     autocapitalize="sentences"
+    :placeholder="placeholder"
   />
 </template>
 <script lang="ts">
@@ -46,6 +47,10 @@ export default defineComponent({
     disabled: {
       type: Boolean,
       default: () => false,
+    },
+    placeholder: {
+      type: String,
+      default: () => "",
     }
   },
 });

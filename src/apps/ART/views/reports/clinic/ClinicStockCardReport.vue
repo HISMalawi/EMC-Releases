@@ -31,8 +31,8 @@ export default defineComponent({
         columns: [
             [
                 table.thTxt('Medication'),
-                table.thTxt('Quantity Dispensed (Tabs)'),
-                table.thTxt('Stock on hand(Tins)')
+                table.thTxt('Quantity Dispensed (Tins/Pallets)'),
+                table.thTxt('Stock on hand(Tins/Pallets)')
             ]
         ]
     }),
