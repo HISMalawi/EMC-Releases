@@ -102,6 +102,7 @@ import { LabOrderService } from "@/apps/ART/services/lab_order_service";
 import { PrintoutService } from "@/services/printout_service";
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
 import Store from "@/composables/ApiStore"
+import { find } from "lodash";
 
 export default defineComponent({
   name: "Modal",
@@ -146,13 +147,11 @@ export default defineComponent({
       })
     },
     async getActivities() {
-     const tests = await OrderService.getTestTypes();
-     this.testTypes = tests.map((t: any, i: any) => {
-        t.index = t.name === 'HIV viral load' ? (t.index = 0) : (t.index = i + 1)
-        return t
-     })
-     .sort((a: any, b: any) => a.index < b.index ? 0 : 1)
-     .filter((t: any) => Array.isArray(this.testFilters) ? this.testFilters.includes(t.name) : true)
+      const tests = await OrderService.getTestTypes();
+      const viralLoad = find(tests, { name: "HIV viral load"})
+      const sorted = tests.sort((a: any, b: any) => `${a.name}`.toUpperCase() > `${b.name}`.toUpperCase() ? 1: -1)
+        .filter((t: any) => Array.isArray(this.testFilters) ? this.testFilters.includes(t.name) : true)
+      this.testTypes = viralLoad ? [viralLoad, ...sorted] : sorted
     },
     removeOrder(index: number) {
       this.testTypes[index]['isChecked'] = false;
