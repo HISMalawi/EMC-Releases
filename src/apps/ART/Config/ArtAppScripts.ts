@@ -202,22 +202,17 @@ export function patientProgramInfoData(patientID: number) {
  */
 export async function getPatientDashboardLabOrderCardItems(patientId: number) {
     const data = (await Store.get('PATIENT_LAB_ORDERS', { patientID: patientId }))
-        .reduce((results: any, order: any) => {
-        const tresults = order.tests.filter(
-            (t: any) => t.name.match(/HIV/i) && !isEmpty(t.result))
-            .map((t: any) => t?.result)
-        return results.concat(tresults.reduce((a: any, c: any) => a.concat(c), []))
-    }, [])
-    .map((result: any) => {
-        const vlStatus = OrderService.isHighViralLoadResult(result) ? '(<b style="color: #eb445a;">High</b>)' : ''
-        return {
-            label: `${result.indicator.name} &nbsp ${result.value_modifier}${result.value} ${vlStatus}`,
-            value: HisDate.toStandardHisDisplayFormat(result.date),
-            other: {
-                wrapTxt: true
+        .reduce((results: any, order: any) => results.concat(OrderService.getVLResults(order)), [])
+        .map((result: any) => {
+            const vlStatus = OrderService.isHighViralLoadResult(result) ? '(<b style="color: #eb445a;">High</b>)' : ''
+            return {
+                label: `${result.indicator.name} &nbsp ${result.value_modifier}${result.value} ${vlStatus}`,
+                value: HisDate.toStandardHisDisplayFormat(result.date),
+                other: {
+                    wrapTxt: true
+                }
             }
-        }
-    }).sort((a: any, b: any) => new Date(a.value) > new Date(b.value) ? -1 : 1)
+        }).sort((a: any, b: any) => new Date(a.value) > new Date(b.value) ? -1 : 1)
     if (data.length >= 2) {
         const [result1, result2] = data
         return [result1, result2]

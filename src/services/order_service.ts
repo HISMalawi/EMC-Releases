@@ -58,6 +58,14 @@ export class OrderService extends Service {
         return super.getJson('/lab/specimen_types', { 'test_type': testName });
     }
 
+    static getVLResults (order: Order) {
+        return order.tests
+            .filter(t => t.name.match(/viral load/i) && !isEmpty(t.result))
+            .map(t => t.result)
+            .flat()
+            .sort((a, b) => a.date.getTime() - b.date.getTime())
+    }
+
     static getOrdersWithResults(orders: Order[]) {
         return orders.filter(order => {
             try {
