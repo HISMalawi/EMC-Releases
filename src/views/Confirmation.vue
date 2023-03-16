@@ -116,6 +116,8 @@ import { AncPregnancyStatusService } from "@/apps/ANC/Services/anc_pregnancy_sta
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 import { isUnknownOrEmpty, isValueEmpty } from "@/utils/Strs";
 import Store from "@/composables/ApiStore"
+import { Order } from "@/interfaces/order";
+import { Result } from "@/interfaces/result";
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -288,10 +290,18 @@ export default defineComponent({
     async setViralLoadStatus() {
       const orders = await OrderService.getOrders(this.patient.getID())      
       if(!isEmpty(orders)){
-        const vlOrders = OrderService.getViralLoadOrders(orders)
-        if(!isEmpty(vlOrders)){
-          this.facts.hasHighViralLoad = OrderService.isHighViralLoadResult(vlOrders[0].tests[0].result[0])
-        }
+        const ordersWithResults = OrderService.getOrdersWithResults(orders)
+        const latestVLResult = ordersWithResults.reduce((result: Result, order: Order) => {
+          const _results = order.tests
+            .filter(t => t.name.match(/viral load/i) && !isEmpty(t.result))
+            .map(t => t.result).flat()
+            .sort((a, b) => (new Date(a.date)).getTime() - (new Date(b.date).getTime()))
+          return isEmpty(_results) || _results[0].date < result.date
+            ? result 
+            : _results[0] 
+        }, {} as Result);
+
+        this.facts.hasHighViralLoad = OrderService.isHighViralLoadResult(latestVLResult)
       }      
     },
     /**
