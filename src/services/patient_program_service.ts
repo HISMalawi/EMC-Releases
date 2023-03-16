@@ -102,13 +102,14 @@ export class PatientProgramService extends ProgramService {
         const print = new PrintoutService()
         return print.printLbl(`/programs/${this.programId}/patients/${this.patientId}/labels/transfer_out?date=${date}`)    
     }
-    async transferOutEncounter(facility: any) {
+    async transferOutEncounter(facility: any, reason= '') {
         const transferOut = new AppEncounterService(this.patientId, 119)
         transferOut.setDate(this.stateDate)
         const encounter = await transferOut.createEncounter()
         if (!encounter) {
             throw 'Unable to transfer out encounter'
         }
+        if (reason) await transferOut.saveValueTextObs('Reason for transfer out', reason)
         return transferOut.saveValueTextObs('Transfer to', facility.name)
     }
 
