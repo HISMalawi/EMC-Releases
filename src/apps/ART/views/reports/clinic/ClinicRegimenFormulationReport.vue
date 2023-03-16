@@ -31,6 +31,7 @@ export default defineComponent({
         columns: [
             [
                 table.thTxt('ARV#'), 
+                table.thTxt('Formulation'),
                 table.thTxt('Gender'), 
                 table.thTxt('DOB')
             ]
@@ -62,12 +63,16 @@ export default defineComponent({
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()
-            this.setRows((await this.report.getRegimenFormulationReport(regimen.value, formulation.value)))
+            const formulationValue = formulation.value
+            const regimenValue = regimen.value
+            const data = await this.report.getRegimenFormulationReport(regimenValue, formulationValue)
+            this.setRows(data, regimenValue, formulationValue)
         },
-        async setRows(data: Array<any>) {
+        async setRows(data: Array<any>, regimen: string, formulation: string) {
             this.sortByArvNumber(data).forEach((d: any) => {
                this.rows.push([
                     table.td(d.arv_number),
+                    table.td(`(${regimen}) ${formulation}`),
                     table.td(this.formatGender(d.gender)),
                     table.tdDate(d.birthdate)
                ])
