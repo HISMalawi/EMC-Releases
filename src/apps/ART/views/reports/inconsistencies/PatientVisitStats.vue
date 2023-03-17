@@ -197,12 +197,15 @@ export default defineComponent({
                         ]
                     } catch (e) {
                         return [
-                            table.td('__ERROR_'),
-                            table.td('__ERROR_'),
-                            table.td('__ERROR_'),
-                            table.td('__ERROR_'),
-                            table.td('__ERROR_'),
-                            table.td('__ERROR_'),
+                            table.td('N/A'),
+                            table.td('N/A'),
+                            table.td('N/A'),
+                            table.td('N/A'),
+                            table.td('N/A'),
+                            table.tdBtn('Show', async () => {
+                                await modalController.dismiss({})
+                                this.$router.push({ path: `/patient/dashboard/${col.patient_id}`})
+                            })
                         ]
                     }
                 })
