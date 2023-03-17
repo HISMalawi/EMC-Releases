@@ -58,7 +58,15 @@ export class OrderService extends Service {
         return super.getJson('/lab/specimen_types', { 'test_type': testName });
     }
 
-    static getViralLoadOrders(orders: Order[]) {
+    static getVLResults (order: Order) {
+        return order.tests
+            .filter(t => t.name.match(/viral load/i) && !isEmpty(t.result))
+            .map(t => t.result)
+            .flat()
+            .sort((a, b) => a.date.getTime() - b.date.getTime())
+    }
+
+    static getOrdersWithResults(orders: Order[]) {
         return orders.filter(order => {
             try {
                 const result = order.tests[0].result;
@@ -110,6 +118,8 @@ export class OrderService extends Service {
     }
 
     static isHighViralLoadResult(result: any) {
+        if(result.indicator?.name !== "HIV viral load") return false;
+        
         if(result.value_modifier === '=' && parseFloat(result.value) >= 1000) return true
 
         if((result.value_modifier  === '<' || result.value_modifier  === '&lt') 
