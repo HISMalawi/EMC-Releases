@@ -183,17 +183,28 @@ export default defineComponent({
                         patient = new Patientservice(d)
                         this.patients[col.patient_id] = patient
                     }
-                    return [
-                        this.tdARV(patient.getArvNumber()),
-                        table.td(patient.getGivenName()),
-                        table.td(patient.getFamilyName()),
-                        table.td(this.formatGender(patient.getGender())),
-                        table.tdDate(col.date),
-                        table.tdBtn('Show', async () => {
-                            await modalController.dismiss({})
-                            this.$router.push({ path: `/patient/dashboard/${col.patient_id}`})
-                        })
-                    ]
+                    try {
+                        return [
+                            this.tdARV(patient.getArvNumber()),
+                            table.td(patient.getGivenName()),
+                            table.td(patient.getFamilyName()),
+                            table.td(this.formatGender(patient.getGender())),
+                            table.tdDate(col.date),
+                            table.tdBtn('Show', async () => {
+                                await modalController.dismiss({})
+                                this.$router.push({ path: `/patient/dashboard/${col.patient_id}`})
+                            })
+                        ]
+                    } catch (e) {
+                        return [
+                            table.td('__ERROR_'),
+                            table.td('__ERROR_'),
+                            table.td('__ERROR_'),
+                            table.td('__ERROR_'),
+                            table.td('__ERROR_'),
+                            table.td('__ERROR_'),
+                        ]
+                    }
                 })
                 return Promise.all(data)
             }
