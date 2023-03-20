@@ -42,7 +42,13 @@ export default defineComponent({
                 table.thTxt('Stopped ART'),
                 table.thTxt('TO'),
                 table.thTxt('Confirmed TB '),
-                table.thTxt('Pregnant')
+                table.thTxt('Pregnant'),
+                table.thTxt('Breastfeeding'),
+                table.thTxt('Skin rash'),
+                table.thTxt('Peripheral neuropathy'),
+                table.thTxt('Yellow eyes'),
+                table.thTxt('Nausea'),
+                table.thTxt('Dizziness')
             ]
         ]
     }),
@@ -74,7 +80,14 @@ export default defineComponent({
                     this.drill(d.stopped, `Stopped ${d.tpt_type}`),
                     this.drill(d.transfer_out, `Transfer out with ${d.tpt_type}`),
                     this.drill(d.confirmed_tb, `Confirmed TB on ${d.tpt_type}`),
-                    this.drill(d.pregnant, `Pregnant on ${d.tpt_type}`)
+                    this.drill(d.pregnant, `Pregnant on ${d.tpt_type}`),
+                    this.drill(d.breast_feeding, `Breastfeeding ${d.tpt_type}`),
+                    this.drill(d.skin_rash, `Skin rash ${d.tpt_type}`),
+                    this.drill(d.peripheral_neuropathy, `Peripheral neuropathy ${d.tpt_type}`),
+                    this.drill(d.yellow_eyes, `Yellow eyes ${d.tpt_type}`),
+                    this.drill(d.nausea, `Nausea ${d.tpt_type}`),
+                    this.drill(d.dizziness, `Dizziness ${d.tpt_type}`)
+
                 ]
                 d.tpt_type === '3HP' ? threeHP.push(row) : sixH.push(row)
             })
