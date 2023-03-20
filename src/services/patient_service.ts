@@ -127,6 +127,19 @@ export class Patientservice extends Service {
         return date && HisDate.toStandardHisFormat(date) === Service.getSessionDate() && this.isFemale()
     }
 
+   async nextAppointment() {
+        try {
+            const res = await Service.getJson("next_appointment", {
+                patient_id: this.getID(),
+                date: Service.getSessionDate(),
+                program_id: Service.getProgramID()    
+            })
+            return res.appointment_date
+        } catch (e) {
+            return null
+        }
+    }
+
     isChildBearing() {
         const age = this.getAge()
         return this.isFemale() && age >= 12 && age <= 50

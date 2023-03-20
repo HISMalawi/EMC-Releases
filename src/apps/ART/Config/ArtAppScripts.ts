@@ -23,6 +23,7 @@ import { Patientservice } from '@/services/patient_service';
 import Store from "@/composables/ApiStore"
 import ART_PROP from "@/apps/ART/art_global_props";
 import { StoreDef, isCacheEnabled } from "@/apps/GLOBAL_APP/global_store";
+import { toDate } from "@/utils/Strs";
 
 export const appStore: Record<string, StoreDef> = {
     'ASK_HANGING_PILLS':  {
@@ -255,12 +256,7 @@ export function confirmationSummary(patient: Patientservice) {
             {
                 label: 'Next Appointment',
                 value: '...',
-                asyncValue: async () => {
-                    const date = await ObservationService.getFirstValueDatetime(
-                        patientID, 'appointment date'
-                    );
-                    return date ? HisDate.toStandardHisDisplayFormat(date) : ''
-                }
+                asyncValue: async () => toDate((await patient.nextAppointment()))
             }
         ],
         'PATIENT IDENTIFIERS': () => [
