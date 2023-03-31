@@ -244,6 +244,7 @@ export default defineComponent({
                     helpText: "Reason for Transferring out",
                     type: FieldType.TT_SELECT,
                     validation: (v: Option) => Validation.required(v),
+                    condition: (f: any) => f.program_state.label === "Patient transferred out",
                     options: () => {
                         const opt: any = (val: string) => ({label: val, value: val})
                         return [

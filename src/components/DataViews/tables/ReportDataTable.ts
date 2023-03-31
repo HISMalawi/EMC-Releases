@@ -1,5 +1,5 @@
 import HisDate from "@/utils/Date"
-import { toNumString } from "@/utils/Strs";
+import { removeTags, toNumString } from "@/utils/Strs";
 import { sort } from 'fast-sort';
 import { isEmpty, slice } from "lodash";
 
@@ -37,7 +37,7 @@ export interface RowInterface {
 }
 export function prepareCSVValue(value: string | number | Date) {
     if(typeof value !== 'string') return value
-    return value.replace(/,/gi, ' ').trim()
+    return removeTags(value).replace(/,/gi, ' ').trim()
 }
 export function toExportableFormat(columns: Array<ColumnInterface[]>, rows: Array<RowInterface[]>, mode='' as 'csvMode' | 'pdfMode' | 'ignorePDFColumnexport') {
     const strRows: Array<any> = []

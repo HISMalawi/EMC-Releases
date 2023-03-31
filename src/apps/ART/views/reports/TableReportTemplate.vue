@@ -97,6 +97,7 @@ import { isEmpty } from "lodash";
 import ReportErrors from "@/apps/ART/Components/ReportErrors.vue"
 import { EncryptionOptions } from "jspdf";
 import { infoActionSheet } from "@/utils/ActionSheets";
+import { removeTags } from "@/utils/Strs";
 
 export default defineComponent({
   components: { 
@@ -291,7 +292,7 @@ export default defineComponent({
     getFileName() {
       return this.customFileName 
         ? this.customFileName
-        : `${this.reportPrefix} ${Service.getLocationName()} ${this.title} ${this.period}`
+        : `${this.reportPrefix} ${Service.getLocationName()} ${removeTags(this.title)} ${this.period}`
     },
     /**
      * Loads report without depending on Field configurations

@@ -123,8 +123,14 @@ export default defineComponent({
                 },
                 {
                     id: "has_linkage_code",
-                    helpText: 'HTS Linkage Number',
+                    helpText: 'HTS Linkage number confirmation',
                     type: FieldType.TT_YES_NO,
+                    summaryMapValue: (v: any) => {
+                        return {
+                            label: "Has HTS Linkage number?",
+                            value: v
+                        }
+                    },
                     validation: (v: string) => Validation.required(v),
                     options: () => [
                         {

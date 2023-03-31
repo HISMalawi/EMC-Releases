@@ -274,7 +274,7 @@ export default defineComponent({
           label: 'cur Breastfeeding',
           value: '...',
           condition: () => this.patient.isFemale(),
-          asyncValue: async () => (await this.patient.isBreastFeeding()) ? 'Yes' : 'No'
+          asyncValue: async () => (await this.patient.isBreastfeeding()) ? 'Yes' : 'No'
         },
         { 
           label: "TI", 
