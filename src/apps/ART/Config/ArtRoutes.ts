@@ -213,6 +213,11 @@ export default [
     },
     /** ART MOH REPORT*/
     {
+        name: 'moh_tpt_cohort',
+        path: '/art/moh_tpt_cohort',
+        component: () => import("@/apps/ART/views/reports/moh/MohTptCohortReport.vue")
+    },
+    {
         name: 'moh_disaggregated_report',
         path: '/art/moh_disaggregated_report',
         component: () => import("@/apps/ART/views/reports/moh/MohDisaggregatedReport.vue")
