@@ -28,7 +28,7 @@ import '@/css/his-keyboard.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import 'v-calendar/dist/style.css';
+// import 'v-calendar/dist/style.css';
 
 const app = createApp(App)
   .use(IonicVue)
