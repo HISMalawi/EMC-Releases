@@ -35,6 +35,10 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'Regimen Report',
                 pathName: 'moh_regimen_report'
+            },
+            {
+                name: 'TPT Cohort',
+                pathName: 'moh_tpt_cohort'
             }
         ]
     },

@@ -264,6 +264,18 @@ export default defineComponent({
           condition: () => this.patient.isFemale(),
           asyncValue: () => this.patient.getInitialObs('Is patient breast feeding', 'value_coded')
         },
+        {
+          label: 'cur Preg',
+          value: '...',
+          condition: () => this.patient.isFemale(),
+          asyncValue: async () => (await this.patient.isPregnant()) ? 'Yes' : 'No' 
+        },
+        {
+          label: 'cur Breastfeeding',
+          value: '...',
+          condition: () => this.patient.isFemale(),
+          asyncValue: async () => (await this.patient.isBreastfeeding()) ? 'Yes' : 'No'
+        },
         { 
           label: "TI", 
           value:  '...',

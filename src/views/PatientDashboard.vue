@@ -142,7 +142,7 @@
             :programCardInfo="programCardInfo"
         />
         <ion-content id="main-content"> 
-            <ion-grid v-if="!appHasCustomContent" class='grid-custom vertically-align'>
+            <ion-grid class='grid-custom vertically-align'>
                 <ion-row>
                     <ion-col size="2.4">
                         <visit-dates-card :title="visitDatesTitle" :items="visitDates" @onselect="onActiveVisitDate"> </visit-dates-card>

@@ -27,6 +27,7 @@ export default defineComponent({
             gender: '' as 'M' | 'F',
             stage: -1 as number,
             cd4: -1 as number,
+            cd4Date: '' as string,
             date: '' as string,
             isChildBearing: false as boolean,
             stageOneConditions: [] as Array<string>,
@@ -469,6 +470,7 @@ export default defineComponent({
                         allowUnknown: false
                     },
                     computeValue: (date: string, isEstimate: boolean) => {
+                        this.stagingFacts.cd4Date = date
                         return {
                             date,
                             tag: 'staging',

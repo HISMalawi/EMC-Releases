@@ -116,9 +116,28 @@ export class Patientservice extends Service {
             && ObservationService.obsInValidPeriod(obs)
     }
 
+    async isBreastfeeding() {
+        const obs = await ObservationService.getFirstObs(this.getID(), 'Is patient breast feeding')
+        return obs && (obs.value_coded.match(/Yes/i) ? true : false) 
+            && ObservationService.obsInValidPeriod(obs)
+    }
+
     async hasPregnancyObsToday() {
         const date = await ObservationService.getFirstObsDatetime(this.getID(), 'Is patient pregnant')
         return date && HisDate.toStandardHisFormat(date) === Service.getSessionDate() && this.isFemale()
+    }
+
+   async nextAppointment() {
+        try {
+            const res = await Service.getJson("next_appointment", {
+                patient_id: this.getID(),
+                date: Service.getSessionDate(),
+                program_id: Service.getProgramID()    
+            })
+            return res.appointment_date
+        } catch (e) {
+            return null
+        }
     }
 
     isChildBearing() {
@@ -358,13 +377,19 @@ export class Patientservice extends Service {
         return this.getAddresses().currentTA
     }
 
+    
     getClosestLandmark() {
         return this.getAttribute(19)
     }
-
+    
+    getOccupation() {
+        return this.getAttribute(13)
+    }
+    
     getPhoneNumber() {
         return this.getAttribute(12) //get phone number
     }
+    
     getAttribute(personAttributeTypeID: number) {
         return getPersonAttribute(this.patient.person.person_attributes, personAttributeTypeID);
     }

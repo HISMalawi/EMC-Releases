@@ -53,7 +53,7 @@ export class AppEncounterService extends ObservationService {
 
         obs['concept_id'] = await ConceptService.getConceptID(conceptName)
 
-        if (obj.value_coded) {
+        if (typeof obj.value_coded === 'string') {
             obs['value_coded'] = await ConceptService.getConceptID(obj.value_coded)
         }
 

@@ -55,6 +55,7 @@ export default defineComponent({
     CxCaMaxAge: -1 as number,
     DueForCxCa: false as boolean,
     currentlyPregnant: false as boolean,
+    currentlyBreastfeeding: false,
     patientHitMenopause: false as boolean,
     hasPregnancyObsToday: false as boolean,
     autoSelect3HP: false as boolean,
@@ -248,6 +249,14 @@ export default defineComponent({
       }
       return this.currentlyPregnant
     },
+    isBreastFeeding(formData: any) {
+      if (formData.pregnant_breastfeeding) {
+        return this.inArray(formData.pregnant_breastfeeding, 
+          p => p.label === 'Breastfeeding' && p.value === 'Yes'
+        )
+      }
+      return this.currentlyBreastfeeding
+    },
     isOnTubalLigation(formData: any) {
       return this.inArray(formData.current_fp_methods, d => d.value === "TUBAL LIGATION")
     },
@@ -313,6 +322,14 @@ export default defineComponent({
     hasTBSymptoms(formData: any) {
       this.presentedTBSymptoms = this.inArray(formData.tb_side_effects, d => d.value === "Yes")
       return this.presentedTBSymptoms
+    },
+    isTBSuspect(data: any){
+      this.TBSuspected = data.value.toString().match(/Yes|TB Suspected/i) ? true : false
+      return this.TBSuspected
+    },
+    isAllergicToSulphur (data: any) {
+      this.allergicToSulphur = data.value.match(/unknown/i) ? null : data.value.match(/yes/i) ? true : false
+      return this.allergicToSulphur
     },
     async buildSideEffectObs(data: Option[], attr: 'malawiSideEffectReasonObs' | 'otherSideEffectReasonObs'): Promise<boolean> {
       const sideEffectReasons  = await this.getSideEffectsReasons(data)
@@ -535,6 +552,7 @@ export default defineComponent({
       const completedTpt = this.didCompleted3HP(formData)
       const everTakenTpt = this.tptStatus.tpt !== null
       const autoSelect3HP = this.tptAutoSelectionMode(formData)
+      const isCurrentlyBreastfeeding = this.isBreastFeeding(formData)
 
       const disableOption = (text: string) => ({
         disabled: true,
@@ -568,6 +586,8 @@ export default defineComponent({
             if (completedTpt) return disableOption(`Completed TPT treatment`)
             if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
+            if (this.currentlyPregnant) return disableOption('Pregnant patient')
+            if (isCurrentlyBreastfeeding) return disableOption('Patient is breast feeding')
             if (this.currentWeight < 20) return disableOption('Weight below regulation')
             if (everTakenTpt && this.tptStatus.tpt !== '3HP (RFP + INH)' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
@@ -580,6 +600,8 @@ export default defineComponent({
             if (completedTpt) return disableOption(`Completed TPT treatment`)
             if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
+            if (this.currentlyPregnant) return disableOption('Pregnant patient')
+            if (isCurrentlyBreastfeeding) return disableOption('Patient is breast feeding')
             if (this.currentWeight < 30) return disableOption('Weight below regulation') 
             if (everTakenTpt && this.tptStatus.tpt !== 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
@@ -593,6 +615,8 @@ export default defineComponent({
             if (completedTpt) return disableOption(`Completed TPT treatment`)
             if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
+            if (this.currentlyPregnant) return disableOption('Pregnant patient')
+            if (isCurrentlyBreastfeeding) return disableOption('Patient is breast feeding')
             if (everTakenTpt && this.tptStatus.tpt !== 'IPT' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
             }
@@ -748,29 +772,27 @@ export default defineComponent({
             () => v.map((i: Option) => i.value === '' || i?.other?.pillsBrought === '')
               .some(Boolean) ? ['Some Drugs are missing values'] : null
           ]),
-          computedValue: (v: Option[], f: any, c: any) => {
-            return {
-              tag: 'consultation',
-              obs:  v.map(async (d: any) => {
-                const drugID: number = d?.other?.drug?.drug_id || 0
-                return { 
-                  ...(await this.consultation.buildObs(
-                    'Drug received from previous facility', {
-                      'value_drug': drugID,
-                      'value_datetime': c?.drug_interval || null,
-                      'value_numeric': d?.value || 0
-                      }
-                  )),
-                  child: (await this.consultation.buildObs(
-                    'Number of tablets brought to clinic', {
-                      'value_drug': drugID,
-                      'value_numeric': d?.other?.pillsBrought || -1,
-                      'value_datetime': c?.date_last_received_arvs?.date || null
-                   }
-                ))}
-              })
-            }
-          },
+          computedValue: (v: Option[], f: any, c: any) => ({
+            tag: 'consultation',
+            obs:  v.map(async (d: any) => {
+              const drugID: number = d?.other?.drug?.drug_id || 0
+              return { 
+                ...(await this.consultation.buildObs(
+                  'Drug received from previous facility', {
+                    'value_drug': drugID,
+                    'value_datetime': c?.drug_interval || null,
+                    'value_numeric': d?.value || 0
+                    }
+                )),
+                child: (await this.consultation.buildObs(
+                  'Number of tablets brought to clinic', {
+                    'value_drug': drugID,
+                    'value_numeric': d?.other?.pillsBrought || -1,
+                    'value_datetime': c?.date_last_received_arvs?.date || null
+                  }
+              ))}
+            })
+          }),
           options: (_: any, c: any, listData: Option) => {
             return c.previous_arvs_received
               .map((d: any) => {
@@ -867,6 +889,7 @@ export default defineComponent({
               if (this.patient.isChildBearing()) {
                 this.hasPregnancyObsToday = await this.patient.hasPregnancyObsToday()
                 this.currentlyPregnant = await this.patient.isPregnant()
+                this.currentlyBreastfeeding = await this.patient.isBreastfeeding();
               }
               this.onPermanentFPMethods = await this.consultation.getTLObs();
             }
@@ -879,17 +902,12 @@ export default defineComponent({
               () => Validation.required(data),
               () => Validation.anyEmpty(data),
             ]),
-          computedValue: (v: Option[]) => {
-            let obs = []
-            if (this.isANCclient()) obs.push(
-              this.consultation.buildValueCoded('Is patient pregnant', 'Yes')
-            )
-            obs = obs.concat(v.map(d => this.consultation.buildValueCoded(d.other.concept, d.value)))
-            return {
-              obs,
-              tag: 'consultation'
-            }
-          },
+          computedValue: (v: Option[]) => ({
+            tag: 'consultation',
+            obs: v.map(d => this.consultation.buildValueCoded(d.other.concept, d.value)).concat(
+              this.isANCclient() ? [this.consultation.buildValueCoded('Is patient pregnant', 'Yes')] : []
+            ),
+          }),
           options: (formData: any) => {
             const options = []
             // Because ANC clients are always Pregnant!
@@ -1219,14 +1237,12 @@ export default defineComponent({
           helpText: "On TB Treatment?",
           type: FieldType.TT_SELECT,
           validation: (data: any) => Validation.required(data),
-          computedValue: (data: any) => {
-            this.TBSuspected = data.value === "Yes"
-            const obs = [
-              this.consultation.buildValueCoded("TB treatment", data.value)
-            ]
-            if (this.TBSuspected) obs.push(this.consultation.buildValueCoded("TB Status", "Confirmed TB on treatment"))
-            return ({ tag: 'consultation', obs })
-          },
+          computedValue: (data: any) => ({ 
+            tag: 'consultation', 
+            obs: [ this.consultation.buildValueCoded("TB treatment", data.value)].concat(this.isTBSuspect(data) 
+              ? [this.consultation.buildValueCoded("TB Status", "Confirmed TB on treatment")] 
+              : []) 
+          }),
           options: () => this.yesNoOptions()
         },
         {
@@ -1244,16 +1260,13 @@ export default defineComponent({
           ]), 
           condition: (formData: any) => formData.on_tb_treatment.value.match(/no/i),
           options: (_: any, checked: Array<Option>) => this.getTBSymptoms(checked),
-          computedValue: (vals: Option[]) => {
-            this.presentedTBSymptoms = this.inArray(vals, d => d.value === "Yes")
-            return {
-              tag: 'consultation',
-              obs: vals.map(async (data: Option) => ({
-                ...(await this.consultation.buildValueCoded("Routine TB Screening", data.label)),
-                child: (await this.consultation.buildValueCoded(data.label, data.value))
-              }))
-            } 
-          }
+          computedValue: (vals: Option[], formData: any) => ({
+            tag: 'consultation',
+            obs: vals.map(async (data: Option) => ({
+              ...(await this.consultation.buildValueCoded("Routine TB Screening", data.label)),
+              child: (await this.consultation.buildValueCoded(data.label, data.value))
+            })).concat(this.hasTBSymptoms(formData) ? [] : [this.consultation.buildValueCoded("TB Status", "TB NOT suspected")])
+          })
         },
         {
           id: "tb_status",
@@ -1263,15 +1276,12 @@ export default defineComponent({
           condition: (formData: any) => this.hasTBSymptoms(formData),
           onConditionFalse: () => this.TBSuspected = false,
           defaultValue: () => 'TB Suspected',
-          computedValue: (data: any) => {
-            this.TBSuspected = data.value === "TB Suspected"
-            return {
-              tag: 'consultation',
-              obs: this.consultation.buildValueCoded("TB Status", data.value)
-            }
-          },
+          computedValue: (data: any) => ({
+            tag: 'consultation',
+            obs: this.consultation.buildValueCoded("TB Status", data.value)
+          }),
           beforeNext: async (data: Option) => {
-            if (data.value === "TB Suspected") {
+            if (this.isTBSuspect(data)) {
               const action = await infoActionSheet(
                 "Lab Order",
                 "The patient is a TB suspect. Do you want to take lab orders?",
@@ -1350,19 +1360,17 @@ export default defineComponent({
           condition: (f: any) => f.routine_tb_therapy.value.match(/currently/i),
           type: FieldType.TT_ADHERENCE_INPUT,
           options: (f: any) => this.getTptDrugs(f),
-          computedValue: (drugs: Option[], f: any, c: any) => {
-            return {
-              tag: 'consultation',
-              obs:  drugs.map(async (drug: any) => this.consultation.buildObs(
-                'TPT Drugs Received', 
-                {
-                  'value_drug': drug?.other?.drug_id || 0,
-                  'value_datetime': c?.date_started_tpt || null,
-                  'value_numeric': drug?.value || 0
-                }
-              ))
-            }
-          },
+          computedValue: (drugs: Option[], f: any, c: any) => ({
+            tag: 'consultation',
+            obs:  drugs.map(async (drug: any) => this.consultation.buildObs(
+              'TPT Drugs Received', 
+              {
+                'value_drug': drug?.other?.drug_id || 0,
+                'value_datetime': c?.date_started_tpt || null,
+                'value_numeric': drug?.value || 0
+              }
+            ))
+          }),
           config: {
             titles: {
               label: 'Drug name',
@@ -1393,23 +1401,14 @@ export default defineComponent({
           helpText: "Allergic to Cotrimoxazole",
           type: FieldType.TT_SELECT,
           validation: (data: any) => Validation.required(data),
-          computedValue: (data: any) => {
-            this.allergicToSulphur = data.value.match(/unknown/i) 
-              ? null 
-              : data.value.match(/yes/i) 
-              ? true 
-              : false  
-            return {
-              tag: 'consultation',
-              obs: () => {
-                return this.consultation.buildValueCoded("Allergic to sulphur", 
-                  this.allergicToSulphur === null 
-                  ? data.value 
-                  : this.allergicToSulphur 
-                  ? 'Yes' 
-                  : 'No')
-              }
-            }
+          computedValue: (data: any) => ({
+            tag: 'consultation',
+            obs: this.consultation.buildValueCoded("Allergic to sulphur", data.value)
+          }),
+          beforeNext: (data: any) => {
+            this.isAllergicToSulphur(data);
+            console.log(this.allergicToSulphur)
+            return true;
           },
           options: () => this.yesNoUnknownOptions()
         },

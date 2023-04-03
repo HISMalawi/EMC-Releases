@@ -5,6 +5,20 @@ export const DEFAULT_KEYPAD = [
     ['.', '0', 'Del'],
     ['',  'Done', '']
 ]
+export const DOSAGE_KEYPAD = [
+    ['1', '2', '3'],
+    ['4', '5', '6'],
+    ['7', '8', '9'],
+    ['Del', '0', '.'],
+    ['Unknown', '', ''],
+]
+export const DURATION_KEYPAD = [
+    ['1', '2', '3'],
+    ['4', '5', '6'],
+    ['7', '8', '9'],
+    ['Del', '0', '.'],
+    ['Unknown', '', 'Confirm'],
+]
 export const VITALS_KEYPAD = [
     ['1', '2', '3'],
     ['4', '5', '6'],

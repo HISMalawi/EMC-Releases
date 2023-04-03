@@ -67,6 +67,11 @@ export default [
         component: () => import("@/apps/ART/views/FilingNumberManagement.vue")
     },
     {
+        name: 'art notes',
+        path: '/art/clinical_notes/:patient_id',
+        component: () => import("@/apps/ART/views/encounters/ArtNotes.vue")
+    },
+    {
         name: "Enter stock",
         path: "/art/stock/enter",
         component: () => import("@/apps/ART/views/ARTStock/enter_receipts.vue")
@@ -207,6 +212,11 @@ export default [
         component: () => import("@/apps/ART/views/reports/inconsistencies/DataCleaning.vue")
     },
     /** ART MOH REPORT*/
+    {
+        name: 'moh_tpt_cohort',
+        path: '/art/moh_tpt_cohort',
+        component: () => import("@/apps/ART/views/reports/moh/MohTptCohortReport.vue")
+    },
     {
         name: 'moh_disaggregated_report',
         path: '/art/moh_disaggregated_report',

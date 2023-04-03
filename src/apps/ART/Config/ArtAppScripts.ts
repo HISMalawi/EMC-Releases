@@ -23,8 +23,13 @@ import { Patientservice } from '@/services/patient_service';
 import Store from "@/composables/ApiStore"
 import ART_PROP from "@/apps/ART/art_global_props";
 import { StoreDef, isCacheEnabled } from "@/apps/GLOBAL_APP/global_store";
+import { toDate } from "@/utils/Strs";
 
 export const appStore: Record<string, StoreDef> = {
+    'ASK_HANGING_PILLS':  {
+        get: () =>  ART_PROP.askPillsRemaining(),
+        canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
+    },
     'ART_AUTO_3HP_SELECTION': {
         get: () =>  ART_PROP.threeHPAutoSelectEnabled(),
         canReloadCache: data => !isCacheEnabled() || typeof data.state != 'boolean'
@@ -198,22 +203,17 @@ export function patientProgramInfoData(patientID: number) {
  */
 export async function getPatientDashboardLabOrderCardItems(patientId: number) {
     const data = (await Store.get('PATIENT_LAB_ORDERS', { patientID: patientId }))
-        .reduce((results: any, order: any) => {
-        const tresults = order.tests.filter(
-            (t: any) => t.name.match(/HIV/i) && !isEmpty(t.result))
-            .map((t: any) => t?.result)
-        return results.concat(tresults.reduce((a: any, c: any) => a.concat(c), []))
-    }, [])
-    .map((result: any) => {
-        const vlStatus = OrderService.isHighViralLoadResult(result) ? '(<b style="color: #eb445a;">High</b>)' : ''
-        return {
-            label: `${result.indicator.name} &nbsp ${result.value_modifier}${result.value} ${vlStatus}`,
-            value: HisDate.toStandardHisDisplayFormat(result.date),
-            other: {
-                wrapTxt: true
+        .reduce((results: any, order: any) => results.concat(OrderService.getVLResults(order)), [])
+        .map((result: any) => {
+            const vlStatus = OrderService.isHighViralLoadResult(result) ? '(<b style="color: #eb445a;">High</b>)' : ''
+            return {
+                label: `${result.indicator.name} &nbsp ${result.value_modifier}${result.value} ${vlStatus}`,
+                value: HisDate.toStandardHisDisplayFormat(result.date),
+                other: {
+                    wrapTxt: true
+                }
             }
-        }
-    }).sort((a: any, b: any) => new Date(a.value) > new Date(b.value) ? -1 : 1)
+        }).sort((a: any, b: any) => new Date(a.value) > new Date(b.value) ? -1 : 1)
     if (data.length >= 2) {
         const [result1, result2] = data
         return [result1, result2]
@@ -256,12 +256,7 @@ export function confirmationSummary(patient: Patientservice) {
             {
                 label: 'Next Appointment',
                 value: '...',
-                asyncValue: async () => {
-                    const date = await ObservationService.getFirstValueDatetime(
-                        patientID, 'appointment date'
-                    );
-                    return date ? HisDate.toStandardHisDisplayFormat(date) : ''
-                }
+                asyncValue: async () => toDate((await patient.nextAppointment()))
             }
         ],
         'PATIENT IDENTIFIERS': () => [
@@ -302,7 +297,7 @@ export function confirmationSummary(patient: Patientservice) {
             const data: any = []
             await Store.get('PATIENT_LAB_ORDERS', { patientID })
                 .then((orders) => {
-                    const VLOrders = OrderService.getViralLoadOrders(orders);
+                    const VLOrders = OrderService.getOrdersWithResults(orders);
                     for(let i = 0; i < 2 && i < VLOrders.length; i++) {
                         data.push({
                             value: orderToString(VLOrders[i]),

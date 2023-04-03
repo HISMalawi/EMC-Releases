@@ -39,12 +39,12 @@ export default defineComponent({
                 table.td(s.product_code || ''),
                 table.td(s.drug_name),
                 table.td(s.units),
-                table.tdNum(s.closing_balance),
-                table.tdNum(s.losses),
-                table.tdNum(s.positive_adjustment),
-                table.tdNum(s.negative_adjustment),
-                table.tdNum(s.quantity_used),
-                table.tdNum(s.quantity_received),
+                table.tdNum(Math.abs(s.closing_balance)),
+                table.tdNum(Math.abs(s.losses)),
+                table.tdNum(Math.abs(s.positive_adjustment)),
+                table.tdNum(Math.abs(s.negative_adjustment)),
+                table.tdNum(Math.abs(s.quantity_used)),
+                table.tdNum(Math.abs(s.quantity_received)),
             ])
         })
 

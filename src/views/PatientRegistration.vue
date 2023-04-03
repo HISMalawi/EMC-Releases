@@ -147,7 +147,8 @@ export default defineComponent({
             'current_village': currentVillage,
             'current_traditional_authority': currentTA,
             'cell_phone_number': this.patient.getPhoneNumber(),
-            'landmark': this.patient.getClosestLandmark()
+            'landmark': this.patient.getClosestLandmark(),
+            'occupation': this.patient.getOccupation()
         }
         this.presets = this.editPersonData
         this.skipSummary = true
@@ -394,8 +395,8 @@ export default defineComponent({
             helpText: 'Occupation',
             type: FieldType.TT_SELECT,
             init: async () => {
-               this.isMilitarySite = await GLOBAL_PROP.militarySiteEnabled()
-               return true 
+               this.isMilitarySite = await Store.get('IS_MILITARY_SITE')
+               return true
             },
             computedValue: (val: Option) => ({person: val.value}),
             condition: () => this.editConditionCheck(['occupation']) && this.isMilitarySite,
@@ -417,7 +418,7 @@ export default defineComponent({
                     'value': value
                 }
             }),
-            condition: (form: any) => this.editConditionCheck(['person_regiment_id']) && form.occupation && form.occupation.value.match(/Military/i),
+            condition: (form: any) => this.editConditionCheck(['person_regiment_id', 'occupation']) && form.occupation && form.occupation.value.match(/Military/i),
             validation: (val: any) => Validation.required(val)
         }
     },
@@ -433,7 +434,7 @@ export default defineComponent({
                     'value': value
                 }
             }),
-            condition: (form: any) => this.editConditionCheck(['rank']) && form.occupation && form.occupation.value.match(/Military/i),
+            condition: (form: any) => this.editConditionCheck(['rank', 'occupation']) && form.occupation && form.occupation.value.match(/Military/i),
             options: () => this.mapToOption([
                 'First Lieutenant',
                 'Captain',
@@ -461,7 +462,8 @@ export default defineComponent({
             condition: (form: any) =>  this.editConditionCheck([
                 'year_person_date_joined_military',
                 'month_person_date_joined_military',
-                'day_person_date_joined_military'
+                'day_person_date_joined_military',
+                'occupation'
             ]) && form.occupation && form.occupation.value.match(/Military/i),
             minDate: () => HisDate.estimateDateFromAge(100),
             maxDate: () => WorkflowService.getSessionDate(),
@@ -582,7 +584,10 @@ export default defineComponent({
                             }
                         },
                         onClick: (form: any) => {
-                            return this.$router.push(`/patients/confirm?person_id=${form.results.value}`)
+                            if (form.results.other.patientID) {
+                                return this.$router.push(`/patients/confirm?person_id=${form.results.value}`)
+                            }
+                            return this.$router.push(`/patients/confirm?patient_barcode=${form.results.value}`)
                         }
                     }
                 ]
@@ -616,6 +621,7 @@ export default defineComponent({
                             score: `${score * 100}%`,
                             newPerson: createdPerson,
                             foundPerson: person,
+                            docID: person.id,
                             comparisons: [
                                 [
                                     'Name',
@@ -667,9 +673,9 @@ export default defineComponent({
                         }
                     },
                     {
-                        name: 'Confirm',
+                        name: 'Select',
                         slot: 'end',
-                        color: 'warning',
+                        color: 'success',
                         state: {
                             visible: {
                                 default: () => false,
@@ -677,7 +683,12 @@ export default defineComponent({
                             }
                         },
                         onClick: (form: any) => {
-                            this.$router.push(`/patients/confirm?person_id=${form.possible_duplicates.value}`)
+                            this.ddeInstance.importPatient(form.possible_duplicates.other.docID)
+                                .then((result: any) => {
+                                    this.$router.push(`/patients/confirm?person_id=${result.patient_id}`)
+                                }).catch(() => {
+                                    this.$router.push(`/patients/confirm?person_id=${form.possible_duplicates.value}`)
+                                })
                         }
                     }
                 ]
@@ -692,6 +703,7 @@ export default defineComponent({
             init: async () => {
                 if (this.isEditMode()) {
                     this.ddeEnabled = await Store.get('IS_DDE_ENABLED')
+                    this.isMilitarySite = await Store.get('IS_MILITARY_SITE')
                 }
                 return true
             },
@@ -718,8 +730,11 @@ export default defineComponent({
                     ['Current district',this.editPersonData.current_district, editButton('current_region')],
                     ['Current Village',this.editPersonData.current_village, editButton('current_region')],
                     ['Current T/A', this.editPersonData.current_traditional_authority, editButton('current_region')],
-                    ['Landmark', this.editPersonData.landmark, editButton('default_landmarks')],
+                    ['Landmark', this.editPersonData.landmark, editButton('default_landmarks')]
                 ]
+                if (this.isMilitarySite) {
+                    rows.push(['Occupation', this.editPersonData.occupation, editButton('occupation')])
+                }
                 // Tag rows with empty values
                 const emptySets: any = {indexes: [], class: 'his-empty-set-color'}
                 rows.forEach((r: any, i: number) => {

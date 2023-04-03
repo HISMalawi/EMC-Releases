@@ -8,6 +8,7 @@
             :columns="columns"
             :showtitleOnly="true"
             :onReportConfiguration="onPeriod"
+            :encryptPDF="true"
             > 
         </report-template>
     </ion-page>
@@ -30,12 +31,13 @@ export default defineComponent({
         columns: [
             [
                 table.thTxt('ARV#'),
-                table.thTxt('First name',{exportable: false}),
-                table.thTxt('Last name', {exportable: false}),
+                table.thTxt('First name',{csvExportable: false, pdfExportable: true}),
+                table.thTxt('Last name', {csvExportable: false, pdfExportable: true}),
                 table.thTxt('Gender'),
-                table.thTxt('birthdate'),
+                table.thTxt('Birthdate'),
+                table.thTxt('Appointment date'),
                 table.thTxt('Date defaulted'),
-                table.thTxt('Address', {exportable: false})
+                table.thTxt('Address', {csvExportable: false, pdfExportable: true})
             ]
         ]
     }),
@@ -62,6 +64,7 @@ export default defineComponent({
                     table.td(data.family_name),
                     table.td(this.formatGender(data.gender)),
                     table.tdDate(data.birthdate),
+                    table.tdDate(data.appointment_date),
                     table.tdDate(data.defaulter_date),
                     table.td(
                         (data.cell_number ? `CELL: ${data.cell_number} <br/>`: '') +

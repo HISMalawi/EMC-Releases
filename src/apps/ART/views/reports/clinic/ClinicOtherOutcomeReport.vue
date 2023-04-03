@@ -5,6 +5,7 @@
         :rows="rows" 
         :fields="fields"
         :columns="columns"
+        :encryptPDF="true"
         :onReportConfiguration="onPeriod"
         > 
     </report-template>
@@ -18,7 +19,10 @@ import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import { FieldType } from '@/components/Forms/BaseFormElements'
 import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
-import table from "@/components/DataViews/tables/ReportDataTable"
+import table, { RowInterface } from "@/components/DataViews/tables/ReportDataTable"
+
+type RowBuilder = (data: Record<string, any>) => RowInterface[];
+
 export default defineComponent({
     mixins: [ReportMixin],
     components: { ReportTemplate },
@@ -33,8 +37,8 @@ export default defineComponent({
         const commonColumns = [
             [
                 table.thTxt('ARV#'),
-                table.thTxt('First name', {exportable: false}),
-                table.thTxt('Last name', {exportable: false}),
+                table.thTxt('First name', { csvExportable: false, pdfExportable: true }),
+                table.thTxt('Last name', { csvExportable: false, pdfExportable: true }),
                 table.thTxt('Birthdate'),
                 table.thTxt('Gender'),
                 table.thTxt('Outcome date'),
@@ -47,7 +51,7 @@ export default defineComponent({
             table.td(d.family_name),
             table.tdDate(d.birthdate),
             table.td(this.formatGender(d.gender)),
-            table.tdDate(d.start_date),
+            table.tdDate(d.outcome_date),
             table.tdBtn('View', () => this.$router.push({ path: `/patient/dashboard/${d.patient_id}`}))
         ])
 
@@ -66,8 +70,8 @@ export default defineComponent({
                             columns: [
                                 [
                                     table.thTxt('ARV#'),
-                                    table.thTxt('First name', {exportable: false}),
-                                    table.thTxt('Last name', {exportable: false}), 
+                                    table.thTxt('First name', { csvExportable: false, pdfExportable: true }),
+                                    table.thTxt('Last name', { csvExportable: false, pdfExportable: true }), 
                                     table.thTxt('Birthdate'), 
                                     table.thTxt('Gender'),
                                     table.thTxt('Outcome date'),
@@ -81,7 +85,7 @@ export default defineComponent({
                                 table.td(d.family_name),
                                 table.tdDate(d.birthdate),
                                 table.td(this.formatGender(d.gender)),
-                                table.tdDate(d.start_date),
+                                table.tdDate(d.outcome_date),
                                 table.td(d.transferred_out_to),
                                 table.tdBtn('View', () => this.$router.push({ path: `/patient/dashboard/${d.patient_id}`}))
 
@@ -123,7 +127,7 @@ export default defineComponent({
                 outcome.other.rowBuilder
             )
         },
-        setRows(data: Array<any>, rowBuilder: Function) {
+        setRows(data: Array<any>, rowBuilder: RowBuilder) {
             if (data) this.sortByArvNumber(data, 'identifier').forEach((d: any) => this.rows.push(rowBuilder(d)))
         }
     }

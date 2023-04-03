@@ -6,12 +6,12 @@ import { AppEncounterService } from "@/services/app_encounter_service";
 import { selectActivities } from '@/utils/WorkflowTaskHelper';
 import { Patientservice } from "@/services/patient_service";
 import { OrderService } from "@/services/order_service";
-import { ObservationService } from "@/services/observation_service";
 import HisDate from "@/utils/Date";
 import { WorkflowService } from "@/services/workflow_service"
 import { ProgramService } from "@/services/program_service";
 import { RelationshipService } from "@/services/relationship_service";
 import { REPORTS } from "./Config/AncProgramReports";
+import { toDate } from "@/utils/Strs";
 
 const ANC: AppInterface = {
     programID: 12,
@@ -77,10 +77,7 @@ const ANC: AppInterface = {
                     { 
                         label: 'Next Appointment Date', 
                         value: '...',
-                        asyncValue: async () => {
-                            const date = await ObservationService.getFirstValueDatetime(patientID, 'appointment date')
-                            return date ? d(date) : 'N/A' 
-                        } 
+                        asyncValue: async () => toDate((await data.nextAppointment()))
                     },
                     { 
                         label: 'Gestation Age',

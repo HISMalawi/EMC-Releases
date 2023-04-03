@@ -2,13 +2,12 @@ import { AppInterface } from "../interfaces/AppInterface";
 import homeOverviewComponent from "@/apps/CxCa/Components/CxCaHomeOverviewComponent.vue";
 import {PRIMARY_ACTIVITIES} from "@/apps/CxCa/config/CxCaProgramActivities"
 import Routes from "@/apps/CxCa/config/CxCaRoutes"
-import HisDate from "@/utils/Date"
 import { WorkflowService } from "@/services/workflow_service";
-import { ObservationService } from "@/services/observation_service";
 import { REPORTS } from "@/apps/CxCa/config/CxCaProgramReports"
 import { 
     onRegisterPatient,
 } from "@/apps/CxCa/config/CxCaAppScripts"
+import { toDate } from "@/utils/Strs";
 const CXCA: AppInterface = {
     programID: 24,
     applicationName: 'CxCa',
@@ -42,16 +41,16 @@ const CXCA: AppInterface = {
             const patientID = patient.getID()
             const data: any = []
             const params = await WorkflowService.getNextTaskParams(patientID)
-            data.push({
-              label: "Next Task",
-              value: params.name ? `${params.name}` : 'NONE',
-            })
-            const appointMentObs: any[] = await ObservationService.getAll(patientID, 'appointment date');
-            const nextAPPT = appointMentObs ? HisDate.toStandardHisDisplayFormat(appointMentObs[0].value_datetime) : 'Not Available'
-            data.push({
-                label: "Next Appointment",
-                value: nextAPPT,
-            });
+            return [
+                {
+                    label: "Next Task",
+                    value: params.name ? `${params.name}` : 'NONE',
+                },
+                {
+                    label: "Next Appointment",
+                    value: toDate((await patient.nextAppointment())),
+                }
+            ]
             return data
         },
     }),

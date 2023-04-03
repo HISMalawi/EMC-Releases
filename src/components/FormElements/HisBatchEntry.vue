@@ -18,7 +18,7 @@
             <ion-row v-for="(entry, ind) in drugs[selectedDrug].entries" :key="ind"> 
               <ion-col> 
                 <ion-item> 
-                  <ion-label position="floating">Total Tins</ion-label>
+                  <ion-label position="floating">Tins/Pallets</ion-label>
                   <ion-input readonly placeholder="0" :value="fmtNumber(entry.tins)" @click="enterTins(ind)"></ion-input>
                 </ion-item>
               </ion-col>
@@ -69,7 +69,6 @@ import { FieldType } from "../Forms/BaseFormElements";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Service } from "@/services/service";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
-import { CHARACTERS_AND_NUMBERS_LO } from "../Keyboard/KbLayouts";
 import { toDate, toNumString } from "@/utils/Strs";
 
 export default defineComponent({
@@ -134,7 +133,7 @@ export default defineComponent({
     enterTins(index: number) {
       this.launchKeyPad({
         id: 'tins',
-        helpText: this.getModalTitle('Enter number of tins'),
+        helpText: this.getModalTitle('Enter number of tins/pallets'),
         type: FieldType.TT_NUMBER,
         defaultValue: () => this.getDrugValue(index, 'tins'),
         validation: (v: Option) => {
@@ -155,7 +154,7 @@ export default defineComponent({
         helpText: this.getModalTitle('Enter batch number'),
         type: FieldType.TT_TEXT,
         config: {
-          customKeyboard: [CHARACTERS_AND_NUMBERS_LO, [['Delete']]]
+          initialkb: 'qwerty'
         },
         defaultValue: () => this.getDrugValue(index, 'batchNumber'),
       }, 
@@ -183,7 +182,7 @@ export default defineComponent({
       },
       (v: Option) => this.setDrugValue(index, 'expiry', v))
     },
-    async launchKeyPad(currentField: Field, onFinish: Function) {
+    async launchKeyPad(currentField: Field, onFinish: (value: Option) => any) {
       const modal = await modalController.create({
         component: TouchField,
         backdropDismiss: false,

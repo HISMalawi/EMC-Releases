@@ -85,6 +85,10 @@ export const PROPERTIES: FolderInterface[] = [
                 GLOBAL_PROP.MILITARY_SITE
             ),
             globalPropConfig(
+                "Ask pills remaining at home",
+                ART_GLOBAL_PROP.PILLS_REMAINING
+            ),
+            globalPropConfig(
                 "(DATA CLEANING) Exclude External and Drug refill",
                 ART_GLOBAL_PROP.EXCLUDE_EXTERNAL_AND_DRUG_REFILLS
             ),

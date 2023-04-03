@@ -1,7 +1,7 @@
 import HisDate from "@/utils/Date"
-import { toNumString } from "@/utils/Strs";
+import { removeTags, toNumString } from "@/utils/Strs";
 import { sort } from 'fast-sort';
-import { isEmpty } from "lodash";
+import { isEmpty, slice } from "lodash";
 
 export interface TableInterface {
     showIndex?: boolean;
@@ -16,6 +16,8 @@ export interface ColumnInterface {
     sortable?: boolean;
     ascSort?: Function;
     descSort?: Function;
+    csvExportable?: boolean;
+    pdfExportable?: boolean;
     exportable?: boolean;
     style?: Record<string, any>;
     cssClass?: string;
@@ -35,11 +37,25 @@ export interface RowInterface {
 }
 export function prepareCSVValue(value: string | number | Date) {
     if(typeof value !== 'string') return value
-    return value.replace(/,/gi, ' ').trim()
+    return removeTags(value).replace(/,/gi, ' ').trim()
 }
-export function toExportableFormat(columns: Array<ColumnInterface[]>, rows: Array<RowInterface[]>) {
+export function toExportableFormat(columns: Array<ColumnInterface[]>, rows: Array<RowInterface[]>, mode='' as 'csvMode' | 'pdfMode' | 'ignorePDFColumnexport') {
     const strRows: Array<any> = []
     const strCols: Array<any> = []
+    const isExportable = (column: any) => {
+        if (mode === 'csvMode' && 'csvExportable' in column) {
+            return column.csvExportable || false
+        }
+        if (mode === 'pdfMode' && 'pdfExportable' in column) {
+            return column.pdfExportable != undefined ? column.pdfExportable : true
+        }
+        if (mode === 'ignorePDFColumnexport' && 'pdfExportable' in column && column.pdfExportable) {
+            return false
+        }
+        if ('exportable' in column) {
+            return column.exportable || false
+        }
+    }
     for(const index  in rows) {
         const exportableRow: any = []
         rows[index].forEach((r, i) => {
@@ -48,7 +64,7 @@ export function toExportableFormat(columns: Array<ColumnInterface[]>, rows: Arra
                 for checking if a row cell is exportable
             */
             const column = columns[columns.length-1][i]
-            if ('exportable' in column && column.exportable) {
+            if (isExportable(column)) {
                 exportableRow.push(r.value ? prepareCSVValue(r.value) : prepareCSVValue(r.td))
             }
         })
@@ -57,7 +73,7 @@ export function toExportableFormat(columns: Array<ColumnInterface[]>, rows: Arra
     for(const index  in columns) {
         const exportableColumns: any = []
         columns[index].forEach((c) => {
-            if (c.exportable) {
+            if (isExportable(c)) {
                 exportableColumns.push(c.value ? prepareCSVValue(c.value) : prepareCSVValue(c.th))
             } 
         })
@@ -86,6 +102,12 @@ function configCell(conf: any) {
         },
         exportable() {
             return 'exportable' in conf ? conf.exportable : true
+        },
+        csvExportable() {
+            return 'csvExportable' in conf ? conf.csvExportable : true
+        },
+        pdfExportable() {
+            return 'pdfExportable' in conf ? conf.pdfExportable : undefined
         },
         sortable() {
             return 'sortable' in conf ? conf.sortable : true
@@ -149,9 +171,9 @@ function tdNum(td: string | number, params={} as any): RowInterface {
     data.td = toNumString(td)
     data.sortValue = parseInt(`${td}`)
     data.style = {
-        ...data.style,
         textAlign: "right",
-        paddingRight: "2rem"
+        paddingRight: ".5rem",
+        ...data.style,
     }
     return configCell(data)
 }

@@ -86,15 +86,17 @@ function confirmationSummary(patient: any, program: any) {
         value: patient.getNationalID(),
       },
     ],
-    ALERTS: () => getPatientDashboardAlerts(patient),
-    "LAB ORDERS": async () => {
-      const data: any = [];
-      await OrderService.getOrders(patient.getID()).then((orders) => {
-        const VLOrders = OrderService.getViralLoadOrders(orders);
-        VLOrders.forEach((order) => {
-          data.push({
-            value: orderToString(order),
-            label: ``,
+    'ALERTS': () => getPatientDashboardAlerts(patient),
+    'LAB ORDERS': async () => {
+      const data: any = []
+      await OrderService.getOrders(patient.getID())
+        .then((orders) => {
+          const VLOrders = OrderService.getOrdersWithResults(orders);
+          VLOrders.forEach((order) => {
+            data.push({
+              value: orderToString(order),
+              label: ``,
+            });
           });
         });
       });

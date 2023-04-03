@@ -122,6 +122,38 @@ export default defineComponent({
                     }
                 },
                 {
+                    id: "has_linkage_code",
+                    helpText: 'HTS Linkage number confirmation',
+                    type: FieldType.TT_YES_NO,
+                    summaryMapValue: (v: any) => {
+                        return {
+                            label: "Has HTS Linkage number?",
+                            value: v
+                        }
+                    },
+                    validation: (v: string) => Validation.required(v),
+                    options: () => [
+                        {
+                            label: "Does client have an HTS Linkage number?",
+                            value: "",
+                            values: this.yesNoOptions(),
+                        }
+                    ]
+                },
+                {
+                    id: 'hts_serial_number',
+                    helpText: 'HTS Linkage Number',
+                    type: FieldType.TT_TEXT,
+                    validation: (v: Option) => Validation.required(v),
+                    condition: (f: any) => f.has_linkage_code === 'Yes',
+                    computedValue: (v: Option) => {
+                        return {
+                            tag: 'reg',
+                            obs: this.registration.buildValueText('HTC Serial number', v.value)
+                        }
+                    }
+                },
+                {
                     id: 'received_arvs',
                     helpText: 'Ever received ARVs for treatment or prophylaxis?',
                     type: FieldType.TT_SELECT,
@@ -439,10 +471,10 @@ export default defineComponent({
                             'Confirmatory hiv test type', value
                         )
                     }),
-                    options: () => ([
+                    options: (f: any) => ([
                         { label: 'Rapid antibody test', value: 'HIV rapid test'},
                         { label: 'DNA PCR', value: 'HIV DNA polymerase chain reaction'},
-                        { label: 'Not done', value: 'Not done' }
+                        { label: 'Not done', value: 'Not done', disabled: f.has_linkage_code === 'Yes' }
                     ])
                 },
                 {

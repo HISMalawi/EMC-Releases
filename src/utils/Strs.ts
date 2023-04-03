@@ -26,6 +26,9 @@ export function isUnknownOrEmpty(value: string) {
         : false
 }
 
+export function removeTags(text: string) {
+    return `${text}`.replace(/<[^>]+>/g, "")
+}
 export function getNumberOrdinal(n: number) {
     const s = ["th", "st", "nd", "rd"],
         v = n % 100;

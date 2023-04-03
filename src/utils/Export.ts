@@ -83,8 +83,9 @@ export function toTablePDF(
   tableColumns: Array<any>, 
   tableRows: Array<any>, 
   fileName='document',
-  canHorizontalPageBreak=false) {
-    const doc = new jsPDF()
+  canHorizontalPageBreak=false,
+  encryption={}) {
+    const doc = new jsPDF({...encryption})
     const title = doc.splitTextToSize(fileName, 180)
     const tableMarginStartY = title.length <= 1 ? 20 : title.length * 10
     doc.text(title, 14, 10)
