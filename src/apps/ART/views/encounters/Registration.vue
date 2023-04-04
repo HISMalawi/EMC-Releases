@@ -273,18 +273,16 @@ export default defineComponent({
                     id: 'date_started_art',
                     helpText: 'Started ART',
                     required: true,
-                    unload: (d: any, state: string, f: any, computedData: any) => {
-                        if (state === 'next') {
-                            const age = dayjs(computedData.date_started_art.date)
-                                .diff(this.patient.getBirthdate(), 'years')
-                            this.staging.setAge(age)
-                            this.stagingFacts.age = age
-                            this.stagingFacts.ageInMonths = age * 12
-                        } else {
-                            this.staging.setAge(this.patient.getAge())
-                            this.stagingFacts.age = this.patient.getAge()
-                            this.stagingFacts.ageInMonths = this.patient.getAgeInMonths()
-                        }
+                    init: async () => {
+                        await this.initStaging(this.patient)
+                        return true
+                    },
+                    beforeNext: (date: string) => {
+                        const age = dayjs(date).diff(this.patient.getBirthdate(), 'years')
+                        this.staging.setAge(age)
+                        this.stagingFacts.age = age
+                        this.stagingFacts.ageInMonths = age * 12
+                        return true
                     },
                     condition: (f: any) => f.ever_registered_at_art_clinic.value === 'Yes',
                     minDate: () => this.patient.getBirthdate(),
@@ -335,10 +333,6 @@ export default defineComponent({
                     id: 'height',
                     helpText: 'Height (CM)',
                     type: FieldType.TT_NUMBER,
-                    init: async () => {
-                        await this.initStaging(this.patient)
-                        return true
-                    },
                     condition: (f: any) => f.has_transfer_letter.value === 'Yes',
                     computedValue: ({ value }: Option) => ({
                         tag:'vitals',
