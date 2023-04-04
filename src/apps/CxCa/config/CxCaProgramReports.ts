@@ -9,6 +9,10 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'MoH report',
                 pathName: 'screened_for_cxca'
+            },
+            {
+                name: 'MoH monthly report',
+                pathName: 'cc_monthly_report'
             }
         ]
     },
@@ -24,6 +28,14 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'Booked clients',
                 pathName: 'cc_booked_clients'
+            },
+            {
+                name: 'Monthly CECAP TX',
+                pathName: 'cc_monthly_cecap_tx' 
+            },
+            {
+                name: 'Monthly Screen',
+                pathName: 'cc_monthly_screen'
             }
         ]
     },
@@ -51,6 +63,14 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'CC Type of Treatment',
                 pathName: 'cc_type_of_treatment'
+            },
+            {
+                name: 'CC CXCA Tx',
+                pathName: 'cc_cxca_tx'
+            },
+            {
+                name: 'CC CXCA SCRN',
+                pathName: 'cc_cxca_scrn'
             }
         ]
     },
