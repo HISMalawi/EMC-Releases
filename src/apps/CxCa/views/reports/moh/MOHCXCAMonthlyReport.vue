@@ -90,14 +90,13 @@ export default defineComponent({
                 helpText: "End date",
                 type: FieldType.TT_FULL_DATE
             }
-        ], {
-            skipSummary: true,
-            onFinish: (f: any) => {
+        ], 
+        (f: any) => {
                 this.onPeriod(f.start_date.value, f.end_date.value )
                 console.log(f)
                 modalController.dismiss()
             }
-        })
+        )
     }, 
     methods: {
         async onPeriod(start_date: any, end_date: any) {
