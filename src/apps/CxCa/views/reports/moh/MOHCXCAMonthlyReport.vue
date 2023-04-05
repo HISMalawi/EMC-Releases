@@ -121,7 +121,9 @@ export default defineComponent({
                 this.indicators.num_clients_30_to_44 = age_groups[2][1]
                 this.indicators.num_clients_45_to_49 = age_groups[3][1]
                 this.indicators.num_clients_lessthan_49 = age_groups[4][1]
-                //this.isLoading = true
+
+                console.log(" Section One age_groups ", response)
+
             })
 
             //Section Two
@@ -138,6 +140,8 @@ export default defineComponent({
                     this.indicators.num_clients_positive_not_on_art = hiv_status[1][1]
                     this.indicators.num_clients_negative_tested_less_than_1_year = hiv_status[2][1]
                     this.indicators.hiv_1_year_ago = hiv_status[3][1]
+
+                    console.log(" Section 2 age_groups ", response)
             })
 
             //Section Five
@@ -160,6 +164,8 @@ export default defineComponent({
                     this.indicators.num_clients_visible_lesion_cxca_screening_hiv_positive = screening_results[6][2]
                     this.indicators.num_clients_no_visible_lesion_cxca_screening_hiv_positive = screening_results[7][2]
                     this.indicators.num_clients_other_gynae_cxca_screening_hiv_positive = screening_results[8][2]
+
+                    console.log(" Section 5 age_groups ", response)
             })
 
             //Section Six
@@ -181,6 +187,8 @@ export default defineComponent({
                     this.indicators.num_clients_visible_lesion = screening_results[3][2]
                     this.indicators.num_clients_no_visible_lesion = screening_results[3][2]
                     this.indicators.num_clients_other_gynae = screening_results[3][2]
+
+                    console.log(" Section 6 age_groups ", response)
             })
 
             //Section Seven
@@ -198,6 +206,8 @@ export default defineComponent({
                     this.indicators.num_clients_cxca_suspects_30_44 = age_groups[2][1]
                     this.indicators.num_clients_cxca_suspects_45_49 = age_groups[3][1]
                     this.indicators.num_clients_cxca_suspects_greaterthan_49 = age_groups[4][1]
+
+                    console.log(" Section 7 age_groups ", response)
             })
 
             //Section Eight
@@ -214,6 +224,8 @@ export default defineComponent({
                     this.indicators.postponed_treatment = clients_treated[1][2]
                     this.indicators.postponed_treatment_performed = clients_treated[2][2]
                     this.indicators.referral = clients_treated[3][2]
+
+                    console.log(" Section 8 age_groups ", response)
             })
 
             //Section Nine
@@ -230,6 +242,8 @@ export default defineComponent({
                     this.indicators.thermal_coagulation = clients_treated[1][2]
                     this.indicators.leep = clients_treated[2][2]
                     this.indicators.other = clients_treated[3][2]
+
+                    console.log(" Section 9 age_groups ", response)
             })
 
             //Section 10
@@ -246,6 +260,8 @@ export default defineComponent({
                     this.indicators.further_investigation_management = referral_reasons[1][2]
                     this.indicators.no_treatment = referral_reasons[3][2]
                     this.indicators.other_gynae = referral_reasons[4][2]
+
+                    console.log(" Section 10 age_groups ", response)
             })
 
             //Section 3
@@ -266,6 +282,8 @@ export default defineComponent({
                     this.indicators.problem_visit_after_treatment = reason_for_visit[5][1]
 
                     this.isLoading = false;
+
+                    console.log(" Section 3 age_groups ", response)
 
             })
         },
