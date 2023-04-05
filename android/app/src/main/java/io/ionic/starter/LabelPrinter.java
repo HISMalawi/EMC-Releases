@@ -3,10 +3,7 @@ package io.ionic.starter;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.hardware.usb.UsbManager;
-import android.os.Looper;
-
 import com.getcapacitor.JSArray;
-import com.zebra.sdk.comm.BluetoothConnection;
 import com.zebra.sdk.comm.Connection;
 import com.zebra.sdk.comm.ConnectionException;
 import com.zebra.sdk.printer.discovery.*;
