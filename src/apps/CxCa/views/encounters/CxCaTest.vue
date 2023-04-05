@@ -15,7 +15,7 @@ import Validation from "@/components/Forms/validations/StandardValidations";
 import EncounterMixinVue from "../../../../views/EncounterMixin.vue";
 import { AssessmentService } from "@/apps/CxCa/services/CxCaAssessmentService";
 import { toastSuccess, toastWarning } from "@/utils/Alerts";
-import { generateDateFields } from "@/utils/HisFormHelpers/MultiFieldDateHelper";
+import { generateDateFields, EstimationFieldType } from "@/utils/HisFormHelpers/MultiFieldDateHelper";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { ConceptService } from "@/services/concept_service";
 import { Patientservice } from "@/services/patient_service";
@@ -208,13 +208,14 @@ export default defineComponent({
             //this was a requirement from the client and analyst team
             estimation: {
               allowUnknown: true,
+              estimationFieldType: EstimationFieldType.MONTH_ESTIMATE_FIELD
             },
             computeValue: (date: string, isEstimate: boolean) => {
               return {
                 date,
                 tag: "cxca screening",
                 isEstimate,
-                obs: this.assessment.buildValueDate("HIV test date", date),
+                obs: this.assessment.buildValueDate("HIV test date", date, isEstimate),
               };
             },
           },
