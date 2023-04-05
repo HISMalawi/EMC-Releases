@@ -101,11 +101,12 @@ export default defineComponent({
       : 'Patient is not enrolled in this program'
     );
 
-    const saveOutcome = async ({ date, status, nextFacility}: any) => {
+    const saveOutcome = async ({ date, status, nextFacility, reason, otherReason, isTransferredOut}: any) => {
       patientProgram.setStateDate(date);
       patientProgram.setStateId(status.value);
-      if(nextFacility) {
-        await patientProgram.transferOutEncounter(nextFacility.other);
+      if(isTransferredOut) {
+        const finalReason = reason.value !== 'Other' ? reason.value : otherReason
+        await patientProgram.transferOutEncounter(nextFacility.other, finalReason);
       }
       await patientProgram.updateState();
       await toastSuccess('Outcome saved successfully', 1000);

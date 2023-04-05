@@ -80,12 +80,12 @@ function orderToString(order: Order) {
 
 function confirmationSummary(patient: any, program: any) {
   return {
-    "PATIENT IDENTIFIERS": () => [
+    'PATIENT IDENTIFIERS': () => ([
       {
         label: "NPID",
         value: patient.getNationalID(),
-      },
-    ],
+      }
+    ]),
     'ALERTS': () => getPatientDashboardAlerts(patient),
     'LAB ORDERS': async () => {
       const data: any = []
@@ -99,8 +99,7 @@ function confirmationSummary(patient: any, program: any) {
             });
           });
         });
-      });
-      return data;
+      return data
     },
     'OUTCOME': () => ([
       {

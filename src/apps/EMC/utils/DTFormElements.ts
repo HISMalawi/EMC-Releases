@@ -52,3 +52,15 @@ export const tptHistoryOptions = toOptions([
   "Aborted course of IPT in the past",
   "Never taken IPT or 3HP"
 ])
+
+export const transferOutReasons = toOptions([
+  'Workplace transfer/lost job-related reasons',
+  'Relocation to another place/home village',
+  'Transport due to long distance',
+  'School',
+  'Business',
+  'Marriage',
+  'Unknown',
+  'Clinic not helping',
+  'Other'
+])

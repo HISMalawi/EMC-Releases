@@ -131,7 +131,7 @@ export default defineComponent({
                             value: v
                         }
                     },
-                    validation: (v: string) => Validation.required(v),
+                    validation: (v: string) => Validation.required({label: v, value: v}),
                     options: () => [
                         {
                             label: "Does client have an HTS Linkage number?",
