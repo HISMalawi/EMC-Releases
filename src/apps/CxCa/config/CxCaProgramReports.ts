@@ -45,31 +45,31 @@ export const REPORTS: FolderInterface[] = [
         defaultFilesIcon: 'reports.png',
         files: [
             {
-                name: 'CC All Questions',
+                name: 'CxCa All Questions',
                 pathName: 'cc_all_questions'
             },
             {
-                name: 'CC Basic Results',
+                name: 'CxCa Basic Results',
                 pathName: 'cc_basic_results'
             },
             {
-                name: 'CC Type of Screen',
+                name: 'CxCa Type of Screen',
                 pathName: 'cc_type_of_screen'
             },
             {
-                name: 'CC Screen Result',
+                name: 'CxCa Screen Result',
                 pathName: 'cc_screen_result'
             },
             {
-                name: 'CC Type of Treatment',
+                name: 'CxCa Type of Treatment',
                 pathName: 'cc_type_of_treatment'
             },
             {
-                name: 'CC CXCA Tx',
+                name: 'CxCa Tx',
                 pathName: 'cc_cxca_tx'
             },
             {
-                name: 'CC CXCA SCRN',
+                name: 'CxCa SCRN',
                 pathName: 'cc_cxca_scrn'
             }
         ]
