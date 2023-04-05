@@ -304,11 +304,12 @@ export default defineComponent({
         })),
         submitData: async(data: any) => {
           const value = data.target.attributes.value.nodeValue.split(',')
+          const frequency: any = DRUG_FREQUENCIES.find(f => f.value == value[1])
           const malariaDrug = {
             "isChecked": true,
             "label":value[0],
             "other":{
-              'frequency':"TWICE A DAY (BD)",
+              'frequency':frequency.label,
               'units':value[4],
               'drug_id':value[5],
               'duration':value[2],
@@ -316,12 +317,13 @@ export default defineComponent({
             },
             "value":value[0],
           }
-          this.checkedItems = this.checkedItems.filter(x  => 
-            x.value != 'Lumefantrine + Arthemether 1 x 6' &&
-            x.value != 'Lumefantrine + Arthemether 2 x 6' &&
-            x.value != 'Lumefantrine + Arthemether 3 x 6' &&
-            x.value != 'Lumefantrine + Arthemether 4 x 6'
+          const malaria_drugs = ANTI_MALARIA_DRUGS.map(drug => drug.name);
+          console.log(this.checkedItems)
+          this.checkedItems = this.checkedItems.filter((x: any)  => 
+            !malaria_drugs.includes(x.value)
           )
+          console.log(this.checkedItems)
+
           this.checkedItems.unshift(malariaDrug)
           if(this.isComplete())
             this.disableNextBtn = false

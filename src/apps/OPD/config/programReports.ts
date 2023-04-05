@@ -37,7 +37,7 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'Malaria report',
                 pathName: 'moh_malaria',
-                condition: () => false 
+                condition: () => true 
             },
             {
                 name: 'IPT',

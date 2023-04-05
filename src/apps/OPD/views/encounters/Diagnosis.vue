@@ -15,6 +15,7 @@ import { isEmpty } from 'lodash';
 import { ConceptName } from '@/interfaces/conceptName';
 import { OrderService } from '@/services/order_service';
 import { alertConfirmation } from '@/utils/Alerts';
+import { Service } from "@/services/service";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -43,7 +44,7 @@ export default defineComponent({
     async onSubmit(_: any, computedData: any){
       await this.diagnosisService.createEncounter()
       
-      const diagnosisData = await this.resolveObs({...computedData}, 'diagnosis')      
+      const diagnosisData = await this.resolveObs({...computedData,'obs_datetime':Service.getSessionDate()}, 'diagnosis')      
       await this.diagnosisService.saveObservationList(diagnosisData)
 
       const notesData = await this.resolveObs({...computedData}, 'notes')
