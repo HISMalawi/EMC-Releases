@@ -103,7 +103,7 @@ export default defineComponent({
             this.startDate = start_date
             this.endDate = end_date
             this.periodHack = this.startDate + "   " + this.endDate
-            this.isLoading = false
+            this.isLoading = true
             
             //Section One
             Service.getJson('screened_for_cxca',{
@@ -264,6 +264,8 @@ export default defineComponent({
                     this.indicators.subsequent_screening = reason_for_visit[4][1]
                     this.indicators.section_three_referral = reason_for_visit[1][1]
                     this.indicators.problem_visit_after_treatment = reason_for_visit[5][1]
+
+                    this.isLoading = false;
 
             })
         },
@@ -570,7 +572,10 @@ export default defineComponent({
             }, {})
         },
         async onDrillDown(indicatorName: string) {
-            const indicator = find(this.cohort, {name: indicatorName}) 
+            console.log(" Drill Down ")
+            console.log(" Drill Down >>>  ",indicatorName)
+
+            const indicator = find(this.cohort, {name: indicatorName})
         },
         regenerate() {
             this.onPeriod(this.formData.start_date.value, this.formData.end_date.value)
