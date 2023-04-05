@@ -204,8 +204,10 @@ export default defineComponent({
               formData.hiv_status.value.match(/Negative|ART/i),
             minDate: () => this.patient.getBirthdate(),
             maxDate: () => this.assessment.getDate(),
+            //I've allowed for unknown dates to address the issue of the date picker not allowing for unknown dates
+            //this was a requirement from the client and analyst team
             estimation: {
-              allowUnknown: false,
+              allowUnknown: true,
             },
             computeValue: (date: string, isEstimate: boolean) => {
               return {
