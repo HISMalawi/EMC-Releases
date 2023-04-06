@@ -15,9 +15,11 @@ import Validation from "@/components/Forms/validations/StandardValidations";
 import EncounterMixinVue from "../../../../views/EncounterMixin.vue";
 import { AssessmentService } from "@/apps/CxCa/services/CxCaAssessmentService";
 import { toastSuccess, toastWarning } from "@/utils/Alerts";
-import { generateDateFields } from "@/utils/HisFormHelpers/MultiFieldDateHelper";
+import { generateDateFields, EstimationFieldType } from "@/utils/HisFormHelpers/MultiFieldDateHelper";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { ConceptService } from "@/services/concept_service";
+import { Patientservice } from "@/services/patient_service";
+import { ProgramService } from "@/services/program_service";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -26,6 +28,7 @@ export default defineComponent({
     assessment: {} as any,
     obs: [] as any,
     showHIVQuestions: true,
+    alreadyEnrolled: false,
     offerCxCa: false,
   }),
   watch: {
@@ -35,10 +38,39 @@ export default defineComponent({
           this.patientID,
           this.providerID
         );
+
+
+        //test here 
+        const patient2 = new Patientservice((await Patientservice.findByID(this.patientID)))
+
+        const program = await ProgramService.getProgramInformation(this.patientID)
+
+        if(program.current_outcome === 'Continue follow-up'){
+          console.log("Patient is Enrolled in this Cxca Program")
+          this.alreadyEnrolled = true;
+        }
+
+        console.log("General patient details ", patient2);
+        console.log("Programs enrolled ", program.current_outcome);
+
+        ConceptService.getConceptsByCategory("reason_for_no_cxca")
+
         await this.assessment.loadArtStatus();
+
+
+        const artStatus = this.assessment.getHivStatus();
+
         if (this.assessment.getHivStatus() !== '') {
           this.showHIVQuestions = false;
         }
+
+        if(this.assessment.getHivStatus() === "Positive"){
+          this.showHIVQuestions = false;
+          console.log("Patient is HIV Positive")
+        }
+
+        console.log("Patient is HIV Positive")
+
         await this.setOfferCxCa();
         this.fields = await this.getFields();
       },
@@ -172,15 +204,18 @@ export default defineComponent({
               formData.hiv_status.value.match(/Negative|ART/i),
             minDate: () => this.patient.getBirthdate(),
             maxDate: () => this.assessment.getDate(),
+            //I've allowed for unknown dates to address the issue of the date picker not allowing for unknown dates
+            //this was a requirement from the client and analyst team
             estimation: {
-              allowUnknown: false,
+              allowUnknown: true,
+              estimationFieldType: EstimationFieldType.MONTH_ESTIMATE_FIELD
             },
             computeValue: (date: string, isEstimate: boolean) => {
               return {
                 date,
                 tag: "cxca screening",
                 isEstimate,
-                obs: this.assessment.buildValueDate("HIV test date", date),
+                obs: this.assessment.buildValueDate("HIV test date", date, isEstimate),
               };
             },
           },
@@ -191,7 +226,7 @@ export default defineComponent({
           helpText: "Ever had CxCa screening",
           type: FieldType.TT_SELECT,
           condition: (formData: any) =>
-            formData.reason_for_visit.value !== "Initial screening",
+            formData.reason_for_visit.value !== "Initial screening" && this.alreadyEnrolled == false,
           options: () => this.yesNoOptions(),
           validation: (val: any) => Validation.required(val),
           computedValue: (value: any) => ({

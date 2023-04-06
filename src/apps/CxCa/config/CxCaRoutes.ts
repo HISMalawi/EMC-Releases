@@ -63,5 +63,30 @@ export default [
         name: 'cc_booked_clients',
         path: '/cxca/report/clinic/cc_booked_clients',
         component: () => import('@/apps/CxCa/views/reports/clinic/BookedClients.vue')
+    },
+    {
+        name: 'cc_monthly_report',
+        path: '/CxCa/views/reports/moh/cc_monthly_report',
+        component: () => import('@/apps/CxCa/views/reports/moh/MOHCXCAMonthlyReport.vue')
+    },
+    {
+        name: 'cc_monthly_cecap_tx',
+        path: '/CxCa/views/reports/clinic/cc_monthly_cecap_tx',
+        component: () => import('@/apps/CxCa/views/reports/clinic/MonthlyCECAP_TX_Report.vue')
+    },
+    {
+        name: 'cc_monthly_screen',
+        path: '/CxCa/views/reports/clinic/cc_monthly_screen',
+        component: () => import('@/apps/CxCa/views/reports/clinic/MonthlyScreen.vue')
+    },
+    {
+        name: 'cc_cxca_tx',
+        path: '/CxCa/views/reports/pepfar/cc_cxca_tx',
+        component: () => import('@/apps/CxCa/views/reports/pepfar/CXCA_TX_Report.vue')
+    },
+    {
+        name: 'cc_cxca_scrn',
+        path: '/CxCa/views/reports/pepfar/cc_cxca_scrn',
+        component: () => import('@/apps/CxCa/views/reports/pepfar/CXCA_SCRN_Report.vue')
     }
 ]

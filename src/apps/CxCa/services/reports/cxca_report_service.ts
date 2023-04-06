@@ -36,6 +36,9 @@ export class CxCaReportService extends Service {
     getClinicReport(reportName: string) {
         return this.getReport('screened_for_cxca', {'report_name': reportName})
     }
+    getMohReport(reportName: string) {
+        return this.getReport('screened_for_cxca', {'report_name': reportName})
+    }
     
     getDateIntervalPeriod() {
         return `${HisDate.toStandardHisDisplayFormat(this.startDate)} - ${HisDate.toStandardHisDisplayFormat(this.endDate)}`
@@ -62,7 +65,7 @@ export class CxCaReportService extends Service {
     }
 
     buildRequest(config: Record<string, any> = {}) {
-        const payload: any = {'date': this.date, 'program_id': this.programID}
+        const payload: any = {'date': this.date, 'program_id': 24}
         if (this.startDate && this.endDate) {
             payload['start_date'] = this.startDate
             payload['end_date'] = this.endDate
