@@ -32,10 +32,12 @@ export const REPORTS: FolderInterface[] = [
             },
             {
                 name: 'Monthly CECAP TX',
+                condition: () => false,
                 pathName: 'cc_monthly_cecap_tx' 
             },
             {
                 name: 'Monthly Screen',
+                condition: () => false,
                 pathName: 'cc_monthly_screen'
             }
         ]
