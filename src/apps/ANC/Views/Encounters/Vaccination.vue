@@ -15,8 +15,6 @@ import { FieldType } from "@/components/Forms/BaseFormElements"
 import { defineComponent } from 'vue'
 import { AncDispensationService} from "@/apps/ANC/Services/anc_dispensing_service"
 import { AncTreatmentService } from "@/apps/ANC/Services/anc_treatment_service"
-import { Option } from '@/components/Forms/FieldInterface'
-import Validation from "@/components/Forms/validations/StandardValidations"
 import { IonPage } from "@ionic/vue"
 
 export default defineComponent({
@@ -45,7 +43,7 @@ export default defineComponent({
       return [
         {
           id: 'prescription',
-          helpText: 'Prescription',
+          helpText: 'Vaccination',
           type: FieldType.TT_YES_NO,
           validation: (v: string) => !v ?  ['Value is required'] : null,
           computedValue: (v: string) => {
@@ -54,7 +52,7 @@ export default defineComponent({
                 action: async () => {
                   const service = new AncTreatmentService(this.patientID, this.providerID)
                   await service.createEncounter()
-                  await service.updateTTvOrder()
+                  await service.updateVaccinationOrder()
                 }
               }
             }
@@ -68,7 +66,7 @@ export default defineComponent({
           },
           options: () => ([
             {
-              label: 'TTV has been given today',
+              label: 'TD given today?',
               values: [
                 {
                   label: "yes",

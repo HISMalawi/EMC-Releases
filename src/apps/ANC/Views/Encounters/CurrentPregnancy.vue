@@ -154,6 +154,7 @@ export default defineComponent({
                 id: 'bed_net_available_for_use',
                 helpText: 'Mosquito net in good condition available for own use',
                 type: FieldType.TT_SELECT,
+                condition: () => false, /// Feature disabled
                 computedValue: (v: Option) => this.service.buildValueCoded('Do you use bed nets', v.value),
                 validation: (v: Option) => Validation.required(v),
                 options: () => {
@@ -166,16 +167,15 @@ export default defineComponent({
                 type: FieldType.TT_SELECT,
                 computedValue: (v: Option) => this.service.buildValueCoded('Mosquito net started', v.value),
                 validation: (v: Option) => Validation.required(v),
-                condition: (f: any) => f.bed_net_available_for_use.value === 'No',
                 options: () => {
                     return this.yesNoOptions()
                 }
             },
             {
-                id: 'previous_ttv_given',
-                helpText: 'Previous TTV given before this pregnancy',
+                id: 'previous_td_given',
+                helpText: 'Previous TD given before this pregnancy',
                 type: FieldType.TT_NUMBER,
-                computedValue: (v: Option) => this.service.buildValueNumber('TTV', v.value),
+                computedValue: (v: Option) => this.service.buildValueNumber('TD Booster', v.value), //Previously called TTV
                 validation: (v: Option) => Validation.required(v)
             }
         ]
