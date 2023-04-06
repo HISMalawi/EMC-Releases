@@ -1,5 +1,15 @@
 export default [
    {
+      "categories": ["hiv_viral_load_reasons"],
+      "concept_id": 10609,
+      "name": "Follow up after Low Level Viremia"
+   },
+   {
+      "categories": ["hiv_viral_load_reasons"],
+      "concept_id": 10610,
+      "name": "Follow up after High Viral Load"
+   },
+   {
       "categories": [],
       "concept_id": 8259,
       "name": "Routine TB Screening"
