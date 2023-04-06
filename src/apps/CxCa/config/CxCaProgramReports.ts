@@ -8,6 +8,7 @@ export const REPORTS: FolderInterface[] = [
         files: [
             {
                 name: 'MoH report',
+                condition: () => false,
                 pathName: 'screened_for_cxca'
             },
             {
