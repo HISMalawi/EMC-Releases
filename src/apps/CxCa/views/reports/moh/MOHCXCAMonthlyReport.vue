@@ -50,7 +50,10 @@ import { MohCxCaMonthlyService } from '@/apps/CxCa/services/reports/MOHCXCAMonth
 import { CxCaReportService } from '@/apps/CxCa/services/reports/cxca_report_service'
 import { toCsv, toPDFfromHTML } from "@/utils/Export"
 import dayjs from "dayjs";
-import { find } from "lodash";
+import { find, isPlainObject } from "lodash";
+import { toDate } from "@/utils/Strs";
+import { Option } from '@/components/Forms/FieldInterface'
+import Validation from "@/components/Forms/validations/StandardValidations"
 
 export default defineComponent({
     mixins: [ReportMixinVue],
@@ -64,6 +67,8 @@ export default defineComponent({
         btns: [] as Array<any>,
         reportReady: false as boolean,
         fields: [] as Array<Field>,
+        startDate: '',
+        endDate: '',
         date: HisDate.toStandardHisDisplayFormat(Service.getSessionDate()),
         apiVersion: Service.getApiVersion(),
         coreVersion: Service.getCoreVersion(), 
@@ -73,44 +78,71 @@ export default defineComponent({
         isLoading: false as boolean,
         sectionOneRawJson: [],
         reportService: {} as any,
-        reportID: -1 as any,
-        startDate: '' as string,
-        endDate: '' as string
+        reportID: -1 as any
     }),
     created() {
         this.btns = this.getBtns()
         MultiStepPopupForm([
             {
-                id: "start_date",
-                helpText: "Start date",
-                type: FieldType.TT_FULL_DATE
+                id: 'year',
+                helpText: 'Select Year',
+                type: FieldType.TT_NUMBER,
+                computedValue: (v: Option) => v.value,
+                validation: (v: Option) => {
+                    const year = isPlainObject(v) ? v.value : -1
+                    return Validation.validateSeries([
+                        () => Validation.required(v),
+                        () => {
+                            if (isNaN(parseInt(`${year}`))) {
+                                return ['Invalid year']
+                            }
+                            return null
+                        },
+                        () => Validation.rangeOf(v, 2000, HisDate.getYear(Service.getSessionDate()))
+                    ])
+                }
             },
             {
-                id: "end_date",
-                helpText: "End date",
-                type: FieldType.TT_FULL_DATE
+                id: 'month',
+                helpText: 'Select Month',
+                type: FieldType.TT_SELECT,
+                validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option) => v.value,
+                options: () => {
+                    return [
+                        {label: 'January', value: '01'},
+                        {label: 'February', value: '02'},
+                        {label: 'March', value: '03'},
+                        {label: 'April', value: '04'},
+                        {label: 'May', value: '05'},
+                        {label: 'June', value: '06'},
+                        {label: 'July', value: '07'},
+                        {label: 'August', value: '08'},
+                        {label: 'September', value: '09'},
+                        {label: 'October', value: '10'},
+                        {label: 'November', value: '11'},
+                        {label: 'December', value: '12'}
+                    ]
+                }
             }
         ], 
         (f: any) => {
-                this.onPeriod(f.start_date.value, f.end_date.value )
-                console.log(f)
-                modalController.dismiss()
-            }
-        )
+            this.startDate = `${f.year.value}-${f.month.value}-01`
+            this.endDate = `${f.year.value}-${f.month.value}-31`
+            this.onPeriod()
+            modalController.dismiss()
+        })
     }, 
     methods: {
-        async onPeriod(start_date: any, end_date: any) {
-            this.startDate = start_date
-            this.endDate = end_date
-            this.periodHack = this.startDate + "   " + this.endDate
+        async onPeriod() {
+            this.periodHack = toDate(this.startDate) + "-" + toDate(this.endDate)
             this.isLoading = true
-            
             //Section One
             Service.getJson('screened_for_cxca',{
                 'report_name': 'SCREENED FOR CXCA',
                 'program_id': Service.getProgramID(),
-                'start_date': start_date,
-                'end_date': end_date,
+                'start_date': this.startDate,
+                'end_date': this.endDate,
                 'date': Service.getSessionDate()
             }).then(response => {
                 //load data and perform calculations based by age                    
@@ -130,8 +162,8 @@ export default defineComponent({
             Service.getJson('screened_for_cxca',{
                 'report_name': 'SCREENED FOR CXCA DISAGGREGATED BY HIV STATUS',
                 'program_id': Service.getProgramID(),
-                'start_date': start_date,
-                'end_date': end_date,
+                'start_date': this.startDate,
+                'end_date': this.endDate,
                 'date': Service.getSessionDate()
             }).then(response => {                  
                     const hiv_status = this.loadSectionTwo(response)
@@ -148,8 +180,8 @@ export default defineComponent({
             Service.getJson('screened_for_cxca',{
                 'report_name': 'CXCA SCREENING RESULTS',
                 'program_id': Service.getProgramID(),
-                'start_date': start_date,
-                'end_date': end_date,
+                'start_date': this.startDate,
+                'end_date': this.endDate,
                 'date': Service.getSessionDate()
             }).then(response => {                  
                     const screening_results = this.loadSectionFive(response)
@@ -172,8 +204,8 @@ export default defineComponent({
             Service.getJson('screened_for_cxca',{
                 'report_name': 'CXCA SCREENING RESULTS',
                 'program_id': Service.getProgramID(),
-                'start_date': start_date,
-                'end_date': end_date,
+                'start_date': this.startDate,
+                'end_date': this.endDate,
                 'date': Service.getSessionDate()
             }).then(response => {                  
                     const screening_results = this.loadSectionSix(response)
@@ -195,8 +227,8 @@ export default defineComponent({
             Service.getJson('screened_for_cxca',{
                 'report_name': 'CANCER SUSPECTS',
                 'program_id': Service.getProgramID(),
-                'start_date': start_date,
-                'end_date': end_date,
+                'start_date': this.startDate,
+                'end_date': this.endDate,
                 'date': Service.getSessionDate()
             }).then(response => {                  
                     const age_groups = this.loadSectionSeven(response)
@@ -214,8 +246,8 @@ export default defineComponent({
             Service.getJson('screened_for_cxca',{
                 'report_name': 'CLIENTS TREATED',
                 'program_id': Service.getProgramID(),
-                'start_date': start_date,
-                'end_date': end_date,
+                'start_date': this.startDate,
+                'end_date': this.endDate,
                 'date': Service.getSessionDate()
             }).then(response => {                  
                     const clients_treated = this.loadSectionEight(response)
@@ -232,8 +264,8 @@ export default defineComponent({
             Service.getJson('screened_for_cxca',{
                 'report_name': 'TREATMENT OPTIONS',
                 'program_id': Service.getProgramID(),
-                'start_date': start_date,
-                'end_date': end_date,
+                'start_date': this.startDate,
+                'end_date': this.endDate,
                 'date': Service.getSessionDate()
             }).then(response => {                  
                     const clients_treated = this.loadSectionNine(response)
@@ -250,8 +282,8 @@ export default defineComponent({
             Service.getJson('screened_for_cxca',{
                 'report_name': 'REFERRAL REASONS',
                 'program_id': Service.getProgramID(),
-                'start_date': start_date,
-                'end_date': end_date,
+                'start_date': this.startDate,
+                'end_date': this.endDate,
                 'date': Service.getSessionDate()
             }).then(response => {                  
                     const referral_reasons = this.loadSectionTen(response)
@@ -268,8 +300,8 @@ export default defineComponent({
             Service.getJson('screened_for_cxca',{
                 'report_name': 'CXCA REASON FOR VISIT',
                 'program_id': Service.getProgramID(),
-                'start_date': start_date,
-                'end_date': end_date,
+                'start_date': this.startDate,
+                'end_date': this.endDate,
                 'date': Service.getSessionDate()
             }).then(response => {         
                     const reason_for_visit = this.loadSectionThree(response)
@@ -286,14 +318,6 @@ export default defineComponent({
                     console.log(" Section 3 age_groups ", response)
 
             })
-        },
-        buildUrl(startDate:any, endDate:any, reportName: string): string{
-            let url = "http" + "://" + "localhost" + ":" + "3000" + "/api/v1";
-            url += "/screened_for_cxca?date=" + sessionStorage.sessionDate;
-            url += `&program_id=24`;
-            url += "&report_name="+ reportName;
-            url += `&start_date=${startDate}&end_date=${endDate}`; 
-            return url
         },
         loadSectionTen(data: any): any {
             let formatted_data = [];
@@ -596,7 +620,7 @@ export default defineComponent({
             const indicator = find(this.cohort, {name: indicatorName})
         },
         regenerate() {
-            this.onPeriod(this.formData.start_date.value, this.formData.end_date.value)
+            this.onPeriod()
         },
         exportToCsv() {
             const headers = ['Indicator', 'Value']
