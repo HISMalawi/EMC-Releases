@@ -6,14 +6,18 @@ import { defineComponent } from 'vue'
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import {DrugService} from "@/services/drug_service"
 import { FieldType } from "@/components/Forms/BaseFormElements"
-import { Field } from "@/components/Forms/FieldInterface"
+import { Field, Option } from "@/components/Forms/FieldInterface"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { PrintoutService} from "@/services/printout_service"
+import { StockService } from '@/apps/ART/views/ARTStock/stock_service';
+import { isEmpty } from 'lodash';
+import { options } from 'ionicons/icons';
 
 export default defineComponent({
     components: { HisStandardForm },
     data: () => ({
-        fields: [] as Array<Field>    
+        fields: [] as Array<Field>,
+        packSizes: [] as Array<number>,
     }),
     async created(){
         this.fields = [ 
@@ -23,11 +27,15 @@ export default defineComponent({
                 type: FieldType.TT_SELECT,
                 validation: (val: any) => Validation.required(val),
                 options: async (_, filter='') => {
-                    const facilities = await DrugService.getDrugs({name: filter})
-                    return facilities.map((facility: any) => ({
+                    const drugs = await DrugService.getDrugs({name: filter})
+                    return drugs.map((facility: any) => ({
                         label: facility.name,
                         value: facility.drug_id
                     }))
+                },
+                onValue: (drug: Option) => {
+                    this.packSizes = StockService.getPackSizes(drug.value as number)
+                    return drug
                 },
                 config: {
                     showKeyboard: true,
@@ -35,10 +43,21 @@ export default defineComponent({
                 }
             },
             {
+                id: 'drug_pack_size',
+                helpText: "Select Quantity",
+                type: FieldType.TT_SELECT,
+                condition: () => !isEmpty(this.packSizes),
+                options: () => [
+                    ...this.packSizes.map(p => ({label: `${p}`, value: p })),
+                    {label: "Other (specify)", value: "Other"}
+                ]
+            },
+            {
                 id: 'quantity',
                 helpText: 'Input quantity',
                 type: FieldType.TT_NUMBER,
                 validation: (val: any) => Validation.required(val),
+                condition: (f: any) => isEmpty(this.packSizes) || f.drug_pack_size.value.match(/other/i),
                 config: {
                     showKeyboard: true,
                 }
@@ -48,8 +67,11 @@ export default defineComponent({
     methods: {
         async onSubmit(form: any) {
             const label = new PrintoutService()
+            const quantity = isEmpty(this.packSizes) || form.drug_pack_size.label.includes('Other')
+                ? form.quantity.value
+                : form.drug_pack_size.value
             try {
-                await label.printDrug(form.drug.value, form.quantity.value)
+                await label.printDrug(form.drug.value, quantity)
                 this.$router.push({path: '/'})
             }catch(e) { 
                 console.log(e)
