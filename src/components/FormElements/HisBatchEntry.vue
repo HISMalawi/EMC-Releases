@@ -15,7 +15,13 @@
         </ion-col>
         <ion-col>
           <ion-grid v-if="selectedDrug !== null" class="scroll-list"> 
-            <ion-row v-for="(entry, ind) in drugs[selectedDrug].entries" :key="ind"> 
+            <ion-row v-for="(entry, ind) in drugs[selectedDrug].entries" :key="ind">
+              <ion-col> 
+                <ion-item> 
+                  <ion-label position="floating">Pack Size</ion-label>
+                  <ion-input readonly placeholder="0" :value="fmtNumber(entry.tabs)" @click="selectPackSize(ind)"></ion-input>
+                </ion-item>
+              </ion-col>
               <ion-col> 
                 <ion-item> 
                   <ion-label position="floating">Tins/Pallets</ion-label>
@@ -70,6 +76,8 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { Service } from "@/services/service";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
 import { toDate, toNumString } from "@/utils/Strs";
+import { StockService } from "@/apps/ART/views/ARTStock/stock_service";
+import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
 
 export default defineComponent({
   components: { HisTextInput, ViewPort, IonInput, IonLabel, IonList, IonItem, IonGrid, IonCol, IonRow, IonButton },
@@ -104,7 +112,7 @@ export default defineComponent({
       )
       incomingDrugs.forEach((element: any) => {
         const val = {
-          tabs: element.value.pack_size,
+          tabs: null,
           tins: null,
           expiry: null,
           batchNumber: null,
@@ -130,6 +138,42 @@ export default defineComponent({
     setDrugValue(index: number, type: string, data: Option | null) {
       this.drugs[this.selectedDrug].entries[index][type] = data ? data.value : ''
     },
+    useCustomPackSize (form: any) {
+      return isEmpty(this.packSizes) || form.standard_pack_size.label.includes("Other")
+    },
+    async selectPackSize (index: number) {
+      await MultiStepPopupForm([
+        {
+          id: 'standard_pack_size',
+          helpText: "Select Pack Size",
+          type: FieldType.TT_SELECT,
+          condition: () => !isEmpty(this.packSizes),
+          defaultValue: () => this.getDrugValue(index, 'tabs'),
+          options: () => [
+              ...this.packSizes.map(p => ({label: `${p}`, value: p })),
+              {label: "Other (specify)", value: "Other"}
+          ]
+        },
+        {
+          id: 'custom_pack_size',
+          helpText: 'Input quantity',
+          type: FieldType.TT_NUMBER,
+          defaultValue: () => this.getDrugValue(index, 'tabs'),
+          validation: (val: any) => Validation.required(val),
+          condition: (f: any) => this.useCustomPackSize(f),
+          config: {
+            showKeyboard: true,
+          }
+        }
+      ],
+      async (form: any) => {
+        this.setDrugValue(index, 'tabs', this.useCustomPackSize(form) 
+          ? form.custom_pack_size
+          : form.standard_pack_size
+        )
+        await modalController.dismiss();
+      })
+    },
     enterTins(index: number) {
       this.launchKeyPad({
         id: 'tins',
@@ -142,7 +186,7 @@ export default defineComponent({
           } 
           return Validation.validateSeries([
             () => Validation.isNumber(v),
-            () => v.value <= 0 ? ['Number of tins must be greater than 1'] : null
+            () => v.value as number <= 0 ? ['Number of tins must be greater than 1'] : null
           ])
         }
       }, 
@@ -197,7 +241,7 @@ export default defineComponent({
     },
     addRow() {
       this.drugs[this.selectedDrug].entries.push({
-        tabs: this.drugs[this.selectedDrug].pack_size,
+        tabs: null,
         tins: null,
         expiry: null,
         batchNumber: null
@@ -210,11 +254,16 @@ export default defineComponent({
       return (
         !isEmpty(drug.tins) &&
         !isEmpty(drug.expiry) &&
-        !isEmpty(drug.batchNumber)
+        !isEmpty(drug.batchNumber) &&
+        !isEmpty(drug.tabs.toString())
       );
     },
   },
   computed: {
+    packSizes () : Array<number> {
+      if(this.selectedDrug === null) return [];
+      return StockService.getPackSizes(this.drugs[this.selectedDrug].drug_inventory_id)
+    },
     fullSelectedDrugName(): string {
       try {
         return this.drugs[this.selectedDrug].fullName
@@ -225,9 +274,9 @@ export default defineComponent({
     enteredDrugs(): any {
       const f: any = [];
       this.drugs.forEach((element: any) => {
-        const j = element.entries.filter((el: any) => this.validateEntry(el));
-        j.forEach((e: any) => {
-          f.push({label: element.short_name, value: { ...e, ...element }});
+        const entries = element.entries.filter((el: any) => this.validateEntry(el));
+        entries.forEach((e: any) => {
+          f.push({label: element.short_name, value: {...element, ...e, tabs: e.tabs }});
         });
       });
       return f;
