@@ -51,17 +51,16 @@ import {
   IonRow,
   IonList,
   IonItem,
-  modalController,
   IonInput,
   IonLabel,
 } from "@ionic/vue";
 import { find, isEmpty } from "lodash";
 import { FieldType } from "../Forms/BaseFormElements";
 import Validation from "@/components/Forms/validations/StandardValidations"
-import { Field, Option } from "../Forms/FieldInterface";
+import { Option } from "../Forms/FieldInterface";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
-import TouchField from "@/components/Forms/SIngleTouchField.vue"
 import { toNumString } from "@/utils/Strs";
+import popupKeyboard from "@/utils/PopupKeyboard";
 
 export default defineComponent({
   components: { 
@@ -127,7 +126,7 @@ export default defineComponent({
       this.drugs[this.selectedDrug].entries[index][type] = data ? data.value : ''
     },
     enterTins(index: number) {
-      this.launchKeyPad({
+      popupKeyboard({
         id: 'tins',
         helpText: this.getModalTitle('Enter number of tins'),
         type: FieldType.TT_NUMBER,
@@ -146,19 +145,6 @@ export default defineComponent({
         }
       }, 
       (v: Option) => this.setDrugValue(index, 'tins', v))
-    },
-    async launchKeyPad(currentField: Field, onFinish: Function) {
-      const modal = await modalController.create({
-        component: TouchField,
-        backdropDismiss: false,
-        cssClass: "full-modal",
-        componentProps: {
-          dismissType: 'modal',
-          currentField,
-          onFinish
-        }
-      });
-      modal.present();
     },
     async selectDrug(index: any) {
       this.selectedDrug = index;

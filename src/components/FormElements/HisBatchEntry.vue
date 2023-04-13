@@ -69,15 +69,14 @@ import {
   modalController,
 } from "@ionic/vue";
 import { find, isEmpty } from "lodash";
-import TouchField from "@/components/Forms/SIngleTouchField.vue"
-import { Field, Option } from "../Forms/FieldInterface";
+import { Option } from "../Forms/FieldInterface";
 import { FieldType } from "../Forms/BaseFormElements";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Service } from "@/services/service";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
 import { toDate, toNumString } from "@/utils/Strs";
 import { StockService } from "@/apps/ART/views/ARTStock/stock_service";
-import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
+import popupKeyboard, { MultiStepPopupForm } from "@/utils/PopupKeyboard";
 
 export default defineComponent({
   components: { HisTextInput, ViewPort, IonInput, IonLabel, IonList, IonItem, IonGrid, IonCol, IonRow, IonButton },
@@ -175,7 +174,7 @@ export default defineComponent({
       })
     },
     enterTins(index: number) {
-      this.launchKeyPad({
+      popupKeyboard({
         id: 'tins',
         helpText: this.getModalTitle('Enter number of tins/pallets'),
         type: FieldType.TT_NUMBER,
@@ -193,7 +192,7 @@ export default defineComponent({
       (v: Option) => this.setDrugValue(index, 'tins', v))
     },
     enterBatch(index: number) {
-      this.launchKeyPad({
+      popupKeyboard({
         id: 'batch',
         helpText: this.getModalTitle('Enter batch number'),
         type: FieldType.TT_TEXT,
@@ -211,7 +210,7 @@ export default defineComponent({
       })
     },
     enterExpiry(index: number) {
-      this.launchKeyPad({
+      popupKeyboard({
         id: 'expiry',
         helpText: this.getModalTitle('Enter expiry date'),
         type: FieldType.TT_FULL_DATE,
@@ -225,19 +224,6 @@ export default defineComponent({
         }
       },
       (v: Option) => this.setDrugValue(index, 'expiry', v))
-    },
-    async launchKeyPad(currentField: Field, onFinish: (value: Option) => any) {
-      const modal = await modalController.create({
-        component: TouchField,
-        backdropDismiss: false,
-        cssClass: "full-modal",
-        componentProps: {
-          dismissType: 'modal',
-          currentField,
-          onFinish
-        }
-      });
-      modal.present();
     },
     addRow() {
       this.drugs[this.selectedDrug].entries.push({
