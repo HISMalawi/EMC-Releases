@@ -142,11 +142,6 @@ export default defineComponent({
         const overFourteenFemales: Array<string> = get(data[diagnosis], 'F.>= 14 years', [])
         const overFourteenMales: Array<string> = get(data[diagnosis], 'M.>= 14 years', [])
 
-        this.customInfo.value += underFiveFemales.length + underFiveMales.length
-        this.customInfo.value += underSixFemales.length + underSixMales.length
-        this.customInfo.value += underFourteenFemales.length + underFourteenMales.length
-        this.customInfo.value += overFourteenFemales.length + overFourteenMales.length
-
         rows.push([
           table.td(diagnosis, {style: {textAlign: 'left'}}),
           this.buildColumn(underSixFemales, `under 6 months females diagnosed with ${diagnosis}`),
