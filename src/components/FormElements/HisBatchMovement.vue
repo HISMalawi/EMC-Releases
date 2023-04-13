@@ -138,7 +138,10 @@ export default defineComponent({
           } 
           return Validation.validateSeries([
             () => Validation.isNumber(v),
-            () => v.value as number <= 0 ? ['Number of tins must be greater than 1'] : null
+            () => v.value as number <= 0 ? ['Number of tins must be greater than 1'] : null,
+            () => v.value as number > this.getDrugValue(index, 'quantity') 
+              ? ["You cannot dispose/relocate more than available tins"]
+              : null
           ])
         }
       }, 
