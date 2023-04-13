@@ -71,9 +71,6 @@ export default defineComponent({
         ] as Field[]
     }),
     methods: {
-        toTins(amount: number, drug: Drug){
-            return Math.abs(Math.trunc(amount / drug.pack_size || 1))
-        },
         async onPeriod(_: any, c: any) {
             this.rows = []
             this.report = new StockReportService()
@@ -87,7 +84,7 @@ export default defineComponent({
                             table.td(s.drug_name),
                             table.td(s.transaction_type),
                             table.tdDate(s.transaction_date),
-                            table.tdLink(toNumString(this.toTins(s.cum_per_day_stock_commited, s.drug_cms)), async () =>  {
+                            table.tdLink(toNumString(s.cum_per_day_stock_commited), async () =>  {
                                 const data = await this.report.getTrailDetails(s.transaction_date, s.drug_id, s.transaction_type);
                                 this.drilldownData(
                                     `${s.drug_name} ${s.transaction_type.toLowerCase()} on ${HisDate.toStandardHisDisplayFormat(s.transaction_date)}`,
@@ -95,13 +92,15 @@ export default defineComponent({
                                         table.thTxt('Product Code'),
                                         table.thTxt('Batch Number'),
                                         table.thTxt('Medication'),
-                                        table.thTxt('Amount', { style: thNumStyling })
+                                        table.thTxt('Amount Per Unit'),
+                                        table.thTxt('Total Tins/Pallets', { style: thNumStyling })
                                     ]],
                                     data.map((d: any) => [
                                         table.td(d.product_code),
                                         table.td(d.batch_number),
                                         table.td(d.drug_name),
-                                        table.tdNum(this.toTins(d.amount_committed_to_stock, d.drug_cms))
+                                        table.td(d.pack_size),
+                                        table.tdNum(Math.abs(Math.trunc(d.amount_committed_to_stock / d.pack_size || 1)))
                                     ]),
                                     false
                                 )
