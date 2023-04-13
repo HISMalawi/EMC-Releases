@@ -218,31 +218,6 @@ export default defineComponent({
         },
       ];
     },
-    prepDrugs(formdata: any) {
-      const items: any[] = [];
-      const barcode = this.barcode;
-      formdata.enter_batches.value.forEach((element: any) => {
-        items.push({
-          'batch_number': element.batchNumber,
-          'items': [
-            {
-              'barcode': barcode,
-              'drug_id': element.drugID,
-              'expiry_date': element.expiry,
-              'quantity': parseInt(element.tabs) * parseInt(element.tins),
-              'delivery_date': formdata.date.value,
-            },
-          ],
-        });
-      });
-      return items;
-    },
-    selectAll(listData: Array<Option>) {
-      return listData.map((l) => {
-        l.isChecked = true;
-        return l;
-      });
-    },
     async getItems() {
       const f = await this.stockService.getItems();
       return this.formatDrugs(f);
