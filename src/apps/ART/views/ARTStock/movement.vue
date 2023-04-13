@@ -270,14 +270,11 @@ export default defineComponent({
         return this.mapVal(["Expired", "Damaged", "Phased out", "Banned", "Missing"]);
       }
     },
-    formatDrugs(f: any) {
-      return f.map((drug: any) => {
+    formatDrugs(drugs: any) {
+      return drugs.map((drug: any) => {
         return {
-          label: `${StockService.getShortName(
-            drug.drug_id
-          )} (${StockService.getPackSize(
-            drug.drug_id
-          )}) Expiry date: ${HisDate.toStandardHisDisplayFormat(
+          label: `${drug.drug_name} (${drug.pack_size || StockService.getPackSize(drug.drug_id)}) 
+          Expiry date: ${HisDate.toStandardHisDisplayFormat(
             drug.expiry_date
           )} 
           Batch (${drug.batch_number})
