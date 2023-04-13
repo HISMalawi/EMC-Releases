@@ -22,6 +22,7 @@ import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { BadRequestError } from  "@/services/service"
 import { isEmpty } from "lodash";
 import dayjs from "dayjs";
+import { toNumString } from "@/utils/Strs";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -211,7 +212,7 @@ export default defineComponent({
         const d = j.value;
         const data = [
           StockService.getShortName(d.drug_id),
-          d.tins,
+          toNumString(d.tins),
           HisDate.toStandardHisDisplayFormat(d.expiry_date),
           formData.authorization.value.toUpperCase()
         ]
