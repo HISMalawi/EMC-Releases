@@ -88,6 +88,8 @@ export default defineComponent({
       this.reportService.setEndDate(config.end_date)
       this.period = this.reportService.getDateIntervalPeriod()
       this.rows = this.buildRows((await this.reportService.getDiagnosis()))
+      const visits = await this.reportService.getAttendance()
+      this.customInfo.value = visits.length
       
     },
     totalDiagnosis(diagnosis: Record<string, number>) {
