@@ -37,39 +37,30 @@ export default defineComponent({
 
   methods: {
     async onFinish(formData: any) {
-      const data = formData.enter_batches;
       let errors: string[] = [];
-      for (let index = 0; index < data.length; index++) {
-        const d = data[index].value;
-        const packSize = StockService.getPackSize(d.drug_id);
-        const total = packSize * d.tins;
-        const extras = {} as any;
-        const res = {
+      await formData.enter_batches.forEach(async (drug: any) => {
+        const data = {
           'reallocation_code': formData.authorization.value,
-          quantity: total,
+          quantity: drug.pack_size * drug.tins,
           date: formData.date.value,
           reason: formData.reasons.value,
-        };
+        }
         try {
           if (formData.task.value === "Relocations") {
-            extras["location_id"] = formData.relocation_location.value;
-            const f = await this.stockService.relocateItems(d.id, {
-              ...res,
-              ...extras,
+            const res = await this.stockService.relocateItems(drug.id, {
+              ...data, 
+              location_id: formData.relocation_location.value
             });
-            if (!f) {
+            if (!res) {
               errors.push(
-                "Could not save record for" + StockService.getShortName(d.drug_id)
+                "Could not save record for" + drug.drug_name
               );
             }
           } else {
-            const f = await this.stockService.disposeItems(d.id, {
-              ...res,
-              ...extras,
-            });
-            if (!f) {
+            const res = await this.stockService.disposeItems(drug.id, data);
+            if (!res) {
               errors.push(
-                "Could not save record for" + StockService.getShortName(d.drug_id)
+                "Could not save record for" + drug.drug_id
               );
             }
           }
@@ -81,7 +72,7 @@ export default defineComponent({
           }
           console.log(e)
         }
-      }
+      })
       if (errors.length === 0) {
         toastSuccess("Stock succesfully moved");
         this.$router.push("/");
@@ -146,8 +137,8 @@ export default defineComponent({
           id: "enter_batches",
           helpText: "Batch entry",
           type: FieldType.TT_BATCH_MOVEMENT,
-          beforeNext: (_: any, f: any, c: any, {currentFieldContext}: any) => {
-            const drugsToStr = (drugs: any) => drugs.map((b: any, i: number) => `${b.label}`).join(' & ')
+          beforeNext: (_: any, _f: any, _c: any, {currentFieldContext}: any) => {
+            const drugsToStr = (drugs: any) => drugs.map((b: any) => `${b.label}`).join(' & ')
             const partialEntries = currentFieldContext.drugs.filter((drug: any) =>
               drug.entries.map((d: any) => !(d.tins)).every(Boolean)
             )
