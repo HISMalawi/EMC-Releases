@@ -41,26 +41,26 @@ export default defineComponent({
       await formData.enter_batches.forEach(async (drug: any) => {
         const data = {
           'reallocation_code': formData.authorization.value,
-          quantity: drug.pack_size * drug.tins,
+          quantity: drug.value.pack_size * drug.value.tins,
           date: formData.date.value,
           reason: formData.reasons.value,
         }
         try {
           if (formData.task.value === "Relocations") {
-            const res = await this.stockService.relocateItems(drug.id, {
+            const res = await this.stockService.relocateItems(drug.value.id, {
               ...data, 
               location_id: formData.relocation_location.value
             });
             if (!res) {
               errors.push(
-                "Could not save record for" + drug.drug_name
+                "Could not save record for" + drug.value.drug_name
               );
             }
           } else {
-            const res = await this.stockService.disposeItems(drug.id, data);
+            const res = await this.stockService.disposeItems(drug.value.id, data);
             if (!res) {
               errors.push(
-                "Could not save record for" + drug.drug_id
+                "Could not save record for" + drug.value.drug_name
               );
             }
           }
