@@ -96,14 +96,6 @@ export default defineComponent({
     OpdStatCard
   },
   mounted() {
-    this.optionsVisits = { ...this.options,
-            ...{
-              xaxis: {
-                categories: [],
-              },
-            },
-          };
-    this.optionsSyndromic =this.optionsVisits
     this.sessionDate = ProgramService.getSessionDate()
     this.getPatientSummary();
     this.getSyndromic();
