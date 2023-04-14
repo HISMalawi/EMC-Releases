@@ -47,7 +47,12 @@ export default defineComponent({
     return {
       dayjs,
       sessionDate: "",
-      patientSummaryStats: {} as any,
+      patientSummaryStats: [
+        { label: 'Registered today', value: -1, color: 'lightyellow' },
+        { label: 'Returning today', value: -1, color: 'lightyellow' },
+        { label: 'Referred today', value: -1, color: 'lightyellow' },
+        { label: 'Total', value: -1, color: 'yellowgreen' },
+      ],
       seriesVisits: [] as any,
       optionsVisits: {} as any,
       optionsSyndromic: {} as any,
@@ -91,9 +96,17 @@ export default defineComponent({
     OpdStatCard
   },
   mounted() {
+    this.optionsVisits = { ...this.options,
+            ...{
+              xaxis: {
+                categories: [],
+              },
+            },
+          };
+    this.optionsSyndromic =this.optionsVisits
     this.sessionDate = ProgramService.getSessionDate()
-    this.getSyndromic();
     this.getPatientSummary();
+    this.getSyndromic();
   },
   methods: {
     getSyndromic: async function(){
