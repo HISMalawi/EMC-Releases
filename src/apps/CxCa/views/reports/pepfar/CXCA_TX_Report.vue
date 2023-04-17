@@ -8,6 +8,7 @@
             :columnData="reportData"
             :rowsPerPage="25"
             :onConfigure="configure"
+            :csvQuarter="csvQuarter"
             :onRefresh="() => generate()"
         />
     </ion-page>
@@ -21,12 +22,14 @@ import { CxCaReportService } from "@/apps/CxCa/services/reports/cxca_report_serv
 import { DateSelection } from "@/utils/ReportDateSelectionPrompt"
 import { toastDanger, toastWarning } from '@/utils/Alerts';
 import DrillPatientIds from '../../../../../components/DrillPatientIds.vue';
+import { toDate } from '@/utils/Strs';
 
 const reportData = ref<any>([])
 const startDate = ref('')
 const endDate = ref('')
 const period = ref('')
 const isLoading = ref(false)
+const csvQuarter = ref('')
 export default defineComponent({ 
     components: { 
         IonPage,
@@ -215,6 +218,7 @@ export default defineComponent({
                 startDate.value = sDate
                 endDate.value = eDate
                 period.value = `Period (${periodstr})`
+                csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`
                 generate()
             }
         })
@@ -229,6 +233,7 @@ export default defineComponent({
             isLoading,
             reportData,
             period,
+            csvQuarter,
             generate,
             configure
         }

@@ -178,6 +178,9 @@ export default defineComponent({
         },
         onConfigure: {
             type: Function
+        },
+        csvQuarter: {
+            type: String
         }
     },
     setup(props) {
@@ -348,7 +351,7 @@ export default defineComponent({
                 [
                     ...rows,
                     [`Date Created: ${Service.getSessionDate()}`],
-                    [`Quarter: ${props.subtitle}`],
+                    [`Quarter: ${props.csvQuarter || props.subtitle}`],
                     [`HIS-Core Version: ${Service.getFullVersion()}`],
                     [`API Version: ${Service.getApiVersion()}`],
                     [`Site UUID: ${Service.getSiteUUID()}`],
