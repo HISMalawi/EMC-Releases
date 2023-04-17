@@ -24,7 +24,7 @@
             <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_lessthan_25');">{{indicators.num_clients_lessthan_25 ||  0 }}</a></span></td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >6.1</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >Number of clients with VIA-</td>
-            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_via_negative');">{{indicators.num_clients_via_negative ||  0 }}</a></span></td>
+            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_via_negative_hiv_negative_unknown');">{{indicators.num_clients_via_negative ||  0 }}</a></span></td>
         </tr>
         <tr class="section-description">
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >1.2</td>
@@ -32,7 +32,7 @@
             <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_25_to_29');">{{indicators.num_clients_25_to_29 ||  0 }}</a></span></td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >6.2</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >Number of clients with VIA+</td>
-            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_via_positive');">{{indicators.num_clients_via_positive ||  0 }}</a></span></td>
+            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_via_positive_hiv_negative_unknown');">{{indicators.num_clients_via_positive ||  0 }}</a></span></td>
         </tr>
         <tr class="section-description">
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >1.3</td>
@@ -40,7 +40,7 @@
             <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_30_to_44');">{{indicators.num_clients_30_to_44 ||  0 }}</a></span></td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >6.3</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >Number of clients with suspect cancer</td>
-            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_with_suspect_ca');">{{indicators.num_clients_with_suspect_ca ||  0 }}</a></span></td>
+            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_with_suspect_ca_hiv_negative_unknown');">{{indicators.num_clients_with_suspect_ca ||  0 }}</a></span></td>
         </tr>
         <tr class="section-description">
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >1.4</td>
@@ -48,32 +48,32 @@
             <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_45_to_49');">{{indicators.num_clients_45_to_49 ||  0 }}</a></span></td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >6.4</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >Number of clients with PAP smear normal</td>
-            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_pap_smear_normal');">{{indicators.num_clients_pap_smear_normal ||  0 }}</a></span></td>
+            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_pap_smear_normal_hiv_negative_unknown');">{{indicators.num_clients_pap_smear_normal ||  0 }}</a></span></td>
         </tr>
         <tr class="section-description">
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >1.5</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" > &gt;49 years</td>
-            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_lessthan_49');">{{indicators.num_clients_lessthan_49 ||  0 }}</a></span></td>
+            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_greaterthan_49');">{{indicators.num_clients_greaterthan_49 ||  0 }}</a></span></td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >6.5</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >Number of clients with PAP smear abnormal</td>
-            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_pap_smear_abnormal');">{{indicators.num_clients_pap_smear_abnormal ||  0 }}</a></span></td>
+            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_pap_smear_abnormal_hiv_negative_unknown');">{{indicators.num_clients_pap_smear_abnormal ||  0 }}</a></span></td>
         </tr>
         <tr class="section-description" >
             <td style="font-weight: normal;text-align:left;padding-left:5px;" rowspan="3" >2</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" rowspan="3" colspan="2">Number of Clients screened for Cervical cancer disaggregated by HIV status</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px; " >6.6</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px; " >Number of clients with HPV-</td>
-            <td style="font-weight: normal;text-align:left;padding-left:5px; " ><span><a href="#" @click.prevent="drillDown('num_clients_hpv_negative');">{{indicators.num_clients_hpv_negative ||  0 }}</a></span></td>         
+            <td style="font-weight: normal;text-align:left;padding-left:5px; " ><span><a href="#" @click.prevent="drillDown('num_clients_hpv_negative_hiv_negative_unknown');">{{indicators.num_clients_hpv_negative ||  0 }}</a></span></td>         
         </tr>
         <tr class="section-description">
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >6.7</td>
                     <td style="font-weight: normal;text-align:left;padding-left:5px;" >Number of clients with HPV+</td>
-                    <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_hpv_positive');">{{indicators.num_clients_hpv_positive ||  0 }}</a></span></td>
+                    <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_hpv_positive_hiv_negative_unknown');">{{indicators.num_clients_hpv_positive ||  0 }}</a></span></td>
         </tr>
         <tr class="section-description">
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >6.8</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >Number of clients with visible lesion</td>
-            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_visible_lesion');">{{indicators.num_clients_visible_lesion ||  0 }}</a></span></td>
+            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_visible_lesion_hiv_negative_unknown');">{{indicators.num_clients_visible_lesion ||  0 }}</a></span></td>
         </tr>
         <tr class="section-description">
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >2.1</td>
@@ -81,7 +81,7 @@
             <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_positive_art');">{{indicators.num_clients_positive_art ||  0 }}</a></span></td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >6.9</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >Number of clients with with no visible lesion</td>
-            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_no_visible_lesion');">{{indicators.num_clients_no_visible_lesion ||  0 }}</a></span></td>
+            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_no_visible_lesion_hiv_negative_unknown');">{{indicators.num_clients_no_visible_lesion ||  0 }}</a></span></td>
         </tr>
         <tr class="section-description">
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >2.2</td>
@@ -89,7 +89,7 @@
             <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_positive_not_on_art');">{{indicators.num_clients_positive_not_on_art ||  0 }}</a></span></td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >6.10</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >Number of clients with with other gynae</td>
-            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_other_gynae');">{{indicators.num_clients_other_gynae ||  0 }}</a></span></td>
+            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('num_clients_other_gynae_hiv_negative_unknown');">{{indicators.num_clients_other_gynae ||  0 }}</a></span></td>
         </tr>
         <tr class="section-description">
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >2.3</td>
@@ -151,10 +151,10 @@
         <tr class="section-description">
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >3.2</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" > Postponed treatment</td>
-            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('postponed_treatment');">{{indicators.postponed_treatment ||  0 }}</a></span></td>
+            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('postponed_treatment_section_three');">{{indicators.postponed_treatment_section_three ||  0 }}</a></span></td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >8.2</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >Postponed treatment </td>
-            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('one_year_check_up_after_treatment');">{{indicators.one_year_check_up_after_treatment ||  0 }}</a></span></td>
+            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('postponed_treatment_section_eight');">{{indicators.postponed_treatment_section_eight ||  0 }}</a></span></td>
         </tr>
         <tr class="section-description">
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >3.3</td>
@@ -230,7 +230,7 @@
             <td style="font-weight: normal;text-align:left;padding-left:5px;" colspan="2">Cervical cancer screening results (HIV+)</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >10.1</td>
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >Large lesion (&gt;75%)</td>
-            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('large_lesion');">{{indicators.large_lesion ||  0 }}</a></span></td>
+            <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('large_lesion_greater_than_75');">{{indicators.large_lesion_greater_than_75 ||  0 }}</a></span></td>
         </tr>
         <tr class="section-description">
             <td style="font-weight: normal;text-align:left;padding-left:5px;" >5.1</td>

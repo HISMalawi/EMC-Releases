@@ -47,51 +47,12 @@ export class MohCxCaMonthlyService extends Service {
       xhttp.onload = function() {
         if (this.readyState == 4 && (this.status == 201 || this.status == 200)) {
             const obj = JSON.parse(this.responseText);
-            console.log("HERE IN XHTTP CLASS V ----------pppp--   " + obj)
             temp = true
             return temp
         }
       }
       return temp
     }
-
-    // async getReportSectionOne(callback: any): Promise<any> {
-    //     const authKey: string = sessionStorage.getItem("apiKey") as string
-    //     //prep end point
-    //     let url = "http" + "://" + "localhost" + ":" + "3000" + "/api/v1";
-    //     url += "/screened_for_cxca?date=" + sessionStorage.sessionDate;
-    //     url += `&program_id=24`;
-    //       url += `&report_name=CANCER SUSPECTS`;
-    //     url += `&start_date=${this.startDate}&end_date=${this.endDate}`; 
-
-    //     console.log("HERE IN XHTTP CLASS 0 " + url)
-    //     console.log("HERE IN XHTTP CLASS 0 AUTH " + authKey)
-
-    //     const xhttp = new XMLHttpRequest();
-        
-    //     xhttp.open("GET", url, true);
-    //     xhttp.setRequestHeader('Authorization', authKey);
-    //     xhttp.setRequestHeader('Content-type', "application/json");
-    //     xhttp.send();
-
-    //     xhttp.onload = function() {
-    //       if (this.readyState == 4 && (this.status == 201 || this.status == 200)) {
-    //         const obj = JSON.parse(this.responseText);
-    //         /*usin a static method here for this to work 
-    //         *I will be assigning the values manually for now 
-    //         */
-    //         const age_groups = MohCxCaMonthlyService.loadClientsSectionOne(obj)
-    //         //assigning
-    //         // for(let i=0; i<age_groups.length; i++){
-    //         //   console.log("HERE IN XHTTP CLASS V ------------   " + age_groups[i][1])
-    //         // }
-    //         callback(age_groups);
-    //         return age_groups;
-    //       }
-    //     }
-
-    //     console.log("HERE IN XHTTP CLASS SENT ")
-    // }
 
     static loadClientsSectionOne(data: any): any {
       const formatted_data = [];

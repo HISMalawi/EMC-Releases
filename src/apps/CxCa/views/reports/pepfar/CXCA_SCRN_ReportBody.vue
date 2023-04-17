@@ -43,7 +43,7 @@
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_negative_20_24');">{{indicators.tx_1st_scrn_negative_20_24 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_positive_20_24');">{{indicators.tx_1st_scrn_positive_20_24 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_suspected_cxca_20_24');">{{indicators.tx_1st_scrn_suspected_cxca_20_24 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_cryotherapy_20_24');">{{indicators.tx_rscrn_scrn_cryotherapy_20_24 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_negative_20_24');">{{indicators.tx_rscrn_scrn_negative_20_24 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_positive_20_24');">{{indicators.tx_rscrn_scrn_positive_20_24 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_suspected_cxca_20_24');">{{indicators.tx_rscrn_scrn_suspected_cxca_20_24 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_negative_20_24');">{{indicators.tx_ptfu_scrn_negative_20_24 ||  0 }}</a></span></td>
@@ -85,10 +85,10 @@
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_negative_35_39');">{{indicators.tx_1st_scrn_negative_35_39 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_positive_35_39');">{{indicators.tx_1st_scrn_positive_35_39 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_suspected_cxca_35_39');">{{indicators.tx_1st_scrn_suspected_cxca_35_39 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_cryotherapy_35_39');">{{indicators.tx_rscrn_scrn_cryotherapy_35_39 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_negative_35_39');">{{indicators.tx_rscrn_scrn_negative_35_39 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_positive_35_39');">{{indicators.tx_rscrn_scrn_positive_35_39 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_suspected_cxca_35_39');">{{indicators.tx_rscrn_scrn_suspected_cxca_35_39 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_cryotherapy_35_39');">{{indicators.tx_ptfu_scrn_cryotherapy_35_39 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_negative_35_39');">{{indicators.tx_ptfu_scrn_negative_35_39 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_positive_35_39');">{{indicators.tx_ptfu_scrn_positive_35_39 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_suspected_cxca_35_39');">{{indicators.tx_ptfu_scrn_suspected_cxca_35_39 ||  0 }}</a></span></td>
         </tr>
@@ -99,10 +99,10 @@
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_negative_40_44');">{{indicators.tx_1st_scrn_negative_40_44 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_positive_40_44');">{{indicators.tx_1st_scrn_positive_40_44 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_suspected_cxca_40_44');">{{indicators.tx_1st_scrn_suspected_cxca_40_44 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_cryotherapy_40_44');">{{indicators.tx_rscrn_scrn_cryotherapy_40_44 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_negative_40_44');">{{indicators.tx_rscrn_scrn_negative_40_44 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_positive_40_44');">{{indicators.tx_rscrn_scrn_positive_40_44 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_suspected_cxca_40_44');">{{indicators.tx_rscrn_scrn_suspected_cxca_40_44 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_cryotherapy_40_44');">{{indicators.tx_ptfu_scrn_cryotherapy_40_44 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_negative_40_44');">{{indicators.tx_ptfu_scrn_negative_40_44 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_positive_40_44');">{{indicators.tx_ptfu_scrn_positive_40_44 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_suspected_cxca_40_44');">{{indicators.tx_ptfu_scrn_suspected_cxca_40_44 ||  0 }}</a></span></td>
         </tr>
@@ -141,10 +141,10 @@
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_negative_55_59');">{{indicators.tx_1st_scrn_negative_55_59 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_positive_55_59');">{{indicators.tx_1st_scrn_positive_55_59 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_suspected_cxca_55_59');">{{indicators.tx_1st_scrn_suspected_cxca_55_59 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_cryotherapy_55_59');">{{indicators.tx_rscrn_scrn_cryotherapy_55_59 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_negative_55_59');">{{indicators.tx_rscrn_scrn_negative_55_59 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_positive_55_59');">{{indicators.tx_rscrn_scrn_positive_55_59 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_suspected_cxca_55_59');">{{indicators.tx_rscrn_scrn_suspected_cxca_55_59 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_cryotherapy_55_59');">{{indicators.tx_ptfu_scrn_cryotherapy_55_59 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_negative_55_59');">{{indicators.tx_ptfu_scrn_negative_55_59 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_positive_55_59');">{{indicators.tx_ptfu_scrn_positive_55_59 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_suspected_cxca_55_59');">{{indicators.tx_ptfu_scrn_suspected_cxca_55_59 ||  0 }}</a></span></td>
         </tr>
@@ -155,10 +155,10 @@
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_negative_60_64');">{{indicators.tx_1st_scrn_negative_60_64 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_positive_60_64');">{{indicators.tx_1st_scrn_positive_60_64 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_suspected_cxca_60_64');">{{indicators.tx_1st_scrn_suspected_cxca_60_64 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_cryotherapy_60_64');">{{indicators.tx_rscrn_scrn_cryotherapy_60_64 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_negative_60_64');">{{indicators.tx_rscrn_scrn_negative_60_64 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_positive_60_64');">{{indicators.tx_rscrn_scrn_positive_60_64 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_suspected_cxca_60_64');">{{indicators.tx_rscrn_scrn_suspected_cxca_60_64 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_cryotherapy_60_64');">{{indicators.tx_ptfu_scrn_cryotherapy_60_64 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_negative_60_64');">{{indicators.tx_ptfu_scrn_negative_60_64 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_positive_60_64');">{{indicators.tx_ptfu_scrn_positive_60_64 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_suspected_cxca_60_64');">{{indicators.tx_ptfu_scrn_suspected_cxca_60_64 ||  0 }}</a></span></td>
         </tr>
@@ -169,10 +169,10 @@
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_negative_65_69');">{{indicators.tx_1st_scrn_negative_65_69 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_positive_65_69');">{{indicators.tx_1st_scrn_positive_65_69 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_suspected_cxca_65_69');">{{indicators.tx_1st_scrn_suspected_cxca_65_69 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_cryotherapy_65_69');">{{indicators.tx_rscrn_scrn_cryotherapy_65_69 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_negative_65_69');">{{indicators.tx_rscrn_scrn_negative_65_69 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_positive_65_69');">{{indicators.tx_rscrn_scrn_positive_65_69 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_suspected_cxca_65_69');">{{indicators.tx_rscrn_scrn_suspected_cxca_65_69 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_cryotherapy_65_69');">{{indicators.tx_ptfu_scrn_cryotherapy_65_69 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_negative_65_69');">{{indicators.tx_ptfu_scrn_negative_65_69 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_positive_65_69');">{{indicators.tx_ptfu_scrn_positive_65_69 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_suspected_cxca_65_69');">{{indicators.tx_ptfu_scrn_suspected_cxca_65_69 ||  0 }}</a></span></td>
         </tr>
@@ -183,10 +183,10 @@
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_negative_70_74');">{{indicators.tx_1st_scrn_negative_70_74 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_positive_70_74');">{{indicators.tx_1st_scrn_positive_70_74 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_suspected_cxca_70_74');">{{indicators.tx_1st_scrn_suspected_cxca_70_74 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_cryotherapy_70_74');">{{indicators.tx_rscrn_scrn_cryotherapy_70_74 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_negative_70_74');">{{indicators.tx_rscrn_scrn_negative_70_74 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_positive_70_74');">{{indicators.tx_rscrn_scrn_positive_70_74 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_suspected_cxca_70_74');">{{indicators.tx_rscrn_scrn_suspected_cxca_70_74 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_cryotherapy_70_74');">{{indicators.tx_ptfu_scrn_cryotherapy_70_74 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_negative_70_74');">{{indicators.tx_ptfu_scrn_negative_70_74 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_positive_70_74');">{{indicators.tx_ptfu_scrn_positive_70_74 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_suspected_cxca_70_74');">{{indicators.tx_ptfu_scrn_suspected_cxca_70_74 ||  0 }}</a></span></td>
         </tr>
@@ -197,10 +197,10 @@
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_negative_75_79');">{{indicators.tx_1st_scrn_negative_75_79 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_positive_75_79');">{{indicators.tx_1st_scrn_positive_75_79 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_suspected_cxca_75_79');">{{indicators.tx_1st_scrn_suspected_cxca_75_79 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_cryotherapy_75_79');">{{indicators.tx_rscrn_scrn_cryotherapy_75_79 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_negative_75_79');">{{indicators.tx_rscrn_scrn_negative_75_79 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_positive_75_79');">{{indicators.tx_rscrn_scrn_positive_75_79 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_suspected_cxca_75_79');">{{indicators.tx_rscrn_scrn_suspected_cxca_75_79 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_cryotherapy_75_79');">{{indicators.tx_ptfu_scrn_cryotherapy_75_79 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_negative_75_79');">{{indicators.tx_ptfu_scrn_negative_75_79 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_positive_75_79');">{{indicators.tx_ptfu_scrn_positive_75_79 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_suspected_cxca_75_79');">{{indicators.tx_ptfu_scrn_suspected_cxca_75_79 ||  0 }}</a></span></td>
         </tr>
@@ -210,11 +210,11 @@
           <td style="font-weight: normal;text-align:left;padding-left:5px;" >Female</td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_negative_80_84');">{{indicators.tx_1st_scrn_negative_80_84 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_positive_80_84');">{{indicators.tx_1st_scrn_positive_80_84 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_cryotherapy_80_84');">{{indicators.tx_1st_scrn_suspected_cxca_80_84 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_cryotherapy_80_84');">{{indicators.tx_rscrn_scrn_cryotherapy_80_84 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_suspected_cxca_80_84');">{{indicators.tx_1st_scrn_suspected_cxca_80_84 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_negative_80_84');">{{indicators.tx_rscrn_scrn_negative_80_84 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_positive_80_84');">{{indicators.tx_rscrn_scrn_positive_80_84 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_suspected_cxca_80_84');">{{indicators.tx_rscrn_scrn_suspected_cxca_80_84 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_cryotherapy_80_84');">{{indicators.tx_ptfu_scrn_cryotherapy_80_84 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_negative_80_84');">{{indicators.tx_ptfu_scrn_negative_80_84 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_positive_80_84');">{{indicators.tx_ptfu_scrn_positive_80_84 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_suspected_cxca_80_84');">{{indicators.tx_ptfu_scrn_suspected_cxca_80_84 ||  0 }}</a></span></td>
         </tr>
@@ -225,10 +225,10 @@
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_negative_85_89');">{{indicators.tx_1st_scrn_negative_85_89 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_positive_85_89');">{{indicators.tx_1st_scrn_positive_85_89 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_suspected_cxca_85_89');">{{indicators.tx_1st_scrn_suspected_cxca_85_89 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_cryotherapy_85_89');">{{indicators.tx_rscrn_scrn_cryotherapy_85_89 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_negative_85_89');">{{indicators.tx_rscrn_scrn_negative_85_89 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_positive_85_89');">{{indicators.tx_rscrn_scrn_positive_85_89 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_suspected_cxca_85_89');">{{indicators.tx_rscrn_scrn_suspected_cxca_85_89 ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_cryotherapy_85_89');">{{indicators.tx_ptfu_scrn_cryotherapy_85_89 ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_negative_85_89');">{{indicators.tx_ptfu_scrn_negative_85_89 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_positive_85_89');">{{indicators.tx_ptfu_scrn_positive_85_89 ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_suspected_cxca_85_89');">{{indicators.tx_ptfu_scrn_suspected_cxca_85_89 ||  0 }}</a></span></td>
         </tr>
@@ -239,10 +239,10 @@
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_negative_90_plus');">{{indicators.tx_1st_scrn_negative_90_plus ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_positive_90_plus');">{{indicators.tx_1st_scrn_positive_90_plus ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_suspected_cxca_90_plus');">{{indicators.tx_1st_scrn_suspected_cxca_90_plus ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_cryotherapy_90_plus');">{{indicators.tx_rscrn_scrn_cryotherapy_90_plus ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_negative_90_plus');">{{indicators.tx_rscrn_scrn_negative_90_plus ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_positive_90_plus');">{{indicators.tx_rscrn_scrn_positive_90_plus ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_suspected_cxca_90_plus');">{{indicators.tx_rscrn_scrn_suspected_cxca_90_plus ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_cryotherapy_90_plus');">{{indicators.tx_ptfu_scrn_cryotherapy_90_plus ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_negative_90_plus');">{{indicators.tx_ptfu_scrn_negative_90_plus ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_positive_90_plus');">{{indicators.tx_ptfu_scrn_positive_90_plus ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_suspected_cxca_90_plus');">{{indicators.tx_ptfu_scrn_suspected_cxca_90_plus ||  0 }}</a></span></td>
         </tr>
@@ -253,10 +253,10 @@
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_negative_unkn_age');">{{indicators.tx_1st_scrn_negative_unkn_age ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_positive_unkn_age');">{{indicators.tx_1st_scrn_positive_unkn_age ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_1st_scrn_suspected_cxca_unkn_age');">{{indicators.tx_1st_scrn_suspected_cxca_unkn_age ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_cryotherapy_unkn_age');">{{indicators.tx_rscrn_scrn_cryotherapy_unkn_age ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_negative_unkn_age');">{{indicators.tx_rscrn_scrn_negative_unkn_age ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_positive_unkn_age');">{{indicators.tx_rscrn_scrn_positive_unkn_age ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_rscrn_scrn_suspected_cxca_unkn_age');">{{indicators.tx_rscrn_scrn_suspected_cxca_unkn_age ||  0 }}</a></span></td>
-          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_cryotherapy_unkn_age');">{{indicators.tx_ptfu_scrn_cryotherapy_unkn_age ||  0 }}</a></span></td>
+          <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_negative_unkn_age');">{{indicators.tx_ptfu_scrn_negative_unkn_age ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_positive_unkn_age');">{{indicators.tx_ptfu_scrn_positive_unkn_age ||  0 }}</a></span></td>
           <td style="font-weight: normal;text-align:left;padding-left:5px;" ><span><a href="#" @click.prevent="drillDown('tx_ptfu_scrn_suspected_cxca_unkn_age');">{{indicators.tx_ptfu_scrn_suspected_cxca_unkn_age ||  0 }}</a></span></td>
         </tr>

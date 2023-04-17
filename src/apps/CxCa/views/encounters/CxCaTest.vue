@@ -46,12 +46,8 @@ export default defineComponent({
         const program = await ProgramService.getProgramInformation(this.patientID)
 
         if(program.current_outcome === 'Continue follow-up'){
-          console.log("Patient is Enrolled in this Cxca Program")
           this.alreadyEnrolled = true;
         }
-
-        console.log("General patient details ", patient2);
-        console.log("Programs enrolled ", program.current_outcome);
 
         ConceptService.getConceptsByCategory("reason_for_no_cxca")
 
@@ -66,10 +62,7 @@ export default defineComponent({
 
         if(this.assessment.getHivStatus() === "Positive"){
           this.showHIVQuestions = false;
-          console.log("Patient is HIV Positive")
         }
-
-        console.log("Patient is HIV Positive")
 
         await this.setOfferCxCa();
         this.fields = await this.getFields();

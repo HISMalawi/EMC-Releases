@@ -121,7 +121,7 @@ export default defineComponent({
       this.focusDate(this.date)
       if (typeof this.config.infoItems === 'function') {
         if (!this.dateInfoItems[this.date]) {
-          this.dateInfoItems[this.date] = await this.config.infoItems(this.date) || []
+          this.dateInfoItems[this.date] = await this.config.infoItems(this.date, this.fdata) || []
         }
       }
       if (typeof this.config.supValue === 'function') {

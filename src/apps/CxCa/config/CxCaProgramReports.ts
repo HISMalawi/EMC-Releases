@@ -1,4 +1,5 @@
 import { FolderInterface } from "@/apps/interfaces/AppInterface"
+import { DateSelectionPreference } from "@/utils/ReportDateSelectionPrompt"
 
 export const REPORTS: FolderInterface[] = [
     {
@@ -32,12 +33,10 @@ export const REPORTS: FolderInterface[] = [
             },
             {
                 name: 'Monthly CECAP TX',
-                condition: () => false,
                 pathName: 'cc_monthly_cecap_tx' 
             },
             {
                 name: 'Monthly Screen',
-                condition: () => false,
                 pathName: 'cc_monthly_screen'
             }
         ]
@@ -49,22 +48,27 @@ export const REPORTS: FolderInterface[] = [
         files: [
             {
                 name: 'CxCa All Questions',
+                condition: () => false,
                 pathName: 'cc_all_questions'
             },
             {
                 name: 'CxCa Basic Results',
+                condition: () => false,
                 pathName: 'cc_basic_results'
             },
             {
                 name: 'CxCa Type of Screen',
+                condition: () => false,
                 pathName: 'cc_type_of_screen'
             },
             {
                 name: 'CxCa Screen Result',
+                condition: () => false,
                 pathName: 'cc_screen_result'
             },
             {
                 name: 'CxCa Type of Treatment',
+                condition: () => false,
                 pathName: 'cc_type_of_treatment'
             },
             {
@@ -77,4 +81,9 @@ export const REPORTS: FolderInterface[] = [
             }
         ]
     },
+    // {
+    //     name: "Preferences",
+    //     action: DateSelectionPreference,
+    //     files: []
+    // }
 ]
