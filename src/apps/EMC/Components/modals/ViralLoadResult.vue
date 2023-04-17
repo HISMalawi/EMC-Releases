@@ -109,7 +109,15 @@ export default defineComponent({
   setup(props) {
     const ldl = ref(false);
     const modifiers = toOptions(['=', '>', '<', '>=', '<=']);
-    const reasons = toOptions(["Routine", "Targeted", "Confirmatory", "Stat", "Repeat / Missing"])
+    const reasons = toOptions([
+      "Routine", 
+      "Targeted", 
+      "Confirmatory", 
+      "Stat", 
+      "Repeat / Missing",
+      "Follow up after Low Level Viremia",
+      "Follow up after High Viral Load"
+    ])
     const specimens = ref<Option[]>([])
     const today = dayjs().format(STANDARD_DATE_FORMAT)
     const birthdate = dayjs(props.patient.getBirthdate()).format(STANDARD_DATE_FORMAT)
