@@ -218,6 +218,7 @@ export default defineComponent({
                 reportData.value.push({ 
                     age_group : 'All',
                     gender: 'Female',
+                    index: reportData.value.length + 1,
                     first_time_screened: aggregateIndicators('first_time_screened'),
                     post_treatment_followup: aggregateIndicators('post_treatment_followup'),
                     rescreened_after_prev_visit: aggregateIndicators('rescreened_after_prev_visit')
