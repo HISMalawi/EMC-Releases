@@ -127,33 +127,6 @@ export default defineComponent({
                 },
                 {
                     label: "Negative",
-                    ref: 'post_treatment_followup_negative',
-                    secondaryLabel: "Post-treatment followup(Negative)",
-                    value: (data: any) => data.post_treatment_followup.negative.length,
-                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${data.age_group} ${column.secondaryLabel}`, data.post_treatment_followup.negative
-                    )
-                },
-                {
-                    label: "Positive",
-                    ref: "post_treatment_followup_positive",
-                    secondaryLabel: "Post-treatment followup (Positive)",
-                    value: (data: any) => data.post_treatment_followup.positive.length,
-                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${data.age_group} ${column.secondaryLabel}`, data.post_treatment_followup.positive
-                    )
-                },
-                {
-                    label: "Suspected cancer",
-                    ref: "post_treatment_followup_suspected",
-                    secondaryLabel: "Post-treatment followup (Suspected)",
-                    value: (data: any) => data.post_treatment_followup.suspected.length,
-                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${data.age_group} ${column.secondaryLabel}`, data.post_treatment_followup.suspected
-                    )
-                },
-                {
-                    label: "Negative",
                     ref: 'rescreened_after_prev_visit_negative',
                     secondaryLabel: "Rescreen after prev visit (Negative)",
                     value: (data: any) => data.rescreened_after_prev_visit.negative.length,
@@ -177,6 +150,33 @@ export default defineComponent({
                     value: (data: any) => data.rescreened_after_prev_visit.suspected.length,
                     tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
                         `${data.age_group} ${column.secondaryLabel}`, data.rescreened_after_prev_visit.suspected
+                    )
+                },
+                {
+                    label: "Negative",
+                    ref: 'post_treatment_followup_negative',
+                    secondaryLabel: "Post-treatment followup(Negative)",
+                    value: (data: any) => data.post_treatment_followup.negative.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${data.age_group} ${column.secondaryLabel}`, data.post_treatment_followup.negative
+                    )
+                },
+                {
+                    label: "Positive",
+                    ref: "post_treatment_followup_positive",
+                    secondaryLabel: "Post-treatment followup (Positive)",
+                    value: (data: any) => data.post_treatment_followup.positive.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${data.age_group} ${column.secondaryLabel}`, data.post_treatment_followup.positive
+                    )
+                },
+                {
+                    label: "Suspected cancer",
+                    ref: "post_treatment_followup_suspected",
+                    secondaryLabel: "Post-treatment followup (Suspected)",
+                    value: (data: any) => data.post_treatment_followup.suspected.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${data.age_group} ${column.secondaryLabel}`, data.post_treatment_followup.suspected
                     )
                 }
             ]
