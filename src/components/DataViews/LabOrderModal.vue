@@ -31,7 +31,7 @@
               <div class="his-md-text side-title">
                 Barcode ID:  <b>{{ testTypes[activeIndex].accessionNumber || 'None' }}</b>
               </div>
-              <BarcodeInput @onValue="(value) => testTypes[activeIndex].accessionNumber = value"/>
+              <BarcodeInput @onValue="(barcode) => onScanEIDbarcode(barcode)"/>
             </div>
             <ion-list v-if="!extendedLabsEnabled">   
               <ion-radio-group v-model="testTypes[activeIndex]['specimen']">
@@ -141,6 +141,12 @@ export default defineComponent({
     this.extendedLabsEnabled = await ART_GLOBAL_PROP.extendedLabEnabled()
   },
   methods: {
+    onScanEIDbarcode(barcode: string) {
+      const barcodeOk = /^([A-Z]{1})?[0-9]{1,8}$/i.test(barcode)
+      if (barcodeOk) {
+        this.testTypes[this.activeIndex]['accessionNumber'] = barcode
+      }
+    },
     async onSelectTest(testName: string, index: number, event: any) {
       this.$nextTick(async () => {
         this.testTypes[index]['isChecked'] = event.target.checked;
