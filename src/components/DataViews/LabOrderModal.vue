@@ -29,9 +29,11 @@
           <div class="ion-margin-bottom">
             <div v-if="/hiv viral load/i.test(testTypes[activeIndex].name)">
               <div class="his-md-text side-title">
-                Barcode ID:  <b>{{ testTypes[activeIndex].accessionNumber || 'None' }}</b>
+                Barcode ID:  <ion-text :color="testTypes[activeIndex].accessionNumber ? 'success' : 'dark'">
+                  <b>{{ testTypes[activeIndex].accessionNumber || 'None' }}</b>
+                </ion-text>
               </div>
-              <BarcodeInput @onValue="(barcode) => onScanEIDbarcode(barcode)"/>
+              <BarcodeInput @onScan="(barcode) => onScanEIDbarcode(barcode)"/>
             </div>
             <ion-list v-if="!extendedLabsEnabled">   
               <ion-radio-group v-model="testTypes[activeIndex]['specimen']">
@@ -80,7 +82,7 @@
   </ion-content>
   <ion-footer>
     <ion-toolbar> 
-      <ion-button @click="postActivities" size="large" slot="end" :disabled="!isOrderComplete || finalOrders.length === 0"> Place orders </ion-button>
+      <ion-button @click="postActivities" size="large" slot="end" :disabled="finalOrders.length === 0"> Place orders </ion-button>
       <ion-button @click="closeModal([])" size="large" slot="start" color="danger"> Close </ion-button>
     </ion-toolbar>
   </ion-footer>
@@ -143,6 +145,7 @@ export default defineComponent({
   },
   methods: {
     async onScanEIDbarcode(barcode: string) {
+      this.testTypes[this.activeIndex]['accessionNumber'] = null
       // Expected barcode examples: L5728043 or 57280438
       const barcodeOk = /^([A-Z]{1})?[0-9]{1,8}$/i.test(`${barcode}`)
       if (!barcodeOk) return;
@@ -232,10 +235,6 @@ export default defineComponent({
       }
       if(this.extendedLabsEnabled){
         return !!this.testTypes[this.activeIndex]['reason'] 
-      }
-      if (/hiv viral load/i.test(this.testTypes[this.activeIndex].name) &&
-        !this.testTypes[this.activeIndex]['accessionNumber']) {
-        return false
       }
       return (this.testTypes[this.activeIndex]['specimenConcept'] || this.testTypes[this.activeIndex]['specimen']) 
         && this.testTypes[this.activeIndex]['reason'] 
