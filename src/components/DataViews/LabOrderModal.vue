@@ -235,8 +235,7 @@ export default defineComponent({
       }
       if (/hiv viral load/i.test(this.testTypes[this.activeIndex].name) &&
         !this.testTypes[this.activeIndex]['accessionNumber']) {
-          toastWarning('Please scan a valid barcode')
-          return false
+        return false
       }
       return (this.testTypes[this.activeIndex]['specimenConcept'] || this.testTypes[this.activeIndex]['specimen']) 
         && this.testTypes[this.activeIndex]['reason'] 
