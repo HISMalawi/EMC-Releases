@@ -145,19 +145,20 @@ export default defineComponent({
   },
   methods: {
     async onScanEIDbarcode(barcode: string) {
-      this.verifyingBarcode = !this.verifyingBarcode
+      this.verifyingBarcode = !this.verifyingBarcode;
       if (this.verifyingBarcode) return
+      (await loadingController.create({ message: `Checking ${barcode}`})).present()
       this.testTypes[this.activeIndex]['accessionNumber'] = null
       // Expected barcode examples: L5728043 or 57280438
       const barcodeOk = /^([A-Z]{1})?[0-9]{7,8}$/i.test(`${barcode}`.trim())
       if (!barcodeOk) {
         this.verifyingBarcode = false
+        loadingController.getTop().then(v => v && loadingController.dismiss())
         return ;
       }
       /**
        * Verify with API if barcode was already used:
        */
-      (await loadingController.create({ message: `Checking ${barcode}`})).present()
       try {
         if (!(await OrderService.accessionNumExists(barcode))) {
           this.testTypes[this.activeIndex]['accessionNumber'] = barcode
