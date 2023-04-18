@@ -99,9 +99,10 @@ import {
   IonCheckbox,
   IonRadioGroup,
   IonRow,
+loadingController,
 } from "@ionic/vue";
 import { defineComponent, PropType } from "vue";
-import { alertConfirmation, toastWarning } from "@/utils/Alerts"
+import { alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts"
 import { ActivityInterface } from "@/apps/interfaces/AppInterface"
 import { OrderService } from "@/services/order_service";
 import { LabOrderService } from "@/apps/ART/services/lab_order_service";
@@ -141,11 +142,24 @@ export default defineComponent({
     this.extendedLabsEnabled = await ART_GLOBAL_PROP.extendedLabEnabled()
   },
   methods: {
-    onScanEIDbarcode(barcode: string) {
-      const barcodeOk = /^([A-Z]{1})?[0-9]{1,8}$/i.test(barcode)
-      if (barcodeOk) {
-        this.testTypes[this.activeIndex]['accessionNumber'] = barcode
+    async onScanEIDbarcode(barcode: string) {
+      // Expected barcode examples: L5728043 or 57280438
+      const barcodeOk = /^([A-Z]{1})?[0-9]{1,8}$/i.test(`${barcode}`)
+      if (!barcodeOk) return;
+      /**
+       * Verify with API if barcode was already used:
+       */
+      (await loadingController.create({ message: "Verifying barcode input"})).present()
+      try {
+        if (!(await OrderService.accessionNumExists(barcode))) {
+          this.testTypes[this.activeIndex]['accessionNumber'] = barcode
+        } else {
+          toastWarning(`Barcode ${barcode} was already used`)
+        }
+      } catch (e) {
+        toastDanger("Failed to confirm barcode " + barcode + ", Please try again later", 8000)  
       }
+      loadingController.getTop().then(v => v && loadingController.dismiss())
     },
     async onSelectTest(testName: string, index: number, event: any) {
       this.$nextTick(async () => {

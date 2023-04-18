@@ -172,6 +172,10 @@ export class OrderService extends Service {
         }
         return formatted;
     }
+    static async accessionNumExists(accession: string) {
+        const res = await Service.getJson('lab/accession_number', { accession_number: accession })
+        return res && res.exists
+    }
     static buildLabOrders(encounter: any, orders: any) {
         return orders.map((data: any) => {
             const testReason = ConceptService.getCachedConceptID(data.reason, true);
