@@ -149,7 +149,7 @@ export default defineComponent({
       /**
        * Verify with API if barcode was already used:
        */
-      (await loadingController.create({ message: "Verifying barcode input"})).present()
+      (await loadingController.create({ message: `Checking ${barcode}`})).present()
       try {
         if (!(await OrderService.accessionNumExists(barcode))) {
           this.testTypes[this.activeIndex]['accessionNumber'] = barcode
