@@ -38,31 +38,33 @@ export default defineComponent({
   },
   emits: ['onScan', 'onValue'],
   setup(props, { emit }) {
+    const onScan = (val: string) => {
+      const scanned = `${val||''}`.replace(/\$/ig, '')
+      emit("onScan", scanned)
+      emit("onValue", scanned)
+      typedBarcode.value = ''
+    }
     const { activePlatformProfile } = usePlatform()
-    const scannedBarcode =  useBarcode()
+    const scannedBarcode =  useBarcode(onScan)
     const typedBarcode = ref('')
 
     const useCameraScanner = () => {
       try {
         BarcodeScanner.scan().then(data => {
           scannedBarcode.value = data.text
+          onScan(scannedBarcode.value)
         })
       } catch (error) {
         console.log(error)
       }
     }
-
     watch(() => props.clearValue, () => typedBarcode.value = '')
     watch(() => props.virtualText, (v) => typedBarcode.value = v || '')
-    watch(scannedBarcode, (scannedCode) => {
-      if(typedBarcode.value && !typedBarcode.value.match(/.+\$$/i)) return
-      const finalCode = typedBarcode.value 
-        ? typedBarcode.value.replace(/\$/ig, '')
-        : scannedCode
-
-      emit("onScan", finalCode)
-      emit("onValue", finalCode)
-      typedBarcode.value = ''
+    watch(typedBarcode, (typed) => {
+      if (!typed) return
+      if(typed && !typed.match(/.+\$$/i)) 
+        return
+      onScan(typed)
     })
     return  {
       typedBarcode,

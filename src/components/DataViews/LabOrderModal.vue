@@ -145,10 +145,15 @@ export default defineComponent({
   },
   methods: {
     async onScanEIDbarcode(barcode: string) {
+      this.verifyingBarcode = !this.verifyingBarcode
+      if (this.verifyingBarcode) return
       this.testTypes[this.activeIndex]['accessionNumber'] = null
       // Expected barcode examples: L5728043 or 57280438
-      const barcodeOk = /^([A-Z]{1})?[0-9]{1,8}$/i.test(`${barcode}`)
-      if (!barcodeOk) return;
+      const barcodeOk = /^([A-Z]{1})?[0-9]{7,8}$/i.test(`${barcode}`.trim())
+      if (!barcodeOk) {
+        this.verifyingBarcode = false
+        return ;
+      }
       /**
        * Verify with API if barcode was already used:
        */
@@ -162,6 +167,7 @@ export default defineComponent({
       } catch (e) {
         toastDanger("Failed to confirm barcode " + barcode + ", Please try again later", 8000)  
       }
+      this.verifyingBarcode = false
       loadingController.getTop().then(v => v && loadingController.dismiss())
     },
     async onSelectTest(testName: string, index: number, event: any) {
@@ -259,6 +265,7 @@ export default defineComponent({
   },
   data() {
     return {
+      verifyingBarcode: false,
       content: "Content",
       extendedLabsEnabled: false as boolean,
       appActivities: [] as Array<ActivityInterface>,
