@@ -204,6 +204,17 @@ export default defineComponent({
       this.testTypes[this.activeIndex]['specimenConcept'] = data.concept_id;
     },
     async postActivities() {
+      const hasViralLoad = this.finalOrders.some((order: any) => {
+        return /hiv viral load/i.test(order.name)
+      })
+      const hasAccession = this.finalOrders.some((order: any) => {
+        return /hiv viral load/i.test(order.name) && order.accessionNumber
+      })
+      if (hasViralLoad && !hasAccession) {
+        if (!(await alertConfirmation('HIV Viral load has no barcode, do you want to proceed?'))) {
+          return
+        }
+      }
       const patientID= `${this.$route.params.patient_id}`;
       const orders = new LabOrderService(parseInt(patientID), -1); //TODO: get selected provider for this encounter
       const encounter = await orders.createEncounter();
