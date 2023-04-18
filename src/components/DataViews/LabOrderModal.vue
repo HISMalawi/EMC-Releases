@@ -27,6 +27,12 @@
         </ion-col>
         <ion-col :style="{overflowY: 'auto', height:'79vh'}" v-if="activeIndex != null && selectedOrders.length > 0">
           <div class="ion-margin-bottom">
+            <div v-if="/hiv viral load/i.test(testTypes[activeIndex].name)">
+              <div class="his-md-text side-title">
+                Barcode ID:  <b>{{ testTypes[activeIndex].accessionNumber || 'None' }}</b>
+              </div>
+              <BarcodeInput @onValue="(value) => testTypes[activeIndex].accessionNumber = value"/>
+            </div>
             <ion-list v-if="!extendedLabsEnabled">   
               <ion-radio-group v-model="testTypes[activeIndex]['specimen']">
                 <div class="his-md-text side-title">
@@ -74,7 +80,7 @@
   </ion-content>
   <ion-footer>
     <ion-toolbar> 
-      <ion-button @click="postActivities" size="large" slot="end" :disabled="finalOrders.length === 0"> Place orders </ion-button>
+      <ion-button @click="postActivities" size="large" slot="end" :disabled="!isOrderComplete || finalOrders.length === 0"> Place orders </ion-button>
       <ion-button @click="closeModal([])" size="large" slot="start" color="danger"> Close </ion-button>
     </ion-toolbar>
   </ion-footer>
@@ -102,7 +108,8 @@ import { LabOrderService } from "@/apps/ART/services/lab_order_service";
 import { PrintoutService } from "@/services/printout_service";
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
 import Store from "@/composables/ApiStore"
-import { find, findIndex } from "lodash";
+import { findIndex } from "lodash";
+import BarcodeInput from "@/components/BarcodeInput.vue"
 
 export default defineComponent({
   name: "Modal",
@@ -159,6 +166,7 @@ export default defineComponent({
       this.testTypes[index]['reason'] = null;
       this.testTypes[index]['specimen'] = null;
       this.testTypes[index]['specimenConcept'] = null
+      this.testTypes[index]['accessionNumber'] = null
       this.activeIndex = null
       this.specimens = []
     },
@@ -199,8 +207,16 @@ export default defineComponent({
   },
   computed: {
     isOrderComplete(): boolean {
+      if (typeof this.activeIndex != 'number') {
+        return false
+      }
       if(this.extendedLabsEnabled){
         return !!this.testTypes[this.activeIndex]['reason'] 
+      }
+      if (/hiv viral load/i.test(this.testTypes[this.activeIndex].name) &&
+        !this.testTypes[this.activeIndex]['accessionNumber']) {
+          toastWarning('Please scan a valid barcode')
+          return false
       }
       return (this.testTypes[this.activeIndex]['specimenConcept'] || this.testTypes[this.activeIndex]['specimen']) 
         && this.testTypes[this.activeIndex]['reason'] 
@@ -243,6 +259,7 @@ export default defineComponent({
     IonLabel,
     IonList,
     IonItem,
+    BarcodeInput,
     IonCheckbox,
     IonRadioGroup,
     IonRow,

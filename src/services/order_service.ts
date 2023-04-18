@@ -176,6 +176,7 @@ export class OrderService extends Service {
         return orders.map((data: any) => {
             const testReason = ConceptService.getCachedConceptID(data.reason, true);
             const payload: any = {
+                'accession_number': data.accessionNumber,
                 'encounter_id': encounter.encounter_id,
                 'tests': [{ 'concept_id': data.concept_id }],
                 'reason_for_test_id': testReason,
