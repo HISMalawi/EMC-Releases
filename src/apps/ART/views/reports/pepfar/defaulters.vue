@@ -68,7 +68,8 @@ export default defineComponent({
                         (data.cell_number ? `CELL: ${data.cell_number} <br/>`: '') +
                         (data.village ? `VILLAGE: ${data.village} <br/>` : '') +
                         (data.district ? `DISTRICT: ${data.district} <br/>`: '') +
-                        (data.ta ? `TA: ${data.ta}`: '')
+                        (data.ta ? `TA: ${data.ta} <br/>`: '') + 
+                        (data.landmark ? `Landmark: ${data.landmark}` : '')
                     )
                 ])
             })
