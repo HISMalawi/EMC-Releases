@@ -1,7 +1,7 @@
 import HisDate from "@/utils/Date"
 import { removeTags, toNumString } from "@/utils/Strs";
 import { sort } from 'fast-sort';
-import { isEmpty, slice } from "lodash";
+import { isEmpty } from "lodash";
 
 export interface TableInterface {
     showIndex?: boolean;
