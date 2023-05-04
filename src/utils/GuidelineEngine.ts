@@ -3,7 +3,7 @@
 */
 export interface DescriptionInterface {
     color?: 'primary' | 'secondary' | 'danger' | 'warning';
-    info: Function;
+    info: (facts: FactsInterface) => any;
     text?: string;
     show: 'onChecked' | 'always';
 }
@@ -22,7 +22,7 @@ export interface GuideLineInterface {
 }
 
 export type FactsInterface = Record<string, any>
-export type ConditionResolver = (value: any, facts: FactsInterface) => boolean
+export type ConditionResolver = (value: any, facts: FactsInterface) => boolean | RegExpMatchArray | null
 export type ConditionsInteface = Record<string, ConditionResolver>
 
 /**
