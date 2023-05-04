@@ -38,7 +38,7 @@ import {
     modalController
 } from "@ionic/vue"
 import TouchField from "@/components/Forms/SIngleTouchField.vue"
-import { Field } from "@/components/Forms/FieldInterface";
+import { Field, SingleFieldFormOnFinishAction } from "@/components/Forms/FieldInterface";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 
 export default defineComponent({
@@ -72,7 +72,7 @@ export default defineComponent({
         const itemsPerPage = ref(50)
         const searchFilter = ref('')
 
-        async function launchKeyboard(currentField: Field, onFinish: Function) {
+        async function launchKeyboard(currentField: Field, onFinish: SingleFieldFormOnFinishAction) {
           const modal = await modalController.create({
             component: TouchField,
             backdropDismiss: false,

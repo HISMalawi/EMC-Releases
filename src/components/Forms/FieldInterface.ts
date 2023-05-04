@@ -43,6 +43,7 @@ export interface FormFooterBtns {
 
 export type FormOnFinishAction = (formdata: any, computedData: any) => void | Promise<void>
 export type FormOnCancelAction = () => void | Promise<void>
+export type SingleFieldFormOnFinishAction = (value: any) => void | Promise<void>
 
 export interface Option {
     label: string;
@@ -109,4 +110,5 @@ export interface Field {
     options?(fdata?: any, cdata?: any, other?: any): Promise<Option[]> | Array<Option>;
     requireNext?: boolean;
     config?: Record<string, any>;
+    currentFieldig?: any;
 }

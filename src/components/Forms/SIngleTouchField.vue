@@ -45,7 +45,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, PropType, defineAsyncComponent } from 'vue'
-import { Field, Option } from "@/components/Forms/FieldInterface"
+import { Field, Option, SingleFieldFormOnFinishAction } from "@/components/Forms/FieldInterface"
 import { toastDanger, toastWarning } from "@/utils/Alerts";
 import { COMPONENT_REFS } from "@/components/Forms/BaseFormElements";
 import {
@@ -86,7 +86,7 @@ export default defineComponent({
             type: String
         },
         onFinish: {
-           type: Function,
+           type: Function as PropType<SingleFieldFormOnFinishAction>,
            required: true
         },
         currentField: {
