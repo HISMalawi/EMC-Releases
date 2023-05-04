@@ -108,6 +108,9 @@ function buildAsyncComponents() {
   return components
 }
 
+export type TouchScreenFormOnFinishAction = (formdata: any, computedData: any) => void | Promise<void>
+export type TouchscreenFormOnCancelAction = () => void | Promise<void>
+
 export default defineComponent({
   name: "TouchscreenForm",
   components: {
@@ -130,7 +133,7 @@ export default defineComponent({
   ],
   props: {
     onFinish: {
-      type: Function
+      type: Function as PropType<TouchScreenFormOnFinishAction>
     },
     skipSummary: {
       type: Boolean,
@@ -150,7 +153,7 @@ export default defineComponent({
       type: Boolean
     },
     cancelAction: {
-      type: Function
+      type: Function as PropType<TouchscreenFormOnCancelAction>
     }
   },
   data: () => ({
