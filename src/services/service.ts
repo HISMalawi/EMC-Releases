@@ -63,7 +63,8 @@ export class Service {
         const transformedUrl = `${url}?${Url.parameterizeObjToString(params)}`
         const { data, error } = useSWRV(transformedUrl, key => {
             return this.getJson(key)
-          })
+        })
+        if (error.value) console.error(error)
         return data
     }
 
@@ -134,8 +135,8 @@ export class Service {
         return sessionStorage.getItem('APIVersion') || '-'
     }
 
-    static getActiveApp(): AppInterface | {} { 
-        return HisApp.getActiveApp() || {}
+    static getActiveApp(): AppInterface { 
+        return HisApp.getActiveApp() || {} as AppInterface
     }
 
     static getUserID(): null | number {
