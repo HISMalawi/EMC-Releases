@@ -50,8 +50,8 @@
             @click="onFtButtonClicked(btn)"
             :color="btn.color || 'primary'"
             :size="btn.size || 'large'"
-            :disabled="onDisabledBtnState(btn, 'disabled', false)"
-            v-show="onVisibleBtnState(btn, 'visible')"
+            :disabled="onDisabledBtnState(btn)"
+            v-show="onVisibleBtnState(btn)"
           >
             {{ btn.name }}
           </ion-button>
@@ -68,7 +68,9 @@ import {
   Field, 
   Option,
   FormFooterBtns,
-  FooterBtnEvent
+  FooterBtnEvent,
+FormOnFinishAction,
+FormOnCancelAction
 } from "./FieldInterface";
 import {
   IonPage,
@@ -108,9 +110,6 @@ function buildAsyncComponents() {
   return components
 }
 
-export type TouchScreenFormOnFinishAction = (formdata: any, computedData: any) => void | Promise<void>
-export type TouchscreenFormOnCancelAction = () => void | Promise<void>
-
 export default defineComponent({
   name: "TouchscreenForm",
   components: {
@@ -133,7 +132,7 @@ export default defineComponent({
   ],
   props: {
     onFinish: {
-      type: Function as PropType<TouchScreenFormOnFinishAction>
+      type: Function as PropType<FormOnFinishAction>
     },
     skipSummary: {
       type: Boolean,
@@ -153,7 +152,7 @@ export default defineComponent({
       type: Boolean
     },
     cancelAction: {
-      type: Function as PropType<TouchscreenFormOnCancelAction>
+      type: Function as PropType<FormOnCancelAction>
     }
   },
   data: () => ({
