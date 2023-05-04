@@ -138,7 +138,7 @@
 
 <script lang="ts">
 import HisApp from "@/apps/app_lib"
-import { defineAsyncComponent, defineComponent, watch } from "vue";
+import { defineAsyncComponent, defineComponent } from "vue";
 import HisDate from "@/utils/Date"
 import { AppInterface, FolderInterface } from "@/apps/interfaces/AppInterface";
 import { Service } from "@/services/service"
