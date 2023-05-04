@@ -13,7 +13,7 @@ export interface GuideLineInterface {
     concept?: string;
     weight?: number;
     priority?: number;
-    conditions: Record<string, Function>;
+    conditions: ConditionsInteface;
     actions?: Record<string, any>; //TODO: should <key, Function>
     data?: Record<string, any>;
     description?: DescriptionInterface;
@@ -21,13 +21,17 @@ export interface GuideLineInterface {
     targetEvent?: string;
 }
 
+export type FactsInterface = Record<string, any>
+export type ConditionResolver = (value: any, facts: FactsInterface) => boolean
+export type ConditionsInteface = Record<string, ConditionResolver>
+
 /**
  * Match the facts with guidelines
  * @param facts 
  * @param conditions 
  * @returns 
  */
-function isCondition(facts: Record<string, any>, conditions: Record<string, Function>): boolean {
+function isCondition(facts: FactsInterface, conditions: ConditionsInteface): boolean {
     const state = [] 
     const ignored = [-1, '', null, undefined]
 
@@ -73,7 +77,7 @@ export function logFindingsByWeight(guidelines: Record<string, GuideLineInterfac
  * @returns
  */
 export function matchToGuidelines(
-    facts: Record<string, any>, 
+    facts: FactsInterface, 
     guidelines: Record<string, GuideLineInterface>,
     target='', 
     targetEvent='',
