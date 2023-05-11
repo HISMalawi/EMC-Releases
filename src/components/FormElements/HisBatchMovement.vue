@@ -51,7 +51,7 @@ import {
 import { find, isEmpty } from "lodash";
 import { FieldType } from "../Forms/BaseFormElements";
 import Validation from "@/components/Forms/validations/StandardValidations"
-import { Field, Option } from "../Forms/FieldInterface";
+import { Field, Option, SingleFieldFormOnFinishAction } from "../Forms/FieldInterface";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
 import TouchField from "@/components/Forms/SIngleTouchField.vue"
 import { toNumString } from "@/utils/Strs";
@@ -128,13 +128,13 @@ export default defineComponent({
           } 
           return Validation.validateSeries([
             () => Validation.isNumber(v),
-            () => v.value <= 0 ? ['Number of tins must be greater than 1'] : null
+            () => v.value as number <= 0 ? ['Number of tins must be greater than 1'] : null
           ])
         }
       }, 
       (v: Option) => this.setDrugValue(index, 'tins', v))
     },
-    async launchKeyPad(currentField: Field, onFinish: Function) {
+    async launchKeyPad(currentField: Field, onFinish: SingleFieldFormOnFinishAction) {
       const modal = await modalController.create({
         component: TouchField,
         backdropDismiss: false,
