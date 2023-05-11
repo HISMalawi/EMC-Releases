@@ -119,7 +119,8 @@ export default defineComponent({
             ])
         },
         async setRows(gender: string) {
-            const sortData = (ls: Array<any>, comparator: Function) => {
+            type Comparator = (months: number) => boolean
+            const sortData = (ls: Array<any>, comparator: Comparator) => {
                 return ls.filter(i => comparator(i.months)).map(i => i.patient_id)
             }
             for(const i in AGE_GROUPS) {
@@ -127,7 +128,7 @@ export default defineComponent({
                 const fullGender = this.formatGender(gender);
                 if (group in this.cohort) {
                     const cohortData = this.cohort[group][gender]
-                    const s = (comparator: Function) => sortData(cohortData, comparator)
+                    const s = (comparator: Comparator) => sortData(cohortData, comparator)
                     this.rows.push([
                         table.td(group),
                         table.td(fullGender),

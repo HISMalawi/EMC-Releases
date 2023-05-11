@@ -79,7 +79,7 @@ export class MohCohortReportService extends ArtReportService {
         }))
     }
 
-    validateIndicators(validations: Record<string, CohortValidationInterface>, callback: Function) {
+    validateIndicators(validations: Record<string, CohortValidationInterface>, callback: (errors: Array<any>) => any) {
         const cachedValues = this.getCachedCohortValues()
         if (cachedValues) {
             const errors = Object.keys(validations)

@@ -153,7 +153,7 @@ export default defineComponent({
         getColumnLabel(col: string) {
             return col in this.dataRefLabels ? this.dataRefLabels[col] : col
         },
-        getTotals(compareFunction: Function){
+        getTotals(compareFunction: (value: any) => boolean){
             return this.aggregations
                 .filter((i: any) => compareFunction(i))
                 .reduce((accum: any, cur: any) => accum.concat(cur.data), [])
