@@ -117,7 +117,7 @@ export default defineComponent({
             this.canValidate = true
             this.initiated = true
         },
-        getTotals(compareFunction: Function){
+        getTotals(compareFunction: (v: any) => boolean){
             return this.aggregations
                 .filter(i => compareFunction(i))
                 .reduce((items, item) => items.concat(item.data), [])

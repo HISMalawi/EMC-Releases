@@ -35,6 +35,8 @@ import {
   IonFooter, 
   IonButton
 } from "@ionic/vue"
+import { AsyncTableRowHandler } from "./tables/ReportDataTable";
+  
 export default defineComponent({
   components: { 
     HisBasicTable,
@@ -55,7 +57,7 @@ export default defineComponent({
       required: true,
     },
     onRows: {
-      type: Function,
+      type: Function as PropType<AsyncTableRowHandler>,
       required: true,
     },
   },
@@ -65,7 +67,7 @@ export default defineComponent({
   }),
   watch: {
     onRows: {
-      async handler(func: Function) {
+      async handler(func: AsyncTableRowHandler) {
         if (func) {
           this.rows = await func();
           this.ready = true;

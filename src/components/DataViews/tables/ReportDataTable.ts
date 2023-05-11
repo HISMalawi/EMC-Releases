@@ -9,6 +9,8 @@ export interface TableInterface {
     tableCssTheme?: string;
 }
 
+export type AsyncTableRowHandler = () => Promise<Array<any>> | Array<any>
+export type TableRowParser = (data: any) => Promise<Array<any>> | Array<any>
 export type ArraySortFunction = (arr: Array<any>) => Array<any>
 export type TableEventHandler = () => Promise<any> | any
 export interface ColumnInterface {
