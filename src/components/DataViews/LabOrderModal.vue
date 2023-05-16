@@ -33,7 +33,7 @@
                   <b>{{ testTypes[activeIndex].accessionNumber || 'None' }}</b>
                 </ion-text>
               </div>
-              <BarcodeInput @onScan="(barcode) => onScanEIDbarcode(barcode)"/>
+              <BarcodeInput size="small" @onScan="(barcode) => onScanEIDbarcode(barcode)"/>
             </div>
             <ion-list v-if="!extendedLabsEnabled">   
               <ion-radio-group v-model="testTypes[activeIndex]['specimen']">
