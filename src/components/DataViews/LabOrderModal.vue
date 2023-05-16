@@ -152,13 +152,14 @@ export default defineComponent({
       // Expected barcode examples: L5728043 or 57280438
       const barcodeOk = /^([A-Z]{1})?[0-9]{7,8}$/i.test(`${barcode}`.trim())
       if (!barcodeOk) {
+        toastWarning("Invalid Barcode")
         this.verifyingBarcode = false
         loadingController.getTop().then(v => v && loadingController.dismiss())
         return ;
       }
       /**
        * Verify with API if barcode was already used:
-       */
+      */
       try {
         if (!(await OrderService.accessionNumExists(barcode))) {
           this.testTypes[this.activeIndex]['accessionNumber'] = barcode
@@ -204,17 +205,6 @@ export default defineComponent({
       this.testTypes[this.activeIndex]['specimenConcept'] = data.concept_id;
     },
     async postActivities() {
-      const hasViralLoad = this.finalOrders.some((order: any) => {
-        return /hiv viral load/i.test(order.name)
-      })
-      const hasAccession = this.finalOrders.some((order: any) => {
-        return /hiv viral load/i.test(order.name) && order.accessionNumber
-      })
-      if (hasViralLoad && !hasAccession) {
-        if (!(await alertConfirmation('HIV Viral load has no barcode, do you want to proceed?'))) {
-          return
-        }
-      }
       const patientID= `${this.$route.params.patient_id}`;
       const orders = new LabOrderService(parseInt(patientID), -1); //TODO: get selected provider for this encounter
       const encounter = await orders.createEncounter();
@@ -251,6 +241,10 @@ export default defineComponent({
       if (typeof this.activeIndex != 'number') {
         return false
       }
+      if (/hiv viral load/i.test(this.testTypes[this.activeIndex]['name']) && 
+        !this.testTypes[this.activeIndex]['accessionNumber']) {
+          return false
+      }
       if(this.extendedLabsEnabled){
         return !!this.testTypes[this.activeIndex]['reason'] 
       }
@@ -262,9 +256,12 @@ export default defineComponent({
     },
     finalOrders(): any {
       return this.selectedOrders.filter((data: any) => {
+        if (/hiv viral load/i.test(data.name) && !data.accessionNumber) {
+          return false
+        }
         return data.reason && (data.specimen && !this.extendedLabsEnabled 
           || this.extendedLabsEnabled)
-      } )
+      })
     },
     testReasons(): Array<string> {
       return this.testTypes[this.activeIndex].name.match(/Viral load/i)
