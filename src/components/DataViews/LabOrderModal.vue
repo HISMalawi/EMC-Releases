@@ -102,7 +102,7 @@ import { LabOrderService } from "@/apps/ART/services/lab_order_service";
 import { PrintoutService } from "@/services/printout_service";
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
 import Store from "@/composables/ApiStore"
-import { find, findIndex } from "lodash";
+import { findIndex } from "lodash";
 
 export default defineComponent({
   name: "Modal",

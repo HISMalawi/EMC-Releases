@@ -1,5 +1,4 @@
 import { FolderInterface } from "@/apps/interfaces/AppInterface"
-import { DateSelectionPreference } from "@/utils/ReportDateSelectionPrompt"
 
 export const REPORTS: FolderInterface[] = [
     {

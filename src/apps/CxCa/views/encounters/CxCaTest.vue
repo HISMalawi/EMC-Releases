@@ -18,7 +18,6 @@ import { toastSuccess, toastWarning } from "@/utils/Alerts";
 import { generateDateFields, EstimationFieldType } from "@/utils/HisFormHelpers/MultiFieldDateHelper";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { ConceptService } from "@/services/concept_service";
-import { Patientservice } from "@/services/patient_service";
 import { ProgramService } from "@/services/program_service";
 
 export default defineComponent({
@@ -41,8 +40,6 @@ export default defineComponent({
 
 
         //test here 
-        const patient2 = new Patientservice((await Patientservice.findByID(this.patientID)))
-
         const program = await ProgramService.getProgramInformation(this.patientID)
 
         if(program.current_outcome === 'Continue follow-up'){
@@ -52,10 +49,7 @@ export default defineComponent({
         ConceptService.getConceptsByCategory("reason_for_no_cxca")
 
         await this.assessment.loadArtStatus();
-
-
-        const artStatus = this.assessment.getHivStatus();
-
+        
         if (this.assessment.getHivStatus() !== '') {
           this.showHIVQuestions = false;
         }
@@ -71,7 +65,7 @@ export default defineComponent({
     },
   },
   methods: {
-    async onFinish(formData: any, computed: any) {
+    async onFinish(_formData: any, computed: any) {
       
       const encounter = await this.assessment.createEncounter();
 

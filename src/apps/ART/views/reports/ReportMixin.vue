@@ -52,7 +52,7 @@ export default defineComponent({
         },
         getArvInt(arv: string) {
             if (typeof arv === 'string') {
-                const [_prfx, _art, arvNumStr] = arv.split('-')
+                const arvNumStr = arv.split('-')[2]
                 const arvNumInt = parseInt(arvNumStr)
                 return typeof arvNumInt === 'number' ? arvNumInt : 0 
             }

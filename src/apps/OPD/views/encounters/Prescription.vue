@@ -334,7 +334,7 @@ export default defineComponent({
       });
       modal.present();
     },
-    onSelect(entry: Option, event: Event) {
+    onSelect(entry: Option) {
       this.$nextTick(async () => {
         if (entry.isChecked) {
           if((this.checkedItems.findIndex(item => item.value === entry.value)) === -1) {
@@ -378,16 +378,16 @@ export default defineComponent({
      mapToOrders(): any[] {
       return this.checkedItems.map(drug => {
         const startDate = DrugPrescriptionService.getSessionDate()
-        const frequency = DRUG_FREQUENCIES.find(f => f.label === drug.other.frequency)
+        const frequency = DRUG_FREQUENCIES.find(f => f.label === drug.other.frequency) || {} as typeof DRUG_FREQUENCIES[0]
         return {
           'drug_inventory_id': drug.other.drug_id,
-          'equivalent_daily_dose': drug.other.dosage=='Unknown'?0 : drug.other.dosage * frequency!.value,
+          'equivalent_daily_dose': drug.other.dosage=='Unknown'?0 : drug.other.dosage * frequency?.value || 0,
           'start_date': startDate,
           'auto_expire_date': this.calculateExpireDate(startDate, drug.other.duration), 
           'units': drug.other.units,
-          'instructions': `${drug.label}: ${drug.other.dosage} ${drug.other.units} ${frequency!.code} for ${drug.other.duration} days`,
+          'instructions': `${drug.label}: ${drug.other.dosage} ${drug.other.units} ${frequency?.code || ''} for ${drug.other.duration} days`,
           'dose': drug.other.dosage,
-          'frequency': frequency!.code,
+          'frequency': frequency?.code || '',
         }
       })
     },

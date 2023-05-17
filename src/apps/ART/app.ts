@@ -65,8 +65,7 @@ const ART: AppInterface = {
             useForSearch: true,
             prefix: async () => {
                 try {
-                    const [_, domarnt] = (await Store.get('ART_FILING_NUMBER_PREFIX')).split(',')
-                    return domarnt
+                    return (await Store.get('ART_FILING_NUMBER_PREFIX')).split(',')[1] || ''
                 } catch (e) {
                     console.warn(e)
                     return ''

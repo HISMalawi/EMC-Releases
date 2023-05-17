@@ -5,7 +5,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { FieldType } from "@/components/Forms/BaseFormElements"
-import { Field, Option } from "@/components/Forms/FieldInterface"
+import { Option } from "@/components/Forms/FieldInterface"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import StagingMixin from "@/apps/ART/views/encounters/StagingMixin.vue"
 import {ClinicRegistrationService} from "@/apps/ART/services/registration_service"

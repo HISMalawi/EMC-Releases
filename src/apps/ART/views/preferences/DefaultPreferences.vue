@@ -15,7 +15,7 @@ import ART_PROP from "@/apps/ART/art_global_props"
 import {ART_GLOBAL_PROP} from "@/apps/ART/art_global_props"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations"
-import { Field, Option } from '@/components/Forms/FieldInterface';
+import { Option } from '@/components/Forms/FieldInterface';
 import { isEmpty } from "lodash"
 import { GlobalPropertyService } from '@/services/global_property_service';
 import { toastSuccess } from '@/utils/Alerts';

@@ -102,7 +102,6 @@ export default defineComponent({
       calendar.move(date).then(() => { calendar.focusDate(date); })
     },
     async select(date: string) {
-      const calendar: any = this.$refs.calendar
       this.prevDate = this.date
       this.date = HisDate.toStandardHisFormat(date)
       if (typeof this.onValue === 'function') {

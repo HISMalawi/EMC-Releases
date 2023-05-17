@@ -33,7 +33,6 @@ import { toastDanger, toastWarning } from "@/utils/Alerts"
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { IonPage } from "@ionic/vue"
 import { infoActionSheet } from "@/utils/ActionSheets"
-import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import dayjs from "dayjs";
 import { delayPromise } from "@/utils/Timers";
 import Store from "@/composables/ApiStore"
@@ -817,7 +816,7 @@ export default defineComponent({
         }
     },
     buildRegistrationSummary(data: any){
-        data = Object.keys(data).map(function(key, index) {
+        data = Object.keys(data).map(function(key) {
             if(data[key] != null){
                 return {
                 'label': key.replace(/_/g,' ').replace(/(^\w|\s\w)/g, m => m.toUpperCase()),

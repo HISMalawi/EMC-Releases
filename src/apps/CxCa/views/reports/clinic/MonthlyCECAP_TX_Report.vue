@@ -46,10 +46,9 @@ import { MohCohortReportService } from "@/apps/ART/services/reports/moh_cohort_s
 import MonthlyCECAP_TX_ReportBody from "@/apps/CxCa/views/reports/clinic/MonthlyCECAP_TX_ReportBody.vue"
 import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
 import { FieldType } from "@/components/Forms/BaseFormElements";
-import { CxCaReportService } from '@/apps/CxCa/services/reports/cxca_report_service'
 import { toCsv, toPDFfromHTML } from "@/utils/Export"
 import dayjs from "dayjs";
-import { find, isPlainObject } from "lodash";
+import { isPlainObject } from "lodash";
 import { toDate } from "@/utils/Strs";
 import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
