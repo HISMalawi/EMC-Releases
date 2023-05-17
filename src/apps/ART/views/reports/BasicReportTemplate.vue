@@ -101,7 +101,7 @@ export default defineComponent({
       default: false
     },
     rows: {
-      type: Object as PropType<Array<RowInterface[]>>,
+      type: Array as PropType<Array<RowInterface[]>>,
       default: () => []
     },
     rowParser: {
