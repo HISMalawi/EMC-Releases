@@ -13,7 +13,7 @@
                         type="number"
                         :max="255"
                         :class="{
-                            'highlighted-input' : index === activeIndex
+                            'highlighted-input' : addressInputs[index] === activeIndex
                         }"
                         v-model="addressInputs[index]"
                         @ionFocus="onAddressClick(index)"
@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onActivated, onMounted, ref, watch } from 'vue'
+import { defineComponent, onActivated, ref, watch } from 'vue'
 import HisKeyboard from "@/components/Keyboard/HisKeyboard.vue"
 import { NUMBER_PAD_LO } from "@/components/Keyboard/KbLayouts"
 import ViewPort from "@/components/DataViews/ViewPort.vue"

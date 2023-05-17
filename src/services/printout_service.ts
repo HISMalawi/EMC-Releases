@@ -24,7 +24,7 @@ export class PrintoutService extends Service {
         if(isEmpty(printer)) printer = await this.selectDefaultPrinter()
         if(isEmpty(printer)) throw new Error ("No printer device found")
         if(printer?.port === "USB") return LabelPrinter.write({ deviceID: printer.deviceID, rawString, url })
-        return this.printToBluetoothDevice(printer!, rawString)
+        return this.printToBluetoothDevice(printer, rawString)
     }
 
     async batchPrintLbls(urls: string[], showPrintImage = true) {
@@ -155,7 +155,7 @@ export class PrintoutService extends Service {
         try {
             EventBus.emit(EventChannels.SHOW_MODAL, 'zebra-modal')
             if(printer?.port === "USB") return LabelPrinter.write({ deviceID: printer.deviceID, rawString })
-            return this.printToBluetoothDevice(printer!, rawString)
+            return this.printToBluetoothDevice(printer, rawString)
         } catch (error) {
             toastWarning(`${error}`)
         }

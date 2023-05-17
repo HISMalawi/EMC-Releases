@@ -149,10 +149,9 @@ function validateMinMax(date: string, field: DateFieldInterface, form: any, comp
  * 
  * if you're brave please refactor this. Just dont break anything Ok!
  * @param field 
- * @param refDate 
  * @returns 
  */
-export function generateDateFields(field: DateFieldInterface, refDate=''): Array<Field> {
+export function generateDateFields(field: DateFieldInterface): Array<Field> {
     let fullDate = ''
     let yearValue = ''
     let monthValue = ''
@@ -243,7 +242,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     
         if (year && !['Unknown'].includes(year as string)
             && isNaN(year as number)
-            || year < 1900) {
+            || year as number < 1900) {
             return ['Invalid Year']
         }
 
@@ -256,7 +255,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
 
         if (year && typeof field.maxDate === 'function') {
             const max = field.maxDate(f, c)
-            if (max && year > HisDate.getYear(max)) {
+            if (max && year as number > HisDate.getYear(max)) {
                 return [`Year of ${year} exceeds Maximum year of ${HisDate.getYear(max)}`]
             }
         }
@@ -389,7 +388,7 @@ export function generateDateFields(field: DateFieldInterface, refDate=''): Array
     ageEstimate.proxyID = field.id
 
     ageEstimate.validation = (v: Option, f: any, c: any) => {
-        if (v && v.value > 300) {
+        if (v && v.value as number > 300) {
             return ['Age estimate is too high and exceeding hard limit of 300']
         }
         if (isNaN(parseInt(v.value.toString()))) {

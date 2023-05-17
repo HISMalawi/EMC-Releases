@@ -48,7 +48,7 @@ export default defineComponent({
                     }
                 ]
             }
-        }, '')
+        })
     },
     async mounted() {
         await this.showBdeNotice()

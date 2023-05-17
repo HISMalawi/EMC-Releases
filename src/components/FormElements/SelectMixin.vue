@@ -20,6 +20,8 @@ import {
 } from "@ionic/vue"
 import { find, isPlainObject } from 'lodash';
 
+type InfiniteScrollHandler = (filter: string, page: number, limit: number) => Promise<Array<Option>>
+
 export default defineComponent({
     components: { 
         IonList, 
@@ -48,7 +50,7 @@ export default defineComponent({
             page: 1,
             limit: 10,
             threshold: '100px',
-            handler: async (filter: string, page: number, limit: number) => [] as Option[]
+            handler: undefined as undefined | InfiniteScrollHandler
         },
     }),
     created(){

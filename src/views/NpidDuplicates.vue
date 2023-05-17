@@ -85,7 +85,6 @@ import { Patientservice } from '@/services/patient_service'
 import { alertConfirmation, toastDanger, toastWarning } from '@/utils/Alerts'
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import HisDate from "@/utils/Date"
-import { infoActionSheet } from '@/utils/ActionSheets'
 
 export default defineComponent({
     components: {

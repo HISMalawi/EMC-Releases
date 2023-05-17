@@ -155,7 +155,7 @@ export default defineComponent({
       }
       event.target.complete();
     },
-    onSelect(entry: Option, event: Event) {
+    onSelect(entry: Option) {
       this.$nextTick(async () => {
         if (entry.isChecked) {
           if((this.checkedItems.findIndex(item => item.value === entry.value)) === -1) {

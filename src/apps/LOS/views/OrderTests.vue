@@ -16,7 +16,6 @@ import { PatientLabService } from "@/apps/LOS/services/patient_lab_service"
 import { OrderService } from "@/services/order_service"
 import { ConceptService } from '@/services/concept_service'
 import PersonField from "@/utils/HisFormHelpers/PersonFieldHelper"
-import { isEmpty } from 'lodash'
 
 export default defineComponent({
     mixins: [EncounterMixinVue],

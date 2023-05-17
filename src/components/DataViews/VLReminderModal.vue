@@ -35,7 +35,7 @@ export default defineComponent({
   name: "Modal",
   props: {
     VLData: {
-      type: Object as any,
+      type: Object as PropType<Record<string, any>>,
       required: true
     },
     

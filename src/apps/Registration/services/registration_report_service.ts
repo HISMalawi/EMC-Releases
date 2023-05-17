@@ -1,5 +1,4 @@
 import { Service } from "@/services/service"
-import HisDate from "@/utils/Date"
 
 export class RegistrationReportService extends Service {
     constructor() {

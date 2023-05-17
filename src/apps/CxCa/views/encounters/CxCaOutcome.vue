@@ -67,7 +67,7 @@ export default defineComponent({
         obList.push(cOb);
       }
 
-      const obs = await this.outcome.saveObservationList(obList);
+      await this.outcome.saveObservationList(obList);
       toastSuccess("Observations and encounter created!");
       this.nextTask();
     },

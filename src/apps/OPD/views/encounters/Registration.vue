@@ -14,7 +14,7 @@ import { getFacilities } from '@/utils/HisFormHelpers/LocationFieldOptions';
 import { toastWarning } from '@/utils/Alerts';
 import { Patientservice } from '@/services/patient_service';
 import { MALAWI_NATIONAL_ID_TYPE } from '@/constants';
-import { CHARACTERS_AND_NUMBERS_LO, NOTE_PAD_KEYBOARD } from '@/components/Keyboard/KbLayouts';
+import { CHARACTERS_AND_NUMBERS_LO } from '@/components/Keyboard/KbLayouts';
 
 export default defineComponent({
     components: { HisStandardForm },

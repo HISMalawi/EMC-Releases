@@ -205,8 +205,7 @@ export default defineComponent({
                 obs: this.assessment.buildValueDate("HIV test date", date, isEstimate),
               };
             },
-          },
-          this.assessment.getDate()
+          }
         ),
         {
           id: "ever_had_cxca",
@@ -267,8 +266,7 @@ export default defineComponent({
                 obs: this.assessment.buildValueDate("cxca test date", date),
               };
             },
-          },
-          this.assessment.getDate()
+          }
         ),
         {
           id: "previous_screening_method",

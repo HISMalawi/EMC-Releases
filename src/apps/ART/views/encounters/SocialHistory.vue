@@ -35,7 +35,7 @@ export default defineComponent({
     },
   },
   methods: {
-    async onFinish(formData: any) {
+    async onFinish() {
       const encounter = await this.socialHistory.createEncounter();
 
       if (!encounter) return toastWarning("Unable to create encounter");

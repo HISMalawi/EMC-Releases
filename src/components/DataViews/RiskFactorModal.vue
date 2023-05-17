@@ -46,15 +46,14 @@ import {
   IonGrid
 } from "@ionic/vue";
 import { defineComponent, PropType } from "vue";
-import { ActivityInterface } from "@/apps/interfaces/AppInterface"
 import { MedicalHistoryService } from "@/apps/ART/services/medical_history";
 import { ConceptService } from "@/services/concept_service";
-import { ObsValue } from "@/services/observation_service";
+
 export default defineComponent({
   name: "Modal",
   props: {
     factors: {
-      type: Object,
+      type: Object as PropType<Record<string, any>>,
       required: true
     },
     title: {
