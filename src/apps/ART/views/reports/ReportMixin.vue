@@ -120,8 +120,7 @@ export default defineComponent({
                         const [num, key ] = defaultRow
                         index = num
                         if (key in this.drillDownCache) {
-                            const [oldIndex, ...rest] = this.drillDownCache[key]
-                            return [index, ...rest] // Assign new index number and maintain patient record
+                            return [index, ...this.drillDownCache[key].slice(1)]
                         }
                     } else {
                         id = defaultRow
