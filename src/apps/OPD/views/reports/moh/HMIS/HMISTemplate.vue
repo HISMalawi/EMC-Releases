@@ -9,7 +9,6 @@
 </template>
 
 <script lang="ts">
-/* eslint-disable @typescript-eslint/camelcase */
 import { defineComponent } from 'vue'
 import { HMISReportService } from "@/apps/OPD/services/hmis_report_service"
 import { Service } from "@/services/service"
