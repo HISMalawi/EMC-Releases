@@ -1,6 +1,6 @@
 # Requirements
 
-- Nodejs > v10.19.0
+- Nodejs version 14+
 
 # Installation
 
@@ -17,6 +17,26 @@
 3. Install His-Core dependancies
 
     `npm install`
+
+    There is a know issue that happens sometimes due to conflicting dependencies when installing dependencies with npm using node 16+. The following is the error code that is associated with the issue
+
+    ```
+    npm ERR! code ERESOLVE
+    npm ERR! ERESOLVE could not resolve
+    .
+    .
+    .
+    // the rest of the error log
+    ```
+
+    As a workout around to this run the `npm install` command with the `--legacy-peer-deps` flag.
+
+    ```bash
+    npm install --legacy-peer-deps
+
+    // when installing specific packages
+    npm install <PACKAGE_NAME_HERE> --legacy-peer-deps
+    ```
 
 # API Configuration
 
