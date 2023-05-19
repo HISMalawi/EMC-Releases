@@ -23,7 +23,7 @@ import { computed, defineComponent, PropType, ref, watch } from 'vue';
 import {IonCol,IonGrid,IonRow} from "@ionic/vue";
 import usePlatform, { KeyboardType } from '@/composables/usePlatform';
 import useBarcode from '@/composables/useBarcode';
-import { BarcodeScanner } from '@ionic-native/barcode-scanner';
+import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner';
 
 export default defineComponent({
   name: 'BarcodeInput',
