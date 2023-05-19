@@ -50,7 +50,7 @@
     "vue3-apexcharts": "^1.4.1"
   },
   "devDependencies": {
-    "@capacitor/cli": "^3.6.0",
+    "@capacitor/cli": "^4.6.0",
     "@types/jest": "^24.0.19",
     "@types/nprogress": "^0.2.0",
     "@types/onscan.js": "^1.5.2",
