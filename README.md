@@ -70,7 +70,8 @@ Run `ionic build`
 
 ## Building for Android
 
-To build for Android, make sure you have the latest version of Android studio installed.
+To build for Android, make sure you have the latest version of Android studio installed. i.e. version Flamingo | 2022.2.1 or above.
+You also need JDK version 17 or above.
 
 1. On the terminal, Run `ionic cap sync`
 2. Open Android Studio and click `Build` and then `Generate Signed Bundle or APK`
