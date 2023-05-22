@@ -76,6 +76,11 @@ You also need JDK version 17 or above.
 1. On the terminal, Run `ionic cap sync`
 2. Open Android Studio and click `Build` and then `Generate Signed Bundle or APK`
 
+### Known Android build issues
+1. `Could not find method compile() for arguments`
+- This happens because some of the packages like the barcode scanner are using the `compile` method that is obselete. to fix this in android studio, go to `file > Project Structure > suggestions`.
+On the `modules` tab select `app`. then for each warnings with `Obsolete dependency configuration found: compile` click `view usage` then click on `[update compile to implementation]`. click `Ok` to accept the changes.
+
 ## Running web version for production
 After running `ionic build`, the output files generated are kept in `dist` folder.
 You can run the built version using a local web server such as `python3 -m http.server` or use ngx. For optimal serving when testing in development, install `npm install --global serve` and run `serve -s dist`
