@@ -69,4 +69,12 @@ export class PatientReportService extends ArtReportService {
             'start_date': this.date
         })
     }
+
+    getVisitStats () {
+        return ArtReportService.getJson(`programs/${this.programID}/reports/visits`, {
+            name: 'visits',
+            start_date: this.startDate,
+            end_date: this.endDate
+        })
+    }
 }

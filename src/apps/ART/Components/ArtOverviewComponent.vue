@@ -2,13 +2,8 @@
   <ion-grid>
     <ion-row>
       <ion-col size-lg="6" size-sm="12">
-        <span class="his-md-text">Total visits / incomplete visits: last 5 days</span>
-        <ApexChart
-          width="100%"
-          type="bar"
-          :options="options"
-          :series="series"
-        />
+        <h5 class="his-md-text">Total visits / incomplete visits: last 5 days</h5>
+        <ApexChart width="100%" height="350px" type="bar" :options="options" :series="series" />
       </ion-col>
       <ion-col size-lg="6" size-sm="12">
         <span class="his-md-text">Encounters created today</span>
@@ -40,19 +35,28 @@ import ApiClient from "@/services/api_client";
 import dayjs from "dayjs";
 import { Service } from "@/services/service"
 import ApexChart from "vue3-apexcharts";
+import { PatientReportService } from "../services/reports/patient_report_service";
+import HisDate, { STANDARD_DATE_FORMAT } from "@/utils/Date";
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   data: function () {
     return {
-      dayjs,
-      startDate: "",
-      endDate: "",
+      sessionDate: PatientReportService.getSessionDate(),
       options: {
         chart: {
           id: "vuechart-example",
         },
         xaxis: {
           categories: ["", "", "", "", ""],
+        },
+        yaxis: {
+          min: 0,
+          forceNiceScale: true,
+          title: {
+            text: 'Number of clients',
+            align: 'left'
+          }
         },
       },
       series: [
@@ -69,15 +73,15 @@ export default defineComponent({
       ],
       rows: [] as any,
       encounters: [
-        {"HIV clinic registration": 9},
-        {"HIV reception": 51},
-        {"Vitals": 6},
-        {"HIV staging": 52},
-        {"HIV clinic consultation": 53},
-        {"ART adherence": 68},
-        {"Treatment": 25},
-        {"Dispensing": 54},
-        {"Appointments": 7},
+        { "HIV clinic registration": 9 },
+        { "HIV reception": 51 },
+        { "Vitals": 6 },
+        { "HIV staging": 52 },
+        { "HIV clinic consultation": 53 },
+        { "ART adherence": 68 },
+        { "Treatment": 25 },
+        { "Dispensing": 54 },
+        { "Appointments": 7 },
       ],
     };
   },
@@ -95,43 +99,39 @@ export default defineComponent({
         male: '',
         me: '',
         facility: ''
-    }))
+      }))
   },
   mounted() {
-    this.endDate = this.dayjs().subtract(1, "days").format("YYYY-MM-DD");
-    this.startDate = this.dayjs().subtract(5, "days").format("YYYY-MM-DD");
     this.getVisits();
     this.getEncounters();
   },
   methods: {
     getVisits: async function () {
-      const response = await ApiClient.get(
-        `programs/1/reports/visits?name=visits&start_date=${this.startDate}&end_date=${this.endDate}`
-      );
-      if (response && response.status == 200) {
-        const data = await response.json();
-        const days = Object.keys(data);
-        const incomplete: number[] = [];
-        const complete: number[] = [];
-        days.forEach((el, index) => {
-          incomplete[index] = data[el].incomplete;
-          complete[index] = data[el].complete + data[el].incomplete;
-        });
-        this.series[0].data = [...complete];
-        this.series[1].data = [...incomplete];
-        const formattedDays: any[] = days.map((x) => this.dayjs(x).format("dddd"));
-        this.options = {
-          ...this.options,
-          ...{
-            xaxis: {
-              categories: [...formattedDays],
-            },
+      const reportService = new PatientReportService();
+      reportService.setStartDate(HisDate.subtract(this.sessionDate, 'days', 5).format(STANDARD_DATE_FORMAT));
+      reportService.setEndDate(HisDate.subtract(this.sessionDate, 'days', 1).format(STANDARD_DATE_FORMAT));
+      const data = await reportService.getVisitStats();
+      const incomplete: number[] = [];
+      const complete: number[] = [];
+      const formattedDays: any[] = [];
+      Object.entries(data).forEach(([date, {incomplete: i, complete: c}]: any) => {
+        formattedDays.push(dayjs(date).format('dddd'))
+        incomplete.push(i)
+        complete.push(i + c);
+      });
+      this.series[0].data = [...complete];
+      this.series[1].data = [...incomplete];
+      this.options = {
+        ...this.options,
+        ...{
+          xaxis: {
+            categories: [...formattedDays],
           },
-        };
-      }
+        },
+      };
     },
     getEncounterName(encounterID: number) {
-      if (!encounterID) 
+      if (!encounterID)
         return ""
       const vals = this.encounters.filter(enc => {
         return Object.values(enc)[0] === encounterID
@@ -165,7 +165,7 @@ export default defineComponent({
         response2.status == 200
       ) {
         const data = await response.json();
-        const allData = await response2.json(); 
+        const allData = await response2.json();
         const rows: any = [];
         this.encounters.forEach((vals) => {
           const element: any = Object.values(vals)[0];
@@ -189,10 +189,12 @@ export default defineComponent({
 ion-grid {
   color: #333333;
 }
+
 .encounter-td {
   text-align: left;
   border: 1px solid #dddddd;
 }
+
 .other-td {
   text-align: right;
   font-weight: bold;
@@ -200,6 +202,7 @@ ion-grid {
   min-width: 60px;
 
 }
+
 table {
   border-collapse: collapse;
   width: 100%;
@@ -215,7 +218,9 @@ th {
 tr:nth-child(even) {
   background-color: #f1efef;
 }
-@media (min-width: 1280px)  {
+
+@media (min-width: 1280px) {
+
   td,
   th {
     text-align: right;
