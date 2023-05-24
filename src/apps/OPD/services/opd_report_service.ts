@@ -130,6 +130,15 @@ export class OpdReportService extends Service {
         })
     }
 
+    getMalariaReport(){
+        const url = `programs/${this.programID}/reports/malaria_report`
+        return Service.getJson(url, {
+            'start_date': this.startDate,
+            'end_date': this.endDate,
+            'date': this.date
+        })
+    }
+    
     printLaReport(data: Record<string, any>){
         const printService = new PrintoutService()
         const url = `programs/${this.programID}/barcodes/la_report`

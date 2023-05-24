@@ -504,7 +504,7 @@
                             &nbsp;
                             </td>
                             <td colspan="2" style="font-weight: bold;">
-                            TTV doses<sup style="font-weight: normal;">1</sup>
+                            TD doses<sup style="font-weight: normal;">1</sup>
                             </td>
                         </tr>
                         <tr>
@@ -515,9 +515,9 @@
                             <span style="color:gray;">&lt; 2 doses</span>
                             </td>
                             <td style="border: 1px solid #999;border-bottom: 0px;">
-                            <a id="a-patients-given-less-than-2-ttv-doses" href="#" @click.prevent="drill('patients_given_ttv_less_than_two_doses')">
+                            <a id="a-patients-given-less-than-2-ttv-doses" href="#" @click.prevent="drill('patients_given_td_less_than_two_doses')">
                                 <span style="color:gray;" id="patients-given-less-than-2-ttv-doses">
-                                    {{indicators.patients_given_ttv_less_than_two_doses}}
+                                    {{indicators.patients_given_td_less_than_two_doses}}
                                 </span>
                             </a>
                             </td>
@@ -530,9 +530,9 @@
                             2+ doses
                             </td>
                             <td class="valueCell">
-                            <a id="a-patients-given-more-than-1-ttv-doses" href="#" @click.prevent="drill('patients_given_ttv_at_least_two_doses')">
+                            <a id="a-patients-given-more-than-1-ttv-doses" href="#" @click.prevent="drill('patients_given_td_at_least_two_doses')">
                                 <span id="patients-given-more-than-1-ttv-doses">
-                                    {{indicators.patients_given_ttv_at_least_two_doses}}
+                                    {{indicators.patients_given_td_at_least_two_doses}}
                                 </span> 
                             </a>
                             </td>

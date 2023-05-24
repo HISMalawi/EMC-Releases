@@ -88,6 +88,8 @@ export default defineComponent({
       this.reportService.setEndDate(config.end_date)
       this.period = this.reportService.getDateIntervalPeriod()
       this.rows = this.buildRows((await this.reportService.getDiagnosis()))
+      const visits = await this.reportService.getAttendance()
+      this.customInfo.value = visits.length
       
     },
     totalDiagnosis(diagnosis: Record<string, number>) {
@@ -139,11 +141,6 @@ export default defineComponent({
         const underFourteenMales: Array<string> = get(data[diagnosis], 'M.5-14 yrs', [])
         const overFourteenFemales: Array<string> = get(data[diagnosis], 'F.>= 14 years', [])
         const overFourteenMales: Array<string> = get(data[diagnosis], 'M.>= 14 years', [])
-
-        this.customInfo.value += underFiveFemales.length + underFiveMales.length
-        this.customInfo.value += underSixFemales.length + underSixMales.length
-        this.customInfo.value += underFourteenFemales.length + underFourteenMales.length
-        this.customInfo.value += overFourteenFemales.length + overFourteenMales.length
 
         rows.push([
           table.td(diagnosis, {style: {textAlign: 'left'}}),

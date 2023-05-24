@@ -2,6 +2,7 @@ import { Field } from "@/components/Forms/FieldInterface";
 import { modalController } from "@ionic/vue";
 import TouchField from "@/components/Forms/SIngleTouchField.vue"
 import TouchScreenForm from "@/components/Forms/TouchScreenForm.vue";
+import Keypad from "@/components/Keyboard/HisKeypad.vue"
 
 export async function MultiStepPopupForm(fields: Field[], onFinish: Function, onCancel: Function | null =null) {
     (await modalController.create({
@@ -21,6 +22,27 @@ export async function MultiStepPopupForm(fields: Field[], onFinish: Function, on
             } 
         }
     })).present()
+}
+
+export async function numericKeypad(onValue: (num: any, toggle?: boolean) => void, params={} as any) {
+    const useStrictNumbers = typeof params?.strictNumbers === 'boolean' ? params?.strictNumbers : true
+    const modal = await modalController.create({
+        component: Keypad,
+        backdropDismiss: false,
+        cssClass: 'keypad-modal custom-modal-backdrop',
+        componentProps: {
+            title: params?.title || '',
+            preset: params?.preset || '',
+            toggleButton: params?.toggleButton,
+            strictNumbers: useStrictNumbers,
+            customKeyboard: params?.customKeyboard,
+            noFloat: typeof params?.noFloat === 'boolean'  ? params.noFloat : false,
+            onKeyPress(val: string, toggle: boolean) {
+                onValue(useStrictNumbers ? parseInt(val) : val, toggle)
+            }
+        }
+    })
+    modal.present()
 }
 
 export default async function PopupKeyboard(field: Field, onFinish: any) {

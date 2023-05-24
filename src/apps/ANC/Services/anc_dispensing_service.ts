@@ -8,7 +8,7 @@ export class AncDispensationService extends AppEncounterService {
 
     saveNoDispensationObs() {
         return this.saveValueTextObs(
-            'Tetanus toxoid vaccine', 'Not dispensed'
+            'Tetanus Diphtheria', 'Not dispensed'
         )
     }
 

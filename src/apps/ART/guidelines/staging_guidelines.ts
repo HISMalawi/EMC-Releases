@@ -356,9 +356,37 @@ export const CHILD_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
             }
         }
     },
+    'Women who are breast feeding': {
+        concept: 'BREASTFEEDING',
+        priority: 11,
+        conditions: {
+            gender(gender: string){
+                return gender === 'F'
+            },
+            breastFeeding(answer: string){
+                return  answer === 'Yes'
+            },
+            stage: (stage: number) => stage <= 2
+        }
+    },
+    'Women who are pregnant': {
+        concept: 'PATIENT PREGNANT',
+        priority: 12,
+        conditions: {
+            gender(gender: string) {
+                return gender === 'F'
+            },
+            pregnant(answer: string){
+                return answer === 'Yes'
+            },
+            stage(stage: number) {
+                return stage <= 2
+            },
+        }
+    },
     "Asymptomatic patient with either stage one or stage two conditions": {
         concept: 'Asymptomatic',
-        priority: 11,
+        priority: 13,
         conditions: {
             stage: (stage: number) => stage <= 2
         }

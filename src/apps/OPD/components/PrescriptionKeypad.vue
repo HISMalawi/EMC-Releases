@@ -1,19 +1,14 @@
 <template>
     <div class="keypad">
-        <center>
-            <snap> {{ title }} </snap>
-        </center>
-        <ion-input :value="value" style="text-align: center;border: solid 1px #b7b7b7; margin-top: 12px; margin-bottom: 12px;" /> 
-        
-        <base-keyboard v-if="title == 'Dosage'" btnSize="8.3vw" :layout="dosageKeypad" :onKeyPress="dosageKeypress"/> 
-        <base-keyboard v-if="title == 'Duration'" btnSize="8.3vw" :layout="durationKeypad" :onKeyPress="durationKeypress"/> 
+        <snap class=" ion-text-center"> {{ title }} </snap>
+        <ion-input :value="value" style="text-align: center;border: solid 1px #b7b7b7; margin-top: 12px; margin-bottom: 12px;" />         
+        <base-keyboard btnSize="8.5vw" :layout="keypad" :onKeyPress="keypress"/> 
     </div>
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
 import BaseKeyboard from '@/components/Keyboard/BaseKeyboard.vue'
-import { DOSAGE_KEYPAD } from '@/components/Keyboard/KbLayouts'
-import { DURATION_KEYPAD } from '@/components/Keyboard/KbLayouts'
+import { PRESCRIPTION_KEYPAD } from '@/components/Keyboard/KbLayouts'
 import handleVirtualInput from '@/components/Keyboard/KbHandler'
 export default defineComponent({
 components: { BaseKeyboard },
@@ -35,8 +30,7 @@ props: {
 },
 data: () => ({
     value: '',
-    dosageKeypad: DOSAGE_KEYPAD,
-    durationKeypad: DURATION_KEYPAD
+    keypad: PRESCRIPTION_KEYPAD,
 }),
 watch: {
     preset: { 
@@ -48,13 +42,6 @@ watch: {
     }
 },
 methods: {
-    async dosageKeypress(key: any){this.keypress(key)},
-    async durationKeypress(key: any){
-        if (key.match(/Confirm/i))
-            this.onKeyPress('Confirm')
-        else
-            this.keypress(key)
-    },
     async keypress(key: any) {
         if (this.strictNumbers) {
             if (key.includes('.') && this.value.includes('.')) return

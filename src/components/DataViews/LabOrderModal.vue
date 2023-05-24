@@ -42,7 +42,7 @@
               <div class="his-md-text side-title">
                 Main test(s) reason
               </div>
-              <ion-item class="his-sm-text" v-for="data in reasons" :key="data"> 
+              <ion-item class="his-sm-text" v-for="data in testReasons" :key="data"> 
                 <ion-label>{{data}}</ion-label>
                 <ion-radio slot="start" :value="data" ></ion-radio>
               </ion-item>
@@ -102,7 +102,7 @@ import { LabOrderService } from "@/apps/ART/services/lab_order_service";
 import { PrintoutService } from "@/services/printout_service";
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
 import Store from "@/composables/ApiStore"
-import { find } from "lodash";
+import { find, findIndex } from "lodash";
 
 export default defineComponent({
   name: "Modal",
@@ -147,11 +147,12 @@ export default defineComponent({
       })
     },
     async getActivities() {
-      const tests = await OrderService.getTestTypes();
-      const viralLoad = find(tests, { name: "HIV viral load"})
+      const tests: Array<any> = await OrderService.getTestTypes();
+      const vlIndex = findIndex(tests, {name: "HIV viral load"})
+      const viralLoad = vlIndex !== -1 ? tests.splice(vlIndex, 1) : null;
       const sorted = tests.sort((a: any, b: any) => `${a.name}`.toUpperCase() > `${b.name}`.toUpperCase() ? 1: -1)
         .filter((t: any) => Array.isArray(this.testFilters) ? this.testFilters.includes(t.name) : true)
-      this.testTypes = viralLoad ? [viralLoad, ...sorted] : sorted
+      this.testTypes = viralLoad ? [...viralLoad, ...sorted] : sorted
     },
     removeOrder(index: number) {
       this.testTypes[index]['isChecked'] = false;
@@ -212,6 +213,11 @@ export default defineComponent({
         return data.reason && (data.specimen && !this.extendedLabsEnabled 
           || this.extendedLabsEnabled)
       } )
+    },
+    testReasons(): Array<string> {
+      return this.testTypes[this.activeIndex].name.match(/Viral load/i)
+        ? this.reasons.concat(['Follow up after Low Level Viremia', 'Follow up after High Viral Load'])
+        : this.reasons
     }
   },
   mounted() {

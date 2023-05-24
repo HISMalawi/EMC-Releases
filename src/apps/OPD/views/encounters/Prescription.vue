@@ -91,6 +91,9 @@
           <ion-button @click="predefinedMalariaDrug" slot="end" size="large" color="primary" v-if="switchKeyboard"> 
             Predefined Malaria Drugs
           </ion-button>
+          <ion-button v-if="!switchKeyboard"  @click="durationKeypress('Confirm')" slot="end" size="large" color="success" > 
+              Add Drug 
+          </ion-button>
           <ion-button @click="clearPrescription" slot="end" size="large" color="warning" > 
               Clear
           </ion-button>
@@ -304,11 +307,12 @@ export default defineComponent({
         })),
         submitData: async(data: any) => {
           const value = data.target.attributes.value.nodeValue.split(',')
+          const frequency: any = DRUG_FREQUENCIES.find(f => f.value == value[1])
           const malariaDrug = {
             "isChecked": true,
             "label":value[0],
             "other":{
-              'frequency':"TWICE A DAY (BD)",
+              'frequency':frequency.label,
               'units':value[4],
               'drug_id':value[5],
               'duration':value[2],
@@ -316,12 +320,13 @@ export default defineComponent({
             },
             "value":value[0],
           }
-          this.checkedItems = this.checkedItems.filter(x  => 
-            x.value != 'Lumefantrine + Arthemether 1 x 6' &&
-            x.value != 'Lumefantrine + Arthemether 2 x 6' &&
-            x.value != 'Lumefantrine + Arthemether 3 x 6' &&
-            x.value != 'Lumefantrine + Arthemether 4 x 6'
+          const malaria_drugs = ANTI_MALARIA_DRUGS.map(drug => drug.name);
+          console.log(this.checkedItems)
+          this.checkedItems = this.checkedItems.filter((x: any)  => 
+            !malaria_drugs.includes(x.value)
           )
+          console.log(this.checkedItems)
+
           this.checkedItems.unshift(malariaDrug)
           if(this.isComplete())
             this.disableNextBtn = false
@@ -357,14 +362,18 @@ export default defineComponent({
       // this.switchKeyboard = true
     },
     async savePrescription() {
-      const drugOrders = this.mapToOrders()
-      const encounter = await this.prescriptionService.createEncounter()
-      if (!encounter) return toastWarning('Unable to create treatment encounter')   
-      const drugOrder = await this.prescriptionService.createDrugOrder(drugOrders);
-      if(!drugOrder) return toastWarning('Unable to create drug orders!')
-      toastSuccess('Drug order has been created')
-      this.printVisitSummary()
-      nextTask(this.patientID, this.$router)
+      try {
+        const drugOrders = this.mapToOrders()
+        const encounter = await this.prescriptionService.createEncounter()
+        if (!encounter) return toastWarning('Unable to create treatment encounter')   
+        const drugOrder = await this.prescriptionService.createDrugOrder(drugOrders);
+        if(!drugOrder) return toastWarning('Unable to create drug orders!')
+        toastSuccess('Drug order has been created')
+        this.printVisitSummary()
+        nextTask(this.patientID, this.$router)
+      } catch (error) {
+        console.error(error)
+      }
     },
      mapToOrders(): any[] {
       return this.checkedItems.map(drug => {

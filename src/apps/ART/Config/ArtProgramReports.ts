@@ -160,7 +160,7 @@ export const REPORTS: FolderInterface[] = [
                 pathName: 'pepfar_vl_coverage'
             },
             {
-                name: 'SC ARV',
+                name: 'SC_ARV_DISP',
                 pathName: 'sc_arv'
             }
         ]

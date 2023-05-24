@@ -186,10 +186,8 @@ export default defineComponent({
           validation: (val: any) => Validation.required(val),
           options: () =>
             this.mapOptions([
-              'Hysterectomy',
               'Cryotherapy',
               'Leep',
-              'Palliative Care',
               'LLETZ',
               'Conisation',
               'Thermocoagulation',
