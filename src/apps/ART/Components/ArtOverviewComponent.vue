@@ -3,7 +3,7 @@
     <ion-row>
       <ion-col size-lg="6" size-sm="12">
         <h5 class="his-md-text">Total visits / incomplete visits: last 5 days</h5>
-        <ApexChart width="100%" height="350px" type="bar" :options="options" :series="series" />
+        <ApexChart width="100%" height="92%" type="bar" :options="options" :series="series" />
       </ion-col>
       <ion-col size-lg="6" size-sm="12">
         <span class="his-md-text">Encounters created today</span>
@@ -16,7 +16,7 @@
             <th>Facility</th>
           </tr>
           <tr v-for="(data, index) in rows" :key="index">
-            <td class="encounter-td">{{ getEncounterName(data.encounter) }}</td>
+            <td class="encounter-td">{{ data.encounter }}</td>
             <td class="other-td">{{ data.female }}</td>
             <td class="other-td">{{ data.male }}</td>
             <td class="other-td">{{ data.me }}</td>
@@ -31,13 +31,11 @@
 <script lang="ts">
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { defineComponent } from "vue";
-import ApiClient from "@/services/api_client";
 import dayjs from "dayjs";
-import { Service } from "@/services/service"
 import ApexChart from "vue3-apexcharts";
 import { PatientReportService } from "../services/reports/patient_report_service";
 import HisDate, { STANDARD_DATE_FORMAT } from "@/utils/Date";
-import { isEmpty } from "lodash";
+import { EncounterReportService } from "../services/reports/encounter_report_service";
 
 export default defineComponent({
   data: function () {
@@ -91,16 +89,6 @@ export default defineComponent({
     IonCol,
     ApexChart
   },
-  created() {
-    this.rows = this.encounters.map(
-      (enc) => ({
-        encounter: Object.values(enc)[0],
-        female: '',
-        male: '',
-        me: '',
-        facility: ''
-      }))
-  },
   mounted() {
     this.getVisits();
     this.getEncounters();
@@ -130,55 +118,34 @@ export default defineComponent({
         },
       };
     },
-    getEncounterName(encounterID: number) {
-      if (!encounterID)
-        return ""
-      const vals = this.encounters.filter(enc => {
-        return Object.values(enc)[0] === encounterID
-      })
-      return Object.keys(vals[0])[0];
-    },
-    getEncounters: async function () {
-      const userStats = {
-        'encounter_types': [
-          ...this.encounters.map((x) => Object.values(x)[0]),
-        ],
-      };
-      const facilityStats = {
-        all: true,
-        'encounter_types': [
-          ...this.encounters.map((x) => Object.values(x)[0]),
-        ],
-      };
-      const response = await ApiClient.post(
-        `reports/encounters?date=${Service.getSessionDate()}&program_id=${Service.getProgramID()}`,
-        userStats
-      );
-      const response2 = await ApiClient.post(
-        `reports/encounters?date=${Service.getSessionDate()}&program_id=${Service.getProgramID()}`,
-        facilityStats
-      );
-      if (
-        response &&
-        response2 &&
-        response.status == 200 &&
-        response2.status == 200
-      ) {
-        const data = await response.json();
-        const allData = await response2.json();
-        const rows: any = [];
-        this.encounters.forEach((vals) => {
-          const element: any = Object.values(vals)[0];
-
-          rows.push({
-            encounter: element,
-            female: allData[element]["F"],
-            male: allData[element]["M"],
-            me: data[element]["F"] + data[element]["M"],
-            facility: allData[element]["F"] + allData[element]["M"],
+    async getEncounters () {
+      try {
+        const encounterService = new EncounterReportService();
+        const encounter_types = this.encounters.map((x) => Object.values(x)[0])
+        const userData = await encounterService.getEncounterStats({ encounter_types })
+        const facilityData = await encounterService.getEncounterStats({ encounter_types, all: true })
+        this.encounters.forEach(encounter => {
+          const [ name, id ] = Object.entries(encounter)[0];
+          this.rows.push({
+            encounter: name,
+            female: facilityData[id]["F"],
+            male: facilityData[id]["M"],
+            me: userData[id]["F"] + userData[id]["M"],
+            facility: facilityData[id]["F"] + facilityData[id]["M"],
           });
         });
-        this.rows = [...rows];
+      } catch (error) {
+        console.error(error)
+        this.encounters.forEach(encounter => {
+          const [ name ] = Object.entries(encounter)[0];
+          this.rows.push({
+            encounter: name,
+            female: "",
+            male: "",
+            me: "",
+            facility: "",
+          });
+        });
       }
     },
   },
