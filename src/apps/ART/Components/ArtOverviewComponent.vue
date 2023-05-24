@@ -3,7 +3,7 @@
     <ion-row>
       <ion-col size-lg="6" size-sm="12">
         <h5 class="his-md-text">Total visits / incomplete visits: last 5 days</h5>
-        <ApexChart width="100%" height="92%" type="bar" :options="options" :series="series" />
+        <ApexChart width="100%" height="390px" type="bar" :options="options" :series="series" />
       </ion-col>
       <ion-col size-lg="6" size-sm="12">
         <span class="his-md-text">Encounters created today</span>
