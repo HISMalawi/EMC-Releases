@@ -9,6 +9,7 @@
     :rows="rows"
     :period="period"
     useDateRangeFilter
+    showIndices
     @custom-filter="fetchData"
     @drilldown="onDrilldown"
     @regenerate="onRegenerate"
@@ -37,7 +38,6 @@ export default defineComponent({
     const period = ref("-");
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
-      { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc' },
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "underThree", label: "# of clients on <3 months of ARVs", drillable: true },
@@ -54,6 +54,12 @@ export default defineComponent({
       }
     }
 
+    const getMinMaxAge = (ageGroup: string) => {
+      if(ageGroup === '<1 year') return [0, 0]
+      if(ageGroup === '90 plus years') return [90, 1000]
+      return ageGroup.split('-').map(age => parseInt(age))
+    }
+
     const fetchData = async ({ dateRange }: Record<string, any>) => {
       await loader.show()
       const report = new TxReportService()
@@ -62,36 +68,20 @@ export default defineComponent({
       report.setOrg('moh')
       period.value = report.getDateIntervalPeriod()
       report.initArvRefillPeriod(true)
-      let fIndex = 1;
-      let mIndex = 21;
-      let minAge = 0;
-      let maxAge = 0;
       const males: any[] = []
       const females: any[] = []
       for (const group of AGE_GROUPS) {
-        if (group === '<1 year') {
-          minAge = 0
-          maxAge = 0
-        } else if (group === '90 plus years') {
-          minAge = 90
-          maxAge = 1000
-        } else {
-          const [min, max] = group.split('-')
-          minAge = parseInt(min)
-          maxAge = parseInt(max)
-        }
+        const [minAge, maxAge] = getMinMaxAge(group)
         const data = await report.getTxCurrMMDReport(minAge, maxAge)
         const hasMales = !!data && "Male" in data;
         const hasFemales = !!data && "Female" in data;
         males.push({ 
-          "index": mIndex++, 
           "age_group": group,
           "gender": "Male",
           ...buildCells( hasMales ? data["Male"] : {} ) 
         })
 
         females.push({ 
-          "index": fIndex++, 
           "age_group": group,
           "gender": "Female",
           ...buildCells( hasFemales ? data["Female"] : {} ) 
