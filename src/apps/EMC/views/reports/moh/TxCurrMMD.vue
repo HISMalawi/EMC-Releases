@@ -60,6 +60,22 @@ export default defineComponent({
       return ageGroup.split('-').map(age => parseInt(age))
     }
 
+    const buildTotalMalesRow = (rows: Array<any>) => {
+      return rows.reduce((acc, curr) => {
+        if(curr.gender === "F") return acc;
+        acc.underThree = [...acc.underThree, ...curr.underThree]
+        acc.betweenThreeAndFive = [...acc.betweenThreeAndFive,...curr.betweenThreeAndFive]
+        acc.overSix = [...acc.overSix, ...curr.overSix]
+        return acc
+      }, { 
+        "age_group": "All", 
+        gender: "M", 
+        underThree: [],  
+        betweenThreeAndFive: [],
+        overSix: []
+      });
+    }
+
     const fetchData = async ({ dateRange }: Record<string, any>) => {
       await loader.show()
       const report = new TxReportService()
@@ -89,6 +105,7 @@ export default defineComponent({
         report.initArvRefillPeriod(false)
       }
       rows.value = [...females, ...males]
+      rows.value = [...rows.value, buildTotalMalesRow(rows.value)]
       await loader.hide();
     }
 
