@@ -29,6 +29,7 @@ import { Patientservice } from "@/services/patient_service";
 import HisDate from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";
+import { uniq } from "lodash";
 
 export default defineComponent({
   name: "TxCurrMMD",
@@ -36,6 +37,7 @@ export default defineComponent({
   setup() {
     const period = ref("-");
     const rows = ref<any[]>([]);
+    const report = new TxReportService()
     const columns: TableColumnInterface[] = [
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender" },
@@ -59,25 +61,52 @@ export default defineComponent({
       return ageGroup.split('-').map(age => parseInt(age))
     }
 
-    const buildTotalMalesRow = (rows: Array<any>) => {
+    const getAggregatedData = (rows: Array<any>, gender: string) => {
       return rows.reduce((acc, curr) => {
-        if(curr.gender === "Female") return acc;
+        if(curr.gender !== gender) return acc;
         acc.underThree = [...acc.underThree, ...curr.underThree]
         acc.betweenThreeAndFive = [...acc.betweenThreeAndFive,...curr.betweenThreeAndFive]
         acc.overSix = [...acc.overSix, ...curr.overSix]
         return acc
       }, { 
-        "age_group": "All", 
-        gender: "Male", 
         underThree: [],  
         betweenThreeAndFive: [],
         overSix: []
       });
     }
 
+
+    const buildTotalMalesRow = (rows: Array<any>) => {
+      return  { 
+        "age_group": "All", 
+        gender: "Male", 
+        ...getAggregatedData(rows, "Male")
+      }
+    }
+
+    const buildMaternityRows = async (rows: Array<any>) => {
+      const aggregatedFemales = getAggregatedData(rows, "Female");
+      const indicators = ['underThree', 'betweenThreeAndFive', 'overSix'];
+      const femaleCategories = ['FP', 'FNP', 'FBf'];
+      const allFemales = uniq<number>(indicators.map(i => aggregatedFemales[i]).flat())
+      const maternalStatus = await report.getMaternalStatus(allFemales)
+      const allFPs = maternalStatus.FBf.concat(maternalStatus.FP);        
+      const maternityRows: any[] = []
+      femaleCategories.forEach(category => {
+        const row: Record<string, any> = { "age_group": "All", "gender": category }
+        indicators.forEach(indicator => {
+          row[indicator] = aggregatedFemales[indicator].filter((id: number) => {
+            console.log(category, indicator, id, category !== 'FNP' ? maternalStatus[category].includes(id): "")
+            return category === 'FNP' ? !allFPs.includes(id) : maternalStatus[category].includes(id)
+          })
+        })
+        maternityRows.push(row)
+      })
+      return maternityRows;
+    }
+
     const fetchData = async ({ dateRange }: Record<string, any>) => {
       await loader.show()
-      const report = new TxReportService()
       report.setStartDate(dateRange.startDate)
       report.setEndDate(dateRange.endDate)
       report.setOrg('moh')
@@ -95,17 +124,18 @@ export default defineComponent({
           "gender": "Male",
           ...buildCells( hasMales ? data["Male"] : {} ) 
         })
-
+        
         females.push({ 
           "age_group": group,
           "gender": "Female",
           ...buildCells( hasFemales ? data["Female"] : {} ) 
         })
         report.initArvRefillPeriod(false)
+        loader.hide();
         rows.value = [...females, ...males]
       }
       rows.value.push(buildTotalMalesRow(rows.value))
-      await loader.hide();
+      rows.value = [...rows.value, ...await buildMaternityRows(rows.value)]
     }
 
     const onRegenerate = async () => {
