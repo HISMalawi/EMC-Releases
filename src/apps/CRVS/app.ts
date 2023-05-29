@@ -7,7 +7,7 @@ const CRVS: AppInterface = {
     appRoutes: [],
     init: async () =>{
         //launching link to new window
-        const newWindow = window.open('https://www.bbc.com/news', '_blank');
+        const newWindow = window.open('http://10.46.0.47:5000', '_blank');
         if (newWindow) {
             newWindow.focus();
         }
