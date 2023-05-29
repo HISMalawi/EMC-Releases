@@ -26,8 +26,7 @@ import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
 import { TxReportService } from "@/apps/ART/services/reports/tx_report_service";
 import { Patientservice } from "@/services/patient_service";
-import dayjs from "dayjs";
-import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+import HisDate from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";
 
@@ -39,7 +38,7 @@ export default defineComponent({
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
       { path: "age_group", label: "Age group" },
-      { path: "gender", label: "Gender", formatter: toGenderString },
+      { path: "gender", label: "Gender" },
       { path: "underThree", label: "# of clients on <3 months of ARVs", drillable: true },
       { path: "betweenThreeAndFive", label: "# of clients on 3 - 5 months of ARVs", drillable: true },
       { path: "overSix", label: "# of clients on >= 6 months of ARVs", drillable: true },
@@ -62,14 +61,14 @@ export default defineComponent({
 
     const buildTotalMalesRow = (rows: Array<any>) => {
       return rows.reduce((acc, curr) => {
-        if(curr.gender === "F") return acc;
+        if(curr.gender === "Female") return acc;
         acc.underThree = [...acc.underThree, ...curr.underThree]
         acc.betweenThreeAndFive = [...acc.betweenThreeAndFive,...curr.betweenThreeAndFive]
         acc.overSix = [...acc.overSix, ...curr.overSix]
         return acc
       }, { 
         "age_group": "All", 
-        gender: "M", 
+        gender: "Male", 
         underThree: [],  
         betweenThreeAndFive: [],
         overSix: []
@@ -103,9 +102,9 @@ export default defineComponent({
           ...buildCells( hasFemales ? data["Female"] : {} ) 
         })
         report.initArvRefillPeriod(false)
+        rows.value = [...females, ...males]
       }
-      rows.value = [...females, ...males]
-      rows.value = [...rows.value, buildTotalMalesRow(rows.value)]
+      rows.value.push(buildTotalMalesRow(rows.value))
       await loader.hide();
     }
 
@@ -113,8 +112,8 @@ export default defineComponent({
       const [ start, end ] = period.value.split('-')
       if(start && end ) {
         fetchData({dateRange: {
-          startDate: dayjs(start).format("YYYY-MM-DD"), 
-          endDate: dayjs(end).format("YYYY-MM-DD")
+          startDate: HisDate.toStandardHisFormat(start), 
+          endDate: HisDate.toStandardHisFormat(end)
         }})
       }
     }
@@ -122,27 +121,30 @@ export default defineComponent({
     const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
       const columns: TableColumnInterface[] = [
         { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true, initialSortOrder: 'asc'  },
-        { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
+        { path: "birthdate", label: "Date of Birth", formatter: HisDate.toStandardHisDisplayFormat },
         { path: "gender", label: "Gender", formatter: toGenderString },
         { path: "address", label: "Address" }
       ]
-      const patients = data.row[data.column.path]
-      const rows: any[] = []
-      for(const patient of patients) {
-        const data = await Patientservice.findByID(patient)
-        const p = new Patientservice(data)
-        rows.push({
-          "arv_number": p.getArvNumber(),
-          "birthdate": p.getBirthdate(),
-          "gender": p.getGender(),
-          "address": `${p.getCurrentVillage()}`
-        })
+      const rows = ref<any[]>([])
+      const loadPatients = async () => {
+        for(const patient of data.row[data.column.path]) {
+          const data = await Patientservice.findByID(patient)
+          const p = new Patientservice(data)
+          rows.value.push({
+            "arv_number": p.getArvNumber(),
+            "birthdate": p.getBirthdate(),
+            "gender": p.getGender(),
+            "address": `${p.getCurrentVillage()}`
+          })
+        }
       }
+
+      loadPatients();      
 
       await modal.show(DrilldownTableVue, {
         title: `${data.row.age_group} ${data.column.label} ${data.row.gender}s`,
+        rows: rows.value,
         columns,
-        rows,
       })
     }
 
