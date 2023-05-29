@@ -20,7 +20,7 @@ export const loader = {
    * 
    * @returns {Promise<boolean>}
    * */
-  async hide(): Promise<boolean> {
-    return loadingController.dismiss();
+  async hide(): Promise<void> {
+    loadingController.getTop().then(v => v ? loadingController.dismiss() : null);
   }
 }
