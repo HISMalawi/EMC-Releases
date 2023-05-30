@@ -1,6 +1,6 @@
 <template>
   <Layout>
-    <ion-card class="his-card" style="padding: 0 !important">
+    <ion-card style="padding: 0 !important">
       <ion-card-header style="border-bottom: 1px solid #c2c2c2; font-weight: 500; color: #000;">
         <ion-grid>
           <ion-row>
