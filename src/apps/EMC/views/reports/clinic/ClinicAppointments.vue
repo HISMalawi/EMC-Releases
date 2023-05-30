@@ -48,9 +48,7 @@ export default defineComponent({
     const rowActionBtns: RowActionButtonInterface[] = [
       { label: "Select", default: true, action: (r) => router.push(`/emc/patient/${r['person_id']}`) },
     ]
-
-    onMounted(async () => await getData({date: PatientReportService.getSessionDate()}))
-
+    
     return {
       date,
       rows,
