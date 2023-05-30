@@ -96,7 +96,6 @@ export default defineComponent({
         const row: Record<string, any> = { "age_group": "All", "gender": category }
         indicators.forEach(indicator => {
           row[indicator] = aggregatedFemales[indicator].filter((id: number) => {
-            console.log(category, indicator, id, category !== 'FNP' ? maternalStatus[category].includes(id): "")
             return category === 'FNP' ? !allFPs.includes(id) : maternalStatus[category].includes(id)
           })
         })
