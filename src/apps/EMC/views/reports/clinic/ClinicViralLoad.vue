@@ -44,6 +44,7 @@ export default defineComponent({
       { path: "order_date", label: "Ordered", formatter: HisDate.toStandardHisDisplayFormat },
       { path: "result_modifier", label: "Result", formatter: (_: any, row: any) => `${row.result_modifier || ''} ${row.result}` },
       { path: "result_date", label: "Released", formatter: HisDate.toStandardHisDisplayFormat },
+      { path: "current_regimen", label: "Curr. Regimen" },
     ]
 
     const fetchData = async (filters: Record<string, any>) => {
