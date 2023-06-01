@@ -103,7 +103,7 @@ export default defineComponent({
       }
 
       await modal.show(DrilldownTableVue, {
-        title: `${data.row.age_group} ${data.column.label} ${data.row.gender}s`,
+        title: `${data.row.age_group} ${data.column.label} (${data.row.tpt_type})`,
         columns,
         rows: rows.value,
       })
