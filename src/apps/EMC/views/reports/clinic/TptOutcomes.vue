@@ -47,6 +47,12 @@ export default defineComponent({
       { path: "transfer_out", label: "Transfered Out", drillable: true, sortable: false },
       { path: "confirmed_tb", label: "Confirmed TB", drillable: true, sortable: false },
       { path: "pregnant", label: "Pregnant", drillable: true, sortable: false },
+      { path: "breast_feeding", label: "Breastfeeding", drillable: true, sortable: false },
+      { path: "skin_rash", label: "Skin rash", drillable: true, sortable: false },
+      { path: "peripheral_neuropathy", label: "Peripheral neuropathy", drillable: true, sortable: false },
+      { path: "yellow_eyes", label: "Yellow eyes", drillable: true, sortable: false },
+      { path: "nausea", label: "Nausea", drillable: true, sortable: false },
+      { path: "dizziness", label: "Dizziness", drillable: true, sortable: false },
     ]
 
     const getData = async ({ dateRange }: Record<string, any>) => {
