@@ -31,7 +31,6 @@ export default defineComponent({
   name: "TptOutcomes",
   components: { BaseReportTable },
   setup() {
-    const { toStandardHisDisplayFormat } = HisDate
     const period = ref("");
     const title = ref("TPT Outcomes Clinic Report");
     const rows = ref<any[]>([]);
@@ -78,28 +77,35 @@ export default defineComponent({
 
     const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
       const columns: TableColumnInterface[] = [
-        { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
-        { path: "birthdate", label: "Date of Birth", formatter: toStandardHisDisplayFormat },
+        { path: "arvNumber", label: "ARV Number", preSort: sortByARV, initialSort: true },
+        { path: "birthdate", label: "Date of Birth", formatter: HisDate.toStandardHisDisplayFormat },
         { path: "gender", label: "Gender", formatter: toGenderString },
-        { path: "address", label: "Address" }
+        { path: "address", label: "Address" },
+        { path: "artStartDate", label: "Art Start Date", formatter: HisDate.toStandardHisDisplayFormat },
+        { path: "tptStartDate", label: "TPT Initiation Date", formatter: HisDate.toStandardHisDisplayFormat },
+        { path: "tptCompleteDate", label: "TPT Completion Date", formatter: HisDate.toStandardHisDisplayFormat },
       ]
       const patients = data.row[data.column.path]
-      const rows: any[] = []
+      const rows = ref<Array<any>>([])
       for(const patient of patients) {
-        const data = await Patientservice.findByID(patient)
-        const p = new Patientservice(data)
-        rows.push({
-          "arv_number": p.getArvNumber(),
-          "birthdate": p.getBirthdate(),
-          "gender": p.getGender(),
-          "address": `${p.getCurrentVillage()}`
+        Patientservice.findByID(patient).then(data => {
+          const p = new Patientservice(data)
+          rows.value.push({
+            "arvNumber": p.getArvNumber(),
+            "birthdate": p.getBirthdate(),
+            "gender": p.getGender(),
+            "address": `${p.getCurrentVillage()}`,
+            artStartDate: data.art_start_date,
+            tptStartDate: data.tpt_status?.tpt_init_date,
+            tptCompleteDate: data.tpt_status?.tpt_complete_date,
+          })
         })
       }
 
       await modal.show(DrilldownTableVue, {
         title: `${data.row.age_group} ${data.column.label} ${data.row.gender}s`,
         columns,
-        rows,
+        rows: rows.value,
       })
     }
 
