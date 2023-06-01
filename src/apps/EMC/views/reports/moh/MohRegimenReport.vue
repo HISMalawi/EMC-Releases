@@ -1,82 +1,98 @@
 <template>
-    <ion-page>
-        <report-template
-            reportPrefix="MoH"
-            :title="title"
-            :period="period"
-            :rows="rows" 
-            :fields="fields"
-            :columns="columns"
-            :hasServerSideCaching="true"
-            :headerInfoList="headerList"
-            :onReportConfiguration="onPeriod">
-        </report-template>
-    </ion-page>
-</template>
-
-<script lang='ts'>
-import { defineComponent } from 'vue'
-import ReportMixin from '../ReportMixin.vue'
-import ReportTemplate from "../TableReportTemplate.vue"
-import table from "../../../../../components/DataViews/tables/ReportDataTable"
-import { IonPage } from "@ionic/vue"
-import { Option } from '../../../../../components/Forms/FieldInterface'
-import { MohRegimenReportService } from "../../../services/reports/moh_regimen_service"
-
-export default defineComponent({
-    mixins: [ReportMixin],
-    components: { ReportTemplate, IonPage },
-    data: () => ({
-        title: 'Regimen Report',
-        rows: [] as Array<any>,
-        headerList: [] as Option[],
-        columns:  [
-            [
-                table.thTxt('ARV#'),
-                table.thTxt('Gender'),
-                table.thTxt('DOB'),
-                table.thTxt('Drug Name'),
-                table.thTxt('Date'),
-                table.thTxt('Pack size'),
-                table.thTxt('Total pack'),
-                table.thTxt('Total pills'),
-            ]
-        ]
-    }),
-    created() {
-        this.fields = this.getDateDurationFields()
-    },
-    methods: {
-        async onPeriod(_: any, config: any, rebuildCache=false) {
-            this.rows = []
-            this.report = new MohRegimenReportService()
-            this.report.setRegenerate(rebuildCache)
-            this.report.setStartDate(config.start_date)
-            this.report.setEndDate(config.end_date)
-            this.period = this.report.getDateIntervalPeriod()
-            const data = await this.report.generateReport()
-            this.setRows(data)
-            this.headerList = [
-                { 
-                    label: 'Total clients', 
-                    value: this.report.clients.length
-                }
-            ]
-        },
-        setRows(data: any) {
-            const dateThis = (d: string) => d ? table.tdDate(d) : table.td('N/A')
-            this.rows = this.sortByArvNumber(data, 'identifier')
-                .map(d => [
-                    this.tdARV(d.identifier),
-                    table.td(this.formatGender(d.gender)),
-                    dateThis(d.dob),
-                    table.td(d.drugName),
-                    dateThis(d.dispensationDate),
-                    table.td(d.packSize),
-                    table.td(d.packSizes),
-                    table.td(d.quantity) 
-                ])
+    <base-report-table
+      title="Regimen Report"
+      report-icon="reports/new_initiation.png"
+      :columns="columns"
+      :rows="rows"
+      :period="period"
+      useDateRangeFilter
+      showIndices
+      @custom-filter="fetchData"
+      @drilldown="onDrilldown"
+      @regenerate="onRegenerate"
+    />
+  </template>
+  
+  <script lang="ts">
+  import { defineComponent, ref } from "vue";
+  import { loader } from "@/utils/loader";
+  import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
+  import { TableColumnInterface } from "@uniquedj95/vtable";
+  import { modal } from "@/utils/modal";
+  import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
+  import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
+  import { get } from "lodash";
+  import { RegimenReportService } from "@/apps/ART/services/reports/regimen_report_service";
+  import dayjs from "dayjs";
+  import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
+  import { toGenderString } from "@/utils/Strs";
+  import { sortByARV } from "@/apps/EMC/utils/common";
+import { MohRegimenReportService } from "@/apps/ART/services/reports/moh_regimen_service";
+  
+  export default defineComponent({
+    name: "TptInitiation",
+    components: { BaseReportTable },
+    setup() {
+      const period = ref("-");
+      const rows = ref<any[]>([]);
+      const columns: TableColumnInterface[] = [
+        { path: "identifier", label: "ARV#" },
+        { path: "gender", label: "Gender" },
+        { path: "dob", label: "DOB" },
+        { path: "drugName", label: "Drug Name"},
+        { path: "dispensationDate", label: "Date"},
+        { path: "packSize", label: "Pack size"},
+        { path: "packSizes", label: "Total pack"},
+        { path: "quantity", label: "Total pills"},
+      ]
+  
+      const fetchData =  async ({ dateRange }: Record<string, any>) => {
+        await loader.show()
+        const report = new MohRegimenReportService()
+        report.setStartDate(dateRange.startDate)
+        report.setEndDate(dateRange.endDate)
+        period.value = report.getDateIntervalPeriod()
+        rows.value = await report.generateReport()
+        await loader.hide();
+      }
+  
+      const onRegenerate = async () => {
+        const [ start, end ] = period.value.split('-')
+        if(start && end ) {
+          fetchData({dateRange: {
+            startDate: dayjs(start).format("YYYY-MM-DD"), 
+            endDate: dayjs(end).format("YYYY-MM-DD")
+          }})
         }
+      }
+  
+      const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
+        const formatter = (v: any) => dayjs(v).format(DISPLAY_DATE_FORMAT) 
+        const columns: TableColumnInterface[] = [
+          { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
+          { path: "birthdate", label: "Date of Birth", formatter },
+          { path: "gender", label: "Gender", formatter: toGenderString },
+          { path: "dispensation_date", label: "Dispensation Date", formatter },
+          { path: "art_start_date", label: "Art Start Date", formatter },
+          { path: "tpt_start_date", label: "TPT Start Date",formatter }
+        ]
+        const rows = get(data, `row.${data.column.path}`, [])
+  
+        await modal.show(DrilldownTableVue, {
+          title: `${data.row.age_group} ${data.column.label} ${data.row.gender}s`,
+          columns,
+          rows,
+        })
+      }
+  
+      return {
+        rows,
+        columns,
+        period,
+        fetchData,
+        onDrilldown,
+        onRegenerate,
+      }
     }
-})
-</script>
+  })
+  </script>

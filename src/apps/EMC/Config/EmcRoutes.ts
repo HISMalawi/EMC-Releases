@@ -161,6 +161,11 @@ export default [
   },
   /** Moh Reports */
   {
+    name: "emc_moh_regimen",
+    path: "/emc_moh_regimen",
+    component: () => import("@/apps/EMC/views/reports/moh/MohRegimenReport.vue")
+  },
+  {
     name: "emc_moh_tx_curr_mmd",
     path: "/emc_moh_tx_curr_mmd",
     component: () => import("@/apps/EMC/views/reports/moh/TxCurrMMD.vue")

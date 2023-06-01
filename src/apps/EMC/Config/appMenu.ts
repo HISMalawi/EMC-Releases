@@ -32,6 +32,12 @@ export const menuItems: MenuItem[] = [
             url: '/emc_moh_cohort',
           },
           {
+            title: 'Regimen',
+            id: 'emc_moh_regimen',
+            img: 'reports/stats.png',
+            url: '/emc_moh_regimen',
+          },
+          {
             title: 'Cohort Disagreggated',
             id: 'emc_moh_cohort_disaggregated',
             img: 'reports/split.png',
