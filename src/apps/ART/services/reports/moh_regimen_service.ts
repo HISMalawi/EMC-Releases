@@ -9,6 +9,10 @@ export interface ReportData {
     packSize: number;
     packSizes: number;
     quantity: number;
+    vlResult: string;
+    vlResultDate: string;
+    vlOrderDate: string;
+
 }
 
 export class MohRegimenReportService extends ArtReportService {
@@ -44,7 +48,10 @@ export class MohRegimenReportService extends ArtReportService {
                     dispensationDate: d['dispensation_date'],
                     packSize: d['pack_sizes'][0],
                     packSizes: d['pack_sizes'].length,
-                    quantity: d.quantity
+                    quantity: d.quantity,
+                    vlResult: d['vl_latest_result'],
+                    vlResultDate: d.vl_latest_result_date,
+                    vlOrderDate: d.vl_latest_order_date
                 })
             }
             this.clients.push(parseInt(`${patientID}`))

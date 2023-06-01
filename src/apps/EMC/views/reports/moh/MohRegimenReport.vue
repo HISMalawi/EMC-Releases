@@ -1,14 +1,13 @@
 <template>
     <base-report-table
       title="Regimen Report"
-      report-icon="reports/new_initiation.png"
+      report-icon="reports/stats.png"
       :columns="columns"
       :rows="rows"
       :period="period"
       useDateRangeFilter
       showIndices
       @custom-filter="fetchData"
-      @drilldown="onDrilldown"
       @regenerate="onRegenerate"
     />
   </template>
@@ -18,17 +17,13 @@
   import { loader } from "@/utils/loader";
   import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
   import { TableColumnInterface } from "@uniquedj95/vtable";
-  import { modal } from "@/utils/modal";
-  import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
-  import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
-  import { get } from "lodash";
-  import { RegimenReportService } from "@/apps/ART/services/reports/regimen_report_service";
   import dayjs from "dayjs";
   import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
   import { toGenderString } from "@/utils/Strs";
-  import { sortByARV } from "@/apps/EMC/utils/common";
-import { MohRegimenReportService } from "@/apps/ART/services/reports/moh_regimen_service";
+  import { MohRegimenReportService } from "@/apps/ART/services/reports/moh_regimen_service";
   
+const formatter = (v: any) => dayjs(v).format(DISPLAY_DATE_FORMAT) 
+
   export default defineComponent({
     name: "TptInitiation",
     components: { BaseReportTable },
@@ -37,13 +32,15 @@ import { MohRegimenReportService } from "@/apps/ART/services/reports/moh_regimen
       const rows = ref<any[]>([]);
       const columns: TableColumnInterface[] = [
         { path: "identifier", label: "ARV#" },
-        { path: "gender", label: "Gender" },
-        { path: "dob", label: "DOB" },
+        { path: "gender", label: "Gender", formatter: toGenderString },
+        { path: "dob", label: "DOB", formatter},
         { path: "drugName", label: "Drug Name"},
-        { path: "dispensationDate", label: "Date"},
+        { path: "dispensationDate", label: "Date", formatter},
         { path: "packSize", label: "Pack size"},
         { path: "packSizes", label: "Total pack"},
         { path: "quantity", label: "Total pills"},
+        { path: "vlResult", label: "Latest VL result"},
+        { path: "vlResultDate", label: "Latest VL date", formatter},
       ]
   
       const fetchData =  async ({ dateRange }: Record<string, any>) => {
@@ -66,31 +63,11 @@ import { MohRegimenReportService } from "@/apps/ART/services/reports/moh_regimen
         }
       }
   
-      const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
-        const formatter = (v: any) => dayjs(v).format(DISPLAY_DATE_FORMAT) 
-        const columns: TableColumnInterface[] = [
-          { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
-          { path: "birthdate", label: "Date of Birth", formatter },
-          { path: "gender", label: "Gender", formatter: toGenderString },
-          { path: "dispensation_date", label: "Dispensation Date", formatter },
-          { path: "art_start_date", label: "Art Start Date", formatter },
-          { path: "tpt_start_date", label: "TPT Start Date",formatter }
-        ]
-        const rows = get(data, `row.${data.column.path}`, [])
-  
-        await modal.show(DrilldownTableVue, {
-          title: `${data.row.age_group} ${data.column.label} ${data.row.gender}s`,
-          columns,
-          rows,
-        })
-      }
-  
       return {
         rows,
         columns,
         period,
         fetchData,
-        onDrilldown,
         onRegenerate,
       }
     }
