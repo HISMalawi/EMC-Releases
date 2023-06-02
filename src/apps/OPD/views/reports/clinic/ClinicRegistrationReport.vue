@@ -78,40 +78,42 @@ export default defineComponent({
         table.td(HisDate.toStandardHisDisplayFormat(record.visit_date)),
       ])
     },
-    calculateAge(date1:any, date2:any) {
-      const birthDate = new Date(date1);
-      const currentDate = new Date(date2);
-      let ageDifference = currentDate.getFullYear() - birthDate.getFullYear();
-      const monthDifference = currentDate.getMonth() - birthDate.getMonth();
-      if (monthDifference < 0 || (monthDifference === 0 && currentDate.getDate() < birthDate.getDate())) {
-        ageDifference--;
-      }
-      return ageDifference;
-    },
-    filterVisitType(visitType:any){
-      return this.reportData.filter((d: any) => d.visit_type === visitType)
-    },
-    filterAge(data:any,ageType:any){
+    filterVisitTypeAge(visitType:any, ageType:any){
       if(ageType == 'under5')
-        return data.filter((d: any) => this.calculateAge(d.birthdate,Service.getSessionDate()) <= 5)
+        return this.reportData.filter((d: any) => d.visit_type === visitType && HisDate.calculateAge(d.birthdate,Service.getSessionDate()) <= 5)
       else if(ageType == 'over5')
-        return data.filter((d: any) => this.calculateAge(d.birthdate,Service.getSessionDate()) > 5)
+        return this.reportData.filter((d: any) => d.visit_type === visitType && HisDate.calculateAge(d.birthdate,Service.getSessionDate()) > 5)
+    },
+    modalData(){
+      let new_under5 = [...this.filterVisitTypeAge('New patient','under5')].length
+      let new_over5 = [...this.filterVisitTypeAge('New patient','over5')].length
+      const new_total = new_under5 + new_over5
+      let ref_under5 = [...this.filterVisitTypeAge('Referral','under5')].length
+      let ref_over5 = [...this.filterVisitTypeAge('Referral','over5')].length
+      const ref_total = ref_under5 + ref_over5
+      let rev_under5 = [...this.filterVisitTypeAge('Revisiting','under5')].length
+      let rev_over5 = [...this.filterVisitTypeAge('Revisiting','over5')].length
+      const rev_total = rev_under5 + rev_over5
+      return [
+        { label:  "New patient",
+          under5: new_under5 , 
+          over5:  new_over5, 
+          value:  new_total
+        },
+        { label:  "Referral", 
+          under5:  ref_under5, 
+          over5:  ref_over5, 
+          value:  ref_total
+        },
+        { label:  "Revisiting", 
+          under5:  rev_under5,
+          over5:  rev_over5, 
+          value:   rev_total
+        }
+      ]
     },
     async showModal() {
-      const data = [
-        { label:  "New patient",
-          under5:  [...this.filterAge(this.filterVisitType('New patient'),'under5')].length, 
-          over5:  [...this.filterAge(this.filterVisitType('New patient'),'over5')].length, 
-          value:  [...this.filterVisitType('New patient')].length },
-        { label:  "Referral", 
-          under5:  [...this.filterAge(this.filterVisitType('Referral'),'under5')].length, 
-          over5:  [...this.filterAge(this.filterVisitType('Referral'),'over5')].length, 
-          value:  [...this.filterVisitType('Referral')].length },
-        { label:  "Revisiting", 
-          under5:  [...this.filterAge(this.filterVisitType('Revisiting'),'under5')].length,
-          over5:  [...this.filterAge(this.filterVisitType('Revisiting'),'over5')].length, 
-          value:  [...this.filterVisitType('Revisiting')].length }
-      ]
+      const data = [...this.modalData()]
       const modal = await modalController.create({
         component: SummaryModal,
         backdropDismiss: true,
