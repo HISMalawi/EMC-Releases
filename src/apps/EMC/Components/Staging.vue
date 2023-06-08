@@ -103,6 +103,7 @@ export default defineComponent({
 
     const whoStages = stagingService
       .getAllWhoStages()
+      .filter(stage => stage.name.match(/1|2|3|4/i))
       .map(stage => ({ label: stage.name, value: stage.name }))
 
     const form = reactive<DTForm>({
@@ -219,11 +220,8 @@ export default defineComponent({
     }
 
     const setStagingConditions = (stage?: string) => {
-      let stageNum = 1
       if(stage) form.whoConditions.value = [];
-      if(stage?.match(/2|stage ii/i)) stageNum = 2
-      if(stage?.match(/3|stage iii/i)) stageNum = 3
-      if(stage?.match(/4|stage iv/i)) stageNum = 4
+      const stageNum = parseInt(stage?.split(" ")[2] || '1')
       stagingCoditions.value = stagingService
         .getStagingConditions(stageNum)
         .map(c => ({ label: c.name, value: c.name, other: c }))
