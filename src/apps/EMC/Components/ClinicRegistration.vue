@@ -30,6 +30,9 @@
     <ion-col size="6" class="ion-margin-top ion-margin-bottom">
       <DateInput v-model="form.artStartDate" :form="form" :min-date="patientDob" :max-date="today" />
     </ion-col>
+    <ion-col size="6" class="ion-margin-top ion-margin-bottom">
+      <text-input v-model="form.arvNumberAtPreviousLocation" :form="form" />
+    </ion-col>
     <ion-col size="3" class="ion-margin-top ion-margin-bottom">
       <NumberInput v-model="form.initialWeight" :form="form" :min="1" allowUnknown />
     </ion-col>
@@ -165,6 +168,14 @@ export default defineComponent({
           const patients = await Patientservice.findByOtherID(4, `${props.sitePrefix}-ARV-${arvNumber.value}`);
           return isEmpty(patients) ?  null : ['ARV Number already exists'];
         },
+      },
+      arvNumberAtPreviousLocation: {
+        value: '',
+        label: 'ART Number at previous Location',
+        computedValue: (arvNumber: string) => ({
+          tag: 'registration',
+          obs: registrationService.buildValueText('ART number at previous location', arvNumber)
+        })
       },
       initialVisitDate: {
         value: props.initialVisitDate,
