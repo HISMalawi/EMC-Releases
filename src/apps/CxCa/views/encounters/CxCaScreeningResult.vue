@@ -16,6 +16,7 @@ import EncounterMixinVue from "../../../../views/EncounterMixin.vue";
 import {ScreeningResultService} from "@/apps/CxCa/services/CxCaScreeningResultService"
 import { toastSuccess, toastWarning } from "@/utils/Alerts";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -23,6 +24,7 @@ export default defineComponent({
   data: () => ({
     screeningResult: {} as any,
     obs: [] as any,
+    fieldContext: {} as any,
     currentMethod: ''
   }),
   watch: {
@@ -236,12 +238,29 @@ export default defineComponent({
         {
           id: "location",
           helpText: "Location reffered from",
+          onload: (fieldContext: any) => {
+            this.fieldContext = fieldContext
+          },
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
           options: (_: any, filter = "") => this.getFacilities(filter),
           config: {
             showKeyboard: true,
             isFilterDataViaApi: true,
+            footerBtns: [
+              {
+                name: "Here",
+                size: "large",
+                slot: "end",
+                color: "primary",
+                visible: true,
+                onClick: async () => {
+                  if (!isEmpty(this.fieldContext)) {
+                    this.fieldContext.selected = ScreeningResultService.getLocationName();
+                  }
+                }
+              }
+            ]
           },
           condition(formData: any) {
             return formData.treatment_option.value === "Referral";

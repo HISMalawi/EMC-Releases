@@ -1,6 +1,6 @@
 {
   "name": "HIS-Core",
-  "version": "1.8.3-lab",
+  "version": "1.8.3",
   "min-api-version": "4.17.1",
   "private": true,
   "scripts": {
@@ -24,7 +24,7 @@
     "@ionic-native/pdf-generator": "^5.36.0",
     "@ionic/vue": "^5.4.0",
     "@ionic/vue-router": "^5.4.0",
-    "@popperjs/core": "^2.10.1",
+    "@popperjs/core": "^2.11.7",
     "@types/lodash": "^4.14.170",
     "apexcharts": "^3.26.1",
     "capacitor-blob-writer": "^1.1.0",

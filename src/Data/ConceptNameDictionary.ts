@@ -361,7 +361,7 @@ export default [
    {
       "categories": [],
       "concept_id": 7124,
-      "name": "Tetanus toxoid vaccine"
+      "name": "Tetanus Diphtheria"
    },
    {
       "categories": [],

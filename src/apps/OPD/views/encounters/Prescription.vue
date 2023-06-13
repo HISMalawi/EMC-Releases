@@ -91,6 +91,9 @@
           <ion-button @click="predefinedMalariaDrug" slot="end" size="large" color="primary" v-if="switchKeyboard"> 
             Predefined Malaria Drugs
           </ion-button>
+          <ion-button v-if="!switchKeyboard"  @click="durationKeypress('Confirm')" slot="end" size="large" color="success" > 
+              Add Drug 
+          </ion-button>
           <ion-button @click="clearPrescription" slot="end" size="large" color="warning" > 
               Clear
           </ion-button>
@@ -359,14 +362,18 @@ export default defineComponent({
       // this.switchKeyboard = true
     },
     async savePrescription() {
-      const drugOrders = this.mapToOrders()
-      const encounter = await this.prescriptionService.createEncounter()
-      if (!encounter) return toastWarning('Unable to create treatment encounter')   
-      const drugOrder = await this.prescriptionService.createDrugOrder(drugOrders);
-      if(!drugOrder) return toastWarning('Unable to create drug orders!')
-      toastSuccess('Drug order has been created')
-      this.printVisitSummary()
-      nextTask(this.patientID, this.$router)
+      try {
+        const drugOrders = this.mapToOrders()
+        const encounter = await this.prescriptionService.createEncounter()
+        if (!encounter) return toastWarning('Unable to create treatment encounter')   
+        const drugOrder = await this.prescriptionService.createDrugOrder(drugOrders);
+        if(!drugOrder) return toastWarning('Unable to create drug orders!')
+        toastSuccess('Drug order has been created')
+        this.printVisitSummary()
+        nextTask(this.patientID, this.$router)
+      } catch (error) {
+        console.error(error)
+      }
     },
      mapToOrders(): any[] {
       return this.checkedItems.map(drug => {
