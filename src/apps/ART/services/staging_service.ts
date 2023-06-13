@@ -7,7 +7,8 @@ import {
     ADULT_WHO_STAGE_CRITERIA,
     CHILD_WHO_STAGE_CRITERIA,
     CONTRADICTING_STAGE_DEFINITIONS_ALERTS,
-    RECOMMENDED_CHILD_STAGING_CONDITIONS
+    RECOMMENDED_CHILD_STAGING_CONDITIONS,
+    CD4_AS_START_REASON_CUTOFF_DATE
 } from "@/apps/ART/guidelines/staging_guidelines"
 
 /**
@@ -78,8 +79,10 @@ export class StagingService extends AppEncounterService {
         return AppEncounterService.getConceptsByCategory('whole_staging_numbers')
     }
 
-    getAllReasonsForART() {
-        return AppEncounterService.getConceptsByCategory('reason_for_art')
+    getAllReasonsForART(registrationDate = this.date) {
+        const reasons = AppEncounterService.getConceptsByCategory('reason_for_art')
+        if(new Date(registrationDate) < new Date(CD4_AS_START_REASON_CUTOFF_DATE)) return reasons
+        return reasons.filter(reason => !reason.name.match(/cd4/i))
     }
 
     buildWhoStageObs(stage: string) {

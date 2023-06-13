@@ -452,6 +452,10 @@ export default defineComponent({
       }
     });
 
+    watch(form.initialVisitDate, (date) => {
+      EventBus.emit(EmcEvents.ON_INITIAL_VISIT_DATE, date.value)
+    })
+
     const tptDrugs = computed(() => {
       const tptHistory = typeof form.tptHistory.value === 'string' 
         ? form.tptHistory.value 

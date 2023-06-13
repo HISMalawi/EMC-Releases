@@ -96,9 +96,10 @@ export default defineComponent({
     })
 
     const stagingService = new StagingService(props.patient.getID(), props.patient.getAge(), -1)
-    const reasonsForArt = stagingService
-      .getAllReasonsForART()
-      .map(r => ({ label: r.name, value: r.name}))
+    const reasonsForArt = computed(() => {
+      return stagingService.getAllReasonsForART(props.initialVisitDate)
+        .map(r => ({ label: r.name, value: r.name}))
+    })
 
     const whoStages = stagingService
       .getAllWhoStages()

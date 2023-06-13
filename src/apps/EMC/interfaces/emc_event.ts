@@ -4,5 +4,6 @@ export enum EmcEvents {
   RELOAD_GUARDIAN_DATA = 'reload_guardian_data',
   RELOAD_LATEST_VL_RESULT = 'reload_latest_vl_result',
   RELOAD_STAGING_INFORMATION = 'reload_staging_info',
-  ON_CLEAR = "on_clear"
+  ON_CLEAR = "on_clear",
+  ON_INITIAL_VISIT_DATE = "on_initital_visit_date"
 }

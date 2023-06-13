@@ -2,6 +2,8 @@ import { ConceptService } from "@/services/concept_service"
 import { alertConfirmation } from "@/utils/Alerts"
 import { GuideLineInterface } from "@/utils/GuidelineEngine"
 
+export const CD4_AS_START_REASON_CUTOFF_DATE = "2014-04-01";
+
 export const ADULT_WHO_STAGE_CRITERIA: Record<string, GuideLineInterface> = {
     'Adults with stage 4 conditions': {
         concept: 'WHO STAGE IV ADULT',

@@ -44,6 +44,8 @@ import { isEmpty, get } from 'lodash';
 import { Encounter } from '@/interfaces/encounter';
 import { Observation } from '@/interfaces/observation';
 import { ConceptService } from '@/services/concept_service';
+import EventBus from '@/utils/EventBus';
+import { EmcEvents } from '../interfaces/emc_event';
 
 export default defineComponent({
   components: {
@@ -186,6 +188,7 @@ export default defineComponent({
         }
       }
       isReady.value = true;
+      EventBus.on(EmcEvents.ON_INITIAL_VISIT_DATE, (date: string) => initialVisitDate.value = date)
     })
 
     return {
