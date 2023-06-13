@@ -73,9 +73,6 @@ export default defineComponent({
   name: "HisMultipleSelect",
   mixins: [SelectMixin],
   methods: {
-    clearValue() {
-      this.listData.forEach((item) => item.isChecked = false)
-    },
     async init() {
       this.$emit('onFieldActivated', this)
       // Optionally Prevent from rebuilding options everytime the component is activated
@@ -142,6 +139,9 @@ export default defineComponent({
     }
   },
   watch: {
+    clear() {
+      this.listData.forEach((item) => item.isChecked = false)
+    },
     footerButtonEvent: {
       async handler(event: FooterBtnEvent) {
         if (event && typeof event.onClickComponentEvents?.refreshOptions === 'function') {
