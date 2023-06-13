@@ -49,7 +49,7 @@
           Cancel
         </ion-button>
         <ion-button
-          :disabled="!(facts.patientFound && isAdmin)"
+          :disabled="!canVoidClient"
           color="danger left"
           size="large"
           @click="onVoid"
@@ -224,8 +224,8 @@ export default defineComponent({
         this.facts.demographics.birthdate
       )
     },
-    isAdmin() {
-      return UserService.isAdmin()
+    canVoidClient() {
+      return this.facts.patientFound && UserService.isDataManager()
     }
   },
   methods: {
