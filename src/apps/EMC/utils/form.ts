@@ -75,14 +75,15 @@ interface SubmitOptios {
 
 export async function submitForm (form: DTForm, callback: SubmitFormCallback, options?: SubmitOptios) {
   if(!await isValidForm(form)) return
+  const showloader = options?.showloader || false
   try {
-    const showloader = options?.showloader || false
-    if (showloader) loader.show()
+    if (showloader) await loader.show()
     const {formData, computedFormData} = resolveFormValues(form, options?.underscoreKeys)
     await callback(formData, computedFormData)
-    if(showloader) await loader.hide()
   } catch (error) {
     toastWarning(`${error}`)
-    loader.hide()
+    console.error(error)
+  } finally {
+    if(showloader) await loader.hide()
   }
 }

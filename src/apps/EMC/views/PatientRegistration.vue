@@ -84,7 +84,7 @@ import TextInput from "../Components/inputs/TextInput.vue";
 import DateInput from "../Components/inputs/DateInput.vue";
 import SelectInput from "../Components/inputs/SelectInput.vue";
 import { getLandmarks, getVillagesByName } from "@/utils/HisFormHelpers/LocationFieldOptions";
-import { isValidForm, resolveFormValues } from "../utils/form";
+import { isValidForm, resolveFormValues, submitForm } from "../utils/form";
 import { toUnderscores } from "@/utils/Strs";
 import { loader } from "@/utils/loader";
 import EventBus from "@/utils/EventBus";
@@ -250,8 +250,11 @@ export default defineComponent({
     }
 
     const onFinish = async () => {
-      if(!(await isValidForm(patient) || (!guardianAbsent.value && await isValidForm(guardian)))) return
-      loader.show("Saving...") 
+      const isPatientDetailsValid = await isValidForm(patient)
+      const isGuardianDetailsValid = guardianAbsent.value ? true : await isValidForm(guardian)
+
+      if(!(isPatientDetailsValid && isGuardianDetailsValid)) return 
+      await loader.show("Saving...")
       try {
         const patientData = resolveFormValues(patient).formData
         const registrationService = new PatientRegistrationService()
@@ -268,7 +271,7 @@ export default defineComponent({
         await registrationService.createPerson(person)
         await registrationService.createPatient()
         const patientId = registrationService.getPersonID()
-        if(!guardianAbsent.value) {
+        if(!guardianAbsent.value && isGuardianDetailsValid) {
           const { formData: guardianData } = resolveFormValues(guardian)
           const address = await resolveAddress()
           const person = resolvePerson(guardianData, {
