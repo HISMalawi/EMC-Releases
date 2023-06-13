@@ -12,6 +12,12 @@ export const PRESCRIPTION_KEYPAD = [
     ['Del', '0', '.'],
     ['Unknown', '', ''],
 ]
+export const FLOAT_KEYPAD = [
+    ['1', '2', '3'],
+    ['4', '5', '6'],
+    ['7', '8', '9'],
+    ['.', '0', '']
+]
 export const VITALS_KEYPAD = [
     ['1', '2', '3'],
     ['4', '5', '6'],

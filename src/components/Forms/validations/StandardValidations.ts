@@ -1,4 +1,4 @@
-import {isEmpty} from "lodash"
+import {isEmpty, isPlainObject} from "lodash"
 import { Option } from '@/components/Forms/FieldInterface';
 
 function validateSeries(conditions: Array<any>){
@@ -15,6 +15,12 @@ function validateSeries(conditions: Array<any>){
 
 function required(value: any): null | Array<string> {
     return isEmpty(value) ? ['Value is required'] : null
+}
+
+function isFloatingPointNumber(val: any): null | string[] {
+    return isPlainObject(val) && !/^[-+]?[0-9]*\.?[0-9]+$/.test(`${val?.value}`)
+        ? ['Not a valid number']
+        : null
 }
 
 function isMWPhoneNumber(val: any) {
@@ -74,6 +80,7 @@ function notTheSame(val: any, comparison: string): null | Array<string> {
     return val === comparison ? ['Values can not be the same'] : null;
 }
 export default {
+    isFloatingPointNumber,
     validateSeries,
     required,
     isMWPhoneNumber,
