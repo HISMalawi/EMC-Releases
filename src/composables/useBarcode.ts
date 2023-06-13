@@ -20,7 +20,7 @@ export default function useBarcode() {
         barcode.value = sCode.replaceAll(/\$/gi, '');
       },
       onScanError(debug) {
-        console.log("onScanError: " + JSON.stringify(debug));
+        console.error("onScanError: " + JSON.stringify(debug));
       },
       onKeyDetect(keyCode, event) {
         if(event.key.match(/backspace/i) && keyBuffer.value.length) {
@@ -29,14 +29,11 @@ export default function useBarcode() {
         }
         if(event.key.match(/enter/i)) keyBuffer.value.push('$');
         if(event.key.length === 1) keyBuffer.value.push(event.key);
-        console.log("onKeyDetect: " + keyCode, event.key);
-      },
+      }
     })
   })
-
   onBeforeUnmount(() => {
     onScan.detachFrom(document);
   })
-
   return barcode;
 }
