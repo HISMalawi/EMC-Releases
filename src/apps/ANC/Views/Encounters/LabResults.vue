@@ -23,6 +23,7 @@ import HisDate from "@/utils/Date"
 import ANC_PROP from "@/apps/ANC/anc_global_props"
 import { alertConfirmation } from '@/utils/Alerts'
 import { find } from 'lodash'
+import { FLOAT_KEYPAD } from "@/components/Keyboard/KbLayouts"
 
 export default defineComponent({
   components: { IonPage },
@@ -292,8 +293,17 @@ export default defineComponent({
                 type: FieldType.TT_NUMBER,
                 validation: (v: Option) => this.validateSeries([
                     () => Validation.required(v),
+                    () => Validation.isFloatingPointNumber(v),
                     () => Validation.rangeOf(v, 2, 16)
                 ]),
+                config: {
+                    keypad: [
+                        FLOAT_KEYPAD,
+                        [
+                            [ 'Delete' ]
+                        ]
+                    ]
+                },
                 computedValue: (v: Option) => this.service.buildValueNumber('HB Test Result', v.value),
                 condition: (f: any) => f.available_test_results.map((v: Option) => v.value).includes('HB'),
             },

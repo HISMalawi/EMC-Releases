@@ -282,5 +282,7 @@ export class StockService extends Service {
 	static getAdultDrugs() {
 		return finalList.filter(d => d.categories?.includes('a'));
 	}
-	
+	static getPackSizes (drugId: number) {
+		return finalList.find(drug => drug.drugID === drugId)?.packSizes || []
+	}
 }

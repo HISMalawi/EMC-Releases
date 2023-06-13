@@ -71,7 +71,7 @@ export const ANTI_MALARIA_DRUGS = [
     'frequency': 0.03
   },
   {
-    'drug_id': 6952,
+    'drug_id': 1218,
     'duration': 1,
     'tabs': 1,
     'name': "Artesunate injenction",
