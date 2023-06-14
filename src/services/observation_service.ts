@@ -64,7 +64,7 @@ export class ObservationService extends ConceptService {
     static async buildGroupValueCoded(conceptName: string, parentValue: string, childValue: string, date=this.getSessionDate()) {
         return {
             ...await this.buildValueCoded(conceptName, parentValue, date),
-            child: await this.buildValueCoded(parentValue, childValue, date)
+            child: [await this.buildValueCoded(parentValue, childValue, date)]
         }
     }
 
