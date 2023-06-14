@@ -38,12 +38,21 @@ export default defineComponent({
   },
   emits: ['onScan', 'onValue'],
   setup(props, { emit }) {
+    const onScan = (val: string) => {
+      const scanned = `${val||''}`.replace(/\$/ig, '')
+      emit("onScan", scanned)
+      emit("onValue", scanned)
+      typedBarcode.value = ''
+    }
     const { activePlatformProfile } = usePlatform()
+    const scannedBarcode =  useBarcode(onScan)
     const typedBarcode = ref('')
-    const scannedBarcode =  useBarcode()
     const useCameraScanner = () => {
       try {
-        BarcodeScanner.scan().then(data => typedBarcode.value = `${data.text}$`)
+        BarcodeScanner.scan().then(data => {
+          scannedBarcode.value = data.text
+          onScan(scannedBarcode.value)
+        })
       } catch (error) {
         console.log(error)
       }
