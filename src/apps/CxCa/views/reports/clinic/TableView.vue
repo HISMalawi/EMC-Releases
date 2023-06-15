@@ -172,7 +172,7 @@ import {
 } from "ionicons/icons"
 import { computed, defineComponent, PropType, ref, watch } from "vue";
 import { isEmpty } from "lodash";
-import { v2ColumnDataInterface, v2ColumnInterface } from "@/apps/CxCa/services/reports/types";
+import { v2ColumnDataInterface, v2ColumnInterface } from "@/components/DataViews/tables/v2PocDatatable/types";
 import { toCsv, toPDFfromHTML } from "@/utils/Export"
 import { Service } from "@/services/service";
 import { useRouter } from "vue-router";
