@@ -28,7 +28,7 @@ public class LabelPrinter {
 
     LabelPrinter() {
         mUsbManager = (UsbManager) Globals.getActivity().getSystemService(Globals.getContext().USB_SERVICE);
-        mPermissionIntent = PendingIntent.getBroadcast(Globals.getContext(), 0, new Intent(ACTION_USB_PERMISSION), 0);
+        mPermissionIntent = PendingIntent.getBroadcast(Globals.getContext(), 0, new Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_IMMUTABLE);
     }
 
     JSArray discover() throws ConnectionException {

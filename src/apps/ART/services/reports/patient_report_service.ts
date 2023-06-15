@@ -75,4 +75,12 @@ export class PatientReportService extends ArtReportService {
             "tool_name": "INCOMPLETE VISITS",
         })
     }
+    
+    getVisitStats () {
+        return ArtReportService.getJson(`programs/${this.programID}/reports/visits`, {
+            name: 'visits',
+            start_date: this.startDate,
+            end_date: this.endDate
+        })
+    }
 }

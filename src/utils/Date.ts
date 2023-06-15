@@ -3,6 +3,17 @@ import dayjs from "dayjs";
 export const STANDARD_DATE_FORMAT = 'YYYY-MM-DD'
 export const DISPLAY_DATE_FORMAT = 'DD/MMM/YYYY'
 
+function calculateAge(birthdate:any, currentdate:any) {
+    const birthDate = new Date(birthdate);
+    const currentDate = new Date(currentdate);
+    let age = currentDate.getFullYear() - birthDate.getFullYear();
+    const monthDifference = currentDate.getMonth() - birthDate.getMonth();
+    if (monthDifference < 0 || (monthDifference === 0 && currentDate.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+}
+
 function sessionDate() {
     return sessionStorage.getItem('sessionDate') || dayjs().format(STANDARD_DATE_FORMAT)
 }
@@ -161,5 +172,6 @@ export default {
     add,
     subtract,
     getDateQuarter,
-    rangeOf
+    rangeOf,
+    calculateAge
 }

@@ -131,7 +131,7 @@ export default defineComponent({
           beforeNext: (_: any, f: any, c: any, {currentFieldContext}: any) => {
             const drugsToStr = (drugs: any) => drugs.map((b: any, i: number) => `${b.label}`).join(' & ')
             const drugsWithoutBatches = currentFieldContext.drugs.filter((drug: any) =>
-              drug.entries.map((d: any) => !d.tins && !d.expiry && !d.batchNumber).every(Boolean)
+              drug.entries.map((d: any) => !d.tins && !d.expiry && !d.batchNumber && !d.tabs).every(Boolean)
             )
             const partialBatches = currentFieldContext.drugs.filter((drug: any) => {
               return drug.entries.map((e: any) => {
@@ -139,7 +139,8 @@ export default defineComponent({
                 if (e.tins) score += 1
                 if (e.expiry) score += 1
                 if (e.batchNumber) score += 1
-                return score >= 1 && score <= 2
+                if (e.tabs) score += 1
+                return score >= 1 && score <= 3
               }).some(Boolean)
             })
             if (!isEmpty(partialBatches)) {
@@ -157,7 +158,7 @@ export default defineComponent({
           validation: (v: Option) => Validation.required(v)
         },
         {
-          id: "adherence_report",
+          id: "summary",
           helpText: "Summary",
           type: FieldType.TT_TABLE_VIEWER,
           options: (d: any) => this.buildResults(d.enter_batches),
@@ -179,7 +180,7 @@ export default defineComponent({
         const d = j.value;
         return [
           d.short_name,
-          d.pack_size,
+          d.tabs,
           toNumString(d.tins),
           HisDate.toStandardHisDisplayFormat(d.expiry),
           d.batchNumber,
@@ -207,10 +208,10 @@ export default defineComponent({
               'barcode': barcode,
               'drug_id': element.drug_inventory_id,
               'expiry_date': element.expiry,
-              'quantity': parseInt(element.pack_size) * parseInt(element.tins),
+              'quantity': parseInt(element.tabs) * parseInt(element.tins),
               'delivery_date': formdata.date.value,
               'product_code': element.code,
-              "pack_size": element.pack_size,
+              "pack_size": element.tabs,
             },
           ],
         });

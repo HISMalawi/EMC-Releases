@@ -41,6 +41,9 @@ export class UserService extends Service {
       );
       return roles.length > 0;
 	}
+  static isDataManager() {
+    return super.getUserRoles().some(({ role }: any) => role.match(/data manager|Superuser/i));
+  }
   static isNurse() {
     const roles = super.getUserRoles().filter(
         (role: Role) => {

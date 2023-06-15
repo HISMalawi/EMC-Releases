@@ -96,16 +96,27 @@ export class AuthService {
     */
     async validateIfCorrectAPIVersion() {
         const apiVersion = await this.getApiVersion()
-        const toVersionArr = (version: string) => version.replace('v', '')
-            .split('-')[0] //sanitize versions which look like "v4.15.10-16-gd1ab74ff" to "4.15.10"
-            .split('.')
-            .map(v => parseInt(v || '0'))
-        const [curMajor, curMinor, curPatch] = toVersionArr(apiVersion)
-        const [minMajor, minMinor, minPatch] = toVersionArr(PACK_CONF['min-api-version'])
-        if (curMajor >= minMajor && curMinor >= minMinor && curPatch >= minPatch) { 
-            return true
+        // Remove the 'v' prefix if present
+        const version = `${apiVersion}`.replace(/^v/, '');
+        const minimumVersion = `${PACK_CONF['min-api-version']}`.replace(/^v/, '');
+
+        // Split the versions into arrays of numbers
+        const versionParts = version.split('.');
+        const minimumVersionParts = minimumVersion.split('.');
+
+        // Compare each part of the version numbers
+        for (let i = 0; i < Math.max(versionParts.length, minimumVersionParts.length); i++) {
+            const versionPart = parseInt(versionParts[i] || '0');
+            const minimumVersionPart = parseInt(minimumVersionParts[i] || '0');
+
+            if (versionPart > minimumVersionPart) {
+                return true;
+            } else if (versionPart < minimumVersionPart) {
+                throw new InvalidAPIVersionError(apiVersion)
+            }
         }
-        throw new InvalidAPIVersionError(apiVersion)
+        // All parts are equal
+        return true;
     }
 
     async checkTimeIntegrity() {

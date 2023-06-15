@@ -22,6 +22,7 @@ import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { BadRequestError } from  "@/services/service"
 import { isEmpty } from "lodash";
 import dayjs from "dayjs";
+import { toNumString } from "@/utils/Strs";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -36,39 +37,30 @@ export default defineComponent({
 
   methods: {
     async onFinish(formData: any) {
-      const data = formData.enter_batches;
       let errors: string[] = [];
-      for (let index = 0; index < data.length; index++) {
-        const d = data[index].value;
-        const packSize = StockService.getPackSize(d.drug_id);
-        const total = packSize * d.tins;
-        const extras = {} as any;
-        const res = {
+      await formData.enter_batches.forEach(async (drug: any) => {
+        const data = {
           'reallocation_code': formData.authorization.value,
-          quantity: total,
+          quantity: drug.value.pack_size * drug.value.tins,
           date: formData.date.value,
           reason: formData.reasons.value,
-        };
+        }
         try {
           if (formData.task.value === "Relocations") {
-            extras["location_id"] = formData.relocation_location.value;
-            const f = await this.stockService.relocateItems(d.id, {
-              ...res,
-              ...extras,
+            const res = await this.stockService.relocateItems(drug.value.id, {
+              ...data, 
+              location_id: formData.relocation_location.value
             });
-            if (!f) {
+            if (!res) {
               errors.push(
-                "Could not save record for" + StockService.getShortName(d.drug_id)
+                "Could not save record for" + drug.value.drug_name
               );
             }
           } else {
-            const f = await this.stockService.disposeItems(d.id, {
-              ...res,
-              ...extras,
-            });
-            if (!f) {
+            const res = await this.stockService.disposeItems(drug.value.id, data);
+            if (!res) {
               errors.push(
-                "Could not save record for" + StockService.getShortName(d.drug_id)
+                "Could not save record for" + drug.value.drug_name
               );
             }
           }
@@ -80,7 +72,7 @@ export default defineComponent({
           }
           console.log(e)
         }
-      }
+      })
       if (errors.length === 0) {
         toastSuccess("Stock succesfully moved");
         this.$router.push("/");
@@ -145,8 +137,8 @@ export default defineComponent({
           id: "enter_batches",
           helpText: "Batch entry",
           type: FieldType.TT_BATCH_MOVEMENT,
-          beforeNext: (_: any, f: any, c: any, {currentFieldContext}: any) => {
-            const drugsToStr = (drugs: any) => drugs.map((b: any, i: number) => `${b.label}`).join(' & ')
+          beforeNext: (_: any, _f: any, _c: any, {currentFieldContext}: any) => {
+            const drugsToStr = (drugs: any) => drugs.map((b: any) => `${b.label}`).join(' & ')
             const partialEntries = currentFieldContext.drugs.filter((drug: any) =>
               drug.entries.map((d: any) => !(d.tins)).every(Boolean)
             )
@@ -211,7 +203,7 @@ export default defineComponent({
         const d = j.value;
         const data = [
           StockService.getShortName(d.drug_id),
-          d.tins,
+          toNumString(d.tins),
           HisDate.toStandardHisDisplayFormat(d.expiry_date),
           formData.authorization.value.toUpperCase()
         ]
@@ -225,31 +217,6 @@ export default defineComponent({
           other: { columns, rows },
         },
       ];
-    },
-    prepDrugs(formdata: any) {
-      const items: any[] = [];
-      const barcode = this.barcode;
-      formdata.enter_batches.value.forEach((element: any) => {
-        items.push({
-          'batch_number': element.batchNumber,
-          'items': [
-            {
-              'barcode': barcode,
-              'drug_id': element.drugID,
-              'expiry_date': element.expiry,
-              'quantity': parseInt(element.tabs) * parseInt(element.tins),
-              'delivery_date': formdata.date.value,
-            },
-          ],
-        });
-      });
-      return items;
-    },
-    selectAll(listData: Array<Option>) {
-      return listData.map((l) => {
-        l.isChecked = true;
-        return l;
-      });
     },
     async getItems() {
       const f = await this.stockService.getItems();
@@ -270,14 +237,11 @@ export default defineComponent({
         return this.mapVal(["Expired", "Damaged", "Phased out", "Banned", "Missing"]);
       }
     },
-    formatDrugs(f: any) {
-      return f.map((drug: any) => {
+    formatDrugs(drugs: any) {
+      return drugs.map((drug: any) => {
         return {
-          label: `${StockService.getShortName(
-            drug.drug_id
-          )} (${StockService.getPackSize(
-            drug.drug_id
-          )}) Expiry date: ${HisDate.toStandardHisDisplayFormat(
+          label: `${drug.drug_name} (${drug.pack_size || StockService.getPackSize(drug.drug_id)}) 
+          Expiry date: ${HisDate.toStandardHisDisplayFormat(
             drug.expiry_date
           )} 
           Batch (${drug.batch_number})

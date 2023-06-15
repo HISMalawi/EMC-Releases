@@ -130,7 +130,7 @@ export default defineComponent({
           computedValue: (options: Option[]) => {
             return options.map(async (option)=> ({
               ...(await this.complaintsService.buildValueCoded('Presenting complaint', option.other.parent)),
-              child: (await this.complaintsService.buildValueCodedFromConceptId(option.other.parent, option.other.concept_id))
+              child: [await this.complaintsService.buildValueCodedFromConceptId(option.other.parent, option.other.concept_id)]
             }))
           },
           config: {

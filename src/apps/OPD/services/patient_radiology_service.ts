@@ -96,11 +96,11 @@ export class PatientRadiologyService extends AppEncounterService {
         {
           'concept_id': order.concept_id, 
           'value_text':  await ConceptService.getConceptName(order.child.concept_id),
-          child: {
+          child:[{
             'concept_id': order.child.concept_id,
             'accession_number': lastAccessionNumber,
             'value_text': await ConceptService.getConceptName(order.child.value_coded)
-          }
+          }]
         }
       )
     }

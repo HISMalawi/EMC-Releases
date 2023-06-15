@@ -17,13 +17,18 @@
         <ion-col>
           <ion-grid v-if="selectedDrug !== null" class="scroll-list"> 
             <ion-row v-for="(entry, ind) in drugs[selectedDrug].entries" :key="ind"> 
-              <ion-col> 
+              <ion-col size="12" class=" ion-margin-bottom"> 
                 <ion-item>
-                  <ion-label position="floating">Total Tins</ion-label>
+                  <ion-label position="floating">Available Tins/Pallets:</ion-label>
+                  <ion-input readonly disabled :value="fmtNumber(entry.quantity)" />
+                </ion-item>
+              </ion-col><ion-col> 
+                <ion-item>
+                  <ion-label position="floating">Total Tins Relocated/Disposed</ion-label>
                   <ion-input 
-                    readonly 
-                    placeholder="0" 
-                    :value="fmtNumber(entry.tins)" 
+                    readonly
+                    color="primary"
+                    :value="fmtNumber(entry.tins || 0)" 
                     @click="enterTins(ind)">
                   </ion-input>
                 </ion-item>
@@ -46,15 +51,16 @@ import {
   IonRow,
   IonList,
   IonItem,
-  modalController,
+  IonInput,
+  IonLabel,
 } from "@ionic/vue";
 import { find, isEmpty } from "lodash";
 import { FieldType } from "../Forms/BaseFormElements";
 import Validation from "@/components/Forms/validations/StandardValidations"
-import { Field, Option } from "../Forms/FieldInterface";
+import { Option } from "../Forms/FieldInterface";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
-import TouchField from "@/components/Forms/SIngleTouchField.vue"
 import { toNumString } from "@/utils/Strs";
+import popupKeyboard from "@/utils/PopupKeyboard";
 
 export default defineComponent({
   components: { 
@@ -64,6 +70,8 @@ export default defineComponent({
     IonCol, 
     IonRow,
     IonItem ,
+    IonLabel,
+    IonInput,
     HisTextInput
   },
   mixins: [FieldMixinVue],
@@ -91,17 +99,18 @@ export default defineComponent({
       this.drugs = this.drugs.filter((d: any) =>
         incomingDrugs.map((i: any) => i.label).includes(d.label)
       )
-      incomingDrugs.forEach((element: any) => {
+      incomingDrugs.forEach((drug: any) => {
         const val = {
-          tins: null
+          tins: null,
+          quantity: (drug.value.current_quantity / drug.value.pack_size || 1) || 0
         };
         const d = {
-          label: element.label,
+          label: drug.label,
           entries: [{ ...val }],
-          ...element.value,
+          ...drug.value,
         };
         // Append if incoming drug is new
-        const drugExists = find(this.drugs, { label: element.label })
+        const drugExists = find(this.drugs, { label: drug.label })
         if (!drugExists) this.drugs.push(d)
       })
       // initialise drug selection
@@ -117,7 +126,7 @@ export default defineComponent({
       this.drugs[this.selectedDrug].entries[index][type] = data ? data.value : ''
     },
     enterTins(index: number) {
-      this.launchKeyPad({
+      popupKeyboard({
         id: 'tins',
         helpText: this.getModalTitle('Enter number of tins'),
         type: FieldType.TT_NUMBER,
@@ -128,24 +137,14 @@ export default defineComponent({
           } 
           return Validation.validateSeries([
             () => Validation.isNumber(v),
-            () => v.value <= 0 ? ['Number of tins must be greater than 1'] : null
+            () => v.value as number <= 0 ? ['Number of tins must be greater than 1'] : null,
+            () => v.value as number > this.getDrugValue(index, 'quantity') 
+              ? ["You cannot dispose/relocate more than available tins"]
+              : null
           ])
         }
       }, 
       (v: Option) => this.setDrugValue(index, 'tins', v))
-    },
-    async launchKeyPad(currentField: Field, onFinish: Function) {
-      const modal = await modalController.create({
-        component: TouchField,
-        backdropDismiss: false,
-        cssClass: "full-modal",
-        componentProps: {
-          dismissType: 'modal',
-          currentField,
-          onFinish
-        }
-      });
-      modal.present();
     },
     async selectDrug(index: any) {
       this.selectedDrug = index;

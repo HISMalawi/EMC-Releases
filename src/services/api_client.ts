@@ -12,6 +12,7 @@ const ApiClient = (() => {
         port: string;
         protocol: string;
         thirdpartyapps: string;
+        otherApps: Array<any>;
     }
 
     async function getFileConfig(): Promise<Config> {
@@ -29,7 +30,9 @@ const ApiClient = (() => {
                 thirdpartyApps,
                 isPocSite, 
                 defaultApp,
-                platformProfiles 
+                platformProfiles,
+                otherApps,
+                
             } = await response.json()
             sessionStorage.setItem("apiURL", apiURL);
             sessionStorage.setItem("apiPort", apiPort);
@@ -40,11 +43,15 @@ const ApiClient = (() => {
             sessionStorage.setItem("isPocSite", isPocSite)
             sessionStorage.setItem("defaultApp", defaultApp)
             sessionStorage.setItem("platformProfiles", JSON.stringify(platformProfiles))
+            sessionStorage.setItem("platformProfiles", JSON.stringify(platformProfiles));
+            sessionStorage.setItem("otherApps", JSON.stringify(otherApps))
+            
             return {
                 host: apiURL,
                 port: apiPort,
                 protocol: apiProtocol,
                 thirdpartyapps: thirdpartyApps,
+                otherApps,
             }
         } catch (e) {
             console.error(e)
@@ -57,8 +64,10 @@ const ApiClient = (() => {
         const port = localStorage.apiPort;
         const protocol = localStorage.apiProtocol;
         const thirdpartyapps = localStorage.thirdpartyApps
+        const otherApps = localStorage.otherApps || []
+
         if ((host && port && protocol))
-            return { host, port, protocol, thirdpartyapps }
+            return { host, port, protocol, thirdpartyapps, otherApps }
     }
 
     function getSessionConfig(): Config | undefined {
@@ -66,8 +75,10 @@ const ApiClient = (() => {
         const port = sessionStorage.apiPort
         const protocol = sessionStorage.apiProtocol
         const thirdpartyapps = sessionStorage.thirdpartyApps
+        const otherApps = sessionStorage.otherApps
+
         if ((host && port && protocol))
-            return { host, port, protocol, thirdpartyapps }
+            return { host, port, protocol, thirdpartyapps, otherApps }
     }
 
     function getConfig(): Promise<Config> | Config {

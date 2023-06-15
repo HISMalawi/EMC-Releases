@@ -238,5 +238,25 @@ export default defineComponent({
 .date-disabled {
   color: #ccc;
 }
+.vc-nav-popover-container {
+  width: 300px !important;
+  font-size: 20px !important;
+  text-align: center;
+}
+.vc-nav-title {
+  padding: 14px 8px !important;
+}
+.vc-nav-arrow {
+  border-width: 15px !important;
+}
+.vc-nav-item {
+  width: inherit !important;
+  padding: 14px 0px !important;
+  border: 2px solid rgba(255, 255, 255, 0.1) !important;
+}
+.vc-nav-item:hover {
+  border: 2px solid rgba(255, 255, 255, 1) !important;
+  transition: all 0.5s ease-in-out;
+}
 </style>
 

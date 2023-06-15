@@ -68,7 +68,7 @@ export default defineComponent({
     async getSelected() {
       return this.emitedSelectedOptions.map(async (option: any) => ({
         ...(await this.radiologyService.buildValueCoded('Radiology Orders', option.other.parent)),
-        child: (await this.radiologyService.buildValueCodedFromConceptId(option.other.parent, option.other.concept_id))
+        child: [await this.radiologyService.buildValueCodedFromConceptId(option.other.parent, option.other.concept_id)]
       }))
     },
     async onSubmit(){

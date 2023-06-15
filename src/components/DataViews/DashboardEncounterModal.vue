@@ -85,7 +85,7 @@ export default defineComponent({
   }),
   computed: {
     canVoid(): boolean {
-      return !isEmpty(this.active) && !isEmpty(this.active.rows)
+      return !isEmpty(this.active)
     }
   },
   watch: {
