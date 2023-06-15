@@ -54,7 +54,9 @@
             fill="outline"
             size="large"
             slot="end"
-            @click="openSelect">
+            @click="openSelect"
+            v-if="otherApps.length"
+          >
             Other Applications
           </ion-button>
         </ion-item>
@@ -81,12 +83,12 @@ import img from '@/utils/Img';
 import { onMounted, ref } from '@vue/runtime-core';
 import { AuthService } from '@/services/auth_service';
 import usePlatform from '@/composables/usePlatform';
-import { computed, watch } from 'vue';
+import { computed, defineComponent, watch } from 'vue';
 import { KeyboardType } from "@/composables/usePlatform"
 import { find } from 'lodash';
 import { optionsActionSheet } from "@/utils/ActionSheets";
 
-export default {
+export default defineComponent({
   name: "login",
   components: {
     IonItem,
@@ -103,28 +105,21 @@ export default {
     IonSelectOption,
   },
   setup() {
-    const openCRVSLink = () => {
-        window.open('https://10.46.0.47:5000', '_blank');
-      }
+    const otherApps = ref<Array<any>>([]);
 
     const openSelect = async () => {
       const modal = await optionsActionSheet(
         'Application Selection',
         'Please specify the application you wish to use',
-        [
-          'CRVS'
-        ],
+        otherApps.value.map((app) => app.name),
         [
           { name: 'Cancel', color: 'danger',  slot:'start'},
           { name: 'Confirm', color: 'primary', slot:'end', role: 'action'}
         ]
       )
       if (modal.selection && modal.action != 'Cancel') {
-        switch(modal.selection) {
-          case 'CRVS':
-            openCRVSLink();
-            break
-        }
+        const app = otherApps.value.find(app => app.name === modal.selection)
+        window.open(`${app.protocol || 'http'}://${app.IP}:${app.port || 80}`, '_blank');
       }
     };
 
@@ -146,8 +141,8 @@ export default {
     })
     onMounted(async () => {
       const auth = new AuthService()
-      await auth.loadConfig()
-      const appV = await auth.getHeadVersion()
+      otherApps.value = (await auth.loadConfig()).otherApps
+      const appV = auth.getHeadVersion()
       auth.setActiveVersion(appV)
       const apiV = await auth.getApiVersion()
       version.value = `${appV} / ${apiV}`
@@ -156,6 +151,7 @@ export default {
     return {
       version,
       profile,
+      otherApps,
       deviceProfiles,
       useVirtualInputOnly,
       activePlatformProfile,
@@ -165,7 +161,7 @@ export default {
       openSelect
     }
   }
-}
+})
 </script>
 <style scoped>
 #coat {

@@ -46,7 +46,7 @@ export class AuthService {
     setUsername(username: string) { this.username = username }
 
     async loadConfig() {
-        ApiClient.getFileConfig()        
+        return ApiClient.getFileConfig()        
     }
 
     async login(password: string) {
