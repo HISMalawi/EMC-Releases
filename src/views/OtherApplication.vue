@@ -22,7 +22,11 @@
       async onFinish(formData: any) {
         const application = formData.application.value;
         
-        console.log("CRVS ", application)
+        if(application === 'CRVS'){
+            this.openCRVSLink();
+        }
+        
+        
 
       },
       getFields() {
@@ -42,6 +46,9 @@
           },
         ];
       },
+      openCRVSLink() {
+        window.open('https://10.46.0.47:5000', '_blank');
+      }
     },
     data() {
       return {
