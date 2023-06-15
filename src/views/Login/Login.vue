@@ -30,7 +30,7 @@
             alt="PEPFAR logo"
           />
         </span>
-        <ion-item class="his-sm-text" style="width:45%" slot="end"> 
+        <ion-item class="his-sm-text" style="width:75%" slot="end"> 
           <ion-label>Device Profile</ion-label>
           <ion-select v-model="profile" :value="profile"> 
             <ion-select-option
@@ -48,6 +48,14 @@
             slot="end"
             router-link="/settings/host">
             Network
+          </ion-button>
+          <ion-button
+            color="dark"
+            fill="outline"
+            size="large"
+            slot="end"
+            router-link="/settings/other">
+            Other Applications
           </ion-button>
         </ion-item>
       </ion-toolbar>

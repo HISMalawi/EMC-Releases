@@ -122,6 +122,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/HostConfig.vue')
   },
   {
+    path: '/settings/other',
+    name: 'Other Applications',
+    component: () => import('@/views/OtherApplication.vue')
+  },
+  {
     path: '/settings/printer',
     name: 'Printer settings',
     component: () => import('@/views/PrinterSettings.vue')
@@ -148,7 +153,7 @@ router.beforeEach((to, from, next) => {
   modalController.getTop().then(v => v ? modalController.dismiss() : null)
   alertController.getTop().then(v => v ? alertController.dismiss() : null)
   toastController.getTop().then(v => v ? toastController.dismiss() : null)
-  const whitelistedUri = ['/login', '/settings/host']
+  const whitelistedUri = ['/login', '/settings/host', '/settings/other']
   if (!sessionStorage.getItem('apiKey') && !whitelistedUri.includes(to.path)) {
     next('/login')
   }
