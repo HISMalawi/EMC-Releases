@@ -78,21 +78,21 @@ export default defineComponent({
         table.td(HisDate.toStandardHisDisplayFormat(record.visit_date)),
       ])
     },
-    filterVisitTypeAge(visitType:any, ageType:any){
-      if(ageType == 'under5')
-        return this.reportData.filter((d: any) => d.visit_type === visitType && HisDate.calculateAge(d.birthdate,Service.getSessionDate()) <= 5)
-      else if(ageType == 'over5')
-        return this.reportData.filter((d: any) => d.visit_type === visitType && HisDate.calculateAge(d.birthdate,Service.getSessionDate()) > 5)
+    filterBy(visitType: string, ageType: string) {
+      return this.reportData.filter((d: any) => {
+        const age = HisDate.calculateAge(d.birthdate, Service.getSessionDate());
+        return d.visit_type === visitType && (ageType === 'under5' ? age <= 5 : age > 6);
+      });
     },
     modalData(){
-      let new_under5 = [...this.filterVisitTypeAge('New patient','under5')].length
-      let new_over5 = [...this.filterVisitTypeAge('New patient','over5')].length
+      const new_under5 = [...this.filterBy('New patient','under5')].length
+      const new_over5 = [...this.filterBy('New patient','over5')].length
       const new_total = new_under5 + new_over5
-      let ref_under5 = [...this.filterVisitTypeAge('Referral','under5')].length
-      let ref_over5 = [...this.filterVisitTypeAge('Referral','over5')].length
+      const ref_under5 = [...this.filterBy('Referral','under5')].length
+      const ref_over5 = [...this.filterBy('Referral','over5')].length
       const ref_total = ref_under5 + ref_over5
-      let rev_under5 = [...this.filterVisitTypeAge('Revisiting','under5')].length
-      let rev_over5 = [...this.filterVisitTypeAge('Revisiting','over5')].length
+      const rev_under5 = [...this.filterBy('Revisiting','under5')].length
+      const rev_over5 = [...this.filterBy('Revisiting','over5')].length
       const rev_total = rev_under5 + rev_over5
       return [
         { label:  "New patient",
