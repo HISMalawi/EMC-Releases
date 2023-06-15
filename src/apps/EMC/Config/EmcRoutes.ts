@@ -176,6 +176,11 @@ export default [
     component: () => import("@/apps/EMC/views/reports/moh/TptInitiation.vue")
   },
   {
+    name: "emc_moh_tpt_cohort",
+    path: "/emc_moh_tpt_cohort",
+    component: () => import("@/apps/EMC/views/reports/moh/TptCohort.vue")
+  },
+  {
     name: "emc_moh_regimen_distribution_weight",
     path: "/emc_moh_regimen_distribution_weight",
     component: () => import("@/apps/EMC/views/reports/moh/RegimenDistribution.vue")

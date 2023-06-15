@@ -72,6 +72,12 @@ export const menuItems: MenuItem[] = [
             id: 'emc_moh_tpt_initiation',
             img: 'reports/new_initiation.png',
             url: '/emc_moh_tpt_initiation'
+          },
+          {
+            title: 'TPT Cohort',
+            id: 'emc_moh_tpt_cohort',
+            img: 'reports/cohort.png',
+            url: '/emc_moh_tpt_cohort'
           }
         ]
       },
