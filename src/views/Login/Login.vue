@@ -54,7 +54,7 @@
             fill="outline"
             size="large"
             slot="end"
-            router-link="/settings/other">
+            @click="openSelect">
             Other Applications
           </ion-button>
         </ion-item>
@@ -84,6 +84,7 @@ import usePlatform from '@/composables/usePlatform';
 import { computed, watch } from 'vue';
 import { KeyboardType } from "@/composables/usePlatform"
 import { find } from 'lodash';
+import { optionsActionSheet } from "@/utils/ActionSheets";
 
 export default {
   name: "login",
@@ -102,6 +103,31 @@ export default {
     IonSelectOption,
   },
   setup() {
+    const openCRVSLink = () => {
+        window.open('https://10.46.0.47:5000', '_blank');
+      }
+
+    const openSelect = async () => {
+      const modal = await optionsActionSheet(
+        'Application Selection',
+        'Please specify the application you wish to use',
+        [
+          'CRVS'
+        ],
+        [
+          { name: 'Cancel', color: 'danger',  slot:'start'},
+          { name: 'Confirm', color: 'primary', slot:'end', role: 'action'}
+        ]
+      )
+      if (modal.selection && modal.action != 'Cancel') {
+        switch(modal.selection) {
+          case 'CRVS':
+            openCRVSLink();
+            break
+        }
+      }
+    };
+
     const {
       activePlatformProfile,
       platformProfiles
@@ -135,7 +161,8 @@ export default {
       activePlatformProfile,
       coatImg: img('login-logos/Malawi-Coat_of_arms_of_arms.png'),
       pepfarImg: img('login-logos/PEPFAR.png'),
-      showConfig: localStorage.getItem("useLocalStorage") === "true"
+      showConfig: localStorage.getItem("useLocalStorage") === "true",
+      openSelect
     }
   }
 }
