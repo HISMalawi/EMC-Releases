@@ -38,6 +38,8 @@ import { AppEncounterService } from "@/services/app_encounter_service";
 import Store from "@/composables/ApiStore"
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { RegimenService } from "@/services/regimen_service";
+import { AppointmentService } from "../../services/appointment_service";
+import { CxCaAppointmentService } from "@/apps/CxCa/services/CxCaAppointmentService";
 
 export default defineComponent({
   mixins: [AdherenceMixinVue],
@@ -80,7 +82,8 @@ export default defineComponent({
     clientHadAHysterectomy: false as any,
     isNoneClientPatient: false as boolean,
     tptStatus: {} as Record<string, any>,
-    customDrugs: [] as any
+    customDrugs: [] as any,
+    CxCaAppointDate: {} as any
   }),
   watch: {
     ready: {
@@ -1100,6 +1103,25 @@ export default defineComponent({
             obs: this.consultation.buildValueCoded('Offer CxCa', v.value)
           }),
           options: () => this.yesNoOptions()
+        },
+        {
+          id: "cxca_reminder",
+          helpText: "CxCa Screening Reminder",
+          type: FieldType.TT_TEXT_BANNER,
+          init: async () => {
+            if (this.CxCaEnabled && this.patient.isFemale()) {
+              const CxCaAppointmentObject = new CxCaAppointmentService(this.patientID, this.providerID, 24); //Hard coded ID is for CxCa
+              this.CxCaAppointDate = await CxCaAppointmentObject.getNextAppointment();
+            }
+            return true;
+          },
+          condition: () => {
+            const ONE_MONTH = 30;
+            return ONE_MONTH < HisDate.dateDiffInDays(this.consultation.date, this.CxCaAppointDate)
+          },
+          options: () => this.mapStrToOptions([
+            `Patient is due for Cervical Cancer Screening on ${HisDate.toStandardHisDisplayFormat(this.CxCaAppointDate.appointment_date)}`
+          ])
         },
         {
           id: "reason_for_no_cxca",

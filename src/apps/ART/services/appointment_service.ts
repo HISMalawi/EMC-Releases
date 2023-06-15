@@ -5,10 +5,10 @@ export class AppointmentService extends AppEncounterService {
     super(patientID, 7, providerID);
   }
 
-  async getNextAppointment() {
-    const programID = AppEncounterService.getProgramID();
+  async getNextAppointment(programID = AppEncounterService.getProgramID()) {
     return AppEncounterService.getJson(`/programs/${programID}/patients/${this.patientID}/next_appointment_date`, {date: this.date})
   }
+  
   static async getDailiyAppointments(date: any) {
     const programID = AppEncounterService.getProgramID();
     return AppEncounterService.getJson(`/programs/${programID}/booked_appointments`, {date: date, paginate: false})

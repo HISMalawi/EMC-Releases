@@ -97,7 +97,7 @@ export default defineComponent({
         },
         onValue: async (date: string) => {
           if (dateAppointments[date] === undefined) {
-            const res = await AppointmentService.getDailiyAppointments(date)
+            const res = await this.appointment.getDailiyAppointments(date)
             dateAppointments[date] = Array.isArray(res) ? res.length : 0
           }
           if (appointmentLimit >= 1 && dateAppointments[date] >= appointmentLimit) {
