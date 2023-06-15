@@ -102,7 +102,7 @@ export default defineComponent({
           computedValue: (options: Option[]) => {
             return options.map(async (option)=> ({
               ...(await this.radiologyService.buildValueCoded('Radiology Orders', option.other.parent)),
-              child: (await this.radiologyService.buildValueCodedFromConceptId(option.other.parent, option.other.concept_id))
+              child: [await this.radiologyService.buildValueCodedFromConceptId(option.other.parent, option.other.concept_id)]
             }))
           },
         },

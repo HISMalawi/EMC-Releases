@@ -784,13 +784,16 @@ export default defineComponent({
                     'value_numeric': d?.value || 0
                     }
                 )),
-                child: (await this.consultation.buildObs(
-                  'Number of tablets brought to clinic', {
-                    'value_drug': drugID,
-                    'value_numeric': d?.other?.pillsBrought || -1,
-                    'value_datetime': c?.date_last_received_arvs?.date || null
-                  }
-              ))}
+                child: [
+                  await this.consultation.buildObs(
+                    'Number of tablets brought to clinic', {
+                      'value_drug': drugID,
+                      'value_numeric': d?.other?.pillsBrought || -1,
+                      'value_datetime': c?.date_last_received_arvs?.date || null
+                    }
+                  )
+                ]
+              }
             })
           }),
           options: (_: any, c: any, listData: Option) => {
@@ -1184,7 +1187,7 @@ export default defineComponent({
             tag: 'consultation',
             obs: v.map(async (d) => ({
               ...(await this.consultation.buildValueCoded('Malawi ART side effects', d.label)),
-              child: (await this.consultation.buildValueCoded(d.label, d.value)) 
+              child: [await this.consultation.buildValueCoded(d.label, d.value)]
             }))
           }),
           beforeNext: (data: Option[]) => this.buildSideEffectObs(data, 'malawiSideEffectReasonObs'),
@@ -1210,7 +1213,7 @@ export default defineComponent({
             obs: v.filter(d => d.label != 'Other (Specify)')
               .map(async (d) => ({
               ...(await this.consultation.buildValueCoded('Other side effect', d.label)),
-              child: (await this.consultation.buildValueCoded(d.label, d.value))
+              child: [await this.consultation.buildValueCoded(d.label, d.value)]
             }))
           }),
           beforeNext: (data: Option[]) => this.buildSideEffectObs(data, 'otherSideEffectReasonObs'),
@@ -1224,7 +1227,7 @@ export default defineComponent({
             tag: 'consultation',
             obs: {
               ...(await this.consultation.buildValueCoded('Other side effect', 'Other (Specify)')),
-              child: (await this.consultation.buildValueText('Other (Specify)', v.value ))
+              child: [await this.consultation.buildValueText('Other (Specify)', v.value )]
             }
           }),
           condition: (f: any) => this.inArray(
@@ -1264,7 +1267,7 @@ export default defineComponent({
             tag: 'consultation',
             obs: vals.map(async (data: Option) => ({
               ...(await this.consultation.buildValueCoded("Routine TB Screening", data.label)),
-              child: (await this.consultation.buildValueCoded(data.label, data.value))
+              child: [await this.consultation.buildValueCoded(data.label, data.value)]
             })).concat(this.hasTBSymptoms(formData) ? [] : [this.consultation.buildValueCoded("TB Status", "TB NOT suspected")])
           })
         },
