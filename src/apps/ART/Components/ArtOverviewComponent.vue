@@ -89,6 +89,16 @@ export default defineComponent({
     IonCol,
     ApexChart
   },
+  created() {
+    this.rows = this.encounters.map(
+      (enc) => ({
+        encounter: Object.keys(enc)[0],
+        female: '',
+        male: '',
+        me: '',
+        facility: ''
+    }))
+  },
   mounted() {
     this.getVisits();
     this.getEncounters();
@@ -124,28 +134,18 @@ export default defineComponent({
         const encounter_types = this.encounters.map((x) => Object.values(x)[0])
         const userData = await encounterService.getEncounterStats({ encounter_types })
         const facilityData = await encounterService.getEncounterStats({ encounter_types, all: true })
-        this.encounters.forEach(encounter => {
+        this.rows = this.encounters.map(encounter => {
           const [ name, id ] = Object.entries(encounter)[0];
-          this.rows.push({
+          return {
             encounter: name,
             female: facilityData[id]["F"],
             male: facilityData[id]["M"],
             me: userData[id]["F"] + userData[id]["M"],
             facility: facilityData[id]["F"] + facilityData[id]["M"],
-          });
+          };
         });
       } catch (error) {
         console.error(error)
-        this.encounters.forEach(encounter => {
-          const [ name ] = Object.entries(encounter)[0];
-          this.rows.push({
-            encounter: name,
-            female: "",
-            male: "",
-            me: "",
-            facility: "",
-          });
-        });
       }
     },
   },
