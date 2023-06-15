@@ -38,8 +38,6 @@ import { AppEncounterService } from "@/services/app_encounter_service";
 import Store from "@/composables/ApiStore"
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { RegimenService } from "@/services/regimen_service";
-import { AppointmentService } from "../../services/appointment_service";
-import { CxCaAppointmentService } from "@/apps/CxCa/services/CxCaAppointmentService";
 
 export default defineComponent({
   mixins: [AdherenceMixinVue],
@@ -1110,8 +1108,7 @@ export default defineComponent({
           type: FieldType.TT_TEXT_BANNER,
           init: async () => {
             if (this.CxCaEnabled && this.patient.isFemale()) {
-              const CxCaAppointmentObject = new CxCaAppointmentService(this.patientID, this.providerID, 24); //Hard coded ID is for CxCa
-              this.CxCaAppointDate = await CxCaAppointmentObject.getNextAppointment();
+              this.CxCaAppointDate = await this.patient.nextAppointment(24)
             }
             return true;
           },
