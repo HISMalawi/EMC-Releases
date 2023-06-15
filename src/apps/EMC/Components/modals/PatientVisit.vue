@@ -365,7 +365,7 @@ export default defineComponent({
         validation: async (state: Option) => StandardValidations.validateSeries([
           ()  => StandardValidations.required(state),
           () => {
-            if(state.value === "No" || sideEffects.value.some(x => x.isChecked)) return null
+            if(state.value === "No" || contraIndications.value.some(x => x.isChecked)) return null
             return ["Please select at least one side effect"]
           }
         ])
@@ -529,14 +529,13 @@ export default defineComponent({
           const bmiObs = await buildBmiObs(formData)
           await vitals.saveObservationList([...vitalsObs, bmiObs])
         }
+        
         await consultations.createEncounter()
-        const consultationObs = await resolveObs(computedFormData, 'consultation')
-        if(isFemale.value) consultationObs.concat(await buildFpmObs())
-        if(hasContraindications.value) 
-          consultationObs.concat(await optionsToGroupObs("Malawi ART side effects", contraIndications.value))
-        if(hasSideEffects.value) 
-          consultationObs.concat(await optionsToGroupObs("Other side effect", sideEffects.value))
-        consultationObs.concat(await getTbSymptomsObs())
+        let consultationObs = await resolveObs(computedFormData, 'consultation')
+        consultationObs = [...consultationObs, ...(await optionsToGroupObs("Malawi ART side effects", contraIndications.value))]
+        consultationObs = [...consultationObs, ...(await getTbSymptomsObs())]
+        if(hasSideEffects.value) consultationObs = [...consultationObs, ...(await optionsToGroupObs("Other side effect", sideEffects.value))  ]
+        if(isFemale.value) consultationObs = [...consultationObs, ...(await buildFpmObs())]
         await consultations.saveObservationList(consultationObs)
 
         await prescription.createEncounter()

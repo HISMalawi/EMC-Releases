@@ -42,6 +42,7 @@ import EventBus from '@/utils/EventBus';
 import { EmcEvents } from '../../interfaces/emc_event';
 import { modal } from '@/utils/modal';
 import { ConceptService } from '@/services/concept_service';
+import { isEmpty } from 'lodash';
 
 interface ActionButtonInterface {
   label: string;
@@ -122,16 +123,27 @@ export default defineComponent({
       return `${HisDate.toStandardHisDisplayFormat(date)} ${monthsElapsed}`
     }
 
-    const showDrugsDispensed = async (drugs = [] as any[], date: string) => {
-      (await modalController.create({
+    const drill = async (rows: string[][], title: string, columns = [] as string[]) => {
+      if(isEmpty(rows)) return 
+      const modal = await modalController.create({
         component: DrillTableModalVue,
         cssClass: "custom-modal",
-        componentProps: {
-          title: `Drugs dispensed on ${HisDate.toStandardHisDisplayFormat(date)}`,
-          columns: ['DRUG NAME', 'QUANTITY', 'UNITS' ],
-          onRows: () => drugs.map((drug: any) => [drug[0], drug[1], 'tab(s)' ]),
-        },
-      })).present();
+        componentProps: { title, columns, onRows: () => rows },
+      });
+      await modal.present();
+    }
+
+    const showDrugsDispensed = async (drugs = [] as any[], date: string) => {
+      const columns = ['DRUG NAME', 'QUANTITY', 'UNITS' ]
+      const rows = drugs.map((drug: any) => [drug[0], drug[1], 'tab(s)' ])
+      const title = `Drugs dispensed on ${HisDate.toStandardHisDisplayFormat(date)}`
+      return drill(rows, title, columns)
+    }
+
+    const showSideEffects = async (sideEffects = [] as any[], date: string) => {
+      const title = `Side Effects Noted on ${HisDate.toStandardHisDisplayFormat(date)}`
+      const rows = sideEffects.map((e: any) => [e]);
+      return drill(rows, title)
     }
 
     const removeEncounters = async (date: string, index: number, activeRows: any[]) => {
@@ -177,7 +189,7 @@ export default defineComponent({
             table.td(pregnant || ''),
             table.td(breastfeeding ||''),
             table.td(data['tb_status'].match(/Unknown/i) || data.outcome === 'Defaulted' ? '' : (await ConceptService.getCachedConceptName(data['tb_status'])) || ''),
-            table.td(data['side_effects'].length ? 'Yes' : data.outcome !== 'Defaulted' ? 'No' : ''),
+            table.tdLink(data['side_effects'].length ? 'Yes' : data.outcome !== 'Defaulted' ? 'No' : '', () => showSideEffects(data.side_effects, date)),
             table.tdLink(data.outcome === 'Defaulted' ? '' : data.regimen, () => showDrugsDispensed(data.pills_dispensed, date)),
             table.td(nextAppointment || ''),
             table.td(data.outcome.match(/Unk/i) ? "" : data.outcome),

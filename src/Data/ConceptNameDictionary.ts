@@ -1212,6 +1212,16 @@ export default [
       "name": "Heavy alcohol use"
    },
    {
+      "categories":[
+         "tb_symptom",
+      ],
+      "sortIndex": {
+         "tb_symptom": 1
+      },
+      "concept_id":8261,
+      "name":"Cough of any duration"
+   },
+   {
       "categories": [
          "tb_symptom",
          "side_effect"
@@ -1366,7 +1376,6 @@ export default [
    },
    {
       "categories":[
-         "tb_symptom",
          "0_art_regimen_side_effect",
          "9_art_regimen_side_effect",
          "15_art_regimen_side_effect",
@@ -1377,7 +1386,6 @@ export default [
       ],
       "sortIndex": {
          "side_effect": 8,
-         "tb_symptom": 1
       },
       "concept_id":107,
       "name":"Cough"
