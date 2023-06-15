@@ -7,7 +7,7 @@
         type="line"        
         :options="chartOptions"
         :series="series"
-        @click="(e: any, c: any, config: any) => $emit('pointSelection', config)"
+        @markerClick="onPointSelection"
       ></apex-chart>
     </ion-card-content>
   </ion-card>
@@ -27,7 +27,7 @@ export default defineComponent({
     },
     options: {
       type: Object as PropType<Record<string, any>>,
-      default: () => []
+      default: () => ({})
     },
     height: {
       type: [String, Number],
@@ -40,7 +40,7 @@ export default defineComponent({
   },
   components: { IonCard, IonCardContent, ApexChart },
   emits: ["pointSelection"],
-  setup(props) {
+  setup(props, { emit }) {
     const chartOptions = computed(() => {
       const defaults: Record<string, any> = {
         chart: {
@@ -53,6 +53,12 @@ export default defineComponent({
           labels: {
             show: true,
             rotate: -75,
+          }
+        },
+        markers: {
+          size: 8,
+          hover: {
+            sizeOffset: 3
           }
         },
         tooltip: {
@@ -85,8 +91,13 @@ export default defineComponent({
       return defaults;
     });
 
+    const onPointSelection = (e: any, c: any, { dataPointIndex, seriesIndex }: any) => {
+      console.log(e, c)
+      emit("pointSelection", dataPointIndex, seriesIndex <= 0 ? 0 : seriesIndex)
+    }
     return {
       chartOptions,
+      onPointSelection,
     };
   },
 });
