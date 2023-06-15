@@ -72,12 +72,12 @@ export default [
     {
         name: 'cc_monthly_cecap_tx',
         path: '/CxCa/views/reports/clinic/cc_monthly_cecap_tx',
-        component: () => import('@/apps/CxCa/views/reports/clinic/MonthlyCECAP_TX_Report.vue')
+        component: () => import('@/apps/CxCa/views/reports/clinic/Monthly_CxCa_CECAP_TX_Report.vue')
     },
     {
         name: 'cc_monthly_screen',
         path: '/CxCa/views/reports/clinic/cc_monthly_screen',
-        component: () => import('@/apps/CxCa/views/reports/clinic/MonthlyScreen.vue')
+        component: () => import('@/apps/CxCa/views/reports/clinic/Monthly_CxCa_Screen_Report.vue')
     },
     {
         name: 'cc_cxca_tx',
