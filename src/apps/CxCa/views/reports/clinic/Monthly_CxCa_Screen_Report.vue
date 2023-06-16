@@ -109,6 +109,7 @@ export default defineComponent({
             'Age Group', 
             'Negative', 
             'Positive', 
+            'For same day Tx',
             'Suspected Cancer'
         ];
 
@@ -420,8 +421,6 @@ export default defineComponent({
             try {
                 const rawReport = (await report.getClinicReport('MONTHLY SCREEN'))
                 reportData.value = convertToArray(rawReport.data, rawReport.totals)
-
-                extractTotals((await report.getClinicReport('MONTHLY CECAP TX')).totals)
             } catch (e) {
                 toastDanger("Unable to generate report!")
                 console.error(e)
