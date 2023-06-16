@@ -61,8 +61,8 @@ export function resolveObs (obs: any, tag=''): Promise<ObsValue[]> {
   return Promise.all(values)
 }
 
-export async function optionsToGroupObs (conceptName: string, options: Option[]) {
-  return await Promise.all(options.map(async (option) => {
+export function optionsToGroupObs (conceptName: string, options: Option[]) {
+  return Promise.all(options.map(async (option) => {
     return ObservationService.buildGroupValueCoded(conceptName, option.label, option.isChecked ? 'Yes' : 'No')
   }))
 }
