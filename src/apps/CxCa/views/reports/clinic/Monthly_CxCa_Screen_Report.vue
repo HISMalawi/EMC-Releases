@@ -109,6 +109,7 @@ export default defineComponent({
             'Age Group', 
             'Negative', 
             'Positive', 
+            'For same day Tx',
             'Suspected Cancer'
         ];
 
