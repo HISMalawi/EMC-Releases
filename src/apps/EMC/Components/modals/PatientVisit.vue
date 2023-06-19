@@ -417,6 +417,7 @@ export default defineComponent({
     watch(form.patientPresent, isPresent => {
       if(isPresent.value === "No") {
         form.weight.required = false
+        form.weight.error = ""
         form.guardianPresent.value = "Yes"
       } else {
         form.weight.required = true
@@ -429,13 +430,16 @@ export default defineComponent({
       }
     })
 
-    watch([form.weight, form.tbStatus], async () => {
-      if(form.weight.value) {
-        const onTB = !isEmpty(form.tbStatus.value) && !form.tbStatus.value.label.match(/TB Not Suspected/i)
+    watch([() => form.weight.value, form.tbStatus.value], async ([newWeight, tbStatus]) => {
+      form.regimen.value = ''
+      if(newWeight) {
+        const onTB = !isEmpty(tbStatus) && !tbStatus.label.match(/TB Not Suspected/i)
         regimens.value = await getRegimens(form.weight.value, onTB)
         form.patientPresent.value = "Yes"
         form.patientPresent.disabled = true
-        form.regimen.value = ''
+      } else if(!newWeight) {
+        form.patientPresent.value = undefined
+        form.patientPresent.disabled = false
       }
     })
 
@@ -461,20 +465,6 @@ export default defineComponent({
     ]);
 
     const tbMeds = toOptions(['6H', '3HP (RFP + INH)', '3HP (INH 300 / RFP 300)'])
-    
-    const setPatientPresent = (state: "Yes" | "No") => {
-      form.patientPresent.value = state 
-      if(state === 'No') {
-        form.guardianPresent.value = "Yes"
-      }
-    }
-
-    const setGuardianPresent = (state: "Yes" | "No") => {
-      form.guardianPresent.value = state
-      if(state === 'No') {
-        form.patientPresent.value = "Yes"
-      }
-    }
 
     const buildBmiObs = async (formData: any): Promise<ObsValue> => {
       const height = formData.height || prevHeight.value
@@ -673,8 +663,6 @@ export default defineComponent({
       drugRunOutDate,
       birthdate,
       onSubmit,
-      setPatientPresent,
-      setGuardianPresent,
       onClear,
     };
   },
