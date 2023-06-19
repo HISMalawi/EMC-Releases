@@ -48,7 +48,7 @@
         </ion-list>
       </div>
       <div class="input-icon">
-        <ion-icon :icon="close" v-if="filter || tags.length > 0" @click="onReset"></ion-icon>
+        <ion-icon :icon="close" v-if="filter || tags.length > 0" @click="resetHandler"></ion-icon>
         <ion-icon :icon="showOptions ? chevronUp : chevronDown" @click="showOptions ? onCloseOptions() : onShowOptions()"></ion-icon>
       </div>
     </div>
@@ -134,15 +134,15 @@ export default defineComponent({
       set: (value) => emit("update:modelValue", value)
     })
 
-    const onReset = () => {
+    const resetHandler = () => {
       filter.value = '';
       selectedOption.value = undefined;
       filteredOptions.value.forEach(option => option.isChecked = false)
     }
 
     const setDefaults = () => {
-      selectedOption.value = undefined
-      if(isEmpty(model.value.value)) return onReset();
+      resetHandler();
+      if(isEmpty(model.value.value)) return
       if (Array.isArray(model.value.value) && props.multiple) {
         return model.value.value.forEach((option: Option) => {
           const index = filteredOptions.value.findIndex(({ value }: Option) => value === option.value)
@@ -281,7 +281,7 @@ export default defineComponent({
     return {
       validate,
       onSelect,
-      onReset,
+      resetHandler,
       onShowOptions,
       onCloseOptions,
       diselect,

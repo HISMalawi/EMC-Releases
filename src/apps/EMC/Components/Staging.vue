@@ -204,7 +204,6 @@ export default defineComponent({
           form[key].value = undefined
           form[key].error = ""
         }
-        form.whoConditions.value = [];
         EventBus.emit(EmcEvents.ON_CLEAR)
       }
     }
@@ -220,15 +219,20 @@ export default defineComponent({
     }
 
     const setStagingConditions = (stage?: string) => {
-      if(stage) form.whoConditions.value = [];
+      if(stage) form.whoConditions.value = '';
       const stageNum = parseInt(stage?.split(" ")[2] || '1')
       stagingCoditions.value = stagingService
         .getStagingConditions(stageNum)
         .map(c => ({ label: c.name, value: c.name, other: c }))
         .sort((a, b) => a.label.localeCompare(b.label))
     }
-
+    
     watch(()=> form.whoStage.value, (stage) => setStagingConditions(stage?.label))
+    watch(() => form.reasonsForEligibity.value, () => {
+      form.whoStage.value = '';
+      form.whoConditions.value = '';
+    })
+
     onMounted(() => setStagingConditions())
  
     return {
