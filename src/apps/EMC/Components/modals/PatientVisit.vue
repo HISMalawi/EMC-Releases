@@ -430,10 +430,10 @@ export default defineComponent({
       }
     })
 
-    watch([() => form.weight.value, form.tbStatus.value], async ([newWeight, tbStatus]) => {
+    watch([() => form.weight.value, () => form.tbStatus.value], async ([newWeight, tbStatus]) => {
       form.regimen.value = ''
+      const onTB = !isEmpty(tbStatus) && !tbStatus.label.match(/TB Not Suspected/i)
       if(newWeight) {
-        const onTB = !isEmpty(tbStatus) && !tbStatus.label.match(/TB Not Suspected/i)
         regimens.value = await getRegimens(form.weight.value, onTB)
         form.patientPresent.value = "Yes"
         form.patientPresent.disabled = true
@@ -441,6 +441,7 @@ export default defineComponent({
         form.patientPresent.value = undefined
         form.patientPresent.disabled = false
       }
+      form.tbMed.disabled = onTB
     })
 
     watch([() => form.totalArvsGiven.value, () => form.pillCount.value], () => {
