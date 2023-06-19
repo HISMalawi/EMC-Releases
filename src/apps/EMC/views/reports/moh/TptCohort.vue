@@ -20,7 +20,6 @@ import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { RowActionButtonInterface, TableColumnInterface } from "@uniquedj95/vtable";
 import { modal } from "@/utils/modal";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
-import { Patientservice } from "@/services/patient_service";
 import dayjs from "dayjs";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
@@ -35,6 +34,7 @@ export default defineComponent({
   setup() {
     const period = ref("-");
     const rows = ref<any[]>([]);
+    const router = useRouter();
     const { getPatient } = usePatientStore();
     const columns: TableColumnInterface[] = [
       { path: "age_group", label: "Age group" },
@@ -88,7 +88,7 @@ export default defineComponent({
       ]
       const rowActionButtons: RowActionButtonInterface[] = [{
         label: "show",
-        action: ({ patientId }) => useRouter().push(`/emc/patient/${ patientId }`)
+        action: ({ patientId }) => router.push(`/emc/patient/${ patientId }`)
       }];
       const patients = data.row[data.column.path]
       const rows = ref<Array<any>>([])
