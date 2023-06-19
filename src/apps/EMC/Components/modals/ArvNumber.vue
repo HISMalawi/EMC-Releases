@@ -88,9 +88,9 @@ export default defineComponent({
         } else {
           await props.patient.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`);
         }
-        await modal.hide();
         EventBus.emit(EmcEvents.RELOAD_PATIENT_DATA)
       }
+      await modal.hide();
     }) 
 
     const voidARV = async () => {
