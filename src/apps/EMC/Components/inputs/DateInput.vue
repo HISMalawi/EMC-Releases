@@ -161,13 +161,13 @@ export default defineComponent({
       }
       if (props.minDate && new Date(date) < new Date(props.minDate)) {
         return model.value.error = isEstimated.value 
-          ? `Estimated period must be less than or equal to ${dayjs(date).diff(props.minDate, 'years')} years`
-          : `Date must be after ${props.minDate}`
+          ? `Estimated period must be less than or equal to ${dayjs().diff(props.minDate, 'years')} years`
+          : `Date must be after ${HisDate.toStandardHisDisplayFormat(props.minDate)}`
       }
       if (props.maxDate && new Date(date) > new Date(props.maxDate)) {
         return model.value.error = isEstimated.value
-          ? `Estimated period must be more than or equal to ${dayjs(date).diff(props.maxDate, 'years')} years`
-          : `Date must be before ${props.maxDate}`
+          ? `Estimated period must be more than or equal to 0 years`
+          : `Date must be before ${ HisDate.toStandardHisDisplayFormat(props.maxDate) }`
       }
       if (model.value.validation) {
         const errors = await model.value.validation({label: date, value: date}, props.form);
