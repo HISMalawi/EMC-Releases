@@ -23,7 +23,6 @@ export async function isValidForm (form: DTForm) {
     const errs = await form[key].validation!(payload as Option, form)
     if(errs && errs.length > 0) {
       form[key].error = errs.toString()
-      console.log(key, form[key].error)
     } else {
       form[key].error = ''
     }       

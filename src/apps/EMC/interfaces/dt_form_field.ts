@@ -7,7 +7,7 @@ export interface DTFormField {
   error?: string;
   disabled?: boolean;
   required?: boolean;
-  validation?: (value: Option, form: DTForm) => Promise<string[] | false | null | undefined>;
+  validation?: (value: Option, form: DTForm) => Promise<string[] | false | null | undefined> | string[] | false | null | undefined;
   computedValue?: (value: any, form?: DTForm) => any;
 }
 
