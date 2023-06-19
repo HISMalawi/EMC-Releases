@@ -79,10 +79,13 @@ export class StagingService extends AppEncounterService {
         return AppEncounterService.getConceptsByCategory('whole_staging_numbers')
     }
 
-    getAllReasonsForART(registrationDate = this.date) {
-        const reasons = AppEncounterService.getConceptsByCategory('reason_for_art')
-        if(new Date(registrationDate) < new Date(CD4_AS_START_REASON_CUTOFF_DATE)) return reasons
-        return reasons.filter(reason => !reason.name.match(/cd4/i))
+    getAllReasonsForART(registrationDate = this.date, isMale = false) {
+        return AppEncounterService.getConceptsByCategory('reason_for_art')
+            .filter(reason => {
+                if(new Date(registrationDate) > new Date(CD4_AS_START_REASON_CUTOFF_DATE) && reason.name.match(/cd4/i)) return false
+                if(isMale && reason.name.match(/breastfeeding|pregnant/i)) return false
+                return true
+            })
     }
 
     buildWhoStageObs(stage: string) {

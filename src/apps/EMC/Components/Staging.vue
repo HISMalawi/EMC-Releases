@@ -97,7 +97,7 @@ export default defineComponent({
 
     const stagingService = new StagingService(props.patient.getID(), props.patient.getAge(), -1)
     const reasonsForArt = computed(() => {
-      return stagingService.getAllReasonsForART(props.initialVisitDate)
+      return stagingService.getAllReasonsForART(props.initialVisitDate, props.patient.isMale())
         .map(r => ({ label: r.name, value: r.name}))
     })
 
