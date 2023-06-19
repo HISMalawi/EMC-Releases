@@ -58,6 +58,7 @@ import { isValidForm, resolveFormValues } from "../../utils/form";
 import { isEmpty } from "lodash";
 import { toastWarning } from "@/utils/Alerts";
 import { RecordConflictError } from "@/services/service";
+import StandardValidations from "@/components/Forms/validations/StandardValidations";
 
 export default defineComponent({
   name: "UserModal",
@@ -91,10 +92,10 @@ export default defineComponent({
         value: get(props.user, 'person.names[0].given_name', ''),
         label: 'First Name',
         required: true,
-        validation: async (name) => `${name.value}`.length > 2 ? null : ['Name must be atleast 3 characters long']
+        validation: (name) => StandardValidations.isName(name)
       },
       familyName: {
-        validation: async (name) => `${name.value}`.length > 2 ? null : ['Name must be atleast 3 characters long'],
+        validation: (name) => StandardValidations.isName(name),
         value: get(props.user, 'person.names[0].family_name', ''),
         label: 'Last Name',
         required: true,
