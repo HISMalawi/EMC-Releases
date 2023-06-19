@@ -3,7 +3,7 @@
     <ion-toolbar>
       <ion-title>Add Guadian Demographics</ion-title>
       <ion-buttons slot="end">
-        <ion-button @click="closeModal">
+        <ion-button @click="modal.hide()">
           <ion-icon slot="icon-only" name="close"></ion-icon>
         </ion-button>
       </ion-buttons>
