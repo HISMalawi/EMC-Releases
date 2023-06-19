@@ -2,7 +2,10 @@
   <ion-grid class="ion-no-margin ion-no-padding">
     <ion-row>
       <ion-col :size="12">
-        <ion-label class="ion-margin-end"><b>{{ model.label }}:</b></ion-label>
+        <ion-label class="ion-margin-end"><b>
+          <span>{{ model.label }}:</span>
+          <span v-if="model.required" class="text-danger">*</span>
+        </b></ion-label>
         <br v-if="!inline"><br v-if="!inline">
         <ion-radio-group v-model="model.value" @ionChange="() => model.error = ''">
           <span class="ion-margin-start">Yes</span>

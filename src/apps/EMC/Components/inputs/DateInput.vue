@@ -2,6 +2,7 @@
   <ion-label class="ion-padding-bottom bold" v-if="model.label">
     <span v-if="isEstimated">{{ estimationLabel }}</span>
     <span v-else>{{ model.label }}</span>
+    <span v-if="model.required" class="text-danger"> *</span>
     <span class="ion-float-right ion-margin-end checkbox-label" v-if="allowEstimation">
       Estimate {{ model.label }}
       <ion-checkbox v-model="isEstimated"></ion-checkbox>

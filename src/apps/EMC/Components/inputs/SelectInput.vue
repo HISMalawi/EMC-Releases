@@ -1,6 +1,7 @@
 <template>
   <ion-label class="ion-padding-bottom bold" v-if="model.label"> 
     <span>{{ model.label }}</span>
+    <span v-if="model.required" class="text-danger"> *</span>
     <span class="ion-float-right ion-margin-end checkbox-label" v-if="allowCustom">
       Add Custom {{ model.label }}?
       <ion-checkbox v-model="isCustom" @ionChange="model.value = ''"></ion-checkbox>
