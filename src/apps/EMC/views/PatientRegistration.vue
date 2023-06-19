@@ -91,6 +91,7 @@ import EventBus from "@/utils/EventBus";
 import { EmcEvents } from "../interfaces/emc_event";
 import dayjs from "dayjs";
 import { STANDARD_DATE_FORMAT } from "@/utils/Date";
+import StandardValidations from "@/components/Forms/validations/StandardValidations";
 
 export default defineComponent({
   components: {
@@ -119,18 +120,20 @@ export default defineComponent({
         value: "",
         placeholder: "Enter First Name",
         required: true,
-        error: "",
+        validation: (name) => StandardValidations.isName(name)
       },
       familyName: {
         label: "last Name",
         value: "",
         placeholder: "Enter Last Name",
-        required: true
+        required: true,
+        validation: (name) => StandardValidations.isName(name)
       },
       middleName: {
         label: "middle Name",
         value: "",
         placeholder: "Enter middle Name",
+        validation: (name) => !!name && StandardValidations.isName(name)
       },
       gender: {
         value: '',
@@ -170,12 +173,14 @@ export default defineComponent({
         value: "",
         placeholder: "Enter First Name",
         required: true,
+        validation: (name) => StandardValidations.isName(name)
       },
       familyName: {
         label: "Last Name",
         value: "",
         placeholder: "Enter Last Name",
         required: true,
+        validation: (name) => StandardValidations.isName(name)
       },
       cellPhoneNumber: {
         value: '',

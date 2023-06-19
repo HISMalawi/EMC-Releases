@@ -74,6 +74,7 @@ import { genderOptions } from "../../utils/DTFormElements";
 import { modal } from "@/utils/modal";
 import dayjs from "dayjs";
 import { STANDARD_DATE_FORMAT } from "@/utils/Date";
+import StandardValidations from "@/components/Forms/validations/StandardValidations";
 
 export default defineComponent({
   components: {
@@ -99,18 +100,20 @@ export default defineComponent({
         value: props.patientService.getGivenName(),
         placeholder: "First Name",
         required: true,
-        error: "",
+        validation: (name) => StandardValidations.isName(name)
       },
       familyName: {
         label: "last Name",
         value: props.patientService.getFamilyName(),
         placeholder: "Last Name",
-        required: true
+        required: true,
+        validation: (name) => StandardValidations.isName(name)
       },
       middleName: {
         label: "middle Name",
         value: props.patientService.getMiddleName(),
         placeholder: "middle Name",
+        validation: (name) => !!name && StandardValidations.isName(name)
       },
       gender: {
         value: props.patientService.getGender(),

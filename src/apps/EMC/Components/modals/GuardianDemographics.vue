@@ -45,6 +45,7 @@ import { RelationsService } from "@/services/relations_service";
 import EventBus from "@/utils/EventBus";
 import { EmcEvents } from "../../interfaces/emc_event";
 import { modal } from "@/utils/modal";
+import StandardValidations from "@/components/Forms/validations/StandardValidations";
 
 export default defineComponent({
   components: {
@@ -66,12 +67,14 @@ export default defineComponent({
         value: "",
         placeholder: "First Name",
         required: true,
+        validation: (name) => StandardValidations.isName(name)
       },
       familyName: {
         label: "Last Name",
         value: "",
         placeholder: "Last Name",
         required: true,
+        validation: (name) => StandardValidations.isName(name)
       },
       cellPhoneNumber: {
         value: '',
