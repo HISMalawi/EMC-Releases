@@ -26,7 +26,7 @@
                 :estimationLabel="'Estimate Age'"
                 minDate="1920-01-01"
                 :maxDate="today"
-                @isEstimated="(estimate) => isBirthdateEstimated = estimate"/>
+                @isEstimated="(estimate: boolean) => isBirthdateEstimated = estimate"/>
             </ion-col>
             <ion-col size="4" class="ion-margin-top ion-margin-bottom">
               <SelectInput v-model="patient.gender" :options="genderOptions" />
