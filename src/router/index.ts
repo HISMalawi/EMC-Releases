@@ -56,11 +56,6 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/SetSiteCode.vue"),
   },
   {
-    name: "DT API host settings",
-    path: '/settings/network_settings',
-    component: () => import('@/views/DTNetworkSettings.vue'),
-  },
-  {
     path: '/login',
     name: 'Login',
     component: () => import('../views/Login/Login.vue')
@@ -177,7 +172,7 @@ router.beforeEach((to, from, next) => {
     document.location = '/emc/dashboard'
     return
   }
-  const whitelistedUri = ['/login', '/settings/host', '/settings/network_settings']
+  const whitelistedUri = ['/login', '/settings/host', '/emc/settings/network_settings']
   if (!isSession && !whitelistedUri.includes(to.path)) {
     next('/login')
   }

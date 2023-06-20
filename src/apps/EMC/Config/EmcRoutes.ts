@@ -62,6 +62,10 @@ export default [
     path: '/emc/settings/site_settings',
     component: () => import('@/apps/EMC/views/settings/SiteSettings.vue'),
   },
+  {
+    path: '/emc/settings/network_settings',
+    component: () => import('@/apps/EMC/views/settings/NetworkSettings.vue'),
+  },
   /** Clinic Reports */
   {
     name: 'emc_clinic_appointments',

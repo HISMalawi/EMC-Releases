@@ -291,7 +291,7 @@ export const menuItems: MenuItem[] = [
         title: "Network Settings",
         id: "network_settings",
         img: 'portal.png',
-        url: '/settings/network_settings'
+        url: '/emc/settings/network_settings'
       }
     ]
   },

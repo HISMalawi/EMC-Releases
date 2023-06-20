@@ -60,7 +60,7 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const settingsUrl = computed(() => props.isPocSite ? "/settings/host" : "/settings/network_settings")
+    const settingsUrl = computed(() => props.isPocSite ? "/settings/host" : "/emc/settings/network_settings")
     const { activePlatformProfile, platformProfiles } = usePlatform()
     const profile = ref(activePlatformProfile.value.profileName || "")
     const deviceProfiles: any = Object.keys(platformProfiles.value).map(key => ({

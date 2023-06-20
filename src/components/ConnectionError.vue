@@ -33,7 +33,7 @@ export default defineComponent({
       const goToSettings = () => {
         const url = sessionStorage.isPocSite !== "false"
           ? '/settings/host'
-          : '/settings/network_settings'
+          : '/emc/settings/network_settings'
         router.push(url)
       }
       const refresh = () => location.reload()
