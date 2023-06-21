@@ -5,6 +5,7 @@
     :columns="columns"
     :rows="rows"
     :quarter="quarter"
+    :filename="filename"
     useQuarterFilter
     :custom-filters="customFilters"
     @custom-filter="fetchData"
@@ -27,6 +28,7 @@ export default defineComponent({
   setup() {
     const quarter = reactive({} as Option)
     const ageGroup = reactive({} as Option)
+    const filename = computed(() => `MoH Survival Analysis (${ageGroup.value}) Report`)
     const rows = ref<any[]>([]);
     const columns: TableColumnInterface[] = [
       { path: "quarter", label: "Reg Cohort", initialSort: true, initialSortOrder: 'asc', preSort: (v) => parseInt(v.split(' ')[1]) },
@@ -99,6 +101,7 @@ export default defineComponent({
       columns,
       quarter,
       customFilters,
+      filename,
       fetchData,
       onRegenerate,
     }

@@ -150,12 +150,16 @@ export default defineComponent({
     showIndices: {
       type: Boolean,
       default: false
+    },
+    filename: {
+      type: String,
+      default: "",
     }
   },
   emits: ["regenerate", "customFilter", "drilldown"],
   setup(props, { emit }) {
     const filename = computed(() => {
-      return `${PatientReportService.getLocationName()} ${props.title} ${ props.period ? props.period : props.date }`;
+      return `${PatientReportService.getLocationName()} ${props.filename || props.title} ${ props.period ? props.period : props.date }`;
     })
 
     const actionBtns = computed<ActionButtonInterface[]>(() => {
