@@ -27,6 +27,7 @@ import { sortByARV } from "@/apps/EMC/utils/common";
 import { TptReportService } from "@/apps/ART/services/reports/tpt_report_service";
 import { useRouter } from "vue-router";
 import usePatientStore from "@/apps/EMC/composables/usePatientStore"
+import { toastDanger } from "@/utils/Alerts";
 
 export default defineComponent({
   name: "TptCohort",
@@ -58,12 +59,17 @@ export default defineComponent({
 
     const fetchData = async ({ dateRange }: Record<string, any>) => {
       await loader.show()
-      const report = new TptReportService()
-      report.setStartDate(dateRange.startDate)
-      report.setEndDate(dateRange.endDate)
-      period.value = report.getDateIntervalPeriod()
-      const data = await report.getCohort();
-      rows.value = sortByGender(data);
+      try {
+        const report = new TptReportService()
+        report.setStartDate(dateRange.startDate)
+        report.setEndDate(dateRange.endDate)
+        period.value = report.getDateIntervalPeriod()
+        const data = await report.getCohort();
+        rows.value = sortByGender(data);
+      } catch (error) {
+        toastDanger(`${error}`);
+        console.error(error)
+      }
       await loader.hide();
     }
 
