@@ -43,6 +43,10 @@ export class AuthService {
         this.coreVersion = ''
     }
 
+    static isLoggedIn () {
+        return !!sessionStorage.apiKey
+    }
+
     setUsername(username: string) { this.username = username }
 
     async loadConfig() {
