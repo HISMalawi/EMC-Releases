@@ -141,7 +141,7 @@ export default defineComponent({
     })
     onMounted(async () => {
       const auth = new AuthService()
-      otherApps.value = (await auth.loadConfig()).otherApps
+      otherApps.value = (await auth.loadConfig())?.otherApps || []
       const appV = auth.getHeadVersion()
       auth.setActiveVersion(appV)
       const apiV = await auth.getApiVersion()
