@@ -9,7 +9,7 @@
 import { defineComponent } from 'vue'
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import { Field, Option } from "@/components/Forms/FieldInterface"
-import { toastWarning, alertConfirmation } from "@/utils/Alerts"
+import { toastWarning, alertConfirmation, toastDanger } from "@/utils/Alerts"
 import { DispensationService } from "@/apps/ART/services/dispensation_service"
 import {isEmpty } from 'lodash'
 import EncounterMixinVue from '../../../../views/EncounterMixin.vue'
@@ -116,9 +116,18 @@ export default defineComponent({
                     helpText: 'Dispensation',
                     type: FieldType.TT_DISPENSATION_INPUT,
                     init: async () => {
-                        this.dispensation.setIsDrugManagementEnabled((await Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED')))
-                        await this.dispensation.loadCurrentDrugOrder()
-                        return true
+                        try {
+                            this.dispensation.setIsDrugManagementEnabled((await Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED')))
+                        } catch (e) {
+                            toastWarning("Unable to verify stock management status")
+                        }
+                        try {
+                            await this.dispensation.loadCurrentDrugOrder()
+                            return true
+                        } catch (e) {
+                            toastDanger(`Unable to load current order: ${e}`)
+                            return false
+                        }
                     },
                     onValueUpdate: async(i: Option, l: Array<Option>) => {
                         if (i.value != -1 && this.isDoneDispensing(l)) {

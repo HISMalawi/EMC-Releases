@@ -93,25 +93,21 @@ export class DispensationService extends AppEncounterService {
 
     async loadDrugHistory() {
         try {
-            const res = await DrugOrderService.getDrugOrderHistory(this.patientID)
-            if (res) this.drugHistory = res
+            this.drugHistory = (await DrugOrderService.getDrugOrderHistory(this.patientID))||[]
         } catch (e) {
             console.warn(e)
         }
     }
 
     async loadCurrentDrugOrder() {
-        const res = await DrugOrderService.getDrugOrders(this.patientID)
-        if (res) {
-            if (this.useDrugManagement) {
-                const drugs = res.map(async (d: any) => {
-                    d['available_stock'] = await StockService.fetchAvailableDrugStock(d.drug.drug_id)
-                    return d
-                })
-                this.currentDrugOrder = await Promise.all(drugs)
-                return
+        this.currentDrugOrder = (await DrugOrderService.getDrugOrders(this.patientID))||[]
+        if (!this.useDrugManagement) return
+        for(const order of this.currentDrugOrder) {
+            try {
+                order['available_stock'] = await StockService.fetchAvailableDrugStock(order.drug.drug_id)
+            } catch (e) {
+                console.error(`Stock management error: ${e}`)
             }
-            this.currentDrugOrder = res
         }
     }
 
