@@ -81,7 +81,8 @@ export default defineComponent({
     isNoneClientPatient: false as boolean,
     tptStatus: {} as Record<string, any>,
     customDrugs: [] as any,
-    CxCaAppointDate: {} as any
+    CxCaAppointDate: {} as any,
+    isEligibleForTpt: false as boolean
   }),
   watch: {
     ready: {
@@ -550,6 +551,7 @@ export default defineComponent({
       })
     },
     medicationOrderOptions(formData: any, prechecked=[] as Option[]): Option[] {
+      this.isEligibleForTpt = false
       const completedTpt = this.didCompleted3HP(formData)
       const everTakenTpt = this.tptStatus.tpt !== null
       const autoSelect3HP = this.tptAutoSelectionMode(formData)
@@ -564,7 +566,6 @@ export default defineComponent({
           text
         }
       })
-
       return this.runAppendOptionParams([
         this.toOption('ARVs', {
           appendOptionParams: () => ({ 
@@ -593,6 +594,7 @@ export default defineComponent({
             if (everTakenTpt && this.tptStatus.tpt !== '3HP (RFP + INH)' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
             }
+            this.isEligibleForTpt = true
             if (this.tptStatus.tpt === '3HP (RFP + INH)' && !this.tptStatus.completed) return { isChecked: true }
           }
         }),
@@ -607,6 +609,7 @@ export default defineComponent({
             if (everTakenTpt && this.tptStatus.tpt !== 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
             }
+            this.isEligibleForTpt = true
             if (this.tptStatus.tpt === 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) return { isChecked: true }
             return { isChecked: autoSelect3HP }
           }
@@ -621,6 +624,7 @@ export default defineComponent({
             if (everTakenTpt && this.tptStatus.tpt !== 'IPT' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
             }
+            this.isEligibleForTpt = true
             if (this.tptStatus.tpt === 'IPT' && !this.tptStatus.completed) return { isChecked: true }
           }
         }),
@@ -653,6 +657,16 @@ export default defineComponent({
               this.autoSelect3HP = await Store.get('ART_AUTO_3HP_SELECTION')
               this.tptStatus = await this.consultation.getTptTreatmentStatus()
               this.completed3HP = this.tptStatus.tpt !== null && this.tptStatus.completed
+            }
+            return true
+          },
+          beforeNext: async (v: Option[], f: any) => {
+            if (this.isEligibleForTpt && 
+              !this.patientOnTpt(f) && 
+              !v.some(d => /3hp|ipt/i.test(d.label))) {
+              if (!(await alertConfirmation("Are you sure you want to skip TPT prescription for eligible client?"))) {
+                return false
+              }
             }
             return true
           },
@@ -1458,6 +1472,16 @@ export default defineComponent({
               this.autoSelect3HP = await Store.get('ART_AUTO_3HP_SELECTION')
               this.tptStatus = await this.consultation.getTptTreatmentStatus()
               this.completed3HP = this.tptStatus.tpt !== null && this.tptStatus.completed
+            }
+            return true
+          },
+          beforeNext: async (v: Option[], f: any) => {
+            if (this.isEligibleForTpt &&
+                !this.patientOnTpt(f) &&
+                !v.some(d => /3hp|ipt/i.test(d.label))) {
+              if (!(await alertConfirmation("Are you sure you want to skip TPT prescription for eligible client?"))) {
+                return false
+              }
             }
             return true
           },

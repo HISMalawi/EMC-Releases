@@ -509,7 +509,6 @@ export default defineComponent({
     async onFinishAction() {
       const formData = this.resolveFormValues(this.formData)
       const computedData = this.resolveFormValues(this.computedFormData)
-      console.log(computedData)
       if (this.onFinish) {
         try {
           this.state = 'onsubmit'
