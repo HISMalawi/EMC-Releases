@@ -118,10 +118,6 @@ export default defineComponent({
                     init: async () => {
                         try {
                             this.dispensation.setIsDrugManagementEnabled((await Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED')))
-                        } catch (e) {
-                            toastWarning("Unable to verify stock management status")
-                        }
-                        try {
                             await this.dispensation.loadCurrentDrugOrder()
                             return true
                         } catch (e) {
