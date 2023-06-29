@@ -27,6 +27,7 @@ import ApiStore from '@/composables/ApiStore';
 import EventBus from '@/utils/EventBus';
 import { EmcEvents } from '../interfaces/emc_event';
 import { toGenderString } from '@/utils/Strs';
+import { OrderService } from '@/services/order_service';
 
 interface InfoItem {
   label: string;
@@ -236,7 +237,7 @@ export default defineComponent({
 
    onMounted(() => {
     init();
-    EventBus.on(EmcEvents.RELOAD_LATEST_VL_RESULT,  () =>  setLatestVLResult())
+    EventBus.on(EmcEvents.RELOAD_LATEST_VL_RESULT,  () =>  setLatestVLResult(true))
     EventBus.on(EmcEvents.RELOAD_STAGING_INFORMATION, () => init())
    })
 
