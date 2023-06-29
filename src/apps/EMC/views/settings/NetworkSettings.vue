@@ -1,16 +1,14 @@
 <template>
-  <Layout v-if="isLoggedIn">
-    <ion-grid>
-      <ion-row>
-        <ion-col size="10" offset="1" class=" ion-padding">
-          <div class="his-card">
-            <ion-title>Network Settings / API Host configuration</ion-title>
-            <NetworkForm @submit="submit" />
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </Layout>
+  <ion-grid v-if="isLoggedIn">
+    <ion-row>
+      <ion-col size="10" offset="1" class=" ion-padding">
+        <div class="his-card">
+          <ion-title>Network Settings / API Host configuration</ion-title>
+          <NetworkForm @submit="submit" />
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
   <ion-page v-else>
     <ion-header>
       <ion-toolbar>
@@ -41,7 +39,6 @@ import ApiClient from "@/services/api_client";
 import { infoActionSheet } from "@/utils/ActionSheets";
 import { useRouter } from "vue-router";
 import { AuthService } from "@/services/auth_service";
-import Layout from "@/apps/EMC/Components/Layout.vue";
 import NetworkForm from "../../Components/NetworkForm.vue";
 
 const router = useRouter();

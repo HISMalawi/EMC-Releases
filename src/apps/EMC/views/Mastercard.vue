@@ -1,5 +1,4 @@
 <template>
-<layout>
   <ion-grid class="ion-no-margin ion-no-padding" v-if="isReady">
     <ion-row>
       <ion-col size="12">
@@ -24,14 +23,12 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-</layout>
 </template>
 <script lang="ts">
 import { computed, defineComponent, onMounted, ref } from "vue";
 import HisDate from "@/utils/Date";
 import { Patient } from "@/interfaces/patient";
 import { RelationshipService } from "@/services/relationship_service";
-import Layout from "../Components/Layout.vue";
 import VisitsSummary from "../Components/tables/VisitsSummary.vue";
 import InformationHeader from "@/apps/EMC/Components/InformationHeader.vue";
 import { PatientObservationService } from "@/services/patient_observation_service";
@@ -46,7 +43,6 @@ import { isEmpty } from "lodash";
 
 export default defineComponent({
   components: {
-    Layout,
     VisitsSummary,
     InformationHeader,
   },

@@ -1,5 +1,4 @@
 <template>
-  <layout>
     <ion-grid>
       <ion-row class="his-card">
         <ion-col size="12" v-if="isReady">
@@ -20,13 +19,11 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-  </layout>
 </template>
 
 <script lang="ts">
 import { computed, defineAsyncComponent, defineComponent, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonGrid, IonRow, IonCol, IonButton } from "@ionic/vue";
 import { Patientservice } from '@/services/patient_service';
 import Store from "@/composables/ApiStore"
@@ -51,7 +48,6 @@ export default defineComponent({
   components: {
     ClinicRegistration: defineAsyncComponent(() => import('@/apps/EMC/Components/ClinicRegistration.vue')),
     Staging: defineAsyncComponent(() => import('@/apps/EMC/Components/Staging.vue')),
-    Layout,
     IonGrid,
     IonRow,
     IonCol,

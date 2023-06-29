@@ -37,8 +37,8 @@
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <ion-content class="ion-padding">
-      <slot> </slot>
+    <ion-content class="ion-padding" style="padding-top: 4rem !important;">
+      <ion-router-outlet :key="$route.fullPath" />
     </ion-content>
   </ion-page>
 </template>
@@ -60,7 +60,8 @@ import {
   IonLabel,
   popoverController,
   IonIcon,
-IonButton,
+  IonButton,
+  IonRouterOutlet,
 } from "@ionic/vue";
 import { menuItems } from "../Config/appMenu";
 import { caretDown } from "ionicons/icons";
@@ -85,7 +86,8 @@ export default defineComponent({
     IonMenuButton,
     IonLabel,
     IonIcon,
-    MultiLevelMenu
+    MultiLevelMenu,
+    IonRouterOutlet,
 },
   setup() {
     const facility = ref('')

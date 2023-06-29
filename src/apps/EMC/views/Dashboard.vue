@@ -1,5 +1,4 @@
 <template>
-  <layout>
     <h1 class=" his-lg-text ion-padding-start">
       Dashboard 
       <ion-button class="ion-margin-end ion-float-right" @click="() => loadData(true)">
@@ -64,11 +63,10 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-  </layout>
 </template>
+
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
-import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonGrid, IonRow, IonCol, IonButton } from "@ionic/vue";
 import DashboardCard from "../Components/DashboardCard.vue";
 import { people, calendar, alarm, time } from "ionicons/icons";
@@ -82,7 +80,6 @@ export default defineComponent({
   name: "Dashboard",
   inheritAttrs: false,
   components: {
-    Layout,
     IonGrid,
     IonRow,
     IonCol,

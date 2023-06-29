@@ -1,5 +1,4 @@
 <template>
-  <Layout>
     <ion-card style="padding: 0 !important">
       <ion-card-header style="border-bottom: 1px solid #c2c2c2; font-weight: 500; color: #000;">
         <ion-grid>
@@ -37,7 +36,6 @@
         </data-table>
       </ion-card-content>
     </ion-card>
-  </Layout>
 </template>
 
 <script lang="ts">
@@ -45,7 +43,6 @@ import { computed, defineComponent, PropType } from "vue";
 import { IonCard, IonCardContent, IonCardHeader, IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
 import dayjs from "dayjs";
-import Layout from "@/apps/EMC/Components/Layout.vue";
 import { ArtReportService } from "@/apps/ART/services/reports/art_report_service";
 import { Option } from '@/components/Forms/FieldInterface';
 import { 
@@ -65,7 +62,6 @@ export default defineComponent({
     IonCard,
     IonCardHeader,
     IonCardContent,
-    Layout,
     IonGrid,
     IonRow,
     IonCol,

@@ -1,5 +1,4 @@
 <template>
-<Layout>
   <ion-grid>
     <ion-row>
       <ion-col size="10" offset="1" class=" ion-padding" >
@@ -32,7 +31,6 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-</Layout>
 </template>
 
 <script lang="ts">
@@ -43,7 +41,6 @@ import SelectInput from "@/apps/EMC/Components/inputs/SelectInput.vue";
 import { DTForm } from "@/apps/EMC/interfaces/dt_form_field";
 import { submitForm } from "@/apps/EMC/utils/form";
 import { toastSuccess } from "@/utils/Alerts";
-import Layout from "@/apps/EMC/Components/Layout.vue";
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import { Service } from "@/services/service";
@@ -57,7 +54,6 @@ export default defineComponent({
     IonCol,  
     TextInput,
     SelectInput,
-    Layout
   },
 
   setup(){

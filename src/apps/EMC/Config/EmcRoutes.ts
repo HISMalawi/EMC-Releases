@@ -63,6 +63,7 @@ export default [
     component: () => import('@/apps/EMC/views/settings/SiteSettings.vue'),
   },
   {
+    name: "DT API host settings",
     path: '/emc/settings/network_settings',
     component: () => import('@/apps/EMC/views/settings/NetworkSettings.vue'),
   },

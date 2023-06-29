@@ -1,5 +1,4 @@
 <template>
-<Layout>
   <ion-grid>
     <ion-row>
       <ion-col size="8">
@@ -46,7 +45,6 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-</Layout>
 </template>
 
 <script lang="ts">
@@ -61,7 +59,6 @@ import { UserService } from "@/services/user_service";
 import { Role } from "@/interfaces/role";
 import { submitForm } from "@/apps/EMC/utils/form";
 import { toastSuccess } from "@/utils/Alerts";
-import Layout from "../Components/Layout.vue";
 import { User } from "@/interfaces/user";
 
 export default defineComponent({
@@ -73,7 +70,6 @@ export default defineComponent({
     IonCol,  
     TextInput,
     SelectInput,
-    Layout
   },
 
   setup(){

@@ -1,5 +1,4 @@
 <template>
-  <Layout>
     <ion-grid class="ion-margin-vertical">
       <ion-row >
         <ion-col class="his-card ion-padding" size="10" offset="1">
@@ -25,12 +24,10 @@
         </ion-col>
       </ion-row> 
     </ion-grid>
-  </Layout>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive } from "vue";
-import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonGrid, IonRow, IonCol, IonButton, IonTitle } from "@ionic/vue";
 import { useRouter } from "vue-router";
 import { DTForm } from "../../interfaces/dt_form_field";
@@ -48,7 +45,6 @@ import { EmcEvents } from "../../interfaces/emc_event";
 
 export default defineComponent({
   components: {
-    Layout,
     IonGrid,
     IonRow,
     IonCol,

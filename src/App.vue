@@ -6,7 +6,8 @@
     </modal-container>
     <full-screen-notice v-if="checkFullScreen"/>
     <update-notification v-if="checkForUpdates"/>
-    <ion-router-outlet :key="$route.fullPath"/>
+    <emc-layout v-if="useEMCLayout" />
+    <ion-router-outlet :key="$route.fullPath" v-else />
     <connection-error v-if="!apiOk && notConfigPage"/>
   </ion-app>
 </template>
@@ -25,11 +26,14 @@ import nprogress from 'nprogress'
 import router from '@/router/index';
 import { loadingController } from "@ionic/vue"
 import { AuthService } from './services/auth_service';
+import { Service } from './services/service';
+import EmcLayout from "@/apps/EMC/Components/Layout.vue"
 
 export default defineComponent({
   name: 'App',
   components: {
     IonApp,
+    EmcLayout,
     IonRouterOutlet,
     ModalContainer: defineAsyncComponent(() => import("@/components/ModalContainer.vue")),
     FullScreenNotice: defineAsyncComponent(() => import("@/components/FullScreenModifier.vue")),
@@ -43,9 +47,9 @@ export default defineComponent({
     const healthCheckInterval = ref(null) as any
     const checkFullScreen = ref(false)
     const checkForUpdates = ref(true)
+    const useEMCLayout = ref(false);
     const auth = new AuthService()
     const activeModal = ref('')
-
     // synchronize date every 1 hour
     auth.initDateSync(3600000)
 
@@ -63,12 +67,13 @@ export default defineComponent({
       trickleSpeed: 8
     })
 
-    watch(route, (route) => 
-      notConfigPage.value = route.name != 'API host settings' && route.name != "DT API host settings",
-      {
-        immediate: true
-      }
-    )
+    watch(route, (route) => {
+      notConfigPage.value = route.name != 'API host settings' && route.name != "DT API host settings"
+      useEMCLayout.value = (!Service.isPocSite() && route.name !== "Login" && route.name !== "DT API host settings") ||
+        (!Service.isPocSite() && route.name === "DT API host settings" && AuthService.isLoggedIn());
+    }, {
+      immediate: true
+    })
 
     watch(healthCheckInterval, (interval: any) => {
       apiOk.value = !interval
@@ -120,7 +125,8 @@ export default defineComponent({
       checkForUpdates,
       activeModal,
       notConfigPage,
-      checkFullScreen
+      checkFullScreen,
+      useEMCLayout
     }
   }
 })

@@ -69,7 +69,6 @@
 
 <script lang="ts">
 import { defineComponent, reactive, ref, watch } from "vue";
-import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonGrid, IonRow, IonCol,IonCheckbox } from "@ionic/vue";
 import { alertConfirmation } from "@/utils/Alerts";
 import Validation from "@/components/Forms/validations/StandardValidations"
@@ -95,7 +94,6 @@ import StandardValidations from "@/components/Forms/validations/StandardValidati
 
 export default defineComponent({
   components: {
-    Layout,
     IonGrid,
     IonRow,
     IonCol,

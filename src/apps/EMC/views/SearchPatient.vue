@@ -1,5 +1,4 @@
 <template>
-  <Layout>
     <ion-grid>
       <ion-row class="his-card">
         <ion-col size="10" style="display: flex; justify-content: flex-start">
@@ -35,12 +34,10 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-  </Layout>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive, ref } from "vue";
-import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonGrid, IonRow, IonCol, IonSearchbar, IonButton } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
@@ -58,7 +55,6 @@ import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   components: {
-    Layout,
     IonGrid,
     IonRow,
     IonCol,

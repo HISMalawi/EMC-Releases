@@ -1,5 +1,4 @@
 <template>
-  <Layout>
     <ion-grid>
       <ion-row>
         <ion-col size="2">
@@ -28,7 +27,6 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-  </Layout>
 </template>
 
 <script lang="ts">
@@ -45,7 +43,6 @@ import { MohCohortReportService } from "@/apps/ART/services/reports/moh_cohort_s
 import CohortH from "@/apps/ART/views/reports/moh/CohortReport/CohortHeader.vue"
 import CohortV from "@/apps/ART/views/reports/moh/CohortReport/CohortValidation.vue"
 import CohortFt from "@/apps/ART/views/reports/moh/CohortReport/CohortFT.vue"
-import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonCol, IonRow, IonGrid } from "@ionic/vue";
 import Url from "@/utils/Url";
 import { toCsv } from "@/utils/Export";
@@ -66,7 +63,6 @@ export default defineComponent({
     CohortH,
     CohortV,
     CohortFt,
-    Layout,
     IonCol,
     IonRow,
     IonGrid,

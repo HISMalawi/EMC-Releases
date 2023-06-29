@@ -1,5 +1,4 @@
 <template>
-  <layout>
     <ion-grid>
       <ion-row>
         <ion-col size="5" offset="7" class="ion-padding">
@@ -28,11 +27,9 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-  </layout>
 </template>
 <script lang="ts">
 import { computed, defineComponent, reactive, ref } from "vue";
-import Layout from "@/apps/EMC/Components/Layout.vue";
 import LineChart from "@/apps/EMC/Components/charts/LineChart.vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { isEmpty } from "lodash";
@@ -50,7 +47,6 @@ import { sortByARV } from "../../utils/common";
 
 export default defineComponent({
   components: {
-    Layout,
     LineChart,
     IonGrid,
     IonRow,

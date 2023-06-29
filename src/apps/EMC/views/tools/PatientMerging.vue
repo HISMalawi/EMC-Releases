@@ -1,5 +1,4 @@
 <template>
-  <Layout>
     <ion-grid>
       <ion-row>
         <ion-col size="12" class="padding">
@@ -36,12 +35,10 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-  </Layout>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, reactive } from "vue";
-import Layout from "@/apps/EMC/Components/Layout.vue";
 import { IonGrid, IonRow, IonCol, IonSearchbar } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
@@ -57,7 +54,6 @@ interface MergePatient {
 
 export default defineComponent({
   components: {
-    Layout,
     IonGrid,
     IonRow,
     IonCol,
