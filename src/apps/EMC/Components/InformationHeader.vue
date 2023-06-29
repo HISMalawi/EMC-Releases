@@ -218,7 +218,7 @@ export default defineComponent({
       if(date) hivTestDate.value = HisDate.toStandardHisDisplayFormat(date)
     }
 
-    const init = () => {
+    const setStagingInfo = () => {
       props.patient.getInitialWeight().then(v => initWeight.value = v)
       props.patient.getInitialHeight().then(v => initHeight.value = v)
       props.patient.getInitialBMI().then(v => initBmi.value = v)
@@ -231,14 +231,14 @@ export default defineComponent({
       props.patient.getHIVTestLocation().then(v => hivTestPlace.value = v)
       props.patient.getStagingCondition().then(v => stagingCondition.value = v)
       props.patient.getWhoStage().then(v => whoSTage.value = v)
-      setLatestVLResult()
       setHIVTestDate()
     }
 
    onMounted(() => {
-    init();
+    setStagingInfo();
+    setLatestVLResult();
     EventBus.on(EmcEvents.RELOAD_LATEST_VL_RESULT,  () =>  setLatestVLResult(true))
-    EventBus.on(EmcEvents.RELOAD_STAGING_INFORMATION, () => init())
+    EventBus.on(EmcEvents.RELOAD_STAGING_INFORMATION, () => setStagingInfo())
    })
 
     return {
