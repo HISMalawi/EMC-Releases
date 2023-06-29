@@ -113,6 +113,10 @@ export const PROPERTIES: FolderInterface[] = [
                 pathUrl: "/art/preferences/htn_age"
             },
             {
+                name: "Set Auto Cleaning Alert Days",
+                pathUrl: "/art/preferences/notification_period"
+            },
+            {
                 name: "Set Appointment Limit",
                 pathUrl: "/art/preferences/appointment/limit"
             },

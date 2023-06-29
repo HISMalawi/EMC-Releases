@@ -12,6 +12,7 @@ export enum ART_GLOBAL_PROP {
     THREE_HP_AUTO_SELECT = 'activate_3hp_auto_select',
     APPOINTMENT_LIMIT = 'clinic.appointment.limit',
     HTN_SCREENING_AGE_THRESHOLD = 'htn.screening.age.threshold',
+    NOTIFICATION_PERIOD = 'notification.period',
     HTN_SYSTOLIC_THRESHOLD = 'htn.systolic.threshold',
     HTN_DIASTOLIC_THRESHOLD = 'htn.diastolic.threshold',
     PEADS_CLINIC_DAYS = 'peads.clinic.days',
@@ -78,6 +79,8 @@ function appointmentLimit() {
 
 function htnAgeThreshold() {
     return GlobalPropertyService.get(ART_GLOBAL_PROP.HTN_SCREENING_AGE_THRESHOLD)
+}function notificationPeriod() {
+    return GlobalPropertyService.get(ART_GLOBAL_PROP.NOTIFICATION_PERIOD)
 }
 
 async function cervicalCancerScreeningAgeBounds() {
@@ -135,6 +138,7 @@ export default {
     systolicThreshold,
     diastolicThreshold,
     htnAgeThreshold,
+    notificationPeriod,
     setHtnAgeThreshold,
     setFilingNumberLimit,
     setAppointmentLimit,

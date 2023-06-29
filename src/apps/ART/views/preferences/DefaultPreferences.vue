@@ -38,6 +38,7 @@ export default defineComponent({
 			...this.getFilingNumberLimitPreferences(),
 			...this.getAppointmentLimitPreferences(),
 			...this.getHtnAgePreferences(),
+			...this.getNotificationPeriod(),
 			...this.getClinicDaysPreferences(),
 			...this.getClinicHolidaysPreferences(),
 			...this.getCxCaScreeningPreference()
@@ -200,6 +201,20 @@ export default defineComponent({
 					condition : () => this.isProp(prop),
 					computedValue: (v: Option) => v.value,
 					defaultValue: () => ART_PROP.htnAgeThreshold(),
+					validation: (val: any) => Validation.required(val)
+				}
+			]
+		},
+		getNotificationPeriod() {
+			const prop = ART_GLOBAL_PROP.NOTIFICATION_PERIOD
+			return [
+				{
+					id: prop,
+					type: FieldType.TT_NUMBER,
+					helpText: "Enter Number of Days",
+					condition : () => this.isProp(prop),
+					computedValue: (v: Option) => v.value,
+					defaultValue: () => ART_PROP.notificationPeriod(),
 					validation: (val: any) => Validation.required(val)
 				}
 			]

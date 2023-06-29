@@ -117,6 +117,10 @@ export const REPORTS: FolderInterface[] = [
                 pathUrl: '/art/report/clinic_tpt_outcomes'
             },
             {
+                name: "Viral Load Register",
+                pathUrl: "/art/report/clinic_viral_load_register"
+            },
+            {
                 name: 'Vl collection',
                 pathUrl: '/art/clinic_vl_collection_report'
             }
