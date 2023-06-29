@@ -2,6 +2,11 @@ import { ART_GLOBAL_PROP } from "../art_global_props"
 
 export default [
     {
+      name: "Clinic vl collection",
+      path: '/art/clinic_vl_collection_report',
+      component: () => import("@/apps/ART/views/reports/clinic/ClinicVlCollection.vue")  
+    },
+    {
         name: "Data cleaning verification",
         path: "/art/data_cleaning_verification",
         component: () => import("@/apps/ART/views/reports/inconsistencies/DataCleaningVerification.vue")
