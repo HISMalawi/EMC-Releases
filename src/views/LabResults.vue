@@ -109,6 +109,9 @@ export default defineComponent({
         isMalariaResult(name: string) {
             return name.match(/mrdt|malaria/i) ? true : false
         },
+        isUrineLamResult(name: string) {
+            return name.match(/Lam/i) ? true : false
+        },
         buildTestIndicatorFields(id: number, name: string, specimen: string, test: number): Array<Field> {
           const fieldIndex = id * test
             const condition = (f: any) => [
@@ -119,8 +122,8 @@ export default defineComponent({
 
             const computedValue = (v: any, f: any) => {
                 if(v.value === 'Other' && name.match(/HIV viral load/i)) return {}
-                const type = this.isMalariaResult(name) ? 'text' : f[`type_${fieldIndex}`].value
-                const value = this.isMalariaResult(name) ? "=" + v.value : v.value.toString()
+                const type = this.isMalariaResult(name) || this.isUrineLamResult(name) ? 'text' : f[`type_${fieldIndex}`].value
+                const value = this.isMalariaResult(name) || this.isUrineLamResult(name) ? "=" + v.value : v.value.toString()
                 const modifier = value.charAt(0)
                 const result = type === 'numeric' ? parseInt(value.substring(1)) : value.substring(1)
                 const test = f[`result_indicators`].filter((t: any) => t.value === id)[0]
@@ -145,7 +148,7 @@ export default defineComponent({
                     helpText: `Result type (${name})`,
                     type: FieldType.TT_SELECT,
                     group: 'test_indicator',
-                    condition: (f: any) => condition(f) && !this.isMalariaResult(name),
+                    condition: (f: any) => condition(f) && !this.isMalariaResult(name) && !this.isUrineLamResult(name),
                     appearInSummary: () => false,
                     validation: (v: Option) => Validation.required(v),
                     options: () => [
@@ -158,6 +161,26 @@ export default defineComponent({
                             value: 'text'
                         }
                     ]
+                },
+                {
+                    id: `urine_result_${fieldIndex}`,
+                    helpText: `Select Test Result (${name})`,
+                    type: FieldType.TT_SELECT,
+                    group: 'test_indicator',
+                    computedValue,
+                    validation: (v: Option) => Validation.required(v),
+                    condition: (f: any) => condition(f) && this.isUrineLamResult(name),
+                    options: () => 
+                        [
+                            {   
+                                label: 'Positive',
+                                value: 'positive'
+                            },
+                            {
+                                label: 'Negative',
+                                value: 'negative'
+                            }
+                        ]
                 },
                 {
                     id: `num_${fieldIndex}`,

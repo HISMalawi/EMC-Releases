@@ -11,6 +11,15 @@
                 <option :selected="itemsPerPage === totalRowCount" :value="totalRowCount">Show all rows({{totalRowCount}})</option>
             </select>
         </ion-col>
+        <!-- This section is a hack-->
+        <ion-col v-if="typeof customFilter === 'function'">
+            <ion-input
+                class="input_display"
+                :value="customFilterValue"
+                @click="launchFilter"
+                placeholder="Filter...">
+            </ion-input>
+        </ion-col>
         <ion-col>
             <ion-item lines="none"> 
                 <ion-input
@@ -42,7 +51,7 @@ import { Field } from "@/components/Forms/FieldInterface";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 
 export default defineComponent({
-    emits: [ 'onItemsPerPage', 'onSearchFilter' ],
+    emits: [ 'onItemsPerPage', 'onSearchFilter','onItemsVLtype' ],
     components: { 
         IonItem,
         IonCol, 
@@ -51,6 +60,9 @@ export default defineComponent({
         IonButton
     },
     props: {
+        customFilter: {
+            type: Function
+        },
         totalRowCount: {
             type: Number,
             default: 15000
@@ -71,6 +83,7 @@ export default defineComponent({
     setup(props, {emit}) {
         const itemsPerPage = ref(50)
         const searchFilter = ref('')
+        const customFilterValue = ref('')
 
         async function launchKeyboard(currentField: Field, onFinish: Function) {
           const modal = await modalController.create({
@@ -95,6 +108,12 @@ export default defineComponent({
             onSearchFilter('')
         }
 
+        async function launchFilter() {
+            if (typeof props.customFilter === 'function') {
+                customFilterValue.value = await props.customFilter()
+            }
+        }
+
         function launchSearcher() {
            launchKeyboard({
                 id: 'search',
@@ -114,13 +133,14 @@ export default defineComponent({
         { 
             immediate: true 
         })
-
         return {
             reset,
             itemsPerPage,
             searchFilter,
+            launchFilter,
             launchKeyboard,
-            launchSearcher
+            launchSearcher,
+            customFilterValue
         }
     },
 })
