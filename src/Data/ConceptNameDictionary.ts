@@ -1,13 +1,16 @@
 export default [
    {
-      "categories": [],
+      "categories": [
+         "tb_treatment"
+      ],
       "concept_id": 1421,
       "name": "First TB treatment date"
    },
    {
-      //TODO: The concept below uses a placeholder concept id.. Do not deploy this update into production
-      "categories": [],
-      "concept_id": 6117,
+      "categories": [
+         "tb_treatment"
+      ],
+      "concept_id": 10686,
       "name": "TB treatment period"
    },
    {
