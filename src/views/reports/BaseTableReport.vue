@@ -24,7 +24,9 @@
           :disableSearchFilter="isTableLoading"
           :disablePerPageFilter="isTableLoading"
           :totalRowCount="tableRows.length"
+          :customFilter="customFilter"
           @onItemsPerPage="(i) => itemsPerPage = i"
+          @onItemsVLtype="(f) => itemsVLtype = f"
           @onSearchFilter="(f) => searchFilter = f"> 
         </report-filter>
       </ion-toolbar>
@@ -115,6 +117,9 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    customFilter: {
+      type: Function
+    },
     period: {
       type: String,
       default: '',
@@ -165,6 +170,10 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
+    showVLFilter: {
+      type: Boolean,
+      default: false
+    },
     rowsPerPage: {
       type: Number
     },
@@ -201,6 +210,7 @@ export default defineComponent({
     isTableLoading: false as boolean,
     searchFilter: '' as string,
     itemsPerPage: 50 as number,
+    itemsVLtype: '' as string,
     currentPage: 0 as number,
     tableRows: [] as any,
     totalPages: 0 as number,
