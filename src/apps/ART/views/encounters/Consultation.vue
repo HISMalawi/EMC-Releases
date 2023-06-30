@@ -38,6 +38,7 @@ import { AppEncounterService } from "@/services/app_encounter_service";
 import Store from "@/composables/ApiStore"
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { RegimenService } from "@/services/regimen_service";
+import dayjs from "dayjs";
 
 export default defineComponent({
   mixins: [AdherenceMixinVue],
@@ -82,6 +83,7 @@ export default defineComponent({
     tptStatus: {} as Record<string, any>,
     customDrugs: [] as any,
     CxCaAppointDate: {} as any,
+    hasTbTreatmentDate: false as boolean,
     isEligibleForTpt: false as boolean
   }),
   watch: {
@@ -1280,6 +1282,70 @@ export default defineComponent({
               : []) 
           }),
           options: () => this.yesNoOptions()
+        },
+        {
+          id: "tb_date_started_treatment_known",
+          helpText: "TB treatment history",
+          type: FieldType.TT_YES_NO,
+          init: async () => {
+            // TODO: Account for TB interruptions in the future
+            this.hasTbTreatmentDate = false
+            const startDate = await ConsultationService.getFirstValueDatetime(
+              this.patientID, 'TB treatment start date'
+            )
+            const tbPeriod = await ConsultationService.getFirstValueNumber(
+              this.patientID, 'TB treatment period'
+            )
+            if (tbPeriod && startDate) {
+              const timeElapse = dayjs(this.consultation.date).diff(startDate, 'months')
+              this.hasTbTreatmentDate = timeElapse <= tbPeriod
+            }
+            return true
+          },
+          validation: (data: any) => Validation.required(data),
+          condition: (f: any) => !this.hasTbTreatmentDate && f.on_tb_treatment.label === 'Yes',
+          options: () => {
+            return [
+              {
+                label: 'Date started treatment known?',
+                values: this.yesNoOptions()
+              }
+            ]
+          }
+        },
+        ...generateDateFields({
+          id: 'tb_start_date',
+          helpText: 'Enter start date for treatment?',
+          required: true,
+          minDate: () => this.patient.getBirthdate(),
+          maxDate: () => ConsultationService.getSessionDate(),
+          condition: (f: any) => f.tb_date_started_treatment_known === 'Yes',
+          computeValue: (date: string) => {
+            return {
+              tag: 'consultation',
+              obs: this.consultation.buildValueDate('TB treatment start date', date)
+            }
+          },
+          estimation: {
+            allowUnknown: false
+          }
+        }),
+        {
+          id: "tb_treatment_period",
+          helpText: "Enter period (In months)",
+          type: FieldType.TT_NUMBER,
+          validation: (v: Option) => Validation.validateSeries([
+            () => Validation.required(v),
+            () => Validation.isNumber(v),
+            () => Validation.rangeOf(v, 3, 9)
+          ]),
+          condition: (f: any) => f.tb_date_started_treatment_known === 'Yes',
+          computedValue: (v: Option) => {
+            return {
+              tag: 'consultation',
+              obs: this.consultation.buildValueNumber('TB treatment period', v.value)
+            }
+          }
         },
         {
           id: "tb_side_effects",
