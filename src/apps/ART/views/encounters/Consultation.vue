@@ -1277,7 +1277,7 @@ export default defineComponent({
             // TODO: Account for TB interruptions in the future
             this.hasTbTreatmentDate = false
             const startDate = await ConsultationService.getFirstValueDatetime(
-              this.patientID, 'First TB treatment date'
+              this.patientID, 'TB treatment start date'
             )
             const tbPeriod = await ConsultationService.getFirstValueNumber(
               this.patientID, 'TB treatment period'
@@ -1309,7 +1309,7 @@ export default defineComponent({
           computeValue: (date: string) => {
             return {
               tag: 'consultation',
-              obs: this.consultation.buildValueDate('First TB treatment date', date)
+              obs: this.consultation.buildValueDate('TB treatment start date', date)
             }
           },
           estimation: {

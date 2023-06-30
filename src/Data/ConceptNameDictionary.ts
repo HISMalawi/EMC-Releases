@@ -3,8 +3,8 @@ export default [
       "categories": [
          "tb_treatment"
       ],
-      "concept_id": 1421,
-      "name": "First TB treatment date"
+      "concept_id": 10687,
+      "name": "TB treatment start date"
    },
    {
       "categories": [
