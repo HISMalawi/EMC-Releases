@@ -1,5 +1,16 @@
 export default [
    {
+      "categories": [],
+      "concept_id": 1421,
+      "name": "First TB treatment date"
+   },
+   {
+      //TODO: The concept below uses a placeholder concept id.. Do not deploy this update into production
+      "categories": [],
+      "concept_id": 6117,
+      "name": "TB treatment period"
+   },
+   {
       "categories": ["hiv_viral_load_reasons"],
       "concept_id": 10609,
       "name": "Follow up after Low Level Viremia"
