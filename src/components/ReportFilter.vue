@@ -85,7 +85,7 @@ export default defineComponent({
         const searchFilter = ref('')
         const customFilterValue = ref('')
 
-        async function launchKeyboard(currentField: Field, onFinish: Function) {
+        async function launchKeyboard(currentField: Field, onFinish: any) {
           const modal = await modalController.create({
             component: TouchField,
             backdropDismiss: false,
