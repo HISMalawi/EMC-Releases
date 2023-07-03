@@ -9,7 +9,7 @@
               detail
               :color="index === selectedDrug ? 'secondary' : ''"
               @click="selectDrug(index)">
-              {{ `${drug.short_name} (${drug.pack_size})` }}
+              {{ `${drug.short_name} (${drug.code})` }}
             </ion-item>
           </ion-list>
         </ion-col>
