@@ -125,6 +125,11 @@ export default [
   },
   /** Pepfar Reports */
   {
+    name: 'emc_pepfar_tx_tb',
+    path: '/emc_pepfar_tx_tb',
+    component: () => import('@/apps/EMC/views/reports/pepfar/TxTB.vue'),
+  },
+  {
     name: 'emc_pepfar_sc_arvdisp',
     path: '/emc_pepfar_sc_arvdisp',
     component: () => import('@/apps/EMC/views/reports/pepfar/SCARVDISP.vue'),
