@@ -13,17 +13,25 @@
         <ion-col size="6" class="ion-margin-vertical">
           <NumberInput v-model="form.weight" :form="form" :min="1"/>
         </ion-col>
-        <ion-col size="6" class="ion-margin-vertical" v-if="showHeightField">
+        <ion-col :size="isOnActiveTBTreatment ? 12 : 6" class="ion-margin-vertical" v-if="showHeightField">
           <NumberInput v-model="form.height" :form="form" :min="1"/>
-        </ion-col>
-        <ion-col class="ion-margin-vertical" :size="showHeightField ? 6 : 12">
+        </ion-col>        
+        <ion-col class="ion-margin-vertical" :size="showHeightField ? 6 : 12" v-if="!isOnActiveTBTreatment">
           <SelectInput v-model="form.tbStatus" :options="tbStatuses" />
         </ion-col>
+        <template v-if="isOnTBTreatment">
+          <ion-col size="6" class="ion-margin-vertical">
+            <DateInput v-model="form.tbTreatmentStartDate" :form="form" :minDate="birthdate" :maxDate="today"/>
+          </ion-col>
+          <ion-col size="6" class="ion-margin-vertical">
+            <NumberInput v-model="form.tbTreatmentPeriod" :form="form" :min="1"/>
+          </ion-col>
+        </template>
         <template v-if="isFemale">
-          <ion-col size="6" class="ion-margin-vertical ion-padding-vertical">
+          <ion-col size="6" class="ion-margin-vertical">
             <yes-no-input v-model="form.isPregnant" inline />
           </ion-col>
-          <ion-col size="6" class="ion-margin-vertical ion-padding-vertical">
+          <ion-col size="6" class="ion-margin-vertical">
             <yes-no-input v-model="form.isBreastfeeding"  inline />
           </ion-col>
         </template>
@@ -159,7 +167,7 @@ export default defineComponent({
     NumberInput,
     DateInput,
     YesNoInput,
-    MultiColumnView
+    MultiColumnView,
   },
   props: {
     patient: {
@@ -186,7 +194,10 @@ export default defineComponent({
     const drugRunOutDate = ref<string>('');
     const today = dayjs().format(STANDARD_DATE_FORMAT);
     const birthdate = dayjs(props.patient.getBirthdate()).format(STANDARD_DATE_FORMAT);
-
+    const previousTBStatus = ref("");
+    const tbTreatmentStartDate = ref("")
+    const tbTreatmentPeriod = ref(6)
+  
     const form = reactive<DTForm>({
       visitDate: {
         value: dayjs().format('YYYY-MM-DD') as string | undefined,
@@ -384,11 +395,37 @@ export default defineComponent({
       tbStatus: {
         value: undefined as Option | undefined,
         label: "TB Status",
+        required: true,
         computedValue: (status: Option) => ({
           tag: 'consultation',
           obs: consultations.buildValueCoded('TB Status', status.value)
         }),
         validation: async (state) => StandardValidations.required(state)
+      },
+      tbTreatmentStartDate: {
+        value: "" as string | undefined,
+        label: "TB treatment start date",
+        validation: async (date: Option) => {
+          if(new Date(date.value) > new Date(today)) {
+            return ["TB treatment start date cannot be after today's date"]
+          }
+          if(new Date(date.value) < new Date(birthdate)) {
+            return ["TB treatment start date cannot be before patient's birth date"]
+          }
+          return null
+        },
+        computedValue: (date: string) => ({
+          tag: "consultation",
+          obs: consultations.buildValueDate("TB treatment start date", date)
+        })
+      },
+      tbTreatmentPeriod: {
+        value: undefined as number  | undefined,
+        label: "TB treatment period (months)",
+        computedValue: (period: number) => ({
+          tag: "consultation",
+          obs: consultations.buildValueNumber("TB treatment period", period)
+        })
       },
     })
 
@@ -457,7 +494,16 @@ export default defineComponent({
     const hasGiven6H = computed(() => form.tbMed.value?.label === '6H')
     const hasContraindications = computed(() => form.hasContraindications.value === 'Yes')
     const hasSideEffects = computed(() => form.hasSideEffects.value === 'Yes')
+    const isOnTBTreatment = computed(() => /Confirmed TB on treatment/i.test(form.tbStatus.value?.label))
 
+    const isOnActiveTBTreatment = computed(() => {
+      return tbTreatmentStartDate.value && 
+        !dayjs(tbTreatmentStartDate.value)
+          .add(tbTreatmentPeriod.value, 'months')
+          .isAfter(dayjs())
+      }
+    )
+    
     const tbStatuses = toOptions([
       'Confirmed TB Not on treatment', 
       'Confirmed TB on treatment', 
@@ -466,6 +512,14 @@ export default defineComponent({
     ]);
 
     const tbMeds = toOptions(['6H', '3HP (RFP + INH)', '3HP (INH 300 / RFP 300)'])
+
+    const getPreviousTBScreeningResults = async () => {
+      previousTBStatus.value = await consultations.getFirstValueCoded("TB status");
+      if(previousTBStatus.value.match(/Confirmed TB on treatment/i)) {
+        tbTreatmentStartDate.value = await consultations.getFirstValueDatetime("TB treatment start date")
+        tbTreatmentPeriod.value = (await consultations.getFirstValueNumber("TB treatment period")) || 6
+      }
+    }
 
     const buildBmiObs = async (formData: any): Promise<ObsValue> => {
       const height = formData.height || prevHeight.value
@@ -623,6 +677,7 @@ export default defineComponent({
     }
 
     onMounted (async () => {
+      await getPreviousTBScreeningResults();
       prevHeight.value = await props.patient.getRecentHeight()
       const recentWeight = await props.patient.getRecentWeight()
       if (recentWeight) regimens.value = await getRegimens(recentWeight)
@@ -665,6 +720,8 @@ export default defineComponent({
       birthdate,
       onSubmit,
       onClear,
+      isOnTBTreatment,
+      isOnActiveTBTreatment,
     };
   },
 })
