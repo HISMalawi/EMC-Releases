@@ -176,6 +176,18 @@ export default defineComponent({
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
           options: (formdata: any) => this.getReasons(formdata),
+          beforeNext: (reason: Option, fdata: any) => {
+            if(/expired/i.test(reason.label)) {
+              const allDrugsExpired = fdata["select drugs"].every((drug: any) => {
+                return new Date(drug.value.expiry_date) > new Date(StockService.getSessionDate());
+              })
+              if(!allDrugsExpired) {
+                toastWarning("Some drugs selected have not expired")
+                return false
+              }
+            }
+            return true
+          }
         },
         {
           id: "summary",
@@ -240,7 +252,7 @@ export default defineComponent({
     formatDrugs(drugs: any) {
       return drugs.map((drug: any) => {
         return {
-          label: `${drug.drug_name} (${drug.pack_size || StockService.getPackSize(drug.drug_id)}) 
+          label: `${drug?.drug_name||drug?.drug_legacy_name||'N/A'} (${drug.product_code}) 
           Expiry date: ${HisDate.toStandardHisDisplayFormat(
             drug.expiry_date
           )} 

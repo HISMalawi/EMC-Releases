@@ -170,6 +170,10 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'SC_ARV_DISP',
                 pathName: 'sc_arv'
+            },
+            {
+                name: 'TX_TB',
+                pathName: 'pepfar_tx_tb'
             }
         ]
     }

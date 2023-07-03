@@ -385,6 +385,11 @@ export default [
         component: () => import("@/apps/ART/views/reports/pepfar/TxRtt.vue")
     },
     {
+        name: "pepfar_tx_tb",
+        path: "/art/pepfar_tx_tb",
+        component: () => import("@/apps/ART/views/reports/pepfar/PepfarTxTbReport.vue")
+    },
+    {
         name: 'pepfar_vl_coverage',
         path: '/art/report/pepfar/pepfar_vl_coverage',
         component: () => import("@/apps/ART/views/reports/pepfar/ViralLoadCoverage.vue")

@@ -7,9 +7,9 @@
           <ion-list v-for="(drug, index) in drugs" :key="index">
             <ion-item
               detail
-              :color="index === selectedDrug ? 'secondary' : ''"
+              :color="index === selectedDrug ? 'lightblue' : ''"
               @click="selectDrug(index)">
-              {{ `${drug.shortName} (${drug.packSizes[0]})` }}
+              {{ `${drug?.drug_name||drug?.drug_legacy_name||'N/A'} (${drug.product_code})` }}
             </ion-item>
           </ion-list>
         </ion-col>
@@ -75,7 +75,6 @@ import {
   IonGrid,
   IonCol,
   IonRow,
-  modalController,
   IonIcon,
 } from "@ionic/vue";
 import { StockService } from "@/apps/ART/views/ARTStock/stock_service";
@@ -164,10 +163,11 @@ export default defineComponent({
         defaultValue: () => this.getDrugValue(index, 'reason'),
         validation: (v: Option) => Validation.required(v),
         options: () => [
-          { label: "theft", value: "theft" },
-          { label: "took out for training", value: "took out for training" },
-          { label: "accidents", value: "accidents" },
-          { label: "flooding or natural disaster", value: "flooding or natural disaster" },
+          { label: "Theft", value: "Theft" },
+          { label: "Took out for training", value: "Took out for training" },
+          { label: "Accidents", value: "Accidents" },
+          { label: "Flooding", value: "Flooding" },
+          { label: "Natural disaster", value: "Natural disaster"}
         ]
       },
       (v: Option) => {
@@ -178,7 +178,7 @@ export default defineComponent({
       this.selectedDrug = index;
       if (!('entries' in this.drugs[index])) {
         const vals = await this.stockService.getItem(
-          this.drugs[this.selectedDrug].drugID
+          this.drugs[index].drug_id
         )
         this.drugs[index]["entries"] = vals.map((i: any) => {
           if(!i.pack_size) i.pack_size = StockService.getPackSize(i.getPackSize)
