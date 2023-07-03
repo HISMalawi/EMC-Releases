@@ -24,6 +24,7 @@ import Store from "@/composables/ApiStore"
 import ART_PROP from "@/apps/ART/art_global_props";
 import { StoreDef, isCacheEnabled } from "@/apps/GLOBAL_APP/global_store";
 import { toDate } from "@/utils/Strs";
+import { ConsultationService } from "@/apps/ART/services/consultation_service";
 
 export const appStore: Record<string, StoreDef> = {
     'ASK_HANGING_PILLS':  {
@@ -225,6 +226,7 @@ export function confirmationSummary(patient: Patientservice) {
     Store.invalidate('PATIENT_LAB_ORDERS')
     const patientID = !isEmpty(patient) ? patient?.getID() : -1
     let programInfo: any = null
+    let tptStatus: Record<string, any> = {}
     return {
         'PROGRAM INFORMATION' : () => [
             {
@@ -257,6 +259,20 @@ export function confirmationSummary(patient: Patientservice) {
                 label: 'Next Appointment',
                 value: '...',
                 asyncValue: async () => toDate((await patient.nextAppointment()))
+            },
+            {
+                label: "TPT start",
+                value: '...',
+                init: async () => {
+                    const service = new ConsultationService(patientID, -1)
+                    tptStatus = (await service.getTptTreatmentStatus())||{}
+                },
+                asyncValue: async () => toDate(tptStatus?.tpt_init_date) || 'N/A'
+            },
+            {
+                label: "TPT end",
+                value: '...',
+                asyncValue: async () => toDate(tptStatus?.tpt_end_date||tptStatus?.tpt_complete_date) || 'N/A'
             }
         ],
         'PATIENT IDENTIFIERS': () => [
