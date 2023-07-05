@@ -270,7 +270,7 @@ export function confirmationSummary(patient: Patientservice) {
                 asyncValue: async () => toDate(tptStatus?.tpt_init_date) || 'N/A'
             },
             {
-                label: "TPT end",
+                label: "TPT expected end date",
                 value: '...',
                 asyncValue: async () => toDate(tptStatus?.tpt_end_date||tptStatus?.tpt_complete_date) || 'N/A'
             }
