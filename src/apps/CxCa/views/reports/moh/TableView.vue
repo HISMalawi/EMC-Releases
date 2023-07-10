@@ -50,87 +50,8 @@
                             </span>
                         </td>
                     </tr>
-                    <tr v-for="(data, i) in sectionOne" :key="i">
-                        <td v-for="(info, k) in data.row || []" :key="k"
-                            @click="() => onClickTablecell(info)"
-                            :class="{
-                                'clickable-cell': info?.column?.tdClick
-                            }"
-                            >
-                            <b class="his-sm-text">
-                                {{ info.value }}
-                            </b>
-                        </td>
-                    </tr>
-                    <!-- {{ sectionOne }} -->
-                    <tr>
-                        <td :colspan="7">
-                            <span class="his-sm-text">
-                                {{ columns[5][0].label }}
-                            </span>
-                        </td>
-                    </tr>
-                    <tr v-for="(data, i) in sectionTwo" :key="i">
-                        <td v-for="(info, k) in data.row" :key="k"
-                            @click="() => onClickTablecell(info)"
-                            :class="{
-                                'clickable-cell': info?.column?.tdClick
-                            }"
-                            >
-                            <span class="his-sm-text">
-                                {{ info.value }}
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td :colspan="7">
-                            <span class="his-sm-text">
-                                {{ columns[6][0].label }}
-                            </span>
-                        </td>
-                    </tr>
-                    <tr v-for="(data, i) in sectionThree" :key="i">
-                        <td v-for="(info, k) in data.row" :key="k"
-                            @click="() => onClickTablecell(info)"
-                            :class="{
-                                'clickable-cell': info?.column?.tdClick
-                            }"
-                            >
-                            <span class="his-sm-text">
-                                {{ info.value }}
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td :colspan="7">
-                            <span class="his-sm-text">
-                                {{ columns[7][0].label }}
-                            </span>
-                        </td>
-                    </tr>
-                    <tr v-for="(data, i) in sectionTotals" :key="i">
-                        <template v-for="(info, k) in data.row" :key="k"
-                            @click="() => onClickTablecell(info)"
-                            :class="{
-                                'clickable-cell': info?.column?.tdClick
-                            }"
-                            >
-                            <td colspan="2">
-                                <span class="his-sm-text">
-                                    {{ info.column.label }}
-                                </span>
-                            </td>
-                            <td colspan="6">
-                                <span class="his-sm-text"
-                                    @click="() => onClickTablecell(info)"
-                                    :class="{
-                                        'clickable-cell': info?.column?.tdClick
-                                 }">
-                                    {{ info.value }}
-                                </span>
-                            </td>
-                        </template>
-                    </tr>
+                    
+                    
                 </tbody>
             </table>
         </div>
