@@ -2,7 +2,7 @@
     <ion-page>
         <ion-loading :is-open="isLoading" message="Please wait..."/>
         <v2Datatable
-            title="CECAP TX Report"
+            title="MONTHLY MOH Report"
             :subtitle="period"
             :columns="columns"
             :columnData="reportData"
@@ -20,7 +20,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import { IonPage, IonLoading, modalController } from "@ionic/vue"
-import  v2Datatable from "@/apps/CxCa/views/reports/clinic/TableView.vue"
+import  v2Datatable from "@/apps/CxCa/views/reports/moh/TableView.vue"
 import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
 import { CxCaReportService } from "@/apps/CxCa/services/reports/cxca_report_service"
 import { toastDanger, toastWarning } from '@/utils/Alerts';
@@ -160,93 +160,8 @@ export default defineComponent({
                 },
             ],
             [
-                {
-                    label: "Total Cryotherapy",
-                    ref: "data.total_cyrotherapy.length",
-                    secondaryLabel: "Total Cryotherapy",
-                    value: (data: any) => data.total_cyrotherapy.length,
-                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${column.secondaryLabel}`, data.total_cyrotherapy
-                    )
-                }
+                    
             ],
-            [
-                {
-                    label: "Total Thermocoagulation",
-                    ref: "data.total_thermocoagulation.length",
-                    secondaryLabel: "Total Thermocoagulation",
-                    value: (data: any) => data.total_thermocoagulation.length,
-                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${column.secondaryLabel}`, data.total_thermocoagulation
-                    )
-                }
-            ],
-            [
-                {
-                    label: "Total LEEP",
-                    ref: "data.total_leep.length",
-                    secondaryLabel: "Total LEEP",
-                    value: (data: any) => data.total_leep.length,
-                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${column.secondaryLabel}`, data.total_leep
-                    )
-                }
-            ],
-            [
-                {
-                    label: "Total # Same Day Tx",
-                    ref: "data.total_number_same_day_tx.length",
-                    secondaryLabel: "Total # Same Day Tx",
-                    value: (data: any) => data.total_number_same_day_tx.length,
-                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${column.secondaryLabel}`, data.total_number_same_day_tx
-                    )
-                }
-            ],
-            [
-                {
-                    label: "Total VIA+ Deferred Tx",
-                    ref: "data.total_via_deffered.length",
-                    secondaryLabel: "Total VIA+ Deferred Tx",
-                    value: (data: any) => data.total_via_deffered.length,
-                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${column.secondaryLabel}`, data.total_via_deffered
-                    )
-                }
-            ],
-            [
-                {
-                    label: "Total VIA+ Referred",
-                    ref: "data.total_via_reffered.length",
-                    secondaryLabel: "Total VIA+ Referred",
-                    value: (data: any) => data.total_via_reffered.length,
-                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${column.secondaryLabel}`, data.total_via_reffered
-                    )
-                }
-            ],
-            [
-                {
-                    label: "Total CXCA Suspect Referred",
-                    ref: "data.suspects_reffered.length",
-                    secondaryLabel: "Total CXCA Suspect Referred",
-                    value: (data: any) => data.suspects_reffered.length,
-                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${column.secondaryLabel}`, data.suspects_reffered
-                    )
-                }
-            ],
-            [
-                {
-                    label: "Total Referred",
-                    ref: "data.total_reffered.length",
-                    secondaryLabel: "Total Referred",
-                    value: (data: any) => data.total_reffered.length,
-                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${column.secondaryLabel}`, data.total_reffered
-                    )
-                }
-            ]
         ]
         /**
          * Generates report by start date and end date

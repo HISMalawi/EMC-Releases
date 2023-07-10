@@ -43,13 +43,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td :colspan="7">
-                            <span class="his-sm-text">
-                                {{ columns[4][0].label }}
-                            </span>
-                        </td>
-                    </tr>
                     
                     
                 </tbody>
