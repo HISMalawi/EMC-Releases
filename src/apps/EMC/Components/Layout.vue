@@ -38,7 +38,7 @@
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding" style="padding-top: 4rem !important;">
-      <ion-router-outlet :key="$route.fullPath" />
+      <ion-router-outlet style="overflow:auto;" :key="$route.fullPath" />
     </ion-content>
   </ion-page>
 </template>
