@@ -50,6 +50,7 @@ export function Notification() {
                             notificationData.value = notificationData.value.filter(
                                 (notice) => notice.id != id
                             )
+                            loadNotifications()
                         }).catch((e) => {
                             console.error(e)
                             toastWarning("Unable to clear notification")
