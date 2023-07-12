@@ -70,6 +70,25 @@ export default defineComponent({
             'family_planning'
         ];
 
+        const mid =(data: []) => {
+            return Math.floor(data.length / 2);
+        }
+
+        const array1 = (data: [], mid : number) =>{
+            return data.slice(0, mid);
+        }
+
+        const array2 = (data: [], mid : number) =>{
+            return data.slice(mid);
+        }
+
+        const merge = (array1: any[], array2: any[]): any[] => {
+            const mergedArray: any[] = [];
+            for (let i = 0; i < array1.length; i++) {
+                mergedArray.push(array1[i].concat(array2[i]));
+            }
+            return mergedArray;
+        };
         const processData = (data: any) => {
             const result: any = [];
             const keys = Object.keys(data);
@@ -277,13 +296,16 @@ export default defineComponent({
                 //sorting the data basing on the template order
                 const sortedDataObject = sortData(rawReport)
                 //formating to array
-                reportData.value = processData(sortedDataObject)
-               
-                console.log("the data flattened ", reportData.value)
+                const array = processData(sortedDataObject)
+                //split the array and merge it
+                const midIndex = mid(array)
+                //merging
+                const formattedArray = merge(array1(array, midIndex), array2(array, midIndex))
+                // console.log("object ", rawReport)
+                // console.log("Array ", array)
+                // console.log("Array merge ", formattedArray)
 
-                
-
-                // reportData.value = rawReport
+                reportData.value = formattedArray
             } catch (e) {
                 toastDanger("Unable to generate report!")
                 console.error(e)
