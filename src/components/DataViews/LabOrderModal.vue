@@ -27,7 +27,7 @@
         </ion-col>
         <ion-col :style="{overflowY: 'auto', height:'79vh'}" v-if="activeIndex != null && selectedOrders.length > 0">
           <div class="ion-margin-bottom">
-            <div v-if="/hiv viral load/i.test(testTypes[activeIndex].name)">
+            <div v-if="canScanDBS && /hiv viral load/i.test(testTypes[activeIndex].name)">
               <div class="his-md-text side-title">
                 Barcode ID:  <ion-text :color="testTypes[activeIndex].accessionNumber ? 'success' : 'dark'">
                   <b>{{ testTypes[activeIndex].accessionNumber || 'None' }}</b>
@@ -142,6 +142,7 @@ export default defineComponent({
   },
   async created() {
     this.extendedLabsEnabled = await ART_GLOBAL_PROP.extendedLabEnabled()
+    this.canScanDBS = await ART_GLOBAL_PROP.canScanDBS()
   },
   methods: {
     async onScanEIDbarcode(barcode: string) {
@@ -241,7 +242,7 @@ export default defineComponent({
       if (typeof this.activeIndex != 'number') {
         return false
       }
-      if (/hiv viral load/i.test(this.testTypes[this.activeIndex]['name']) && 
+      if (this.canScanDBS && /hiv viral load/i.test(this.testTypes[this.activeIndex]['name']) && 
         !this.testTypes[this.activeIndex]['accessionNumber']) {
           return false
       }
@@ -256,7 +257,7 @@ export default defineComponent({
     },
     finalOrders(): any {
       return this.selectedOrders.filter((data: any) => {
-        if (/hiv viral load/i.test(data.name) && !data.accessionNumber) {
+        if (this.canScanDBS && /hiv viral load/i.test(data.name) && !data.accessionNumber) {
           return false
         }
         return data.reason && (data.specimen && !this.extendedLabsEnabled 
@@ -274,6 +275,7 @@ export default defineComponent({
   },
   data() {
     return {
+      canScanDBS: false,
       verifyingBarcode: false,
       content: "Content",
       extendedLabsEnabled: false as boolean,

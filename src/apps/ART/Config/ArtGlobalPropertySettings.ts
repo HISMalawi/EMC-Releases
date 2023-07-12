@@ -92,6 +92,10 @@ export const PROPERTIES: FolderInterface[] = [
                 "(DATA CLEANING) Exclude External and Drug refill",
                 ART_GLOBAL_PROP.EXCLUDE_EXTERNAL_AND_DRUG_REFILLS
             ),
+            globalPropConfig(
+                "Scan DBS barcode",
+                ART_GLOBAL_PROP.CAN_SCAN_DBS_BARCODE
+            ),
             {
                 name: "Target lab",
                 pathUrl: "/art/preferences/target_lab"
