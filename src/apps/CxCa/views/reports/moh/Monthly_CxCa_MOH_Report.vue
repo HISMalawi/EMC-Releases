@@ -83,7 +83,7 @@ export default defineComponent({
                 values.forEach(([subKey, subValues]) => {
                     if(previouskey != key){
                         indicatorNumber = Math.ceil(indicatorNumber)
-                        result.push([indicatorNumber, key, []]);
+                        result.push([indicatorNumber, key, ""]);
                     }
                     if (Array.isArray(subValues)) {
                         indicatorNumber = indicatorNumber + 0.1
