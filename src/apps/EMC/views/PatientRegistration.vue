@@ -121,17 +121,17 @@ export default defineComponent({
         validation: (name) => StandardValidations.isName(name)
       },
       familyName: {
-        label: "last Name",
+        label: "Last Name",
         value: "",
         placeholder: "Enter Last Name",
         required: true,
         validation: (name) => StandardValidations.isName(name)
       },
       middleName: {
-        label: "middle Name",
+        label: "Middle Name",
         value: "",
         placeholder: "Enter middle Name",
-        validation: (name) => !!name && StandardValidations.isName(name)
+        validation: (name) => name && name.label ? StandardValidations.isName(name) : null
       },
       gender: {
         value: '',
