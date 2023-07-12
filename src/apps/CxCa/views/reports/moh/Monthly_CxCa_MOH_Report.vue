@@ -74,15 +74,22 @@ export default defineComponent({
             const result: any = [];
             const keys = Object.keys(data);
 
+            let previouskey: any;
+
             keys.forEach((key) => {
                 const values = Object.entries(data[key]);
                 values.forEach(([subKey, subValues]) => {
-                if (Array.isArray(subValues)) {
-                    result.push([key, subKey, subValues]);
-                } else {
-                    result.push([key, subKey, []]);
-                }
+                    if(previouskey != key){
+                        console.log("Title Comes here --> ", key)
+                    }
+                    if (Array.isArray(subValues)) {
+                        result.push([key, subKey, subValues]);
+                    } else {
+                        result.push([key, subKey, []]);
+                    }
                 });
+                //keep the previous key/title
+                previouskey = key
             });
 
             return result;
@@ -267,11 +274,8 @@ export default defineComponent({
                 const sortedDataObject = sortData(rawReport)
                 //formating to array
                 reportData.value = processData(sortedDataObject)
-                // console.log("the data from end point", rawReport)
-                // console.log("the data from end point after sorting ", sortData(rawReport))
-                // flattenObject(rawReport, '')
-                // console.log("the data flattened ", flattenedArray)
-                console.log("the data flattened ", processData(sortedDataObject))
+               
+                console.log("the data flattened ", reportData.value)
 
                 
 
