@@ -4,10 +4,10 @@ import { TxReportService } from "./tx_report_service";
 
 export const indicators = {
     'tx_curr': 'TX_CURR',
-    'sceen_pos_new': 'Sceen Pos_New on ART',
-    'sceen_neg_new': 'Sceen Neg_New on ART',
-    'sceen_pos_prev': 'Sceen Pos_Prev on ART',
-    'sceen_neg_prev': 'Sceen Neg_Prev on ART',
+    'sceen_pos_new': 'Screen Pos_New on ART',
+    'sceen_neg_new': 'Screen Neg_New on ART',
+    'sceen_pos_prev': 'Screen Pos_Prev on ART',
+    'sceen_neg_prev': 'Screen Neg_Prev on ART',
     'started_tb_new': 'Started TB RX_New on ART',
     'started_tb_prev': 'Started TB RX_Prev on ART'
 }
