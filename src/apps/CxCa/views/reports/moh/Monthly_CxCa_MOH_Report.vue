@@ -52,6 +52,84 @@ export default defineComponent({
     setup() {
         const totals = ref<any[]>([])
 
+        /**
+         * Ordering rows
+         */
+         const orderingRows = [
+            'screened_disaggregated_by_age',
+            'screened_disaggregated_by_hiv_status',
+            'screened_disaggregated_by_reason_for_visit',
+            'screened_disaggregated_by_screening_method',
+            'screening_results_hiv_positive',
+            'screening_results_hiv_negative',
+            'suspects_disaggregated_by_age',
+            'total_treated',
+            'total_treated_disaggregated_by_tx_option',
+            'referral_reasons',
+            'referral_feedback',
+            'family_planning'
+        ];
+
+        const processData = (data: any) => {
+            const result: any = [];
+            const keys = Object.keys(data);
+
+            keys.forEach((key) => {
+                const values = Object.entries(data[key]);
+                values.forEach(([subKey, subValues]) => {
+                if (Array.isArray(subValues)) {
+                    result.push([key, subKey, subValues]);
+                } else {
+                    result.push([key, subKey, []]);
+                }
+                });
+            });
+
+            return result;
+        };
+
+        const sortedData = ref<Record<string, any>>({});
+        const sortObjectData = (data: any) => {
+            const sortedDataObject: any = {}
+
+            orderingRows.forEach((key) => {
+                if(key in data){
+                    sortedDataObject[key] = data[key];
+                }
+            });
+            sortedData.value = sortedDataObject;
+            return sortedData;
+        }
+
+        const sortData = (data: Record<string, any>) => {
+            const sortedData: Record<string, any> = {};
+            orderingRows.forEach((key) => {
+                if (data[key]) {
+                sortedData[key] = data[key];
+                }
+            });
+            return sortedData;
+        };
+
+        // Define the flattened object array type
+        interface FlattenedObject {
+        category: string;
+        value: number;
+        }
+        // Flatten the object into an array
+        const flattenedArray: FlattenedObject[] = [];
+        const flattenObject = (obj: Record<string, any>, category: any) => {
+            for (const key in obj) {
+                const value = obj[key];
+
+                if (typeof value === 'object' && !Array.isArray(value)) {
+                flattenObject(value, category ? `${category} - ${key}` : key);
+                } else {
+                flattenedArray.push({ category, value });
+                }
+            }
+        };
+
         const convertToArray = (data: any, totals: any) => {
             const convertedData = [
                 convertGroupToArray(data.first_time_screened),
@@ -93,6 +171,7 @@ export default defineComponent({
                 }
             })).present()
         }
+        
         /**
          * ordering of columns
          */
@@ -135,7 +214,7 @@ export default defineComponent({
         const columns: Array<v2ColumnInterface[]> = [
             [
                 {
-                    label: "indicator #:",
+                    label: "indicator #",
                     ref: ""
                 },
                 {
@@ -147,7 +226,7 @@ export default defineComponent({
                     ref: ""
                 },
                 {
-                    label: "indicator #:",
+                    label: "indicator #",
                     ref: ""
                 },
                 {
@@ -160,7 +239,14 @@ export default defineComponent({
                 },
             ],
             [
-                    
+                
+            ],
+            [
+                {
+                    label: "Indicator #",
+                    ref: "data.age_group",
+                    value: (data: any) => data.age_group
+                },    
             ],
         ]
         /**
@@ -176,8 +262,20 @@ export default defineComponent({
             report.startDate = startDate.value
             report.endDate = endDate.value
             try {
-                const rawReport = (await report.getClinicReport('MONTHLY CECAP TX'))
-                reportData.value = convertToArray(rawReport.data, rawReport.totals)
+                const rawReport = (await report.getClinicReport('SCREENED FOR CXCA'))
+                //sorting the data basing on the template order
+                const sortedDataObject = sortData(rawReport)
+                //formating to array
+                reportData.value = processData(sortedDataObject)
+                // console.log("the data from end point", rawReport)
+                // console.log("the data from end point after sorting ", sortData(rawReport))
+                // flattenObject(rawReport, '')
+                // console.log("the data flattened ", flattenedArray)
+                console.log("the data flattened ", processData(sortedDataObject))
+
+                
+
+                // reportData.value = rawReport
             } catch (e) {
                 toastDanger("Unable to generate report!")
                 console.error(e)
