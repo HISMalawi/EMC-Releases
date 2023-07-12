@@ -73,23 +73,27 @@ export default defineComponent({
         const processData = (data: any) => {
             const result: any = [];
             const keys = Object.keys(data);
-
+            //doing this to show title
             let previouskey: any;
+            //used for the indicator number
+            let indicatorNumber = 1.0
 
             keys.forEach((key) => {
                 const values = Object.entries(data[key]);
                 values.forEach(([subKey, subValues]) => {
                     if(previouskey != key){
-                        console.log("Title Comes here --> ", key)
+                        indicatorNumber = Math.ceil(indicatorNumber)
+                        result.push([indicatorNumber, key, []]);
                     }
                     if (Array.isArray(subValues)) {
-                        result.push([key, subKey, subValues]);
+                        indicatorNumber = indicatorNumber + 0.1
+                        result.push([indicatorNumber.toFixed(1), subKey, subValues]);
                     } else {
                         result.push([key, subKey, []]);
                     }
+                    //keep the previous key/title
+                    previouskey = key
                 });
-                //keep the previous key/title
-                previouskey = key
             });
 
             return result;
