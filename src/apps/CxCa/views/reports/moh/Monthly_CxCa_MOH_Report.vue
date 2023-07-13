@@ -269,14 +269,36 @@ export default defineComponent({
                 },
             ],
             [
-                
-            ],
-            [
                 {
                     label: "Indicator #",
-                    ref: "data.age_group",
-                    value: (data: any) => data.age_group
-                },    
+                    ref: "data.indicatorOne",
+                    value: (data: any) => data.indicatorOne
+                }, 
+                {
+                    label: "Name of Indicator",
+                    ref: "data.nameOfIndicatorOne",
+                    value: (data: any) => data.nameOfIndicatorOne
+                },
+                {
+                    label: "value",
+                    ref: "data.valueOne",
+                    value: (data: any) => data.valueOne
+                }, 
+                {
+                    label: "Indicator #",
+                    ref: "data.indicatorTwo",
+                    value: (data: any) => data.indicatorTwo
+                }, 
+                {
+                    label: "Name of Indicator",
+                    ref: "data.nameOfIndicatorTwo",
+                    value: (data: any) => data.nameOfIndicatorTwo
+                },
+                {
+                    label: "value",
+                    ref: "data.valueTwo",
+                    value: (data: any) => data.valueTwo
+                },   
             ],
         ]
         /**
@@ -297,7 +319,7 @@ export default defineComponent({
                 const sortedDataObject = sortData(rawReport)
                 //formating to array
                 const array = processData(sortedDataObject)
-                //split the array and merge it
+                //spliting the array and merging it
                 const midIndex = mid(array)
                 //merging
                 const formattedArray = merge(array1(array, midIndex), array2(array, midIndex))
@@ -313,7 +335,7 @@ export default defineComponent({
                     };
                     return obj;
                 });
-                
+
                 reportData.value = convertedArray
             } catch (e) {
                 toastDanger("Unable to generate report!")

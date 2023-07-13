@@ -24,7 +24,7 @@
         <div id="report-content">
             <table class="art-report-theme">
                 <thead class="stick-report-header">
-                    <tr v-for="(column, index) in columnsMinusOne" :key="index">
+                    <tr v-for="(column, index) in headerRow" :key="index">
                         <th v-for="(item, i) in column" 
                             :key="i"
                             :colspan="item?.span?.thColspan || 1"
@@ -43,7 +43,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    
+                    <tr v-for="(data, i) in sectionOne" :key="i">
+                        <td v-for="(info, k) in data.row || []" :key="k"
+                            @click="() => onClickTablecell(info)"
+                            :class="{
+                                'clickable-cell': info?.column?.tdClick
+                            }"
+                            >
+                            <b class="his-sm-text">
+                                {{ info.value }}
+                            </b>
+                        </td>
+                    </tr>
                     
                 </tbody>
             </table>
@@ -154,15 +165,19 @@ export default defineComponent({
         const reportData = ref<any>([])
         const columnSorted = ref<string>('')
         const sortOrder = ref<'asc'|'desc'>('desc')
-        const columnsMinusOne = computed(() => props.columns.slice(0, 2))
+        const headerRow = computed(() => props.columns.slice(0, 1))
 
         const sectionOne = computed(() => {
             /**
              * Used to retrieve element of the array (1st time scfeened)
              */
             
+            console.log("IN Loops 0", props.columnData[0])
+            console.log("IN Loops 1", props.columnData[1])
+            console.log("IN Loops 2", props.columnData)
+
             const temp: Array<any> = [] 
-            props.columnData[0]?.forEach((record: any)=> {
+            props.columnData?.forEach((record: any)=> {
                     const row = props.columns[1].map((column: v2ColumnInterface) => {
                         let value = ''
                         try {
@@ -494,7 +509,7 @@ export default defineComponent({
             toPDF,
             toCSV,
             finish,
-            columnsMinusOne,
+            headerRow,
             sync, 
             search, 
             close, 
