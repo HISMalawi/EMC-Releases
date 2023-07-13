@@ -90,6 +90,7 @@ export default defineComponent({
             return mergedArray;
         };
         const processData = (data: any) => {
+            console.log("PD", data)
             const result: any = [];
             const keys = Object.keys(data);
             //doing this to show title
@@ -102,7 +103,7 @@ export default defineComponent({
                 values.forEach(([subKey, subValues]) => {
                     if(previouskey != key){
                         indicatorNumber = Math.ceil(indicatorNumber)
-                        result.push([indicatorNumber, key, ""]);
+                        result.push([indicatorNumber, key, "TH"]);
                     }
                     if (Array.isArray(subValues)) {
                         indicatorNumber = indicatorNumber + 0.1
@@ -277,7 +278,23 @@ export default defineComponent({
                 {
                     label: "Name of Indicator",
                     ref: "data.nameOfIndicatorOne",
-                    value: (data: any) => data.nameOfIndicatorOne
+                    value: (data: any) => data.nameOfIndicatorOne,
+                    dataStyle: (data: any) => {
+                        if(data.valueOne === "TH"){
+                            return {
+                                fontWeight: 'bold'
+                            }
+                        }
+                        return {
+                            fontWeight: 'normal'
+                        }                        
+                    },
+                    colSpan: (data: any) => {
+                        if(data.valueOne === "TH"){
+                            return 2
+                        } 
+                        return 1
+                    }
                 },
                 {
                     label: "value",

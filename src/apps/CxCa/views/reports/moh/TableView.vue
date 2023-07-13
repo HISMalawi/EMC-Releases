@@ -44,16 +44,20 @@
                 </thead>
                 <tbody>
                     <tr v-for="(data, i) in sectionOne" :key="i">
-                        <td v-for="(info, k) in data.row || []" :key="k"
+                        <!-- {{ data.row }} -->
+                        <template v-for="(info, k) in data.row || []" :key="k">
+                            <td v-if="info.value !='TH' "
                             @click="() => onClickTablecell(info)"
                             :class="{
                                 'clickable-cell': info?.column?.tdClick
                             }"
+                            :colspan="info.colSpan" 
                             >
-                            <b class="his-sm-text">
+                            <b :style="info.styling" class="his-sm-text">
                                 {{ info.value }}
                             </b>
                         </td>
+                        </template>
                     </tr>
                     
                 </tbody>
@@ -102,6 +106,7 @@ import { toCsv, toPDFfromHTML } from "@/utils/Export"
 import { Service } from "@/services/service";
 import { useRouter } from "vue-router";
 import dayjs from "dayjs";
+import { infoActionSheet } from "@/utils/ActionSheets";
 
 export default defineComponent({
     components: {
@@ -167,6 +172,8 @@ export default defineComponent({
         const sortOrder = ref<'asc'|'desc'>('desc')
         const headerRow = computed(() => props.columns.slice(0, 1))
 
+
+
         const sectionOne = computed(() => {
             /**
              * Used to retrieve element of the array (1st time scfeened)
@@ -180,6 +187,8 @@ export default defineComponent({
             props.columnData?.forEach((record: any)=> {
                     const row = props.columns[1].map((column: v2ColumnInterface) => {
                         let value = ''
+                        let styling = {}
+                        let colSpan = 1
                         try {
                             if (isEmpty(record)) {
                                 value = "..."
@@ -193,124 +202,23 @@ export default defineComponent({
                             value = '_ERROR_'
                             console.error(e)
                         }
-                        return {
-                            column,
-                            data: record,
-                            value: value,
-                            [column.ref || 'nada']: value
+                        if (typeof column.dataStyle === 'function') {
+                            styling = column.dataStyle(record)
                         }
-                    })
-                    temp.push({ 
-                        row, 
-                        data: record, 
-                        searchIndex: [...row, row.map((d: any) => d.value).join(' ')]
-                    })
-                })
-            return temp
-        })
 
-
-        const sectionTwo = computed(() => {
-            /**
-             * Used to retrieve element of the array (1st time scfeened)
-             */
-             const temp: Array<any> = [] 
-            props.columnData[1]?.forEach((record: any)=> {
-                    const row = props.columns[2].map((column: v2ColumnInterface) => {
-                        let value = ''
-                        try {
-                            if (isEmpty(record)) {
-                                value = "..."
-                            }else if (typeof column.value === 'function') {
-                                value = column.value(record) as string
-                            } else {
-                                // Use the ref to map to a value inside the record
-                                value = record[column.ref] || ''
-                            }
-                        } catch (e) {
-                            value = '_ERROR_'
-                            console.error(e)
+                        if (typeof column.colSpan === 'function') {
+                            colSpan = column.colSpan(record)
                         }
                         return {
                             column,
                             data: record,
                             value: value,
+                            styling,
+                            colSpan,
                             [column.ref || 'nada']: value
                         }
                     })
-                    temp.push({ 
-                        row, 
-                        data: record, 
-                        searchIndex: [...row, row.map((d: any) => d.value).join(' ')]
-                    })
-                })
-            return temp
-        })
-        const sectionThree = computed(() => {
-            /**
-             * Used to retrieve element of the array (1st time scfeened)
-             */
-            const temp: Array<any> = [] 
-            props.columnData[2]?.forEach((record: any)=> {
-                    const row = props.columns[3].map((column: v2ColumnInterface) => {
-                        let value = ''
-                        try {
-                            if (isEmpty(record)) {
-                                value = "..."
-                            }else if (typeof column.value === 'function') {
-                                value = column.value(record) as string
-                            } else {
-                                // Use the ref to map to a value inside the record
-                                value = record[column.ref] || ''
-                            }
-                        } catch (e) {
-                            value = '_ERROR_'
-                            console.error(e)
-                        }
-                        return {
-                            column,
-                            data: record,
-                            value: value,
-                            [column.ref || 'nada']: value
-                        }
-                    })
-                    temp.push({ 
-                        row, 
-                        data: record, 
-                        searchIndex: [...row, row.map((d: any) => d.value).join(' ')]
-                    })
-                })
-            return temp
-        })
-
-        const sectionTotals = computed(() => {
-            /**
-             * Used to retrieve element of the array (1st time scfeened)
-             */
-            const temp: Array<any> = [] 
-            props.columnData[3]?.forEach((record: any, i: number)=> {
-                const row = props.columns[8 + i].map((column: v2ColumnInterface) => {
-                        let value = ''
-                        try {
-                            if (isEmpty(record)) {
-                                value = "..."
-                            }else if (typeof column.value === 'function') {
-                                value = column.value(record) as string
-                            } else {
-                                // Use the ref to map to a value inside the record
-                                value = record[column.ref] || ''
-                            }
-                        } catch (e) {
-                            value = '_ERROR_'
-                            console.error(e)
-                        }
-                        return {
-                            column,
-                            data: record,
-                            value: value,
-                            [column.ref || 'nada']: value
-                        }
-                    })
+                    
                     temp.push({ 
                         row, 
                         data: record, 
@@ -465,6 +373,7 @@ export default defineComponent({
             data.forEach((record: any)=> {
                 const row = getExpandedColumns().map((column: v2ColumnInterface) => {
                     let value = ''
+                    let styling = {}
                     try {
                         if (isEmpty(record)) {
                             value = "..."
@@ -478,10 +387,15 @@ export default defineComponent({
                         value = '_ERROR_'
                         console.error(e)
                     }
+
+                    if (typeof column.dataStyle === 'function') {
+                        styling = column.dataStyle(data)
+                    }
                     return {
                         column,
                         data: record,
                         value: value,
+                        styling,
                         [column.ref || 'nada']: value
                     }
                 })
@@ -518,9 +432,6 @@ export default defineComponent({
             document,
             sortOrder,
             sectionOne,
-            sectionTwo,
-            sectionThree,
-            sectionTotals,
             columnSorted
         }
     }
