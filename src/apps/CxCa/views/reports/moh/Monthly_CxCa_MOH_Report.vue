@@ -108,7 +108,7 @@ export default defineComponent({
                         indicatorNumber = indicatorNumber + 0.1
                         result.push([indicatorNumber.toFixed(1), subKey, subValues]);
                     } else {
-                        result.push([key, subKey, []]);
+                        result.push([indicatorNumber, subKey, []]);
                     }
                     //keep the previous key/title
                     previouskey = key
@@ -301,11 +301,20 @@ export default defineComponent({
                 const midIndex = mid(array)
                 //merging
                 const formattedArray = merge(array1(array, midIndex), array2(array, midIndex))
-                // console.log("object ", rawReport)
-                // console.log("Array ", array)
-                // console.log("Array merge ", formattedArray)
-
-                reportData.value = formattedArray
+                //convert to desired array of objects format
+                const convertedArray = formattedArray.map((item) => {
+                    const obj = {
+                        indicatorOne: item[0],
+                        nameOfIndicatorOne: item[1],
+                        valueOne: item[2],
+                        indicatorTwo: item[3],
+                        nameOfIndicatorTwo: item[4],
+                        valueTwo: item[5]
+                    };
+                    return obj;
+                });
+                
+                reportData.value = convertedArray
             } catch (e) {
                 toastDanger("Unable to generate report!")
                 console.error(e)
