@@ -299,7 +299,14 @@ export default defineComponent({
                 {
                     label: "value",
                     ref: "data.valueOne",
-                    value: (data: any) => data.valueOne
+                    value: (data: any) => {
+                        if(Array.isArray(data.valueOne)){
+                            console.log("THIS IS AN ARRAY ", data.valueOne)
+                            return data.valueOne.length
+                        }else{
+                            return data.valueOne
+                        }
+                    }
                 }, 
                 {
                     label: "Indicator #",
@@ -314,7 +321,14 @@ export default defineComponent({
                 {
                     label: "value",
                     ref: "data.valueTwo",
-                    value: (data: any) => data.valueTwo
+                    value: (data: any) => {
+                        if(Array.isArray(data.valueTwo)){
+                            console.log("THIS IS AN ARRAY ", data.valueOne)
+                            return data.valueTwo.length
+                        }else{
+                            return data.valueTwo
+                        }
+                    }
                 },   
             ],
         ]
