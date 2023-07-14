@@ -273,11 +273,13 @@ export default defineComponent({
                 {
                     label: "Indicator #",
                     ref: "data.indicatorOne",
+                    secondaryLabel: "Indicator #",
                     value: (data: any) => data.indicatorOne
                 }, 
                 {
                     label: "Name of Indicator",
                     ref: "data.nameOfIndicatorOne",
+                    secondaryLabel: "Name of Indicator",
                     value: (data: any) => data.nameOfIndicatorOne,
                     dataStyle: (data: any) => {
                         if(data.valueOne === "TH"){
@@ -299,6 +301,7 @@ export default defineComponent({
                 {
                     label: "value",
                     ref: "data.valueOne",
+                    secondaryLabel: "Value",
                     value: (data: any) => {
                         if(Array.isArray(data.valueOne)){
                             console.log("THIS IS AN ARRAY ", data.valueOne)
@@ -306,16 +309,21 @@ export default defineComponent({
                         }else{
                             return data.valueOne
                         }
-                    }
+                    },
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${data.indicatorOne} ${data.nameOfIndicatorOne}`, data.valueOne
+                    )
                 }, 
                 {
                     label: "Indicator #",
                     ref: "data.indicatorTwo",
+                    secondaryLabel: "Indicator #",
                     value: (data: any) => data.indicatorTwo
                 }, 
                 {
                     label: "Name of Indicator",
                     ref: "data.nameOfIndicatorTwo",
+                    secondaryLabel: "Name of Indicator",
                     value: (data: any) => data.nameOfIndicatorTwo,
                     dataStyle: (data: any) => {
                         if(data.valueTwo === "TH"){
@@ -337,6 +345,7 @@ export default defineComponent({
                 {
                     label: "value",
                     ref: "data.valueTwo",
+                    secondaryLabel: "Value",
                     value: (data: any) => {
                         if(Array.isArray(data.valueTwo)){
                             console.log("THIS IS AN ARRAY ", data.valueOne)
@@ -344,7 +353,10 @@ export default defineComponent({
                         }else{
                             return data.valueTwo
                         }
-                    }
+                    },
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${data.indicatorTwo} ${data.nameOfIndicatorTwo}`, data.valueTwo
+                    )
                 },   
             ],
         ]
