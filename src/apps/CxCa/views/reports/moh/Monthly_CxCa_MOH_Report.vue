@@ -90,7 +90,6 @@ export default defineComponent({
             return mergedArray;
         };
         const processData = (data: any) => {
-            console.log("PD", data)
             const result: any = [];
             const keys = Object.keys(data);
             //doing this to show title
@@ -304,7 +303,6 @@ export default defineComponent({
                     secondaryLabel: "Value",
                     value: (data: any) => {
                         if(Array.isArray(data.valueOne)){
-                            console.log("THIS IS AN ARRAY ", data.valueOne)
                             return data.valueOne.length
                         }else{
                             return data.valueOne
@@ -348,7 +346,6 @@ export default defineComponent({
                     secondaryLabel: "Value",
                     value: (data: any) => {
                         if(Array.isArray(data.valueTwo)){
-                            console.log("THIS IS AN ARRAY ", data.valueOne)
                             return data.valueTwo.length
                         }else{
                             return data.valueTwo
