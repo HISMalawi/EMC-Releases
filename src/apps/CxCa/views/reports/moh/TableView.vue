@@ -270,7 +270,7 @@ export default defineComponent({
                         }
                         th, td {
                             width: 4%;
-                            text-align: center;
+                            text-align: left;
                             border: solid 1px black;
                         }
                         td {
@@ -374,6 +374,7 @@ export default defineComponent({
                 const row = getExpandedColumns().map((column: v2ColumnInterface) => {
                     let value = ''
                     let styling = {}
+                    let colSpan = 1
                     try {
                         if (isEmpty(record)) {
                             value = "..."
@@ -389,13 +390,18 @@ export default defineComponent({
                     }
 
                     if (typeof column.dataStyle === 'function') {
-                        styling = column.dataStyle(data)
+                        styling = column.dataStyle(record)
+                    }
+
+                    if (typeof column.colSpan === 'function') {
+                        colSpan = column.colSpan(record)
                     }
                     return {
                         column,
                         data: record,
                         value: value,
                         styling,
+                        colSpan,
                         [column.ref || 'nada']: value
                     }
                 })
@@ -441,7 +447,7 @@ export default defineComponent({
     th, td {
         width: 4%;
         border-collapse: collapse;
-        text-align: center;
+        text-align: left;
     }
     td {
         border-bottom: 1px solid rgb(165, 165, 165);

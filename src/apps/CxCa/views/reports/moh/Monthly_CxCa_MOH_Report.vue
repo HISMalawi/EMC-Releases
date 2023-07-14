@@ -316,7 +316,23 @@ export default defineComponent({
                 {
                     label: "Name of Indicator",
                     ref: "data.nameOfIndicatorTwo",
-                    value: (data: any) => data.nameOfIndicatorTwo
+                    value: (data: any) => data.nameOfIndicatorTwo,
+                    dataStyle: (data: any) => {
+                        if(data.valueTwo === "TH"){
+                            return {
+                                fontWeight: 'bold'
+                            }
+                        }
+                        return {
+                            fontWeight: 'normal',
+                        }                        
+                    },
+                    colSpan: (data: any) => {
+                        if(data.valueTwo === "TH"){
+                            return 2
+                        } 
+                        return 1
+                    }
                 },
                 {
                     label: "value",
