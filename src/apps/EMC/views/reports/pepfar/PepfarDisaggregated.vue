@@ -195,15 +195,14 @@ export default defineComponent({
       }
     }
 
-    const fetchData =  async ({ dateRange }: Record<string, any>, regenerate=false) => {
+    const fetchData =  async ({ dateRange }: Record<string, any>, regenerate=true) => {
       await loader.show()
       report.setStartDate(dateRange.startDate)
       report.setEndDate(dateRange.endDate)
       report.setRebuildOutcome(regenerate)
       report.setQuarter("pepfar")     
       period.value = report.getDateIntervalPeriod()
-      const initialised = await report.init()
-      if (!initialised) return toastWarning('Unable to initialise report')
+      report.initialize = false
 
       await buildRows({index: 1, gender: "F", altGender: "Female", ageGroups: AGE_GROUPS })
       await buildRows({index: 2, gender: "M", altGender: "Male", ageGroups: AGE_GROUPS })
