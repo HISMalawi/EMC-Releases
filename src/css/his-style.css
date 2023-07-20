@@ -251,6 +251,7 @@ ion-radio {
 ion-item, ion-label {
     padding: 0;
 }
+
 @media (max-width: 1024px) {
     .keypad-modal::part(content) {
         width: 340px;
