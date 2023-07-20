@@ -18,7 +18,7 @@
 
     `npm install`
 
-    There is a know issue that happens sometimes due to conflicting dependencies when installing dependencies with npm using node 16+. The following is the error code that is associated with the issue
+    There is a known issue that happens sometimes due to conflicting dependencies when installing dependencies with npm using node 16+. The following is the error code that is associated with the issue
 
     ```
     npm ERR! code ERESOLVE
@@ -29,7 +29,7 @@
     // the rest of the error log
     ```
 
-    As a workout around to this run the `npm install` command with the `--legacy-peer-deps` flag.
+    As a work around to this run the `npm install` command with the `--legacy-peer-deps` flag.
 
     ```bash
     npm install --legacy-peer-deps
