@@ -75,11 +75,13 @@ export default defineComponent({
         }
 
         const array1 = (data: [], mid : number) =>{
-            return data.slice(0, mid);
+            const half = data.slice(0, mid)
+            return half;
         }
 
         const array2 = (data: [], mid : number) =>{
-            return data.slice(mid);
+            const half = data.slice(mid)
+            return half;
         }
 
         const merge = (array1: any[], array2: any[]): any[] => {
@@ -102,6 +104,12 @@ export default defineComponent({
                 values.forEach(([subKey, subValues]) => {
                     if(previouskey != key){
                         indicatorNumber = Math.ceil(indicatorNumber)
+                        //before we push this to the array lets change the headers to accurately present the data
+                        mappedheaders.forEach((mappedKey) => {
+                            if(mappedKey[0] == key){
+                                key = mappedKey[1]
+                            }
+                        });
                         result.push([indicatorNumber, key, "TH"]);
                     }
                     if (Array.isArray(subValues)) {
@@ -114,7 +122,6 @@ export default defineComponent({
                     previouskey = key
                 });
             });
-
             return result;
         };
 
@@ -214,7 +221,21 @@ export default defineComponent({
             'via_reffered',
             'suspected_reffered'
         ];
-
+        //mapping to show actual report headers
+        const mappedheaders = [
+            ["family_planning", "Offered family planning services"],
+            ["referral_feedback", "Number of clients with referral feedback"],
+            ["referral_reasons", "Number od clients referred disaggregated by referral reasons"],
+            ["screened_disaggregated_by_age", "Number of clients screened for cervical cancer disaggregated by age"],
+            ["screened_disaggregated_by_hiv_status", "Number of clients screened for cervical cancer disaggregated by HIV status"],
+            ["screened_disaggregated_by_reason_for_visit", "Number of clients screened for cervical cancer disaggregated by reason for visit"],
+            ["screened_disaggregated_by_screening_method", "Number of clients screened disaggregated by screening method"],
+            ["screening_results_hiv_negative", "Cervical cancer screening results (HIV- / unknown)"],
+            ["screening_results_hiv_positive", "Number of clients screened disaggregated by screening method"],
+            ["suspects_disaggregated_by_age", "Cervical Cancer suspects disaggregated by age"],
+            ["total_treated", "Total number of clients treated"],
+            ["total_treated_disaggregated_by_tx_option", "Number of clients treated disaggregated by treatment option"]
+        ]
         //csv headers
         const csvheaders = [
             'Age Disaggregate', 
