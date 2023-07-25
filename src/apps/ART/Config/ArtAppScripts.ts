@@ -25,6 +25,8 @@ import ART_PROP from "@/apps/ART/art_global_props";
 import { StoreDef, isCacheEnabled } from "@/apps/GLOBAL_APP/global_store";
 import { toDate } from "@/utils/Strs";
 import { ConsultationService } from "@/apps/ART/services/consultation_service";
+import { NotificationService } from "@/services/notification_service";
+import router from "@/router/index";
 
 export const appStore: Record<string, StoreDef> = {
     'ASK_HANGING_PILLS':  {
@@ -220,6 +222,70 @@ export async function getPatientDashboardLabOrderCardItems(patientId: number) {
         return [result1, result2]
     }
     return data
+}
+
+export async function downloadAppNotifications() {
+    const notifications = await NotificationService.unread()
+    if (!isEmpty(notifications)) {
+        const vlMessageObs : any = {'highVL':[],'normalVL':[],'rejectedVL':[]}
+        let vlMessage = {}
+        return notifications.map((n: any) => {
+            let type = 'General'
+            const message = n.text
+            let handler = null
+            try {
+            
+                const t = JSON.parse(n.text)
+                if (t['Type'].match(/lims/i)) {
+                    handler = () => router.push(`/art/encounters/lab/${t['PatientID']}`)
+                    type = `${t['Test type']} results for ${t['ARV-Number'] || t['Accession number']}`
+                    const viralLoadStatus = OrderService.detectHighVl(t['Result'][0]['value'],t['Result'][0]['value_modifier'])
+                    vlMessage = {
+                        'handler':handler,
+                        'id':n.alert_id,
+                        'arv':t['ARV-Number'] ,
+                        'accession':t['Accession number'] ,
+                        'order_date':toDate(t['Orde date']),
+                        'results': t['Result'][0]['value_modifier'] +" "+ t['Result'][0]['value'],
+                        'results_date':toDate(t['Result'][0]['date'])
+                    }
+
+                    if(viralLoadStatus)
+                    {
+                        vlMessageObs.highVL.push(vlMessage)
+                        
+                    }else
+                    if(t['rejection_reason']){
+                        vlMessage = {
+                            'handler':handler,
+                            'id':n.alert_id,
+                            'arv':t['arv_number'] ,
+                            'accession':t['accession_number'] ,
+                            'order_date':toDate(t['order_date']),
+                            'rejection_reason':t['rejection_reason']
+                        }
+                        vlMessageObs.rejectedVL.push(vlMessage)
+
+                    }else
+                    if(!viralLoadStatus)
+                    {
+                        vlMessageObs.normalVL.push(vlMessage)
+                    }
+                    
+                }
+            } catch (e) {
+                console.warn(e)
+            }
+            return {
+                handler,
+                message,
+                vlMessageObs,
+                title: type,
+                id: n.alert_id,
+                date: toDate(n.date_created)
+            }
+        })
+    }
 }
 
 export function confirmationSummary(patient: Patientservice) {

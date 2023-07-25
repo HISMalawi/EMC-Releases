@@ -1,10 +1,8 @@
 import { computed, ref } from "vue";
 import { NotificationService } from "@/services/notification_service"
-import HisDate from "@/utils/Date";
-import router from "@/router/index";
-import { isEmpty } from "lodash";
 import { alertConfirmation, toastWarning } from "@/utils/Alerts";
-import { toDate } from "@/utils/Strs";
+import { Service } from "@/services/service";
+import { AppInterface } from "@/apps/interfaces/AppInterface";
 
 export interface NotificationInterface {
     id: number;
@@ -17,6 +15,8 @@ export interface NotificationInterface {
 }
 
 const notificationData = ref([] as NotificationInterface[])
+
+const activeApp = ref<AppInterface>(Service.getActiveApp() as any)
 
 export function Notification() {
     const unReadNotifications = computed((): NotificationInterface[] => {
@@ -50,7 +50,7 @@ export function Notification() {
                             notificationData.value = notificationData.value.filter(
                                 (notice) => notice.id != id
                             )
-                            loadNotifications()
+                            loadNotifications(activeApp.value)
                         }).catch((e) => {
                             console.error(e)
                             toastWarning("Unable to clear notification")
@@ -59,86 +59,16 @@ export function Notification() {
             })
     }
 
-    async function loadNotifications() {
-        const notifications = await NotificationService.unread()
-        if (!isEmpty(notifications)) {
-            const vlMessageObs : any = {'highVL':[],'normalVL':[],'rejectedVL':[]}
-            let vlMessage = {}
-            notificationData.value = notifications.map((n: any) => {
-                let type = 'General'
-                const message = n.text
-                
-                
-                let handler = null
-                try {
-                   
-                    const t = JSON.parse(n.text)
-                    if (t['Type'].match(/lims/i)) {
-                        handler = () => router.push(`/art/encounters/lab/${t['PatientID']}`)
-                        type = `${t['Test type']} results for ${t['ARV-Number'] || t['Accession number']}`
-                        const viralLoadStatus = isHighViralLoadResult(t['Result'][0]['value'],t['Result'][0]['value_modifier'])
-                        
-                        vlMessage = {
-                            'handler':handler,
-                            'id':n.alert_id,
-                            'arv':t['ARV-Number'] ,
-                            'accession':t['Accession number'] ,
-                            'order_date':toDate(t['Orde date']),
-                            'results': t['Result'][0]['value_modifier'] +" "+ t['Result'][0]['value'],
-                            'results_date':toDate(t['Result'][0]['date'])
-                        }
-
-                        if(viralLoadStatus)
-                        {
-                            vlMessageObs.highVL.push(vlMessage)
-                            
-                        }else
-                        if(t['rejection_reason']){
-                            vlMessage = {
-                                'handler':handler,
-                                'id':n.alert_id,
-                                'arv':t['arv_number'] ,
-                                'accession':t['accession_number'] ,
-                                'order_date':toDate(t['order_date']),
-                                'rejection_reason':t['rejection_reason']
-                            }
-                            vlMessageObs.rejectedVL.push(vlMessage)
-
-                        }else
-                        if(!viralLoadStatus)
-                        {
-                            vlMessageObs.normalVL.push(vlMessage)
-                        }
-                        
-                    }
-                } catch (e) {
-                    console.warn(e)
-                }
-                return {
-                    handler,
-                    message,
-                    vlMessageObs,
-                    title: type,
-                    id: n.alert_id,
-                    date: toDate(n.date_created)
-                }
-            })
-            toastWarning(`You have ${notifications.length} unread notification(s)`)
+    async function loadNotifications(application: AppInterface) {
+        activeApp.value = application
+        if (typeof application.downloadAppNotifications === 'function') {
+            notificationData.value = (await application.downloadAppNotifications()) || []
+            if (notificationData.value.length) {
+                toastWarning(`You have ${notificationData.value.length} unread notification(s)`)
+            }
+        } else {
+            notificationData.value = []
         }
-    }
-    function isHighViralLoadResult(value: any,value_modifier: any) {
-        
-        if(value_modifier === '=' && parseFloat(value) >= 1000) return true
-
-        if((value_modifier  === '<' || value_modifier  === '&lt') 
-            && parseFloat(value) > 1000
-        )  return true
-
-        if((value_modifier  === '>' || value_modifier  === '&gt') 
-            && (parseFloat(value) >= 1000 || `${value}`.toUpperCase().replace(/\s+/g, '') == 'LDL')
-        )  return true
-
-        return false
     }
 
     async function markAsRead(notification: NotificationInterface) {
