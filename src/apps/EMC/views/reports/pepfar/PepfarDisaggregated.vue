@@ -55,7 +55,11 @@ export default defineComponent({
       { path: "total", label: "Total", drillable: true },
     ]
 
-    const getRegimenRow = async () => {
+    const getRegimenRow = async (gender: string) => {
+      if(/fp|fbf/i.test(gender)) {
+        report.setAgeGroup("All");
+        report.setGender(gender);
+      }
       const row: Record<string, any> = {}
       const distribution = await report.getRegimenDistribution()
       for (const regimen of [...REGIMENS, 'N/A']) {
@@ -131,7 +135,7 @@ export default defineComponent({
         txNew: get(cohortData, `${ageGroup}.${gender.charAt(0)}.tx_new`, []),
         txCurr: get(cohortData, `${ageGroup}.${gender.charAt(0)}.tx_curr`, []),
         ageGroup: /pregnant|breastfeeding/i.test(ageGroup) ? "All" : ageGroup,
-        ...(await getRegimenRow()),
+        ...(await getRegimenRow(gender)),
       };
     };
 
@@ -149,6 +153,10 @@ export default defineComponent({
       }
     };
 
+    const sortMaternalsRows = () => {
+      [maternals.value[2], maternals.value[1]] = [maternals.value[1], maternals.value[2]]
+    }
+
     const fetchData =  async ({ dateRange }: Record<string, any>, regenerate=true) => {
       await loader.show()
       males.value = [];
@@ -160,12 +168,12 @@ export default defineComponent({
       report.setRebuildOutcome(regenerate)
       report.setQuarter("pepfar")     
       period.value = report.getDateIntervalPeriod()
-      const isInit = report.init();
-      if(!isInit) return toastWarning("Unable to initialize report");
+      report.initialize = false;
       await buildMaleFemalesRows();
       buildTotalMalesRow();
       await buildFpFBfRows();
       setFemaleNotPregnantRow()
+      sortMaternalsRows();
       await loader.hide();
     }
 
