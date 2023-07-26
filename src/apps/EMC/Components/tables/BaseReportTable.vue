@@ -33,13 +33,16 @@
           <template v-for="(_, name) in $slots" #[name]="{ filter }">
             <slot :name="name" :filter="filter"></slot>
           </template>
+          <template #dateRange>
+            <date-range-picker v-model="dateRange" />
+          </template>
         </data-table>
       </ion-card-content>
     </ion-card>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType } from "vue";
+import { computed, defineComponent, PropType, ref } from "vue";
 import { IonCard, IonCardContent, IonCardHeader, IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
 import dayjs from "dayjs";
@@ -55,6 +58,7 @@ import {
 import { toastWarning } from "@/utils/Alerts";
 import { isEmpty } from "lodash";
 import { exportToCSV } from "../../utils/exports";
+import DateRangePicker, { DateRange } from "@/apps/EMC/Components/inputs/DateRangePicker.vue";
 
 export default defineComponent({
   name: "BaseReportTable",
@@ -66,6 +70,7 @@ export default defineComponent({
     IonRow,
     IonCol,
     DataTable,
+    DateRangePicker,
   },
   props: {
     title: {
@@ -154,6 +159,7 @@ export default defineComponent({
   },
   emits: ["regenerate", "customFilter", "drilldown"],
   setup(props, { emit }) {
+    const dateRange = ref({} as DateRange)
     const filename = computed(() => {
       return `${PatientReportService.getLocationName()} ${props.filename || props.title} ${ props.period ? props.period : props.date }`;
     })
@@ -189,10 +195,11 @@ export default defineComponent({
           id: "dateRange",
           label: "Date Range",
           type: "dateRange",
+          slotName: "dateRange",
           gridSize: 5,
           value: {
-            startDate: props.period.split("-")[0],
-            endDate: props.period.split("-")[1],
+            start: props.period.split("-")[0],
+            end: props.period.split("-")[1],
           },
         })
       } else if(props.useQuarterFilter) {
@@ -215,8 +222,12 @@ export default defineComponent({
     })
 
     const onCustomFilter = (customfilters: Record<string, any>) => {
-      if ("dateRange" in customfilters && (new Date(customfilters.dateRange.startDate) > new Date(customfilters.dateRange.endDate))) {
-        return toastWarning("Invalid date range")
+      if ("dateRange" in customfilters) {
+        if(isEmpty(dateRange.value)) return toastWarning("Invalid date range")
+        customfilters.dateRange = {
+          startDate: dateRange.value.start,
+          endDate: dateRange.value.end
+        }
       }
       if (filters.value.every(f => {
         if (f.required === false) return true;
@@ -238,6 +249,7 @@ export default defineComponent({
       onCustomFilter,
       onDrilldown,
       dayjs,
+      dateRange,
     }
   }
 })
