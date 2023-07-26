@@ -1,8 +1,11 @@
 <template>
     <ion-grid>
       <ion-row>
-        <ion-col size="5" offset="7" class="ion-padding">
-          <date-range-picker :range="range" @rangeChange="fetchData" />
+        <ion-col size="3" offset="9" class="ion-padding">
+          <div style="display: flex; justify-content: flex-start; ">
+            <date-range-picker v-model="range" class="ion-margin-end" style="padding: 5px;"/>
+            <ion-button color="primary" @click="fetchData" style="height: 44px;">Submit</ion-button>
+          </div>
         </ion-col>
         <ion-col size="2" class="ion-padding-top">
           <div class="his-card ">
@@ -29,7 +32,7 @@
     </ion-grid>
 </template>
 <script lang="ts">
-import { computed, defineComponent, reactive, ref } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import LineChart from "@/apps/EMC/Components/charts/LineChart.vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { isEmpty } from "lodash";
@@ -55,7 +58,7 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
-    const range = reactive({} as DateRange);
+    const range = ref({} as DateRange);
     type PointData = { patientId: number, date: string }
     type SeriesData = { name: string; raw: PointData[][], data: number[][] }
     const series = ref([] as SeriesData[]);
@@ -107,12 +110,11 @@ export default defineComponent({
       return seriesData
     }
 
-    const fetchData = async (newRange: DateRange) => {
+    const fetchData = async () => {
       loader.show();
-      Object.assign(range, newRange);
       const report = new PatientReportService();
-      report.setStartDate(newRange.startDate);
-      report.setEndDate(newRange.endDate);
+      report.setStartDate(range.value.start);
+      report.setEndDate(range.value.end);
       const data = await report.getPatientVisitTypes();
       series.value = buildSeries(data);
       loader.hide();
