@@ -96,27 +96,36 @@ export default defineComponent({
             const keys = Object.keys(data);
             //doing this to show title
             let previouskey: any;
-            //used for the indicator number
-            let indicatorNumber = 1.0
+            //indicator whole number
+            let indicatorWholeNumber = 0
+            //indicator decimal notation
+            let indicatorDecimal = 0
+            //concatinated value of both indicator whole number and decimal used as the actual indicator
+            let indicator = ""
 
             keys.forEach((key) => {
                 const values = Object.entries(data[key]);
                 values.forEach(([subKey, subValues]) => {
                     if(previouskey != key){
-                        indicatorNumber = Math.ceil(indicatorNumber)
                         //before we push this to the array lets change the headers to accurately present the data
+                        //increment by 1
+                        indicatorWholeNumber = indicatorWholeNumber + 1
+                        //reset the decimal value to 0 after incrementing the whole number
+                        indicatorDecimal = 0
                         mappedheaders.forEach((mappedKey) => {
                             if(mappedKey[0] == key){
                                 key = mappedKey[1]
                             }
                         });
-                        result.push([indicatorNumber, key, "TH"]);
+                        result.push([indicatorWholeNumber, key, "TH"]);
                     }
                     if (Array.isArray(subValues)) {
-                        indicatorNumber = indicatorNumber + 0.1
-                        result.push([indicatorNumber.toFixed(1), subKey, subValues]);
+                        indicatorDecimal = indicatorDecimal + 1
+                        //concatinating the value
+                        indicator = indicatorWholeNumber + "." + indicatorDecimal
+                        result.push([indicator, subKey, subValues]);
                     } else {
-                        result.push([indicatorNumber, subKey, []]);
+                        result.push([indicator, subKey, []]);
                     }
                     //keep the previous key/title
                     previouskey = key
