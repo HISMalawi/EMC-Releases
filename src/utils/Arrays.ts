@@ -13,3 +13,19 @@ export function uniqueBy(arr: any[], iteratee: string | string[]) {
     return [uniqueKey, item]
   })).values()]
 }
+
+/**
+ * Swap two adjacent items in an array
+ * 
+ * @param arr list of items 
+ * @param index position of the first item to be swapped
+ * @returns 
+ */
+export function swapAdjacentItems<T = any>(arr: Array<T>, index: number) {
+  if (index < 0 || index >= arr.length - 1) {
+    throw new Error("Invalid index or no adjacent items to swap.");
+  }
+
+  [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]]
+  return arr
+}

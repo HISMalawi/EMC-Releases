@@ -30,6 +30,7 @@ import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";
 import { toastWarning } from "@/utils/Alerts";
+import { swapAdjacentItems } from "@/utils/Arrays";
 
 export default defineComponent({
   name: "CohortDisaggregated",
@@ -153,10 +154,6 @@ export default defineComponent({
       }
     };
 
-    const sortMaternalsRows = () => {
-      [maternals.value[2], maternals.value[1]] = [maternals.value[1], maternals.value[2]]
-    }
-
     const fetchData =  async (config?: Record<string, any>, regenerate=true) => {
       await loader.show()
       males.value = [];
@@ -175,7 +172,7 @@ export default defineComponent({
       buildTotalMalesRow();
       await buildFpFBfRows();
       setFemaleNotPregnantRow()
-      sortMaternalsRows();
+      swapAdjacentItems(maternals.value, 1); // swap fnp and fbf rows
       await loader.hide();
     }
 
