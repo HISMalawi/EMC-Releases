@@ -36,7 +36,7 @@ export default defineComponent({
   components: { BaseReportTable },
   setup() {
     const report = new DisaggregatedReportService()
-    let cohortData = reactive({} as Record<string, any>);
+    let cohortData = {} as Record<string, any>;
     const period = ref("-");
     const females = ref<Array<any>>([]);
     const males = ref<Array<any>>([]);
@@ -157,14 +157,16 @@ export default defineComponent({
       [maternals.value[2], maternals.value[1]] = [maternals.value[1], maternals.value[2]]
     }
 
-    const fetchData =  async ({ dateRange }: Record<string, any>, regenerate=true) => {
+    const fetchData =  async (config?: Record<string, any>, regenerate=true) => {
       await loader.show()
       males.value = [];
       females.value = [];
       maternals.value = [];
       cohortData = {};
-      report.setStartDate(dateRange.startDate)
-      report.setEndDate(dateRange.endDate)
+      if(config) {
+        report.setStartDate(config?.dateRange.startDate)
+        report.setEndDate(config?.dateRange.endDate)
+      }
       report.setRebuildOutcome(regenerate)
       report.setQuarter("pepfar")     
       period.value = report.getDateIntervalPeriod()
@@ -177,14 +179,8 @@ export default defineComponent({
       await loader.hide();
     }
 
-    const onRegenerate = async () => {
-      const [ start, end ] = period.value.split('-')
-      if(start && end ) {
-        await fetchData({dateRange: {
-          startDate: dayjs(start).format("YYYY-MM-DD"), 
-          endDate: dayjs(end).format("YYYY-MM-DD")
-        }}, true)
-      }
+    const onRegenerate = () => {
+      if(period.value) return fetchData();
     }
 
     const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
