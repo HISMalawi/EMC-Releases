@@ -240,7 +240,7 @@ export default defineComponent({
             ["screened_disaggregated_by_reason_for_visit", "Number of clients screened for cervical cancer disaggregated by reason for visit"],
             ["screened_disaggregated_by_screening_method", "Number of clients screened disaggregated by screening method"],
             ["screening_results_hiv_negative", "Cervical cancer screening results (HIV- / unknown)"],
-            ["screening_results_hiv_positive", "Number of clients screened disaggregated by screening method"],
+            ["screening_results_hiv_positive", "Cervical cancer screening results (HIV+)"],
             ["suspects_disaggregated_by_age", "Cervical Cancer suspects disaggregated by age"],
             ["total_treated", "Total number of clients treated"],
             ["total_treated_disaggregated_by_tx_option", "Number of clients treated disaggregated by treatment option"]
