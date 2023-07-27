@@ -36,6 +36,9 @@
           <template #dateRange>
             <date-range-picker v-model="dateRange" />
           </template>
+          <template #datePicker>
+            <date-picker v-model="pickerDate" />
+          </template>
         </data-table>
       </ion-card-content>
     </ion-card>
@@ -59,6 +62,7 @@ import { toastWarning } from "@/utils/Alerts";
 import { isEmpty } from "lodash";
 import { exportToCSV } from "../../utils/exports";
 import DateRangePicker, { DateRange } from "@/apps/EMC/Components/inputs/DateRangePicker.vue";
+import DatePicker from "@/apps/EMC/Components/inputs/DatePicker.vue"
 
 export default defineComponent({
   name: "BaseReportTable",
@@ -71,6 +75,7 @@ export default defineComponent({
     IonCol,
     DataTable,
     DateRangePicker,
+    DatePicker,
   },
   props: {
     title: {
@@ -160,6 +165,7 @@ export default defineComponent({
   emits: ["regenerate", "customFilter", "drilldown"],
   setup(props, { emit }) {
     const dateRange = ref({} as DateRange)
+    const pickerDate = ref("");
     const filename = computed(() => {
       return `${PatientReportService.getLocationName()} ${props.filename || props.title} ${ props.period ? props.period : props.date }`;
     })
@@ -215,6 +221,7 @@ export default defineComponent({
           id: "date",
           label: "Date",
           type: "date",
+          slotName: "datePicker",
           value: props.date,
         })
       }
@@ -229,6 +236,12 @@ export default defineComponent({
           endDate: dateRange.value.end
         }
       }
+
+      if("date" in customfilters) {
+        if(isEmpty(pickerDate.value)) return toastWarning("Invalid date")
+        customfilters.date = pickerDate.value 
+      }
+
       if (filters.value.every(f => {
         if (f.required === false) return true;
         if (!isEmpty(customfilters[f.id]) && typeof customfilters[f.id] === 'object') return Object.values(customfilters[f.id]).every(v => !isEmpty(v));
@@ -250,6 +263,7 @@ export default defineComponent({
       onDrilldown,
       dayjs,
       dateRange,
+      pickerDate,
     }
   }
 })
