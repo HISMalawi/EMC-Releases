@@ -163,7 +163,11 @@ export default defineComponent({
         csvSubHeader: {
             type: Array as PropType<Array<Array<any>>>,
             default: () => []
-        }
+        },
+        csvData: {
+            type: Array as PropType<Array<Array<any>>>,
+            default: () => []
+        },
     },
     setup(props) {
         const route = useRouter()
@@ -178,10 +182,6 @@ export default defineComponent({
             /**
              * Used to retrieve element of the array (1st time scfeened)
              */
-            
-            console.log("IN Loops 0", props.columnData[0])
-            console.log("IN Loops 1", props.columnData[1])
-            console.log("IN Loops 2", props.columnData)
 
             const temp: Array<any> = [] 
             props.columnData?.forEach((record: any)=> {
@@ -289,71 +289,14 @@ export default defineComponent({
         }
 
         const toCSV = () => {
-            const convertDataToIntegerArray = (data: any[]) => {
-        
-
-                const result = data.map((subList: any[]) => {
-                    return subList
-                        .map((obj: { [key: string]: any }) => {
-                            return props.order.map(key => {
-                                const value = obj[key as unknown as keyof typeof obj];
-                                if (Array.isArray(value)) {
-                                    return value.length;
-                                }
-                                return value;
-                            }).filter((value) => value !== undefined);
-                        })
-                        .filter((arr) => arr.length > 0);
-                }).filter((subList) => subList.length > 0);
-
-                return result;
-            };
-
-            const convertTotalToArray = (totals: any[]): any => {
-                return totals.map((totalObj) => {
-                    const [key] = Object.keys(totalObj);
-                    const value = totalObj[key];
-                    const count = Array.isArray(value) ? value.length : 0;
-                    const tuple = [key, count];
-                    for (let i = 0; i < 5; i++) {
-                    tuple.push("");
-                    }
-                    return tuple;
-                });
-            };
-
-
-
-            const convertedData = convertDataToIntegerArray(props.columnData)
-            const convertedTotals = convertTotalToArray(props.columnData[3])
-            const rows = convertedData.flat(); 
-            
-            convertedTotals.forEach((tuple: any) => {
-                rows.push(tuple)
-            });
-
             const filename = `${Service.getLocationName()||'Unknown site'}-${props.title}-${props.subtitle}-${Service.getSessionDate()}`
 
-            const addSubHeaders = () => {
-                const modifiedArray = [...rows]; // Create a copy of the existing array
-
-                const subHeaderRows = [0, 9, 18, 27]; // Rows where subheaders should be inserted
-                const subHeadersLength = props.csvSubHeader.length;
-
-                subHeaderRows.forEach((rowIndex, index) => {
-                    const subHeaderRow = props.csvSubHeader[index % subHeadersLength];
-
-                    // Insert subheader row at the specified index
-                    modifiedArray.splice(rowIndex, 0, [...subHeaderRow]);
-                });
-
-                return modifiedArray;
-            };
+            console.log("In the other view", props.csvData)
 
             toCsv(
                 [props.headers],
                 [
-                    ...addSubHeaders(),
+                    ...props.csvData,
                     [`Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}`],
                     [`Quarter: ${props.csvQuarter || props.subtitle}`],
                     [`HIS-Core Version: ${Service.getCoreVersion()}`],

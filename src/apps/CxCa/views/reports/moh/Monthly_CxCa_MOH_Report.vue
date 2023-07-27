@@ -13,7 +13,7 @@
             :order="order"
             :headers="csvheaders"
             :csv-spacing="spacing"
-            :csv-sub-header="subHeaders"
+            :csv-data="csvData"
         />
     </ion-page>
 </template>
@@ -34,6 +34,7 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { Service } from "@/services/service"
 import HisDate from "@/utils/Date"
 import dayjs from "dayjs";
+import { cloneDeep } from 'lodash';
 
 
 const reportData = ref<any>([])
@@ -42,6 +43,8 @@ const endDate = ref('')
 const period = ref('')
 const isLoading = ref(false)
 const csvQuarter = ref('')
+//adding a new reactive variable to store csv data
+const csvData = ref<any>([])
 
 export default defineComponent({ 
     components: { 
@@ -92,7 +95,10 @@ export default defineComponent({
             return mergedArray;
         };
         const processData = (data: any) => {
+            //to be displayed
             const result: any = [];
+            //to be generated as csv
+            const csvresult: any = [];
             const keys = Object.keys(data);
             //doing this to show title
             let previouskey: any;
@@ -118,19 +124,27 @@ export default defineComponent({
                             }
                         });
                         result.push([indicatorWholeNumber, key, "TH"]);
+                        //csv format
+                        csvresult.push([indicatorWholeNumber, key, ""]);
                     }
                     if (Array.isArray(subValues)) {
                         indicatorDecimal = indicatorDecimal + 1
                         //concatinating the value
                         indicator = indicatorWholeNumber + "." + indicatorDecimal
                         result.push([indicator, subKey, subValues]);
+                        //csv format
+                        csvresult.push([indicator, subKey, subValues]);
                     } else {
                         result.push([indicator, subKey, []]);
+                        //csv format
+                        csvresult.push([indicator, subKey, []]);
                     }
                     //keep the previous key/title
                     previouskey = key
                 });
             });
+            //save to csv data for generating csv file
+            csvData.value = csvresult
             return result;
         };
 
@@ -204,6 +218,19 @@ export default defineComponent({
             return extractedTotals;
         }
 
+        const replaceTHWithValue = (data:any) => {
+            let dataArray = data.slice();
+            for (let i = 0; i < dataArray.length; i++) {
+                const item = dataArray[i];
+                for (const key in item) {
+                if (item[key] === 'TH') {
+                    dataArray[i][key] = '';
+                }
+                }
+            }
+            return dataArray
+        }
+
         const drilldown = async (title: string, patientIdentifiers: number[]) => {
             (await modalController.create({
                 component: DrillPatientIds,
@@ -217,6 +244,29 @@ export default defineComponent({
                 }
             })).present()
         }
+
+        const processArray = (dataArray:any) => {
+        
+        
+            dataArray.forEach((entry: (string | any[])[]) => {
+            // Step 1: Swap "TH" with ""
+            entry[2] = entry[2] === 'TH' ? " " : entry[2];
+
+            // Step 2: Replace arrays with their length
+            if (Array.isArray(entry[5])) {
+            entry[5] = "" + entry[5].length;
+            }
+
+            // Step 2: Replace arrays with their length
+            if (Array.isArray(entry[2])) {
+            entry[2] = "" + entry[2].length;
+
+            // Step 1: Swap "TH" with ""
+            entry[5] = entry[5] === 'TH' ? " " : entry[5];
+            }
+        });
+        return dataArray
+        };
         
         /**
          * ordering of columns
@@ -234,7 +284,7 @@ export default defineComponent({
         const mappedheaders = [
             ["family_planning", "Offered family planning services"],
             ["referral_feedback", "Number of clients with referral feedback"],
-            ["referral_reasons", "Number od clients referred disaggregated by referral reasons"],
+            ["referral_reasons", "Number of clients referred disaggregated by referral reasons"],
             ["screened_disaggregated_by_age", "Number of clients screened for cervical cancer disaggregated by age"],
             ["screened_disaggregated_by_hiv_status", "Number of clients screened for cervical cancer disaggregated by HIV status"],
             ["screened_disaggregated_by_reason_for_visit", "Number of clients screened for cervical cancer disaggregated by reason for visit"],
@@ -247,22 +297,13 @@ export default defineComponent({
         ]
         //csv headers
         const csvheaders = [
-            'Age Disaggregate', 
-            'Cryotherapy', 
-            'Thermocoagulation', 
-            'Leep', 
-            'VIA + Defferred Tx', 
-            'VIA + Referred', 
-            'CxCa Suspect Referred'
+            'Indicator #', 
+            'Name of Indicator', 
+            'Value', 
+            'Indicator #', 
+            'Name of Indicator', 
+            'Value'
         ];
-
-        //sub headers for report sections
-        const subHeaders = [
-                    ["","","",'1st time screened',"","",""],
-                    ["","","",'Rescreened after previous negative',"","",""],
-                    ["","","",'Post-treatment follow-up',"","",""],
-                    ["","","",'Month Summary',"","",""]
-            ];
 
         //blank spacing for csv spacing
         const spacing = 5;
@@ -409,6 +450,13 @@ export default defineComponent({
                 const midIndex = mid(array)
                 //merging
                 const formattedArray = merge(array1(array, midIndex), array2(array, midIndex))
+                //copy the array and passit to the csvData.value
+                console.log("FORMATTED ARRAY", formattedArray)
+                const tempArray = cloneDeep(formattedArray)
+                //csv format
+                csvData.value = processArray(tempArray)
+                
+                console.log("FORMATTED CSV DATA ", csvData.value)
                 //convert to desired array of objects format
                 const convertedArray = formattedArray.map((item) => {
                     const obj = {
@@ -422,7 +470,10 @@ export default defineComponent({
                     return obj;
                 });
 
+                console.log("LOOK HERE ", convertedArray)
+
                 reportData.value = convertedArray
+                // console.log(" HERE IS THE DATA ", csvData.value)
             } catch (e) {
                 toastDanger("Unable to generate report!")
                 console.error(e)
@@ -502,7 +553,7 @@ export default defineComponent({
             order,
             csvheaders,
             spacing,
-            subHeaders
+            csvData
         }
     }
 })
