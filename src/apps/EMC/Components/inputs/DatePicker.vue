@@ -10,7 +10,6 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref } from "vue";
-import { arrowForward } from "ionicons/icons";
 import { DatePicker } from "v-calendar";
 import HisDate from "@/utils/Date";
 
@@ -35,7 +34,6 @@ export default defineComponent({
     })
 
     return {
-      arrowForward,
       date,
       masks,
       popover,
