@@ -149,17 +149,6 @@ export default defineComponent({
         };
 
         const sortedData = ref<Record<string, any>>({});
-        const sortObjectData = (data: any) => {
-            const sortedDataObject: any = {}
-
-            orderingRows.forEach((key) => {
-                if(key in data){
-                    sortedDataObject[key] = data[key];
-                }
-            });
-            sortedData.value = sortedDataObject;
-            return sortedData;
-        }
 
         const sortData = (data: Record<string, any>) => {
             const sortedData: Record<string, any> = {};
@@ -189,47 +178,6 @@ export default defineComponent({
                 }
             }
         };
-
-        const convertToArray = (data: any, totals: any) => {
-            const convertedData = [
-                convertGroupToArray(data.first_time_screened),
-                convertGroupToArray(data.rescreened_after_prev_visit),
-                convertGroupToArray(data.post_treatment_followup),
-            ];
-
-            convertedData.push(extractTotals(totals))
-
-            return convertedData
-        }
-        const convertGroupToArray = (group: any) =>  {
-            return group.map((item: { [x: string]: any; age_group: any }) => {
-                const { age_group, ...procedures } = item;
-                return { ...procedures, age_group };
-            });
-        }
-
-        const extractTotals = (data: any) => {
-            const extractedTotals: { [key: string]: any }[] = [];
-            for (const key in data) {
-                const obj: { [key: string]: any } = {};
-                obj[key] = data[key];
-                extractedTotals.push(obj);
-            }
-            return extractedTotals;
-        }
-
-        const replaceTHWithValue = (data:any) => {
-            let dataArray = data.slice();
-            for (let i = 0; i < dataArray.length; i++) {
-                const item = dataArray[i];
-                for (const key in item) {
-                if (item[key] === 'TH') {
-                    dataArray[i][key] = '';
-                }
-                }
-            }
-            return dataArray
-        }
 
         const drilldown = async (title: string, patientIdentifiers: number[]) => {
             (await modalController.create({
@@ -451,12 +399,10 @@ export default defineComponent({
                 //merging
                 const formattedArray = merge(array1(array, midIndex), array2(array, midIndex))
                 //copy the array and passit to the csvData.value
-                console.log("FORMATTED ARRAY", formattedArray)
                 const tempArray = cloneDeep(formattedArray)
                 //csv format
                 csvData.value = processArray(tempArray)
                 
-                console.log("FORMATTED CSV DATA ", csvData.value)
                 //convert to desired array of objects format
                 const convertedArray = formattedArray.map((item) => {
                     const obj = {
@@ -470,10 +416,7 @@ export default defineComponent({
                     return obj;
                 });
 
-                console.log("LOOK HERE ", convertedArray)
-
                 reportData.value = convertedArray
-                // console.log(" HERE IS THE DATA ", csvData.value)
             } catch (e) {
                 toastDanger("Unable to generate report!")
                 console.error(e)
