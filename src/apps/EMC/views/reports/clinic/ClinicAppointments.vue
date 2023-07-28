@@ -12,16 +12,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, ref } from "vue";
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
 import { loader } from "@/utils/loader";
 import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { RowActionButtonInterface, TableColumnInterface } from "@uniquedj95/vtable";
-import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
-import dayjs from "dayjs";
+import HisDate from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";
+import { toastWarning } from "@/utils/Alerts";
 
 export default defineComponent({
   name: "ClinicAppointments",
@@ -34,14 +34,15 @@ export default defineComponent({
       { path: "given_name", label: "First name", exportable: false },
       { path: "family_name", label: "Last name", exportable: false },
       { path: "gender", label: "Gender", formatter: toGenderString },
-      { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
+      { path: "birthdate", label: "Date of Birth", formatter: HisDate.toStandardHisDisplayFormat },
     ]
 
     const getData = async (filters: Record<string, any>) => {
+      if(!filters.date) return toastWarning("Invalid report date");
       await loader.show()
-      date.value = filters.date
+      date.value = HisDate.toStandardHisDisplayFormat(filters.date)
       const report = new PatientReportService();
-      rows.value = await report.getBookedAppointments(date.value);
+      rows.value = await report.getBookedAppointments(filters.date);
       await loader.hide();
     }
 

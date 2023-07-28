@@ -1,9 +1,7 @@
 <template>
-  <date-picker v-model="date" :masks="masks" :popover="popover">
+  <date-picker mode="date" v-model="date" :masks="masks">
     <template #default="{ inputValue, inputEvents }">
-      <div class="date-picker-wrapper">
-        <input :value="inputValue" class="box date-picker-input" v-on="inputEvents" placeholder="DD/MMM/YYYY" />
-      </div>
+      <input :value="inputValue" class="box date-picker-input" v-on="inputEvents" placeholder="DD/MMM/YYYY" />
     </template>
   </date-picker>
 </template>
@@ -14,10 +12,8 @@ import { DatePicker } from "v-calendar";
 import HisDate from "@/utils/Date";
 
 export default defineComponent({
-  name: "DatePicker",
-  components: {
-    DatePicker,
-  },
+  name: "DTDatePicker",
+  components: { DatePicker, },
   props: {
     modelValue: {
       type: String,
@@ -27,28 +23,20 @@ export default defineComponent({
   emits: ["update:modelValue"],
   setup (props, { emit }) {
     const masks = ref({ input: "DD/MMM/YYYY" });
-    const popover = ref({ visibility: 'click' });    
     const date = computed({
       get: () => props.modelValue,
       set: (date: string) => emit("update:modelValue", HisDate.toStandardHisFormat(date))
     })
-
+    
     return {
       date,
       masks,
-      popover,
     };
   },
 })
 </script>
 
 <style scoped>
-.date-picker-wrapper {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-}
-
 .date-picker-input {
   padding-left: .2em;
   max-width: 150px;

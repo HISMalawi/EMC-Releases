@@ -11,7 +11,7 @@
               <h3 v-html="subtitle" v-if="subtitle" style="color:#818181;"></h3>
               <h5 v-if="useDateRangeFilter"> Period: {{ period }} </h5>
               <h5 v-else-if="useQuarterFilter"> Quarter: {{ quarter.value }} </h5>
-              <h5 v-else-if="useDateFilter">Date: {{ dayjs(date).format("DD/MMM/YYYY") }}</h5>
+              <h5 v-else-if="useDateFilter">Date: {{ date }}</h5>
               <h5 v-if="totalClients">Total Clients: {{ totalClients }}</h5>
             </ion-col>
           </ion-row>
@@ -62,7 +62,7 @@ import { toastWarning } from "@/utils/Alerts";
 import { isEmpty } from "lodash";
 import { exportToCSV } from "../../utils/exports";
 import DateRangePicker, { DateRange } from "@/apps/EMC/Components/inputs/DateRangePicker.vue";
-import DatePicker from "@/apps/EMC/Components/inputs/DatePicker.vue"
+import DatePicker from "@/apps/EMC/Components/inputs/DatePicker.vue";
 
 export default defineComponent({
   name: "BaseReportTable",
@@ -75,8 +75,8 @@ export default defineComponent({
     IonCol,
     DataTable,
     DateRangePicker,
-    DatePicker,
-  },
+    DatePicker
+},
   props: {
     title: {
       type: String,
@@ -268,3 +268,10 @@ export default defineComponent({
   }
 })
 </script>
+
+<style scoped>
+.date-picker {
+  margin-top: 0px !important;
+  padding-top: 0px !important;
+}
+</style>
