@@ -110,5 +110,4 @@ export interface Field {
     options?(fdata?: any, cdata?: any, other?: any): Promise<Option[]> | Array<Option>;
     requireNext?: boolean;
     config?: Record<string, any>;
-    currentFieldig?: any;
 }

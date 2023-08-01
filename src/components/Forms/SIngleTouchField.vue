@@ -12,7 +12,6 @@
                 <component
                     :key="currentField.id"
                     :is="currentField.type"
-                    :currentFieldig="currentField.currentFieldig"
                     :options="currentField.options"
                     :preset="currentField.preset"
                     :clear="valueClearIndex"
