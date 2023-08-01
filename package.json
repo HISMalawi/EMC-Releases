@@ -12,7 +12,7 @@
     "postversion": "git push && git push --tags"
   },
   "dependencies": {
-    "@awesome-cordova-plugins/barcode-scanner": "^5.40.0",
+    "@awesome-cordova-plugins/barcode-scanner": "^5.46.0",
     "@awesome-cordova-plugins/bluetooth-serial": "^5.40.0",
     "@awesome-cordova-plugins/core": "^5.44.0",
     "@awesome-cordova-plugins/pdf-generator": "6.3.0",
