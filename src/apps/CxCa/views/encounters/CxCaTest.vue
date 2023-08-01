@@ -334,6 +334,18 @@ export default defineComponent({
             obs: this.assessment.buildValueCoded("CxCa screening method", value.value)
           }),
         },
+        /*added new fields for family planning
+        */
+        {
+          id: 'offer_family_planning',
+          helpText: 'Offer Family Planning ?',
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          options: () => this.yesNoOptions(),
+          computedValue: (value: any) => ({
+          obs: this.assessment.buildValueCoded('Family planning', value.label)
+          })
+        },
         {
           id: "reason_for_no_cxca",
           helpText: "Reason for NOT offering CxCa screening",

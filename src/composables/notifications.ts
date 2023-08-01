@@ -1,20 +1,22 @@
 import { computed, ref } from "vue";
 import { NotificationService } from "@/services/notification_service"
-import HisDate from "@/utils/Date";
-import router from "@/router/index";
-import { isEmpty } from "lodash";
-import { toastWarning } from "@/utils/Alerts";
+import { alertConfirmation, toastWarning } from "@/utils/Alerts";
+import { Service } from "@/services/service";
+import { AppInterface } from "@/apps/interfaces/AppInterface";
 
 export interface NotificationInterface {
     id: number;
     title: string;
-    message: string;
+    message: any;
+    vlMessageObs: any;
     read?: boolean;
     date?: string;
     handler?: () => void;
 }
 
 const notificationData = ref([] as NotificationInterface[])
+
+const activeApp = ref<AppInterface>(Service.getActiveApp() as any)
 
 export function Notification() {
     const unReadNotifications = computed((): NotificationInterface[] => {
@@ -39,59 +41,53 @@ export function Notification() {
         })
     })
 
-    async function loadNotifications() {
-        const notifications = await NotificationService.unread()
-        if (!isEmpty(notifications)) {
-            notificationData.value = notifications.map((n: any) => {
-                let type = 'General'
-                let message = n.text
-                let handler = null
-                try {
-                    const t = JSON.parse(n.text)
-                    if (t['Type'].match(/lims/i)) {
-                        type = `${t['Test type']} results for ${t['ARV-Number'] || t['Accession number']}`
-                        message = `Ordered by <b>${t['Ordered By'] || 'N/A'}</b>`
-                        handler = () => router.push(`/art/encounters/lab/${t['PatientID']}`)
-                    }
-                } catch (e) {
-                    console.warn(e)
-                }
-                return {
-                    handler,
-                    message,
-                    title: type,
-                    id: n.alert_id,
-                    date: HisDate.toStandardHisDisplayFormat(n.date_created)
+    function clearNotification(id: number|string) {
+        alertConfirmation("Are you sure you want to clear notification?")
+            .then((ok) => {
+                if (ok) {
+                    NotificationService.clear(id)
+                        .then(() => {
+                            notificationData.value = notificationData.value.filter(
+                                (notice) => notice.id != id
+                            )
+                            loadNotifications(activeApp.value)
+                        }).catch((e) => {
+                            console.error(e)
+                            toastWarning("Unable to clear notification")
+                        })
                 }
             })
-            toastWarning(`You have ${notifications.length} unread notification(s)`)
+    }
+
+    async function loadNotifications(application: AppInterface) {
+        activeApp.value = application
+        if (typeof application.downloadAppNotifications === 'function') {
+            notificationData.value = (await application.downloadAppNotifications()) || []
+            if (notificationData.value.length) {
+                toastWarning(`You have ${notificationData.value.length} unread notification(s)`)
+            }
+        } else {
+            notificationData.value = []
         }
     }
 
-    async function markAllAsRead() {
-        const data = notificationData.value.filter(n => !n.read)
-        if (!isEmpty(data)) {
-            if ((await NotificationService.read(data.map(n => n.id)))) {
-                notificationData.value = notificationData.value.map(n => {
-                    return {
-                        ...n,
-                        read: true
-                    }
-                })
-            }
-        }
+    async function markAsRead(notification: NotificationInterface) {
+        NotificationService.read([notification.id])
+            .then(() => notification.read = true)
     }
 
     function openNotification(notification: NotificationInterface) {
         if (typeof notification.handler === 'function') {
+            markAsRead(notification)
             notification.handler()
         }
     }
 
     return {
-        markAllAsRead,
+        markAsRead,
         openNotification,
         loadNotifications,
+        clearNotification,
         sortedNotifications,
         hasUnreadNotifications,
         notificationCount,

@@ -39,6 +39,10 @@ export class ArtReportService extends Service {
         this.quarter = quarter
     }
 
+    getClinicElectronicAlerts(){
+        return this.getReport('programs/1/reports/lims_electronic_results');
+    }
+
     getReport(url: string, params={}) {
         return Service.getJson(url, this.buildRequest(params))
     }

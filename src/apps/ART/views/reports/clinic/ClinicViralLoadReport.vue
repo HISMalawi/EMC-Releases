@@ -44,6 +44,7 @@ export default defineComponent({
                 table.thTxt('Ordered'), 
                 table.thTxt('Result'),
                 table.thTxt('Released'),
+                table.thTxt('Curr. Regimen'),
                 table.thTxt('Action')
             ]
         ]
@@ -95,6 +96,7 @@ export default defineComponent({
                     table.tdDate(d.order_date),
                     table.td(`${d.result_modifier || ''} ${d.result}`),
                     table.tdDate(d.result_date),
+                    table.td(d.current_regimen || ''),
                     table.tdBtn('View', () => this.$router.push(`/patient/dashboard/${d['patient_id']}`))
                ])
             })

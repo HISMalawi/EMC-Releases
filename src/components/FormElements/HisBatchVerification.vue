@@ -7,9 +7,9 @@
           <ion-list v-for="(drug, index) in drugs" :key="index">
             <ion-item
               detail
-              :color="index === selectedDrug ? 'secondary' : ''"
+              :color="index === selectedDrug ? 'lightblue' : ''"
               @click="selectDrug(index)">
-              {{ `${drug.shortName} (${drug.packSizes[0]})` }}
+              {{ `${drug?.drug_name||drug?.drug_legacy_name||'N/A'} (${drug.product_code})` }}
             </ion-item>
           </ion-list>
         </ion-col>
@@ -75,20 +75,19 @@ import {
   IonGrid,
   IonCol,
   IonRow,
-  modalController,
   IonIcon,
 } from "@ionic/vue";
 import { StockService } from "@/apps/ART/views/ARTStock/stock_service";
 import ViewPort from "@/components/DataViews/ViewPort.vue";
 import FieldMixinVue from "./FieldMixin.vue";
-import { Field, Option } from "../Forms/FieldInterface";
-import TouchField from "@/components/Forms/SIngleTouchField.vue"
+import { Option } from "../Forms/FieldInterface";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { FieldType } from "../Forms/BaseFormElements";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
 import { isEmpty } from "lodash";
 import { toDate, toNumString } from "@/utils/Strs";
 import { chevronDown } from "ionicons/icons";
+import popupKeyboard from "@/utils/PopupKeyboard";
 
 export default defineComponent({
   components: { ViewPort, HisTextInput, IonGrid, IonCol, IonRow, IonIcon },
@@ -138,7 +137,7 @@ export default defineComponent({
     },
     async enterAmount(index: number) {
       const batchNumber = this.getDrugValue(index, 'batch_number');
-      this.launchKeyPad({
+      popupKeyboard({
         id: 'tins',
         helpText: this.getModalTitle(`Enter number of tins for Batch ${batchNumber}`),
         type: FieldType.TT_NUMBER,
@@ -147,7 +146,7 @@ export default defineComponent({
           if (!v || v && !v.value) return null
           return Validation.validateSeries([
             () => Validation.isNumber(v),
-            () => v.value < 0 ? ['Number of tins must be greater than 1'] : null
+            () => v.value as number < 0 ? ['Number of tins must be greater than 1'] : null
           ])
         }
       },
@@ -157,41 +156,29 @@ export default defineComponent({
     },
     async selectReason(index: number) {
       const batchNumber = this.getDrugValue(index, 'batch_number');
-      this.launchKeyPad({
+      popupKeyboard({
         id: 'reason',
         helpText: this.getModalTitle(`Select reason for Batch ${batchNumber} modification`),
         type: FieldType.TT_SELECT,
         defaultValue: () => this.getDrugValue(index, 'reason'),
         validation: (v: Option) => Validation.required(v),
         options: () => [
-          { label: "theft", value: "theft" },
-          { label: "took out for training", value: "took out for training" },
-          { label: "accidents", value: "accidents" },
-          { label: "flooding or natural disaster", value: "flooding or natural disaster" },
+          { label: "Theft", value: "Theft" },
+          { label: "Took out for training", value: "Took out for training" },
+          { label: "Accidents", value: "Accidents" },
+          { label: "Flooding", value: "Flooding" },
+          { label: "Natural disaster", value: "Natural disaster"}
         ]
       },
       (v: Option) => {
         this.setDrugValue(index, 'reason', v)
       })
     },
-    async launchKeyPad(currentField: Field, onFinish: (value: Option) => any) {
-      const modal = await modalController.create({
-        component: TouchField,
-        backdropDismiss: false,
-        cssClass: "full-modal",
-        componentProps: {
-          dismissType: 'modal',
-          currentField,
-          onFinish
-        }
-      });
-      modal.present();
-    },
     async selectDrug(index: any) {
       this.selectedDrug = index;
       if (!('entries' in this.drugs[index])) {
         const vals = await this.stockService.getItem(
-          this.drugs[this.selectedDrug].drugID
+          this.drugs[index].drug_id
         )
         this.drugs[index]["entries"] = vals.map((i: any) => {
           if(!i.pack_size) i.pack_size = StockService.getPackSize(i.getPackSize)

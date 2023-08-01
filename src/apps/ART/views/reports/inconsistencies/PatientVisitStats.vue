@@ -177,7 +177,7 @@ export default defineComponent({
                 const data = row.map(async (col: any) => {
                     let patient: Patientservice|null = null
                     if (this.patients[col.patient_id]) {
-                        patient = this.patients[col.patient_id]
+                        patient = this.patients[col.patient_id] as any
                     } else {
                         const d = await Patientservice.findByID(col.patient_id)
                         patient = new Patientservice(d)
@@ -185,10 +185,10 @@ export default defineComponent({
                     }
                     try {
                         return [
-                            this.tdARV(patient.getArvNumber()),
-                            table.td(patient.getGivenName()),
-                            table.td(patient.getFamilyName()),
-                            table.td(this.formatGender(patient.getGender())),
+                            this.tdARV(patient!.getArvNumber()),
+                            table.td(patient!.getGivenName()),
+                            table.td(patient!.getFamilyName()),
+                            table.td(this.formatGender(patient!.getGender())),
                             table.tdDate(col.date),
                             table.tdBtn('Show', async () => {
                                 await modalController.dismiss({})

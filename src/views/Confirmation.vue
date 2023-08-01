@@ -49,7 +49,7 @@
           Cancel
         </ion-button>
         <ion-button
-          :disabled="!(facts.patientFound && isAdmin)"
+          :disabled="!canVoidClient"
           color="danger left"
           size="large"
           @click="onVoid"
@@ -224,8 +224,8 @@ export default defineComponent({
         this.facts.demographics.birthdate
       )
     },
-    isAdmin() {
-      return UserService.isAdmin()
+    canVoidClient() {
+      return this.facts.patientFound && UserService.isDataManager()
     }
   },
   methods: {
@@ -288,15 +288,19 @@ export default defineComponent({
       }
     },
     async setViralLoadStatus() {
-      const orders = await OrderService.getOrders(this.patient.getID())      
-      const latestVLResult = orders.reduce((result: Result, order: Order) => {
-        const _results = OrderService.getVLResults(order)
-        return isEmpty(_results) || _results[0].date < result.date
-          ? result 
-          : _results[0] 
-      }, {} as Result);
-
-      this.facts.hasHighViralLoad = OrderService.isHighViralLoadResult(latestVLResult)     
+      try {
+        const orders = await OrderService.getOrders(this.patient.getID())      
+        const latestVLResult = orders.reduce((result: Result, order: Order) => {
+          const _results = OrderService.getVLResults(order)
+          return isEmpty(_results) || _results[0].date < result.date
+            ? result 
+            : _results[0] 
+        }, {} as Result);
+  
+        this.facts.hasHighViralLoad = OrderService.isHighViralLoadResult(latestVLResult)     
+      } catch (e) {
+        console.error(e)
+      }
     },
     /**
      * Resolve patient by either patient ID or NpID.

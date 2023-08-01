@@ -12,6 +12,7 @@ export enum ART_GLOBAL_PROP {
     THREE_HP_AUTO_SELECT = 'activate_3hp_auto_select',
     APPOINTMENT_LIMIT = 'clinic.appointment.limit',
     HTN_SCREENING_AGE_THRESHOLD = 'htn.screening.age.threshold',
+    NOTIFICATION_PERIOD = 'notification.period',
     HTN_SYSTOLIC_THRESHOLD = 'htn.systolic.threshold',
     HTN_DIASTOLIC_THRESHOLD = 'htn.diastolic.threshold',
     PEADS_CLINIC_DAYS = 'peads.clinic.days',
@@ -21,7 +22,13 @@ export enum ART_GLOBAL_PROP {
     CERVICAL_CANCER_SCREENING = 'activate.cervical.cancer.screening',
     CERVICAL_CANCER_AGE_BOUNDS = 'cervical.cancer.screening.age.bounds',
     CLINIC_HOLIDAYS = 'clinic.holidays',
-    EXCLUDE_EXTERNAL_AND_DRUG_REFILLS = 'can.remove.external.and.drug.refills.from.data.cleaning'
+    EXCLUDE_EXTERNAL_AND_DRUG_REFILLS = 'can.remove.external.and.drug.refills.from.data.cleaning',
+    CAN_SCAN_DBS_BARCODE = 'can.scan.dbs'
+}
+
+async function canScanDBS() {
+    const prop = await GlobalPropertyService.get(ART_GLOBAL_PROP.CAN_SCAN_DBS_BARCODE)
+    return !prop ? true : prop === 'true'
 }
 
 function targetLab() {
@@ -78,6 +85,8 @@ function appointmentLimit() {
 
 function htnAgeThreshold() {
     return GlobalPropertyService.get(ART_GLOBAL_PROP.HTN_SCREENING_AGE_THRESHOLD)
+}function notificationPeriod() {
+    return GlobalPropertyService.get(ART_GLOBAL_PROP.NOTIFICATION_PERIOD)
 }
 
 async function cervicalCancerScreeningAgeBounds() {
@@ -130,11 +139,13 @@ function setFilingNumberLimit(limit: string) {
 }
 
 export default {
+    canScanDBS,
     targetLab,
     cervicalCancerScreeningAgeBounds,
     systolicThreshold,
     diastolicThreshold,
     htnAgeThreshold,
+    notificationPeriod,
     setHtnAgeThreshold,
     setFilingNumberLimit,
     setAppointmentLimit,

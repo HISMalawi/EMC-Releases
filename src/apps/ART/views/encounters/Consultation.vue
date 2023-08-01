@@ -38,6 +38,7 @@ import { AppEncounterService } from "@/services/app_encounter_service";
 import Store from "@/composables/ApiStore"
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { RegimenService } from "@/services/regimen_service";
+import dayjs from "dayjs";
 
 export default defineComponent({
   mixins: [AdherenceMixinVue],
@@ -80,7 +81,10 @@ export default defineComponent({
     clientHadAHysterectomy: false as any,
     isNoneClientPatient: false as boolean,
     tptStatus: {} as Record<string, any>,
-    customDrugs: [] as any
+    customDrugs: [] as any,
+    CxCaAppointDate: {} as any,
+    hasTbTreatmentDate: false as boolean,
+    isEligibleForTpt: false as boolean
   }),
   watch: {
     ready: {
@@ -549,6 +553,7 @@ export default defineComponent({
       })
     },
     medicationOrderOptions(formData: any, prechecked=[] as Option[]): Option[] {
+      this.isEligibleForTpt = false
       const completedTpt = this.didCompleted3HP(formData)
       const everTakenTpt = this.tptStatus.tpt !== null
       const autoSelect3HP = this.tptAutoSelectionMode(formData)
@@ -563,7 +568,6 @@ export default defineComponent({
           text
         }
       })
-
       return this.runAppendOptionParams([
         this.toOption('ARVs', {
           appendOptionParams: () => ({ 
@@ -592,6 +596,7 @@ export default defineComponent({
             if (everTakenTpt && this.tptStatus.tpt !== '3HP (RFP + INH)' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
             }
+            this.isEligibleForTpt = true
             if (this.tptStatus.tpt === '3HP (RFP + INH)' && !this.tptStatus.completed) return { isChecked: true }
           }
         }),
@@ -606,6 +611,7 @@ export default defineComponent({
             if (everTakenTpt && this.tptStatus.tpt !== 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
             }
+            this.isEligibleForTpt = true
             if (this.tptStatus.tpt === 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) return { isChecked: true }
             return { isChecked: autoSelect3HP }
           }
@@ -620,6 +626,7 @@ export default defineComponent({
             if (everTakenTpt && this.tptStatus.tpt !== 'IPT' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
             }
+            this.isEligibleForTpt = true
             if (this.tptStatus.tpt === 'IPT' && !this.tptStatus.completed) return { isChecked: true }
           }
         }),
@@ -652,6 +659,16 @@ export default defineComponent({
               this.autoSelect3HP = await Store.get('ART_AUTO_3HP_SELECTION')
               this.tptStatus = await this.consultation.getTptTreatmentStatus()
               this.completed3HP = this.tptStatus.tpt !== null && this.tptStatus.completed
+            }
+            return true
+          },
+          beforeNext: async (v: Option[], f: any) => {
+            if (this.isEligibleForTpt && 
+              !this.patientOnTpt(f) && 
+              !v.some(d => /3hp|ipt/i.test(d.label))) {
+              if (!(await alertConfirmation("Are you sure you want to skip TPT prescription for eligible client?"))) {
+                return false
+              }
             }
             return true
           },
@@ -784,13 +801,16 @@ export default defineComponent({
                     'value_numeric': d?.value || 0
                     }
                 )),
-                child: (await this.consultation.buildObs(
-                  'Number of tablets brought to clinic', {
-                    'value_drug': drugID,
-                    'value_numeric': d?.other?.pillsBrought || -1,
-                    'value_datetime': c?.date_last_received_arvs?.date || null
-                  }
-              ))}
+                child: [
+                  await this.consultation.buildObs(
+                    'Number of tablets brought to clinic', {
+                      'value_drug': drugID,
+                      'value_numeric': d?.other?.pillsBrought || -1,
+                      'value_datetime': c?.date_last_received_arvs?.date || null
+                    }
+                  )
+                ]
+              }
             })
           }),
           options: (_: any, c: any, listData: Option) => {
@@ -1099,6 +1119,24 @@ export default defineComponent({
           options: () => this.yesNoOptions()
         },
         {
+          id: "cxca_reminder",
+          helpText: "CxCa Screening Reminder",
+          type: FieldType.TT_TEXT_BANNER,
+          init: async () => {
+            if (this.CxCaEnabled && this.patient.isFemale()) {
+              this.CxCaAppointDate = await this.patient.nextAppointment(24)
+            }
+            return true;
+          },
+          condition: () => {
+            const ONE_MONTH = 30;
+            return ONE_MONTH < HisDate.dateDiffInDays(this.consultation.date, this.CxCaAppointDate)
+          },
+          options: () => this.mapStrToOptions([
+            `Patient is due for Cervical Cancer Screening on ${HisDate.toStandardHisDisplayFormat(this.CxCaAppointDate.appointment_date)}`
+          ])
+        },
+        {
           id: "reason_for_no_cxca",
           helpText: "Reason for NOT offering CxCa",
           type: FieldType.TT_SELECT,
@@ -1184,7 +1222,7 @@ export default defineComponent({
             tag: 'consultation',
             obs: v.map(async (d) => ({
               ...(await this.consultation.buildValueCoded('Malawi ART side effects', d.label)),
-              child: (await this.consultation.buildValueCoded(d.label, d.value)) 
+              child: [await this.consultation.buildValueCoded(d.label, d.value)]
             }))
           }),
           beforeNext: (data: Option[]) => this.buildSideEffectObs(data, 'malawiSideEffectReasonObs'),
@@ -1210,7 +1248,7 @@ export default defineComponent({
             obs: v.filter(d => d.label != 'Other (Specify)')
               .map(async (d) => ({
               ...(await this.consultation.buildValueCoded('Other side effect', d.label)),
-              child: (await this.consultation.buildValueCoded(d.label, d.value))
+              child: [await this.consultation.buildValueCoded(d.label, d.value)]
             }))
           }),
           beforeNext: (data: Option[]) => this.buildSideEffectObs(data, 'otherSideEffectReasonObs'),
@@ -1224,7 +1262,7 @@ export default defineComponent({
             tag: 'consultation',
             obs: {
               ...(await this.consultation.buildValueCoded('Other side effect', 'Other (Specify)')),
-              child: (await this.consultation.buildValueText('Other (Specify)', v.value ))
+              child: [await this.consultation.buildValueText('Other (Specify)', v.value )]
             }
           }),
           condition: (f: any) => this.inArray(
@@ -1246,6 +1284,70 @@ export default defineComponent({
           options: () => this.yesNoOptions()
         },
         {
+          id: "tb_date_started_treatment_known",
+          helpText: "TB treatment history",
+          type: FieldType.TT_YES_NO,
+          init: async () => {
+            // TODO: Account for TB interruptions in the future
+            this.hasTbTreatmentDate = false
+            const startDate = await ConsultationService.getFirstValueDatetime(
+              this.patientID, 'TB treatment start date'
+            )
+            const tbPeriod = await ConsultationService.getFirstValueNumber(
+              this.patientID, 'TB treatment period'
+            )
+            if (tbPeriod && startDate) {
+              const timeElapse = dayjs(this.consultation.date).diff(startDate, 'months')
+              this.hasTbTreatmentDate = timeElapse <= tbPeriod
+            }
+            return true
+          },
+          validation: (data: any) => Validation.required(data),
+          condition: (f: any) => !this.hasTbTreatmentDate && f.on_tb_treatment.label === 'Yes',
+          options: () => {
+            return [
+              {
+                label: 'Date started treatment known?',
+                values: this.yesNoOptions()
+              }
+            ]
+          }
+        },
+        ...generateDateFields({
+          id: 'tb_start_date',
+          helpText: 'Enter start date for treatment?',
+          required: true,
+          minDate: () => this.patient.getBirthdate(),
+          maxDate: () => ConsultationService.getSessionDate(),
+          condition: (f: any) => f.tb_date_started_treatment_known === 'Yes',
+          computeValue: (date: string) => {
+            return {
+              tag: 'consultation',
+              obs: this.consultation.buildValueDate('TB treatment start date', date)
+            }
+          },
+          estimation: {
+            allowUnknown: false
+          }
+        }),
+        {
+          id: "tb_treatment_period",
+          helpText: "Enter period (In months)",
+          type: FieldType.TT_NUMBER,
+          validation: (v: Option) => Validation.validateSeries([
+            () => Validation.required(v),
+            () => Validation.isNumber(v),
+            () => Validation.rangeOf(v, 3, 9)
+          ]),
+          condition: (f: any) => f.tb_date_started_treatment_known === 'Yes',
+          computedValue: (v: Option) => {
+            return {
+              tag: 'consultation',
+              obs: this.consultation.buildValueNumber('TB treatment period', v.value)
+            }
+          }
+        },
+        {
           id: "tb_side_effects",
           helpText: "TB Associated symptoms",
           type: FieldType.TT_MULTIPLE_YES_NO,
@@ -1264,7 +1366,7 @@ export default defineComponent({
             tag: 'consultation',
             obs: vals.map(async (data: Option) => ({
               ...(await this.consultation.buildValueCoded("Routine TB Screening", data.label)),
-              child: (await this.consultation.buildValueCoded(data.label, data.value))
+              child: [await this.consultation.buildValueCoded(data.label, data.value)]
             })).concat(this.hasTBSymptoms(formData) ? [] : [this.consultation.buildValueCoded("TB Status", "TB NOT suspected")])
           })
         },
@@ -1436,6 +1538,16 @@ export default defineComponent({
               this.autoSelect3HP = await Store.get('ART_AUTO_3HP_SELECTION')
               this.tptStatus = await this.consultation.getTptTreatmentStatus()
               this.completed3HP = this.tptStatus.tpt !== null && this.tptStatus.completed
+            }
+            return true
+          },
+          beforeNext: async (v: Option[], f: any) => {
+            if (this.isEligibleForTpt &&
+                !this.patientOnTpt(f) &&
+                !v.some(d => /3hp|ipt/i.test(d.label))) {
+              if (!(await alertConfirmation("Are you sure you want to skip TPT prescription for eligible client?"))) {
+                return false
+              }
             }
             return true
           },

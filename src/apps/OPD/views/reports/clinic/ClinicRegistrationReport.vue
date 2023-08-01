@@ -24,6 +24,7 @@ import ReportMixin from '@/apps/ART/views/reports/ReportMixin.vue'
 import { modalController } from '@ionic/core'
 import SummaryModal from "@/apps/OPD/components/RegistrationSummaryModal.vue";
 import { IonPage } from "@ionic/vue";
+import { Service } from "@/services/service";
 
 export default defineComponent({
   components: { ReportTemplate, IonPage },
@@ -77,12 +78,42 @@ export default defineComponent({
         table.td(HisDate.toStandardHisDisplayFormat(record.visit_date)),
       ])
     },
-    async showModal() {
-      const data = [
-        { label: "New patient", value: [...this.reportData.filter((d: any) => d.visit_type === 'New patient')].length },
-        { label: "Referral", value: [...this.reportData.filter((d: any) => d.visit_type === 'Referral')].length },
-        { label: "Revisiting", value: [...this.reportData.filter((d: any) => d.visit_type === 'Revisiting')].length }
+    filterBy(visitType: string, ageType: string) {
+      return this.reportData.filter((d: any) => {
+        const age = HisDate.calculateAge(d.birthdate, Service.getSessionDate());
+        return d.visit_type === visitType && (ageType === 'under5' ? age <= 5 : age > 6);
+      });
+    },
+    modalData(){
+      const new_under5 = [...this.filterBy('New patient','under5')].length
+      const new_over5 = [...this.filterBy('New patient','over5')].length
+      const new_total = new_under5 + new_over5
+      const ref_under5 = [...this.filterBy('Referral','under5')].length
+      const ref_over5 = [...this.filterBy('Referral','over5')].length
+      const ref_total = ref_under5 + ref_over5
+      const rev_under5 = [...this.filterBy('Revisiting','under5')].length
+      const rev_over5 = [...this.filterBy('Revisiting','over5')].length
+      const rev_total = rev_under5 + rev_over5
+      return [
+        { label:  "New patient",
+          under5: new_under5 , 
+          over5:  new_over5, 
+          value:  new_total
+        },
+        { label:  "Referral", 
+          under5:  ref_under5, 
+          over5:  ref_over5, 
+          value:  ref_total
+        },
+        { label:  "Revisiting", 
+          under5:  rev_under5,
+          over5:  rev_over5, 
+          value:   rev_total
+        }
       ]
+    },
+    async showModal() {
+      const data = [...this.modalData()]
       const modal = await modalController.create({
         component: SummaryModal,
         backdropDismiss: true,

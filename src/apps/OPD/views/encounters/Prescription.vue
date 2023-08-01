@@ -320,13 +320,17 @@ export default defineComponent({
             },
             "value":value[0],
           }
-          const malaria_drugs = ANTI_MALARIA_DRUGS.map(drug => drug.name);
-          console.log(this.checkedItems)
-          this.checkedItems = this.checkedItems.filter((x: any)  => 
-            !malaria_drugs.includes(x.value)
-          )
-          console.log(this.checkedItems)
-
+          const valuesToRemove = [
+            'Lumefantrine + Arthemether 1 x 6',
+            'Lumefantrine + Arthemether 2 x 6',
+            'Lumefantrine + Arthemether 3 x 6',
+            'Lumefantrine + Arthemether 4 x 6'
+          ];
+          if (valuesToRemove.includes(value[0])) {
+            this.checkedItems = this.checkedItems.filter(
+              (x: any)=> !valuesToRemove.includes(x.value)
+            );
+          }
           this.checkedItems.unshift(malariaDrug)
           if(this.isComplete())
             this.disableNextBtn = false
