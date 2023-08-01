@@ -36,7 +36,7 @@ export default defineComponent({
     },
   },
   methods: {
-    async onFinish(formData: any) {
+    async onFinish(/*formData: any*/) {
       //       const encounter = await this.patientType.createEncounter();
       //       if (!encounter) return toastWarning("Unable to create encounter");
       //       this.patientType.setLocationName(formData?.location?.label);

@@ -25,6 +25,7 @@
     "@popperjs/core": "^2.11.7",
     "@types/lodash": "^4.14.170",
     "apexcharts": "^3.40.0",
+    "caniuse-lite": "^1.0.30001518",
     "capacitor-blob-writer": "^1.1.0",
     "cordova-pdf-generator": "^2.1.1",
     "cordova-plugin-bluetooth-serial": "^0.4.7",
