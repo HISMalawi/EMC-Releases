@@ -367,8 +367,8 @@ export default defineComponent({
       },
       tbMed: {
         value: undefined as Option | undefined,
-        label: "TB Medication",
-        placeholder: "Select a TB medication",
+        label: "TPT Medication",
+        placeholder: "Select a TPT medication",
       },
       hasContraindications: {
         value: "No",
