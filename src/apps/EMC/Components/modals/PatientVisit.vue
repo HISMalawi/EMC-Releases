@@ -13,10 +13,10 @@
         <ion-col size="6" class="ion-margin-vertical">
           <NumberInput v-model="form.weight" :form="form" :min="1"/>
         </ion-col>
-        <ion-col :size="isOnActiveTBTreatment ? 12 : 6" class="ion-margin-vertical" v-if="showHeightField">
+        <ion-col :size="isOnActiveTBTreatment ? '12' : '6'" class="ion-margin-vertical" v-if="showHeightField">
           <NumberInput v-model="form.height" :form="form" :min="1"/>
         </ion-col>        
-        <ion-col class="ion-margin-vertical" :size="showHeightField ? 6 : 12" v-if="!isOnActiveTBTreatment">
+        <ion-col class="ion-margin-vertical" :size="showHeightField ? '6' : '12'" v-if="!isOnActiveTBTreatment">
           <SelectInput v-model="form.tbStatus" :options="tbStatuses" />
         </ion-col>
         <template v-if="isOnTBTreatment">
@@ -86,7 +86,7 @@
         <ion-col size="6" class="ion-margin-vertical" v-if="prevDrugs.length > 0">
           <NumberInput v-model="form.pillCount" :form="form" :min="1"/>
         </ion-col>
-        <ion-col :size="prevDrugs.length > 0 ? 6 : 12" class="ion-margin-vertical">
+        <ion-col :size="prevDrugs.length > 0 ? '6' : '12'" class="ion-margin-vertical">
           <DateInput v-model="form.nextAppointmentDate" :form="form" :minDate="form.visitDate.value" :maxDate="drugRunOutDate"/>
         </ion-col>
       </ion-row>   
