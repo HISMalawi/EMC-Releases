@@ -194,10 +194,8 @@ export default defineComponent({
     const drugRunOutDate = ref<string>('');
     const today = dayjs().format(STANDARD_DATE_FORMAT);
     const birthdate = dayjs(props.patient.getBirthdate()).format(STANDARD_DATE_FORMAT);
-    const previousTBStatus = ref("");
-    const tbTreatmentStartDate = ref("")
-    const tbTreatmentPeriod = ref(6)
-  
+    const isOnActiveTBTreatment = ref(false)
+    
     const form = reactive<DTForm>({
       visitDate: {
         value: dayjs().format('YYYY-MM-DD') as string | undefined,
@@ -395,22 +393,23 @@ export default defineComponent({
       tbStatus: {
         value: undefined as Option | undefined,
         label: "TB Status",
-        required: true,
         computedValue: (status: Option) => ({
           tag: 'consultation',
           obs: consultations.buildValueCoded('TB Status', status.value)
         }),
-        validation: async (state) => StandardValidations.required(state)
+        validation: async (state) => !isOnActiveTBTreatment.value && StandardValidations.required(state)
       },
       tbTreatmentStartDate: {
         value: "" as string | undefined,
         label: "TB treatment start date",
         validation: async (date: Option) => {
-          if(new Date(date.value) > new Date(today)) {
-            return ["TB treatment start date cannot be after today's date"]
-          }
-          if(new Date(date.value) < new Date(birthdate)) {
-            return ["TB treatment start date cannot be before patient's birth date"]
+          if(!isOnActiveTBTreatment.value) {
+            if(new Date(date.value) > new Date(today)) {
+              return ["TB treatment start date cannot be after today's date"]
+            }
+            if(new Date(date.value) < new Date(birthdate)) {
+              return ["TB treatment start date cannot be before patient's birth date"]
+            }
           }
           return null
         },
@@ -478,7 +477,7 @@ export default defineComponent({
         form.patientPresent.value = undefined
         form.patientPresent.disabled = false
       }
-      form.tbMed.disabled = onTB
+      form.tbMed.disabled = onTB || isOnActiveTBTreatment.value
     })
 
     watch([() => form.totalArvsGiven.value, () => form.pillCount.value], () => {
@@ -494,16 +493,8 @@ export default defineComponent({
     const hasGiven6H = computed(() => form.tbMed.value?.label === '6H')
     const hasContraindications = computed(() => form.hasContraindications.value === 'Yes')
     const hasSideEffects = computed(() => form.hasSideEffects.value === 'Yes')
-    const isOnTBTreatment = computed(() => /Confirmed TB on treatment/i.test(form.tbStatus.value?.label))
+    const isOnTBTreatment = computed(() => /Confirmed TB on treatment/i.test(form.tbStatus.value?.label))    
 
-    const isOnActiveTBTreatment = computed(() => {
-      return tbTreatmentStartDate.value && 
-        !dayjs(tbTreatmentStartDate.value)
-          .add(tbTreatmentPeriod.value, 'months')
-          .isAfter(dayjs())
-      }
-    )
-    
     const tbStatuses = toOptions([
       'Confirmed TB Not on treatment', 
       'Confirmed TB on treatment', 
@@ -513,11 +504,15 @@ export default defineComponent({
 
     const tbMeds = toOptions(['6H', '3HP (RFP + INH)', '3HP (INH 300 / RFP 300)'])
 
-    const getPreviousTBScreeningResults = async () => {
-      previousTBStatus.value = await consultations.getFirstValueCoded("TB status");
-      if(previousTBStatus.value.match(/Confirmed TB on treatment/i)) {
-        tbTreatmentStartDate.value = await consultations.getFirstValueDatetime("TB treatment start date")
-        tbTreatmentPeriod.value = (await consultations.getFirstValueNumber("TB treatment period")) || 6
+    const checkForActiveTB = async () => {
+      const previousTBStatus = await consultations.getFirstValueCoded("TB status");
+      if(/Confirmed TB on treatment/i.test(previousTBStatus)) {
+        const tbTreatmentStartDate = await consultations.getFirstValueDatetime("TB treatment start date")
+        const tbTreatmentPeriod = (await consultations.getFirstValueNumber("TB treatment period")) || 6
+        if(tbTreatmentStartDate) {
+          const timeElapsed = dayjs().diff(tbTreatmentStartDate, 'months');
+          isOnActiveTBTreatment.value = timeElapsed <= tbTreatmentPeriod;
+        }
       }
     }
 
@@ -567,7 +562,6 @@ export default defineComponent({
       adherence.setDate(form.visitDate.value)
       appointment.setDate(form.visitDate.value)
       dispensation.setDate(form.visitDate.value)
-
       await submitForm (form, async (formData, computedFormData) => {
         await vitals.createEncounter()
         const vitalsObs = await resolveObs(computedFormData, 'vitals')
@@ -677,7 +671,7 @@ export default defineComponent({
     }
 
     onMounted (async () => {
-      await getPreviousTBScreeningResults();
+      await checkForActiveTB();
       prevHeight.value = await props.patient.getRecentHeight()
       const recentWeight = await props.patient.getRecentWeight()
       if (recentWeight) regimens.value = await getRegimens(recentWeight)
