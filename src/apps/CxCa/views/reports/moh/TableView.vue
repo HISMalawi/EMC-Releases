@@ -290,9 +290,6 @@ export default defineComponent({
 
         const toCSV = () => {
             const filename = `${Service.getLocationName()||'Unknown site'}-${props.title}-${props.subtitle}-${Service.getSessionDate()}`
-
-            console.log("In the other view", props.csvData)
-
             toCsv(
                 [props.headers],
                 [
