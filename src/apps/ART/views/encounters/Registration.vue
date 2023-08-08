@@ -21,6 +21,7 @@ import { isEmpty } from 'lodash'
 import Person from "@/utils/HisFormHelpers/PersonFieldHelper"
 import { PatientRegistrationService } from '@/services/patient_registration_service'
 import Store from "@/composables/ApiStore"
+import { validateScanFormLinkageCode } from '@/utils/Damm'
 
 export default defineComponent({
     mixins: [StagingMixin],
@@ -183,7 +184,15 @@ export default defineComponent({
                     id: 'hts_serial_number',
                     helpText: 'HTS Linkage Number',
                     type: FieldType.TT_TEXT,
-                    validation: (v: Option) => Validation.required(v),
+                    validation: (v: Option) => Validation.validateSeries([
+                        () => Validation.required(v),
+                        () => {
+                            if (!validateScanFormLinkageCode(`${v.value}`)) {
+                                return ['Invalid Scanform linkage code']
+                            }
+                            return null
+                        }
+                    ]),
                     condition: (f: any) => f.has_linkage_code === 'Yes',
                     computedValue: (v: Option) => {
                         return {
