@@ -9,7 +9,7 @@
             <ion-buttons slot="end">
                 <ion-button v-if="typeof onConfigure === 'function'"
                     @click="onConfigure">
-                    <ion-icon size="large" :icon="document"></ion-icon>
+                    <ion-icon size="large" :icon="calendar"></ion-icon>
                 </ion-button>
                 <ion-chip
                     v-if="searchTerm"
@@ -117,7 +117,8 @@ import {
     close, 
     arrowUp, 
     arrowDown, 
-    document
+    document,
+    calendar
 } from "ionicons/icons"
 import { Option } from "@/components/Forms/FieldInterface"
 import { computed, defineComponent, PropType, ref, watch } from "vue";
@@ -431,6 +432,7 @@ export default defineComponent({
             arrowUp, 
             arrowDown, 
             document,
+            calendar,
             page,
             canNext,
             searchTerm,
