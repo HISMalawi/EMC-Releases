@@ -23,7 +23,7 @@ describe('Validates zero padded Digit utility function', () => {
 
 describe('Validate Damm check digit validation', () => {
     it('Verifies that the linkage code is valid', () => {
-        const validLinkageCodes = ['1234-2-1-z','1234-2-1-Z']
+        const validLinkageCodes = ['1234-2-1-z','1234-2-1-Z', '1234-002-01-Z']
         validLinkageCodes.forEach((linkageCode) => {
             expect(validateScanFormLinkageCode(linkageCode)).toBeTruthy()
         })
