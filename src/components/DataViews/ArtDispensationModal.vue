@@ -105,14 +105,14 @@ export default defineComponent({
             await modalController.dismiss({})
         },
         incrementAmount(rIndex: number) {
-            const [packSize, _, totalTabs, totalPacks ] = this.listData[rIndex]
+            const [packSize,, totalTabs, totalPacks ] = this.listData[rIndex]
             const tabsAmount = packSize + totalTabs
             const packAmount = totalPacks + 1
             this.listData[rIndex][2] = tabsAmount
             this.listData[rIndex][3] = packAmount
         },
         decrementAmount(rIndex: number) {
-            const [packSize, _, totalTabs, totalPacks ] = this.listData[rIndex]
+            const [packSize,, totalTabs, totalPacks ] = this.listData[rIndex]
             const packAmount = totalPacks - 1
             if (packAmount >= 0) {
                 const tabsAmount = totalTabs - packSize
