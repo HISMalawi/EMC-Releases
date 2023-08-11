@@ -156,9 +156,9 @@ export default defineComponent({
 
         function onKeyPress(input: string) {
             if (activeMask.value) {
-                const val = handleVirtualInput(input, `${checkDigit[activeMask.value]}`)
                 const maxLength = inputLengthLimit[activeMask.value] || 0 
-                if (maxLength === 0 || `${val}`.length <= maxLength ) {
+                const val = handleVirtualInput(input, maxLength === 1 ? '' : `${checkDigit[activeMask.value]}`)
+                if (maxLength <= 1 || `${val}`.length <= maxLength ) {
                     checkDigit[activeMask.value] = val
                 }
             }
