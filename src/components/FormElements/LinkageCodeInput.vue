@@ -101,12 +101,12 @@ export default defineComponent({
     mixins: [FieldMixinVue],
     watch: {
         clear() {
-            this.checkDigit = {
-                bookNo:  '',
-                pageNo: '',
-                rowNo:  '',
-                checkDigit: ''
-            } 
+            this.checkDigit.bookNo = ''
+            this.checkDigit.pageNo = ''
+            this.checkDigit.rowNo = ''
+            this.checkDigit.checkDigit = ''
+            this.activeMask = 'bookNo'
+            this.showKeyboard = true
         }
     },
     setup(props, { emit }) {
@@ -117,8 +117,8 @@ export default defineComponent({
             'rowNo': 2,
         }
         const inputIsReadOnly = computed(() => Platform().activePlatformProfile.value.keyboard === 'HIS_KEYBOARD_ONLY')
-        const activeMask = ref<'bookNo'|'pageNo'|'rowNo'|'checkDigit'|''>('')
-        const showKeyboard = ref(false)
+        const activeMask = ref<'bookNo'|'pageNo'|'rowNo'|'checkDigit'|''>('bookNo')
+        const showKeyboard = ref(true)
         const activeKeyboard = computed(() =>  {
             const NumberKeyboard = [
                 NUMBER_PAD_LO,
