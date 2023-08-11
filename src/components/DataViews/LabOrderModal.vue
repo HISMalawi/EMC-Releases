@@ -265,9 +265,12 @@ export default defineComponent({
       })
     },
     testReasons(): Array<string> {
-      return this.testTypes[this.activeIndex].name.match(/Viral load/i)
-        ? this.reasons.concat(['Follow up after Low Level Viremia', 'Follow up after High Viral Load'])
-        : this.reasons
+      let reasons = this.reasons;
+      if (this.testTypes[this.activeIndex].name.match(/Viral load/i)) {
+         reasons = reasons.filter((r: string) => r !== 'Stat')
+         reasons = reasons.concat(['Follow up after Low Level Viremia', 'Follow up after High Viral Load'])
+      }
+      return reasons    
     }
   },
   mounted() {
