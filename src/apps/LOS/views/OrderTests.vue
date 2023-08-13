@@ -17,6 +17,13 @@ import { OrderService } from "@/services/order_service"
 import { ConceptService } from '@/services/concept_service'
 import PersonField from "@/utils/HisFormHelpers/PersonFieldHelper"
 import { isEmpty } from 'lodash'
+import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
+import HisDate from "@/utils/Date"
+import { LabOrderService } from "@/apps/ART/services/lab_order_service"
+import Store from "@/composables/ApiStore"
+import { alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts"
+import { PrintoutService } from "@/services/printout_service"
+import { Service } from '@/services/service'
 
 export default defineComponent({
     mixins: [EncounterMixinVue],
@@ -24,8 +31,14 @@ export default defineComponent({
         patientID: -1,
         service: {} as any,
         fields: [] as Field[],
+        barcode: '' as string,
         activityType: '' as 'DRAW_SAMPLES' | 'ORDER_TESTS',
+        canScanDBS: false as boolean,
+        isNextDisabled: true as boolean,
     }),
+    async created() {
+        this.canScanDBS = await ART_GLOBAL_PROP.canScanDBS()
+    },
     watch: {
         '$route': {
             handler({query, params}: any) {
@@ -40,6 +53,7 @@ export default defineComponent({
                         this.getReasonForTestField(),
                         this.getTestSpecimensField(),
                         this.getTestSelectionField(),
+                        this.getBarcodeInput(),
                         this.getTestCombinationField()
                     ]
                 }
@@ -50,11 +64,50 @@ export default defineComponent({
     },
     methods: {
         async onSubmit(_: any, computed: any) {
-            const req = await this.service.placeOrder(computed)
-            if (req) {
-                await this.service.printSpecimenLabel(req[0].order_id)
-                this.$router.push(`/patient/dashboard/${this.patientID}`)
+            const conceptIdToDelete = await ConceptService.getConceptID('HIV viral load') 
+            const indexToDelete = computed.tests.findIndex((test: any) => test.concept_id === conceptIdToDelete);
+
+            if (indexToDelete !== -1) {
+                const patientID= `${this.$route.params.patient_id}`;
+                const orders = new LabOrderService(parseInt(patientID), -1); //TODO: get selected provider for this encounter
+                const encounter = await orders.createEncounter();
+
+                if(encounter) {
+                    const deletedTest = computed.tests.splice(indexToDelete, 1)[0];
+                    const formattedOrders: any = await this.buildLabOrders(computed, deletedTest.concept_id,encounter)
+                    const d =await  OrderService.saveOrdersArray(encounter.encounter_id, formattedOrders);
+        
+                    if(!d) return toastWarning('Unable to save lab orders')
+
+                    Store.invalidate('PATIENT_LAB_ORDERS')
+                    const canPrintOrders = await alertConfirmation('Lab orders and encounter created!, print out your last orders?', { 
+                    confirmBtnLabel: 'Yes',
+                    cancelBtnLabel: 'No'
+                    })
+                    if(canPrintOrders) await this.service.printSpecimenLabel(d[0].order_id)
+                    if(computed.tests.length <= 0) this.$router.push(`/patient/dashboard/${this.patientID}`)
+                }
             } 
+            
+            if(computed.tests.length > 0){
+                const req = await this.service.placeOrder(computed)
+                if (req) {
+                    await this.service.printSpecimenLabel(req[0].order_id)
+                    this.$router.push(`/patient/dashboard/${this.patientID}`)
+                } 
+            }
+        },
+        buildLabOrders(computed: any, concept_id: any,encounter: any) {
+            return [{
+                'accession_number': this.barcode,
+                'encounter_id': encounter.encounter_id,
+                'tests': [{ 'concept_id': concept_id }],
+                'reason_for_test_id': computed.reason_for_test_id,
+                'target_lab': computed.target_lab,
+                'date': HisDate.toStandardHisFormat(Service.getSessionDate()),
+                'requesting_clinician': computed.requesting_clinician,
+                'specimen':{"concept_id": computed.specimen.concept_id}
+            }]
         },
         getFacililityLocationField(): Field {
             return {
@@ -158,6 +211,32 @@ export default defineComponent({
                     }
                 }
             }
+        },
+        getBarcodeInput(): Field{
+          return  {
+          id: "barcode",
+          helpText: "Scan viral load barcode",
+          type: FieldType.TT_VL_BARCODE,
+          onValue: async (id: string) => {
+            id ? this.isNextDisabled = false : this.isNextDisabled = true
+            this.isNextDisabled ? this.barcode = '' : this.barcode = id
+          },
+          condition: (val: any) => val.tests.some((item: any) => item.label === 'HIV viral load' && this.canScanDBS),
+          config : {
+                hiddenFooterBtns : ['Clear'],
+                overrideDefaultFooterBtns: {
+                    nextBtn: {
+                        name: 'Next',
+                        state: {
+                            disabled: {
+                                default: () => this.isNextDisabled
+                            }
+                        },
+                    }
+                }
+            },
+        }
+
         },
         getTestCombinationField(): Field {
             return {

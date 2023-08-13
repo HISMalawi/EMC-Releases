@@ -21,8 +21,8 @@ export class PatientLabService extends AppEncounterService  {
         )
     }
 
-    printSpecimenLabel(orderID: number) {
-        return new PrintoutService().printLbl(`lab/labels/order?order_id=${orderID}`)
+    async printSpecimenLabel(orderID: number) {
+        return await new PrintoutService().printLbl(`lab/labels/order?order_id=${orderID}`)
     }
     
     async placeOrder(params: any) {
