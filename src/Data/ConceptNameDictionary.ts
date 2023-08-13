@@ -2661,5 +2661,9 @@ export default [
    {
       "name": "HIV viral load",
       "concept_id": 856
+   },
+   {
+      "name": "Plasma",
+      "concept_id": 1002
    }
 ]

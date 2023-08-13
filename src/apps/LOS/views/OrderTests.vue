@@ -65,29 +65,32 @@ export default defineComponent({
     methods: {
         async onSubmit(_: any, computed: any) {
             const conceptIdToDelete = await ConceptService.getConceptID('HIV viral load') 
-            const indexToDelete = computed.tests.findIndex((test: any) => test.concept_id === conceptIdToDelete);
+            const plasmaConceptId = await ConceptService.getConceptID('Plasma') 
 
-            if (indexToDelete !== -1) {
-                const patientID= `${this.$route.params.patient_id}`;
-                const orders = new LabOrderService(parseInt(patientID), -1); //TODO: get selected provider for this encounter
-                const encounter = await orders.createEncounter();
+            if(computed.specimen.concept_id != plasmaConceptId){
+                const indexToDelete = computed.tests.findIndex((test: any) => test.concept_id === conceptIdToDelete);
+                if (indexToDelete !== -1) {
+                    const patientID= `${this.$route.params.patient_id}`;
+                    const orders = new LabOrderService(parseInt(patientID), -1); //TODO: get selected provider for this encounter
+                    const encounter = await orders.createEncounter();
 
-                if(encounter) {
-                    const deletedTest = computed.tests.splice(indexToDelete, 1)[0];
-                    const formattedOrders: any = await this.buildLabOrders(computed, deletedTest.concept_id,encounter)
-                    const d =await  OrderService.saveOrdersArray(encounter.encounter_id, formattedOrders);
-        
-                    if(!d) return toastWarning('Unable to save lab orders')
+                    if(encounter) {
+                        const deletedTest = computed.tests.splice(indexToDelete, 1)[0];
+                        const formattedOrders: any = await this.buildLabOrders(computed, deletedTest.concept_id,encounter)
+                        const d =await  OrderService.saveOrdersArray(encounter.encounter_id, formattedOrders);
+            
+                        if(!d) return toastWarning('Unable to save lab orders')
 
-                    Store.invalidate('PATIENT_LAB_ORDERS')
-                    const canPrintOrders = await alertConfirmation('Lab orders and encounter created!, print out your last orders?', { 
-                    confirmBtnLabel: 'Yes',
-                    cancelBtnLabel: 'No'
-                    })
-                    if(canPrintOrders) await this.service.printSpecimenLabel(d[0].order_id)
-                    if(computed.tests.length <= 0) this.$router.push(`/patient/dashboard/${this.patientID}`)
-                }
-            } 
+                        Store.invalidate('PATIENT_LAB_ORDERS')
+                        const canPrintOrders = await alertConfirmation('Lab orders and encounter created!, print out your last orders?', { 
+                        confirmBtnLabel: 'Yes',
+                        cancelBtnLabel: 'No'
+                        })
+                        if(canPrintOrders) await this.service.printSpecimenLabel(d[0].order_id)
+                        if(computed.tests.length <= 0) this.$router.push(`/patient/dashboard/${this.patientID}`)
+                    }
+                } 
+            }
             
             if(computed.tests.length > 0){
                 const req = await this.service.placeOrder(computed)
@@ -221,7 +224,8 @@ export default defineComponent({
             id ? this.isNextDisabled = false : this.isNextDisabled = true
             this.isNextDisabled ? this.barcode = '' : this.barcode = id
           },
-          condition: (val: any) => val.tests.some((item: any) => item.label === 'HIV viral load' && this.canScanDBS),
+          condition: (val: any) => val.tests.some((item: any) => item.label === 'HIV viral load' && this.canScanDBS) &&
+          val.specimen.label !== "Plasma",
           config : {
                 hiddenFooterBtns : ['Clear'],
                 overrideDefaultFooterBtns: {
