@@ -112,6 +112,7 @@ export default defineComponent({
     setup(props, { emit }) {
         onActivated(() => emit('onFieldActivated', this))
         const inputLengthLimit: any = {
+            'bookNo': 5,
             'checkDigit': 1,
             'pageNo': 3,
             'rowNo': 2,
