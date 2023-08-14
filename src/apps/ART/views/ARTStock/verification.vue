@@ -110,7 +110,7 @@ export default defineComponent({
       const rows = drugs.map((j: any) => {
         const d = j.value;
         return [
-          d.shortName,
+          d['drug_name'],
           toNumString(d['current_quantity']),
           d.reason,
           HisDate.toStandardHisDisplayFormat(d.expiry_date),
@@ -132,6 +132,7 @@ export default defineComponent({
         "pack_size": element.value.pack_size,
         'expiry_date': element.value.expiry_date,
         'delivery_date': element.value.delivery_date,
+        'batch_number': element.value.batch_number,
         "reason": element.value.reason,
       }));
     },

@@ -205,16 +205,12 @@ export default defineComponent({
       }
     },
     enteredDrugs(): any {
-      const f: any = [];
-      this.drugs.forEach((element: any) => {
-        if (element.entries) {
-          const j = element.entries.filter((el: any) => el.current_quantity != el.originalQuantity);
-          j.forEach((e: any) => {
-            f.push({ label: element.shortname, value: { ...e, ...element } });
-          });
-        }
+      const updatedDrugs: any = [];
+      this.drugs.forEach((drug: any) => {
+        drug.entries?.filter((e: any) => e.current_quantity != e.originalQuantity)
+          .forEach((e: any) => updatedDrugs.push({ label: drug.drug_name, value: { ...drug, ...e } }));
       });
-      return f;
+      return updatedDrugs;
     },
   },
   watch: {
