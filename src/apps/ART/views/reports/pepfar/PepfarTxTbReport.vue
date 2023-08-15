@@ -61,7 +61,6 @@ export default defineComponent({
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()
-            console.log(rebuildCache)
             this.cohort = (await this.report.getTxTbReport(rebuildCache)) || {}
             this.setRows('F')
             this.setRows('M')
