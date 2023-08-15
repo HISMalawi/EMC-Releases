@@ -1,5 +1,19 @@
 export default [
    {
+      "categories": [
+         "tb_treatment"
+      ],
+      "concept_id": 10687,
+      "name": "TB treatment start date"
+   },
+   {
+      "categories": [
+         "tb_treatment"
+      ],
+      "concept_id": 10686,
+      "name": "TB treatment period"
+   },
+   {
       "categories": ["hiv_viral_load_reasons"],
       "concept_id": 10609,
       "name": "Follow up after Low Level Viremia"

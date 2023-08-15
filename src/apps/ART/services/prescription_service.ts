@@ -5,6 +5,7 @@ import HisDate from "@/utils/Date"
 import { RegimenService } from "@/services/regimen_service";
 import { isEmpty } from "lodash"
 import { AppEncounterService } from "@/services/app_encounter_service"
+import { toDate } from "@/utils/Strs";
 
 export enum AdverseEffectsCategories {
     CONTRAINDICATION = "contraindication",
@@ -196,11 +197,18 @@ export class PrescriptionService extends AppEncounterService {
     }
 
     async loadHangingPills() {
-        const pills = await AppEncounterService.getAll(this.patientID, 'Pills brought')
-        if (pills) {
-            this.hangingPills = pills.filter((o: any) => o.value_numeric >= 1 && o.order)
-                                    .map((o: any) => o.order.drug_order.drug_inventory_id)
-        }
+        const pills = (await AppEncounterService.getAll(this.patientID, 'Pills brought'))||[]
+        this.hangingPills = pills.filter((o: any) => {
+            if (o.value_numeric >= 1) {
+                // Condition for detecting pills brought during transfer in.. This is a bit hack-ish
+                if (o.value_drug && toDate(o.obs_datetime) === toDate(this.date)) {
+                    return true
+                }
+                // This is for normal workflow adherence pills
+                return o.order||false
+            }
+            return false
+        }).map((o: any) => o?.order?.drug_order?.drug_inventory_id||o.value_drug)        
     }
 
     async loadFastTrackMedications() {

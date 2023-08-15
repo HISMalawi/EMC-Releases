@@ -64,7 +64,7 @@ export default defineComponent({
       const auth = new AuthService()
       await auth.loadConfig()
       isPocSite.value = Service.isPocSite()
-      const appV = await auth.getHeadVersion()
+      const appV = auth.getHeadVersion()
       auth.setActiveVersion(appV)
       const apiV = await auth.getApiVersion()
       version.value = `${appV} / ${apiV}`

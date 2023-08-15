@@ -33,7 +33,6 @@ import { toastDanger, toastWarning } from "@/utils/Alerts"
 import { PatientTypeService } from "@/apps/ART/services/patient_type_service";
 import { IonPage } from "@ionic/vue"
 import { infoActionSheet } from "@/utils/ActionSheets"
-import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
 import dayjs from "dayjs";
 import { delayPromise } from "@/utils/Timers";
 import Store from "@/composables/ApiStore"

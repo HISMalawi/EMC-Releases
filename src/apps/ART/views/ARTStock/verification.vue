@@ -50,7 +50,7 @@ export default defineComponent({
       return [
         {
           id: "date",
-          helpText: "Verfication Date",
+          helpText: "Verification Date",
           type: FieldType.TT_FULL_DATE,
           validation: (val: Option) => Validation.required(val),
         },
@@ -141,19 +141,20 @@ export default defineComponent({
         return l;
       });
     },
-    formatDrugs() {
-      return this.stockService.drugList().map((drug: any) => {
-        return {
-          label: drug.shortName,
-          value: drug,
-        };
-      });
+    getFormattedDrugs() {
+      return this.stockService.getItems()
+        .then((drugs: Array<any>) => {
+          return drugs.map((drug: any) => ({
+            label: drug?.drug_name||drug?.drug_legacy_name||'N/A',
+            value: drug, 
+          }))
+        });
     },
   },
-  created() {
+  async created() {
     this.stockService = new StockService();
     this.fields = this.getFields();
-    this.drugs = this.formatDrugs();
+    this.drugs = await this.getFormattedDrugs();
   },
 });
-</script>
+</script> 

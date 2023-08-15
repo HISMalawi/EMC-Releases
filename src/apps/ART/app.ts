@@ -12,6 +12,7 @@ import {
     patientProgramInfoData,
     getPatientDashboardAlerts,
     getPatientDashboardLabOrderCardItems,
+    downloadAppNotifications
 } from "@/apps/ART/Config/ArtAppScripts"
 
 import Store from "@/composables/ApiStore"
@@ -35,6 +36,7 @@ const ART: AppInterface = {
     getPatientDashboardAlerts,
     onRegisterPatient,
     getPatientDashboardLabOrderCardItems,
+    downloadAppNotifications,
     programPatientIdentifiers: {
         'ARV Number': {
             id: 4,
