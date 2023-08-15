@@ -6,8 +6,8 @@ export class TBReportService extends ArtReportService {
         super()
     }
     
-    getTxTbReport() {
-        return this.getReport(`programs/1/reports/tx_tb`)
+    getTxTbReport(rebuildOutcome: boolean) {
+        return this.getReport(`programs/1/reports/tx_tb`, { rebuild_outcome: rebuildOutcome })
     }
 
     getMaternalStatus(patientIds: number[]) {
