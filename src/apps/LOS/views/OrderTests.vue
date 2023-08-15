@@ -24,6 +24,7 @@ import Store from "@/composables/ApiStore"
 import { alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts"
 import { PrintoutService } from "@/services/printout_service"
 import { Service } from '@/services/service'
+import { loadingController } from "@ionic/vue";
 
 export default defineComponent({
     mixins: [EncounterMixinVue],
@@ -31,10 +32,12 @@ export default defineComponent({
         patientID: -1,
         service: {} as any,
         fields: [] as Field[],
-        barcode: '' as string,
+        barcode: '' as any,
         activityType: '' as 'DRAW_SAMPLES' | 'ORDER_TESTS',
         canScanDBS: false as boolean,
         isNextDisabled: true as boolean,
+        verifyingBarcode: false,
+        accessionNumber: '' as any
     }),
     async created() {
         this.canScanDBS = await ART_GLOBAL_PROP.canScanDBS()
@@ -111,6 +114,34 @@ export default defineComponent({
                 'requesting_clinician': computed.requesting_clinician,
                 'specimen':{"concept_id": computed.specimen.concept_id}
             }]
+        },
+        async onScanEIDbarcode(barcode: string) {
+            this.verifyingBarcode = !this.verifyingBarcode;
+            if (this.verifyingBarcode) return
+            (await loadingController.create({ message: `Checking ${barcode}`})).present()
+            this.isNextDisabled = true
+            // Expected barcode examples: L5728043 or 57280438
+            const barcodeOk = /^([A-Z]{1})?[0-9]{7,8}$/i.test(`${barcode}`.trim())
+            if (!barcodeOk) {
+                toastWarning("Invalid Barcode")
+                this.verifyingBarcode = false
+                loadingController.getTop().then(v => v && loadingController.dismiss())
+                return ;
+            }
+            /**
+             * Verify with API if barcode was already used:
+             */
+            try {
+                if (!(await OrderService.accessionNumExists(barcode))) {
+                this.isNextDisabled = false
+                } else {
+                toastWarning(`Barcode ${barcode} was already used`)
+                }
+            } catch (e) {
+                toastDanger("Failed to confirm barcode " + barcode + ", Please try again later", 8000)  
+            }
+            this.verifyingBarcode = false
+            loadingController.getTop().then(v => v && loadingController.dismiss())
         },
         getFacililityLocationField(): Field {
             return {
@@ -219,10 +250,13 @@ export default defineComponent({
           return  {
           id: "barcode",
           helpText: "Scan viral load barcode",
-          type: FieldType.TT_VL_BARCODE,
+          type: FieldType.TT_BARCODE,
           onValue: async (id: string) => {
-            id ? this.isNextDisabled = false : this.isNextDisabled = true
-            this.isNextDisabled ? this.barcode = '' : this.barcode = id
+            const barcode: any = await this.onScanEIDbarcode(id)
+            barcode ? this.barcode =id : this.barcode =''
+          },
+          onValueUpdate: (list: Option[], option: Option) => {
+            return list
           },
           condition: (val: any) => val.tests.some((item: any) => item.label === 'HIV viral load' && this.canScanDBS) &&
           val.specimen.label !== "Plasma",
@@ -237,7 +271,9 @@ export default defineComponent({
                             }
                         },
                     }
-                }
+                },
+                showScannedBarcode: true,
+                barcode: this.barcode
             },
         }
 
