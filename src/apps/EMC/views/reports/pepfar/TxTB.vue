@@ -1,5 +1,16 @@
 <template>
-  <base-report-table title="PEPFAR TX TB Report" report-icon="reports/tb.png" :columns="columns" :rows="rows" :period="period" useDateRangeFilter @custom-filter="fetchData" @drilldown="onDrilldown" showIndices />
+  <base-report-table 
+    title="PEPFAR TX TB Report" 
+    report-icon="reports/tb.png" 
+    :columns="columns" 
+    :rows="rows" 
+    :period="period" 
+    useDateRangeFilter 
+    @custom-filter="fetchData" 
+    @drilldown="onDrilldown"
+    @regenerate="fetchData(undefined, true)" 
+    showIndices 
+  />
 </template>
 
 <script lang="ts" setup>
@@ -16,6 +27,7 @@ import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";
 import { TxTbReportService, indicators } from "@/apps/ART/services/reports/tx_tb_report_service";
 
+const report = new TxTbReportService()
 const period = ref("-");
 const rows = ref<any[]>([]);
 const columns: TableColumnInterface[] = [
@@ -24,13 +36,14 @@ const columns: TableColumnInterface[] = [
   ...Object.entries(indicators).map(([path, label])=> ({ path, label, drillable: true })),
 ]
 
-const fetchData = async ({ dateRange }: Record<string, any>) => {
+const fetchData = async (filters?: Record<string, any>, rebuildOutcome = false) => {
   await loader.show()
-  const report = new TxTbReportService()
-  report.setStartDate(dateRange.startDate)
-  report.setEndDate(dateRange.endDate)
-  period.value = report.getDateIntervalPeriod()
-  rows.value = await report.getTxTbReport();
+  if(filters){
+    report.setStartDate(filters?.dateRange.startDate)
+    report.setEndDate(filters?.dateRange.endDate)
+    period.value = report.getDateIntervalPeriod()
+  }
+  rows.value = await report.getTxTbReport(rebuildOutcome);
   rows.value.push(report.getAggregatedMaleData())
   rows.value.push(...(await report.getAggregatedMaternalStatus()))
   await loader.hide();
