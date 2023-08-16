@@ -26,9 +26,10 @@ import dayjs from "dayjs";
 import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";
 import { TxTbReportService, indicators } from "@/apps/ART/services/reports/tx_tb_report_service";
+import { toastWarning } from "@/utils/Alerts";
 
 const report = new TxTbReportService()
-const period = ref("-");
+const period = ref("");
 const rows = ref<any[]>([]);
 const columns: TableColumnInterface[] = [
   { path: "age_group", label: "Age group" },
@@ -42,6 +43,10 @@ const fetchData = async (filters?: Record<string, any>, rebuildOutcome = false) 
     report.setStartDate(filters?.dateRange.startDate)
     report.setEndDate(filters?.dateRange.endDate)
     period.value = report.getDateIntervalPeriod()
+  }
+  if(!period.value) {
+    await loader.hide();
+    return toastWarning("Invalid report period");
   }
   rows.value = await report.getTxTbReport(rebuildOutcome);
   rows.value.push(report.getAggregatedMaleData())
