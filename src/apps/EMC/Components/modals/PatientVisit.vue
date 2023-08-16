@@ -520,7 +520,7 @@ export default defineComponent({
 
     const getPreviousTBScreeningResults = async () => {
       previousTBStatus.value = await consultations.getFirstValueCoded("TB status");
-      if(previousTBStatus.value.match(/Confirmed TB on treatment/i)) {
+      if(previousTBStatus.value?.match(/Confirmed TB on treatment/i)) {
         tbTreatmentStartDate.value = await consultations.getFirstValueDatetime("TB treatment start date")
         tbTreatmentPeriod.value = (await consultations.getFirstValueNumber("TB treatment period")) || 6
       }
