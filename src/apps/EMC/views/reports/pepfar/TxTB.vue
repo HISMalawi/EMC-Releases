@@ -21,8 +21,7 @@ import { TableColumnInterface } from "@uniquedj95/vtable";
 import { modal } from "@/utils/modal";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
 import { Patientservice } from "@/services/patient_service";
-import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
-import dayjs from "dayjs";
+import HisDate from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";
 import { TxTbReportService, indicators } from "@/apps/ART/services/reports/tx_tb_report_service";
@@ -57,7 +56,7 @@ const fetchData = async (filters?: Record<string, any>, rebuildOutcome = false) 
 const onDrilldown = async (data: { column: TableColumnInterface; row: any }) => {
   const columns: TableColumnInterface[] = [
     { path: "arv_number", label: "ARV Number", preSort: sortByARV, initialSort: true },
-    { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
+    { path: "birthdate", label: "Date of Birth", formatter: HisDate.toStandardHisDisplayFormat },
     { path: "gender", label: "Gender", formatter: toGenderString },
     { path: "address", label: "Address" }
   ]
