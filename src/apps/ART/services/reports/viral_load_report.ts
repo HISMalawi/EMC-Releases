@@ -5,6 +5,11 @@ export class ViralLoadReportService extends ArtReportService {
     constructor() {
         super()
     }
+
+
+    getVlCollection() {
+        return this.getReport(`programs/${this.programID}/reports/vl_collection`)
+    }
     
     getVLCoverage(params = {} as Record<string, any>) {
         return this.getReport(`programs/${this.programID}/reports/viral_load_coverage`, {
