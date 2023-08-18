@@ -32,6 +32,10 @@ export class StockReportService extends ArtReportService {
         })
     }
 
+    getDiscrepancyReport () {
+        return this.getReport(`programs/${this.programID}/reports/discrepancy_report`);
+    }
+
     /**Code adapted from BHT-Core Art system */
     groupStock() {
         const pharmacyData: any = {};
