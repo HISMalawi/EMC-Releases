@@ -40,6 +40,10 @@ export const PROPERTIES: FolderInterface[] = [
             {
                 name: "Stock report",
                 pathUrl: "/art/stock/report",
+            },
+            {
+                name: "Sc curr report",
+                pathUrl: "/art/stock/sc_curr"
             }
         ]
     },

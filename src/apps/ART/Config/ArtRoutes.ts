@@ -12,6 +12,11 @@ export default [
       component: () => import("@/apps/ART/views/reports/clinic/ClinicVlCollection.vue")  
     },
     {
+        name: "Stock Sc Curr",
+        path: "/art/stock/sc_curr",
+        component: () => import("@/apps/ART/views/ARTStock/ScCurrReport.vue")
+    },
+    {
         name: "Data cleaning verification",
         path: "/art/data_cleaning_verification",
         component: () => import("@/apps/ART/views/reports/inconsistencies/DataCleaningVerification.vue")

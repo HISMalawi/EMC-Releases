@@ -28,6 +28,10 @@ export class StockReportService extends ArtReportService {
         })
     }
 
+    getScCurrReport() {
+        return this.getReport('programs/1/reports/sc_curr')
+    }
+
     /**Code adapted from BHT-Core Art system */
     groupStock() {
         const pharmacyData: any = {};
