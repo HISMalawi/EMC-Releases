@@ -52,7 +52,7 @@
                   @click="selectReason(ind)"
                   >
                 </ion-input>
-                <ion-icon :icon="chevronDown" slot="end" class="ion-padding-top"></ion-icon>
+                <ion-icon :icon="chevronDown" slot="end" class="ion-padding-top" @click="selectReason(ind)"></ion-icon>
               </ion-item>
             </ion-col>
           </ion-row>
