@@ -19,6 +19,18 @@ function isFacilictyCentralHospital(): boolean {
 
 export const REPORTS: FolderInterface[] = [
     {
+        name: 'MoH',
+        icon: 'login-logos/Malawi-Coat_of_arms_of_arms.png',
+        defaultFilesIcon: 'reports.png',
+        condition: () => true,
+        files: [
+            {
+                name: 'Malaria Report',
+                pathName: 'clinic_la'
+            },
+        ]
+    },
+    {
         name: 'Clinic',
         icon: 'reports.png',
         defaultFilesIcon: 'reports.png',
