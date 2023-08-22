@@ -23,12 +23,14 @@ export default defineComponent({
     }),
     methods: {
         async onScan(text: string) {
+            this.barcode = ""
             if (this.onValue) {
                 const ok = await this.onValue(text)
                 if (!ok) {
                     return
                 }
             }
+            this.barcode = text
             this.$emit('onValue', text)
         }
     }

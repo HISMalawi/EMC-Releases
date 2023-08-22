@@ -16,13 +16,11 @@ import { PatientLabService } from "@/apps/LOS/services/patient_lab_service"
 import { OrderService } from "@/services/order_service"
 import { ConceptService } from '@/services/concept_service'
 import PersonField from "@/utils/HisFormHelpers/PersonFieldHelper"
-import { isEmpty } from 'lodash'
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
 import HisDate from "@/utils/Date"
 import { LabOrderService } from "@/apps/ART/services/lab_order_service"
 import Store from "@/composables/ApiStore"
 import { alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts"
-import { PrintoutService } from "@/services/printout_service"
 import { Service } from '@/services/service'
 import { loadingController } from "@ionic/vue";
 
@@ -35,7 +33,7 @@ export default defineComponent({
         barcode: '' as any,
         activityType: '' as 'DRAW_SAMPLES' | 'ORDER_TESTS',
         canScanDBS: false as boolean,
-        isNextDisabled: true as boolean,
+        isNextBtnDisabled: true as boolean,
         verifyingBarcode: false,
         accessionNumber: '' as any
     }),
@@ -73,13 +71,12 @@ export default defineComponent({
             if(computed.specimen.concept_id != plasmaConceptId){
                 const indexToDelete = computed.tests.findIndex((test: any) => test.concept_id === conceptIdToDelete);
                 if (indexToDelete !== -1) {
-                    const patientID= `${this.$route.params.patient_id}`;
-                    const orders = new LabOrderService(parseInt(patientID), -1); //TODO: get selected provider for this encounter
+                    const orders = new LabOrderService(parseInt(this.patientID), -1); //TODO: get selected provider for this encounter
                     const encounter = await orders.createEncounter();
 
                     if(encounter) {
                         const deletedTest = computed.tests.splice(indexToDelete, 1)[0];
-                        const formattedOrders: any = await this.buildLabOrders(computed, deletedTest.concept_id,encounter)
+                        const formattedOrders: any = this.buildLabOrders(computed, deletedTest.concept_id,encounter)
                         const d =await  OrderService.saveOrdersArray(encounter.encounter_id, formattedOrders);
             
                         if(!d) return toastWarning('Unable to save lab orders')
@@ -115,25 +112,27 @@ export default defineComponent({
                 'specimen':{"concept_id": computed.specimen.concept_id}
             }]
         },
-        async onScanEIDbarcode(barcode: string) {
+        async verifyingScanedBarcode(barcode: string) {
             this.verifyingBarcode = !this.verifyingBarcode;
-            if (this.verifyingBarcode) return
+            if (this.verifyingBarcode) return false;
             (await loadingController.create({ message: `Checking ${barcode}`})).present()
-            this.isNextDisabled = true
+            this.isNextBtnDisabled = true
             // Expected barcode examples: L5728043 or 57280438
             const barcodeOk = /^([A-Z]{1})?[0-9]{7,8}$/i.test(`${barcode}`.trim())
             if (!barcodeOk) {
                 toastWarning("Invalid Barcode")
                 this.verifyingBarcode = false
                 loadingController.getTop().then(v => v && loadingController.dismiss())
-                return ;
+                return false ;
             }
             /**
              * Verify with API if barcode was already used:
              */
             try {
                 if (!(await OrderService.accessionNumExists(barcode))) {
-                this.isNextDisabled = false
+                    this.barcode = barcode
+                    this.isNextBtnDisabled = false
+                    return true
                 } else {
                 toastWarning(`Barcode ${barcode} was already used`)
                 }
@@ -247,33 +246,34 @@ export default defineComponent({
             }
         },
         getBarcodeInput(): Field{
-          return  {
-          id: "barcode",
-          helpText: "Scan viral load barcode",
-          type: FieldType.TT_BARCODE,
-          onValue: async (id: string) => {
-            const barcode: any = await this.onScanEIDbarcode(id)
-            barcode ? this.barcode =id : this.barcode =''
-          },
-          onValueUpdate: (list: Option[], option: Option) => {
-            return list
-          },
-          condition: (val: any) => val.tests.some((item: any) => item.label === 'HIV viral load' && this.canScanDBS) &&
-          val.specimen.label !== "Plasma",
-          config : {
+            return  {
+            id: "barcode",
+            helpText: "Scan viral load barcode",
+            type: FieldType.TT_BARCODE,
+            onValue: async (id: string) => {
+                return await this.verifyingScanedBarcode(id)
+            },
+            summaryMapValue: (v: any) => {
+                    return {
+                        label: "Scaned Barcode",
+                        value: v
+                    }
+                },
+            condition: (val: any) => val.tests.some((item: any) => item.label === 'HIV viral load' && this.canScanDBS) &&
+            val.specimen.label !== "Plasma",
+            config : {
                 hiddenFooterBtns : ['Clear'],
                 overrideDefaultFooterBtns: {
                     nextBtn: {
                         name: 'Next',
                         state: {
                             disabled: {
-                                default: () => this.isNextDisabled
+                                default: () => this.isNextBtnDisabled
                             }
                         },
                     }
                 },
                 showScannedBarcode: true,
-                barcode: this.barcode
             },
         }
 
