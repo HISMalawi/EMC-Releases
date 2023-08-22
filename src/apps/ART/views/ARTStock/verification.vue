@@ -60,6 +60,26 @@ export default defineComponent({
           type: FieldType.TT_BATCH_VERIFICATION,
           options: () => this.drugs,
           validation: (val: Option) => Validation.required(val),
+          init: async () => {
+            const options: Map<number, Option> = new Map();
+            const _drugs: Array<any> = await this.stockService.getItems()
+            this.drugs = _drugs.forEach(drug => {
+              if(!drug.pack_size) drug.pack_size = StockService.getPackSize(drug.drug_id)
+              drug.original_quantity = drug['current_quantity'] / (drug.pack_size || 1)
+              drug.current_quantity = drug.original_quantity
+              if(options.has(drug.drug_id)) {
+                options.get(drug.drug_id)?.other.push(drug);
+              } else {
+                options.set(drug.drug_id, {
+                  label: `${ drug?.drug_name || drug?.drug_legacy_name } (${drug.product_code})`,
+                  value: drug.drug_id,
+                  other: [drug]
+                })
+              }
+            });
+            this.drugs = Array.from(options.values());
+            return true;
+          } 
         },
         {
           id: "reason",
@@ -102,7 +122,7 @@ export default defineComponent({
     },
     buildResults(drugs: any) {
       const columns = [
-        "Drug",
+        "Drug Name (BatchNumber)",
         "Tins/Pallets",
         "Reason for Modification",
         "Expiry date",
@@ -110,8 +130,8 @@ export default defineComponent({
       const rows = drugs.map((j: any) => {
         const d = j.value;
         return [
-          d['drug_name'],
-          toNumString(d['current_quantity']),
+          `${d.drug_name} (${d.batch_number})`,
+          toNumString(d.current_quantity),
           d.reason,
           HisDate.toStandardHisDisplayFormat(d.expiry_date),
         ];
@@ -142,20 +162,10 @@ export default defineComponent({
         return l;
       });
     },
-    getFormattedDrugs() {
-      return this.stockService.getItems()
-        .then((drugs: Array<any>) => {
-          return drugs.map((drug: any) => ({
-            label: drug?.drug_name||drug?.drug_legacy_name||'N/A',
-            value: drug, 
-          }))
-        });
-    },
   },
   async created() {
     this.stockService = new StockService();
     this.fields = this.getFields();
-    this.drugs = await this.getFormattedDrugs();
   },
 });
 </script> 
