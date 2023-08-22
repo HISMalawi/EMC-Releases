@@ -1,7 +1,7 @@
 import { AppInterface, GeneralDataInterface } from '@/apps/interfaces/AppInterface';
 import HomeOverview from "@/apps/AETC/components/HomeOverview.vue";
 import { PRIMARY_ACTIVITIES, SECONDARY_ACTIVITIES } from '@/apps/OPD/config/programActivities';
-import { REPORTS } from '@/apps/OPD/config/programReports';
+import { REPORTS } from '@/apps/AETC/config/programReports';
 import opdRoutes from '@/apps/OPD/config/routes';
 import { PatientProgramService } from '@/services/patient_program_service';
 import { AppEncounterService } from "@/services/app_encounter_service"
