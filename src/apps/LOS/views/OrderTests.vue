@@ -34,8 +34,7 @@ export default defineComponent({
         activityType: '' as 'DRAW_SAMPLES' | 'ORDER_TESTS',
         canScanDBS: false as boolean,
         isNextBtnDisabled: true as boolean,
-        verifyingBarcode: false,
-        accessionNumber: '' as any
+        verifyingBarcode: false
     }),
     async created() {
         this.canScanDBS = await ART_GLOBAL_PROP.canScanDBS()
