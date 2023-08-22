@@ -48,10 +48,6 @@ export const REPORTS: FolderInterface[] = [
                 pathName: 'clinic_registration'
             },
             {
-                name: 'Malaria Report',
-                pathName: 'clinic_la'
-            },
-            {
                 name: 'OPD General',
                 pathName: 'clinic_cases_seen'
             },
