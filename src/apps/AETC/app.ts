@@ -10,7 +10,7 @@ import { Observation } from '@/interfaces/observation';
 import { OrderService } from '@/services/order_service';
 import { RelationshipService } from '@/services/relationship_service';
 import { Order } from '@/interfaces/order';
-import {PROPERTIES} from "@/apps/OPD/config/globalPropertySettings"
+import {PROPERTIES} from "@/apps/AETC/config/globalPropertySettings"
 import { selectActivities } from '@/utils/WorkflowTaskHelper';
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { ObservationService } from '@/services/observation_service';
