@@ -4,13 +4,10 @@
         <ion-col size="2">
           <SelectInput v-model="quarter" :options="quarters" /> 
         </ion-col>
-        <ion-col size="4" v-if="quarter.value?.label === 'Custom'">
-          <DateRangePicker
-            :range="dateRange" 
-            @rangeChange="onDateRangeChange" 
-          />  
+        <ion-col size="3" v-if="quarter.value?.label === 'Custom'">
+          <DateRangePicker v-model="dateRange" @update:model-value="onDateRangeChange"/>  
         </ion-col>
-        <ion-col :size="quarter.value?.label === 'Custom' ? 6 : 10">
+        <ion-col :size="quarter.value?.label === 'Custom' ? 7 : 10">
           <ion-button class="ion-float-right" color="primary" @click="exportToCsv" >Export CSV</ion-button>
           <ion-button class="ion-float-right" color="primary" @click="printSpec" >Print Report</ion-button>
           <ion-button class="ion-float-right" color="secondary" @click="disaggregateReport">Disaggregated</ion-button>
@@ -88,8 +85,8 @@ export default defineComponent({
     watch(quarter, () => {
       if(quarter.value?.label === 'Custom') {
         Object.assign(dateRange, {
-          startDate: "",
-          endDate: ""
+          start: "",
+          end: ""
         });
       } 
     })
@@ -161,8 +158,8 @@ export default defineComponent({
       report.setRegenerate(regenerate);
 
       if(quarter.value?.label === "Custom") {
-        startDate = dateRange.startDate;
-        endDate = dateRange.endDate;
+        startDate = dateRange.start;
+        endDate = dateRange.end;
         setReportPeriod(quarter.value, startDate, endDate);
         period.value = `Custom ${report.getDateIntervalPeriod()}`;
         data = report.datePeriodRequestParams();
@@ -227,7 +224,7 @@ export default defineComponent({
         ...rows,
         [`Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}`],
         ['Quarter: ' + (quarter.value?.label.match(/custom/i) 
-          ? `${dateRange.startDate} - ${dateRange.endDate}` 
+          ? `${dateRange.start} - ${dateRange.end}` 
           : quarter.value.value)
         ],
         [`HIS-Core Version: ${Service.getCoreVersion()}`],
@@ -247,10 +244,10 @@ export default defineComponent({
       componentKey,
       fetchData,
       onDrilldown,
-      onDateRangeChange,
       disaggregateReport,
       printSpec,
       exportToCsv,
+      onDateRangeChange,
     }
   }
 })

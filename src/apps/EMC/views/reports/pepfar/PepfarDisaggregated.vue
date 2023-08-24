@@ -6,6 +6,7 @@
     :rows="rows"
     :period="period"
     useDateRangeFilter
+    showIndices
     @custom-filter="fetchData"
     @drilldown="onDrilldown"
     @regenerate="onRegenerate"
@@ -21,42 +22,30 @@ import { modal } from "@/utils/modal";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
 import dayjs from "dayjs";
 import { DisaggregatedReportService } from "@/apps/ART/services/reports/disaggregated_service";
-import { toastWarning } from "@/utils/Alerts";
-import { get, isEmpty } from "lodash";
+import { difference, get, isEmpty } from "lodash";
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service";
 import { REGIMENS } from "@/apps/ART/services/reports/regimen_report_service"
 import { Patientservice } from "@/services/patient_service";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";
+import { toastWarning } from "@/utils/Alerts";
+import { swapAdjacentItems } from "@/utils/Arrays";
 
-interface Category {
-  index: number;
-  gender: string;
-  altGender: string;
-  ageGroups: string[];
-  altAgeGroup?: string;
-  other?: string;
-}
 export default defineComponent({
   name: "CohortDisaggregated",
   components: { BaseReportTable },
   setup() {
     const report = new DisaggregatedReportService()
-    let cohortData = reactive({} as Record<string, any>);
+    let cohortData = {} as Record<string, any>;
     const period = ref("-");
-    let sortIndexes = reactive({} as Record<string, any[]>);
-    let aggregations = reactive([] as any[]);
-    
-    const rows = computed(() => 
-      Object.keys(sortIndexes).sort((a, b) => parseInt(a) - parseInt(b))
-        .reduce((acc, key) => acc.concat(sortIndexes[key]), [] as any[])
-        .map((row, i) => ({ index: i + 1, ...row, }))
-    )
+    const females = ref<Array<any>>([]);
+    const males = ref<Array<any>>([]);
+    const maternals = ref<Array<any>>([]);
+    const rows = computed(() => [...females.value, ...males.value, ...maternals.value]);
     
     const columns: TableColumnInterface[] = [
-      { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc'}, 
-      { path: "age_group", label: "Age Group" },
+      { path: "ageGroup", label: "Age Group" },
       { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "txNew", label: "Tx new (new on ART)", drillable: true },
       { path: "txCurr", label: "TX curr (receiving ART)", drillable: true },
@@ -67,61 +56,41 @@ export default defineComponent({
       { path: "total", label: "Total", drillable: true },
     ]
 
-    const addAggregation = (col: string, gender: string, data = [] as any[]) => {
-      aggregations.push({col, gender, data});
-    }
-
-    const getRegimenRow = async (group: string, gender: string) => {
+    const getRegimenRow = async (gender: string) => {
+      if(/fp|fbf/i.test(gender)) {
+        report.setAgeGroup("All");
+        report.setGender(gender);
+      }
       const row: Record<string, any> = {}
       const distribution = await report.getRegimenDistribution()
       for (const regimen of [...REGIMENS, 'N/A']) {
         const data = get(distribution, regimen, [])
         row[regimen] = data
-        addAggregation(regimen, gender, data)
       }
       row.total = Object.values(row).reduce((acc, val) => acc.concat(val), [])
-      addAggregation('regimenTotals', gender, row.total)
       return row
     }
 
-    const getTotalAggregations = (column: string, gender: string) => {
-      return aggregations
-        .filter(a => a.col === column && a.gender === gender)
-        .reduce((acc, val) => acc.concat(val.data), [])
+    const aggregate = (rows: Array<any>, gender: string) => {
+      const row = rows.reduce((acc: any, curr: any) => {
+        for  (const indicator in curr) {
+          if(indicator in acc) acc[indicator] = acc[indicator].concat(curr[indicator])
+          else acc[indicator] = curr[indicator]
+        }
+        return acc
+      }, {})
+      return {...row, ageGroup: "All", gender}
     }
 
-    const getTotalRegimensAggregations = (gender: string) => {
-      const row: Record<string, any> = {}
-      for (const regimen of [...REGIMENS, 'N/A']) {
-        row[regimen] = getTotalAggregations(regimen, gender)
-      }
-      return row
+    const buildTotalMalesRow = () => {
+      males.value.push(aggregate(males.value, "Male"))
     }
 
-    const setTotalMalesRow = (index: number) => {
-      sortIndexes[index] = [{
-        'age_group': "All",
-        gender: "Male",
-        txNew: getTotalAggregations('txNew', 'Male'),
-        txCurr: getTotalAggregations('txCurr', 'Male'),
-        txGivenIpt: getTotalAggregations('txGivenIpt', 'Male'),
-        txScreenTB: getTotalAggregations('txScreenTB', 'Male'),
-        ...getTotalRegimensAggregations("Male"),
-        total: getTotalAggregations('regimenTotals', 'Male'),
-      }]
-    }
+    const setFemaleNotPregnantRow = () => {
+      const all = aggregate(females.value, "Female");
+      const fpFbf = aggregate(maternals.value, "Female")
 
-    const isPregnant = (patientID: number, column: string) => {
-      return aggregations
-        .filter((a: any) => a.gender.match(/fp|fbf/i) && a.col === column)
-        .reduce((accum: any, cur: any) => accum.concat(cur.data || []), [])
-        .includes(patientID)
-    }
-
-    const setFemaleNotPregnantRow = (index: number) => {
-      const fnpTD = (column: string) => aggregations
-        .filter((a: any) => a.gender === 'Female' && a.col === column)
-        .reduce((accum: any, cur: any) => accum.concat(cur.data.filter((i: any) => !isPregnant(i, column))), [])
+      const fnpTD = (column: string) => difference(all[column], fpFbf[column]);
 
       const fnpRegimensRow = () => {
         const row: Record<string, any> = {}
@@ -131,100 +100,84 @@ export default defineComponent({
         return row
       }
 
-      sortIndexes[index] = [{
-        'age_group': "All",
+      maternals.value.push({
+        'ageGroup': "All",
         gender: "FNP",
         txNew: fnpTD('txNew'),
         txCurr: fnpTD('txCurr'),
         txGivenIpt: fnpTD('txGivenIpt'),
         txScreenTB: fnpTD('txScreenTB'),
         ...fnpRegimensRow(),
-        total: fnpTD('regimenTotals'),
-      }]
+        total: fnpTD('total'),
+      })
     }
 
-    const buildRows = async (category: Category) => {
-      report.setGender(category.altAgeGroup ? category.altAgeGroup.toLowerCase() : category.altGender.toLowerCase());
-      for (const ageGroup of category.ageGroups) {
-        let txNew = []
-        let txCurr = []
-        let txGivenIpt = []
-        let txScreenTB = []
-        const group = category.altAgeGroup ? category.altAgeGroup : ageGroup
-        report.setAgeGroup(group);
+    const buildRowData = async (gender: "F" | "M" | "FP" | "FBf", ageGroup: string) => {
+      let txGivenIpt: Array<any> = [];
+      let txScreenTB: Array<any> = [];
+      report.setGender(gender === "FP" ? "pregnant" : gender === "FBf" ? "breastfeeding" : toGenderString(gender));
+      report.setAgeGroup(ageGroup);
 
-        if(!(group in cohortData)) {
-          const data = await report.getCohort()
-          report.setRebuildOutcome(false)
-          cohortData[group] = isEmpty(data) ? {} : data[group]
-        }
-
-        if(!isEmpty(cohortData[group])) {
-          txNew = get(cohortData, `${group}.${category.gender}.tx_new`, [])
-          txCurr = get(cohortData, `${group}.${category.gender}.tx_curr`, [])
-          txGivenIpt = await report.getTxIpt()
-          txScreenTB = await report.getTxCurrTB()
-          addAggregation('txNew', category.altGender, txNew)
-          addAggregation('txCurr', category.altGender, txCurr)
-          addAggregation('txGivenIpt', category.altGender, txGivenIpt)
-          addAggregation('txScreenTB', category.altGender, txScreenTB)
-        }
-
-
-        switch(report.getGender()) {
-          case 'breastfeeding':
-            report.setAgeGroup('All')
-            report.setGender('Fbf')
-            break
-          case 'pregnant':
-            report.setAgeGroup('All')
-            report.setGender('FP')
-            break
-        }
-
-        if(!sortIndexes[category.index]) sortIndexes[category.index] = []
-        sortIndexes[category.index].push({
-          'age_group': ageGroup,
-          gender: category.altGender,
-          txNew,
-          txCurr,
-          txGivenIpt,
-          txScreenTB,
-          ...await getRegimenRow(group, category.altGender),
-        })
+      if(!(ageGroup in cohortData)) {
+        const data = await report.getCohort()
+        report.setRebuildOutcome(false);
+        cohortData[ageGroup] = !isEmpty(data) ? data[ageGroup] : {}
       }
-    }
 
-    const fetchData =  async ({ dateRange }: Record<string, any>, regenerate=true) => {
+      if (!isEmpty(cohortData[ageGroup])) {
+        txGivenIpt = await report.getTxIpt();
+        txScreenTB = await report.getTxCurrTB();
+      }
+
+      return {
+        gender,
+        txGivenIpt,
+        txScreenTB,
+        txNew: get(cohortData, `${ageGroup}.${gender.charAt(0)}.tx_new`, []),
+        txCurr: get(cohortData, `${ageGroup}.${gender.charAt(0)}.tx_curr`, []),
+        ageGroup: /pregnant|breastfeeding/i.test(ageGroup) ? "All" : ageGroup,
+        ...(await getRegimenRow(gender)),
+      };
+    };
+
+    const buildMaleFemalesRows = async () => {
+      for (const ageGroup of AGE_GROUPS) {
+        males.value.push({ ...(await buildRowData("M", ageGroup)) });
+        females.value.push({ ...(await buildRowData("F", ageGroup)) });
+      }
+    };
+
+    const buildFpFBfRows = async () => {
+      for (const group of ["Pregnant", "Breastfeeding"]) {
+        const gender = group === "Pregnant" ? "FP" : "FBf";
+        maternals.value.push({ ...(await buildRowData(gender, group)) });
+      }
+    };
+
+    const fetchData =  async (config?: Record<string, any>, regenerate=true) => {
       await loader.show()
-      report.setStartDate(dateRange.startDate)
-      report.setEndDate(dateRange.endDate)
+      males.value = [];
+      females.value = [];
+      maternals.value = [];
+      cohortData = {};
+      if(config) {
+        report.setStartDate(config?.dateRange.startDate)
+        report.setEndDate(config?.dateRange.endDate)
+      }
       report.setRebuildOutcome(regenerate)
       report.setQuarter("pepfar")     
       period.value = report.getDateIntervalPeriod()
-      report.initialize = false
-
-      await buildRows({index: 1, gender: "F", altGender: "Female", ageGroups: AGE_GROUPS })
-      await buildRows({index: 2, gender: "M", altGender: "Male", ageGroups: AGE_GROUPS })
-      setTotalMalesRow(3)
-      await buildRows({index: 4, gender: "F", altGender: "FP", ageGroups: ['All'], altAgeGroup: 'Pregnant' })
-      await buildRows({index: 6, gender: "F", altGender: "FBf", ageGroups: ['All'], altAgeGroup: 'Breastfeeding' })
-      setFemaleNotPregnantRow(5)
-      
+      report.initialize = false;
+      await buildMaleFemalesRows();
+      buildTotalMalesRow();
+      await buildFpFBfRows();
+      setFemaleNotPregnantRow()
+      swapAdjacentItems(maternals.value, 1); // swap fnp and fbf rows
       await loader.hide();
     }
 
-    const onRegenerate = async () => {
-      sortIndexes = {}
-      aggregations = []
-      cohortData = {}
-      const [ start, end ] = period.value.split('-')
-      if(start && end ) {
-        await fetchData({dateRange: {
-          startDate: dayjs(start).format("YYYY-MM-DD"), 
-          endDate: dayjs(end).format("YYYY-MM-DD")
-        }}, true)
-      }
+    const onRegenerate = () => {
+      if(period.value) return fetchData();
     }
 
     const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
@@ -254,7 +207,7 @@ export default defineComponent({
       await modal.show(DrilldownTableVue, {
         columns,
         rows: rows.value,
-        title: `${data.row.age_group} ${data.column.label} | ${data.row.gender}s`,
+        title: `${data.row.ageGroup} ${data.column.label} | ${data.row.gender}s`,
       })
     }
 
