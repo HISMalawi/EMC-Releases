@@ -1558,6 +1558,7 @@ export default defineComponent({
           },
           beforeNext: async (v: Option[], f: any) => {
             if (this.isEligibleForTpt &&
+                !this.isBreastFeeding(f) &&
                 !this.patientOnTpt(f) &&
                 !v.some(d => /3hp|ipt/i.test(d.label))) {
               if (!(await alertConfirmation("Are you sure you want to skip TPT prescription for eligible client?"))) {
