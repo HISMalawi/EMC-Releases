@@ -65,6 +65,13 @@ function setTopTenDiagnosis(diagnosis: string) {
 function setTopTenDrugs(drug: string) {
     return GlobalPropertyService.set(AETC_GLOBAL_PROP.SET_TOP_10_DRUGS, drug)
 }
+function topTenDiagnosis() {
+    return GlobalPropertyService.get(AETC_GLOBAL_PROP.SET_TOP_10_DIAGNOSIS)
+}
+function topTenDrugs() {
+    return GlobalPropertyService.get(AETC_GLOBAL_PROP.SET_TOP_10_DRUGS)
+}
+
 export default {
     malariaFeatureEnabled,
     lifeThreateningQuestionEnabled,
@@ -78,5 +85,9 @@ export default {
     sharesDatabaseWithBartEnabled,
     showLabResultsEnabled,
     showTaskButtonOnPatientDashboardEnabled,
-    showColumnPrescriptionInterfaceEnabled
+    showColumnPrescriptionInterfaceEnabled,
+    setTopTenDiagnosis,
+    setTopTenDrugs,
+    topTenDiagnosis,
+    topTenDrugs
 }

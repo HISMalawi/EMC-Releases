@@ -71,6 +71,10 @@ export const PROPERTIES: FolderInterface[] = [
                 "Show column prescription interface",
                 AETC_GLOBAL_PROP.SHOW_COLUMN_PRESCRIPTION_INTERFACE
             ),
+            {
+                name: "Set Top Ten Diagnosis",
+                pathUrl: "/aetc/preferences/top_ten_diagnosis"
+            },
         ]
     }
 ]
