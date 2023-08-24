@@ -493,6 +493,8 @@ export default defineComponent({
       form.nextAppointmentDate.value = drugRunOutDate.value
     })
 
+    watch(() => form.visitDate.value, () => checkForActiveTB())
+
     const hasGiven3HP = computed(() => form.tbMed.value?.label === '3HP (INH 300 / RFP 300)')
     const hasGivenRFP = computed(() => form.tbMed.value?.label === '3HP (RFP + INH)')
     const hasGiven6H = computed(() => form.tbMed.value?.label === '6H')
@@ -510,12 +512,14 @@ export default defineComponent({
     const tbMeds = toOptions(['6H', '3HP (RFP + INH)', '3HP (INH 300 / RFP 300)'])
 
     const checkForActiveTB = async () => {
+      await PatientObservationService.setSessionDate(form.visitDate.value);
+      consultations.setDate(form.visitDate.value);
       const previousTBStatus = await consultations.getFirstValueCoded("TB status");
       if(/Confirmed TB on treatment/i.test(previousTBStatus)) {
         const tbTreatmentStartDate = await consultations.getFirstValueDatetime("TB treatment start date")
         const tbTreatmentPeriod = (await consultations.getFirstValueNumber("TB treatment period")) || 6
         if(tbTreatmentStartDate) {
-          const timeElapsed = dayjs().diff(tbTreatmentStartDate, 'months');
+          const timeElapsed = dayjs(form.visitDate.value).diff(tbTreatmentStartDate, 'months');
           isOnActiveTBTreatment.value = timeElapsed <= tbTreatmentPeriod;
         }
       }
