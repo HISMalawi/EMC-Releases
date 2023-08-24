@@ -568,6 +568,19 @@ export default defineComponent({
           text
         }
       })
+      const breastFeedingStatusDescription = () => {
+        if (isCurrentlyBreastfeeding) {
+          return {
+            isChecked: false,
+            description: {
+              text: "This drug may not be suitable for women who've been breastfeeding for less than 3 months, choose this option with caution!",
+              color: "danger",
+              show: "always"
+            }
+          }
+        }
+        return {}
+      }
       return this.runAppendOptionParams([
         this.toOption('ARVs', {
           appendOptionParams: () => ({ 
@@ -591,13 +604,14 @@ export default defineComponent({
             if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
             if (this.currentlyPregnant) return disableOption('Pregnant patient')
-            if (isCurrentlyBreastfeeding) return disableOption('Patient is breast feeding')
             if (this.currentWeight < 20) return disableOption('Weight below regulation')
             if (everTakenTpt && this.tptStatus.tpt !== '3HP (RFP + INH)' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
             }
             this.isEligibleForTpt = true
-            if (this.tptStatus.tpt === '3HP (RFP + INH)' && !this.tptStatus.completed) return { isChecked: true }
+            if (this.tptStatus.tpt === '3HP (RFP + INH)' && !this.tptStatus.completed) 
+              return { isChecked: true, ...breastFeedingStatusDescription() }
+            return { ...breastFeedingStatusDescription() }
           }
         }),
         this.toOption('INH 300 / RFP 300 (3HP)', {
@@ -606,14 +620,14 @@ export default defineComponent({
             if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
             if (this.currentlyPregnant) return disableOption('Pregnant patient')
-            if (isCurrentlyBreastfeeding) return disableOption('Patient is breast feeding')
             if (this.currentWeight < 30) return disableOption('Weight below regulation') 
             if (everTakenTpt && this.tptStatus.tpt !== 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
             }
             this.isEligibleForTpt = true
-            if (this.tptStatus.tpt === 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) return { isChecked: true }
-            return { isChecked: autoSelect3HP }
+            if (this.tptStatus.tpt === 'INH 300 / RFP 300 (3HP)' && !this.tptStatus.completed) 
+              return { isChecked: true, ...breastFeedingStatusDescription() }
+            return { isChecked: autoSelect3HP, ...breastFeedingStatusDescription() }
           }
         }),
         this.toOption('IPT', {
@@ -622,12 +636,13 @@ export default defineComponent({
             if (this.tptStatus.tb_treatment) return disableOption(`Completed/on TB treatment`)
             if (this.TBSuspected) return disableOption('TB Suspect')
             if (this.currentlyPregnant) return disableOption('Pregnant patient')
-            if (isCurrentlyBreastfeeding) return disableOption('Patient is breast feeding')
             if (everTakenTpt && this.tptStatus.tpt !== 'IPT' && !this.tptStatus.completed) {
               return disableOption(`On ${this.tptStatus.tpt} treatment`)
             }
             this.isEligibleForTpt = true
-            if (this.tptStatus.tpt === 'IPT' && !this.tptStatus.completed) return { isChecked: true }
+            if (this.tptStatus.tpt === 'IPT' && !this.tptStatus.completed) 
+              return { isChecked: true, ...breastFeedingStatusDescription() }
+            return { ...breastFeedingStatusDescription() }
           }
         }),
         this.toOption('NONE OF THE ABOVE')
