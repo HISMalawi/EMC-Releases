@@ -514,6 +514,7 @@ export default defineComponent({
     const checkForActiveTB = async () => {
       await PatientObservationService.setSessionDate(form.visitDate.value);
       consultations.setDate(form.visitDate.value);
+      isOnActiveTBTreatment.value = false;
       const previousTBStatus = await consultations.getFirstValueCoded("TB status");
       if(/Confirmed TB on treatment/i.test(previousTBStatus)) {
         const tbTreatmentStartDate = await consultations.getFirstValueDatetime("TB treatment start date")
