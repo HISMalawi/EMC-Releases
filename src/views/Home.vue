@@ -78,7 +78,7 @@
         <div v-show="activeTab == 3"> 
           <home-folder
             @onSublist="showSegmentBackArrow=true"
-            :items="app.globalPropertySettings"
+            :items="app.globalPropertySettings || []"
             :resetList="resetAdmin">
           </home-folder>
         </div>
@@ -335,6 +335,9 @@ export default defineComponent({
       sessionStorage.locationName = data.name;
       sessionStorage.siteUUID = data.uuid;
     },
+    loadNotifications() {
+      Notification().loadNotifications(this.app)
+    },
     loadApplicationData() {
       this.ready = true;
       this.isBDE = Service.isBDE() === true;
@@ -358,6 +361,7 @@ export default defineComponent({
         this.app = app;
         this.activeTab = 1;
         this.loadApplicationData();
+        this.loadNotifications()
       }
     },
     async signOut() {
@@ -380,14 +384,7 @@ export default defineComponent({
   },
   async created() {
     this.activeTab = await Store.get('ACTIVE_HOME_TAB')
-    const { loadNotifications } = Notification()
-    await loadNotifications()
-    setInterval(() => {
-      const barcodeElement = this.$refs.scanBarcode as HTMLInputElement;
-      if (barcodeElement) {
-        barcodeElement.focus();
-      }
-    }, 1500);
+    this.loadNotifications()
   },
   async mounted(){
     await HisApp.doAppManagementTasks()

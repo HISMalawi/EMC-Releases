@@ -11,7 +11,7 @@
               <h3 v-html="subtitle" v-if="subtitle" style="color:#818181;"></h3>
               <h5 v-if="useDateRangeFilter"> Period: {{ period }} </h5>
               <h5 v-else-if="useQuarterFilter"> Quarter: {{ quarter.value }} </h5>
-              <h5 v-else-if="useDateFilter">Date: {{ dayjs(date).format("DD/MMM/YYYY") }}</h5>
+              <h5 v-else-if="useDateFilter">Date: {{ date }}</h5>
               <h5 v-if="totalClients">Total Clients: {{ totalClients }}</h5>
             </ion-col>
           </ion-row>
@@ -33,13 +33,19 @@
           <template v-for="(_, name) in $slots" #[name]="{ filter }">
             <slot :name="name" :filter="filter"></slot>
           </template>
+          <template #dateRange>
+            <date-range-picker v-model="dateRange" />
+          </template>
+          <template #datePicker>
+            <date-picker v-model="pickerDate" />
+          </template>
         </data-table>
       </ion-card-content>
     </ion-card>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType } from "vue";
+import { computed, defineComponent, PropType, ref } from "vue";
 import { IonCard, IonCardContent, IonCardHeader, IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
 import dayjs from "dayjs";
@@ -55,6 +61,8 @@ import {
 import { toastWarning } from "@/utils/Alerts";
 import { isEmpty } from "lodash";
 import { exportToCSV } from "../../utils/exports";
+import DateRangePicker, { DateRange } from "@/apps/EMC/Components/inputs/DateRangePicker.vue";
+import DatePicker from "@/apps/EMC/Components/inputs/DatePicker.vue";
 
 export default defineComponent({
   name: "BaseReportTable",
@@ -66,7 +74,9 @@ export default defineComponent({
     IonRow,
     IonCol,
     DataTable,
-  },
+    DateRangePicker,
+    DatePicker
+},
   props: {
     title: {
       type: String,
@@ -154,6 +164,8 @@ export default defineComponent({
   },
   emits: ["regenerate", "customFilter", "drilldown"],
   setup(props, { emit }) {
+    const dateRange = ref({} as DateRange)
+    const pickerDate = ref("");
     const filename = computed(() => {
       return `${PatientReportService.getLocationName()} ${props.filename || props.title} ${ props.period ? props.period : props.date }`;
     })
@@ -189,10 +201,11 @@ export default defineComponent({
           id: "dateRange",
           label: "Date Range",
           type: "dateRange",
+          slotName: "dateRange",
           gridSize: 5,
           value: {
-            startDate: props.period.split("-")[0],
-            endDate: props.period.split("-")[1],
+            start: props.period.split("-")[0],
+            end: props.period.split("-")[1],
           },
         })
       } else if(props.useQuarterFilter) {
@@ -208,6 +221,7 @@ export default defineComponent({
           id: "date",
           label: "Date",
           type: "date",
+          slotName: "datePicker",
           value: props.date,
         })
       }
@@ -215,9 +229,19 @@ export default defineComponent({
     })
 
     const onCustomFilter = (customfilters: Record<string, any>) => {
-      if ("dateRange" in customfilters && (new Date(customfilters.dateRange.startDate) > new Date(customfilters.dateRange.endDate))) {
-        return toastWarning("Invalid date range")
+      if ("dateRange" in customfilters) {
+        if(isEmpty(dateRange.value)) return toastWarning("Invalid date range")
+        customfilters.dateRange = {
+          startDate: dateRange.value.start,
+          endDate: dateRange.value.end
+        }
       }
+
+      if("date" in customfilters) {
+        if(isEmpty(pickerDate.value)) return toastWarning("Invalid date")
+        customfilters.date = pickerDate.value 
+      }
+
       if (filters.value.every(f => {
         if (f.required === false) return true;
         if (!isEmpty(customfilters[f.id]) && typeof customfilters[f.id] === 'object') return Object.values(customfilters[f.id]).every(v => !isEmpty(v));
@@ -238,7 +262,16 @@ export default defineComponent({
       onCustomFilter,
       onDrilldown,
       dayjs,
+      dateRange,
+      pickerDate,
     }
   }
 })
 </script>
+
+<style scoped>
+.date-picker {
+  margin-top: 0px !important;
+  padding-top: 0px !important;
+}
+</style>

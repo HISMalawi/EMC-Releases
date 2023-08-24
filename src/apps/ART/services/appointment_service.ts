@@ -6,9 +6,9 @@ export class AppointmentService extends AppEncounterService {
   }
 
   async getNextAppointment() {
-    const programID = AppEncounterService.getProgramID();
-    return AppEncounterService.getJson(`/programs/${programID}/patients/${this.patientID}/next_appointment_date`, {date: this.date})
+    return AppEncounterService.getJson(`/programs/${this.programID}/patients/${this.patientID}/next_appointment_date`, {date: this.date})
   }
+  
   static async getDailiyAppointments(date: any) {
     const programID = AppEncounterService.getProgramID();
     return AppEncounterService.getJson(`/programs/${programID}/booked_appointments`, {date: date, paginate: false})

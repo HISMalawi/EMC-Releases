@@ -92,7 +92,7 @@
       </ion-row>   
     </ion-grid>
   </ion-content>
-  <ion-footer>
+<ion-footer>
     <ion-toolbar>
       <ion-button color="primary" @click="modal.hide()" slot="end">Close</ion-button>
       <ion-button color="warning" @click="onClear" slot="end">Reset</ion-button>
@@ -148,6 +148,7 @@ import { EmcEvents } from "../../interfaces/emc_event";
 import EventBus from "@/utils/EventBus";
 import { uniqueBy } from "@/utils/Arrays";
 import { DISPLAY_DATE_FORMAT, STANDARD_DATE_FORMAT } from "@/utils/Date";
+import { ARVDrug } from "@/interfaces/Drug";
 
 export default defineComponent({
   components: {
@@ -480,10 +481,14 @@ export default defineComponent({
       form.tbMed.disabled = onTB || isOnActiveTBTreatment.value
     })
 
+    const calculateMinDuration = (totalGiven: number, drugs: Array<ARVDrug>) => {
+      return Math.min(...drugs.map(drug => totalGiven / (drug.am + drug.noon + drug.pm) || 1))
+    }
+
     watch([() => form.totalArvsGiven.value, () => form.pillCount.value], () => {
-      const arvs = parseInt(form.totalArvsGiven.value) || 0
       const remainingDrugs = parseInt(form.pillCount.value) || 0
-      drugRunOutDate.value = dayjs(form.visitDate.value).add(arvs + remainingDrugs, 'days').format(STANDARD_DATE_FORMAT)
+      const duration = calculateMinDuration(form.totalArvsGiven.value, form.regimen.value.other)
+      drugRunOutDate.value = dayjs(form.visitDate.value).add(duration + remainingDrugs, 'days').format(STANDARD_DATE_FORMAT)
       form.nextAppointmentDate.label = `Next Appointment Date (Drug run out date: ${dayjs(drugRunOutDate.value).format(DISPLAY_DATE_FORMAT)})`
       form.nextAppointmentDate.value = drugRunOutDate.value
     })
@@ -539,7 +544,7 @@ export default defineComponent({
       }))
     }
 
-    const toDrugOrder = (drug: any, quantity: number, duration: number, startDate: string) => {
+    const toDrugOrder = (drug: ARVDrug, quantity: number, duration: number, startDate: string) => {
       return {
         "drug_inventory_id": drug.drug_id,
         "equivalent_daily_dose": prescription.calculateEquivalentDosage(drug.am, drug.pm),
@@ -583,7 +588,7 @@ export default defineComponent({
         let duration = 0
         if(!isEmpty(formData.regimen) && formData.totalArvsGiven) {
           const arvDrugs: any[] = formData.regimen.other
-          duration = Math.min(...arvDrugs.map(drug =>(formData.totalArvsGiven / (drug.am + drug.pm)) + 2))
+          duration = calculateMinDuration(formData.totalArvsGiven, arvDrugs);
           arvDrugs.forEach((drug: any) => drugOrders.push(
             toDrugOrder(drug, formData.totalArvsGiven, duration, formData.visitDate)
           ))

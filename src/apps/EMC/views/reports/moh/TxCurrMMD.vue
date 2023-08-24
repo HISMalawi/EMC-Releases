@@ -130,11 +130,11 @@ export default defineComponent({
           ...buildCells( hasFemales ? data["Female"] : {} ) 
         })
         report.initArvRefillPeriod(false)
-        loader.hide();
         rows.value = [...females, ...males]
       }
       rows.value.push(buildTotalMalesRow(rows.value))
       rows.value = [...rows.value, ...await buildMaternityRows(rows.value)]
+      loader.hide();
     }
 
     const onRegenerate = async () => {

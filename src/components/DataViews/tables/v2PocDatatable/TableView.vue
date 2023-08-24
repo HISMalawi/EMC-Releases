@@ -15,7 +15,7 @@
                     v-if="searchTerm"
                     @click="searchTerm = ''" 
                     class="his-md-text"
-                    color="warning">
+                    color="primary">
                     <ion-label>{{ searchTerm }}</ion-label>
                     <ion-icon :icon="close"></ion-icon>
                 </ion-chip>

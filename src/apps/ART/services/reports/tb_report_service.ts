@@ -1,21 +1,13 @@
 import Url from "@/utils/Url";
 import { ArtReportService } from "./art_report_service";
 
-export class ViralLoadReportService extends ArtReportService {
+export class TBReportService extends ArtReportService {
     constructor() {
         super()
     }
-
-
-    getVlCollection() {
-        return this.getReport(`programs/${this.programID}/reports/vl_collection`)
-    }
     
-    getVLCoverage(params = {} as Record<string, any>) {
-        return this.getReport(`programs/${this.programID}/reports/viral_load_coverage`, {
-            'rebuild_outcomes': true,
-            ...params
-        })
+    getTxTbReport(rebuildOutcome: boolean) {
+        return this.getReport(`programs/1/reports/tx_tb`, { rebuild_outcome: rebuildOutcome })
     }
 
     getMaternalStatus(patientIds: number[]) {
@@ -29,9 +21,5 @@ export class ViralLoadReportService extends ArtReportService {
         return ArtReportService.postJson(`vl_maternal_status?${params}`, {
             'patient_ids': patientIds
         })
-    }
-
-    getViralLoad(params = {} as Record<string, any>) {
-        return this.getReport(`programs/${this.programID}/reports/vl_disaggregated`, params)
     }
 }

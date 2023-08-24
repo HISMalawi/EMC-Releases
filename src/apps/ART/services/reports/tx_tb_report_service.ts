@@ -19,8 +19,8 @@ export class TxTbReportService extends TxReportService {
         this.reportData = [];
     }
 
-    async getTxTbReport() {
-        const data = await this.getReport(`programs/${this.programID}/reports/tx_tb`)
+    async getTxTbReport(rebuild_outcome: boolean) {
+        const data = await this.getReport(`programs/${this.programID}/reports/tx_tb`, { rebuild_outcome })
         this,this.reportData = this.buildReportData(data);
         return this.reportData
     }
