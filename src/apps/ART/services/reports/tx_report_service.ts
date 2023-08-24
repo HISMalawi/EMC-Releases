@@ -9,7 +9,7 @@ export const txMlIndicators = [
     'IIT <3 mo',
     'IIT 3-5 mo',
     'IIT 6+ mo',
-    'Tranferred out',
+    'Transferred out',
     'Refused (Stopped)'
 ]
 
