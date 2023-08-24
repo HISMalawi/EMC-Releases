@@ -2,7 +2,7 @@ import { AppInterface, GeneralDataInterface } from '@/apps/interfaces/AppInterfa
 import HomeOverview from "@/apps/AETC/components/HomeOverview.vue";
 import { PRIMARY_ACTIVITIES, SECONDARY_ACTIVITIES } from '@/apps/OPD/config/programActivities';
 import { REPORTS } from '@/apps/AETC/config/programReports';
-import opdRoutes from '@/apps/OPD/config/routes';
+import aetcRoutes from '@/apps/AETC/config/AetcRoutes';
 import { PatientProgramService } from '@/services/patient_program_service';
 import { AppEncounterService } from "@/services/app_encounter_service"
 import PatientAlerts from "@/services/patient_alerts"
@@ -125,7 +125,7 @@ const AETC: AppInterface = {
   applicationName: 'AETC',
   applicationIcon: 'registration.png',
   applicationDescription: 'AETC module',
-  appRoutes: opdRoutes,
+  appRoutes: aetcRoutes,
   programReports: REPORTS,
   primaryPatientActivites: PRIMARY_ACTIVITIES,
   secondaryPatientActivites: SECONDARY_ACTIVITIES,

@@ -65,7 +65,7 @@ export default defineComponent({
 					helpText: 'Select top ten diagnosis',
 					type: FieldType.TT_INFINITE_SCROLL_MULTIPLE_SELECT,
 					validation: (data: any) => Validation.required(data),
-					options: async (_, filter='', page=1, limit=10) => this.mapListToOptions(
+					options: async (_:any, filter='', page=1, limit=10) => this.mapListToOptions(
 						await PatientDiagnosisService.getDiagnosis(filter, page, limit)
 					),
 					computedValue: (v: Option[]) => toStr(v),
