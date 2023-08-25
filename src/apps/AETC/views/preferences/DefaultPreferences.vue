@@ -25,6 +25,7 @@ import { IonPage } from "@ionic/vue"
 import {
     getLabFacilities
 } from '@/utils/HisFormHelpers/LocationFieldOptions'
+import { DrugService } from '@/services/drug_service';
 
 export default defineComponent({
 	components: { HisStandardForm, IonPage },
@@ -36,6 +37,7 @@ export default defineComponent({
 		this.preference = this.$route.name as string
 		this.fields = [
 			...this.setTopTenDiagnosis(),
+			...this.setTopTenDrugs(),
 		]
 	},
 	methods: {
@@ -67,6 +69,29 @@ export default defineComponent({
 					validation: (data: any) => Validation.required(data),
 					options: async (_:any, filter='', page=1, limit=10) => this.mapListToOptions(
 						await PatientDiagnosisService.getDiagnosis(filter, page, limit)
+					),
+					computedValue: (v: Option[]) => toStr(v),
+					condition : () => this.isProp(prop),
+					defaultValue: () => AETC_PROP.topTenDiagnosis(),
+					config: {
+						isFilterDataViaApi: true,
+						showKeyboard: true,
+					}
+				}
+			]
+		},
+
+		setTopTenDrugs() {
+			const prop = AETC_GLOBAL_PROP.SET_TOP_10_DRUGS
+			const toStr = (v: Option[]) => v.map(d => d.value).join()
+			return [
+				{
+					id: 'primary_drugs',
+					helpText: 'Select top ten drugs',
+					type: FieldType.TT_INFINITE_SCROLL_MULTIPLE_SELECT,
+					validation: (data: any) => Validation.required(data),
+					options: async (page_size: {'page_size': 50}) => this.mapListToOptions(
+						await DrugService.getDrugs(page_size)
 					),
 					computedValue: (v: Option[]) => toStr(v),
 					condition : () => this.isProp(prop),
