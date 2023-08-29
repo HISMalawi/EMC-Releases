@@ -26,6 +26,7 @@ import {
     getLabFacilities
 } from '@/utils/HisFormHelpers/LocationFieldOptions'
 import { DrugService } from '@/services/drug_service';
+import { DrugPrescriptionService } from '@/apps/OPD/services/drug_prescription_service';
 
 export default defineComponent({
 	components: { HisStandardForm, IonPage },
@@ -90,8 +91,8 @@ export default defineComponent({
 					helpText: 'Select top ten drugs',
 					type: FieldType.TT_INFINITE_SCROLL_MULTIPLE_SELECT,
 					validation: (data: any) => Validation.required(data),
-					options: async (page_size: {'page_size': 50}) => this.mapListToOptions(
-						await DrugService.getDrugs(page_size)
+					options: async (filter = '', page =1, limit=10) => this.mapListToOptions(
+						await DrugPrescriptionService.getDrugs(filter, page, limit)
 					),
 					computedValue: (v: Option[]) => toStr(v),
 					condition : () => this.isProp(prop),

@@ -118,11 +118,24 @@ export const ANTI_MALARIA_DRUGS = [
 ];
 
 export class DrugPrescriptionService extends AppEncounterService {
+static getDrugs: any;
   constructor(patientID: number, providerID: number) {
     super(patientID, 25, providerID) 
   }
 
   async loadDrugs(filter = '', page=1, limit=10): Promise<Option[]> {
+    const drugs: ConceptName[] = await DrugService.getDrugs({ 
+      "name": filter, 
+      "page": page,
+      "page_size": limit,
+      "concept_set": 'OPD Medication' 
+    })
+    return drugs.map(drug => ({
+      label: drug.name, value: drug.name, other: drug
+    }))
+  }
+
+  async  getDrugs(filter = '', page=1, limit=10): Promise<Option[]> {
     const drugs: ConceptName[] = await DrugService.getDrugs({ 
       "name": filter, 
       "page": page,
