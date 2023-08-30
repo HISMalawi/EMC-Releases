@@ -95,14 +95,14 @@ export default defineComponent({
   props: {
     config: {
         type: Object as PropType<TableInterface>,
-        default: {}
+        default: () => ({})
     },
     columns: {
       type: Object as PropType<Array<ColumnInterface[]>>,
       required: true
     },
     rows: {
-      type: Object as PropType<Array<any[]>>,
+      type: Array as PropType<Array<any[]>>,
       default: () => []
     },
     newPage: {
@@ -112,13 +112,13 @@ export default defineComponent({
         type: Number
     },
     asyncRows: {
-        type: Function
+        type: Function as PropType<() => Promise<Array<any[]>>>
     },
     asyncRowParser: {
-        type: Function
+        type: Function as PropType<(data: any) => Promise<Array<any[]>>>
     },
     rowParser: {
-        type: Function
+        type: Function as PropType<(data: any) => Array<any[]>>
     },
     searchFilter: {
         type: String
@@ -214,7 +214,7 @@ export default defineComponent({
         deep: true
     },
     asyncRows: {
-        async handler(func: Function) {
+        async handler(func: any) {
             this.errorMessage = ''
             if (typeof func === 'function') {
                 this.isLoading = true
@@ -228,7 +228,7 @@ export default defineComponent({
                     }
                 } catch (e) {
                     this.errorMessage = `${e}`
-                    toastDanger(e)
+                    toastDanger(`${e}`)
                     console.error(e)
                 }
                 this.isLoading = false
@@ -294,7 +294,7 @@ export default defineComponent({
                     : pageRows
             }
         } catch (e) {
-            toastDanger(e)
+            toastDanger(`${e}`)
             this.errorMessage = `${e}`
             console.error(e)
         }

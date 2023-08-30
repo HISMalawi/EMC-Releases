@@ -2,6 +2,21 @@ import { ART_GLOBAL_PROP } from "../art_global_props"
 
 export default [
     {
+        name: "Clinic Discrepancy Report",
+        path: "/art/clinic_discrepancy_report",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicDiscrepancyReport.vue")
+    },
+    {
+        name: "Viral Load Register",
+        path: "/art/report/clinic_viral_load_register",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicViralLoadRegister.vue")
+    },
+    {
+      name: "Clinic vl collection",
+      path: '/art/clinic_vl_collection_report',
+      component: () => import("@/apps/ART/views/reports/clinic/ClinicVlCollection.vue")  
+    },
+    {
         name: "Data cleaning verification",
         path: "/art/data_cleaning_verification",
         component: () => import("@/apps/ART/views/reports/inconsistencies/DataCleaningVerification.vue")
@@ -45,6 +60,11 @@ export default [
         name: ART_GLOBAL_PROP.HTN_SCREENING_AGE_THRESHOLD,
         path: "/art/preferences/htn_age",
         component: () => import("@/apps/ART/views/preferences/DefaultPreferences.vue")
+    }, 
+    {
+        name: ART_GLOBAL_PROP.NOTIFICATION_PERIOD,
+        path: "/art/preferences/notification_period",
+        component: () => import("@/apps/ART/views/preferences/DefaultPreferences.vue")
     },
     {
         name: ART_GLOBAL_PROP.FILING_NUMBER_LIMIT,
@@ -65,6 +85,11 @@ export default [
         name: "filing management",
         path: '/art/filing_numbers/:patient_id',
         component: () => import("@/apps/ART/views/FilingNumberManagement.vue")
+    },
+    {
+        name: 'art notes',
+        path: '/art/clinical_notes/:patient_id',
+        component: () => import("@/apps/ART/views/encounters/ArtNotes.vue")
     },
     {
         name: "Enter stock",
@@ -207,6 +232,11 @@ export default [
         component: () => import("@/apps/ART/views/reports/inconsistencies/DataCleaning.vue")
     },
     /** ART MOH REPORT*/
+    {
+        name: 'moh_tpt_cohort',
+        path: '/art/moh_tpt_cohort',
+        component: () => import("@/apps/ART/views/reports/moh/MohTptCohortReport.vue")
+    },
     {
         name: 'moh_disaggregated_report',
         path: '/art/moh_disaggregated_report',
@@ -358,6 +388,11 @@ export default [
         name: "pepfar_tx_rtt",
         path: "/art/report/pepfar/tx_rtt",
         component: () => import("@/apps/ART/views/reports/pepfar/TxRtt.vue")
+    },
+    {
+        name: "pepfar_tx_tb",
+        path: "/art/pepfar_tx_tb",
+        component: () => import("@/apps/ART/views/reports/pepfar/PepfarTxTbReport.vue")
     },
     {
         name: 'pepfar_vl_coverage',

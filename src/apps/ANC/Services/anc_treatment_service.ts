@@ -30,7 +30,7 @@ export class AncTreatmentService extends AppEncounterService {
         super(patientID, 25, providerID)
     }
 
-    ttvDrugObj() {
+    vaccinationDrugObj() {
         return {
             'drug_inventory_id': 609,
             'dose': 0.5,
@@ -43,8 +43,8 @@ export class AncTreatmentService extends AppEncounterService {
         }
     }
 
-    async updateTTvOrder() {
-        const dispensed = await this.dispenseTTV()
+    async updateVaccinationOrder() {
+        const dispensed = await this.dispenseVaccinationDrug()
         if (!isEmpty(dispensed)) {
             const orderID = dispensed[0].order_id
             return DrugOrderService.updateDispensationOrders([{'order_id': orderID, 'quantity' : 1}])
@@ -52,8 +52,8 @@ export class AncTreatmentService extends AppEncounterService {
         throw 'Unable to dispense'
     }
 
-    dispenseTTV() {
-        return this.createOrders([this.ttvDrugObj()])
+    dispenseVaccinationDrug() {
+        return this.createOrders([this.vaccinationDrugObj()])
     }
 
     createOrders(orders: any) {

@@ -58,7 +58,15 @@ export class OrderService extends Service {
         return super.getJson('/lab/specimen_types', { 'test_type': testName });
     }
 
-    static getViralLoadOrders(orders: Order[]) {
+    static getVLResults (order: Order) {
+        return order.tests
+            .filter(t => t.name.match(/viral load/i) && !isEmpty(t.result))
+            .map(t => t.result)
+            .flat()
+            .sort((a, b) => a.date.getTime() - b.date.getTime())
+    }
+
+    static getOrdersWithResults(orders: Order[]) {
         return orders.filter(order => {
             try {
                 const result = order.tests[0].result;
@@ -109,18 +117,24 @@ export class OrderService extends Service {
             (modifier.match(/=/) && (parseFloat(value) >= 20))
     }
 
-    static isHighViralLoadResult(result: any) {
-        if(result.value_modifier === '=' && parseFloat(result.value) >= 1000) return true
+    static detectHighVl(value: any,value_modifier: any) {
+        
+        if(value_modifier === '=' && parseFloat(value) >= 1000) return true
 
-        if((result.value_modifier  === '<' || result.value_modifier  === '&lt') 
-            && parseFloat(result.value) > 1000
+        if((value_modifier  === '<' || value_modifier  === '&lt') 
+            && parseFloat(value) > 1000
         )  return true
 
-        if((result.value_modifier  === '>' || result.value_modifier  === '&gt') 
-            && (parseFloat(result.value) >= 1000 || `${result.value}`.toUpperCase().replace(/\s+/g, '') == 'LDL')
+        if((value_modifier  === '>' || value_modifier  === '&gt') 
+            && (parseFloat(value) >= 1000 || `${value}`.toUpperCase().replace(/\s+/g, '') == 'LDL')
         )  return true
 
         return false
+    }
+
+    static isHighViralLoadResult(result: any) {
+        if(result.indicator?.name !== "HIV viral load") return false;
+        return OrderService.detectHighVl(result.value, result.value_modifier)
     }
 
     static formatLabs(orders: any) {
@@ -162,10 +176,15 @@ export class OrderService extends Service {
         }
         return formatted;
     }
+    static async accessionNumExists(accession: string) {
+        const res = await Service.getJson('lab/accession_number', { accession_number: accession })
+        return res && res.exists
+    }
     static buildLabOrders(encounter: any, orders: any) {
         return orders.map((data: any) => {
             const testReason = ConceptService.getCachedConceptID(data.reason, true);
             const payload: any = {
+                'accession_number': data.accessionNumber,
                 'encounter_id': encounter.encounter_id,
                 'tests': [{ 'concept_id': data.concept_id }],
                 'reason_for_test_id': testReason,

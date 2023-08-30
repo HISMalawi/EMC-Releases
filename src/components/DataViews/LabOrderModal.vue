@@ -27,6 +27,14 @@
         </ion-col>
         <ion-col :style="{overflowY: 'auto', height:'79vh'}" v-if="activeIndex != null && selectedOrders.length > 0">
           <div class="ion-margin-bottom">
+            <div v-if="canScanDBS && /hiv viral load/i.test(testTypes[activeIndex].name)">
+              <div class="his-md-text side-title">
+                Barcode ID:  <ion-text :color="testTypes[activeIndex].accessionNumber ? 'success' : 'dark'">
+                  <b>{{ testTypes[activeIndex].accessionNumber || 'None' }}</b>
+                </ion-text>
+              </div>
+              <BarcodeInput size="small" @onScan="(barcode) => onScanEIDbarcode(barcode)"/>
+            </div>
             <ion-list v-if="!extendedLabsEnabled">   
               <ion-radio-group v-model="testTypes[activeIndex]['specimen']">
                 <div class="his-md-text side-title">
@@ -42,7 +50,7 @@
               <div class="his-md-text side-title">
                 Main test(s) reason
               </div>
-              <ion-item class="his-sm-text" v-for="data in reasons" :key="data"> 
+              <ion-item class="his-sm-text" v-for="data in testReasons" :key="data"> 
                 <ion-label>{{data}}</ion-label>
                 <ion-radio slot="start" :value="data" ></ion-radio>
               </ion-item>
@@ -93,15 +101,18 @@ import {
   IonCheckbox,
   IonRadioGroup,
   IonRow,
+loadingController,
 } from "@ionic/vue";
 import { defineComponent, PropType } from "vue";
-import { alertConfirmation, toastWarning } from "@/utils/Alerts"
+import { alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts"
 import { ActivityInterface } from "@/apps/interfaces/AppInterface"
 import { OrderService } from "@/services/order_service";
 import { LabOrderService } from "@/apps/ART/services/lab_order_service";
 import { PrintoutService } from "@/services/printout_service";
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
 import Store from "@/composables/ApiStore"
+import { findIndex } from "lodash";
+import BarcodeInput from "@/components/BarcodeInput.vue"
 
 export default defineComponent({
   name: "Modal",
@@ -131,8 +142,37 @@ export default defineComponent({
   },
   async created() {
     this.extendedLabsEnabled = await ART_GLOBAL_PROP.extendedLabEnabled()
+    this.canScanDBS = await ART_GLOBAL_PROP.canScanDBS()
   },
   methods: {
+    async onScanEIDbarcode(barcode: string) {
+      this.verifyingBarcode = !this.verifyingBarcode;
+      if (this.verifyingBarcode) return
+      (await loadingController.create({ message: `Checking ${barcode}`})).present()
+      this.testTypes[this.activeIndex]['accessionNumber'] = null
+      // Expected barcode examples: L5728043 or 57280438
+      const barcodeOk = /^([A-Z]{1})?[0-9]{7,8}$/i.test(`${barcode}`.trim())
+      if (!barcodeOk) {
+        toastWarning("Invalid Barcode")
+        this.verifyingBarcode = false
+        loadingController.getTop().then(v => v && loadingController.dismiss())
+        return ;
+      }
+      /**
+       * Verify with API if barcode was already used:
+      */
+      try {
+        if (!(await OrderService.accessionNumExists(barcode))) {
+          this.testTypes[this.activeIndex]['accessionNumber'] = barcode
+        } else {
+          toastWarning(`Barcode ${barcode} was already used`)
+        }
+      } catch (e) {
+        toastDanger("Failed to confirm barcode " + barcode + ", Please try again later", 8000)  
+      }
+      this.verifyingBarcode = false
+      loadingController.getTop().then(v => v && loadingController.dismiss())
+    },
     async onSelectTest(testName: string, index: number, event: any) {
       this.$nextTick(async () => {
         this.testTypes[index]['isChecked'] = event.target.checked;
@@ -146,19 +186,19 @@ export default defineComponent({
       })
     },
     async getActivities() {
-     const tests = await OrderService.getTestTypes();
-     this.testTypes = tests.map((t: any, i: any) => {
-        t.index = t.name === 'HIV viral load' ? (t.index = 0) : (t.index = i + 1)
-        return t
-     })
-     .sort((a: any, b: any) => a.index < b.index ? 0 : 1)
-     .filter((t: any) => Array.isArray(this.testFilters) ? this.testFilters.includes(t.name) : true)
+      const tests: Array<any> = await OrderService.getTestTypes();
+      const vlIndex = findIndex(tests, {name: "HIV viral load"})
+      const viralLoad = vlIndex !== -1 ? tests.splice(vlIndex, 1) : null;
+      const sorted = tests.sort((a: any, b: any) => `${a.name}`.toUpperCase() > `${b.name}`.toUpperCase() ? 1: -1)
+        .filter((t: any) => Array.isArray(this.testFilters) ? this.testFilters.includes(t.name) : true)
+      this.testTypes = viralLoad ? [...viralLoad, ...sorted] : sorted
     },
     removeOrder(index: number) {
       this.testTypes[index]['isChecked'] = false;
       this.testTypes[index]['reason'] = null;
       this.testTypes[index]['specimen'] = null;
       this.testTypes[index]['specimenConcept'] = null
+      this.testTypes[index]['accessionNumber'] = null
       this.activeIndex = null
       this.specimens = []
     },
@@ -199,6 +239,13 @@ export default defineComponent({
   },
   computed: {
     isOrderComplete(): boolean {
+      if (typeof this.activeIndex != 'number') {
+        return false
+      }
+      if (this.canScanDBS && /hiv viral load/i.test(this.testTypes[this.activeIndex]['name']) && 
+        !this.testTypes[this.activeIndex]['accessionNumber']) {
+          return false
+      }
       if(this.extendedLabsEnabled){
         return !!this.testTypes[this.activeIndex]['reason'] 
       }
@@ -210,9 +257,20 @@ export default defineComponent({
     },
     finalOrders(): any {
       return this.selectedOrders.filter((data: any) => {
+        if (this.canScanDBS && /hiv viral load/i.test(data.name) && !data.accessionNumber) {
+          return false
+        }
         return data.reason && (data.specimen && !this.extendedLabsEnabled 
           || this.extendedLabsEnabled)
-      } )
+      })
+    },
+    testReasons(): Array<string> {
+      let reasons = this.reasons;
+      if (this.testTypes[this.activeIndex].name.match(/Viral load/i)) {
+         reasons = reasons.filter((r: string) => r !== 'Stat')
+         reasons = reasons.concat(['Follow up after Low Level Viremia', 'Follow up after High Viral Load'])
+      }
+      return reasons    
     }
   },
   mounted() {
@@ -220,6 +278,8 @@ export default defineComponent({
   },
   data() {
     return {
+      canScanDBS: false,
+      verifyingBarcode: false,
       content: "Content",
       extendedLabsEnabled: false as boolean,
       appActivities: [] as Array<ActivityInterface>,
@@ -238,6 +298,7 @@ export default defineComponent({
     IonLabel,
     IonList,
     IonItem,
+    BarcodeInput,
     IonCheckbox,
     IonRadioGroup,
     IonRow,

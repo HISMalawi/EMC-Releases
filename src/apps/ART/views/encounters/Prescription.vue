@@ -8,7 +8,7 @@ import { Field, Option } from "@/components/Forms/FieldInterface"
 import { RegimenInterface } from "@/interfaces/Regimen"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { PrescriptionService } from "@/apps/ART/services/prescription_service"
-import { toastWarning, toastSuccess } from "@/utils/Alerts"
+import { toastWarning, toastSuccess, alertConfirmation } from "@/utils/Alerts"
 import HisDate from "@/utils/Date"
 import { matchToGuidelines } from "@/utils/GuidelineEngine"
 import { isEmpty, isPlainObject } from "lodash"
@@ -24,6 +24,7 @@ import { HTN_SESSION_KEY } from '../../services/htn_service'
 import { ProgramService } from '@/services/program_service'
 import table from "@/components/DataViews/tables/ReportDataTable"
 import Store from "@/composables/ApiStore"
+import { ConsultationService } from '../../services/consultation_service'
 
 const MEDICATION_STYLE = { style : { fontSize:'1.3rem !important', borderBottom: 'solid 2px #ccc', color: 'black', background: 'white' }}
 
@@ -36,6 +37,7 @@ export default defineComponent({
         fieldComponent: '' as string,
         regimenExtras: [] as Array<any>,
         programInfo: [] as any,
+        allDrugs: [] as any,
         facts: {
             age: -1 as number,
             gender: '' as string,
@@ -43,6 +45,7 @@ export default defineComponent({
             currentDate: '' as string,
             isChildBearing: false as boolean,
             prescriptionType: '' as 'Custom' | 'Regimen',
+            tptStatus: {} as any,
             tptPrescriptionCount: 0,
             currentRegimenCode: -1 as number,
             currentRegimenStr: '' as string,
@@ -77,7 +80,9 @@ export default defineComponent({
                     toastWarning('Patient is not eligible for treatment Today! Please check HIV Clinic Consultation')
                     return this.gotoPatientDashboard()
                 }
-                await this.prescription.loadHangingPills()
+                if ((await Store.get('ASK_HANGING_PILLS'))) {
+                    await this.prescription.loadHangingPills()
+                }
                 await this.prescription.loadRegimenExtras()
                 await this.prescription.loadTreatmentState()
                 await this.prescription.loadDrugInduced()
@@ -131,6 +136,7 @@ export default defineComponent({
             this.facts.lastSideEffectDate = this.prescription.getLastSideEffectDate()
             this.facts.currentDate = PrescriptionService.getSessionDate()
             this.facts.isChildBearing = patient.isChildBearing()
+            this.facts.tptStatus = await new ConsultationService(this.patientID, this.providerID).getTptTreatmentStatus()
         },
         async onSubmit(form: any) {
             const encounter = await this.prescription.createEncounter()
@@ -394,13 +400,62 @@ export default defineComponent({
                     condition: () => this.facts.prescriptionType === 'Custom',
                     onload: () => this.facts.prescriptionType = 'Custom',
                     validation: (val: Option) => Validation.required(val),
+                    beforeNext: async (options: Option[]) => {
+                        const selected = options.map(o => o.other.concept_id)
+                        const areRequiredDrugsSelected = this.regimenExtras.map(v => v.concept_id)
+                            .every(conceptID => selected.includes(conceptID))
+                        if (!areRequiredDrugsSelected) {
+                            return (await alertConfirmation(`One or more required drugs in "${this.regimenExtras.map((d: any) => d.drug_name)}" is missing from your selection, do you want to proceed?`))
+                        }
+                        return true
+                    },
                     options: async () => {
-                        const drugs = await this.prescription.getCustomIngridients()
-                        return drugs.map((drug: any ) => ({
-                            label: drug.name,
-                            value: drug.drug_id,
-                            other: { ...drug }
-                        }))
+                        if (isEmpty(this.allDrugs)) {
+                            this.allDrugs = await this.prescription.getCustomIngridients()
+                        }
+                        return this.allDrugs.map((drug: any) => {
+                            const option: Option = {
+                                label: drug.name,
+                                value: drug.drug_id,
+                                other: { ...drug }
+                            }
+                            if (this.facts.tptStatus.tpt != null && /INH|3HP|RIF|Isoniazid/i.test(drug.name)) {
+                                if (this.facts.tptStatus.tb_treatment) {
+                                    return {
+                                        ...option,
+                                        disabled: true,
+                                        description: {
+                                            color: 'danger',
+                                            show: 'always',
+                                            text: 'Client on TB Treatment'
+                                        }
+                                    }
+                                }
+                                if (this.facts.tptStatus.completed) {
+                                    return {
+                                        ...option,
+                                        disabled: true,
+                                        description: {
+                                            color: 'danger',
+                                            show: 'always',
+                                            text: 'Client completed ' + this.facts.tptStatus.tpt
+                                        }
+                                    }
+                                }
+                                if (/IPT/i.test(this.facts.tptStatus.tpt) && /3HP|RIF/i.test(drug.name)) {
+                                    return {
+                                        ...option,
+                                        disabled: true,
+                                        description: {
+                                            color: "danger",
+                                            show: "always",
+                                            text: "Client is on IPT"
+                                        }
+                                    }
+                                }
+                            }
+                            return option
+                        })
                     },
                     config: {
                         showKeyboard: true,
@@ -412,9 +467,6 @@ export default defineComponent({
                                 slot: 'end',
                                 color: 'primary',
                                 visible: false,
-                                visibleOnStateChange: (state: Record<string, any>) => {
-                                    return state.index === 1
-                                },
                                 onClick: () => {
                                     this.fieldComponent = 'arv_regimens'
                                 }

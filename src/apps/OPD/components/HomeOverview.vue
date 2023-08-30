@@ -11,15 +11,21 @@
     </ion-row>
     <ion-row>
       <ion-col>
-        <opd-stat-chart
-          :series="accumulativeVisits.visits"
-          :categories="accumulativeVisits.days"
-        ></opd-stat-chart>
+        <ApexChart 
+          width="100%"
+          height="350px"
+          type="bar"
+          :options="optionsVisits"
+          :series="seriesVisits"
+        />
       </ion-col>
       <ion-col>
-        <syndromic-stat-chart
-         :categories="AccumulativePatietRespiratoryComplaints.categories"
-         :series="AccumulativePatietRespiratoryComplaints.series"
+        <ApexChart
+        width="100%"
+        height="350px"
+        type="area" 
+        :options="optionsSyndromic" 
+        :series="seriesSyndromic"
         />
       </ion-col>
     </ion-row>
@@ -27,58 +33,166 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
-import { IonGrid, IonRow, IonCol} from "@ionic/vue";
-import OpdStatCard from '@/apps/OPD/components/OpdStatCard.vue'
-import OpdStatChart from '@/apps/OPD/components/OpdStatChart.vue'
-import SyndromicStatChart from  '@/apps/OPD/components/SyndromicStatChart.vue'
+import { IonGrid, IonRow, IonCol } from "@ionic/vue";
+import { defineComponent } from "vue";
+import ApiClient from "@/services/api_client";
+import dayjs from "dayjs";
+import ApexChart from "vue3-apexcharts";
 import PatientVisitsService from '@/apps/OPD/services/patient_visits_service'
+import OpdStatCard from '@/apps/OPD/components/OpdStatCard.vue'
+import { ProgramService } from "@/services/program_service"
 
 export default defineComponent({
-  components: {
-    OpdStatCard,
-    OpdStatChart,
-    IonGrid, 
-    IonRow, 
-    IonCol,
-    SyndromicStatChart
-  },
-  setup() {
-    const data = PatientVisitsService.getStatistics()
-    const patientSummaryStats = computed(() => {
-      return data.value ? PatientVisitsService.getTodaysPatientVisits(data.value?.top) : [
+  data: function () {
+    return {
+      dayjs,
+      sessionDate: "",
+      patientSummaryStats: [
         { label: 'Registered today', value: -1, color: 'lightyellow' },
         { label: 'Returning today', value: -1, color: 'lightyellow' },
         { label: 'Referred today', value: -1, color: 'lightyellow' },
         { label: 'Total', value: -1, color: 'yellowgreen' },
-      ]
-    })
-    const accumulativeVisits = computed(() => {
-      return data.value ? PatientVisitsService.getAccumulativePatientVisits(data.value?.down) : {
-        days: [] as Array<string>,
-        visits: [] as Array<any>
-      }
-    })
-    const SyndromicStatData = PatientVisitsService.getRespiratory()
-    const AccumulativePatietRespiratoryComplaints = computed(() => {
-      return SyndromicStatData.value ? PatientVisitsService.getAccumulativePatietRespiratoryComplaints(
-        SyndromicStatData.value?.down) : {
-          categories: [] as Array<string>,
-          series: [] as Array<any>
+      ],
+      seriesVisits: [] as any,
+      optionsVisits: {} as any,
+      optionsSyndromic: {} as any,
+      seriesSyndromic: [] as any,
+
+      options: {
+        chart: {
+          id: "vuechart-example",
+        },
+        xaxis: {
+          categories: ["", "", "", "", ""],
+        },
+        yaxis: {
+        min: 0,
+        forceNiceScale: true,
+        title: {
+          text: 'Number of clients'
         }
-    })
-    return {
-      patientSummaryStats,
-      accumulativeVisits,
-      AccumulativePatietRespiratoryComplaints
+      },
+      noData: {  
+        text: "Loading data. Please wait...",  
+        align: 'center',  
+        verticalAlign: 'middle',  
+        offsetX: 0,  
+        offsetY: 0,  
+        style: {  
+          color: "#000000",  
+          fontSize: '30px',  
+          fontFamily: "Helvetica"
+        }  
+      }
+      },
+      series: [] as any,
+    };
+  },
+  components: {
+    IonGrid,
+    IonRow,
+    IonCol,
+    ApexChart,
+    OpdStatCard
+  },
+  mounted() {
+    this.sessionDate = ProgramService.getSessionDate()
+    this.getPatientSummary();
+    this.getSyndromic();
+  },
+  methods: {
+    getSyndromic: async function(){
+      const response = await ApiClient.get(
+        `dashboard_stats_for_syndromic_statistics?date=${this.sessionDate}&program_id=14`
+      );
+      if(response && response.status == 200) {
+        const data = await response.json();
+        this.buildGraphData(data.down,'syndromicGraph')
+      }
+    },
+    getPatientSummary: async function(){
+      const response = await ApiClient.get(
+        `dashboard_stats?date=${this.sessionDate}&program_id=14`
+      );
+      if(response && response.status == 200) {
+        const data = await response.json();
+        this.patientSummaryStats =PatientVisitsService.getTodaysPatientVisits(data.top)
+        this.buildGraphData(data.down,'visitGraph')
+      }
+    },
+    buildGraphData: async function(data: any,graphType: any){
+      for(const name in data){
+        const x = data[name]
+        const startDates = Object.keys(x).map(key => { return  dayjs(x[key].start_date).format("MMM/YYYY")});
+        const count = Object.keys(x).map(key => { return  x[key].count });
+        const obj = {
+          'name': name,
+          'data': count,
+        }
+        if(graphType == 'visitGraph'){
+          this.seriesVisits.push(obj)
+          this.optionsVisits = {
+            ...this.options,
+            ...{
+              xaxis: {
+                categories: [...startDates],
+              },
+            },
+          };
+        }
+        else
+        if(graphType == 'syndromicGraph'){
+          this.seriesSyndromic.push(obj)
+          this.optionsSyndromic = {
+            ...this.options,
+            ...{
+              xaxis: {
+                categories: [...startDates],
+              },
+            },
+          };
+        }
+      }
     }
   },
-})
+});
 </script>
 
 <style scoped>
-ion-col {
-  padding: 0; 
-  margin: 0.5rem .1rem;
+ion-grid {
+  color: #333333;
+}
+.encounter-td {
+  text-align: left;
+  border: 1px solid #dddddd;
+}
+.other-td {
+  text-align: right;
+  font-weight: bold;
+  border: 1px solid #dddddd;
+  min-width: 60px;
+
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  height: 49vh;
+}
+
+td,
+th {
+  padding: 0.3em;
+  text-align: right;
+}
+
+tr:nth-child(even) {
+  background-color: #f1efef;
+}
+@media (min-width: 1280px)  {
+  td,
+  th {
+    text-align: right;
+    padding: 0.8em;
+  }
 }
 </style>

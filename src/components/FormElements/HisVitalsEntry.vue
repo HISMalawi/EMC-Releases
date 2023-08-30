@@ -162,7 +162,7 @@ export default defineComponent({
           await this.config.onChangeOption(this.keys[this.activeField])
           this.activeField = index
         } catch (e) {
-          toastWarning(e)
+          toastWarning(`${e}`)
         }
       }
     }

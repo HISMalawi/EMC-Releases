@@ -504,7 +504,7 @@
                             &nbsp;
                             </td>
                             <td colspan="2" style="font-weight: bold;">
-                            TTV doses<sup style="font-weight: normal;">1</sup>
+                            TD doses<sup style="font-weight: normal;">1</sup>
                             </td>
                         </tr>
                         <tr>
@@ -515,9 +515,9 @@
                             <span style="color:gray;">&lt; 2 doses</span>
                             </td>
                             <td style="border: 1px solid #999;border-bottom: 0px;">
-                            <a id="a-patients-given-less-than-2-ttv-doses" href="#" @click.prevent="drill('patients_given_ttv_less_than_two_doses')">
+                            <a id="a-patients-given-less-than-2-ttv-doses" href="#" @click.prevent="drill('patients_given_td_less_than_two_doses')">
                                 <span style="color:gray;" id="patients-given-less-than-2-ttv-doses">
-                                    {{indicators.patients_given_ttv_less_than_two_doses}}
+                                    {{indicators.patients_given_td_less_than_two_doses}}
                                 </span>
                             </a>
                             </td>
@@ -530,9 +530,9 @@
                             2+ doses
                             </td>
                             <td class="valueCell">
-                            <a id="a-patients-given-more-than-1-ttv-doses" href="#" @click.prevent="drill('patients_given_ttv_at_least_two_doses')">
+                            <a id="a-patients-given-more-than-1-ttv-doses" href="#" @click.prevent="drill('patients_given_td_at_least_two_doses')">
                                 <span id="patients-given-more-than-1-ttv-doses">
-                                    {{indicators.patients_given_ttv_at_least_two_doses}}
+                                    {{indicators.patients_given_td_at_least_two_doses}}
                                 </span> 
                             </a>
                             </td>
@@ -550,27 +550,55 @@
                             12
                             </td>
                             <td style="border-top: 1px solid #999; border-left: 1px solid #999;">
-                            0-2 doses
+                            0 doses
                             </td>
                             <td class="valueCell">
-                            <a id="a-patients-given-0-2-sp-doses" href="#" @click.prevent="drill('patients_given_zero_to_two_sp_doses')">
+                            <a id="a-patients-given-0-sp-doses" href="#" @click.prevent="drill('patients_given_zero_sp_doses')">
                                 <span id="patients-given-0-2-sp-doses">
-                                    {{indicators.patients_given_zero_to_two_sp_doses}}
+                                    {{indicators.patients_given_zero_sp_doses}}
+                                </span>
+                            </a>
+                            </td>
+                        </tr><tr>
+                            <td>
+                            13
+                            </td>
+                            <td style="border-top: 1px solid #999; border-left: 1px solid #999;">
+                            1 doses
+                            </td>
+                            <td class="valueCell">
+                            <a id="a-patients-given-1-sp-doses" href="#" @click.prevent="drill('patients_given_one_sp_dose')">
+                                <span id="patients-given-1-sp-doses">
+                                    {{indicators.patients_given_one_sp_dose}}
+                                </span>
+                            </a>
+                            </td>
+                        </tr><tr>
+                            <td>
+                            14
+                            </td>
+                            <td style="border-top: 1px solid #999; border-left: 1px solid #999;">
+                            2 doses
+                            </td>
+                            <td class="valueCell">
+                            <a id="a-patients-given-2-sp-doses" href="#" @click.prevent="drill('patients_given_two_sp_doses')">
+                                <span id="patients-given-2-sp-doses">
+                                    {{indicators.patients_given_two_sp_doses}}
                                 </span>
                             </a>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                            13
+                            15
                             </td>
-                            <td style="border-left: 1px solid #999; border-bottom: 1px solid #999;">
+                            <td style="border-top: 1px solid #999; border-left: 1px solid #999; border-bottom: 1px solid #999;">
                             &#8805;3 doses
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
-                            <a id="a-patients-given-3-sp-doses" href="#" @click.prevent="drill('patients_given_at_least_three_sp_doses')">
+                            <a id="a-patients-given-3-sp-doses" href="#" @click.prevent="drill('patients_given_three_or_more_sp_doses')">
                                 <span id="patients-given-3-sp-doses">
-                                    {{indicators.patients_given_at_least_three_sp_doses}}
+                                    {{indicators.patients_given_three_or_more_sp_doses}}
                                 </span>
                             </a>
                             </td>
@@ -603,7 +631,7 @@
 
                         <tr>
                             <td>
-                                14
+                                16
                             </td>
                             <td style="border-top: 0px; border-left: 1px solid #999;
                                 border-bottom: 1px solid #999;">
@@ -646,7 +674,7 @@
 
                         <tr>
                             <td>
-                            15
+                            17
                             </td>
                             <td style="border-bottom: 1px solid #999; border-top: 0px;
                                 border-left: 1px solid #999; width: 60%;">
@@ -689,7 +717,7 @@
 
                         <tr>
                             <td>
-                            16
+                            18
                             </td>
                             <td style="border-bottom: 1px solid #999; border-top: 0px;
                                 border-left: 1px solid #999; width: 60%;">
@@ -712,7 +740,7 @@
                         </tr>
                         <tr>
                             <td>
-                            17
+                            19
                             </td>
                             <td style="border-top: 1px solid #999; border-left: 1px solid #999; width: 60%;">
                             &lt;7
@@ -725,7 +753,7 @@
                         </tr>
                         <tr>
                             <td>
-                            16
+                            20
                             </td>
                             <td style="border-left: 1px solid #999;">
                             &#8805;7
@@ -738,7 +766,7 @@
                         </tr>
                         <tr>
                             <td>
-                            19
+                            21
                             </td>
                             <td style="border-left: 1px solid #999; border-bottom: 1px solid #999;">
                                 ND
@@ -760,7 +788,7 @@
                         </tr>
                         <tr>
                             <td>
-                            20
+                            22
                             </td>
                             <td style="border-top: 1px solid #999; border-left: 1px solid #999; width: 60%;">
                             Negative
@@ -773,7 +801,7 @@
                         </tr>
                         <tr>
                             <td>
-                            21
+                            23
                             </td>
                             <td style="border-left: 1px solid #999;">
                             Positive
@@ -786,7 +814,7 @@
                         </tr>
                         <tr>
                             <td>
-                            22
+                            24
                             </td>
                             <td style="border-left: 1px solid #999; border-bottom: 1px solid #999;">
                             Unknown
@@ -812,7 +840,7 @@
                         </tr>
                         <tr>
                             <td>
-                            23
+                            25
                             </td>
                             <td style="border-top: 1px solid #999; border-left: 1px solid #999; width: 60%;">
                             Prev. Negative
@@ -825,7 +853,7 @@
                         </tr>
                         <tr>
                             <td>
-                            24
+                            26
                             </td>
                             <td style="border-left: 1px solid #999;">
                             Prev. Positive
@@ -838,7 +866,7 @@
                         </tr>
                         <tr>
                             <td>
-                            25
+                            27
                             </td>
                             <td style="border-left: 1px solid #999; width: 60%;">
                             New Negative
@@ -851,7 +879,7 @@
                         </tr>
                         <tr>
                             <td>
-                            26
+                            28
                             </td>
                             <td style="border-left: 1px solid #999;">
                             New Positive
@@ -865,7 +893,7 @@
 
                         <tr>
                             <td>
-                            27
+                            29
                             </td>
                             <td style="border-left: 1px solid #999; border-bottom: 1px solid #999;">
                                 Not Done
@@ -913,7 +941,7 @@
 
                         <tr>
                             <td>
-                            28
+                            30
                             </td>
                             <td style="border-bottom: 1px solid #999; border-top: 0px;
                                 border-left: 1px solid #999; width: 60%;">
@@ -951,7 +979,7 @@
 
                         <tr>
                             <td>
-                            29
+                            31
                             </td>
                             <td style="border-bottom: 1px solid #999; border-top: 0px;
                                 border-left: 1px solid #999; width: 60%;">
@@ -974,7 +1002,7 @@
                         </tr>
                         <tr>
                             <td>
-                            30
+                            32
                             </td>
                             <td style="border-top: 1px solid #999; border-left: 1px solid #999; width: 60%;">
                             Not on ART
@@ -987,7 +1015,7 @@
                         </tr>
                         <tr>
                             <td>
-                            31
+                            33
                             </td>
                             <td style="border-left: 1px solid #999;">
                             On ART before ANC
@@ -1002,7 +1030,7 @@
                         </tr>
                         <tr>
                             <td>
-                            32
+                            34
                             </td>
                             <td style="border-left: 1px solid #999;">
                             Start ART 0-27 weeks
@@ -1015,7 +1043,7 @@
                         </tr>
                         <tr>
                             <td>
-                            33
+                            35
                             </td>
                             <td style="border-left: 1px solid #999; border-bottom: 1px solid #999;">
                             Start ART 28+ weeks

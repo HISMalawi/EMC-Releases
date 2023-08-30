@@ -9,22 +9,22 @@
               detail
               :color="index === selectedDrug ? 'secondary' : ''"
               @click="selectDrug(index)">
-              {{ `${drug.shortName} (${drug.packSizes[0]})` }}
+              {{ `${drug.short_name} (${drug.code})` }}
             </ion-item>
           </ion-list>
         </ion-col>
         <ion-col>
           <ion-grid v-if="selectedDrug !== null" class="scroll-list"> 
-            <ion-row v-for="(entry, ind) in drugs[selectedDrug].entries" :key="ind"> 
+            <ion-row v-for="(entry, ind) in drugs[selectedDrug].entries" :key="ind">
               <ion-col> 
                 <ion-item> 
-                  <ion-label position="floating">Product Code</ion-label>
-                  <ion-input readonly placeholder="e.g. ABC123" :value="entry.productCode" @click="enterProductCode(ind)"></ion-input>
+                  <ion-label position="floating">Pack Size</ion-label>
+                  <ion-input readonly placeholder="0" :value="fmtNumber(entry.tabs)" @click="selectPackSize(ind)"></ion-input>
                 </ion-item>
               </ion-col>
               <ion-col> 
                 <ion-item> 
-                  <ion-label position="floating">Total Tins</ion-label>
+                  <ion-label position="floating">Tins/Pallets</ion-label>
                   <ion-input readonly placeholder="0" :value="fmtNumber(entry.tins)" @click="enterTins(ind)"></ion-input>
                 </ion-item>
               </ion-col>
@@ -69,14 +69,14 @@ import {
   modalController,
 } from "@ionic/vue";
 import { find, isEmpty } from "lodash";
-import TouchField from "@/components/Forms/SIngleTouchField.vue"
-import { Field, Option } from "../Forms/FieldInterface";
+import { Option } from "../Forms/FieldInterface";
 import { FieldType } from "../Forms/BaseFormElements";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Service } from "@/services/service";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
-import { CHARACTERS_AND_NUMBERS_LO } from "../Keyboard/KbLayouts";
 import { toDate, toNumString } from "@/utils/Strs";
+import { StockService } from "@/apps/ART/views/ARTStock/stock_service";
+import popupKeyboard, { MultiStepPopupForm } from "@/utils/PopupKeyboard";
 
 export default defineComponent({
   components: { HisTextInput, ViewPort, IonInput, IonLabel, IonList, IonItem, IonGrid, IonCol, IonRow, IonButton },
@@ -111,11 +111,10 @@ export default defineComponent({
       )
       incomingDrugs.forEach((element: any) => {
         const val = {
-          tabs: element.value.packSizes[0],
+          tabs: null,
           tins: null,
           expiry: null,
           batchNumber: null,
-          productCode: null,
         };
         const d = {
           label: element.label,
@@ -130,7 +129,7 @@ export default defineComponent({
       if (this.drugs.length >= 1) this.selectDrug(0)
     },
     getModalTitle(context: string) {
-      return `${context} (${this.drugs[this.selectedDrug].shortName})`
+      return `${context} (${this.drugs[this.selectedDrug].short_name})`
     },
     getDrugValue(index: number, type: string) {
       return this.drugs[this.selectedDrug].entries[index][type]
@@ -138,10 +137,46 @@ export default defineComponent({
     setDrugValue(index: number, type: string, data: Option | null) {
       this.drugs[this.selectedDrug].entries[index][type] = data ? data.value : ''
     },
+    useCustomPackSize (form: any) {
+      return isEmpty(this.packSizes) || form.standard_pack_size.label.includes("Other")
+    },
+    async selectPackSize (index: number) {
+      await MultiStepPopupForm([
+        {
+          id: 'standard_pack_size',
+          helpText: "Select Pack Size",
+          type: FieldType.TT_SELECT,
+          condition: () => !isEmpty(this.packSizes),
+          defaultValue: () => this.getDrugValue(index, 'tabs'),
+          options: () => [
+              ...this.packSizes.map(p => ({label: `${p}`, value: p })),
+              {label: "Other (specify)", value: "Other"}
+          ]
+        },
+        {
+          id: 'custom_pack_size',
+          helpText: 'Input quantity',
+          type: FieldType.TT_NUMBER,
+          defaultValue: () => this.getDrugValue(index, 'tabs'),
+          validation: (val: any) => Validation.required(val),
+          condition: (f: any) => this.useCustomPackSize(f),
+          config: {
+            showKeyboard: true,
+          }
+        }
+      ],
+      async (form: any) => {
+        this.setDrugValue(index, 'tabs', this.useCustomPackSize(form) 
+          ? form.custom_pack_size
+          : form.standard_pack_size
+        )
+        await modalController.dismiss();
+      })
+    },
     enterTins(index: number) {
-      this.launchKeyPad({
+      popupKeyboard({
         id: 'tins',
-        helpText: this.getModalTitle('Enter number of tins'),
+        helpText: this.getModalTitle('Enter number of tins/pallets'),
         type: FieldType.TT_NUMBER,
         defaultValue: () => this.getDrugValue(index, 'tins'),
         validation: (v: Option) => {
@@ -150,19 +185,19 @@ export default defineComponent({
           } 
           return Validation.validateSeries([
             () => Validation.isNumber(v),
-            () => v.value <= 0 ? ['Number of tins must be greater than 1'] : null
+            () => v.value as number <= 0 ? ['Number of tins must be greater than 1'] : null
           ])
         }
       }, 
       (v: Option) => this.setDrugValue(index, 'tins', v))
     },
     enterBatch(index: number) {
-      this.launchKeyPad({
+      popupKeyboard({
         id: 'batch',
         helpText: this.getModalTitle('Enter batch number'),
         type: FieldType.TT_TEXT,
         config: {
-          customKeyboard: [CHARACTERS_AND_NUMBERS_LO, [['Delete']]]
+          initialkb: 'qwerty'
         },
         defaultValue: () => this.getDrugValue(index, 'batchNumber'),
       }, 
@@ -174,26 +209,8 @@ export default defineComponent({
         this.setDrugValue(index, 'batchNumber', batch)
       })
     },
-    enterProductCode(index: number) {
-      this.launchKeyPad({
-        id: 'code',
-        helpText: this.getModalTitle('Enter Product Code'),
-        type: FieldType.TT_TEXT,
-        config: {
-          customKeyboard: [CHARACTERS_AND_NUMBERS_LO, [['Delete']]]
-        },
-        defaultValue: () => this.getDrugValue(index, 'productCode'),
-      }, 
-      (v: Option) => {
-        const code = {...v}
-        const value = `${code.value}`.toUpperCase()
-        code.label = value
-        code.value = value
-        this.setDrugValue(index, 'productCode', code)
-      })
-    },
     enterExpiry(index: number) {
-      this.launchKeyPad({
+      popupKeyboard({
         id: 'expiry',
         helpText: this.getModalTitle('Enter expiry date'),
         type: FieldType.TT_FULL_DATE,
@@ -208,26 +225,12 @@ export default defineComponent({
       },
       (v: Option) => this.setDrugValue(index, 'expiry', v))
     },
-    async launchKeyPad(currentField: Field, onFinish: Function) {
-      const modal = await modalController.create({
-        component: TouchField,
-        backdropDismiss: false,
-        cssClass: "full-modal",
-        componentProps: {
-          dismissType: 'modal',
-          currentField,
-          onFinish
-        }
-      });
-      modal.present();
-    },
     addRow() {
       this.drugs[this.selectedDrug].entries.push({
-        tabs: this.drugs[this.selectedDrug].packSizes[0],
+        tabs: null,
         tins: null,
         expiry: null,
-        batchNumber: null,
-        productCode: null,
+        batchNumber: null
       });
     },
     selectDrug(index: any) {
@@ -238,11 +241,15 @@ export default defineComponent({
         !isEmpty(drug.tins) &&
         !isEmpty(drug.expiry) &&
         !isEmpty(drug.batchNumber) &&
-        !isEmpty(drug.productCode)
+        !isEmpty(drug.tabs.toString())
       );
     },
   },
   computed: {
+    packSizes () : Array<number> {
+      if(this.selectedDrug === null) return [];
+      return StockService.getPackSizes(this.drugs[this.selectedDrug].drug_inventory_id)
+    },
     fullSelectedDrugName(): string {
       try {
         return this.drugs[this.selectedDrug].fullName
@@ -253,9 +260,9 @@ export default defineComponent({
     enteredDrugs(): any {
       const f: any = [];
       this.drugs.forEach((element: any) => {
-        const j = element.entries.filter((el: any) => this.validateEntry(el));
-        j.forEach((e: any) => {
-          f.push({label: element.shortName, value: { ...e, ...element }});
+        const entries = element.entries.filter((el: any) => this.validateEntry(el));
+        entries.forEach((e: any) => {
+          f.push({label: element.short_name, value: {...element, ...e, tabs: e.tabs }});
         });
       });
       return f;
@@ -268,7 +275,6 @@ export default defineComponent({
           e.tins = null
           e.expiry = null
           e.batchNumber = null
-          e.productCode = null
           return e
         })
         return d

@@ -41,8 +41,8 @@ export default [
     },
     {
         name: 'anc dispensing',
-        path: '/anc/ttv/:patient_id',
-        component: () => import("@/apps/ANC/Views/Encounters/TTV.vue")
+        path: '/anc/vaccination/:patient_id',
+        component: () => import("@/apps/ANC/Views/Encounters/Vaccination.vue")
     },
     {
         name: 'anc visit type',

@@ -5,7 +5,7 @@
           <ion-button 
             v-if="btnKey" 
             :style="{width: btnSize}"
-            class="his-keyboard-btn" 
+            :class="`his-keyboard-btn btn-${btnKey}-${dynamicClass(row)}`" 
             @click="() => keyPress(btnKey)">
               {{ btnKey }}
           </ion-button>
@@ -37,6 +37,11 @@ export default defineComponent({
     keyPress(key: any) {
       this.onKeyPress(key);
     },
+    dynamicClass(row: any){
+      if(row.length == 3 && row[0] == "Unknown")
+        return "Keypad"
+      return row[0]
+    }
   },
 });
 </script>

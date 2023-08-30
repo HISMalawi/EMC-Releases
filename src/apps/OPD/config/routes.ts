@@ -113,6 +113,11 @@ export default [
     name: 'hmis_17',
     path: '/opd/reports/moh/hmis_17',
     component: () => import('@/apps/OPD/views/reports/moh/HMIS/HMIS17.vue')
+  },
+  {
+    name: 'moh_malaria',
+    path: '/moh_malaria',
+    component: () => import('@/apps/OPD/views/reports/moh/malaria_report.vue')
   }
 ]
 

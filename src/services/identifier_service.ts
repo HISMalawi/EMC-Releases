@@ -42,4 +42,14 @@ export class IdentifierService extends Service {
             'identifier': identifier
         })
     }
+    
+    getMultipleIdentifiers() {
+        return Service.getJson(`search/identifiers/multiples`, {
+            'type_id': this.identifierType
+        })
+    }
+    voidMultipleIdentifiers(identifiers: [any], reasons: string,  idType: number) {
+        const params: any = { identifiers: identifiers, reason: reasons, "identifier_type": idType }
+        return Service.void(`void_multiple_identifiers`,  params );
+    }
 }

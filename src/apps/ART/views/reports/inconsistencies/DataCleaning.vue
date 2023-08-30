@@ -254,6 +254,47 @@ export default defineComponent({
                 }
             },
             {
+                label: "Missing VL Results",
+                value: "Missing VL Results",
+                other: {
+                    columns: [
+                        [
+                            table.thTxt('ARV number'),
+                            table.thTxt('First name'),
+                            table.thTxt('Last name'),
+                            table.thTxt('Gender'),
+                            table.thTxt('Accession number'),
+                            table.thTxt('Order date'),
+                            table.thTxt('Action')
+                        ]
+                    ],
+                    setRows: async (_: any, cf: any) => {
+                        try {
+                            this.report = new DataCleaningReportService()
+                            this.report.setStartDate(cf.start_date)
+                            this.report.setEndDate(cf.end_date)
+                            this.period = this.report.getDateIntervalPeriod()
+                            const data = await this.report.getCleaningToolReport(CtIndicator.MissingVlResults)
+                            data.forEach((d: any) => {
+                                this.rows.push([
+                                    table.td(d.arv_number),
+                                    table.td(d.given_name),
+                                    table.td(d.family_name),
+                                    table.td(this.formatGender(d.gender)),
+                                    table.td(d.accession_number),
+                                    table.tdDate(d.order_date),
+                                    this.masterCardBtn(d.patient_id)
+                                ])
+                            })
+                        } catch (e) {
+                            if (!(e instanceof NotFoundError)) {
+                                throw e
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 label: "Male patients with female observations",
                 value: CtIndicator.MalesWithFemaleObs,
                 other: {

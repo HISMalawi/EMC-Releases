@@ -23,6 +23,8 @@ import HisDate from "@/utils/Date"
 import ANC_PROP from "@/apps/ANC/anc_global_props"
 import { alertConfirmation } from '@/utils/Alerts'
 import { find } from 'lodash'
+import { FLOAT_KEYPAD } from "@/components/Keyboard/KbLayouts"
+import { infoActionSheet } from '@/utils/ActionSheets'
 
 export default defineComponent({
   components: { IonPage },
@@ -170,76 +172,84 @@ export default defineComponent({
                     ]
                 }
             },
-            {
-                id: 'available_test_results',
-                helpText: 'Available Lab Tests',
-                type: FieldType.TT_MULTIPLE_SELECT,
-                validation: (v: Option) => Validation.required(v),
-                computedValue: (v: Option[]) => {
-                    if (find(v, { label: 'None'})) {
-                        return this.service.buildValueCoded('Lab test done', 'No')
-                    }
-                    return null
-                },
-                onValueUpdate(listData: Option[], value: Option) {
-                    return listData.map(l => {
-                        if (value.value === 'None' && l.value !='None') {
-                            l.isChecked = false
+            (() => {
+                const isEligibleForHivTest = (f: any) => {
+                    return !this.service.isHivPositive() && f.prev_hiv_test_result?.value != 'Positive'
+                }
+                let hivTestIsMandatory = false
+                return {
+                    id: 'available_test_results',
+                    helpText: 'Available Lab Tests',
+                    type: FieldType.TT_MULTIPLE_SELECT,
+                    init: async (f: any) => {
+                        await this.service.loadTimeSinceLastHivTest()
+                        hivTestIsMandatory = (this.service.lastHivTestInMonths <= -1 || this.service.lastHivTestInMonths >= 3)
+                        if (isEligibleForHivTest(f) && this.service.lastHivTestInMonths >= 3) {
+                            await infoActionSheet(
+                                "Re-test for HIV",
+                                "",
+                                `It's been ${this.service.lastHivTestInMonths} months since the last HIV test. Please arrange a new test`,
+                                [{ name: "Ok", slot: "start" }]
+                            );
                         }
-                        if (value.value != 'None' && value.isChecked && l.value === 'None') {
-                            l.isChecked = false
+                        return true
+                    },
+                    validation: (v: Option) => Validation.required(v),
+                    computedValue: (v: Option[]) => {
+                        if (find(v, { label: 'None'})) {
+                            return this.service.buildValueCoded('Lab test done', 'No')
                         }
-                        return l
-                    })
-                },
-                options: async (f: any) => {
-                    const options: Option[] = []
-                    const hivPos = !this.service.isHivPositive() ? f.prev_hiv_test_result?.value === 'Positive' : true
-                    if (!hivPos) {
-                        options.push(this.toOption('HIV'))
-                    }
-                    options.push(this.toOption('HB'))
-                    options.push(this.toOption('Syphilis'))
-                    options.push(this.toOption('Malaria'))
-                    options.push(this.toOption('Blood Group'))
-                    const urine: Option = {
-                        label: 'Urine',
-                        value: 'Urine',
-                        isChecked: false
-                    }
-                    if (this.riskOfPreclampsia === null) {
-                        this.riskOfPreclampsia = await this.service.isAtRiskOfPreEclampsia()
-                        if (this.riskOfPreclampsia) {
-                            const ok: boolean = await alertConfirmation(
-                                'Select urine test to conduct urine protein test', {
-                                header: 'Client is at risk of pre-eclampsia.',
-                                cancelBtnLabel: 'Remind later',
-                                confirmBtnLabel: 'Select Urine Test'
-                            })
-                            urine.isChecked = ok
+                        return null
+                    },
+                    onValueUpdate(listData: Option[], value: Option) {
+                        return listData.map(l => {
+                            if (value.value === 'None' && l.value !='None') {
+                                l.isChecked = false
+                            }
+                            if (value.value != 'None' && value.isChecked && l.value === 'None') {
+                                l.isChecked = false
+                            }
+                            return l
+                        })
+                    },
+                    options: async (f: any) => {
+                        const options: Option[] = []
+                        if (isEligibleForHivTest(f)) options.push({
+                            ...this.toOption('HIV'),
+                            isChecked: hivTestIsMandatory,
+                            disabled: hivTestIsMandatory
+                        })
+                        options.push(this.toOption('HB'))
+                        options.push(this.toOption('Syphilis'))
+                        options.push(this.toOption('Malaria'))
+                        options.push(this.toOption('Blood Group'))
+                        const urine: Option = {
+                            label: 'Urine',
+                            value: 'Urine',
+                            isChecked: false
                         }
-                    }
-                    return [...options, urine, this.toOption('None')]
-                },
-                config: {
-                    footerBtns: [
-                        {
-                            name: "None",
-                            slot: "end",
-                            onClickComponentEvents: {
-                                refreshOptions: (_: any, listData: Option[]) => {
-                                    return listData.map(o => {
-                                        o.isChecked = o.label === 'None'
-                                        return o
-                                    })
-                                }
-                            },
-                            onClick: () => 'None'
+                        if (this.riskOfPreclampsia === null) {
+                            this.riskOfPreclampsia = await this.service.isAtRiskOfPreEclampsia()
+                            if (this.riskOfPreclampsia) {
+                                const ok: boolean = await alertConfirmation(
+                                    'Select urine test to conduct urine protein test', {
+                                    header: 'Client is at risk of pre-eclampsia.',
+                                    cancelBtnLabel: 'Remind later',
+                                    confirmBtnLabel: 'Select Urine Test'
+                                })
+                                urine.isChecked = ok
+                            }
                         }
-                    ]
-                },
-                exitsForm: (f: any) => find(f.available_test_results, {label: 'None'}),
-            },
+                        const finalOptions = [...options, urine]
+                        if (hivTestIsMandatory) return finalOptions
+                        return [...finalOptions, this.toOption('None')]
+                    },
+                    config: {
+                        hiddenFooterBtns: ['Clear']
+                    },
+                    exitsForm: (f: any) => find(f.available_test_results, {label: 'None'}),
+                }   
+            }) (),
             {
                 id: 'hiv_status',
                 helpText: 'HIV Test Result',
@@ -292,8 +302,17 @@ export default defineComponent({
                 type: FieldType.TT_NUMBER,
                 validation: (v: Option) => this.validateSeries([
                     () => Validation.required(v),
+                    () => Validation.isFloatingPointNumber(v),
                     () => Validation.rangeOf(v, 2, 16)
                 ]),
+                config: {
+                    keypad: [
+                        FLOAT_KEYPAD,
+                        [
+                            [ 'Delete' ]
+                        ]
+                    ]
+                },
                 computedValue: (v: Option) => this.service.buildValueNumber('HB Test Result', v.value),
                 condition: (f: any) => f.available_test_results.map((v: Option) => v.value).includes('HB'),
             },

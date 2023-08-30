@@ -30,7 +30,7 @@
             alt="PEPFAR logo"
           />
         </span>
-        <ion-item class="his-sm-text" style="width:45%" slot="end"> 
+        <ion-item class="his-sm-text" style="width:75%" slot="end"> 
           <ion-label>Device Profile</ion-label>
           <ion-select v-model="profile" :value="profile"> 
             <ion-select-option
@@ -48,6 +48,16 @@
             slot="end"
             router-link="/settings/host">
             Network
+          </ion-button>
+          <ion-button
+            color="dark"
+            fill="outline"
+            size="large"
+            slot="end"
+            @click="openSelect"
+            v-if="otherApps.length"
+          >
+            Other Applications
           </ion-button>
         </ion-item>
       </ion-toolbar>
@@ -73,11 +83,12 @@ import img from '@/utils/Img';
 import { onMounted, ref } from '@vue/runtime-core';
 import { AuthService } from '@/services/auth_service';
 import usePlatform from '@/composables/usePlatform';
-import { computed, watch } from 'vue';
+import { computed, defineComponent, watch } from 'vue';
 import { KeyboardType } from "@/composables/usePlatform"
 import { find } from 'lodash';
+import { optionsActionSheet } from "@/utils/ActionSheets";
 
-export default {
+export default defineComponent({
   name: "login",
   components: {
     IonItem,
@@ -94,6 +105,24 @@ export default {
     IonSelectOption,
   },
   setup() {
+    const otherApps = ref<Array<any>>([]);
+
+    const openSelect = async () => {
+      const modal = await optionsActionSheet(
+        'Application Selection',
+        'Please specify the application you wish to use',
+        otherApps.value.map((app) => app.name),
+        [
+          { name: 'Cancel', color: 'danger',  slot:'start'},
+          { name: 'Confirm', color: 'primary', slot:'end', role: 'action'}
+        ]
+      )
+      if (modal.selection && modal.action != 'Cancel') {
+        const app = otherApps.value.find(app => app.name === modal.selection)
+        window.open(`${app.protocol || 'http'}://${app.IP}:${app.port || 80}`, '_blank');
+      }
+    };
+
     const {
       activePlatformProfile,
       platformProfiles
@@ -112,8 +141,8 @@ export default {
     })
     onMounted(async () => {
       const auth = new AuthService()
-      await auth.loadConfig()
-      const appV = await auth.getHeadVersion()
+      otherApps.value = (await auth.loadConfig())?.otherApps || []
+      const appV = auth.getHeadVersion()
       auth.setActiveVersion(appV)
       const apiV = await auth.getApiVersion()
       version.value = `${appV} / ${apiV}`
@@ -122,15 +151,17 @@ export default {
     return {
       version,
       profile,
+      otherApps,
       deviceProfiles,
       useVirtualInputOnly,
       activePlatformProfile,
       coatImg: img('login-logos/Malawi-Coat_of_arms_of_arms.png'),
       pepfarImg: img('login-logos/PEPFAR.png'),
-      showConfig: localStorage.getItem("useLocalStorage") === "true"
+      showConfig: localStorage.getItem("useLocalStorage") === "true",
+      openSelect
     }
   }
-}
+})
 </script>
 <style scoped>
 #coat {

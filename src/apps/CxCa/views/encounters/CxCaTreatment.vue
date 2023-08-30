@@ -20,6 +20,8 @@ import { toastSuccess, toastWarning } from "@/utils/Alerts";
 import { ProgramService } from "@/services/program_service";
 import { ProgramWorkflow } from "@/interfaces/program_workflow";
 import table from "@/components/DataViews/tables/ReportDataTable";
+import { Service } from "@/services/service";
+import { ConceptService } from "@/services/concept_service";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -52,6 +54,10 @@ export default defineComponent({
     },
     async onFinish(formData: any, computed: any) {
       const encounter = await this.reception.createEncounter();
+      //Using the approach I got from the Diagnosis.vue file
+      const cxcaData = await this.resolveObs({...computed})
+      //save the data
+      await this.reception.saveObservationList(cxcaData)
 
       if (!encounter) return toastWarning("Unable to create encounter");
       const programID = ProgramService.getProgramID();
@@ -65,28 +71,26 @@ export default defineComponent({
           flows[conceptName] = conceptID;
         });
       });
+      
       const stateValue = formData.patient_outcome ? formData.patient_outcome.value : 'Continue follow-up';
+      //getting the concept ID for flow[stateValue] to prevent the bad request bug that occurs when the stateValue is undefined
+      const concepid = await ConceptService.getConceptID(stateValue);
+      //assigning the concept ID to flow[stateValue] to prevent the undefined bug
+      flows[stateValue] = concepid;
+
       const state = {
         'location_id': ProgramService.getLocationName(),
         state: flows[stateValue],
         date: ProgramService.getSessionDate(),
       };
+      console.log("STATE ", state)
       const saveState = await ProgramService.createState(
         this.patientID,
         programID,
         state
       );
+
       if (!saveState) return toastWarning("Unable to update state");
-      const vals: any = [];
-      Object.keys(computed).forEach(element => {
-        vals.push(computed[element].obs);
-      });
-      const data = await Promise.all([...vals]);
-
-      const obs = await this.reception.saveObservationList(data);
-
-      if (!obs) return toastWarning("Unable to save patient observations");
-      toastSuccess("Observations and encounter created!");
       this.nextTask();
     },
 
@@ -102,27 +106,70 @@ export default defineComponent({
                 return [table.td(k), table.td(this.summaryData[k])];
               });
             },
-          dataTableConfig: {
-            showIndex: false
+            dataTableConfig: {
+              showIndex: false
+            },
           },
-          },
+        },
+        //New referral work flow implemented here
+        {
+          id: "type_of_referral",
+          helpText: "Type of referral visit",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          options: () => {
+            return [
+              { label: 'Initial/1st visit to referral facility', value: 'Initial visit' },
+              { label: 'Follow-up visit', value: 'Follow-up' }
+            ]},
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Referral reason', value.value)
+          })
+        },
+        {
+          id: "cervix_screening_assessment",
+          helpText: "Cervix Screening Assessment",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          options: () =>{
+            return [
+                  { label: 'STI Infection', value: 'STI Infection' },
+                  { label: 'VIA Negative', value: 'VIA Negative' },
+                  { label: 'VIA Positive', value: 'VIA Positive' },
+                  { label: 'PAP Smear Normal', value: 'PAP Smear Normal' },
+                  { label: 'PAP Smear Abnormal', value: 'PAP Smear Abnormal' },
+                  { label: 'No Visible Lesion (After Speculum)', value: 'No visible Lesion' },
+                  { label: 'Suspected Cancer', value: 'Suspected Cancer' }
+              ]},
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Cervix screening assessment', value.value)
+          })
+        },
+        {
+            id: 'are_figo_staging_results_available',
+            helpText: 'Are FIGO staging results available?',
+            type: FieldType.TT_SELECT,
+            validation: (val: any) => Validation.required(val),
+            options: () => this.yesNoOptions(),
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Are FIGO staging results available', value.value) //Please build this observation using the buildValueCoded method
+          })
         },
         {
           id: "figo_staging_results",
           helpText: "FIGO staging results",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.referralReason.match(/suspect/gi),
+          condition: (f: any) => f.are_figo_staging_results_available.value === 'Yes',
           options: () =>
             this.mapOptions([
               'Cervical stage 1',
               'Cervical stage 2',
               'Cervical stage 3',
               'Cervical stage 4',
-              'Not available',
             ]),
             computedValue: (value: any) => ({
-            obs: this.reception.buildValueText('FIGO staging of cervical cancer', value.label)
+            obs: this.reception.buildValueCoded('FIGO staging of cervical cancer', value.label)
           })
         },
         {
@@ -130,79 +177,95 @@ export default defineComponent({
           helpText: "Type of sample collected",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition:()=> this.showSampleCollected(),
           options: () =>
             this.mapOptions([
               'Punch Biopsy',
-              'LLETZ sample',
-              'Not available',
+              'LLETZ/LEEP Sample',
+              'Cone Biopsy Sample',
             ]),
           computedValue: (value: any) => ({
-            obs: this.reception.buildValueText('Sample', value.label)
+            obs: this.reception.buildValueCoded('Sample', value.label)
           })
         },
         {
-          id: "histology_results",
-          helpText: "Histology results",
+            id: 'are_histological_results_after_lletz_available',
+            helpText: 'Are Histological results after LLETZ available?',
+            type: FieldType.TT_SELECT,
+            validation: (val: any) => Validation.required(val),
+            options: () => this.yesNoOptions(),
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Are Histological results after LLETZ available', value.label)
+          })
+        },
+        {
+          id: "histology_results_after_lletz",
+          helpText: "Histology Results After LLETZ",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: (formdata: any) => formdata.type_of_sample_collected.value !== "Not available" && this.showSampleCollected(), 
+          condition: (f: any) => f.are_histological_results_after_lletz_available.value === 'Yes',
           options: () =>
             this.mapOptions([
               'Normal',
+              'Chronic Cervicitis',
+              'Schistosomiasis',
+              'Tuberculosis(TB)',
               'CIN 1',
               'CIN 2',
               'CIN 3',
               'Carcinoma in Situ',
               'Invasive cancer of cervix',
-              'Benign cervical warts',
-              'Not available',
             ]),
             computedValue: (value: any) => ({
-            obs: this.reception.buildValueText('Sample', value.label)
+            obs: this.reception.buildValueCoded('Sample', value.label)
           })
         },
         {
-          id: "complications",
-          helpText: "Complications",
+          id: "complications_during_lletz_leep_biopsy",
+          helpText: "Complications During LLETZ/LEEP Biopsy",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: (formdata: any) => formdata.type_of_sample_collected.value !== "Not available" && this.showSampleCollected(), 
-          options: () =>
-            this.mapOptions([
-              'Bleeding',
-              'Pain',
-              'None',
-            ]),
+          options: () => {
+            return [
+                { label: 'None (N/A)', value: 'None' },
+                { label: 'Excessive Bleeding or pain', value: 'Excessive Bleeding or pain' }
+              ]},
             computedValue: (value: any) => ({
-            obs: this.reception.buildValueText('Complications', value.label)
+            obs: this.reception.buildValueCoded('Complications During LLETZ/LEEP Biopsy', value.value)
           })
-
         },
         {
-          id: "referral_outcome",
-          helpText: "Treatment performed",
+          id: "complications_after_lletz_leep_biopsy",
+          helpText: "Complications After LLETZ/LEEP Biopsy",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          options: () => {
+            return [
+                  { label: 'None (N/A)', value: 'None' },
+                  { label: 'Excessive Bleeding or pain', value: 'Excessive Bleeding or pain' }
+              ]},
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Complications After LLETZ/LEEP Biopsy', value.value)
+          })
+        },
+        {
+          id: "treatment_provided",
+          helpText: "Treatment Provided",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
           options: () =>
             this.mapOptions([
               'Hysterectomy',
-              'Cryotherapy',
-              'Leep',
+              'Chemotherapy',
               'Palliative Care',
-              'LLETZ',
-              'Conisation',
-              'Thermocoagulation',
-              'Chronic cervicitis',
-              'Patient refused',
+              'LLETZ/LEEP',
             ]),
           computedValue: (value: any) => ({
-            obs: this.reception.buildValueText('Treatment', value.label)
+            obs: this.reception.buildValueCoded('Treatment', value.label)
           })
         },
         {
-          id: "recommended_plan_of_care",
-          helpText: "Recommended plan of care",
+          id: "recommended_care_after_lletz_histology",
+          helpText: "Recommended Care After LLETZ Histology",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
           condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
@@ -214,9 +277,10 @@ export default defineComponent({
               'Continue follow-up',
             ]),
             computedValue: (value: any) => ({
-            obs: this.reception.buildValueText('Recommended Plan of care', value.label)
+            obs: this.reception.buildValueCoded('Recommended Care After LLETZ Histology', value.label)
           })
-        },{
+        },
+        {
           id: "patient_outcome",
           helpText: "Patient outcome",
           type: FieldType.TT_SELECT,
@@ -224,10 +288,9 @@ export default defineComponent({
           validation: (val: any) => Validation.required(val),
           options: () =>
             this.mapOptions([
-              'Continue follow-up',
-              'Pallialative care',
+              'On-going Palliative Care',
               'No Dysplasia/Cancer',
-              'Patient died',
+              'Death',
             ]),
         },
       ];

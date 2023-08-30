@@ -42,6 +42,7 @@ import dayjs from "dayjs";
 import { Service } from "@/services/service";
 import { toCsv, toPDFfromHTML } from "@/utils/Export"
 import { find } from "lodash";
+import { alertConfirmation } from "@/utils/Alerts";
 
 export default defineComponent({
   mixins: [ReportMixinVue],
@@ -61,7 +62,8 @@ export default defineComponent({
     disaggregatedReportParams: '' as string,
     startDate: '' as string,
     endDate: '' as string,
-    quarter: '' as string
+    quarter: '' as string,
+    onGenerateTempCallback: null as any
   }),
   created() {
     this.btns = this.getBtns()
@@ -118,6 +120,12 @@ export default defineComponent({
             this.isLoading = false
             this.report.cacheCohort(data.values)
             clearInterval(interval)
+            // Run any temporary callback functions and clear them afterwards
+            if (typeof this.onGenerateTempCallback === 'function') {
+              const action = this.onGenerateTempCallback
+              action()
+              this.onGenerateTempCallback = null
+            }
           }
         }, 3000)
       }
@@ -132,7 +140,7 @@ export default defineComponent({
       }, {})
     },
     regenerate() {
-      this.onPeriod(this.formData, this.computedFormData, true)
+      return this.onPeriod(this.formData, this.computedFormData, true)
     },
     async onDrillDown(indicatorName: string) {
       const indicator = find(this.cohort, {name: indicatorName})
@@ -150,7 +158,7 @@ export default defineComponent({
       ]
       const asyncRows = async () => {
         const persons = this.sortByArvNumber((await this.report.getCohortDrillDown(resourceId)) as Array<any> || [], 'arv_number')
-        return persons.map((person: any) => ([
+        const row = persons.map((person: any) => ([
           this.tdARV(person['arv_number']),
           table.td(`${person['given_name']} ${person['family_name']}`),
           table.td(this.formatGender(person['gender'])),
@@ -161,6 +169,26 @@ export default defineComponent({
             this.$router.push({ path:`/patient/dashboard/${person.person_id}`})
           })
         ]))
+        /**
+         * Hack to fix Empty drilldown result-set.
+         * 
+         * This hack addresses an issue where the cohort report indicator is counting
+         * patients but isnt able to fetch them during drilldown. This is a caching issue on the report
+         * and requires a regeneration to solve this...
+         */
+        if (parseInt(indicator.contents) > 0 && row.length <= 0) {
+          // user has to confirm if they want to rebuild
+          if (await alertConfirmation("Unable to fetch drilldown patients, Do you want to rebuild cohort to resolve this?")) {
+            setTimeout(() => {
+              // Close the drilldown dialogue so that we can load the next one if it's ready
+              modalController.getTop().then(v => v ? modalController.dismiss() : null)
+              // Reload the drilldown table with updated data
+              this.onGenerateTempCallback = () => this.onDrillDown(indicatorName)
+              this.regenerate()
+            }, 100)
+          }
+        }
+        return row
       }
       await this.drilldownAsyncRows(indicator.description, columns, asyncRows)
     },

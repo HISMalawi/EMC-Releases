@@ -20,7 +20,8 @@ export const DRUG_FREQUENCIES: Array<{label: string; code: string; value: number
   { label : "EVERY OTHER DAY (QOD)", code : "QOD", value : 0.5 },
   { label : "ONCE A WEEK (QWK)", code : "QWK", value : 0.14 },
   { label : "ONCE A MONTH", code : "ONCE A MONTH", value : 0.03 },
-  { label : "TWICE A MONTH", code : "TWICE A MONTH", value : 0.071 }
+  { label : "TWICE A MONTH", code : "TWICE A MONTH", value : 0.071 },
+  { label : "Unknown", code : "Unknown", value : 0 }
 ]
 
 export const ANTI_MALARIA_DRUGS = [
@@ -59,6 +60,60 @@ export const ANTI_MALARIA_DRUGS = [
     'dose_strength': 4.0,
     'units': "tabs",
     'frequency': 2
+  },
+  {
+    'drug_id': 311,
+    'duration': 1,
+    'tabs': 1,
+    'name': "SP (525mg tablet)",
+    'dose_strength': 1.0,
+    'units': "tabs",
+    'frequency': 0.03
+  },
+  {
+    'drug_id': 1218,
+    'duration': 1,
+    'tabs': 1,
+    'name': "Artesunate injenction",
+    'dose_strength': 1.0,
+    'units': "ml",
+    'frequency': 1
+  },
+  {
+    'drug_id': 1219,
+    'duration': 3,
+    'tabs': 3,
+    'name': "ASAQ 25mg/67.5mg (3 tablets)",
+    'dose_strength': 1.0,
+    'units': "mg",
+    'frequency': 1
+  },
+  {
+    'drug_id': 1220,
+    'duration': 3,
+    'tabs': 3,
+    'name': "ASAQ 50mg/135mg (3 tablets)",
+    'dose_strength': 1.0,
+    'units': "mg",
+    'frequency': 1
+  },
+  {
+    'drug_id': 1221,
+    'duration': 3,
+    'tabs': 3,
+    'name': "ASAQ 100mg/270mg (3 tablets)",
+    'dose_strength': 1.0,
+    'units': "mg",
+    'frequency': 1
+  },
+  {
+    'drug_id': 1222,
+    'duration': 3,
+    'tabs': 6,
+    'name': "ASAQ 100mg/270mg (6 tablets)",
+    'dose_strength': 2.0,
+    'units': "mg",
+    'frequency': 1
   }
 ];
 
@@ -71,7 +126,8 @@ export class DrugPrescriptionService extends AppEncounterService {
     const drugs: ConceptName[] = await DrugService.getDrugs({ 
       "name": filter, 
       "page": page,
-      "page_size": limit 
+      "page_size": limit,
+      "concept_set": 'OPD Medication' 
     })
     return drugs.map(drug => ({
       label: drug.name, value: drug.name, other: drug

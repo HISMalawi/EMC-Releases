@@ -38,7 +38,7 @@ export const DRUG_PACK_SIZES: Record<string, any> = {
     '1043': [ 60 ],
     '1044': [ 30],
     '1056': [ 24 ],
-    '1216': [3, 6, 12]
+    '1216': [3, 6, 8, 12]
 }
 
 export class DispensationService extends AppEncounterService {
@@ -93,25 +93,17 @@ export class DispensationService extends AppEncounterService {
 
     async loadDrugHistory() {
         try {
-            const res = await DrugOrderService.getDrugOrderHistory(this.patientID)
-            if (res) this.drugHistory = res
+            this.drugHistory = (await DrugOrderService.getDrugOrderHistory(this.patientID))||[]
         } catch (e) {
             console.warn(e)
         }
     }
 
     async loadCurrentDrugOrder() {
-        const res = await DrugOrderService.getDrugOrders(this.patientID)
-        if (res) {
-            if (this.useDrugManagement) {
-                const drugs = res.map(async (d: any) => {
-                    d['available_stock'] = await StockService.fetchAvailableDrugStock(d.drug.drug_id)
-                    return d
-                })
-                this.currentDrugOrder = await Promise.all(drugs)
-                return
-            }
-            this.currentDrugOrder = res
+        this.currentDrugOrder = (await DrugOrderService.getDrugOrders(this.patientID))||[]
+        if (!this.useDrugManagement) return
+        for(const order of this.currentDrugOrder) {
+            order['available_stock'] = await StockService.fetchAvailableDrugStock(order.drug.drug_id)
         }
     }
 

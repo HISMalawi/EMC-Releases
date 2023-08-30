@@ -20,6 +20,7 @@ import { StockService } from "./stock_service";
 import { toastDanger, toastSuccess, toastWarning } from "@/utils/Alerts";
 import { isEmpty } from "lodash";
 import { toNumString } from "@/utils/Strs";
+import { DrugCmsService } from "@/services/drug_cms_service";
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -91,18 +92,25 @@ export default defineComponent({
         {
           id: "select drugs",
           helpText: "Select drugs",
-          type: FieldType.TT_MULTIPLE_SELECT,
+          type: FieldType.TT_INFINITE_SCROLL_MULTIPLE_SELECT,
           requireNext: true,
           validation: (val: any) => Validation.required(val),
-          options: () => this.drugs,
+          options: async (_: any, filter='a') => {
+            const d = await DrugCmsService.search(filter || "a");
+            this.drugs = this.formatDrugs(d)
+            return this.drugs
+          },
           unload: (val: any) => (this.selectedDrugs = val),
           config: {
             showKeyboard: true,
+            isFilterDataViaApi: true,
             footerBtns: [
               {
                 name: "Select all",
                 slot: "end",
-                onClick: () => {
+                onClick: async () => {
+                  const allDrugs = await DrugCmsService.getDrugs({ pagenate: false})
+                  this.drugs = this.formatDrugs(allDrugs)
                   this.selectAll(this.drugs);
                 },
               },
@@ -123,7 +131,7 @@ export default defineComponent({
           beforeNext: (_: any, f: any, c: any, {currentFieldContext}: any) => {
             const drugsToStr = (drugs: any) => drugs.map((b: any, i: number) => `${b.label}`).join(' & ')
             const drugsWithoutBatches = currentFieldContext.drugs.filter((drug: any) =>
-              drug.entries.map((d: any) => !d.tins && !d.expiry && !d.batchNumber && !d.productCode).every(Boolean)
+              drug.entries.map((d: any) => !d.tins && !d.expiry && !d.batchNumber && !d.tabs).every(Boolean)
             )
             const partialBatches = currentFieldContext.drugs.filter((drug: any) => {
               return drug.entries.map((e: any) => {
@@ -131,8 +139,8 @@ export default defineComponent({
                 if (e.tins) score += 1
                 if (e.expiry) score += 1
                 if (e.batchNumber) score += 1
-                if (e.productCode) score += 1
-                return score >= 1 && score <= 3 
+                if (e.tabs) score += 1
+                return score >= 1 && score <= 3
               }).some(Boolean)
             })
             if (!isEmpty(partialBatches)) {
@@ -150,7 +158,7 @@ export default defineComponent({
           validation: (v: Option) => Validation.required(v)
         },
         {
-          id: "adherence_report",
+          id: "summary",
           helpText: "Summary",
           type: FieldType.TT_TABLE_VIEWER,
           options: (d: any) => this.buildResults(d.enter_batches),
@@ -164,20 +172,18 @@ export default defineComponent({
       const columns = [
         "Drug",
         "Amount per unit",
-        "Total units",
+        "Tins/Pallets",
         "Expiry date",
         "Batch number",
-        "Product code"
       ];
       const rows = d.map((j: any) => {
         const d = j.value;
         return [
-          d.shortName,
+          d.short_name,
           d.tabs,
           toNumString(d.tins),
           HisDate.toStandardHisDisplayFormat(d.expiry),
           d.batchNumber,
-          d.productCode,
         ];
       });
       return [
@@ -199,12 +205,13 @@ export default defineComponent({
           'location_id': location,
           items: [
             {
-              'product_code': element.productCode,
               'barcode': barcode,
-              'drug_id': element.drugID,
+              'drug_id': element.drug_inventory_id,
               'expiry_date': element.expiry,
               'quantity': parseInt(element.tabs) * parseInt(element.tins),
               'delivery_date': formdata.date.value,
+              'product_code': element.code,
+              "pack_size": element.tabs,
             },
           ],
         });
@@ -217,10 +224,10 @@ export default defineComponent({
         return l;
       });
     },
-    formatDrugs() {
-      return this.stockService.drugList().map((drug: any) => {
+    formatDrugs(drugs: Array<any>) {
+      return drugs.map((drug: any) => {
         return {
-          label: drug.shortName,
+          label: `${drug.short_name} (${drug.code})`,
           value: drug,
         };
       });
@@ -229,7 +236,6 @@ export default defineComponent({
   created() {
     this.stockService = new StockService();
     this.fields = this.getFields();
-    this.drugs = this.formatDrugs();
   },
 });
 </script>

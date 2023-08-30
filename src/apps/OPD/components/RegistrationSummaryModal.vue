@@ -9,12 +9,20 @@
     <ion-grid>
       <ion-row>
         <ion-col><h3>Type of Visit</h3></ion-col>
-        <ion-col><h3>Count</h3></ion-col>
+        <ion-col><h3> &lt; 5yrs </h3></ion-col>
+        <ion-col><h3> > 5yrs</h3></ion-col>
+        <ion-col><h3>Total</h3></ion-col>
       </ion-row>
       <ion-list>
         <ion-item v-for="item in list" :key="item">
           <ion-col>
             {{ item.label }}
+          </ion-col>
+          <ion-col>
+            {{ item.under5}}
+          </ion-col>
+          <ion-col>
+            {{ item.over5}}
           </ion-col>
           <ion-col>
             {{ item.value}}

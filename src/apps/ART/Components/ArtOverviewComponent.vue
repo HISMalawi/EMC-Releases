@@ -2,13 +2,8 @@
   <ion-grid>
     <ion-row>
       <ion-col size-lg="6" size-sm="12">
-        <span class="his-md-text">Total visits / incomplete visits: last 5 days</span>
-        <ApexChart
-          width="100%"
-          type="bar"
-          :options="options"
-          :series="series"
-        />
+        <h5 class="his-md-text">Total visits / incomplete visits: last 5 days</h5>
+        <ApexChart width="100%" height="390px" type="bar" :options="options" :series="series" />
       </ion-col>
       <ion-col size-lg="6" size-sm="12">
         <span class="his-md-text">Encounters created today</span>
@@ -21,7 +16,7 @@
             <th>Facility</th>
           </tr>
           <tr v-for="(data, index) in rows" :key="index">
-            <td class="encounter-td">{{ getEncounterName(data.encounter) }}</td>
+            <td class="encounter-td">{{ data.encounter }}</td>
             <td class="other-td">{{ data.female }}</td>
             <td class="other-td">{{ data.male }}</td>
             <td class="other-td">{{ data.me }}</td>
@@ -36,23 +31,30 @@
 <script lang="ts">
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { defineComponent } from "vue";
-import ApiClient from "@/services/api_client";
 import dayjs from "dayjs";
-import { Service } from "@/services/service"
 import ApexChart from "vue3-apexcharts";
+import { PatientReportService } from "../services/reports/patient_report_service";
+import HisDate, { STANDARD_DATE_FORMAT } from "@/utils/Date";
+import { EncounterReportService } from "../services/reports/encounter_report_service";
 
 export default defineComponent({
   data: function () {
     return {
-      dayjs,
-      startDate: "",
-      endDate: "",
+      sessionDate: PatientReportService.getSessionDate(),
       options: {
         chart: {
           id: "vuechart-example",
         },
         xaxis: {
           categories: ["", "", "", "", ""],
+        },
+        yaxis: {
+          min: 0,
+          forceNiceScale: true,
+          title: {
+            text: 'Number of clients',
+            align: 'left'
+          }
         },
       },
       series: [
@@ -69,15 +71,15 @@ export default defineComponent({
       ],
       rows: [] as any,
       encounters: [
-        {"HIV clinic registration": 9},
-        {"HIV reception": 51},
-        {"Vitals": 6},
-        {"HIV staging": 52},
-        {"HIV clinic consultation": 53},
-        {"ART adherence": 68},
-        {"Treatment": 25},
-        {"Dispensing": 54},
-        {"Appointments": 7},
+        { "HIV clinic registration": 9 },
+        { "HIV reception": 51 },
+        { "Vitals": 6 },
+        { "HIV staging": 52 },
+        { "HIV clinic consultation": 53 },
+        { "ART adherence": 68 },
+        { "Treatment": 25 },
+        { "Dispensing": 54 },
+        { "Appointments": 7 },
       ],
     };
   },
@@ -90,7 +92,7 @@ export default defineComponent({
   created() {
     this.rows = this.encounters.map(
       (enc) => ({
-        encounter: Object.values(enc)[0],
+        encounter: Object.keys(enc)[0],
         female: '',
         male: '',
         me: '',
@@ -98,87 +100,52 @@ export default defineComponent({
     }))
   },
   mounted() {
-    this.endDate = this.dayjs().subtract(1, "days").format("YYYY-MM-DD");
-    this.startDate = this.dayjs().subtract(5, "days").format("YYYY-MM-DD");
     this.getVisits();
     this.getEncounters();
   },
   methods: {
     getVisits: async function () {
-      const response = await ApiClient.get(
-        `programs/1/reports/visits?name=visits&start_date=${this.startDate}&end_date=${this.endDate}`
-      );
-      if (response && response.status == 200) {
-        const data = await response.json();
-        const days = Object.keys(data);
-        const incomplete: number[] = [];
-        const complete: number[] = [];
-        days.forEach((el, index) => {
-          incomplete[index] = data[el].incomplete;
-          complete[index] = data[el].complete + data[el].incomplete;
-        });
-        this.series[0].data = [...complete];
-        this.series[1].data = [...incomplete];
-        const formattedDays: any[] = days.map((x) => this.dayjs(x).format("dddd"));
-        this.options = {
-          ...this.options,
-          ...{
-            xaxis: {
-              categories: [...formattedDays],
-            },
+      const reportService = new PatientReportService();
+      reportService.setStartDate(HisDate.subtract(this.sessionDate, 'days', 5).format(STANDARD_DATE_FORMAT));
+      reportService.setEndDate(HisDate.subtract(this.sessionDate, 'days', 1).format(STANDARD_DATE_FORMAT));
+      const data = await reportService.getVisitStats();
+      const incomplete: number[] = [];
+      const complete: number[] = [];
+      const formattedDays: any[] = [];
+      Object.entries(data).forEach(([date, {incomplete: i, complete: c}]: any) => {
+        formattedDays.push(dayjs(date).format('dddd'))
+        incomplete.push(i)
+        complete.push(i + c);
+      });
+      this.series[0].data = [...complete];
+      this.series[1].data = [...incomplete];
+      this.options = {
+        ...this.options,
+        ...{
+          xaxis: {
+            categories: [...formattedDays],
           },
-        };
-      }
-    },
-    getEncounterName(encounterID: number) {
-      if (!encounterID) 
-        return ""
-      const vals = this.encounters.filter(enc => {
-        return Object.values(enc)[0] === encounterID
-      })
-      return Object.keys(vals[0])[0];
-    },
-    getEncounters: async function () {
-      const userStats = {
-        'encounter_types': [
-          ...this.encounters.map((x) => Object.values(x)[0]),
-        ],
+        },
       };
-      const facilityStats = {
-        all: true,
-        'encounter_types': [
-          ...this.encounters.map((x) => Object.values(x)[0]),
-        ],
-      };
-      const response = await ApiClient.post(
-        `reports/encounters?date=${Service.getSessionDate()}&program_id=${Service.getProgramID()}`,
-        userStats
-      );
-      const response2 = await ApiClient.post(
-        `reports/encounters?date=${Service.getSessionDate()}&program_id=${Service.getProgramID()}`,
-        facilityStats
-      );
-      if (
-        response &&
-        response2 &&
-        response.status == 200 &&
-        response2.status == 200
-      ) {
-        const data = await response.json();
-        const allData = await response2.json(); 
-        const rows: any = [];
-        this.encounters.forEach((vals) => {
-          const element: any = Object.values(vals)[0];
-
-          rows.push({
-            encounter: element,
-            female: allData[element]["F"],
-            male: allData[element]["M"],
-            me: data[element]["F"] + data[element]["M"],
-            facility: allData[element]["F"] + allData[element]["M"],
-          });
+    },
+    async getEncounters () {
+      try {
+        const encounterService = new EncounterReportService();
+        const encounter_types = this.encounters.map((x) => Object.values(x)[0])
+        const userData = await encounterService.getEncounterStats({ encounter_types })
+        const facilityData = await encounterService.getEncounterStats({ encounter_types, all: true })
+        this.rows = this.encounters.map(encounter => {
+          const [ name, id ] = Object.entries(encounter)[0];
+          return {
+            encounter: name,
+            female: facilityData[id]["F"],
+            male: facilityData[id]["M"],
+            me: userData[id]["F"] + userData[id]["M"],
+            facility: facilityData[id]["F"] + facilityData[id]["M"],
+          };
         });
-        this.rows = [...rows];
+      } catch (error) {
+        console.error(error)
       }
     },
   },
@@ -189,10 +156,12 @@ export default defineComponent({
 ion-grid {
   color: #333333;
 }
+
 .encounter-td {
   text-align: left;
   border: 1px solid #dddddd;
 }
+
 .other-td {
   text-align: right;
   font-weight: bold;
@@ -200,6 +169,7 @@ ion-grid {
   min-width: 60px;
 
 }
+
 table {
   border-collapse: collapse;
   width: 100%;
@@ -215,7 +185,9 @@ th {
 tr:nth-child(even) {
   background-color: #f1efef;
 }
-@media (min-width: 1280px)  {
+
+@media (min-width: 1280px) {
+
   td,
   th {
     text-align: right;

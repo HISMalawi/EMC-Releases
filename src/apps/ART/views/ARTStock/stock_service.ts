@@ -240,6 +240,9 @@ export class StockService extends Service {
 	constructor() {
 		super()
 	}
+	batchUpdate(batch: Record<string, any>) {
+		return Service.postJson('/pharmacy/items/batch_update', batch)
+	}
 	postItems(items: any) {
 		return Service.postJson('/pharmacy/batches', items);
 	}
@@ -279,5 +282,7 @@ export class StockService extends Service {
 	static getAdultDrugs() {
 		return finalList.filter(d => d.categories?.includes('a'));
 	}
-	
+	static getPackSizes (drugId: number) {
+		return finalList.find(drug => drug.drugID === drugId)?.packSizes || []
+	}
 }

@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import HisStandardForm from "@/components/Forms/TouchScreenForm.vue";
+import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import EncounterMixinVue from '@/views/EncounterMixin.vue';
 import { PatientComplaintsService } from "@/apps/OPD/services/patient_complaints_service";
 import LabOrderModal from "@/components/DataViews/LabOrderModal.vue"
@@ -130,7 +130,7 @@ export default defineComponent({
           computedValue: (options: Option[]) => {
             return options.map(async (option)=> ({
               ...(await this.complaintsService.buildValueCoded('Presenting complaint', option.other.parent)),
-              child: (await this.complaintsService.buildValueCodedFromConceptId(option.other.parent, option.other.concept_id))
+              child: [await this.complaintsService.buildValueCodedFromConceptId(option.other.parent, option.other.concept_id)]
             }))
           },
           config: {

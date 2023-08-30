@@ -142,7 +142,7 @@
             :programCardInfo="programCardInfo"
         />
         <ion-content id="main-content"> 
-            <ion-grid v-if="!appHasCustomDashboard" class='grid-custom vertically-align'>
+            <ion-grid class='grid-custom vertically-align'>
                 <ion-row>
                     <ion-col size="2.4">
                         <visit-dates-card :title="visitDatesTitle" :items="visitDates" @onselect="onActiveVisitDate"> </visit-dates-card>
@@ -467,7 +467,7 @@ export default defineComponent({
                 onVisitDate: (card: any) => {
                     if (card.isInit) return
                     const d  = this.getPatientAlertCardInfo()
-                    if(typeof d === 'object' && d.then) {
+                    if(typeof d === 'object' && typeof d.then === 'function') {
                         card.isLoading = true
                         this.getPatientAlertCardInfo()
                             .then((data) => {

@@ -59,7 +59,7 @@ export const SECONDARY_ACTIVITIES: TaskInterface[] = [
 export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     {
        id: 'anc dispensing',
-       name: 'TTV VACCINATION',
+       name: 'TD VACCINATION',
        encounterTypeName: 'DISPENSING',
        icon: 'prescription/medication.png'
     },

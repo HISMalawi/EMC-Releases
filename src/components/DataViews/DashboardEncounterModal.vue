@@ -85,7 +85,7 @@ export default defineComponent({
   }),
   computed: {
     canVoid(): boolean {
-      return !isEmpty(this.active) && !isEmpty(this.active.rows)
+      return !isEmpty(this.active)
     }
   },
   watch: {
@@ -130,7 +130,7 @@ export default defineComponent({
             this.showDetails(this.encounters[0])
           }
         } catch (e) {
-          toastDanger(e)
+          toastDanger(`${e}`)
         }
       }, 'void-modal custom-modal-backdrop') 
     },

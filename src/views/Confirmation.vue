@@ -49,7 +49,7 @@
           Cancel
         </ion-button>
         <ion-button
-          :disabled="!(facts.patientFound && isAdmin)"
+          :disabled="!canVoidClient"
           color="danger left"
           size="large"
           @click="onVoid"
@@ -116,6 +116,8 @@ import { AncPregnancyStatusService } from "@/apps/ANC/Services/anc_pregnancy_sta
 import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 import { isUnknownOrEmpty, isValueEmpty } from "@/utils/Strs";
 import Store from "@/composables/ApiStore"
+import { Order } from "@/interfaces/order";
+import { Result } from "@/interfaces/result";
 
 export default defineComponent({
   name: "Patient Confirmation",
@@ -156,6 +158,7 @@ export default defineComponent({
       programs: [] as string[],
       identifiers: [] as string[],
       patientType: 'N/A' as string,
+      patientTypeLastUpdated: '' as string,
       anc: {
         lmpMonths: -1,
         canInitiateNewPregnancy: false,
@@ -222,8 +225,8 @@ export default defineComponent({
         this.facts.demographics.birthdate
       )
     },
-    isAdmin() {
-      return UserService.isAdmin()
+    canVoidClient() {
+      return this.facts.patientFound && UserService.isDataManager()
     }
   },
   methods: {
@@ -286,13 +289,19 @@ export default defineComponent({
       }
     },
     async setViralLoadStatus() {
-      const orders = await OrderService.getOrders(this.patient.getID())      
-      if(!isEmpty(orders)){
-        const vlOrders = OrderService.getViralLoadOrders(orders)
-        if(!isEmpty(vlOrders)){
-          this.facts.hasHighViralLoad = OrderService.isHighViralLoadResult(vlOrders[0].tests[0].result[0])
-        }
-      }      
+      try {
+        const orders = await OrderService.getOrders(this.patient.getID())      
+        const latestVLResult = orders.reduce((result: Result, order: Order) => {
+          const _results = OrderService.getVLResults(order)
+          return isEmpty(_results) || _results[0].date < result.date
+            ? result 
+            : _results[0] 
+        }, {} as Result);
+  
+        this.facts.hasHighViralLoad = OrderService.isHighViralLoadResult(latestVLResult)     
+      } catch (e) {
+        console.error(e)
+      }
     },
     /**
      * Resolve patient by either patient ID or NpID.
@@ -498,8 +507,11 @@ export default defineComponent({
         this.facts.enrolledInProgram = !(isValueEmpty(program) || program.match(/n\/a/i))
         this.facts.currentOutcome = outcome
         this.facts.userRoles = UserService.getUserRoles().map((r: any) => r.role)
-        this.facts.patientType = (await ObservationService.getFirstValueCoded(
-          this.patient.getID(), 'Type of patient')) || 'N/A'
+        const patientTypeObs = await ObservationService.getFirstObs(this.patient.getID(), 'Type of patient')
+        if (patientTypeObs?.value_coded) {
+          this.facts.patientType = patientTypeObs.value_coded
+          this.facts.patientTypeLastUpdated = HisDate.toStandardHisFormat(patientTypeObs.obs_datetime)
+        }
       } catch (e) {
         console.error(`${e}`)
       }
@@ -609,7 +621,7 @@ export default defineComponent({
      * Functions definitions that are executed.
      */
     async runFlowState(state: FlowState) {
-      const states: Record<string, Function> = {}
+      const states: Record<string, () => any> = {}
       states[FlowState.GO_HOME] = () => {
           this.$router.push('/')
           return FlowState.FORCE_EXIT
@@ -719,10 +731,15 @@ export default defineComponent({
       }
       return state
     },
-    async createPatientType(patientType: 'Drug Refill' | 'External consultation' | 'New patient') {
+    async createPatientType(newPatientType: 'Drug Refill' | 'External consultation' | 'New patient') {
+      if (newPatientType != this.facts.patientType && this.facts.patientTypeLastUpdated === Patientservice.getSessionDate()) {
+        if (!(await alertConfirmation(`This client was flagged today as "${this.facts.patientType}", altering patient type to "${newPatientType}" may affect record integrity, do you want to affect change?`))) {
+          return
+        }
+      }
       const type = new PatientTypeService(this.patient.getID(), -1)
       await type.createEncounter()
-      await type.savePatientType(patientType)
+      await type.savePatientType(newPatientType)
     },
     async onVoid() {
       popVoidReason(async (reason: string) => {

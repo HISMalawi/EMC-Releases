@@ -35,6 +35,10 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'Regimen Report',
                 pathName: 'moh_regimen_report'
+            },
+            {
+                name: 'TPT Cohort',
+                pathName: 'moh_tpt_cohort'
             }
         ]
     },
@@ -105,13 +109,26 @@ export const REPORTS: FolderInterface[] = [
                 condition: () => Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED')
             },
             {
+                name: 'Discrepancy Report',
+                pathUrl: '/art/clinic_discrepancy_report',
+                condition: () => Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED')
+            },
+            {
                 name: 'TX RTT',
                 pathUrl: '/art/report/clinic_tx_rtt'
             },
             {
                 name: 'TPT Outcomes',
                 pathUrl: '/art/report/clinic_tpt_outcomes'
-            }
+            },
+            {
+                name: "Viral Load Register",
+                pathUrl: "/art/report/clinic_viral_load_register"
+            },
+            {
+                name: 'Vl collection',
+                pathUrl: '/art/clinic_vl_collection_report'
+            },
         ]
     },
     {
@@ -156,8 +173,12 @@ export const REPORTS: FolderInterface[] = [
                 pathName: 'pepfar_vl_coverage'
             },
             {
-                name: 'SC ARV',
+                name: 'SC_ARV_DISP',
                 pathName: 'sc_arv'
+            },
+            {
+                name: 'TX_TB',
+                pathName: 'pepfar_tx_tb'
             }
         ]
     }

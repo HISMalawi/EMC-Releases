@@ -2,6 +2,7 @@ import { Option } from '@/components/Forms/FieldInterface';
 import { RouteRecordRaw } from 'vue-router';
 import { TaskInterface } from './TaskInterface';
 import { StoreDef } from '../GLOBAL_APP/global_store';
+import { NotificationInterface } from '@/composables/notifications';
 
 export interface ActivityInterface {
     value: string;
@@ -142,5 +143,9 @@ export interface AppInterface {
     /**
      * Define assets to be cached by the app
     */
-    readonly appStore?: Record<string, StoreDef>
+    readonly appStore?: Record<string, StoreDef>;
+    /**
+     * Hook that loads notifications
+     */
+    downloadAppNotifications?: () => Promise<NotificationInterface[]>
 }

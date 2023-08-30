@@ -294,6 +294,9 @@ export const CHILD_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
             ageInMonths(age: number) {
                 return age >= 24 && age <= 56
             },
+            cd4Date: (date: string) => {
+                return new Date(date) <= new Date("2014-04-01")
+            },
             cd4(cd4: number) {
                 return cd4 <= 750
             },
@@ -312,6 +315,9 @@ export const CHILD_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
             cd4(cd4: number){
                 return cd4 <= 500
             },
+            cd4Date: (date: string) => {
+                return new Date(date) <= new Date("2014-04-01")
+            },
             cd4Modifier(modifier: string){
                 return modifier === '<' || modifier === '='
             },
@@ -324,8 +330,8 @@ export const CHILD_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
         concept: 'CD4 COUNT LESS THAN OR EQUAL TO 500',
         priority: 9,
         conditions: {
-            date(date: string) {
-                return date >= '2014-04-01'
+            cd4Date: (date: string) => {
+                return new Date(date) <= new Date("2014-04-01")
             },
             age(age: number) {
                 return age > 5
@@ -350,9 +356,37 @@ export const CHILD_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
             }
         }
     },
+    'Women who are breast feeding': {
+        concept: 'BREASTFEEDING',
+        priority: 11,
+        conditions: {
+            gender(gender: string){
+                return gender === 'F'
+            },
+            breastFeeding(answer: string){
+                return  answer === 'Yes'
+            },
+            stage: (stage: number) => stage <= 2
+        }
+    },
+    'Women who are pregnant': {
+        concept: 'PATIENT PREGNANT',
+        priority: 12,
+        conditions: {
+            gender(gender: string) {
+                return gender === 'F'
+            },
+            pregnant(answer: string){
+                return answer === 'Yes'
+            },
+            stage(stage: number) {
+                return stage <= 2
+            },
+        }
+    },
     "Asymptomatic patient with either stage one or stage two conditions": {
         concept: 'Asymptomatic',
-        priority: 11,
+        priority: 13,
         conditions: {
             stage: (stage: number) => stage <= 2
         }
@@ -389,8 +423,8 @@ export const ADULT_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
         concept: 'cd4 less than or equal to 350',
         priority: 4,
         conditions: {
-            date(date: string) {
-                return date < '2014-04-01'
+            cd4Date: (date: string) => {
+                return new Date(date) <= new Date("2014-04-01")
             },
             cd4(cd4: number) {
                 return cd4 <= 350
@@ -404,8 +438,8 @@ export const ADULT_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
         concept: 'cd4 less than or equal to 250',
         priority: 4,
         conditions: {
-            date(date: string) {
-                return date >= '2014-04-01'
+            cd4Date: (date: string) => {
+                return new Date(date) <= new Date("2014-04-01")
             },
             cd4(cd4: number) {
                 return cd4 <= 250
@@ -419,8 +453,8 @@ export const ADULT_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
         concept: 'cd4 less than or equal to 350',
         priority: 5,
         conditions: {
-            date(date: string) {
-                return date >= '2014-04-01'
+            cd4Date: (date: string) => {
+                return new Date(date) <= new Date("2014-04-01")
             },
             cd4(cd4: number) {
                 return cd4 <= 350
@@ -434,8 +468,8 @@ export const ADULT_ART_ELIGIBILITY: Record<string, GuideLineInterface> = {
         concept: 'cd4 less than or equal to 500',
         priority: 6,
         conditions: {
-            date(date: string) {
-                return date >= '2014-04-01'
+            cd4Date: (date: string) => {
+                return new Date(date) <= new Date("2014-04-01")
             },
             cd4(cd4: number){
                 return cd4 <= 500

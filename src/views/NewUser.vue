@@ -200,7 +200,7 @@ export default defineComponent({
                                     toastSuccess('User has been activated', 400)
                                 }
                             } catch(e) {
-                                toastWarning(e)
+                                toastWarning(`${e}`)
                             }
                         }
                     })

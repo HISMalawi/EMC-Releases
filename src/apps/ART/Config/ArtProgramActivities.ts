@@ -168,5 +168,11 @@ export const SECONDARY_ACTIVITIES: TaskInterface[] = [
     },
     condition: () =>  Store.get('IS_ART_FILING_NUMBER_ENABLED'),
     icon: "folder.png"
+  },
+  {
+    id: 'art notes',
+    name: 'ART Clinical Notes',
+    icon: 'clinical-notes.png',
+    availableOnActivitySelection: false
   }
 ]

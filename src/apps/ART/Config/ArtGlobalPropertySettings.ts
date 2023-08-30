@@ -85,8 +85,16 @@ export const PROPERTIES: FolderInterface[] = [
                 GLOBAL_PROP.MILITARY_SITE
             ),
             globalPropConfig(
+                "Ask pills remaining at home",
+                ART_GLOBAL_PROP.PILLS_REMAINING
+            ),
+            globalPropConfig(
                 "(DATA CLEANING) Exclude External and Drug refill",
                 ART_GLOBAL_PROP.EXCLUDE_EXTERNAL_AND_DRUG_REFILLS
+            ),
+            globalPropConfig(
+                "Scan DBS barcode",
+                ART_GLOBAL_PROP.CAN_SCAN_DBS_BARCODE
             ),
             {
                 name: "Target lab",
@@ -107,6 +115,10 @@ export const PROPERTIES: FolderInterface[] = [
             {
                 name: "Set HTN Age",
                 pathUrl: "/art/preferences/htn_age"
+            },
+            {
+                name: "Set Auto Cleaning Alert Days",
+                pathUrl: "/art/preferences/notification_period"
             },
             {
                 name: "Set Appointment Limit",

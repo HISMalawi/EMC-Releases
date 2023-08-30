@@ -92,6 +92,7 @@ export default defineComponent({
             this.report.setQuarter(quarter.label)
             this.report.setAgeGroup(group.value)
             const data = await this.report.getSurvivalAnalysis()
+            this.title = `Survival analysis report ${group.label}`
             this.rows = this.getRows(data)
         },
         getRows(data: any) {

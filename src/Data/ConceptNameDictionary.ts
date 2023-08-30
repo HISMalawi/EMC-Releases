@@ -1,8 +1,48 @@
 export default [
    {
+      "categories": [
+         "tb_treatment"
+      ],
+      "concept_id": 10687,
+      "name": "TB treatment start date"
+   },
+   {
+      "categories": [
+         "tb_treatment"
+      ],
+      "concept_id": 10686,
+      "name": "TB treatment period"
+   },
+   {
+      "categories": ["hiv_viral_load_reasons"],
+      "concept_id": 10609,
+      "name": "Follow up after Low Level Viremia"
+   },
+   {
+      "categories": ["hiv_viral_load_reasons"],
+      "concept_id": 10610,
+      "name": "Follow up after High Viral Load"
+   },
+   {
       "categories": [],
       "concept_id": 8259,
       "name": "Routine TB Screening"
+   },
+   {
+      "categories": [],
+      "concept_id": 7459,
+      "name": "TB Status"
+   },
+   {
+      "categories": [],
+      "concept_id": 7454,
+      "name": "TB Not Suspected",
+      "shortName": "Nosup"
+   },
+   {
+      "categories": [],
+      "concept_id": 7455,
+      "name": "TB Suspected",
    },
    {
       "categories": [],
@@ -335,7 +375,7 @@ export default [
    {
       "categories": [],
       "concept_id": 7124,
-      "name": "Tetanus toxoid vaccine"
+      "name": "Tetanus Diphtheria"
    },
    {
       "categories": [],

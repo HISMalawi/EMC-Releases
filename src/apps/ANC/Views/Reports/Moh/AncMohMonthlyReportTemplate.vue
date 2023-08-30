@@ -185,11 +185,11 @@
                 </tr>
                 <tr>
                 <td colspan="3">
-                    WOMEN RECEIVED  DOSES OF TTV OR HAS ADEQUETE TTV (5 doses)
+                    WOMEN RECEIVED  DOSES OF TD OR HAS ADEQUETE TD (5 doses)
                 </td>
                 <td style="border: 1px solid #999; border-top: 0px; width: 25%; text-align: center;">
-                    <a id="a-women-received-ttv" href="#" @click.prevent="drill('women_received_ttv')">
-                    <span id="women-received-ttv">{{indicators.women_received_ttv}}</span> 
+                    <a id="a-women-received-ttv" href="#" @click.prevent="drill('women_received_td')">
+                    <span id="women-received-ttv">{{indicators.women_received_td}}</span> 
                     </a>
                 </td>
                 </tr>

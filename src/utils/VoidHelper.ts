@@ -2,7 +2,7 @@ import { alertConfirmation } from "@/utils/Alerts"
 import { actionSheetController } from "@ionic/vue"
 import { isEmpty } from "lodash"
 
-export async function voidWithReason(callback: Function, customReasons=[] as string[]) {
+export async function voidWithReason(callback: (role: string) => Promise<void>, customReasons=[] as string[]) {
     const confirm = await alertConfirmation('Are you sure you want to void?')
     if (!confirm) {
       return
@@ -41,6 +41,6 @@ export async function voidWithReason(callback: Function, customReasons=[] as str
     actionSheet.present()
     const { role } = await actionSheet.onDidDismiss();
     if (role != 'cancel') {
-        callback(role)
+        callback(role as string)
     }
 }

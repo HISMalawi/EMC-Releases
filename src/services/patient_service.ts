@@ -116,9 +116,28 @@ export class Patientservice extends Service {
             && ObservationService.obsInValidPeriod(obs)
     }
 
+    async isBreastfeeding() {
+        const obs = await ObservationService.getFirstObs(this.getID(), 'Is patient breast feeding')
+        return obs && (obs.value_coded.match(/Yes/i) ? true : false) 
+            && ObservationService.obsInValidPeriod(obs)
+    }
+
     async hasPregnancyObsToday() {
         const date = await ObservationService.getFirstObsDatetime(this.getID(), 'Is patient pregnant')
         return date && HisDate.toStandardHisFormat(date) === Service.getSessionDate() && this.isFemale()
+    }
+
+   async nextAppointment(programID=Service.getProgramID()) {
+        try {
+            const res = await Service.getJson("next_appointment", {
+                patient_id: this.getID(),
+                date: Service.getSessionDate(),
+                program_id: programID
+            })
+            return res.appointment_date
+        } catch (e) {
+            return null
+        }
     }
 
     isChildBearing() {
@@ -126,14 +145,18 @@ export class Patientservice extends Service {
         return this.isFemale() && age >= 12 && age <= 50
     }
 
-    async getInitialObs(concept: string) {
+    async getInitialObs(concept: string, attr='value_numeric') {
         try {
             const initialObs = await ObservationService.getAll(
               this.getID(),
               concept
             );
+            if (!initialObs) return
             const lastIndex = initialObs.length - 1;
-            return initialObs[lastIndex].value_numeric;
+            if (attr === 'value_coded') {
+                return ConceptService.getConceptName(initialObs[lastIndex][attr])
+            }
+            return initialObs[lastIndex][attr];
         } catch (e) {
             console.error(e)
         }
@@ -361,13 +384,19 @@ export class Patientservice extends Service {
         return this.getAddresses().currentTA
     }
 
+    
     getClosestLandmark() {
         return this.getAttribute(19)
     }
-
+    
+    getOccupation() {
+        return this.getAttribute(13)
+    }
+    
     getPhoneNumber() {
         return this.getAttribute(12) //get phone number
     }
+    
     getAttribute(personAttributeTypeID: number) {
         return getPersonAttribute(this.patient.person.person_attributes, personAttributeTypeID);
     }

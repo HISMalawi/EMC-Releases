@@ -33,6 +33,11 @@ export default defineComponent({
   watch: {
     ready: {
       handler(ready: boolean) {
+
+
+        //print out App type
+        console.log("The Current App calling this encounter  ",App.getActiveApp()?.applicationName)
+
         if (ready) {
           this.appointment = new AppointmentService(this.patientID, this.providerID)
           this.fields = [
@@ -52,6 +57,8 @@ export default defineComponent({
       const printer = new PatientPrintoutService(this.patientID);
       // TODO: remove the program checks here
       const appsThatDoNotPrint = ['CxCa', 'ANC']
+      
+
       if(!appsThatDoNotPrint.includes(`${App.getActiveApp()?.applicationName}`)) {
         await printer.printVisitSummaryLbl();
       }
@@ -89,6 +96,7 @@ export default defineComponent({
           return true
         },
         onValue: async (date: string) => {
+          console.log(this.appointment)
           if (dateAppointments[date] === undefined) {
             const res = await AppointmentService.getDailiyAppointments(date)
             dateAppointments[date] = Array.isArray(res) ? res.length : 0
@@ -139,24 +147,42 @@ export default defineComponent({
           maxDate: () => drugRunoutDate,
           supValue: (date: string) => `${dateAppointments[date]}`,
           infoItems: (date: string) => {
-            return [
-              { 
-                label: 'Medication Run out Date',
-                value: drugRunoutDate ? d(drugRunoutDate) : 'Not available'
-              },
-              {
-                label: 'User set appointment date',
-                value: d(date)
-              },
-              {
-                label: 'Appointments',
-                value: dateAppointments[date]
-              },
-              {
-                label: 'Appointment limit (per/day)',
-                value: appointmentLimit
-              }
-            ]
+
+            if(App.getActiveApp()?.applicationName === 'CxCa'){
+              return [
+                {
+                  label: 'User set appointment date',
+                  value: d(date)
+                },
+                {
+                  label: 'Appointments',
+                  value: dateAppointments[date]
+                },
+                {
+                  label: 'Appointment limit (per/day)',
+                  value: appointmentLimit
+                }
+              ]
+            }else{
+              return [
+                { 
+                  label: 'Medication Run out Date',
+                  value: drugRunoutDate ? d(drugRunoutDate) : 'Not available'
+                },
+                {
+                  label: 'User set appointment date',
+                  value: d(date)
+                },
+                {
+                  label: 'Appointments',
+                  value: dateAppointments[date]
+                },
+                {
+                  label: 'Appointment limit (per/day)',
+                  value: appointmentLimit
+                }
+              ]
+            }
           }
         }
       }

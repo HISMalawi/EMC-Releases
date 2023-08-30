@@ -8,6 +8,7 @@
         :reportReady="reportReady"
         :isLoading="isLoading"
         :onReportConfiguration="onPeriod"
+        :encryptPDF="true"
         > 
     </report-template>
 </template>
@@ -32,8 +33,8 @@ export default defineComponent({
             [
                 table.thTxt('NPID'), 
                 table.thTxt('Client Type'), 
-                table.thTxt('First name', {exportable: false}),
-                table.thTxt('Last name', {exportable: false}), 
+                table.thTxt('First name', {csvExportable: false, pdfExportable: true}),
+                table.thTxt('Last name', {csvExportable: false, pdfExportable: true}), 
                 table.thTxt('Gender'),
                 table.thTxt('DOB'),
                 table.thTxt('Date set')

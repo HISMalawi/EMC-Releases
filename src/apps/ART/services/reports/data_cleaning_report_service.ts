@@ -11,6 +11,7 @@ export enum CtIndicator {
     MissingStartReasons = 'MISSING START REASONS',
     MultipleStartReasons = 'MULTIPLE START REASONS',
     PreArtOrUnknownOutcomes ='PRE ART OR UNKNOWN OUTCOMES',
+    MissingVlResults = 'MISSING VL RESULTS'
 }
 
 export interface DataCleaningVerificationData {

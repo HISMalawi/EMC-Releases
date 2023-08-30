@@ -1,54 +1,61 @@
 <template>
   <view-port>
-    <his-text-input readonly :value="fullSelectedDrugName"/> 
+    <his-text-input readonly :value="drugs[selectedDrug]?.label || ''"/> 
     <ion-grid style="background: white;">
       <ion-row>
         <ion-col size="4" class="border-right scroll-list">
           <ion-list v-for="(drug, index) in drugs" :key="index">
             <ion-item
               detail
-              :color="index === selectedDrug ? 'secondary' : ''"
+              :color="index === selectedDrug ? 'lightblue' : ''"
               @click="selectDrug(index)">
-              {{ `${drug.shortName} (${drug.packSizes[0]})` }}
+              {{ drug.label }}
             </ion-item>
           </ion-list>
         </ion-col>
-        <ion-col>
-          <ion-grid v-if="selectedDrug !== null" class="scroll-list"> 
-            <h3 class="his-card" v-if="noStockForDrug"> No stock information available for drug</h3>
-            <ion-row v-for="(entry, ind) in drugs[selectedDrug].entries" :key="ind"> 
-              <ion-col> 
-                <ion-item>
-                  <ion-label position="floating">Expiry Date</ion-label>
-                  <ion-input readonly :value="fmtDate(entry.expiry_date)"></ion-input>
-                </ion-item>
-              </ion-col>
-              <ion-col> 
-                <ion-item>
-                  <ion-label position="floating">Available Tins</ion-label>
-                  <ion-input 
-                    readonly 
-                    placeholder="0"
-                    :value="fmtNumber(entry.originalQuantity)"
+        <ion-col size="8" class="scroll-list">
+          <ion-row v-for="(drug, ind) in drugs[selectedDrug]?.other || []" :key="ind"> 
+            <ion-col size="12">
+              <h4>Batch Number: {{ drug.batch_number }} ({{ drug.pack_size }}/tin) </h4>
+            </ion-col>
+            <ion-col size-md="4"> 
+              <ion-item>
+                <ion-label position="floating">Available Tins</ion-label>
+                <ion-input 
+                  readonly 
+                  placeholder="0"
+                  :value="fmtNumber(drug.original_quantity)"
+                >
+                </ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col size-md="4"> 
+              <ion-item>
+                <ion-label position="floating">Verified Tins</ion-label>
+                <ion-input 
+                  readonly 
+                  placeholder="0"
+                  :value="fmtNumber(drug.current_quantity)"
+                  :color="drug.current_quantity != drug.original_quantity ? 'danger': 'success'"
+                  @click="enterAmount(ind)"
                   >
-                  </ion-input>
-                </ion-item>
-              </ion-col>
-              <ion-col> 
-                <ion-item>
-                  <ion-label position="floating">Verified Stock</ion-label>
-                  <ion-input 
-                    readonly 
-                    placeholder="0"
-                    :value="fmtNumber(entry.current_quantity)"
-                    :color="entry.current_quantity != entry.originalQuantity ? 'danger': 'success'"
-                    @click="enterAmount(ind)"
-                    >
-                  </ion-input>
-                </ion-item>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
+                </ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col size-md="4" > 
+              <ion-item>
+                <ion-label position="floating">Reason</ion-label>
+                <ion-input 
+                  :disabled="drug.current_quantity == drug.original_quantity"
+                  placeholder="0"
+                  :value="drug.reason || 'N/A'"
+                  @click="selectReason(ind)"
+                  >
+                </ion-input>
+                <ion-icon :icon="chevronDown" slot="end" class="ion-padding-top" @click="selectReason(ind)"></ion-icon>
+              </ion-item>
+            </ion-col>
+          </ion-row>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -61,26 +68,41 @@ import {
   IonGrid,
   IonCol,
   IonRow,
-  modalController,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonList,
 } from "@ionic/vue";
-import { StockService } from "@/apps/ART/views/ARTStock/stock_service";
 import ViewPort from "@/components/DataViews/ViewPort.vue";
 import FieldMixinVue from "./FieldMixin.vue";
-import { Field, Option } from "../Forms/FieldInterface";
-import TouchField from "@/components/Forms/SIngleTouchField.vue"
+import { Option } from "../Forms/FieldInterface";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { FieldType } from "../Forms/BaseFormElements";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
 import { isEmpty } from "lodash";
 import { toDate, toNumString } from "@/utils/Strs";
+import { chevronDown } from "ionicons/icons";
+import popupKeyboard from "@/utils/PopupKeyboard";
 
 export default defineComponent({
-  components: { ViewPort, HisTextInput, IonGrid, IonCol, IonRow },
+  components: { 
+    ViewPort, 
+    HisTextInput, 
+    IonGrid, 
+    IonCol, 
+    IonRow, 
+    IonIcon, 
+    IonList, 
+    IonItem, 
+    IonLabel, 
+    IonInput 
+  },
   mixins: [FieldMixinVue],
   data: () => ({
-    drugs: [] as any,
+    drugs: [] as Array<Option>,
     selectedDrug: null as any,
-    stockService: {} as any,
+    chevronDown,
   }),
   mounted() {
     this.init()
@@ -91,8 +113,7 @@ export default defineComponent({
   methods: {
     async init() {
       this.$emit("onFieldActivated", this);
-      this.stockService = new StockService();
-      await this.setDefaultValue();
+      if(isEmpty(this.drugs)) this.drugs = await this.options();
     },
     fmtNumber(num: number | string) {
       return toNumString(num)
@@ -100,28 +121,18 @@ export default defineComponent({
     fmtDate(date: string) {
       return toDate(date)
     },
-    async setDefaultValue() {
-      if (!isEmpty(this.drugs)) {
-        return
-      }
-      const drugs = await this.options();
-      this.drugs = [];
-      drugs.forEach((element: any) => {
-        this.drugs.push({ ...element.value });
-      });
-    },
     getModalTitle(context: string) {
-      return `${context} (${this.drugs[this.selectedDrug].fullName})`
+      return `${context} (${this.drugs[this.selectedDrug].label})`
     },
     getDrugValue(index: number, type: string) {
-      return this.drugs[this.selectedDrug].entries[index][type]
+      return this.drugs[this.selectedDrug].other[index][type]
     },
     setDrugValue(index: number, type: string, data: Option | null) {
-      this.drugs[this.selectedDrug].entries[index][type] = data ? data.value : ''
+      this.drugs[this.selectedDrug].other[index][type] = data ? data.value : ''
     },
     async enterAmount(index: number) {
       const batchNumber = this.getDrugValue(index, 'batch_number');
-      this.launchKeyPad({
+      popupKeyboard({
         id: 'tins',
         helpText: this.getModalTitle(`Enter number of tins for Batch ${batchNumber}`),
         type: FieldType.TT_NUMBER,
@@ -130,7 +141,7 @@ export default defineComponent({
           if (!v || v && !v.value) return null
           return Validation.validateSeries([
             () => Validation.isNumber(v),
-            () => v.value < 0 ? ['Number of tins must be greater than 1'] : null
+            () => v.value as number < 0 ? ['Number of tins must be greater than 1'] : null
           ])
         }
       },
@@ -138,66 +149,53 @@ export default defineComponent({
         this.setDrugValue(index, 'current_quantity', v)
       })
     },
-    async launchKeyPad(currentField: Field, onFinish: Function) {
-      const modal = await modalController.create({
-        component: TouchField,
-        backdropDismiss: false,
-        cssClass: "full-modal",
-        componentProps: {
-          dismissType: 'modal',
-          currentField,
-          onFinish
-        }
-      });
-      modal.present();
+    async selectReason(index: number) {
+      const batchNumber = this.getDrugValue(index, 'batch_number');
+      popupKeyboard({
+        id: 'reason',
+        helpText: this.getModalTitle(`Select reason for Batch ${batchNumber} modification`),
+        type: FieldType.TT_SELECT,
+        defaultValue: () => this.getDrugValue(index, 'reason'),
+        validation: (v: Option) => Validation.required(v),
+        options: () => [
+          { label: "Theft", value: "Theft" },
+          { label: "Took out for training", value: "Took out for training" },
+          { label: "Accidents", value: "Accidents" },
+          { label: "Flooding", value: "Flooding" },
+          { label: "Natural disaster", value: "Natural disaster"}
+        ]
+      },
+      (v: Option) => {
+        this.setDrugValue(index, 'reason', v)
+      })
     },
     async selectDrug(index: any) {
       this.selectedDrug = index;
-      if (!('entries' in this.drugs[index])) {
-        const vals = await this.stockService.getItem(
-          this.drugs[this.selectedDrug].drugID
-        )
-        this.drugs[index]["entries"] = vals.map((i: any) => {
-          i.originalQuantity = i['current_quantity']
-          return i
-        })
-      }
     }
   },
   computed: {
     noStockForDrug(): boolean {
       try {
-        return !this.drugs[this.selectedDrug].entries || this.drugs[this.selectedDrug].entries.length <= 0
+        return !this.drugs[this.selectedDrug].other || this.drugs[this.selectedDrug].other.length <= 0
       }catch(e) {
         return false
       }
     },
-    fullSelectedDrugName(): string {
-      try {
-        return this.drugs[this.selectedDrug].fullName
-      } catch (e) {
-        return 'N/A'
-      }
-    },
     enteredDrugs(): any {
-      const f: any = [];
-      this.drugs.forEach((element: any) => {
-        if (element.entries) {
-          const j = element.entries.filter((el: any) => el.current_quantity != el.originalQuantity);
-          j.forEach((e: any) => {
-            f.push({ label: element.shortname, value: { ...e, ...element } });
-          });
-        }
+      const updatedDrugs: any = [];
+      this.drugs.forEach((drug: any) => {
+        drug.other?.filter((e: any) => e.current_quantity != e.original_quantity)
+          .forEach((e: any) => updatedDrugs.push({ label: drug.drug_name, value: { ...drug, ...e } }));
       });
-      return f;
+      return updatedDrugs;
     },
   },
   watch: {
     clear() {
       this.drugs = this.drugs.map((d: any) => {
-        if (!d.entries) return d
-        d.entries = d.entries.map((e: any) => {
-          e['current_quantity'] = e.originalQuantity
+        if (!d.other) return d
+        d.other = d.other.map((e: any) => {
+          e['current_quantity'] = e.original_quantity
           return e
         })
         return d

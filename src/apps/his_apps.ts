@@ -6,6 +6,7 @@ import CXCA from '@/apps/CxCa/app';
 import { RouteRecordRaw } from 'vue-router';
 import RADIOLOGY from '@/apps/RADIOLOGY/app';
 import Registration from '@/apps/Registration/app';
+import CRVS from '@/apps/CRVS/app';
 /**
  * Register Program Applications here that conform to the AppInterface
 */
@@ -16,6 +17,7 @@ const APPS = [
     ANC,
     CXCA,
     RADIOLOGY,
+    CRVS,
     Registration
 ]
 export function  AllAppRoutes() {

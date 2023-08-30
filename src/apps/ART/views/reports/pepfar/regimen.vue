@@ -64,7 +64,7 @@ export default defineComponent({
                     table.td(d.arv_number),
                     table.td(this.formatGender(d.gender)),
                     table.tdDate(d.birthdate),
-                    table.td(d.current_regimen),
+                    table.td(d.current_regimen||'N/A'),
                     table.td(medications.join(', ')),
                     table.tdDate(lastDispenseDate),
                 ])
