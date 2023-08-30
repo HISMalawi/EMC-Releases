@@ -22,6 +22,27 @@ import ReportMixin from "@/apps/ART/views/reports/ReportMixin.vue"
 import { ClinicReportService } from '@/apps/ART/services/reports/clinic_report_service'
 import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
+import { uniq } from 'lodash'
+
+const REPORT_INDICATORS = [    
+    { indicator: "started_tpt_new", label: (context: string) => `Started New ${context}`},
+    { indicator: "started_tpt_prev", label: (context: string) => `Started Prev ${context}`},
+    { indicator: "completed_tpt_new", label : (context: string) => `Completed New ${context}`},
+    { indicator: "completed_tpt_prev", label : (context: string) => `Completed Prev ${context}`},
+    { indicator: "not_completed_tpt",  label : (context: string) => `Not completed ${context}`},
+    { indicator: "died", label :(context: string) => `Died on ${context}`},
+    { indicator: "defaulted", label :(context: string) => `Defaulted ${context}`},
+    { indicator: "stopped", label :(context: string) => `Stopped ${context}`},
+    { indicator: "transfer_out", label :(context: string) => `Transfer out with ${context}`},
+    { indicator: "confirmed_tb", label :(context: string) => `Confirmed TB on ${context}`},
+    { indicator: "pregnant",  label :(context: string) => `Pregnant on ${context}`},
+    { indicator: "breast_feeding", label:(context: string) => `Breastfeeding ${context}`},
+    { indicator: "skin_rash", label :(context: string) => `Skin rash ${context}`},
+    { indicator: "peripheral_neuropathy", label :(context: string) => `Peripheral neuropathy ${context}`},
+    { indicator: "yellow_eyes", label: (context: string) => `Yellow eyes ${context}`},
+    { indicator: "nausea", label: (context: string) => `Nausea ${context}`},
+    { indicator: "dizziness", label: (context: string) => `Dizziness ${context}`}
+]
 
 export default defineComponent({
     mixins: [ReportMixin],
@@ -34,8 +55,10 @@ export default defineComponent({
             [       
                 table.thTxt('Age group'),
                 table.thTxt('TPT Type'),
-                table.thTxt('Started TPT'),
-                table.thTxt('Completed TPT'),
+                table.thTxt('Started TPT New'),
+                table.thTxt('Started TPT Prev'),
+                table.thTxt('Completed TPT New'),
+                table.thTxt('Completed TPT Prev'),
                 table.thTxt('Not completed TPT'),
                 table.thTxt('Died'),
                 table.thTxt('Defaulted'),
@@ -64,32 +87,98 @@ export default defineComponent({
             this.period = this.report.getDateIntervalPeriod()
             this.cohort = (await this.report.getTtpOutcomes() || [])
             this.setRows()
+            this.setMaleTotalsRow()
+            await this.setFemaleAggregations()
+        },
+        setMaleTotalsRow() {
+            const aggregations = this.cohort.reduce((totals: any, data: any) => {
+                REPORT_INDICATORS.forEach((meta: any) => {
+                    if (!totals[meta.indicator]) {
+                        totals[meta.indicator] = []
+                    }
+                    if (data[meta.indicator]) {
+                        totals[meta.indicator] = totals[meta.indicator].concat(
+                            data[meta.indicator].filter((p: any) => p.gender === 'M').map((p: any) => p.patient_id)
+                        )
+                    }
+                })
+                return totals
+            }, {})
+            this.rows.push([
+                table.td("All Male"),
+                table.td("All"),
+                ...REPORT_INDICATORS.map((meta: any) => {
+                    return this.drill(aggregations[meta.indicator], meta.label("All"))
+                })
+            ])
+        },
+        async setFemaleAggregations() {
+            const allFemale = this.cohort.reduce((totals: any, data: any) => {
+                REPORT_INDICATORS.forEach((meta: any) => {
+                    if (!totals[meta.indicator]) {
+                        totals[meta.indicator] = []
+                    }
+                    if (data[meta.indicator]) {
+                        totals[meta.indicator] = totals[meta.indicator].concat(
+                            data[meta.indicator].filter((p: any) => p.gender === 'F').map((p: any) => p.patient_id)
+                        )
+                        totals.all = totals.all.concat(totals[meta.indicator])
+                    }
+                })
+                return totals
+            }, 
+            {
+                all: []
+            })
+            const fp = this.cohort.reduce((a: any, c: any) => uniq(a.concat(c.pregnant||[])), [])
+            const fbf = this.cohort.reduce((a: any, c: any) => uniq(a.concat(c.breast_feeding||[])), [])
+            const allFp = fp.concat(fbf)
+            this.rows.push([
+                table.td('All'),
+                table.td('FP'),
+                ...REPORT_INDICATORS.map((meta: any) => {
+                    return this.drill(
+                        allFemale[meta.indicator].filter((p: any) => allFp.includes(p)),
+                        meta.label('All FP')
+                    )
+                })
+            ])
+            this.rows.push([
+                table.td('All'),
+                table.td('FNP'),
+                ...REPORT_INDICATORS.map((meta: any) => {
+                    return this.drill(
+                        allFemale[meta.indicator].filter((p: any) => !allFp.includes(p)),
+                        meta.label('All FNP')
+                    )
+                })
+            ])
+            this.rows.push([
+                table.td('All'),
+                table.td('FBF'),
+                ...REPORT_INDICATORS.map((meta: any) => {
+                    return this.drill(
+                        allFemale[meta.indicator].filter((p: any) => fbf.includes(p)),
+                        meta.label('All FBF')
+                    )
+                })
+            ])
         },
         setRows() {
             const sixH: any = []
             const threeHP: any = []
-            this.cohort.forEach((d: any) => {
+            this.cohort.forEach((data: any) => {
                 const row = [
-                    table.td(d.age_group),
-                    table.td(d.tpt_type),
-                    this.drill(d.started_tpt, `Started ${d.tpt_type}`),
-                    this.drill(d.completed_tpt, `Completed ${d.tpt_type}`),
-                    this.drill(d.not_completed_tpt, `Not completed ${d.tpt_type}`),
-                    this.drill(d.died, `Died on ${d.tpt_type}`),
-                    this.drill(d.defaulted, `Defaulted ${d.tpt_type}`),
-                    this.drill(d.stopped, `Stopped ${d.tpt_type}`),
-                    this.drill(d.transfer_out, `Transfer out with ${d.tpt_type}`),
-                    this.drill(d.confirmed_tb, `Confirmed TB on ${d.tpt_type}`),
-                    this.drill(d.pregnant, `Pregnant on ${d.tpt_type}`),
-                    this.drill(d.breast_feeding, `Breastfeeding ${d.tpt_type}`),
-                    this.drill(d.skin_rash, `Skin rash ${d.tpt_type}`),
-                    this.drill(d.peripheral_neuropathy, `Peripheral neuropathy ${d.tpt_type}`),
-                    this.drill(d.yellow_eyes, `Yellow eyes ${d.tpt_type}`),
-                    this.drill(d.nausea, `Nausea ${d.tpt_type}`),
-                    this.drill(d.dizziness, `Dizziness ${d.tpt_type}`)
-
+                    table.td(data.age_group),
+                    table.td(data.tpt_type),
+                    ...REPORT_INDICATORS.map((meta: any) => {
+                        return this.drill(
+                            (data[meta.indicator]||[]).map((p: any) => p.patient_id), 
+                            meta.label(data.tpt_type)
+                        )
+                    })
                 ]
-                d.tpt_type === '3HP' ? threeHP.push(row) : sixH.push(row)
+                data.tpt_type === '3HP' ? threeHP.push(row) : sixH.push(row)
             })
             this.rows = threeHP.concat(sixH)
         }
