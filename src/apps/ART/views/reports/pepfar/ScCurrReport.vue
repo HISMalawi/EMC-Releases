@@ -47,8 +47,8 @@ export default defineComponent({
                 },
                 {
                     label: "# of bottles (units) remaining",
-                    value: (data: any) => toNumString(data.units),
                     ref: 'units',
+                    value: (data: any) => toNumString(data.units),
                     tdClick: async (val: any) => {
                         (await modalController.create({
                             component: DrillTable,

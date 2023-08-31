@@ -13,8 +13,8 @@ export default [
     },
     {
         name: "Stock Sc Curr",
-        path: "/art/stock/sc_curr",
-        component: () => import("@/apps/ART/views/ARTStock/ScCurrReport.vue")
+        path: "/art/sc_curr",
+        component: () => import("@/apps/ART/views/reports/pepfar/ScCurrReport.vue")
     },
     {
         name: "Data cleaning verification",
