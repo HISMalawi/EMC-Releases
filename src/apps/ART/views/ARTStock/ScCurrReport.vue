@@ -22,6 +22,7 @@ import { v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/
 import { DateSelection } from '@/utils/ReportDateSelectionPrompt';
 import { toastDanger, toastWarning } from '@/utils/Alerts';
 import DrillTable from "@/components/DataViews/DrillTableModal.vue"
+import { toNumString } from "@/utils/Strs";
 
 export default defineComponent({
     components: { 
@@ -46,6 +47,7 @@ export default defineComponent({
                 },
                 {
                     label: "# of bottles (units) remaining",
+                    value: (data: any) => toNumString(data.units),
                     ref: 'units',
                     tdClick: async (val: any) => {
                         (await modalController.create({
@@ -55,7 +57,7 @@ export default defineComponent({
                                 title: val.data.category,
                                 columns: ['Drug', 'Quantity'],
                                 onRows: () => (val.data?.granular_spec||[]).map((data: any) => {
-                                    return [data.drug_name, data.units]
+                                    return [data.drug_name, toNumString(data.units)]
                                 })
                             }
                         })).present()
