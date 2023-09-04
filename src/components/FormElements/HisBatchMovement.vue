@@ -102,7 +102,7 @@ export default defineComponent({
       incomingDrugs.forEach((drug: any) => {
         const val = {
           tins: null,
-          quantity: (drug.value.current_quantity / drug.value.pack_size || 1) || 0
+          quantity: Math.trunc((drug.value.current_quantity / drug.value.pack_size || 1) || 0)
         };
         const d = {
           label: drug.label,
