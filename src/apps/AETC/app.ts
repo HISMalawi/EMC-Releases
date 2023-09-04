@@ -121,7 +121,7 @@ function confirmationSummary(patient: any, program: any) {
 }
 
 const AETC: AppInterface = {
-  programID: -1,
+  programID: 14,
   applicationName: 'AETC',
   applicationIcon: 'registration.png',
   applicationDescription: 'AETC module',

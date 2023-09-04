@@ -256,6 +256,7 @@ export default defineComponent({
     genderField(): Field {
         const IS_ANC_APP = this.app.applicationName === 'ANC'
         const IS_CXCA = this.app.applicationName === 'CxCa'
+        const IS_AETC = this.app.applicationName === 'AETC'
         const gender: Field = PersonField.getGenderField()
         gender.requireNext = this.isEditMode()
         gender.defaultValue = () => this.presets.gender
@@ -389,6 +390,7 @@ export default defineComponent({
         }
     },
     occupationField(): Field {
+        const IS_AETC = this.app.applicationName === 'AETC'
         return {
             id: 'occupation',
             helpText: 'Occupation',
@@ -398,12 +400,39 @@ export default defineComponent({
                return true
             },
             computedValue: (val: Option) => ({person: val.value}),
-            condition: () => this.editConditionCheck(['occupation']) && this.isMilitarySite,
+            condition: () => this.editConditionCheck(['occupation']) && this.isMilitarySite || IS_AETC,
             validation: (val: any) => Validation.required(val),
-            options: () => this.mapToOption([
-                'Military',
-                'Civilian'
-            ])
+            options: () => {
+                const baseOptions = ['Military', 'Civilian'];
+                if (IS_AETC) {
+                    // Adding extra options for the 'AETC' condition
+                    const extraOptions = [
+                        'Business',
+                        'Craftsman',
+                        'Domestic Worker',
+                        'Driver',
+                        'Farmer',
+                        'Healthcare Worker',
+                        'House Wife',
+                        'Mechanic',
+                        'Messenger',
+                        'Office Worker',
+                        'Police',
+                        'Preschool Child',
+                        'Prisoner',
+                        'Sales Person',
+                        'Security Guard',
+                        'Soldier',
+                        'Student',
+                        'Teacher',
+                        'Other',
+                        'unknown',
+                    ];
+                    return this.mapToOption([...baseOptions, ...extraOptions]);
+                } else {
+                    return this.mapToOption(baseOptions);
+                }
+            }
         }
     },
     regimentField(): Field {
