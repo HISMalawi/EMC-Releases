@@ -84,10 +84,12 @@ export default defineComponent({
             return stocks.reduce((acc: number, curr: any) => acc + curr.quantity, 0);
         },
         getPackSizesRows(drugId: number, stocks?: Array<any>) {
-            if(stocks) {
-                return stocks.map((s) => [s.packSize, Math.floor(s.quantity / s.packSize) || '-', 0, 0])
-            }
-            return this.dispensation.getDrugPackSizes(drugId).map((packSize: any) => [packSize, '-', 0, 0])
+            const packs = stocks?.map((s) => [s.packSize, Math.floor(s.quantity / s.packSize) || '-', 0, 0]) || []
+            this.dispensation.getDrugPackSizes(drugId).forEach((packSize: any) => {
+                const index = packs.findIndex(([p]) => p === packSize);
+                if(index === -1) packs.push([packSize, '-', 0, 0]);
+            })
+            return packs.sort((a, b) => a[0] - b[0]);
         },
         calculateCompletePack(order: any) {
             const units = parseFloat(order.amount_needed) - (order.quantity || 0)
