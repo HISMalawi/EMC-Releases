@@ -109,6 +109,11 @@ export const REPORTS: FolderInterface[] = [
                 condition: () => Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED')
             },
             {
+                name: 'Discrepancy Report',
+                pathUrl: '/art/clinic_discrepancy_report',
+                condition: () => Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED')
+            },
+            {
                 name: 'TX RTT',
                 pathUrl: '/art/report/clinic_tx_rtt'
             },
@@ -123,7 +128,7 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'Vl collection',
                 pathUrl: '/art/clinic_vl_collection_report'
-            }
+            },
         ]
     },
     {

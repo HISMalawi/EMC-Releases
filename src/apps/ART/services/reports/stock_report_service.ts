@@ -16,6 +16,10 @@ export class StockReportService extends ArtReportService {
         return ArtReportService.getJson(`pharmacy/stock_report`, { paginate: false })
     }
 
+    getStockCardReport() {
+        return this.getReport(`programs/${this.programID}/reports/stock_card`);
+    }
+
     loadTrail() {
         return this.getReport('pharmacy/audit_trail/grouped')
     }
@@ -30,6 +34,10 @@ export class StockReportService extends ArtReportService {
 
     getScCurrReport() {
         return this.getReport('programs/1/reports/sc_curr')
+    }
+
+    getDiscrepancyReport () {
+        return this.getReport(`programs/${this.programID}/reports/discrepancy_report`);
     }
 
     /**Code adapted from BHT-Core Art system */
