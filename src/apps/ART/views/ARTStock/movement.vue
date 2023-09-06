@@ -207,7 +207,7 @@ export default defineComponent({
           other: {
             ...drug,
             tins: null,
-            quantity: (drug.current_quantity / drug.pack_size || 1) || 0,
+            quantity: Math.trunc(drug.current_quantity / drug.pack_size) || 0,
             reason: ''
           },
         };
