@@ -32,6 +32,10 @@ export class StockReportService extends ArtReportService {
         })
     }
 
+    getScCurrReport() {
+        return this.getReport('programs/1/reports/sc_curr')
+    }
+
     getDiscrepancyReport () {
         return this.getReport(`programs/${this.programID}/reports/discrepancy_report`);
     }
