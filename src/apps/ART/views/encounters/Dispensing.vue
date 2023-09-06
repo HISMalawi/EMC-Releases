@@ -15,11 +15,12 @@ import {isEmpty } from 'lodash'
 import EncounterMixinVue from '../../../../views/EncounterMixin.vue'
 import HisDate from "@/utils/Date"
 import Store from "@/composables/ApiStore"
+import { joinWithCommasAnd } from '@/utils/Arrays'
 
 export default defineComponent({
     mixins: [EncounterMixinVue],
     data: () => ({
-        dispensation: {} as any
+        dispensation: {} as DispensationService
     }),
     watch: {
         ready: {
@@ -73,18 +74,23 @@ export default defineComponent({
                     'order': d,
                     'drug_id': d.drug.drug_id,
                     'order_id': d.order.order_id,
-                    'available_stock': d.available_stock || '-',
+                    'available_stock': this.getCumulativeStocks(d.stocks),
                     'amount_needed': this.calculateCompletePack(d),
-                    'pack_sizes': this.getPackSizesRows(d.drug.drug_id, d.available_stock || 0),
+                    'pack_sizes': this.getPackSizesRows(d.drug.drug_id, d.stocks),
                 }
             }))
         },
-        getPackSizesRows(drugId: number, availableStock: number) {
-            const packs = this.dispensation.getDrugPackSizes(drugId)
-            return packs.map((packSize: number) => {
-                const packs = availableStock > 0 ? (Math.floor(availableStock / packSize)) : '-'
-                return [packSize, packs, 0, 0]
+        getCumulativeStocks(stocks?: Array<any>){
+            if(!stocks) return '-'
+            return stocks.reduce((acc: number, curr: any) => acc + curr.quantity, 0);
+        },
+        getPackSizesRows(drugId: number, stocks?: Array<any>) {
+            const packs = stocks?.map((s) => [s.packSize, Math.floor(s.quantity / s.packSize) || '-', 0, 0]) || []
+            this.dispensation.getDrugPackSizes(drugId).forEach((packSize: any) => {
+                const index = packs.findIndex(([p]) => p === packSize);
+                if(index === -1) packs.push([packSize, '-', 0, 0]);
             })
+            return packs.sort((a, b) => a[0] - b[0]);
         },
         calculateCompletePack(order: any) {
             const units = parseFloat(order.amount_needed) - (order.quantity || 0)
@@ -95,19 +101,35 @@ export default defineComponent({
             return orders.map(o => o.value != 0).every(Boolean)
         },
         async isValidDispensation(option: Option) {
-            let isOk = true
             const totalTabs = parseInt(option.value.toString())
             const amountNeeded = option.other['amount_needed']
             const percentageGiven = (totalTabs / amountNeeded) * 100
 
             if (percentageGiven > 110) {
-                isOk = await alertConfirmation('Are you sure you want to dispense over 110% of the prescribed pill count?')
+                const confirmed = await alertConfirmation('Are you sure you want to dispense over 110% of the prescribed pill count?')
+                if (!confirmed) return false
             }
 
             if (percentageGiven < 100) {
-                isOk = await alertConfirmation('Are you sure you want to dispense less than 100% of the prescribe amount?')
+                const confirmed = await alertConfirmation('Are you sure you want to dispense less than 100% of the prescribe amount?')
+                if (!confirmed) return false
             }
-            return isOk
+
+            if(this.dispensation.useDrugManagement) {
+                const emptyPacks = option.other?.dispenses.filter(([p]: any) => {
+                    return option.other?.pack_sizes.some(([packSize, availableStock, dispensedAmount]: any) => {
+                        return packSize === p &&
+                            availableStock === "-" &&
+                            dispensedAmount > 0
+                    })
+                })
+                .map(([p]: any) => p);
+
+                if(!isEmpty(emptyPacks)) {
+                    return alertConfirmation(`Are you sure you want to dispense drugs of ${ joinWithCommasAnd(emptyPacks) } pack size(s) that have no associated stocks available?`)
+                }
+            }
+            return true
         },
         getFields(): Array<Field> {
             return [
@@ -144,17 +166,16 @@ export default defineComponent({
 
                         if (!isBarcodeScanned) {
                             const isValidDispensation = await this.isValidDispensation(i)
-
                             if (!isValidDispensation) return false
                         }
 
-                        const dispensed = await this.saveDispensations(i)
+                        // const dispensed = await this.saveDispensations(i)
 
-                        if (dispensed) return true
+                        // if (dispensed) return true
 
-                        toastWarning('Unable to save dispensation')
+                        // toastWarning('Unable to save dispensation')
 
-                        return false
+                        // return false
                     },
                     config: {
                         isDrugManagementEnabled: () => this.dispensation.useDrugManagement,

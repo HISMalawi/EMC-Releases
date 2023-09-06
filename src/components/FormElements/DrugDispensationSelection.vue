@@ -47,7 +47,7 @@
                                 </tr>
                                 <tr v-for="(data, index) in listData" :key="index">
                                     <td> {{ data.label }} </td>
-                                    <td> {{ isStockManagementEnabled && data.other.available_stock ? data.other.available_stock : '-' }} </td>
+                                    <td> {{ fmtNumber(data.other.available_stock) }} </td>
                                     <td> {{ data.other.amount_needed }} </td>
                                     <td> <ion-input 
                                             :disabled="data.value > 0" 
@@ -56,6 +56,7 @@
                                             class='dosage-input'/> 
                                         </td>
                                     <td> <reset-button 
+                                            label = ''
                                             :disabled="data.value <= 0" 
                                             @click="data.value > 0 ? onReset(data): null"> 
                                         </reset-button> 
@@ -90,6 +91,7 @@ import {
 } from "@ionic/vue"
 import { isEmpty } from 'lodash'
 import { toastDanger } from '@/utils/Alerts'
+import { toNumString } from '@/utils/Strs'
 
 export default defineComponent({
   components: { 
@@ -157,6 +159,10 @@ export default defineComponent({
     },
     async onReset(item: Option) {
         await this.updateOnValue(item, -1)
+    },
+    fmtNumber (value: string){
+        if(!this.isStockManagementEnabled || /-/i.test(value)) return '-'
+        return toNumString(value);
     },
     async updateOnValue(item: Option, quantity: any, dispenses=[] as Array<any>, isBarcode=false) {
         if (this.onValue) {
