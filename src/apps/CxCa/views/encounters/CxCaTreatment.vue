@@ -20,7 +20,6 @@ import { toastSuccess, toastWarning } from "@/utils/Alerts";
 import { ProgramService } from "@/services/program_service";
 import { ProgramWorkflow } from "@/interfaces/program_workflow";
 import table from "@/components/DataViews/tables/ReportDataTable";
-import { Service } from "@/services/service";
 import { ConceptService } from "@/services/concept_service";
 
 export default defineComponent({
