@@ -2654,7 +2654,16 @@ export default [
       "name": 'Shoulder x-ray',
       "concept_id": 10344
    },
-   {"concept_id": 10539,
-   "name": "History of COVID-19 contact"
+   {
+      "name": "History of COVID-19 contact",
+      "concept_id": 10539
+   },
+   {
+      "name": "HIV viral load",
+      "concept_id": 856
+   },
+   {
+      "name": "Plasma",
+      "concept_id": 1002
    }
 ]
