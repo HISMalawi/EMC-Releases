@@ -148,8 +148,6 @@ export default defineComponent({
             return result;
         };
 
-        const sortedData = ref<Record<string, any>>({});
-
         const sortData = (data: Record<string, any>) => {
             const sortedData: Record<string, any> = {};
             orderingRows.forEach((key) => {

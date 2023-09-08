@@ -67,7 +67,6 @@ export default [
     {
         name: 'cc_monthly_report',
         path: '/CxCa/views/reports/moh/cc_monthly_report',
-        // component: () => import('@/apps/CxCa/views/reports/moh/MOHCXCAMonthlyReport.vue')
         component: () => import('@/apps/CxCa/views/reports/moh/Monthly_CxCa_MOH_Report.vue')
     },
     {
