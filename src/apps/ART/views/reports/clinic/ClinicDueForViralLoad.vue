@@ -8,6 +8,7 @@
             :columns="columns"
             :showtitleOnly="true"
             :canExportPDf="true"
+            :encryptPDF="true"
             :customFileName="exportedReportTitle"
             :onReportConfiguration="onPeriod"
             > 
@@ -23,6 +24,8 @@ import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { IonPage } from "@ionic/vue"
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props" 
+import dayjs from 'dayjs'
+import { Service } from '@/services/service'
 
 export default defineComponent({
     mixins: [ReportMixin],
@@ -37,6 +40,10 @@ export default defineComponent({
         const isFn = await ART_GLOBAL_PROP.filingNumbersEnabled()
         this.columns.push([
             table.thTxt(isFn ? 'Filing #' : 'ARV#'),
+            table.thTxt('First name', { csvExportable: false, pdfExportable: true }),
+            table.thTxt('Last name', { csvExportable: false, pdfExportable: true }),
+            table.thTxt('Gender'),
+            table.thTxt('Age'),
             table.thTxt('App.'),
             table.thTxt('ART started'),
             table.thTxt('Months on ART'), 
@@ -62,6 +69,10 @@ export default defineComponent({
             data.forEach((d: any) => {
                 this.rows.push([
                     table.tdLink(d.arv_number, () => this.confirmPatient(d.patient_id)),
+                    table.td(d.given_name),
+                    table.td(d.family_name),
+                    table.td(this.formatGender(d.gender)),
+                    table.td(d.birthdate ? dayjs(Service.getSessionDate()).diff(d.birthdate, 'years') : 'N/A' ),
                     table.tdDate(d.appointment_date),
                     table.tdDate(d.start_date),
                     table.td(d.months_on_art),
