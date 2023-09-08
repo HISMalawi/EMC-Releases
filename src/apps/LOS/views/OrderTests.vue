@@ -70,7 +70,7 @@ export default defineComponent({
             if(computed.specimen.concept_id != plasmaConceptId){
                 const indexToDelete = computed.tests.findIndex((test: any) => test.concept_id === conceptIdToDelete);
                 if (indexToDelete !== -1) {
-                    const orders = new LabOrderService(parseInt(this.patientID), -1); //TODO: get selected provider for this encounter
+                    const orders = new LabOrderService(parseInt(this.patientID), this.providerID);
                     const encounter = await orders.createEncounter();
 
                     if(encounter) {
