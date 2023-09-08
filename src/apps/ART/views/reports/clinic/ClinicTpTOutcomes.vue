@@ -105,8 +105,8 @@ export default defineComponent({
                 return totals
             }, {})
             this.rows.push([
-                table.td("All Male"),
                 table.td("All"),
+                table.td("Male"),
                 ...REPORT_INDICATORS.map((meta: any) => {
                     return this.drill(aggregations[meta.indicator], meta.label("All"))
                 })
