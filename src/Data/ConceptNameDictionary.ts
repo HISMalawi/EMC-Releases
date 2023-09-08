@@ -1,5 +1,10 @@
 export default [
    {
+      "categories": [],
+      "concept_id": 7759,
+      "name": "Workstation location"
+   },
+   {
       "categories": [
          "tb_treatment"
       ],
