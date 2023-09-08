@@ -169,13 +169,13 @@ export default defineComponent({
                             if (!isValidDispensation) return false
                         }
 
-                        // const dispensed = await this.saveDispensations(i)
+                        const dispensed = await this.saveDispensations(i)
 
-                        // if (dispensed) return true
+                        if (dispensed) return true
 
-                        // toastWarning('Unable to save dispensation')
+                        toastWarning('Unable to save dispensation')
 
-                        // return false
+                        return false
                     },
                     config: {
                         isDrugManagementEnabled: () => this.dispensation.useDrugManagement,
