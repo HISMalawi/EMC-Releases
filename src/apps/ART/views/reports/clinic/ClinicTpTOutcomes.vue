@@ -25,10 +25,10 @@ import table from "@/components/DataViews/tables/ReportDataTable"
 import { uniq } from 'lodash'
 
 const REPORT_INDICATORS = [    
-    { indicator: "started_tpt_new", label: (context: string) => `Started New ${context}`},
-    { indicator: "started_tpt_prev", label: (context: string) => `Started Prev ${context}`},
-    { indicator: "completed_tpt_new", label : (context: string) => `Completed New ${context}`},
-    { indicator: "completed_tpt_prev", label : (context: string) => `Completed Prev ${context}`},
+    { indicator: "started_tpt_new", label: (context: string) => `Started (New on ART) ${context}`},
+    { indicator: "started_tpt_prev", label: (context: string) => `Started (Previous on ART) ${context}`},
+    { indicator: "completed_tpt_new", label : (context: string) => `Completed (New on ART) ${context}`},
+    { indicator: "completed_tpt_prev", label : (context: string) => `Completed (Previous on ART) ${context}`},
     { indicator: "not_completed_tpt",  label : (context: string) => `Not completed ${context}`},
     { indicator: "died", label :(context: string) => `Died on ${context}`},
     { indicator: "defaulted", label :(context: string) => `Defaulted ${context}`},
@@ -55,10 +55,10 @@ export default defineComponent({
             [       
                 table.thTxt('Age group'),
                 table.thTxt('TPT Type'),
-                table.thTxt('Started TPT New'),
-                table.thTxt('Started TPT Prev'),
-                table.thTxt('Completed TPT New'),
-                table.thTxt('Completed TPT Prev'),
+                table.thTxt('Started TPT (New on ART)'),
+                table.thTxt('Started TPT (Previous on ART)'),
+                table.thTxt('Completed TPT (New on ART)'),
+                table.thTxt('Completed TPT (Previous on ART)'),
                 table.thTxt('Not completed TPT'),
                 table.thTxt('Died'),
                 table.thTxt('Defaulted'),
@@ -138,7 +138,7 @@ export default defineComponent({
                 table.td('FP'),
                 ...REPORT_INDICATORS.map((meta: any) => {
                     return this.drill(
-                        allFemale[meta.indicator].filter((p: any) => allFp.includes(p)),
+                        allFemale[meta.indicator].filter((p: any) => fp.includes(p)),
                         meta.label('All FP')
                     )
                 })
