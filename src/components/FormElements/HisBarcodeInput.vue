@@ -2,7 +2,7 @@
     <div class="his-card"> 
         <barcode-input @onScan="onScan"> </barcode-input>    
     </div>
-    <div class="his-md-text ion-text-center" v-if="config.showScannedBarcode">
+    <div class="his-md-text ion-text-center" v-if="config?.showScannedBarcode">
         Barcode ID: 
         <ion-text :color=" barcode ? 'success' : 'dark'">
             <b>{{ barcode || 'None' }}</b>
