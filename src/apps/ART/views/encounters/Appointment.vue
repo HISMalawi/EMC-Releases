@@ -96,6 +96,7 @@ export default defineComponent({
           return true
         },
         onValue: async (date: string) => {
+          console.log(this.appointment)
           if (dateAppointments[date] === undefined) {
             const res = await AppointmentService.getDailiyAppointments(date)
             dateAppointments[date] = Array.isArray(res) ? res.length : 0

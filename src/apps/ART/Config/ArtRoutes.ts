@@ -2,6 +2,26 @@ import { ART_GLOBAL_PROP } from "../art_global_props"
 
 export default [
     {
+        name: "Clinic Discrepancy Report",
+        path: "/art/clinic_discrepancy_report",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicDiscrepancyReport.vue")
+    },
+    {
+        name: "Viral Load Register",
+        path: "/art/report/clinic_viral_load_register",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicViralLoadRegister.vue")
+    },
+    {
+      name: "Clinic vl collection",
+      path: '/art/clinic_vl_collection_report',
+      component: () => import("@/apps/ART/views/reports/clinic/ClinicVlCollection.vue")  
+    },
+    {
+        name: "Stock Sc Curr",
+        path: "/art/sc_curr",
+        component: () => import("@/apps/ART/views/reports/pepfar/ScCurrReport.vue")
+    },
+    {
         name: "Data cleaning verification",
         path: "/art/data_cleaning_verification",
         component: () => import("@/apps/ART/views/reports/inconsistencies/DataCleaningVerification.vue")
@@ -44,6 +64,11 @@ export default [
     {
         name: ART_GLOBAL_PROP.HTN_SCREENING_AGE_THRESHOLD,
         path: "/art/preferences/htn_age",
+        component: () => import("@/apps/ART/views/preferences/DefaultPreferences.vue")
+    }, 
+    {
+        name: ART_GLOBAL_PROP.NOTIFICATION_PERIOD,
+        path: "/art/preferences/notification_period",
         component: () => import("@/apps/ART/views/preferences/DefaultPreferences.vue")
     },
     {
@@ -368,6 +393,11 @@ export default [
         name: "pepfar_tx_rtt",
         path: "/art/report/pepfar/tx_rtt",
         component: () => import("@/apps/ART/views/reports/pepfar/TxRtt.vue")
+    },
+    {
+        name: "pepfar_tx_tb",
+        path: "/art/pepfar_tx_tb",
+        component: () => import("@/apps/ART/views/reports/pepfar/PepfarTxTbReport.vue")
     },
     {
         name: 'pepfar_vl_coverage',

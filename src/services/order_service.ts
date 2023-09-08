@@ -117,20 +117,24 @@ export class OrderService extends Service {
             (modifier.match(/=/) && (parseFloat(value) >= 20))
     }
 
-    static isHighViralLoadResult(result: any) {
-        if(result.indicator?.name !== "HIV viral load") return false;
+    static detectHighVl(value: any,value_modifier: any) {
         
-        if(result.value_modifier === '=' && parseFloat(result.value) >= 1000) return true
+        if(value_modifier === '=' && parseFloat(value) >= 1000) return true
 
-        if((result.value_modifier  === '<' || result.value_modifier  === '&lt') 
-            && parseFloat(result.value) > 1000
+        if((value_modifier  === '<' || value_modifier  === '&lt') 
+            && parseFloat(value) > 1000
         )  return true
 
-        if((result.value_modifier  === '>' || result.value_modifier  === '&gt') 
-            && (parseFloat(result.value) >= 1000 || `${result.value}`.toUpperCase().replace(/\s+/g, '') == 'LDL')
+        if((value_modifier  === '>' || value_modifier  === '&gt') 
+            && (parseFloat(value) >= 1000 || `${value}`.toUpperCase().replace(/\s+/g, '') == 'LDL')
         )  return true
 
         return false
+    }
+
+    static isHighViralLoadResult(result: any) {
+        if(result.indicator?.name !== "HIV viral load") return false;
+        return OrderService.detectHighVl(result.value, result.value_modifier)
     }
 
     static formatLabs(orders: any) {

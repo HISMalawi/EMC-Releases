@@ -1,19 +1,13 @@
 import Url from "@/utils/Url";
 import { ArtReportService } from "./art_report_service";
 
-export class ViralLoadReportService extends ArtReportService {
+export class TBReportService extends ArtReportService {
     constructor() {
         super()
     }
     
-    getVlCollection() {
-        return this.getReport(`programs/${this.programID}/reports/vl_collection`)
-    }
-
-    getVLCoverage() {
-        return this.getReport(`programs/${this.programID}/reports/viral_load_coverage`, {
-            'rebuild_outcomes': true
-        })
+    getTxTbReport(rebuildOutcome: boolean) {
+        return this.getReport(`programs/1/reports/tx_tb`, { rebuild_outcome: rebuildOutcome })
     }
 
     getMaternalStatus(patientIds: number[]) {

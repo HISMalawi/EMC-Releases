@@ -9,13 +9,13 @@
             <ion-buttons slot="end">
                 <ion-button v-if="typeof onConfigure === 'function'"
                     @click="onConfigure">
-                    <ion-icon size="large" :icon="calendar"></ion-icon>
+                    <ion-icon size="large" :icon="funnelOutline"></ion-icon>
                 </ion-button>
                 <ion-chip
                     v-if="searchTerm"
                     @click="searchTerm = ''" 
                     class="his-md-text"
-                    color="warning">
+                    color="primary">
                     <ion-label>{{ searchTerm }}</ion-label>
                     <ion-icon :icon="close"></ion-icon>
                 </ion-chip>
@@ -117,8 +117,7 @@ import {
     close, 
     arrowUp, 
     arrowDown, 
-    document,
-    calendar
+    funnelOutline,
 } from "ionicons/icons"
 import { Option } from "@/components/Forms/FieldInterface"
 import { computed, defineComponent, PropType, ref, watch } from "vue";
@@ -431,8 +430,7 @@ export default defineComponent({
             close, 
             arrowUp, 
             arrowDown, 
-            document,
-            calendar,
+            funnelOutline,
             page,
             canNext,
             searchTerm,

@@ -105,8 +105,8 @@ export default defineComponent({
     },
     uncheck(label: string) {
       this.listData.forEach(option => {
-        if (option.label === label) option.isChecked = false
-      }) 
+        if (option.label === label && !option.disabled) option.isChecked = false
+      })
     },
     getChecked(list: Array<Option>) {
       return list.filter((item: Option) => item.isChecked)

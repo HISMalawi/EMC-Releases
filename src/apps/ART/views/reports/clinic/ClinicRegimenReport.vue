@@ -67,7 +67,7 @@ export default defineComponent({
                     table.tdDate(d.birthdate),
                     table.tdDate(d.art_start_date),
                     table.td(d.current_weight),
-                    table.td(d.current_regimen),
+                    table.td(d.current_regimen||'N/A'),
                     table.td(medications.join(', ')),
                     table.tdDate(lastDispenseDate),
                     table.td(d.vl_result),

@@ -5,7 +5,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { FieldType } from "@/components/Forms/BaseFormElements"
-import { Field, Option } from "@/components/Forms/FieldInterface"
+import { Option } from "@/components/Forms/FieldInterface"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import StagingMixin from "@/apps/ART/views/encounters/StagingMixin.vue"
 import {ClinicRegistrationService} from "@/apps/ART/services/registration_service"
@@ -18,6 +18,9 @@ import { infoActionSheet } from "@/utils/ActionSheets"
 import HisDate from "@/utils/Date"
 import dayjs from "dayjs";
 import { isEmpty } from 'lodash'
+import Person from "@/utils/HisFormHelpers/PersonFieldHelper"
+import { PatientRegistrationService } from '@/services/patient_registration_service'
+import Store from "@/composables/ApiStore"
 
 export default defineComponent({
     mixins: [StagingMixin],
@@ -60,6 +63,15 @@ export default defineComponent({
             await this.registration.saveObservationList(
                 (await this.resolveObs(fObs, 'reg'))
             )
+
+            if (formData?.cell_phone_number?.value) {
+                const person = new PatientRegistrationService()
+                person.setPersonID(this.patientID) 
+                await person.updatePerson(
+                    Person.resolvePerson(computedData)
+                )
+                Store.invalidate('ACTIVE_PATIENT')
+            }
 
             toastSuccess('Clinic registration complete!')
 
@@ -121,6 +133,33 @@ export default defineComponent({
                         }
                     }
                 },
+                (() => {
+                    return {
+                        ...Person.getCellNumberField(),
+                        config: {
+                            customKeyboard: [
+                                [
+                                    ['1', '2', '3'],
+                                    ['4', '5', '6'],
+                                    ['7', '8', '9'],
+                                    ['',  '0', '']
+                                ],
+                                [ 
+                                    [ '+265', '/'],
+                                    [ 'Delete' ]
+                                ]
+                            ]
+                        },
+                        condition: (f: any) => {
+                            const phone = this.patient.getPhoneNumber()
+                            return f.followup_agreement.some((l: any) =>
+                                l.label === 'Phone' && 
+                                l.value === 'Yes' && 
+                                (!phone || /unknown|n\/a/i.test(phone))
+                            )
+                        }
+                    }
+                })(),
                 {
                     id: "has_linkage_code",
                     helpText: 'HTS Linkage number confirmation',
