@@ -42,10 +42,12 @@ export default defineComponent({
     },
   },
   methods: {
+    isNotSameDayTreatment(){
+      return this.summaryData?.['Treatment Type'] !== "Same day treatment";
+    },
     async setReason() {
       const reason = await this.reception.getFirstValueCoded('Referral reason');
       this.referralReason = reason ? reason : "N/A"
-
     },
     showSampleCollected() {
       const reasons = ['Large Lesion (>75%)','Suspect cancer', 'Further Investigation and Management'];
@@ -116,7 +118,7 @@ export default defineComponent({
           helpText: "Type of referral visit",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
+          condition: () => this.isNotSameDayTreatment(),
           options: () => {
             return [
               { label: 'Initial/1st visit to referral facility', value: 'Initial visit' },
@@ -131,7 +133,7 @@ export default defineComponent({
           helpText: "Cervix Screening Assessment",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
+          condition: () => this.isNotSameDayTreatment(),
           options: () =>{
             return [
                   { label: 'STI Infection', value: 'STI Infection' },
@@ -151,7 +153,7 @@ export default defineComponent({
             helpText: 'Are FIGO staging results available?',
             type: FieldType.TT_SELECT,
             validation: (val: any) => Validation.required(val),
-            condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
+            condition: () => this.isNotSameDayTreatment(),
             options: () => this.yesNoOptions(),
             computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Are FIGO staging results available', value.value) //Please build this observation using the buildValueCoded method
@@ -162,7 +164,7 @@ export default defineComponent({
           helpText: "FIGO staging results",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: (f: any) => f.are_figo_staging_results_available.value === 'Yes' && this.summaryData['Treatment Type'] !== "Same day treatment",
+          condition: (f: any) => f.are_figo_staging_results_available.value === 'Yes' && this.isNotSameDayTreatment(),
           options: () =>
             this.mapOptions([
               'Cervical stage 1',
@@ -179,7 +181,7 @@ export default defineComponent({
           helpText: "Type of sample collected",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
+          condition: () => this.isNotSameDayTreatment(),
           options: () =>
             this.mapOptions([
               'Punch Biopsy',
@@ -195,7 +197,7 @@ export default defineComponent({
             helpText: 'Are Histological results after LLETZ available?',
             type: FieldType.TT_SELECT,
             validation: (val: any) => Validation.required(val),
-            condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
+            condition: () => this.isNotSameDayTreatment(),
             options: () => this.yesNoOptions(),
             computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Are Histological results after LLETZ available', value.label)
@@ -206,7 +208,7 @@ export default defineComponent({
           helpText: "Histology Results After LLETZ",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: (f: any) => f.are_histological_results_after_lletz_available.value === 'Yes' && this.summaryData['Treatment Type'] !== "Same day treatment",
+          condition: (f: any) => f.are_histological_results_after_lletz_available.value === 'Yes' && this.isNotSameDayTreatment(),
           options: () =>
             this.mapOptions([
               'Normal',
@@ -228,7 +230,7 @@ export default defineComponent({
           helpText: "Complications During LLETZ/LEEP Biopsy",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
+          condition: () => this.isNotSameDayTreatment(),
           options: () => {
             return [
                 { label: 'None (N/A)', value: 'None' },
@@ -243,7 +245,7 @@ export default defineComponent({
           helpText: "Complications After LLETZ/LEEP Biopsy",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
+          condition: () => this.isNotSameDayTreatment(),
           options: () => {
             return [
                   { label: 'None (N/A)', value: 'None' },
@@ -274,7 +276,7 @@ export default defineComponent({
           helpText: "Recommended Care After LLETZ Histology",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
+          condition: () => this.isNotSameDayTreatment(),
           options: () =>
             this.mapOptions([
               'Hysterectomy',
@@ -290,7 +292,7 @@ export default defineComponent({
           id: "patient_outcome",
           helpText: "Patient outcome",
           type: FieldType.TT_SELECT,
-          condition: () => this.summaryData['Treatment Type'] !== "Same day treatment",
+          condition: () => this.isNotSameDayTreatment(),
           validation: (val: any) => Validation.required(val),
           options: () =>
             this.mapOptions([
