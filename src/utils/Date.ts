@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 export const STANDARD_DATE_FORMAT = 'YYYY-MM-DD'
 export const DISPLAY_DATE_FORMAT = 'DD/MMM/YYYY'
 
-function calculateAge(birthdate:any, currentdate:any) {
+function calculateAge(birthdate:any, currentdate = sessionDate()) {
     const birthDate = new Date(birthdate);
     const currentDate = new Date(currentdate);
     let age = currentDate.getFullYear() - birthDate.getFullYear();

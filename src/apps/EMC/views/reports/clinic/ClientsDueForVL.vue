@@ -8,6 +8,7 @@
     :rowActionButtons="rowActionBtns"
     useDateRangeFilter
     @custom-filter="getData"
+    @regenerate="getData"
   />
 </template>
 
@@ -18,10 +19,10 @@ import router from "@/router";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { RowActionButtonInterface, TableColumnInterface } from "@uniquedj95/vtable";
 import { PatientReportService } from "@/apps/ART/services/reports/patient_report_service";
-import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
-import dayjs from "dayjs";
-import { toGenderString } from "@/utils/Strs";
+import HisDate from "@/utils/Date";
 import { sortByARV } from "@/apps/EMC/utils/common";
+import { toastWarning } from "@/utils/Alerts";
+import { toGenderString } from "@/utils/Strs";
 
 export default defineComponent({
   name: "ClientsDueForVL",
@@ -29,26 +30,33 @@ export default defineComponent({
   setup() {
     const period = ref("-");
     const rows = ref<any[]>([]);
+    const report = new PatientReportService();
     const columns: TableColumnInterface[] = [
-      { path: "number", label: "#", initialSort: true, initialSortOrder: 'asc' },
-      { path: "arv_number", label: "ARV Number", preSort: sortByARV },
+      { path: "arv_number", label: "ARV #", preSort: sortByARV, initialSort: true, initialSortOrder: "asc" },
       { path: "given_name", label: "First name", exportable: false },
       { path: "family_name", label: "Last name", exportable: false },
       { path: "gender", label: "Gender", formatter: toGenderString },
-      { path: "birthdate", label: "Date of Birth", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
-      { path: "appointment_date", label: "App Date", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
+      { path: "birthdate", label: "Age", formatter: (v) => v ? HisDate.calculateAge(v) : "" },
+      { path: "appointment_date", label: "App.", formatter: HisDate.toStandardHisDisplayFormat },
+      { path: "start_date", label: "Art started", formatter: HisDate.toStandardHisDisplayFormat },
       { path: "months_on_art", label: "Months on ART" },
-      { path: "mile_stone", label: "Milestone", formatter: (v) => dayjs(v).format(DISPLAY_DATE_FORMAT) },
+      { path: "mile_stone", label: "Milestone", formatter: HisDate.toStandardHisDisplayFormat },
+      { path: "last_result_order_date", label: "Ordered", formatter: HisDate.toStandardHisDisplayFormat },
+      { path: "last_result", label: "Result" },
+      { path: "last_result_date", label: "Released", formatter: HisDate.toStandardHisDisplayFormat },
     ]
 
-    const getData = async ({ dateRange }: Record<string, any>) => {
-      await loader.show()
-      const report = new PatientReportService()
-      report.setStartDate(dateRange.startDate)
-      report.setEndDate(dateRange.endDate)
-      period.value = report.getDateIntervalPeriod()
-      rows.value = (await report.getClientsDueForVl()).map((row: any, i: number) => ({...row, number: ++i}))
-      await loader.hide();
+    const getData = async (config?: Record<string, any>) => {
+      if (config && "dateRange" in config) {
+        const {startDate, endDate} = config.dateRange;
+        report.setStartDate(startDate);
+        report.setEndDate(endDate);
+        period.value = report.getDateIntervalPeriod()
+      }
+      if (period.value === '-') return toastWarning("Invalid report period");
+      loader.show()
+      rows.value = await report.getClientsDueForVl();
+      loader.hide();
     }
 
     const rowActionBtns: RowActionButtonInterface[] = [{ 
