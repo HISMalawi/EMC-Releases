@@ -130,7 +130,6 @@ export default defineComponent({
                 this.period = form.quarter.label === 'Custom'
                     ? this.report.getDateIntervalPeriod()
                     : form.quarter.label
-                console.log(this.report.occupation)
             } else {
                 this.report.setOccupation(config.occupation)
                 this.mohCohort.setOccupation(config.occupation)
