@@ -103,7 +103,7 @@ export class DispensationService extends AppEncounterService {
         this.currentDrugOrder = (await DrugOrderService.getDrugOrders(this.patientID))||[]
         if (!this.useDrugManagement) return
         for(const order of this.currentDrugOrder) {
-            order['available_stock'] = await StockService.fetchAvailableDrugStock(order.drug.drug_id)
+            order.stocks = await StockService.fetchAvailableDrugStock(order.drug.drug_id)
         }
     }
 

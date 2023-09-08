@@ -177,6 +177,10 @@ export const REPORTS: FolderInterface[] = [
                 pathName: 'sc_arv'
             },
             {
+                name: "Sc curr report",
+                pathUrl: "/art/sc_curr"
+            },
+            {
                 name: 'TX_TB',
                 pathName: 'pepfar_tx_tb'
             }

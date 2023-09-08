@@ -38,47 +38,34 @@ export default defineComponent({
   methods: {
     async onFinish(formData: any) {
       let errors: string[] = [];
-      await formData.enter_batches.forEach(async (drug: any) => {
+      for (const drug of formData.enter_batches) {
         const data = {
           'reallocation_code': formData.authorization.value,
-          quantity: drug.value.pack_size * drug.value.tins,
+          quantity: drug.other.pack_size * drug.other.tins,
           date: formData.date.value,
-          reason: formData.reasons.value,
+          reason: drug.other.reason,
         }
         try {
           if (formData.task.value === "Relocations") {
-            const res = await this.stockService.relocateItems(drug.value.id, {
+            await this.stockService.relocateItems(drug.other.id, {
               ...data, 
               location_id: formData.relocation_location.value
-            });
-            if (!res) {
-              errors.push(
-                "Could not save record for" + drug.value.drug_name
-              );
-            }
-          } else {
-            const res = await this.stockService.disposeItems(drug.value.id, data);
-            if (!res) {
-              errors.push(
-                "Could not save record for" + drug.value.drug_name
-              );
-            }
-          }
+            })
+          } else await this.stockService.disposeItems(drug.other.id, data)
         } catch (e) {
           if (e instanceof BadRequestError && !isEmpty(e.errors)) {
-            errors = errors.concat(e.errors)
+            errors = errors.concat(e.errors.map((e: string) => `${e} for ${drug.other.drug_name}`));
           } else {
             errors.push(`${e}`)
           }
           console.log(e)
         }
-      })
-      if (errors.length === 0) {
-        toastSuccess("Stock succesfully moved");
-        this.$router.push("/");
-      } else {
-        toastDanger(`${errors.join(',')}`);
       }
+      if (isEmpty(errors)) {
+        toastSuccess("Stock succesfully moved");
+        return this.$router.push("/");
+      }
+      toastDanger(`${errors.join(',')}`);
     },
     getFields(): Array<Field> {
       return [
@@ -124,13 +111,7 @@ export default defineComponent({
           type: FieldType.TT_MULTIPLE_SELECT,
           requireNext: true,
           validation: (val: any) => Validation.required(val),
-          options: async (f: any, checked: Option[]) => {
-            const items: Option[] = await this.getItems()
-            return items.map((i: any) => {
-              i.isChecked = checked.filter(c => c.label === i.label).length >= 1 
-              return i
-            }).filter(item => !(dayjs(f.date.value).isBefore(item.value.delivery_date)))
-          },
+          options: async (f: any, checked: Option[]) => this.getDrugs(checked, f.date.value),
           unload: (val: any) => (this.selectedDrugs = val),
         },
         {
@@ -139,9 +120,7 @@ export default defineComponent({
           type: FieldType.TT_BATCH_MOVEMENT,
           beforeNext: (_: any, _f: any, _c: any, {currentFieldContext}: any) => {
             const drugsToStr = (drugs: any) => drugs.map((b: any) => `${b.label}`).join(' & ')
-            const partialEntries = currentFieldContext.drugs.filter((drug: any) =>
-              drug.entries.map((d: any) => !(d.tins)).every(Boolean)
-            )
+            const partialEntries = currentFieldContext.drugs.filter((drug: Option) => !drug.other.tins || !drug.other.reason);
             if (!isEmpty(partialEntries)) {
               const partialDrugs = drugsToStr(partialEntries)
               toastWarning(`Please fix partial batch entries for drugs: ${partialDrugs}`)
@@ -151,6 +130,9 @@ export default defineComponent({
           },
           options: () => this.selectedDrugs,
           validation: (val: any) => Validation.required(val),
+          config: {
+            getReasons: this.getReasons,
+          }
         },
         {
           id: "authorization",
@@ -171,25 +153,6 @@ export default defineComponent({
           ]), 
         },
         {
-          id: "reasons",
-          helpText: "Select reason",
-          type: FieldType.TT_SELECT,
-          validation: (val: any) => Validation.required(val),
-          options: (formdata: any) => this.getReasons(formdata),
-          beforeNext: (reason: Option, fdata: any) => {
-            if(/expired/i.test(reason.label)) {
-              const allDrugsExpired = fdata["select drugs"].every((drug: any) => {
-                return new Date(drug.value.expiry_date) > new Date(StockService.getSessionDate());
-              })
-              if(!allDrugsExpired) {
-                toastWarning("Some drugs selected have not expired")
-                return false
-              }
-            }
-            return true
-          }
-        },
-        {
           id: "summary",
           helpText: "Summary",
           type: FieldType.TT_TABLE_VIEWER,
@@ -207,17 +170,18 @@ export default defineComponent({
         "Total Tins",
         "Expiry date",
         "Authorization code",
+        "Reason"
       ];
 
       if (isRelocation) columns.push('Relocation')
 
-      const rows = formData.enter_batches.map((j: any) => {
-        const d = j.value;
+      const rows = formData.enter_batches.map((drug: any) => {
         const data = [
-          StockService.getShortName(d.drug_id),
-          toNumString(d.tins),
-          HisDate.toStandardHisDisplayFormat(d.expiry_date),
-          formData.authorization.value.toUpperCase()
+          drug.other.drug_name,
+          toNumString(drug.other.tins),
+          HisDate.toStandardHisDisplayFormat(drug.other.expiry_date),
+          formData.authorization.value.toUpperCase(),
+          drug.other.reason
         ]
         if (isRelocation) data.push(formData.relocation_location.label)
         return data
@@ -230,37 +194,45 @@ export default defineComponent({
         },
       ];
     },
-    async getItems() {
-      const f = await this.stockService.getItems();
-      return this.formatDrugs(f);
+    async getDrugs(checked: Option[], date: string) {
+      const drugs = await this.stockService.getItems();
+      return  drugs.map((drug: any) => {
+        const name = drug?.drug_name ?? drug?.drug_legacy_name ?? 'N/A';
+        const expireAt = HisDate.toStandardHisDisplayFormat(drug.expiry_date);
+        const isChecked = checked.filter(c => c.label === name).length >= 1 
+        return {
+          label: `${name} (${drug.product_code}) Expiry date: ${expireAt} Batch (${drug.batch_number})`,
+          value: drug.drug_id,
+          isChecked,
+          other: {
+            ...drug,
+            tins: null,
+            quantity: Math.trunc(drug.current_quantity / drug.pack_size) || 0,
+            reason: ''
+          },
+        };
+      })
+      .filter((drug: any) => {
+        return !(dayjs(date).isBefore(drug.other.delivery_date)) &&
+          drug.other.current_quantity > 0
+      });
     },
-    mapVal(vals: string[]) {
+    mapToOptions(vals: string[]) {
       return vals.map((data) => {
         return { label: data, value: data };
       });
     },
-    getReasons(formdata: any): any {
+    getReasons(drug: Option, formdata: any): any {
       if (formdata.task.value === "Relocations") {
-        return this.mapVal([
+        return this.mapToOptions([
           "Transfer to another facility/relocation",
           "For trainings",
         ]);
-      } else {
-        return this.mapVal(["Expired", "Damaged", "Phased out", "Banned", "Missing"]);
-      }
-    },
-    formatDrugs(drugs: any) {
-      return drugs.map((drug: any) => {
-        return {
-          label: `${drug?.drug_name||drug?.drug_legacy_name||'N/A'} (${drug.product_code}) 
-          Expiry date: ${HisDate.toStandardHisDisplayFormat(
-            drug.expiry_date
-          )} 
-          Batch (${drug.batch_number})
-          `,
-          value: drug,
-        };
-      });
+      } 
+      const drugExpired = dayjs(drug.other?.expiry_date).isAfter(StockService.getSessionDate());
+      const disposeReasons = ["Damaged", "Phased out", "Banned", "Missing"];
+      if(!drugExpired) disposeReasons.push("Expired");
+      return this.mapToOptions(disposeReasons);
     },
   },
   created() {

@@ -40,7 +40,7 @@ export const PROPERTIES: FolderInterface[] = [
             {
                 name: "Stock report",
                 pathUrl: "/art/stock/report",
-            }
+            }  
         ]
     },
     {

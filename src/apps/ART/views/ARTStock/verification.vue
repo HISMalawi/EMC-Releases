@@ -65,7 +65,7 @@ export default defineComponent({
             const _drugs: Array<any> = await this.stockService.getItems()
             this.drugs = _drugs.forEach(drug => {
               if(!drug.pack_size) drug.pack_size = StockService.getPackSize(drug.drug_id)
-              drug.original_quantity = drug['current_quantity'] / (drug.pack_size || 1)
+              drug.original_quantity = Math.trunc(drug['current_quantity'] / (drug.pack_size || 1));
               drug.current_quantity = drug.original_quantity
               if(options.has(drug.drug_id)) {
                 options.get(drug.drug_id)?.other.push(drug);

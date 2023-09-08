@@ -10,26 +10,39 @@
               :color="index === selectedDrug ? 'secondary' : ''"
               @click="selectDrug(index)"
             >
-              {{ `${drug.drug_name ?? drug.drug_legacy_name}` }}
+              {{ `${drug.other.drug_name ?? drug.other.drug_legacy_name}` }}
             </ion-item>
           </ion-list>
         </ion-col>
         <ion-col>
           <ion-grid v-if="selectedDrug !== null" class="scroll-list"> 
-            <ion-row v-for="(entry, ind) in drugs[selectedDrug].entries" :key="ind"> 
+            <ion-row> 
               <ion-col size="12" class=" ion-margin-bottom"> 
                 <ion-item>
                   <ion-label position="floating">Available Tins/Pallets:</ion-label>
-                  <ion-input readonly disabled :value="fmtNumber(entry.quantity)" />
+                  <ion-input readonly disabled :value="fmtNumber(drugs[selectedDrug].other?.quantity)" />
                 </ion-item>
-              </ion-col><ion-col> 
+              </ion-col>
+              <ion-col size="12"> 
                 <ion-item>
                   <ion-label position="floating">Total Tins Relocated/Disposed</ion-label>
                   <ion-input 
                     readonly
                     color="primary"
-                    :value="fmtNumber(entry.tins || 0)" 
-                    @click="enterTins(ind)">
+                    :value="fmtNumber(drugs[selectedDrug].other?.tins || 0)" 
+                    @click="enterTins">
+                  </ion-input>
+                </ion-item>
+              </ion-col>
+              <ion-col size="12"> 
+                <ion-item>
+                  <ion-label position="floating">Reason for Relocating/Disposing</ion-label>
+                  <ion-input 
+                    readonly
+                    color="primary"
+                    placeholder="select reason"
+                    :value="drugs[selectedDrug].other?.reason || ''" 
+                    @click="selectReason">
                   </ion-input>
                 </ion-item>
               </ion-col>
@@ -54,7 +67,6 @@ import {
   IonInput,
   IonLabel,
 } from "@ionic/vue";
-import { find, isEmpty } from "lodash";
 import { FieldType } from "../Forms/BaseFormElements";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Option } from "../Forms/FieldInterface";
@@ -76,61 +88,36 @@ export default defineComponent({
   },
   mixins: [FieldMixinVue],
   data: () => ({
-    drugs: [] as any,
+    drugs: [] as Array<Option>,
     selectedDrug: null as any,
   }),
-  mounted() {
-    this.init()
-  },
   async activated() {
     this.init()
   },
   methods: {
     async init() {
       this.$emit("onFieldActivated", this);
-      await this.setDefaultValue();
+      this.drugs = await this.options();
+      if (this.drugs.length >= 1) this.selectDrug(0)
     },
     fmtNumber(num: number | string) {
       return toNumString(num)
     },
-    async setDefaultValue() {
-      const incomingDrugs = await this.options();
-      // detect if some drugs are still available as options
-      this.drugs = this.drugs.filter((d: any) =>
-        incomingDrugs.map((i: any) => i.label).includes(d.label)
-      )
-      incomingDrugs.forEach((drug: any) => {
-        const val = {
-          tins: null,
-          quantity: (drug.value.current_quantity / drug.value.pack_size || 1) || 0
-        };
-        const d = {
-          label: drug.label,
-          entries: [{ ...val }],
-          ...drug.value,
-        };
-        // Append if incoming drug is new
-        const drugExists = find(this.drugs, { label: drug.label })
-        if (!drugExists) this.drugs.push(d)
-      })
-      // initialise drug selection
-      if (this.drugs.length >= 1) this.selectDrug(0)
-    },
     getModalTitle(context: string) {
       return `${context} (${this.drugs[this.selectedDrug].label})`
     },
-    getDrugValue(index: number, type: string) {
-      return this.drugs[this.selectedDrug].entries[index][type]
+    getDrugValue(type: string) {
+      return this.drugs[this.selectedDrug].other[type]
     },
-    setDrugValue(index: number, type: string, data: Option | null) {
-      this.drugs[this.selectedDrug].entries[index][type] = data ? data.value : ''
+    setDrugValue(type: string, data: Option | null) {
+      this.drugs[this.selectedDrug].other[type] = data ? data.value : ''
     },
-    enterTins(index: number) {
+    enterTins() {
       popupKeyboard({
         id: 'tins',
         helpText: this.getModalTitle('Enter number of tins'),
         type: FieldType.TT_NUMBER,
-        defaultValue: () => this.getDrugValue(index, 'tins'),
+        defaultValue: () => this.getDrugValue('tins'),
         validation: (v: Option) => {
           if (!v || v && !v.value) {
             return null
@@ -138,21 +125,30 @@ export default defineComponent({
           return Validation.validateSeries([
             () => Validation.isNumber(v),
             () => v.value as number <= 0 ? ['Number of tins must be greater than 1'] : null,
-            () => v.value as number > this.getDrugValue(index, 'quantity') 
+            () => v.value as number > this.getDrugValue('quantity') 
               ? ["You cannot dispose/relocate more than available tins"]
               : null
           ])
         }
       }, 
-      (v: Option) => this.setDrugValue(index, 'tins', v))
+      (v: Option) => this.setDrugValue('tins', v))
     },
-    async selectDrug(index: any) {
+    async selectReason() {
+      const batchNumber = this.getDrugValue('batch_number');
+      popupKeyboard({
+        id: 'reason',
+        helpText: this.getModalTitle(`Select reason for disposing/relocating Batch ${batchNumber}`),
+        type: FieldType.TT_SELECT,
+        defaultValue: () => this.getDrugValue('reason'),
+        validation: (v: Option) => Validation.required(v),
+        options: () => this.config?.getReasons(this.drugs[this.selectedDrug],this.fdata) || []
+      },
+      (v: Option) => {
+        this.setDrugValue('reason', v)
+      })
+    },
+    selectDrug(index: number) {
       this.selectedDrug = index;
-    },
-    validateEntry(drug: any) {
-      return (
-        !isEmpty(drug.tins)
-      );
     },
   },
   computed: {
@@ -163,33 +159,27 @@ export default defineComponent({
         return 'N/A'
       }
     },
-    enteredDrugs(): any {
-      const f: any = [];
-      this.drugs.forEach((element: any) => {
-        if(element.entries) {
-          const j = element.entries.filter((el: any) => this.validateEntry(el));
-          j.forEach((e: any) => {
-            f.push({ label: element.shortname, value: { ...e, ...element } });
-          });
-        }
-        
+    updatedDrugs(): Array<Option> {
+      return this.drugs.filter(drug => {
+        return !!drug.other?.tins && !!drug.other?.reason
       });
-      return f;
     },
   },
   watch: {
     clear() {
       this.drugs = this.drugs.map((d: any) => {
-        d.entries = d.entries.map((e: any) => {
-          e.tins = null
-          return e
-        })
+        d.other = {
+          ...d.other,
+          tins: null,
+          quantity: (d.current_quantity / d.pack_size || 1) || 0,
+          reason: ''
+        }
         return d
       })
     },
     drugs: {
         async handler() {
-          this.$emit("onValue", this.enteredDrugs);
+          this.$emit("onValue", this.updatedDrugs);
         },
         immediate: true,
         deep: true
