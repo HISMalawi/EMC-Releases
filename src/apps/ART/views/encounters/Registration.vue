@@ -182,8 +182,16 @@ export default defineComponent({
                 {
                     id: 'hts_serial_number',
                     helpText: 'HTS Linkage Number',
-                    type: FieldType.TT_TEXT,
-                    validation: (v: Option) => Validation.required(v),
+                    type: FieldType.TT_LINKAGE_CODE,
+                    validation: (v: Option) => Validation.validateSeries([
+                        () => Validation.required(v),
+                        () => {
+                            if (!v?.other?.isValidLinkageCode) {
+                                return ['Invalid Scanform linkage code']
+                            }
+                            return null
+                        }
+                    ]),
                     condition: (f: any) => f.has_linkage_code === 'Yes',
                     computedValue: (v: Option) => {
                         return {
