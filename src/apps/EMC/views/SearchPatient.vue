@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref } from "vue";
+import { computed, defineComponent, reactive, ref } from "vue";
 import { IonGrid, IonRow, IonCol, IonSearchbar, IonButton } from "@ionic/vue";
 import { Patientservice } from "@/services/patient_service";
 import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop";
@@ -52,6 +52,7 @@ import popVoidReason from "@/utils/ActionSheetHelpers/VoidReason";
 import HisDate, { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import dayjs from "dayjs";
 import { toGenderString } from "@/utils/Strs";
+import { UserService } from "@/services/user_service";
 
 export default defineComponent({
   components: {
@@ -146,17 +147,31 @@ export default defineComponent({
       tableRows.value = []
     }
 
-    const TableRowActions: RowActionButtonInterface[] = [
-      { label: "Select", action: (p) => router.push(`/emc/patient/${p.personId}`) },
-      { label: "void", color: 'danger', action: async (p) => popVoidReason(async (reason: string) => {
-        try {
-          await Patientservice.voidPatient(p.personId, reason)
-          await searchPatient()
-        } catch (e) {
-          toastDanger(`${e}`)
-        }
-      }, 'void-modal')}
-    ]
+    const getVoidButton = (): RowActionButtonInterface => ({ 
+      label: "void", 
+      color: 'danger', 
+      action: async (p) => {
+        popVoidReason(async (reason: string) => {
+          try {
+            await Patientservice.voidPatient(p.personId, reason)
+            await searchPatient()
+          } catch (e) {
+            toastDanger(`${e}`)
+          }
+        }, 
+        'void-modal')
+      }
+    });
+ 
+    const TableRowActions = computed(() => {
+      const roles: Array<RowActionButtonInterface> = [{
+         label: "Select", 
+         action: (p) => router.push(`/emc/patient/${p.personId}`) 
+      }];
+
+      if(UserService.isDataManager()) roles.push(getVoidButton())
+      return roles
+    }); 
 
     return {
       searchText,
