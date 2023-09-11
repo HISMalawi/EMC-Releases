@@ -35,6 +35,9 @@ export default defineComponent({
         }
     },
     methods: {
+        mapToOption(listOptions: Array<string>): Array<Option> {
+            return listOptions.map((item: any) => ({ label: item, value: item }))
+        },
         async onSubmit(formData: any, computedData: any){
             await this.asignNID(formData)
             const encounter = await this.registrationService.createEncounter()
@@ -88,6 +91,24 @@ export default defineComponent({
                     }
                 },
                 {
+                    id: 'life_threatening_condition',
+                    helpText: 'Life threatening condition',
+                    type: FieldType.TT_SELECT,
+                    computedValue: (value: Option) => ({obs: this.registrationService.buildValueCoded('Life threatening condition', value)}),
+                    validation: (val: any) => Validation.required(val),
+                    options: () => this.mapToOption([
+                                'Airway',
+                                'Breathing',
+                                'Coma',
+                                'Confusion',
+                                'Convulsion',
+                                'Disability',
+                                'none',
+                                'other',
+                                'Temperatur (The child is very hot)'
+                            ])
+                },
+                {
                     id: 'national_id_available',
                     helpText: 'National ID Available',
                     type: FieldType.TT_SELECT,
@@ -126,7 +147,7 @@ export default defineComponent({
                     computedValue: ({value}: Option) => ({obs: this.registrationService.buildValueCoded('PATIENT PREGNANT', value)}),
                     condition: () => this.patient.isChildBearing(),
                     options: () => this.yesNoUnknownOptions(),
-                }
+                },
             ]
         }
     }
