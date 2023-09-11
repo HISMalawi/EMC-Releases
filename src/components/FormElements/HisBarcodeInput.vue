@@ -2,6 +2,12 @@
     <div class="his-card"> 
         <barcode-input @onScan="onScan"> </barcode-input>    
     </div>
+    <div class="his-md-text ion-text-center" v-if="config?.showScannedBarcode">
+        Barcode ID: 
+        <ion-text :color=" barcode ? 'success' : 'dark'">
+            <b>{{ barcode || 'None' }}</b>
+        </ion-text>
+    </div>
 </template>
 
 <script lang="ts">
@@ -12,14 +18,19 @@ import BarcodeInput from "@/components/BarcodeInput.vue"
 export default defineComponent({
     mixins: [FieldMixinVue],
     components: { BarcodeInput },
+    data: () => ({
+        barcode: '' as string,
+    }),
     methods: {
         async onScan(text: string) {
+            this.barcode = ""
             if (this.onValue) {
                 const ok = await this.onValue(text)
                 if (!ok) {
                     return
                 }
             }
+            this.barcode = text
             this.$emit('onValue', text)
         }
     }

@@ -129,6 +129,10 @@ export const REPORTS: FolderInterface[] = [
                 name: 'Vl collection',
                 pathUrl: '/art/clinic_vl_collection_report'
             },
+            {
+                name: "Hypertension Report",
+                pathUrl: "/art/hypertension_report"
+            }
         ]
     },
     {

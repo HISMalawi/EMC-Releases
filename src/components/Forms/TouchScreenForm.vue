@@ -344,7 +344,7 @@ export default defineComponent({
         name: override?.name || "Next",
         color: override?.color || "success",
         slot: "end",
-        state: {
+        state: override?.state || {
           disabled: {
             onsubmit: () => true,
             default(field: Field) {

@@ -222,6 +222,7 @@ export default defineComponent({
                         options.push(this.toOption('HB'))
                         options.push(this.toOption('Syphilis'))
                         options.push(this.toOption('Malaria'))
+                        options.push(this.toOption('Hepatitis B'))
                         options.push(this.toOption('Blood Group'))
                         const urine: Option = {
                             label: 'Urine',
@@ -250,6 +251,22 @@ export default defineComponent({
                     exitsForm: (f: any) => find(f.available_test_results, {label: 'None'}),
                 }   
             }) (),
+            {
+                id: "hepatitis_b",
+                type: FieldType.TT_SELECT,
+                helpText: "Hepatitis B test results",
+                validation: (v: Option) => Validation.required(v), 
+                condition: (f: any) => f.available_test_results.map((v: Option) => v.value).includes('Hepatitis B'),
+                computedValue: (v: Option) => {
+                    return this.service.buildValueCoded('Hepatitis B Test Result', v.value)
+                },
+                options: () => {
+                    return this.mapStrToOptions([
+                        'Negative',
+                        'Positive'
+                    ])
+                }
+            },
             {
                 id: 'hiv_status',
                 helpText: 'HIV Test Result',

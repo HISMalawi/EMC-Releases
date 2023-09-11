@@ -2,6 +2,11 @@ import { ART_GLOBAL_PROP } from "../art_global_props"
 
 export default [
     {
+        name: "Hypertension report",
+        path: "/art/hypertension_report",
+        component: () => import('@/apps/ART/views/reports/clinic/ClinicHypertensionReport.vue')
+    },
+    {
         name: "Clinic Discrepancy Report",
         path: "/art/clinic_discrepancy_report",
         component: () => import("@/apps/ART/views/reports/clinic/ClinicDiscrepancyReport.vue")

@@ -8,4 +8,8 @@ export class ClinicReportService extends ArtReportService {
     getTtpOutcomes() {
         return this.getReport(`programs/${this.programID}/reports/tpt_outcome`)
     }
+
+    getHypertensionReport() {
+        return this.getReport(`programs/${this.programID}/reports/hypertension_report`)
+    }
 }
