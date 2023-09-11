@@ -50,6 +50,7 @@ export default defineComponent({
         async onPeriod(_: any, config: any, rebuildCache=false) {
             this.rows = []
             this.report = new MohRegimenReportService()
+            this.report.setOccupation(config.occupation)
             this.report.setRegenerate(rebuildCache)
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)

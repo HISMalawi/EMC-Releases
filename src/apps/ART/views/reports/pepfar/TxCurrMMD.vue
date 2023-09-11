@@ -69,8 +69,10 @@ export default defineComponent({
             this.rows = []
             this.report = new TxReportService()
             this.mohCohort = new MohCohortReportService()
+            this.mohCohort.setOccupation(config.occupation)
             this.mohCohort.setStartDate(config.start_date)
             this.mohCohort.setEndDate(config.end_date)
+            this.report.setOccupation(config.occupation)
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()

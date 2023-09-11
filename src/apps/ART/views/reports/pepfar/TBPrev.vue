@@ -81,6 +81,7 @@ export default defineComponent({
         async onPeriod(_: any, config: any) {
             this.rows = []
             this.report = new TbPrevReportService()
+            this.report.setOccupation(config.occupation)
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()
