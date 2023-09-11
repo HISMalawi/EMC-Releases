@@ -1,5 +1,5 @@
 import { UserService } from "@/services/user_service";
-import { search, pieChart, people, speedometer, settings, archive } from "ionicons/icons";
+import { search, pieChart, people, speedometer, settings, archive, barChart } from "ionicons/icons";
 import { MenuItem } from '../interfaces/menu';
 
 export const menuItems: MenuItem[] = [
@@ -269,7 +269,14 @@ export const menuItems: MenuItem[] = [
         id: "emc_cleaning_verification",
         img: 'Checkmark.svg',
         url: '/emc_cleaning_verification'
-      }
+      },
+      {
+        title: "System usage report",
+        id: "emc_system_usage_report",
+        icon: barChart,
+        url: "/emc_system_usage",
+        condition: () => UserService.isAdmin()
+       }
     ]
   },
   {

@@ -72,6 +72,6 @@ export default defineComponent({
 
 .date-picker-input {
   padding-left: .2em;
-  max-width: 150px;
+  max-width: 200px;
 }
 </style>

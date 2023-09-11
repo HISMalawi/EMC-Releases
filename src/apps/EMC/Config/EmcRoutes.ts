@@ -59,6 +59,11 @@ export default [
     component: () => import("@/apps/EMC/views/tools/PatientMerging.vue")
   },
   {
+    name: "emc_system_usage",
+    path: "/emc_system_usage",
+    component: () => import("@/apps/EMC/views/tools/SystemUsageReport.vue")
+  },
+  {
     path: '/emc/settings/site_settings',
     component: () => import('@/apps/EMC/views/settings/SiteSettings.vue'),
   },
