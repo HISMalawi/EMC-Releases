@@ -9,7 +9,7 @@
     useDateRangeFilter 
     @custom-filter="getData"
     @drilldown="onDrilldown"
-    @regenerate="onRegenerate"
+    @regenerate="getData"
   />
 </template>
 
@@ -22,57 +22,101 @@ import { ClinicReportService } from "@/apps/ART/services/reports/clinic_report_s
 import { Patientservice } from "@/services/patient_service";
 import DrilldownTableVue from "@/apps/EMC/Components/tables/DrilldownTable.vue";
 import { modal } from "@/utils/modal";
-import dayjs from "dayjs";
 import { toGenderString } from "@/utils/Strs";
 import HisDate from "@/utils/Date";
 import { sortByARV } from "@/apps/EMC/utils/common"; 
+import { sortBy } from "@/utils/Arrays";
+import { toastWarning } from "@/utils/Alerts";
+import { isEmpty } from "lodash";
 
 export default defineComponent({
   name: "TptOutcomes",
   components: { BaseReportTable },
   setup() {
     const period = ref("");
+    const report = new ClinicReportService()
     const title = ref("TPT Outcomes Clinic Report");
     const rows = ref<any[]>([]);
+    const indicators = {
+      "started_tpt_new": "Started TPT (New on ART)",
+      "started_tpt_prev": "Started TPT (Previous on ART)",
+      "completed_tpt_new": "Completed TPT(New on ART)",
+      "completed_tpt_prev": "Completed TPT(Previous on ART)",
+      "not_completed_tpt": "Not completed TPT",
+      "died": "Died",
+      "defaulted": "Defaulted",
+      "stopped": "Stopped ART",
+      "transfer_out": "Transfered Out",
+      "confirmed_tb": "Confirmed TB",
+      "pregnant": "Pregnant",
+      "breast_feeding": "Breastfeeding",
+      "skin_rash": "Skin rash",
+      "peripheral_neuropathy": "Peripheral neuropathy",
+      "yellow_eyes": "Yellow eyes",
+      "nausea": "Nausea",
+      "dizziness": "Dizziness"
+    }
+
     const columns: TableColumnInterface[] = [
       { path: "age_group", label: "Age Group" },
       { path: "tpt_type", label: "TPT Type" },
-      { path: "started_tpt", label: "Started TPT", drillable: true, sortable: false },
-      { path: "completed_tpt", label: "Completed TPT", drillable: true, sortable: false },
-      { path: "not_completed_tpt", label: "Not completed TPT", drillable: true, sortable: false },
-      { path: "died", label: "Died", drillable: true, sortable: false },
-      { path: "defaulted", label: "Defaulted", drillable: true, sortable: false },
-      { path: "stopped", label: "Stopped ART", drillable: true, sortable: false },
-      { path: "transfer_out", label: "Transfered Out", drillable: true, sortable: false },
-      { path: "confirmed_tb", label: "Confirmed TB", drillable: true, sortable: false },
-      { path: "pregnant", label: "Pregnant", drillable: true, sortable: false },
-      { path: "breast_feeding", label: "Breastfeeding", drillable: true, sortable: false },
-      { path: "skin_rash", label: "Skin rash", drillable: true, sortable: false },
-      { path: "peripheral_neuropathy", label: "Peripheral neuropathy", drillable: true, sortable: false },
-      { path: "yellow_eyes", label: "Yellow eyes", drillable: true, sortable: false },
-      { path: "nausea", label: "Nausea", drillable: true, sortable: false },
-      { path: "dizziness", label: "Dizziness", drillable: true, sortable: false },
+      ...Object.entries(indicators).map(([path, label]: any) => ({
+        path, 
+        label,  
+        drillable: true, 
+        sortable: false 
+      })),
     ]
 
-    const getData = async ({ dateRange }: Record<string, any>) => {
-      await loader.show()
-      const report = new ClinicReportService()
-      report.setStartDate(dateRange.startDate)
-      report.setEndDate(dateRange.endDate)
-      period.value = report.getDateIntervalPeriod()
-      const data: any[] = await report.getTtpOutcomes() || []
-      rows.value = data.sort((a, b) => a.tpt_type > b.tpt_type ? 1 : 0)
-      await loader.hide();
+    const getData = async (config?: Record<string, any>) => {
+      if(config && "dateRange" in config) {
+        const { startDate, endDate } = config.dateRange;
+        report.setStartDate(startDate)
+        report.setEndDate(endDate)
+        period.value = report.getDateIntervalPeriod()
+      }
+      if(!period.value) return toastWarning("Select report period");
+      await loader.show();
+      try {
+        const data: any[] = await report.getTtpOutcomes() || []
+        rows.value = sortBy(data, 'tpt_type');
+        const aggregatedData = agregateByGender(data);
+        rows.value.push({ age_group: "All", tpt_type: "Male", ...aggregatedData.males })
+        rows.value.push(...getTotalFemaleRows(aggregatedData.females));
+      } catch (e) {
+        toastWarning("Failed to load report data");
+        console.error(e);
+      }
+      loader.hide();
     }
 
-    const onRegenerate = async () => {
-      const [ start, end ] = period.value.split('-')
-      if(start && end ) {
-        getData({dateRange: {
-          startDate: dayjs(start).format("YYYY-MM-DD"), 
-          endDate: dayjs(end).format("YYYY-MM-DD")
-        }})
-      }
+    const getTotalFemaleRows = (allFemales: any) => {
+      return ["FP", "FNP", "FBf"].map(gender => {
+        const row: Record<string, any> = { age_group: "All", tpt_type: gender }
+        for (const i in indicators) {
+          row[i] = allFemales[i].filter((patient: number) => {
+            if(gender === "FP") return allFemales.pregnant.includes(patient);
+            if(gender === "FBf") return allFemales.breast_feeding.includes(patient);
+            return !([...allFemales.pregnant, allFemales.breast_feeding].includes(patient));
+          })
+        } 
+        return row;
+      }); 
+    }
+
+    const agregateByGender = (data: Array<any>) => {
+      return data.reduce((acc: any, curr: any) => {
+        for (const i in indicators) {
+          if(!(i in acc.males)) acc.males[i] = []
+          if(!(i in acc.females)) acc.females[i] = []
+          if(isEmpty(curr[i])) continue;
+          curr[i].forEach((d: any) => {
+            if (d.gender === "F") acc.females[i].push(d.patient_id);
+            else acc.males[i].push(d.patient_id)
+          });
+        }
+        return acc
+      }, {males: {}, females: {}});
     }
 
     const onDrilldown = async (data: {column: TableColumnInterface; row: any}) => {
@@ -116,7 +160,6 @@ export default defineComponent({
       period,
       getData,
       onDrilldown,
-      onRegenerate,
     }
   }
 })
