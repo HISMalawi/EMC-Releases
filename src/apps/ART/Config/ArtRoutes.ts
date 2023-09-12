@@ -2,6 +2,16 @@ import { ART_GLOBAL_PROP } from "../art_global_props"
 
 export default [
     {
+        name: "Hypertension report",
+        path: "/art/hypertension_report",
+        component: () => import('@/apps/ART/views/reports/clinic/ClinicHypertensionReport.vue')
+    },
+    {
+        name: "Clinic Discrepancy Report",
+        path: "/art/clinic_discrepancy_report",
+        component: () => import("@/apps/ART/views/reports/clinic/ClinicDiscrepancyReport.vue")
+    },
+    {
         name: "Viral Load Register",
         path: "/art/report/clinic_viral_load_register",
         component: () => import("@/apps/ART/views/reports/clinic/ClinicViralLoadRegister.vue")
@@ -10,6 +20,11 @@ export default [
       name: "Clinic vl collection",
       path: '/art/clinic_vl_collection_report',
       component: () => import("@/apps/ART/views/reports/clinic/ClinicVlCollection.vue")  
+    },
+    {
+        name: "Stock Sc Curr",
+        path: "/art/sc_curr",
+        component: () => import("@/apps/ART/views/reports/pepfar/ScCurrReport.vue")
     },
     {
         name: "Data cleaning verification",

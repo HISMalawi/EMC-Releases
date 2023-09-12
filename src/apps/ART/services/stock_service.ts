@@ -1,4 +1,5 @@
 import { Service } from "@/services/service";
+import { isEmpty } from "lodash";
 
 export class StockService extends Service {
     constructor() {
@@ -7,8 +8,10 @@ export class StockService extends Service {
 
     static async fetchAvailableDrugStock(drugId: number) {
         const stock = await this.getJson('pharmacy/items', { 'drug_id': drugId })
-        if (stock && stock.length > 0) {
-            return stock.reduce((accum: number, pharm: any) => accum + pharm.current_quantity, 0);
-        }
+        if(isEmpty(stock)) return
+        return stock.map((drug: any) => ({
+            quantity: drug.current_quantity,
+            packSize: drug.pack_size
+        }));
     }
 }

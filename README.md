@@ -58,3 +58,7 @@ To build for Android, make sure you have the latest version of Android studio in
 ## Running web version for production
 After running `ionic build`, the output files generated are kept in `dist` folder.
 You can run the built version using a local web server such as `python3 -m http.server` or use ngx. For optimal serving when testing in development, install `npm install --global serve` and run `serve -s dist`
+
+# Label printer integration from the web browser
+Please install this [label script](https://github.com/EGPAFMalawiHIS/Hi-LabelPrinter/tree/master) if you want to print labels from the web.
+This is a background service that is compatible with linux operating systems and CAN WORK WITH ANY WEB BROWSER ON THE DESKTOP.

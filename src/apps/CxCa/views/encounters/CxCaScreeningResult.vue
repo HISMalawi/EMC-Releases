@@ -188,7 +188,7 @@ export default defineComponent({
             ]);
           },
           condition(formData: any) {
-            return !['VIA Negative', 'No visible Lesion', 'PAP Smear Abnormal', 'HPV negative'].includes(formData.screening_result.value);
+            return !['VIA Negative', 'No visible Lesion', 'PAP Smear Normal', 'HPV negative'].includes(formData.screening_result.value);
           },
           computedValue: (value: any) => ({
             obs: this.screeningResult.buildValueCoded('Directly observed treatment option', value.value)

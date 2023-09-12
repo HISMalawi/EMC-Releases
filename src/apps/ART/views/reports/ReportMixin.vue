@@ -13,9 +13,12 @@ import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { isArray } from "lodash"
+import Store from "@/composables/ApiStore"
+import App from "@/apps/app_lib"
 
 export default defineComponent({
     data: () => ({
+        app: App.getActiveApp(),
         fields: [] as Array<Field>,
         report: {} as any,
         reportReady: false as boolean,
@@ -23,6 +26,7 @@ export default defineComponent({
         startDate: '' as string,
         endDate: '' as string,
         customFileName: '' as string,
+        isMilitarySite: false as boolean,
         drillDownCache: {} as Record<number, Array<any>>
     }),
     methods: {
@@ -235,7 +239,26 @@ export default defineComponent({
                         allowUnknown: false
                     },
                     computeValue: (date: string) => date
-                })
+                }),
+                {
+                    id: 'occupation',
+                    helpText: "Report Group",
+                    type: FieldType.TT_SELECT,
+                    init: async () => {
+                        this.isMilitarySite = await Store.get('IS_MILITARY_SITE')
+                        return true
+                    },
+                    computedValue: (v: Option) => v.value, 
+                    condition: () => this.app?.applicationName === 'ART' && this.isMilitarySite,
+                    validation: (val: Option) => Validation.required(val),
+                    options: () => {
+                        return [
+                            { label: 'All', value: 'All'},
+                            { label: 'Military', value: 'Military'},
+                            { label: 'Civilian', value: 'Civilian'},
+                        ]
+                    }
+                }
             ]
         }
     }

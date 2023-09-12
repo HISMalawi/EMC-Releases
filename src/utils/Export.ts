@@ -57,6 +57,7 @@ export function toPDFfromHTML(html: string) {
 }
 
 export function toCsv(header: Array<any>, rows: Array<any>, fileName='document') {
+  rows = replaceHTMLContent(rows)
   const csvContent = convertToCsv(header.concat(rows))
   const { activePlatformProfile } = platform()
   const fileWithExt = `${fileName}.csv`
@@ -83,6 +84,7 @@ export function toTablePDF(
   fileName='document',
   canHorizontalPageBreak=false,
   encryption={}) {
+    tableRows = replaceHTMLContent(tableRows)
     const doc = new jsPDF({...encryption})
     const title = doc.splitTextToSize(fileName, 180)
     const tableMarginStartY = title.length <= 1 ? 20 : title.length * 10
@@ -109,4 +111,16 @@ export function toTablePDF(
     } else {
       toastDanger('Platform not supported') 
     }
+}
+
+function replaceHTMLContent(tableRows: any) {
+  const updatedTableRows = tableRows.map((row: any) => {
+    return row.map((item: any) => {
+      if (typeof item === 'string') {
+        return item.replace(/&lt;/g, '<');
+      }
+      return item;
+    });
+  });
+  return updatedTableRows
 }

@@ -83,10 +83,11 @@ export default defineComponent({
         ]
     },
     methods: {
-        async onPeriod({ quarter, group }: any, _: any, shouldRebuildCache=false) {
+        async onPeriod({ quarter, group }: any, config: any, shouldRebuildCache=false) {
             this.rows = []
             this.period = quarter.label
             this.report = new SurvivalAnalysisReportService()
+            this.report.setOccupation(config.occupation)
             this.report.setRegenerate(shouldRebuildCache)
             this.report.setQuarter(quarter.label)
             this.report.setAgeGroup(group.value)

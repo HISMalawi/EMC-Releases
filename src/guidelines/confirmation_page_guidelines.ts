@@ -202,7 +202,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Detect NPID over 5 duplicates and prompt the user to resolve them" : {
-        weight: 76,
+        weight: 99,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({ scannedNpid }: any) => {

@@ -31,8 +31,9 @@ export default defineComponent({
         columns: [
             [
                 table.thTxt('Medication'),
+                table.thTxt('Opening Stock (Tins/Pallets)'),
                 table.thTxt('Quantity Dispensed (Tins/Pallets)'),
-                table.thTxt('Stock on hand(Tins/Pallets)')
+                table.thTxt('Stock on hand (Tins/Pallets)')
             ]
         ]
     }),
@@ -46,16 +47,13 @@ export default defineComponent({
             this.report.setStartDate(config.start_date);
             this.report.setEndDate(config.end_date);
             this.period = this.report.getDateIntervalPeriod();
-            await this.report.loadStock();
-            this.report.groupStock().forEach((s: any) => {
+            const data = await this.report.getStockCardReport();
+            data.forEach((s: any) => {
                 this.rows.push([
-                    table.td(s.drugName),
-                    table.td(s.quantintyDispensed),
-                    table.td(
-                        (s.quantityIsTabs 
-                        ? `${toNumString(s.currentQuantity)} (tabs)`
-                        : toNumString(s.currentQuantity)), 
-                        { sortValue: parseInt(s.currentQuantity)})
+                    table.td(s.drug_name),
+                    table.td(toNumString(s.opening_balance)),
+                    table.td(toNumString(s.dispensed_quantity || 0)),
+                    table.td(toNumString(s.closing_balance))
                 ])
             })
         }

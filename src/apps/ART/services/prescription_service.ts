@@ -264,7 +264,7 @@ export class PrescriptionService extends AppEncounterService {
     }
 
     estimatePackSize(pillsPerDay: number, packSize=0) {
-        const packs = (pillsPerDay * this.nextVisitInterval) / packSize
+        const packs = (pillsPerDay * this.nextVisitInterval) / (packSize || 1)
         
         let roundedPacks = Math.round(packs)
 
