@@ -26,7 +26,7 @@ export default defineComponent({
   components: { ReportTemplate, IonPage },
   mixins: [ReportMixin],
   data: () => ({
-    title: 'OPD Diagnosis',
+    title: 'OPD Diagnosis 78',
     rows: [] as RowInterface[][],
     reportService: {} as any,
     customInfo: {

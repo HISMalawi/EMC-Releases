@@ -36,8 +36,8 @@ export const REPORTS: FolderInterface[] = [
         defaultFilesIcon: 'reports.png',
         files: [
             {
-                name: 'Diagnosis Report',
-                pathName: 'clinic_diagnosis_by_address'
+                name: 'AETC Diagnosis Report',
+                pathName: 'aetc_diagnosis'
             },
             {
                 name: 'Diagnosis Specific Report',

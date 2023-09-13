@@ -78,7 +78,7 @@ export const PROPERTIES: FolderInterface[] = [
             {
                 name: "Set Top Ten Drugs",
                 pathUrl: "/aetc/preferences/top_ten_drugs"
-            },
+            }
         ]
     }
 ]

@@ -16,4 +16,9 @@ export default [
         path: "/aetc/preferences/top_ten_drugs",
         component: () => import("@/apps/AETC/views/preferences/DefaultPreferences.vue")
     },
+    {
+        name: 'aetc_diagnosis',
+        path: '/aetc/reports/clinic/diagnosis',
+        component: () => import('@/apps/AETC/views/reports/clinic/Diagnosis.vue')
+    }
 ]
