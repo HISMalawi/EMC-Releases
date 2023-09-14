@@ -30,5 +30,10 @@ export default [
         name: 'aetc_disaggregated_diagnosis',
         path: '/aetc/reports/clinic/disaggregatedDiagnosis',
         component: () => import('@/apps/AETC/views/reports/clinic/DisaggregatedDiagnosis.vue')
+    },
+    {
+        name: 'aetc_opd_general_report',
+        path: '/aetc/reports/clinic/opdGeneral',
+        component: () => import('@/apps/AETC/views/reports/clinic/OPDGeneral.vue')
     }
 ]

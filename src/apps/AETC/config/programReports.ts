@@ -49,7 +49,7 @@ export const REPORTS: FolderInterface[] = [
             },
             {
                 name: 'OPD General',
-                pathName: 'clinic_cases_seen'
+                pathName: 'aetc_opd_general_report'
             },
             {
                 name: 'Referrals',
