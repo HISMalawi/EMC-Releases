@@ -9,7 +9,7 @@ export interface QuarterInterface {
     end: string;
 }
 
-export class OpdReportService extends Service {
+export class AETCReportService extends Service {
     programID: number;
     startDate: string;
     endDate: string;

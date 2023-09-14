@@ -35,7 +35,7 @@
                                     v-if="columnSorted && columnSorted === item.ref"
                                     :icon="sortOrder === 'asc' ? arrowUp : arrowDown">
                                 </ion-icon>
-                                <ion-label class="ion-text-center" v-if="index < columns.length - 1">
+                                <ion-label class="ion-text-center">
                                     <b>{{ item.label }}</b>
                                 </ion-label>
                             </ion-item>
