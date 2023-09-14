@@ -158,6 +158,7 @@ export default defineComponent({
       programs: [] as string[],
       identifiers: [] as string[],
       patientType: 'N/A' as string,
+      patientTypeLastUpdated: '' as string,
       anc: {
         lmpMonths: -1,
         canInitiateNewPregnancy: false,
@@ -506,8 +507,11 @@ export default defineComponent({
         this.facts.enrolledInProgram = !(isValueEmpty(program) || program.match(/n\/a/i))
         this.facts.currentOutcome = outcome
         this.facts.userRoles = UserService.getUserRoles().map((r: any) => r.role)
-        this.facts.patientType = (await ObservationService.getFirstValueCoded(
-          this.patient.getID(), 'Type of patient')) || 'N/A'
+        const patientTypeObs = await ObservationService.getFirstObs(this.patient.getID(), 'Type of patient')
+        if (patientTypeObs?.value_coded) {
+          this.facts.patientType = patientTypeObs.value_coded
+          this.facts.patientTypeLastUpdated = HisDate.toStandardHisFormat(patientTypeObs.obs_datetime)
+        }
       } catch (e) {
         console.error(`${e}`)
       }
@@ -696,7 +700,7 @@ export default defineComponent({
         return FlowState.FORCE_EXIT
       }
       states[FlowState.ADD_AS_DRUG_REFILL] = async () => {
-        await this.createPatientType('Drug Refill')
+        await this.createPatientType('Emergency supply')
         return FlowState.CONTINUE
       }
       states[FlowState.ADD_AS_NEW_PATIENT] = async () => {
@@ -727,10 +731,15 @@ export default defineComponent({
       }
       return state
     },
-    async createPatientType(patientType: 'Drug Refill' | 'External consultation' | 'New patient') {
+    async createPatientType(newPatientType: 'Emergency supply' | 'External consultation' | 'New patient') {
+      if (newPatientType != this.facts.patientType && this.facts.patientTypeLastUpdated === Patientservice.getSessionDate()) {
+        if (!(await alertConfirmation(`This client was flagged today as "${this.facts.patientType}", altering patient type to "${newPatientType}" may affect record integrity, do you want to affect change?`))) {
+          return
+        }
+      }
       const type = new PatientTypeService(this.patient.getID(), -1)
       await type.createEncounter()
-      await type.savePatientType(patientType)
+      await type.savePatientType(newPatientType)
     },
     async onVoid() {
       popVoidReason(async (reason: string) => {

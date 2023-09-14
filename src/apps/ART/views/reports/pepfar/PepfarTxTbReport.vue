@@ -10,6 +10,7 @@
                 showIndex: true
             }"
             reportPrefix="Pepfar"
+            :hasServerSideCaching="true"
             :onReportConfiguration="onPeriod">
         </report-template>
     </ion-page>
@@ -53,14 +54,15 @@ export default defineComponent({
         this.fields = this.getDateDurationFields()
     },
     methods: {
-        async onPeriod(_: any, config: any) {
+        async onPeriod(_: any, config: any, rebuildCache=false) {
             this.rows = []
             this.aggregations = []
             this.report = new TBReportService()
+            this.report.setOccupation(config.occupation)
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()
-            this.cohort = (await this.report.getTxTbReport()) || {}
+            this.cohort = (await this.report.getTxTbReport(rebuildCache)) || {}
             this.setRows('F')
             this.setRows('M')
             this.setAggregatedRows()

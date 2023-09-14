@@ -366,7 +366,7 @@ export default defineComponent({
     facilityLocationField(): Field {
        const facility: Field = PersonField.getFacilityLocationField()
        facility.condition = (form: any) => [
-           'Drug Refill',
+           'Emergency supply',
            'External consultation'
        ].includes(form.patient_type.value)
        return facility

@@ -53,10 +53,11 @@ export default defineComponent({
         this.fields = this.getFormFields()
     },
     methods: {
-        async onPeriod({type, tests}: any) {
+        async onPeriod({type, tests}: any, config: any) {
             this.reportReady = true
             this.rows = []
             this.period = this.report.getDateIntervalPeriod()
+            this.report.setOccupation(config.occupation)
             this.reportType = type.value
             if (this.reportType === 'disaggregated') {
                 this.setDisaggregatedRows(tests)

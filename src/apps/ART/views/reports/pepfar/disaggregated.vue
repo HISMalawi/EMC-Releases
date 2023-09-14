@@ -101,6 +101,7 @@ export default defineComponent({
             this.canValidate = false
             this.report = new DisaggregatedReportService()
             this.mohCohort = new MohCohortReportService()
+            this.report.setOccupation(config.occupation)
             this.report.setQuarter('pepfar')
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)

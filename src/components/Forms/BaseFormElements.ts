@@ -6,6 +6,7 @@
  * Array below the FieldType Enum
  */
 export enum FieldType {
+    TT_LINKAGE_CODE = 'LinkageCodeInput',
     TT_MULTI_SELECT_GRID= 'HisMultiSelectGrid',
     TT_AGE_INPUT='HisAgeInput',
     TT_GROUP_SELECTOR = 'HisGroupSelector',
@@ -61,6 +62,7 @@ export enum FieldType {
 
 // Register FieldTypes here that will be registered at runtime
 export const COMPONENT_REFS: FieldType[] = [
+    FieldType.TT_LINKAGE_CODE,
     FieldType.TT_MULTI_SELECT_GRID,
     FieldType.TT_AGE_INPUT,
     FieldType.TT_BARCODE,

@@ -202,7 +202,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         }
     },
     "Detect NPID over 5 duplicates and prompt the user to resolve them" : {
-        weight: 76,
+        weight: 99,
         targetEvent: TargetEvent.ONLOAD,
         actions: {
             alert: async ({ scannedNpid }: any) => {
@@ -320,7 +320,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
             currentOutcome: (outcome: string) => outcome === 'Treatment stopped'
         }
     },
-    "[ART patient visit purpose] Select purpose of visit if patient is Transferred out or Drug refill": {
+    "[ART patient visit purpose] Select purpose of visit if patient is Transferred out or Emergency supply": {
         weight: 70,
         targetEvent: TargetEvent.ON_CONTINUE,
         actions: {
@@ -329,7 +329,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                 if (patientType === 'External consultation' || currentOutcome === 'Patient transferred out') { 
                     contextualBtn = [
                         {
-                            name: 'Drug refill', 
+                            name: 'Emergency supply', 
                             slot: 'start', 
                             color: 'primary'
                         },
@@ -340,7 +340,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                         }
                     ]
                 }  
-                if (patientType === 'Drug Refill') {
+                if (patientType === 'Emergency supply') {
                     contextualBtn = [
                         { 
                             name: 'External Consultation',
@@ -362,7 +362,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                             color: 'primary'
                         },
                         {
-                            name: 'Drug refill', 
+                            name: 'Emergency supply', 
                             slot: 'start', 
                             color: 'primary'
                         }
@@ -382,7 +382,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                     ]
                 )
                 switch(action) { 
-                    case 'Drug refill':
+                    case 'Emergency supply':
                         return FlowState.ADD_AS_DRUG_REFILL
                     case 'External Consultation':
                         return FlowState.ADD_AS_EXTERNAL_CONSULTATION
@@ -396,7 +396,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
         conditions: {
             programName: (name: string) => name === 'ART',
             patientType: (type: string, { currentOutcome }: any) => {
-                return ['Drug Refill', 'External consultation'].includes(type) ||
+                return ['Emergency supply', 'External consultation'].includes(type) ||
                     currentOutcome === 'Patient transferred out'
             }
         }

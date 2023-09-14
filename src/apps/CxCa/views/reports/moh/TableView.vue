@@ -24,7 +24,7 @@
         <div id="report-content">
             <table class="art-report-theme">
                 <thead class="stick-report-header">
-                    <tr v-for="(column, index) in columnsMinusOne" :key="index">
+                    <tr v-for="(column, index) in headerRow" :key="index">
                         <th v-for="(item, i) in column" 
                             :key="i"
                             :colspan="item?.span?.thColspan || 1"
@@ -43,94 +43,23 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td :colspan="7">
-                            <span class="his-sm-text">
-                                {{ columns[4][0].label }}
-                            </span>
-                        </td>
-                    </tr>
                     <tr v-for="(data, i) in sectionOne" :key="i">
-                        <td v-for="(info, k) in data.row || []" :key="k"
+                        <!-- {{ data.row }} -->
+                        <template v-for="(info, k) in data.row || []" :key="k">
+                            <td v-if="info.value !='TH' "
                             @click="() => onClickTablecell(info)"
                             :class="{
                                 'clickable-cell': info?.column?.tdClick
                             }"
+                            :colspan="info.colSpan" 
                             >
-                            <b class="his-sm-text">
+                            <b :style="info.styling" class="his-sm-text">
                                 {{ info.value }}
                             </b>
                         </td>
-                    </tr>
-                    <!-- {{ sectionOne }} -->
-                    <tr>
-                        <td :colspan="7">
-                            <span class="his-sm-text">
-                                {{ columns[5][0].label }}
-                            </span>
-                        </td>
-                    </tr>
-                    <tr v-for="(data, i) in sectionTwo" :key="i">
-                        <td v-for="(info, k) in data.row" :key="k"
-                            @click="() => onClickTablecell(info)"
-                            :class="{
-                                'clickable-cell': info?.column?.tdClick
-                            }"
-                            >
-                            <span class="his-sm-text">
-                                {{ info.value }}
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td :colspan="7">
-                            <span class="his-sm-text">
-                                {{ columns[6][0].label }}
-                            </span>
-                        </td>
-                    </tr>
-                    <tr v-for="(data, i) in sectionThree" :key="i">
-                        <td v-for="(info, k) in data.row" :key="k"
-                            @click="() => onClickTablecell(info)"
-                            :class="{
-                                'clickable-cell': info?.column?.tdClick
-                            }"
-                            >
-                            <span class="his-sm-text">
-                                {{ info.value }}
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td :colspan="7">
-                            <span class="his-sm-text">
-                                {{ columns[7][0].label }}
-                            </span>
-                        </td>
-                    </tr>
-                    <tr v-for="(data, i) in sectionTotals" :key="i">
-                        <template v-for="(info, k) in data.row" :key="k"
-                            @click="() => onClickTablecell(info)"
-                            :class="{
-                                'clickable-cell': info?.column?.tdClick
-                            }"
-                            >
-                            <td colspan="2">
-                                <span class="his-sm-text">
-                                    {{ info.column.label }}
-                                </span>
-                            </td>
-                            <td colspan="6">
-                                <span class="his-sm-text"
-                                    @click="() => onClickTablecell(info)"
-                                    :class="{
-                                        'clickable-cell': info?.column?.tdClick
-                                 }">
-                                    {{ info.value }}
-                                </span>
-                            </td>
                         </template>
                     </tr>
+                    
                 </tbody>
             </table>
         </div>
@@ -234,24 +163,32 @@ export default defineComponent({
         csvSubHeader: {
             type: Array as PropType<Array<Array<any>>>,
             default: () => []
-        }
+        },
+        csvData: {
+            type: Array as PropType<Array<Array<any>>>,
+            default: () => []
+        },
     },
     setup(props) {
         const route = useRouter()
         const reportData = ref<any>([])
         const columnSorted = ref<string>('')
         const sortOrder = ref<'asc'|'desc'>('desc')
-        const columnsMinusOne = computed(() => props.columns.slice(0, 2))
+        const headerRow = computed(() => props.columns.slice(0, 1))
+
+
 
         const sectionOne = computed(() => {
             /**
              * Used to retrieve element of the array (1st time scfeened)
              */
-            
+
             const temp: Array<any> = [] 
-            props.columnData[0]?.forEach((record: any)=> {
+            props.columnData?.forEach((record: any)=> {
                     const row = props.columns[1].map((column: v2ColumnInterface) => {
                         let value = ''
+                        let styling = {}
+                        let colSpan = 1
                         try {
                             if (isEmpty(record)) {
                                 value = "..."
@@ -265,124 +202,23 @@ export default defineComponent({
                             value = '_ERROR_'
                             console.error(e)
                         }
-                        return {
-                            column,
-                            data: record,
-                            value: value,
-                            [column.ref || 'nada']: value
+                        if (typeof column.dataStyle === 'function') {
+                            styling = column.dataStyle(record)
                         }
-                    })
-                    temp.push({ 
-                        row, 
-                        data: record, 
-                        searchIndex: [...row, row.map((d: any) => d.value).join(' ')]
-                    })
-                })
-            return temp
-        })
 
-
-        const sectionTwo = computed(() => {
-            /**
-             * Used to retrieve element of the array (1st time scfeened)
-             */
-             const temp: Array<any> = [] 
-            props.columnData[1]?.forEach((record: any)=> {
-                    const row = props.columns[2].map((column: v2ColumnInterface) => {
-                        let value = ''
-                        try {
-                            if (isEmpty(record)) {
-                                value = "..."
-                            }else if (typeof column.value === 'function') {
-                                value = column.value(record) as string
-                            } else {
-                                // Use the ref to map to a value inside the record
-                                value = record[column.ref] || ''
-                            }
-                        } catch (e) {
-                            value = '_ERROR_'
-                            console.error(e)
+                        if (typeof column.colSpan === 'function') {
+                            colSpan = column.colSpan(record)
                         }
                         return {
                             column,
                             data: record,
                             value: value,
+                            styling,
+                            colSpan,
                             [column.ref || 'nada']: value
                         }
                     })
-                    temp.push({ 
-                        row, 
-                        data: record, 
-                        searchIndex: [...row, row.map((d: any) => d.value).join(' ')]
-                    })
-                })
-            return temp
-        })
-        const sectionThree = computed(() => {
-            /**
-             * Used to retrieve element of the array (1st time scfeened)
-             */
-            const temp: Array<any> = [] 
-            props.columnData[2]?.forEach((record: any)=> {
-                    const row = props.columns[3].map((column: v2ColumnInterface) => {
-                        let value = ''
-                        try {
-                            if (isEmpty(record)) {
-                                value = "..."
-                            }else if (typeof column.value === 'function') {
-                                value = column.value(record) as string
-                            } else {
-                                // Use the ref to map to a value inside the record
-                                value = record[column.ref] || ''
-                            }
-                        } catch (e) {
-                            value = '_ERROR_'
-                            console.error(e)
-                        }
-                        return {
-                            column,
-                            data: record,
-                            value: value,
-                            [column.ref || 'nada']: value
-                        }
-                    })
-                    temp.push({ 
-                        row, 
-                        data: record, 
-                        searchIndex: [...row, row.map((d: any) => d.value).join(' ')]
-                    })
-                })
-            return temp
-        })
-
-        const sectionTotals = computed(() => {
-            /**
-             * Used to retrieve element of the array (1st time scfeened)
-             */
-            const temp: Array<any> = [] 
-            props.columnData[3]?.forEach((record: any, i: number)=> {
-                const row = props.columns[8 + i].map((column: v2ColumnInterface) => {
-                        let value = ''
-                        try {
-                            if (isEmpty(record)) {
-                                value = "..."
-                            }else if (typeof column.value === 'function') {
-                                value = column.value(record) as string
-                            } else {
-                                // Use the ref to map to a value inside the record
-                                value = record[column.ref] || ''
-                            }
-                        } catch (e) {
-                            value = '_ERROR_'
-                            console.error(e)
-                        }
-                        return {
-                            column,
-                            data: record,
-                            value: value,
-                            [column.ref || 'nada']: value
-                        }
-                    })
+                    
                     temp.push({ 
                         row, 
                         data: record, 
@@ -434,7 +270,7 @@ export default defineComponent({
                         }
                         th, td {
                             width: 4%;
-                            text-align: center;
+                            text-align: left;
                             border: solid 1px black;
                         }
                         td {
@@ -453,71 +289,11 @@ export default defineComponent({
         }
 
         const toCSV = () => {
-            const convertDataToIntegerArray = (data: any[]) => {
-        
-
-                const result = data.map((subList: any[]) => {
-                    return subList
-                        .map((obj: { [key: string]: any }) => {
-                            return props.order.map(key => {
-                                const value = obj[key as unknown as keyof typeof obj];
-                                if (Array.isArray(value)) {
-                                    return value.length;
-                                }
-                                return value;
-                            }).filter((value) => value !== undefined);
-                        })
-                        .filter((arr) => arr.length > 0);
-                }).filter((subList) => subList.length > 0);
-
-                return result;
-            };
-
-            const convertTotalToArray = (totals: any[]): any => {
-                return totals.map((totalObj) => {
-                    const [key] = Object.keys(totalObj);
-                    const value = totalObj[key];
-                    const count = Array.isArray(value) ? value.length : 0;
-                    const tuple = [key, count];
-                    for (let i = 0; i < 5; i++) {
-                    tuple.push("");
-                    }
-                    return tuple;
-                });
-            };
-
-
-
-            const convertedData = convertDataToIntegerArray(props.columnData)
-            const convertedTotals = convertTotalToArray(props.columnData[3])
-            const rows = convertedData.flat(); 
-            
-            convertedTotals.forEach((tuple: any) => {
-                rows.push(tuple)
-            });
-
             const filename = `${Service.getLocationName()||'Unknown site'}-${props.title}-${props.subtitle}-${Service.getSessionDate()}`
-
-            const addSubHeaders = () => {
-                const modifiedArray = [...rows]; // Create a copy of the existing array
-
-                const subHeaderRows = [0, 9, 18, 27]; // Rows where subheaders should be inserted
-                const subHeadersLength = props.csvSubHeader.length;
-
-                subHeaderRows.forEach((rowIndex, index) => {
-                    const subHeaderRow = props.csvSubHeader[index % subHeadersLength];
-
-                    // Insert subheader row at the specified index
-                    modifiedArray.splice(rowIndex, 0, [...subHeaderRow]);
-                });
-
-                return modifiedArray;
-            };
-
             toCsv(
                 [props.headers],
                 [
-                    ...addSubHeaders(),
+                    ...props.csvData,
                     [`Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}`],
                     [`Quarter: ${props.csvQuarter || props.subtitle}`],
                     [`HIS-Core Version: ${Service.getCoreVersion()}`],
@@ -537,6 +313,8 @@ export default defineComponent({
             data.forEach((record: any)=> {
                 const row = getExpandedColumns().map((column: v2ColumnInterface) => {
                     let value = ''
+                    let styling = {}
+                    let colSpan = 1
                     try {
                         if (isEmpty(record)) {
                             value = "..."
@@ -550,10 +328,20 @@ export default defineComponent({
                         value = '_ERROR_'
                         console.error(e)
                     }
+
+                    if (typeof column.dataStyle === 'function') {
+                        styling = column.dataStyle(record)
+                    }
+
+                    if (typeof column.colSpan === 'function') {
+                        colSpan = column.colSpan(record)
+                    }
                     return {
                         column,
                         data: record,
                         value: value,
+                        styling,
+                        colSpan,
                         [column.ref || 'nada']: value
                     }
                 })
@@ -581,7 +369,7 @@ export default defineComponent({
             toPDF,
             toCSV,
             finish,
-            columnsMinusOne,
+            headerRow,
             sync, 
             search, 
             close, 
@@ -591,9 +379,6 @@ export default defineComponent({
             calendar,
             sortOrder,
             sectionOne,
-            sectionTwo,
-            sectionThree,
-            sectionTotals,
             columnSorted
         }
     }
@@ -603,7 +388,7 @@ export default defineComponent({
     th, td {
         width: 4%;
         border-collapse: collapse;
-        text-align: center;
+        text-align: left;
     }
     td {
         border-bottom: 1px solid rgb(165, 165, 165);

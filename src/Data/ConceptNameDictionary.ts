@@ -1,5 +1,10 @@
 export default [
    {
+      "categories": [],
+      "concept_id": 7759,
+      "name": "Workstation location"
+   },
+   {
       "categories": [
          "tb_treatment"
       ],
@@ -846,7 +851,7 @@ export default [
       "categories": ['art_patient_type'],
       "order": 2,
       "concept_id": 10522,
-      "name": "Drug Refill"
+      "name": "Emergency supply"
    },
    {
       "categories": ['risk factors', 'anc_medical_history'],
@@ -2654,7 +2659,16 @@ export default [
       "name": 'Shoulder x-ray',
       "concept_id": 10344
    },
-   {"concept_id": 10539,
-   "name": "History of COVID-19 contact"
+   {
+      "name": "History of COVID-19 contact",
+      "concept_id": 10539
+   },
+   {
+      "name": "HIV viral load",
+      "concept_id": 856
+   },
+   {
+      "name": "Plasma",
+      "concept_id": 1002
    }
 ]
