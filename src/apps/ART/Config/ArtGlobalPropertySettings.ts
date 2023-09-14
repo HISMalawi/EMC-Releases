@@ -89,7 +89,7 @@ export const PROPERTIES: FolderInterface[] = [
                 ART_GLOBAL_PROP.PILLS_REMAINING
             ),
             globalPropConfig(
-                "(DATA CLEANING) Exclude External and Drug refill",
+                "(DATA CLEANING) Exclude External and Emergency supply",
                 ART_GLOBAL_PROP.EXCLUDE_EXTERNAL_AND_DRUG_REFILLS
             ),
             globalPropConfig(
