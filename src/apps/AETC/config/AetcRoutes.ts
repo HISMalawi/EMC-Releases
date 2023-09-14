@@ -35,5 +35,10 @@ export default [
         name: 'aetc_opd_general_report',
         path: '/aetc/reports/clinic/opdGeneral',
         component: () => import('@/apps/AETC/views/reports/clinic/OPDGeneral.vue')
+    },
+    {
+        name: 'aetc_referral_report',
+        path: '/aetc/reports/clinic/referral',
+        component: () => import('@/apps/AETC/views/reports/clinic/Referral.vue')
     }
 ]

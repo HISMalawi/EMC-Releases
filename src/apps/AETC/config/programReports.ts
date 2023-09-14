@@ -53,7 +53,7 @@ export const REPORTS: FolderInterface[] = [
             },
             {
                 name: 'Referrals',
-                pathName: 'clinic_mental_health'
+                pathName: 'aetc_referral_report'
             },
             {
                 name: 'Total Registered',
