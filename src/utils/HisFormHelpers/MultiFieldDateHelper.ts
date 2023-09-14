@@ -283,7 +283,7 @@ export function generateDateFields(field: DateFieldInterface): Array<Field> {
      */
     year.computedValue = (val: Option) => {
         if (fullDate) {
-            const [_, month, day] = fullDate.split('-')
+            const [, month, day] = fullDate.split('-')
             fullDate = `${val.value}-${month}-${day}`
             return field.computeValue(fullDate, false)
         }
@@ -325,7 +325,7 @@ export function generateDateFields(field: DateFieldInterface): Array<Field> {
         }
         // Default date behaviour
         if (fullDate) {
-            const [year, _, day] = fullDate.split('-')
+            const [year, , day] = fullDate.split('-')
             const month = appendLeadingZero(`${val.value}`)
             fullDate = `${year}-${month}-${day}`
             return field.computeValue(fullDate, false)
