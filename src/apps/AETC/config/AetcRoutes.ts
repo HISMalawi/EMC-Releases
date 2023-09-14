@@ -20,5 +20,10 @@ export default [
         name: 'aetc_diagnosis',
         path: '/aetc/reports/clinic/diagnosis',
         component: () => import('@/apps/AETC/views/reports/clinic/Diagnosis.vue')
+    },
+    {
+        name: 'aetc_diagnosis_specific',
+        path: '/aetc/reports/clinic/diagnosisSpecific',
+        component: () => import('@/apps/AETC/views/reports/clinic/DiagnosisSpecific.vue')
     }
 ]

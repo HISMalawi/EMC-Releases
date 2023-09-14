@@ -41,7 +41,7 @@ export const REPORTS: FolderInterface[] = [
             },
             {
                 name: 'Diagnosis Specific Report',
-                pathName: 'clinic_diagnosis'
+                pathName: 'aetc_diagnosis_specific'
             },
             {
                 name: 'Disaggregated Diagnosis',
