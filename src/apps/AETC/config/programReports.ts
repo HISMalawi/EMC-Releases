@@ -45,7 +45,7 @@ export const REPORTS: FolderInterface[] = [
             },
             {
                 name: 'Disaggregated Diagnosis',
-                pathName: 'clinic_registration'
+                pathName: 'aetc_disaggregated_diagnosis'
             },
             {
                 name: 'OPD General',

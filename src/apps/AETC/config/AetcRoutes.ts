@@ -25,5 +25,10 @@ export default [
         name: 'aetc_diagnosis_specific',
         path: '/aetc/reports/clinic/diagnosisSpecific',
         component: () => import('@/apps/AETC/views/reports/clinic/DiagnosisSpecific.vue')
+    },
+    {
+        name: 'aetc_disaggregated_diagnosis',
+        path: '/aetc/reports/clinic/disaggregatedDiagnosis',
+        component: () => import('@/apps/AETC/views/reports/clinic/DisaggregatedDiagnosis.vue')
     }
 ]
