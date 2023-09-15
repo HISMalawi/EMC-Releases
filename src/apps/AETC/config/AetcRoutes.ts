@@ -40,5 +40,10 @@ export default [
         name: 'aetc_referral_report',
         path: '/aetc/reports/clinic/referral',
         component: () => import('@/apps/AETC/views/reports/clinic/Referral.vue')
+    },
+    {
+        name: 'aetc_total_registered_report',
+        path: '/aetc/reports/clinic/totalRegistered',
+        component: () => import('@/apps/AETC/views/reports/clinic/TotalRegistered.vue')
     }
 ]

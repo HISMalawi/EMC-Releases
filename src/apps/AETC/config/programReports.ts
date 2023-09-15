@@ -57,7 +57,7 @@ export const REPORTS: FolderInterface[] = [
             },
             {
                 name: 'Total Registered',
-                pathName: 'clinic_drugs_given'
+                pathName: 'aetc_total_registered_report'
             },
             {
                 name: 'Update DHIS2',
