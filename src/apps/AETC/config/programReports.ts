@@ -61,8 +61,9 @@ export const REPORTS: FolderInterface[] = [
             },
             {
                 name: 'Update DHIS2',
-                pathName: 'clinic_drugs'
-            },
+                pathName: 'aetc_dhis2_report',
+                pathUrl: '/aetc/reports/clinic/dhis2'
+            }
         ]
     }
 ]

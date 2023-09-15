@@ -45,5 +45,10 @@ export default [
         name: 'aetc_total_registered_report',
         path: '/aetc/reports/clinic/totalRegistered',
         component: () => import('@/apps/AETC/views/reports/clinic/TotalRegistered.vue')
+    },
+    {
+        name: 'aetc_dhis2_report',
+        path: '/aetc/reports/clinic/dhis2',
+        component: () => import('@/apps/AETC/views/reports/clinic/DHIS2.vue')
     }
 ]
