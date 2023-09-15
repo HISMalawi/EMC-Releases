@@ -3,18 +3,18 @@
         <table id="t_id">
             <thead>
                 <tr>
-                    <th style="border: none; width: 207px;"></th>
-                    <th style="border: none; width: 118px;"></th>
+                    <th style="border: none; width: 207px; background-color: white;"></th>
+                    <th style="border: none; width: 118px; background-color: white;"></th>
                     <th style="width: 64px;">Out-patient</th>
                     <th colspan="2" style="width: 217px;">In-patient</th>
                 </tr>
 
                 <tr>
-                    <th style="border: none; min-width: 50px; width: 229px;"></th>
-                    <th style="border: none; width: 241px;"></th>
-                    <td style="min-width: 50px; max-width: 50px; width: 207px;"> Cases </td>
-                    <td style="min-width: 50px; max-width: 50px; width: 118px;"> Cases </td>
-                    <td style="min-width: 50px; max-width: 50px; width: 64px;"> Deaths </td>
+                    <th style="border: none; min-width: 50px; width: 229px; background-color: white;"></th>
+                    <th style="border: none; width: 241px; background-color: white;"></th>
+                    <td style="min-width: 50px; max-width: 50px; width: 207px; font-weight: bold;"> Cases </td>
+                    <td style="min-width: 50px; max-width: 50px; width: 118px; font-weight: bold;"> Cases </td>
+                    <td style="min-width: 50px; max-width: 50px; width: 64px; font-weight: bold;"> Deaths </td>
                 </tr>
             </thead>
             <tbody>       
@@ -146,17 +146,17 @@
                 </tr>
                 <tr style="border:none;">
                     <td style="border:none;"> &nbsp; </td>
-                    <td style="border:none;">  </td>
-                    <td style="border:none;">  </td>
-                    <td style="border:none;">  </td>
-                    <td style="border:none;">  </td>
+                    <td style="border:none; background-color: white;">  </td>
+                    <td style="border:none; background-color: white;">  </td>
+                    <td style="border:none; background-color: white;">  </td>
+                    <td style="border:none; background-color: white;">  </td>
                 </tr>
                 
                 <tr>
-                    <td class="bold" style="border:none;"> </td>
-                    <td class="bold"> Out-patient </td>
-                    <td class="bold"> In-patient </td>
-                    <td class="bold"> Deaths </td>
+                    <td class="bold" style="border:none; background-color: white;"> </td>
+                    <td class="bold" style="background-color: #f0f0f0; font-weight: bold;"> Out-patient </td>
+                    <td class="bold" style="background-color: #f0f0f0; font-weight: bold;"> In-patient </td>
+                    <td class="bold" style="background-color: #f0f0f0; font-weight: bold;"> Deaths </td>
                 </tr>
                 <tr>
                     <td class="left"> AFP </td>
@@ -219,6 +219,7 @@
 #t_id {
   border-collapse: collapse;
   width: 100%;
+  height: 100%;
 }
 
 /* Style the table headers */
@@ -237,12 +238,12 @@
 
 /* Style the cells with "Cases" and "Deaths" as gray */
 #t_id td:empty {
-  background-color: #e0e0e0; /* Gray background for empty cells */
+  background-color: #f0f0f0; /* Gray background for empty cells */
 }
 
 /* Make cells in the "Out-patient" column bold */
 #t_id td:nth-child(3) {
-  font-weight: bold;
+  font-weight: normal;
 }
 
 /* Make the headers slightly bolder */
@@ -256,7 +257,8 @@
 }
 /* Add styles to the table container */
 .table-container {
-  max-height: 400px; /* Adjust the max height as needed */
+  padding: 10%;
+  max-height: 100%; /* Adjust the max height as needed */
   overflow: auto; /* Add scrollbars when the table exceeds the max height */
 }
 
@@ -264,5 +266,10 @@
 #t_id {
   border-collapse: collapse;
   width: 100%;
+}
+
+/* Add a class to the specific cells that should not have a gray background */
+.no-gray-bg {
+  background-color: transparent !important; /* Remove gray background */
 }
 </style>
