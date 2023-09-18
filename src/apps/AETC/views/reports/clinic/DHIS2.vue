@@ -255,10 +255,6 @@ import { toCsv, toPDFfromHTML } from "@/utils/Export"
 import DrillPatientIds from '../../../../../components/DrillPatientIds.vue';
 import { 
     sync,
-    search, 
-    close, 
-    arrowUp, 
-    arrowDown, 
     document,
     calendar
 } from "ionicons/icons"
@@ -267,12 +263,14 @@ import { FieldType } from '@/components/Forms/BaseFormElements';
 import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { isPlainObject } from "lodash";
+import dayjs from "dayjs";
+
 
     export default defineComponent({
         components: { IonPage, IonLoading, HisFooter, IonToolbar, IonHeader},
         data: () => ({
             logo: "/assets/images/login-logos/Malawi-Coat_of_arms_of_arms.png" as string,
-            reportTitle: "AETC Update DHIS2",
+            reportTitle: "Monthly MOH DHIS2",
             reportPeriod: "Jan 23 2023 - Oct 4 2023",
             btns: [] as Array<any>,
             date: HisDate.toStandardHisDisplayFormat(Service.getSessionDate()),
@@ -284,7 +282,11 @@ import { isPlainObject } from "lodash";
                 default: () => ({})
             },
             syncBtn: sync,
-            calendarBtn: calendar
+            calendarBtn: calendar,
+            startDate: "",
+            endDate: "",
+            reportType: ""
+
         }),
         created() {
             this.btns = this.getBtns()
@@ -346,10 +348,25 @@ import { isPlainObject } from "lodash";
                 }
             }
             ], (f: any) => {
+                this.startDate = `${f.year.value}-${f.month.value}-01`
+                this.endDate = dayjs(new Date(this.startDate).toISOString()).endOf("month").format("YYYY-MM-DD")
+                this.reportType = `${f.dhis2_report.value}`
+                this.onPeriod()
                 modalController.dismiss()
             })
         },
         methods: {
+            async onPeriod() {
+                this.reportPeriod = this.toDate(this.startDate) + " - " + this.toDate(this.endDate)
+                this.reportTitle = this.reportTitle + ": " + this.reportType
+                return null
+            },
+            toDate(date: string | Date) {
+                if (date) {
+                    return dayjs(date).format('DD/MMM/YYYY')
+                }
+                return date
+            },
             async drilldown (title: string, patientIdentifiers: number[]) {
                 (await modalController.create({
                     component: DrillPatientIds,
