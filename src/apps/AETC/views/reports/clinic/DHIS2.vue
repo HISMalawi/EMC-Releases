@@ -5,7 +5,7 @@
     >
     </ion-loading>
     <ion-page>
-        <ion-header>
+        <!-- <ion-header>
             <ion-toolbar>
                 <ion-thumbnail slot="start" style="margin-left: 10px;"> 
                     <ion-img :src="logo"/>
@@ -17,7 +17,27 @@
                     </ul>
                 </ion-label>
             </ion-toolbar>
-        </ion-header>
+        </ion-header> -->
+        <ion-header>
+        <ion-toolbar>
+            <ion-title class="his-md-text">
+                {{ reportTitle }} 
+                    <br v-if="reportPeriod"/>
+                    <span class="his-sm-text">{{reportPeriod}}</span>
+            </ion-title>
+            <ion-buttons slot="end">
+                <ion-button
+                    @click="regenerate">
+                    <ion-icon size="large" :icon="calendarBtn"></ion-icon>
+                </ion-button>
+                <ion-button  
+                    @click="regenerate"
+                    color="success" size="large">
+                    <ion-icon size="large" :icon="syncBtn"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-header>
         <div class="table-container" id="report-content">  
             <table id="t_id">
                 <thead>
@@ -245,8 +265,18 @@ import { IonPage, IonLoading, modalController, IonToolbar, IonHeader } from "@io
 import { Service } from "@/services/service"
 import HisDate from "@/utils/Date"
 import { toCsv, toPDFfromHTML } from "@/utils/Export"
+import DrillPatientIds from '../../../../../components/DrillPatientIds.vue';
+import { 
+    sync,
+    search, 
+    close, 
+    arrowUp, 
+    arrowDown, 
+    document,
+    calendar
+} from "ionicons/icons"
     export default defineComponent({
-        components: { IonPage, IonLoading, HisFooter, IonToolbar, IonHeader },
+        components: { IonPage, IonLoading, HisFooter, IonToolbar, IonHeader},
         data: () => ({
             logo: "/assets/images/login-logos/Malawi-Coat_of_arms_of_arms.png" as string,
             reportTitle: "AETC Update DHIS2",
@@ -255,11 +285,31 @@ import { toCsv, toPDFfromHTML } from "@/utils/Export"
             date: HisDate.toStandardHisDisplayFormat(Service.getSessionDate()),
             apiVersion: Service.getApiVersion(),
             coreVersion: Service.getCoreVersion(), 
+            isLoading: false as boolean,
+            indicators: {
+                type: Object,
+                default: () => ({})
+            },
+            syncBtn: sync,
+            calendarBtn: calendar
         }),
         created() {
             this.btns = this.getBtns()
         },
         methods: {
+            async drilldown (title: string, patientIdentifiers: number[]) {
+                (await modalController.create({
+                    component: DrillPatientIds,
+                    backdropDismiss: false,
+                    cssClass: 'large-modal',
+                    componentProps: {
+                        title,
+                        subtitle: this.reportPeriod,
+                        patientIdentifiers,
+                        onFinish: () => modalController.getTop().then(v => v && modalController.dismiss())
+                    }
+                })).present()
+            },
             exportToCsv(){
                 return null;
             },
@@ -397,41 +447,33 @@ import { toCsv, toPDFfromHTML } from "@/utils/Export"
                 return null;
             },
             getBtns() {
-            return  [
-                {
-                name: "CSV",
-                size: "large",
-                slot: "start",
-                color: "primary",
-                visible: true,
-                onClick: () => this.exportToCsv()
-                },
-                {
-                name: "PDF",
-                size: "large",
-                slot: "start",
-                color: "primary",
-                visible: true,
-                onClick: () => this.printSpec()
-                },
-                {
-                name: "Refresh",
-                size: "large",
-                slot: "end",
-                color: "danger",
-                visible: true,
-                onClick: async () => this.regenerate()
-                },
-                {
-                name: "Finish",
-                size: "large",
-                slot: "end",
-                color: "success",
-                visible: true,
-                onClick: () => this.$router.push({ path:'/' })
-                }
-            ]   
-        }
+                return  [
+                    {
+                        name: "CSV",
+                        size: "large",
+                        slot: "start",
+                        color: "primary",
+                        visible: true,
+                        onClick: () => this.exportToCsv()
+                        },
+                        {
+                        name: "PDF",
+                        size: "large",
+                        slot: "start",
+                        color: "primary",
+                        visible: true,
+                        onClick: () => this.printSpec()
+                        },
+                        {
+                        name: "Finish",
+                        size: "large",
+                        slot: "end",
+                        color: "success",
+                        visible: true,
+                        onClick: () => this.$router.push({ path:'/' })
+                    }
+                ]   
+            },
         }
     })
 </script>
