@@ -129,7 +129,12 @@ export default defineComponent({
         { path: "tptStartDate", label: "TPT Initiation Date", formatter: HisDate.toStandardHisDisplayFormat },
         { path: "tptCompleteDate", label: "TPT Completion Date", formatter: HisDate.toStandardHisDisplayFormat },
       ]
-      const patients = data.row[data.column.path]
+      
+      const patients = data.row[data.column.path].map((p: any) => {
+        if (typeof p === 'object' && "patient_id" in p) return p.patient_id;
+        return p
+      });
+
       const rows = ref<Array<any>>([])
       for(const patient of patients) {
         Patientservice.findByID(patient).then(data => {
