@@ -5,19 +5,6 @@
     >
     </ion-loading>
     <ion-page>
-        <!-- <ion-header>
-            <ion-toolbar>
-                <ion-thumbnail slot="start" style="margin-left: 10px;"> 
-                    <ion-img :src="logo"/>
-                </ion-thumbnail>
-                <ion-label> 
-                    <ul class="header-text-list"  style="list-style-type:none; margin-right: 20px;"> 
-                        <li><b>{{ reportTitle }}</b></li>
-                        <li><b>{{ reportPeriod }}</b></li>
-                    </ul>
-                </ion-label>
-            </ion-toolbar>
-        </ion-header> -->
         <ion-header>
         <ion-toolbar>
             <ion-title class="his-md-text">
@@ -275,6 +262,12 @@ import {
     document,
     calendar
 } from "ionicons/icons"
+import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
+import { FieldType } from '@/components/Forms/BaseFormElements';
+import { Option } from '@/components/Forms/FieldInterface'
+import Validation from "@/components/Forms/validations/StandardValidations"
+import { isPlainObject } from "lodash";
+
     export default defineComponent({
         components: { IonPage, IonLoading, HisFooter, IonToolbar, IonHeader},
         data: () => ({
@@ -295,6 +288,66 @@ import {
         }),
         created() {
             this.btns = this.getBtns()
+            MultiStepPopupForm([
+                {
+                    id: 'dhis2_report',
+                    helpText: 'Select DHIS2 Report',
+                    type: FieldType.TT_SELECT,
+                    validation: (v: Option) => Validation.required(v),
+                    computedValue: (v: Option) => v.value,
+                    options: () => {
+                        return [
+                            {label: 'ANC Monthly Facility Report', value: 'ANC Monthly Facility Report'},
+                            {label: 'HMIS-15', value: 'HMIS-15'},
+                            {label: 'IDSR Monthly', value: 'IDSR Monthly'}
+                        ]
+                    }
+                },
+                {
+                id: 'year',
+                helpText: 'Select Year',
+                type: FieldType.TT_NUMBER,
+                computedValue: (v: Option) => v.value,
+                validation: (v: Option) => {
+                    const year = isPlainObject(v) ? v.value : -1
+                    return Validation.validateSeries([
+                        () => Validation.required(v),
+                        () => {
+                            if (isNaN(parseInt(`${year}`))) {
+                                return ['Invalid year']
+                            }
+                            return null
+                        },
+                        () => Validation.rangeOf(v, 2000, HisDate.getYear(Service.getSessionDate()))
+                    ])
+                }
+            },
+            {
+                id: 'month',
+                helpText: 'Select Month',
+                type: FieldType.TT_SELECT,
+                validation: (v: Option) => Validation.required(v),
+                computedValue: (v: Option) => v.value,
+                options: () => {
+                    return [
+                        {label: 'January', value: '01'},
+                        {label: 'February', value: '02'},
+                        {label: 'March', value: '03'},
+                        {label: 'April', value: '04'},
+                        {label: 'May', value: '05'},
+                        {label: 'June', value: '06'},
+                        {label: 'July', value: '07'},
+                        {label: 'August', value: '08'},
+                        {label: 'September', value: '09'},
+                        {label: 'October', value: '10'},
+                        {label: 'November', value: '11'},
+                        {label: 'December', value: '12'}
+                    ]
+                }
+            }
+            ], (f: any) => {
+                modalController.dismiss()
+            })
         },
         methods: {
             async drilldown (title: string, patientIdentifiers: number[]) {
