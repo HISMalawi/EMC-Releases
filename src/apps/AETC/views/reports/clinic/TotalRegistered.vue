@@ -105,6 +105,55 @@ export default defineComponent({
                 type: FieldType.TT_FULL_DATE,
                 validation: (val: Option) => Validation.required(val),
                 computedValue: (v: Option) => v.value
+            },
+            {
+                id: "multiple_select",
+                helpText: "Select Age Group(s)",
+                type: FieldType.TT_MULTIPLE_SELECT,
+                config: {
+                    showKeyboard: false
+                },
+                validation(value: any): null | Array<string> {
+                    return !value ? ["Value is required"] : null;
+                },
+                options:()=> ([
+                    {
+                        label: "< 6 months",
+                        value: "< 6 months"
+                    },
+                    {
+                        label: "6 months to < 1 yr",
+                        value: "6 months to < 1 yr"
+                    },
+                    {
+                        label: "1 to < 5",
+                        value: "1 to < 5"
+                    },
+                    {
+                        label: "5 to 14",
+                        value: "5 to 14",
+                    },
+                    {
+                        label: "> 14 to < 20",
+                        value: "> 14 to < 20",
+                    },
+                    {
+                        label: "20 to 30",
+                        value: "20 to 30",
+                    },
+                    {
+                        label: ">30 to <40",
+                        value: ">30 to <40",
+                    },
+                    {
+                        label: "40 to <50",
+                        value: "40 to <50",
+                    },
+                    {
+                        label: "ALL",
+                        value: "all",
+                    },
+                ]),
             },    
         ], 
         (f: any, c: any)  => {

@@ -36,7 +36,6 @@ import HisDate from "@/utils/Date"
 import dayjs from "dayjs";
 import { cloneDeep } from 'lodash';
 
-
 const reportData = ref<any>([])
 const startDate = ref('')
 const endDate = ref('')
