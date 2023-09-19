@@ -92,37 +92,20 @@ export default defineComponent({
          * Loads a dialogue to allow users to configure start and end date
          */
         const configure = () => MultiStepPopupForm([
-            ...generateDateFields({
-                        id: 'start_date',
-                        helpText: 'Start',
-                        required: true,
-                        condition: (f: any) => f.quarter && f.quarter.value === 'custom_period' || true,
-                        minDate: () => minDate,
-                        maxDate: () => maxDate,
-                        estimation: {
-                            allowUnknown: false
-                        },
-                        computeValue: (date: string) => date 
-                }),
-                ...generateDateFields({
-                    id: 'end_date',
-                    helpText: 'End',
-                    required: true,
-                    condition: (f: any) => f.quarter && f.quarter.value === 'custom_period' || true,
-                    unload: (d: any, s: any, f: any, c: any) => {
-                        if (s === 'next') {
-                            //tempEndDate = c.end_date
-                            console.log(c.end_date)
-                        }
-                    },
-                    minDate: (_: any, c: any) => c.start_date,
-                    maxDate: () => maxDate,
-                    estimation: {
-                        allowUnknown: false
-                    },
-                    computeValue: (date: string) => date
-                }),
-                
+        {
+                id: "start_date",
+                helpText: "Start Date",
+                type: FieldType.TT_FULL_DATE,
+                validation: (val: Option) => Validation.required(val),
+                computedValue: (v: Option) => v.value
+            },
+            {
+                id: "end_date",
+                helpText: "End Date",
+                type: FieldType.TT_FULL_DATE,
+                validation: (val: Option) => Validation.required(val),
+                computedValue: (v: Option) => v.value
+            },    
         ], 
         (f: any, c: any)  => {
             startDate.value = c.start_date
