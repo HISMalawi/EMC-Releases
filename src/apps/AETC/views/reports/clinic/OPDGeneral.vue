@@ -85,6 +85,74 @@ export default defineComponent({
          */
          const configure = () => MultiStepPopupForm([
             {
+                id: 'start_age',
+                helpText: 'Start Age',
+                type: FieldType.TT_NUMBER,
+                computedValue: (v: Option) => v.value,
+                validation: (v: Option) => Validation.required(v)
+            },
+            {
+                id: 'end_age',
+                helpText: 'End Age',
+                type: FieldType.TT_NUMBER,
+                computedValue: (v: Option) => v.value,
+                validation: (v: Option) => Validation.required(v)
+            },
+            {
+                id: 'report_type',
+                helpText: 'Report type',
+                type: FieldType.TT_SELECT,
+                options: () => [
+                    {
+                        label: 'General Outpatient',
+                        value: 'General Outpatient',
+                    },
+                    {
+                        label: 'Pediatrics',
+                        value: 'Pediatrics',
+                    },
+                    {
+                        label: 'General Diagnoses',
+                        value: 'General Diagnoses',
+                    },
+                    {
+                        label: 'Pediatrics Diagnosis',
+                        value: 'Pediatrics Diagnosis',
+                    },
+                    {
+                        label: 'Adults Diagnosis',
+                        value: 'Adults Diagnosis',
+                    }
+                ]
+            },
+            {
+                id: 'report_range',
+                helpText: 'Select Range',
+                type: FieldType.TT_SELECT,
+                options: () => [
+                    {
+                        label: 'Week',
+                        value: 'Week',
+                    },
+                    {
+                        label: 'Month',
+                        value: 'Month',
+                    },
+                    {
+                        label: 'Quarter',
+                        value: 'Quarter',
+                    },
+                    {
+                        label: 'Year',
+                        value: 'Year',
+                    },
+                    {
+                        label: 'Select Range',
+                        value: 'Select Range',
+                    }
+                ]
+            },
+            {
                 id: 'year',
                 helpText: 'Select Year',
                 type: FieldType.TT_NUMBER,

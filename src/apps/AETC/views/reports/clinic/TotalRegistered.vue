@@ -92,7 +92,7 @@ export default defineComponent({
          * Loads a dialogue to allow users to configure start and end date
          */
         const configure = () => MultiStepPopupForm([
-        {
+            {
                 id: "start_date",
                 helpText: "Start Date",
                 type: FieldType.TT_FULL_DATE,
@@ -161,7 +161,7 @@ export default defineComponent({
             endDate.value = c.end_date
             period.value = `Period (${toDate(startDate.value)} to ${toDate(endDate.value)})`
             modalController.dismiss()
-            // csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`
+            csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`
             generate()
         })
 
