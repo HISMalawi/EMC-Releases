@@ -255,7 +255,6 @@ import { toCsv, toPDFfromHTML } from "@/utils/Export"
 import DrillPatientIds from '../../../../../components/DrillPatientIds.vue';
 import { 
     sync,
-    document,
     calendar
 } from "ionicons/icons"
 import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
@@ -264,6 +263,7 @@ import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { isPlainObject } from "lodash";
 import dayjs from "dayjs";
+import { generateDateFields } from "@/utils/HisFormHelpers/MultiFieldDateHelper"
 
 
     export default defineComponent({

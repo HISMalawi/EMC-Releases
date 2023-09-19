@@ -31,6 +31,7 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { Service } from "@/services/service"
 import HisDate from "@/utils/Date"
 import dayjs from "dayjs";
+import { generateDateFields } from "@/utils/HisFormHelpers/MultiFieldDateHelper"
 
 const reportData = ref<any>([])
 const startDate = ref('')
@@ -38,6 +39,7 @@ const endDate = ref('')
 const period = ref('')
 const isLoading = ref(false)
 const csvQuarter = ref('')
+let tempEndDate = ""
 
 export default defineComponent({ 
     components: { 
@@ -47,6 +49,8 @@ export default defineComponent({
     },
 
     setup() {
+        const minDate = '2001-01-01'
+        const maxDate = Service.getSessionDate()
         /**
          * Generates report by start date and end date
          */
@@ -87,56 +91,45 @@ export default defineComponent({
         /**
          * Loads a dialogue to allow users to configure start and end date
          */
-         const configure = () => MultiStepPopupForm([
-            {
-                id: 'year',
-                helpText: 'Select Year',
-                type: FieldType.TT_NUMBER,
-                computedValue: (v: Option) => v.value,
-                validation: (v: Option) => {
-                    const year = isPlainObject(v) ? v.value : -1
-                    return Validation.validateSeries([
-                        () => Validation.required(v),
-                        () => {
-                            if (isNaN(parseInt(`${year}`))) {
-                                return ['Invalid year']
-                            }
-                            return null
+        const configure = () => MultiStepPopupForm([
+            ...generateDateFields({
+                        id: 'start_date',
+                        helpText: 'Start',
+                        required: true,
+                        condition: (f: any) => f.quarter && f.quarter.value === 'custom_period' || true,
+                        minDate: () => minDate,
+                        maxDate: () => maxDate,
+                        estimation: {
+                            allowUnknown: false
                         },
-                        () => Validation.rangeOf(v, 2000, HisDate.getYear(Service.getSessionDate()))
-                    ])
-                }
-            },
-            {
-                id: 'month',
-                helpText: 'Select Month',
-                type: FieldType.TT_SELECT,
-                validation: (v: Option) => Validation.required(v),
-                computedValue: (v: Option) => v.value,
-                options: () => {
-                    return [
-                        {label: 'January', value: '01'},
-                        {label: 'February', value: '02'},
-                        {label: 'March', value: '03'},
-                        {label: 'April', value: '04'},
-                        {label: 'May', value: '05'},
-                        {label: 'June', value: '06'},
-                        {label: 'July', value: '07'},
-                        {label: 'August', value: '08'},
-                        {label: 'September', value: '09'},
-                        {label: 'October', value: '10'},
-                        {label: 'November', value: '11'},
-                        {label: 'December', value: '12'}
-                    ]
-                }
-            }
+                        computeValue: (date: string) => date 
+                }),
+                ...generateDateFields({
+                    id: 'end_date',
+                    helpText: 'End',
+                    required: true,
+                    condition: (f: any) => f.quarter && f.quarter.value === 'custom_period' || true,
+                    unload: (d: any, s: any, f: any, c: any) => {
+                        if (s === 'next') {
+                            //tempEndDate = c.end_date
+                            console.log(c.end_date)
+                        }
+                    },
+                    minDate: (_: any, c: any) => c.start_date,
+                    maxDate: () => maxDate,
+                    estimation: {
+                        allowUnknown: false
+                    },
+                    computeValue: (date: string) => date
+                }),
+                
         ], 
-        (f: any) => {
-            startDate.value = `${f.year.value}-${f.month.value}-01`
-            endDate.value = dayjs(new Date(startDate.value).toISOString()).endOf("month").format("YYYY-MM-DD")
+        (f: any, c: any)  => {
+            startDate.value = c.start_date
+            endDate.value = c.end_date
             period.value = `Period (${toDate(startDate.value)} to ${toDate(endDate.value)})`
             modalController.dismiss()
-            csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`
+            // csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`
             generate()
         })
 
