@@ -31,6 +31,10 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { Service } from "@/services/service"
 import HisDate from "@/utils/Date"
 import dayjs from "dayjs";
+import { PatientDiagnosisService } from "@/apps/OPD/services/patient_diagnosis_service"
+import { isEmpty } from "lodash"
+
+
 
 const reportData = ref<any>([])
 const startDate = ref('')
@@ -54,8 +58,12 @@ export default defineComponent({
             return null
          }
 
-         //table headers and data mapping
-         const columns: Array<v2ColumnInterface[]> = [
+        const mapToOption = (listOptions: Array<string>): Array<Option> => {
+            return listOptions.map((item: any) => ({ label: item.name, value: item.name })) 
+        }
+
+        //table headers and data mapping
+        const columns: Array<v2ColumnInterface[]> = [
             [
                 {
                     label: "Address",
@@ -73,51 +81,37 @@ export default defineComponent({
          */
          const configure = () => MultiStepPopupForm([
             {
-                id: 'year',
-                helpText: 'Select Year',
-                type: FieldType.TT_NUMBER,
-                computedValue: (v: Option) => v.value,
-                validation: (v: Option) => {
-                    const year = isPlainObject(v) ? v.value : -1
-                    return Validation.validateSeries([
-                        () => Validation.required(v),
-                        () => {
-                            if (isNaN(parseInt(`${year}`))) {
-                                return ['Invalid year']
-                            }
-                            return null
-                        },
-                        () => Validation.rangeOf(v, 2000, HisDate.getYear(Service.getSessionDate()))
-                    ])
+                id: 'primary_diagnosis',
+                helpText: 'Select diagnosis',
+                type: FieldType.TT_INFINITE_SCROLL_MULTIPLE_SELECT,
+                validation: (data: any) => Validation.required(data),
+                options: async (_:any, filter='', page=1, limit=10) => mapToOption(
+                    await PatientDiagnosisService.getDiagnosis(filter, page, limit)
+                ),
+                computedValue: (v: Option[]) => v,
+                config: {
+                    isFilterDataViaApi: true,
+                    showKeyboard: true,
                 }
             },
             {
-                id: 'month',
-                helpText: 'Select Month',
-                type: FieldType.TT_SELECT,
-                validation: (v: Option) => Validation.required(v),
-                computedValue: (v: Option) => v.value,
-                options: () => {
-                    return [
-                        {label: 'January', value: '01'},
-                        {label: 'February', value: '02'},
-                        {label: 'March', value: '03'},
-                        {label: 'April', value: '04'},
-                        {label: 'May', value: '05'},
-                        {label: 'June', value: '06'},
-                        {label: 'July', value: '07'},
-                        {label: 'August', value: '08'},
-                        {label: 'September', value: '09'},
-                        {label: 'October', value: '10'},
-                        {label: 'November', value: '11'},
-                        {label: 'December', value: '12'}
-                    ]
-                }
-            }
+                id: "start_date",
+                helpText: "Start Date",
+                type: FieldType.TT_FULL_DATE,
+                validation: (val: Option) => Validation.required(val),
+                computedValue: (v: Option) => v.value
+            },
+            {
+                id: "end_date",
+                helpText: "End Date",
+                type: FieldType.TT_FULL_DATE,
+                validation: (val: Option) => Validation.required(val),
+                computedValue: (v: Option) => v.value
+            },
         ], 
-        (f: any) => {
-            startDate.value = `${f.year.value}-${f.month.value}-01`
-            endDate.value = dayjs(new Date(startDate.value).toISOString()).endOf("month").format("YYYY-MM-DD")
+        (f: any, c: any) => {
+            startDate.value = c.start_date
+            endDate.value = c.end_date
             period.value = `Period (${toDate(startDate.value)} to ${toDate(endDate.value)})`
             modalController.dismiss()
             csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`
