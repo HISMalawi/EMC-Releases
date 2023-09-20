@@ -2,6 +2,7 @@ import { AppEncounterService } from "@/services/app_encounter_service";
 import { Service } from "@/services/service";
 import { PrintoutService } from "@/services/printout_service";
 import dayjs from "dayjs";
+import { STANDARD_DATE_FORMAT } from "@/utils/Date";
 
 export class AncLabResultService extends AppEncounterService {
     hivStatus: string;
@@ -51,7 +52,8 @@ export class AncLabResultService extends AppEncounterService {
     async loadTimeSinceLastHivTest() {
         const obs = await AppEncounterService.getFirstObs(this.patientID, 'HIV status')
         if (!obs) return
-        this.lastHivTestInMonths = dayjs(this.date).diff(obs.obs_datetime, 'months')
+        const obsdate = dayjs(obs.obs_datetime).format(STANDARD_DATE_FORMAT)
+        this.lastHivTestInMonths = dayjs(this.date).diff(obsdate, 'months')
     }
 
     async loadSubsequentVisit() {
