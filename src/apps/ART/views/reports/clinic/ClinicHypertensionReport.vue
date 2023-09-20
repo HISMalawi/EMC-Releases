@@ -49,30 +49,34 @@ export default defineComponent({
                     ref: 'gender'
                 },
                 {
-                    label: "Screened",
+                    label: "Screened for HP",
                     ref: "screened",
                     value: (data: any) => data.screened.length,
-                    tdClick: ({ column, data }) => drilldown(
-                        `${column.label}`, data.screened
-                    )
+                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.screened)
                 },
                 {
-                    label: "Normal reading",
+                    label: "Normal <140/<90",
                     ref: "normal_reading",
                     value: (data: any) => data.normal_reading.length,
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.normal_reading)
                 },
                 {
-                    label: "Mild reading",
+                    label: "Mild 141-159/91-99",
                     ref: "mild_reading",
                     value: (data: any) => data.mild_reading.length,
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.mild_reading)
                 },
                 {
-                    label: "Moderate reading",
+                    label: "Moderate 160-179/100-109",
                     ref: "moderate_reading",
                     value: (data: any) => data.moderate_reading.length,
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.moderate_reading)
+                },
+                {
+                    label: "Severe >180/>110",
+                    ref: "severe_reading",
+                    value: (data: any) => data.severe_reading.length,
+                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.severe_reading)
                 },
                 {
                     label: "Hydrochlorothiazide 25mg",
@@ -87,13 +91,13 @@ export default defineComponent({
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.amlodipine_5mg)
                 },
                 {
-                    label: "Amlodipine 10mg",
+                    label: "Amlodipine 10 mg",
                     ref: "amlodipine_10mg",
                     value: (data: any) => data.amlodipine_10mg.length,
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.amlodipine_10mg)
                 },
                 {
-                    label: "Enalapril 5mg",
+                    label: "Enalapril 5 mg",
                     ref: "enalapril_5mg",
                     value: (data: any) => data.enalapril_5mg.length,
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.enalapril_5mg)
@@ -105,19 +109,19 @@ export default defineComponent({
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.enalapril_10mg)
                 },
                 {
-                    label: "Atenolol 5mg",
-                    ref: "atenolol_5mg",
-                    value: (data: any) => data.atenolol_5mg.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.atenolol_5mg)
+                    label: "Atenolol 50mg ",
+                    ref: "atenolol_50mg",
+                    value: (data: any) => data.atenolol_50mg.length,
+                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.atenolol_50mg)
                 },
                 {
-                    label: "Atenolol 10mg",
-                    ref: "atenolol_10mg",
-                    value: (data: any) => data.atenolol_10mg.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.atenolol_10mg)
+                    label: "Atenolol 100mg ",
+                    ref: "atenolol_100mg",
+                    value: (data: any) => data.atenolol_100mg.length,
+                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.atenolol_100mg)
                 },
                 {
-                    label: "Total Regimen",
+                    label: "Total (regimen)",
                     ref: "total_regimen",
                     value: (data: any) => data.total_regimen.length,
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.total_regimen)
