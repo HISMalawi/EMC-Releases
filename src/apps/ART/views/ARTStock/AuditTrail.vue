@@ -84,7 +84,7 @@ export default defineComponent({
                             table.td(s.drug_name),
                             table.td(s.transaction_type),
                             table.tdDate(s.transaction_date),
-                            table.tdLink(toNumString(Math.abs(s.cum_per_day_stock_commited)), async () =>  {
+                            table.tdLink(toNumString(Math.trunc(Math.abs(s.cum_per_day_stock_commited))), async () =>  {
                                 const data = await this.report.getTrailDetails(s.transaction_date, s.drug_id, s.transaction_type);
                                 this.drilldownData(
                                     `${s.drug_name} ${s.transaction_type.toLowerCase()} on ${HisDate.toStandardHisDisplayFormat(s.transaction_date)}`,
