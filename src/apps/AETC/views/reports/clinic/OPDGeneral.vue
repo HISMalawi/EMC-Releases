@@ -53,6 +53,37 @@ export default defineComponent({
          const generate = async () => {
             return null
          }
+         const generateYears = () => {
+            let years: string[] = [];
+            const currentYear = new Date().getFullYear();
+            for (let year = 2008; year <= currentYear; year++) {
+                years.push(year + "");
+            }
+            return years.reverse()
+         }
+
+         const generateQuarters = () => {
+            let quarters: string[] = [];
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1; // Adding 1 because getMonth() returns 0-based months
+            const quartersToAdd = currentMonth <= 3 ? 1 : currentMonth <= 6 ? 2 : currentMonth <= 9 ? 3 : 4;
+
+            for (let year = 2008; year <= currentYear; year++) {
+                for (let quarter = 1; quarter <= 4; quarter++) {
+                    if (year < currentYear || (year === currentYear && quarter <= quartersToAdd)) {
+                        quarters.push(`Q${quarter} ${year}`);
+                    }
+                }
+            }
+
+            return quarters.reverse();
+        }
+
+         const mapOptions = (options: Array<string>) => {
+            return options.map((option) => {
+                return { label: option, value: option }
+            });
+         }
 
          //table headers and data mapping
          const columns: Array<v2ColumnInterface[]> = [
@@ -129,6 +160,7 @@ export default defineComponent({
                 id: 'report_range',
                 helpText: 'Select Range',
                 type: FieldType.TT_SELECT,
+                computedValue: (v: Option) => v.value,
                 options: () => [
                     {
                         label: 'Week',
@@ -148,35 +180,50 @@ export default defineComponent({
                     },
                     {
                         label: 'Select Range',
-                        value: 'Select Range',
+                        value: 'Select-Range',
                     }
                 ]
             },
             {
-                id: 'year',
+                id: 'report_range_year',
                 helpText: 'Select Year',
-                type: FieldType.TT_NUMBER,
-                computedValue: (v: Option) => v.value,
-                validation: (v: Option) => {
-                    const year = isPlainObject(v) ? v.value : -1
-                    return Validation.validateSeries([
-                        () => Validation.required(v),
-                        () => {
-                            if (isNaN(parseInt(`${year}`))) {
-                                return ['Invalid year']
-                            }
-                            return null
-                        },
-                        () => Validation.rangeOf(v, 2000, HisDate.getYear(Service.getSessionDate()))
-                    ])
+                type: FieldType.TT_SELECT,
+                condition: (f: any) => f.report_range.value === 'Year' || f.report_range.value === 'Month' || f.report_range.value === 'Week',
+                options: () => {
+                    const years: string[] = generateYears();
+                    return[
+                        ...mapOptions(years)
+                    ]
                 }
             },
             {
-                id: 'month',
+                id: 'report_range_quaters',
+                helpText: 'Select Quater',
+                type: FieldType.TT_SELECT,
+                condition: (f: any) => f.report_range.value === 'Quarter',
+                options: () => {
+                    const quaters: string[] = generateQuarters();
+                    return[
+                        ...mapOptions(quaters)
+                    ]
+                }
+            },
+            {
+                id: "start_date",
+                helpText: "Start Date",
+                type: FieldType.TT_FULL_DATE,
+                validation: (val: Option) => Validation.required(val),
+                computedValue: (v: Option) => v.value,
+                condition: (f: any) => f.report_range.value === 'Select-Range',
+
+            },
+            {
+                id: 'report_range_month',
                 helpText: 'Select Month',
                 type: FieldType.TT_SELECT,
                 validation: (v: Option) => Validation.required(v),
                 computedValue: (v: Option) => v.value,
+                condition: (f: any) => f.report_range.value === 'Month',
                 options: () => {
                     return [
                         {label: 'January', value: '01'},
@@ -193,7 +240,38 @@ export default defineComponent({
                         {label: 'December', value: '12'}
                     ]
                 }
-            }
+            },
+            {
+                id: 'report_range_week',
+                helpText: 'Select Week',
+                type: FieldType.TT_SELECT,
+                condition: (f: any) => {
+                    const currentYear = new Date().getFullYear() + "";
+                    return f.report_range.value === 'Week' && f.report_range_year.value === currentYear
+                },
+                options: () => [
+                    {
+                        label: 'This Week',
+                        value: 'This Week',
+                    },
+                    {
+                        label: 'Last Week',
+                        value: 'Last Week',
+                    },
+                    {
+                        label: 'This Month',
+                        value: 'This Month',
+                    },
+                    {
+                        label: 'Last Month',
+                        value: 'Last Month',
+                    },
+                    {
+                        label: 'All Dates',
+                        value: 'All Dates',
+                    }
+                ]
+            },
         ], 
         (f: any) => {
             startDate.value = `${f.year.value}-${f.month.value}-01`
