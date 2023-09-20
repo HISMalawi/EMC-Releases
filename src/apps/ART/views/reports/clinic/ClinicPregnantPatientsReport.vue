@@ -34,7 +34,7 @@ export default defineComponent({
                 table.thTxt('ARV#'),
                 table.thTxt('First name', { csvExportable : false, pdfExportable: true }),
                 table.thTxt('Last name' , { csvExportable: false, pdfExportable: true }),
-                table.thTxt('birthdate')
+                table.thTxt('Birthdate')
             ]
         ]
     }),

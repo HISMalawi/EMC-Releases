@@ -45,7 +45,10 @@ export default defineComponent({
                 table.thTxt('Result'),
                 table.thTxt('Released'),
                 table.thTxt('Curr. Regimen'),
-                table.thTxt('Action')
+                table.thTxt('Action', {
+                    csvExportable: false,
+                    pdfExportable: false
+                })
             ]
         ]
     }),

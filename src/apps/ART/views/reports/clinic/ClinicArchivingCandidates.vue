@@ -16,6 +16,7 @@ import ReportTemplate from "@/apps/ART/views/reports/BasicReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { PatientReportService } from '@/apps/ART/services/reports/patient_report_service'
 import { IonPage} from "@ionic/vue"
+import { toDate } from '@/utils/Strs'
 
 export default defineComponent({
     mixins: [ReportMixin],
@@ -34,6 +35,7 @@ export default defineComponent({
     async created() {
         const report = new PatientReportService()
         const data = await report.getArchivingCandidates()
+        this.title = `Active clients with adverse outcomes - ${toDate(report.date)}`
         data.forEach((data: any) => {
             this.rows.push([
                 table.td(data.filing_number),

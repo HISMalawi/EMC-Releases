@@ -273,7 +273,7 @@ export default defineComponent({
         color: "primary",
         visible: this.canExportCsv,
         onClick: async () => {
-          const {columns, rows} = toExportableFormat(this.columns, this.rows)
+          const {columns, rows} = toExportableFormat(this.columns, this.rows, 'csvMode')
           toCsv(columns, [
             ...rows,
             [`Date Created: ${this.date}`],

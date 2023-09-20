@@ -44,7 +44,9 @@ export default defineComponent({
                 table.thTxt('Gender'),
                 table.thTxt('birthdate'),
                 table.thTxt('Current Address', { csvExportable: false, pdfExportable: true }),
-                table.thTxt('Actions')
+                table.thTxt('Actions', {
+                    csvExportable: false, pdfExportable: false
+                })
             ]
         ]
     }),
