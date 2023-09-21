@@ -21,7 +21,7 @@ import { v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/
 import { DateSelection } from '@/utils/ReportDateSelectionPrompt';
 import { toastDanger, toastWarning } from '@/utils/Alerts';
 import { ClinicReportService } from "@/apps/ART/services/reports/clinic_report_service";
-import ArtDrilldown from "@/apps/ART/Components/ArtDrilldown.vue";
+import HypertensionDrilldown from "@/apps/ART/Components/HypertensionDrilldown.vue";
 
 export default defineComponent({
     components: { 
@@ -129,18 +129,20 @@ export default defineComponent({
             ]
         ]
 
-        const drilldown = async (title: string, patientIdentifiers: number[]) => {
-            (await modalController.create({
-                component: ArtDrilldown,
-                backdropDismiss: false,
-                cssClass: 'large-modal',
-                componentProps: {
-                    title,
-                    subtitle: period,
-                    patientIdentifiers,
-                    onFinish: () => modalController.getTop().then(v => v && modalController.dismiss())
-                }
-            })).present()
+        const drilldown = async (title: string, patients: Array<any>) => {
+            if(patients.length) {
+                (await modalController.create({
+                    component: HypertensionDrilldown,
+                    backdropDismiss: false,
+                    cssClass: 'large-modal',
+                    componentProps: {
+                        title,
+                        subtitle: period,
+                        patients,
+                        onFinish: () => modalController.getTop().then(v => v && modalController.dismiss())
+                    }
+                })).present();
+            }
         }
         /**
          * Generates report by start date and end date
