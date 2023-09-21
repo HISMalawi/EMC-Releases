@@ -2,6 +2,7 @@
   <base-report-table
     title="Incomplete Visits Clinic Report"
     report-icon="reports/refill.png"
+    report-type="Clinic"
     :columns="columns"
     :rows="rows"
     :period="period"

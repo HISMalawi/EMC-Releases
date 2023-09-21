@@ -2,6 +2,7 @@
   <base-report-table
     title="PEPFAR Viral Load Coverage Report"
     report-icon="reports/viral_load.png"
+    report-type="PEPFAR"
     :columns="columns"
     :rows="rows"
     :period="period"

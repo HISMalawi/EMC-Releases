@@ -2,6 +2,7 @@
   <base-report-table 
     title="MoH TPT Cohort Report"
     report-icon="reports/cohort.png" 
+    report-type="MOH"
     :columns="columns" 
     :rows="rows" 
     :period="period" 

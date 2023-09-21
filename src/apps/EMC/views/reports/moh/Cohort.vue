@@ -219,7 +219,7 @@ export default defineComponent({
     const exportToCsv = () => {
       const headers = ['Indicator', 'Value']
       const rows = Object.keys(indicators.value).map(k => [k, indicators.value[k]])
-      const reportTitle = `${Service.getLocationName()} cohort report ${period.value}`
+      const reportTitle = `MOH ${Service.getLocationName()} cohort report ${period.value}`
       toCsv([headers], [
         ...rows,
         [`Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}`],

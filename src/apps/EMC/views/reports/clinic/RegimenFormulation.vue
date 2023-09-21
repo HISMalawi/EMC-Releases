@@ -2,6 +2,7 @@
   <base-report-table
     title="Regimen Formulation: Patient Level Clinic Report"
     report-icon="reports/medical.png"
+    report-type="Clinic"
     :period="period"
     :columns="columns"
     :rows="rows"

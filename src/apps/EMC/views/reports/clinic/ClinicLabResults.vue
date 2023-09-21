@@ -2,6 +2,7 @@
   <base-report-table
     title="Lab Test Result(s) Report"
     report-icon="reports/lab-results.png"
+    report-type="Clinic"
     :period="period"
     :columns="columns"
     :rows="rows"

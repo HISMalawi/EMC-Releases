@@ -2,6 +2,7 @@
   <base-report-table
     title="MoH TPT Initiation Report"
     report-icon="reports/new_initiation.png"
+    report-type="MOH"
     :columns="columns"
     :rows="rows"
     :period="period"

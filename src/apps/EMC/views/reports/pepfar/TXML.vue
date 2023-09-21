@@ -3,6 +3,7 @@
     title="PEPFAR TX ML Report"
     subtitle="Clients that were Alive and on treatment before the reporting period and their “next appointment date / drug runout” date falls within the reporting period. 30 or more days have gone between their appointment date and the end of the reporting period without any clinical dispensation visit"
     report-icon="reports/tx-ml.png"
+    report-type="PEPFAR"
     :columns="columns"
     :rows="rows"
     :period="period"

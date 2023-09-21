@@ -2,6 +2,7 @@
     <base-report-table
       title="Regimen Report"
       report-icon="reports/stats.png"
+      report-type="MOH"
       :columns="columns"
       :rows="rows"
       :period="period"

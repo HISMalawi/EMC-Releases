@@ -2,6 +2,7 @@
   <base-report-table
     title="Clients Due For Viral Load Clinic Report"
     report-icon="reports/viral_load.png"
+    report-type="Clinic"
     :columns="columns"
     :rows="rows"
     :period="period"

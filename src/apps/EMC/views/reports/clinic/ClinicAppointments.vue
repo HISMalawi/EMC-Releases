@@ -2,6 +2,7 @@
   <base-report-table
     title="Clinic Appointments Report"
     report-icon="reports/appointments.png"
+    report-type="Clinic"
     :columns="columns"
     :rows="rows"
     :date="date"

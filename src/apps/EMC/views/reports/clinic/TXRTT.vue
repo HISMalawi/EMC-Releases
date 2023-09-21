@@ -2,6 +2,7 @@
   <base-report-table
     title="Clinic TX RTT Report"
     report-icon="reports/restart.png"
+    report-type="Clinic"
     :columns="columns"
     :rows="rows"
     :period="period"
@@ -27,7 +28,6 @@ import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";
 
 export default defineComponent({
-  name: "TBPrev",
   components: { BaseReportTable },
   setup() {
     const period = ref("-");
@@ -42,7 +42,7 @@ export default defineComponent({
       { path: "return_6_plus_mo", label: "Returned 6+ mo", drillable: true },
     ]
 
-    const sortData = (ls: Array<any>, comparator: Function) => {
+    const sortData = (ls: Array<any>, comparator: (months: number) => boolean) => {
       return ls.filter(i => comparator(i.months)).map(i => i.patient_id)
     }
 

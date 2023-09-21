@@ -6,6 +6,7 @@
       next appointment / drug-runout date is: 3 months (1 - 89 days), 
       3 - 5 months (90 - 179 days), 6+ months (180 or more days)"
     report-icon="reports/px.png"
+    report-type="PEPFAR"
     :columns="columns"
     :rows="rows"
     :period="period"

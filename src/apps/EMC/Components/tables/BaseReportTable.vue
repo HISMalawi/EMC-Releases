@@ -59,8 +59,8 @@ import {
   TableColumnInterface 
 } from '@uniquedj95/vtable'
 import { toastWarning } from "@/utils/Alerts";
-import { isEmpty } from "lodash";
-import { exportToCSV } from "../../utils/exports";
+import { isEmpty, replace } from "lodash";
+import { exportToCSV, sanitize } from "../../utils/exports";
 import DateRangePicker, { DateRange } from "@/apps/EMC/Components/inputs/DateRangePicker.vue";
 import DatePicker from "@/apps/EMC/Components/inputs/DatePicker.vue";
 
@@ -160,15 +160,23 @@ export default defineComponent({
     filename: {
       type: String,
       default: "",
+    },
+    reportType: {
+      type: String,
+      default: "",
     }
   },
   emits: ["regenerate", "customFilter", "drilldown"],
   setup(props, { emit }) {
     const dateRange = ref({} as DateRange)
     const pickerDate = ref("");
-    const filename = computed(() => {
-      return `${PatientReportService.getLocationName()} ${props.filename || props.title} ${ props.period ? props.period : props.date }`;
-    })
+    const filename = computed(() => `
+      ${props.reportType} 
+      ${PatientReportService.getLocationName()} 
+      ${sanitize(props.filename || props.title).replace(props.reportType, "")} 
+      ${ props.period ? props.period : props.date }
+    `);
+
 
     const actionBtns = computed<ActionButtonInterface[]>(() => {
       const btns = [...props.actionButtons];

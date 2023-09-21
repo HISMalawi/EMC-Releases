@@ -2,6 +2,7 @@
   <base-report-table
     title="Clinic Regimen Dispensation Report"
     report-icon="reports/regimen-give.png"
+    report-type="Clinic"
     :columns="columns"
     :rows="rows"
     :period="period"

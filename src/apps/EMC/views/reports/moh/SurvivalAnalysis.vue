@@ -2,6 +2,7 @@
   <base-report-table
     title="MoH Survival Analysis Report"
     report-icon="reports/refill.png"
+    report-type="MOH"
     :columns="columns"
     :rows="rows"
     :quarter="quarter"

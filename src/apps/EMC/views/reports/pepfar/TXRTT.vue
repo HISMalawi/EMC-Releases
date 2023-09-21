@@ -3,6 +3,7 @@
     title="PEPFAR TX RTT Report"
     subtitle="Clients that have their clinical dispensation visit falling in the reporting period and there is a difference of 30 or more days between their visit date and their previous appointment date / runout date"
     report-icon="reports/restart.png"
+    report-type="PEPFAR"
     :columns="columns"
     :rows="rows"
     :period="period"

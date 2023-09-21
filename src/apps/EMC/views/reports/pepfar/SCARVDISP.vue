@@ -2,6 +2,7 @@
   <base-report-table
     title="PEPFAR SC ARV Dispensation Report"
     report-icon="reports/previous.png"
+    report-type="PEPFAR"
     :columns="columns"
     :rows="rows"
     :period="period"

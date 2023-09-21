@@ -2,6 +2,7 @@
   <base-report-table
     title="PEPFAR TB Prev Report"
     report-icon="reports/previous.png"
+    report-type="PEPFAR"
     :columns="columns"
     :rows="rows"
     :period="period"

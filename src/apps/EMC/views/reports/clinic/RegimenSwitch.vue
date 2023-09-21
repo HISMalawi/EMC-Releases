@@ -2,6 +2,7 @@
   <base-report-table
     title="Clinic Regimen Switch Report"
     report-icon="reports/regimen-switch.png"
+    report-type="Clinic"
     :period="period"
     :columns="columns"
     :rows="rows"

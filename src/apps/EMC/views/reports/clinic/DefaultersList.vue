@@ -2,6 +2,7 @@
   <base-report-table
     :title="title"
     report-icon="reports/defaulter-list.png"
+    report-type="Clinic"
     :columns="columns"
     :rows="rows"
     :period="period"

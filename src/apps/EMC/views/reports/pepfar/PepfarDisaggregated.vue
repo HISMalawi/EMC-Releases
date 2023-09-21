@@ -2,6 +2,7 @@
   <base-report-table
     title="PEPFAR Disaggregated Report"
     report-icon="reports/split.png"
+    report-type="PEPFAR"
     :columns="columns"
     :rows="rows"
     :period="period"
@@ -14,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import { loader } from "@/utils/loader";
 import BaseReportTable from "@/apps/EMC/Components/tables/BaseReportTable.vue";
 import { TableColumnInterface } from "@uniquedj95/vtable";
@@ -29,7 +30,6 @@ import { Patientservice } from "@/services/patient_service";
 import { DISPLAY_DATE_FORMAT } from "@/utils/Date";
 import { toGenderString } from "@/utils/Strs";
 import { sortByARV } from "@/apps/EMC/utils/common";
-import { toastWarning } from "@/utils/Alerts";
 import { swapAdjacentItems } from "@/utils/Arrays";
 
 export default defineComponent({

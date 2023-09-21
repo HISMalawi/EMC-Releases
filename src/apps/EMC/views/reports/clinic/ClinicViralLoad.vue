@@ -2,6 +2,7 @@
   <base-report-table
     :title="title"
     report-icon="reports/vl.png"
+    report-type="Clinic"
     :period="period"
     :columns="columns"
     :rows="rows"

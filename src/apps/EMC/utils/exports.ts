@@ -3,7 +3,7 @@ import { get } from 'lodash';
 import { Service } from '@/services/service';
 import dayjs from 'dayjs';
 
-function sanitize(str: string) {
+export function sanitize(str: string) {
   try {
     return str.replace(/<(?:.|\n)*?>/gm, " ")
       .replace(/\n/g, " ")

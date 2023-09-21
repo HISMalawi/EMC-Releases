@@ -2,6 +2,7 @@
   <base-report-table
     title="MoH Viral Load Report"
     report-icon="reports/vl.png"
+    report-type="MOH"
     :period="period"
     :columns="columns"
     :rows="rows"

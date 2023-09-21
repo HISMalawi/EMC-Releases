@@ -2,6 +2,7 @@
   <base-report-table
     title="Pregnant Patients Clinic Report"
     report-icon="reports/pregnant.png"
+    report-type="Clinic"
     :columns="columns"
     :rows="rows"
     :period="period"

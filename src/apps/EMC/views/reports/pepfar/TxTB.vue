@@ -2,6 +2,7 @@
   <base-report-table 
     title="PEPFAR TX TB Report" 
     report-icon="reports/tb.png" 
+    report-type="PEPFAR"
     :columns="columns" 
     :rows="rows" 
     :period="period" 

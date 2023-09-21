@@ -2,6 +2,7 @@
   <base-report-table
     title="MoH Cohort Disaggregated Report"
     report-icon="reports/split.png"
+    report-type="MOH"
     :columns="columns"
     :rows="rows"
     :period="period"

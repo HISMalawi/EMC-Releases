@@ -2,6 +2,7 @@
   <base-report-table
     title="MoH Regimen Distribution By Weight Report"
     report-icon="reports/electronics.png"
+    report-type="MOH"
     :columns="columns"
     :rows="rows"
     :period="period"
