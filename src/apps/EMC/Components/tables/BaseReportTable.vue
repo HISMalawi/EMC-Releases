@@ -63,6 +63,7 @@ import { isEmpty } from "lodash";
 import { exportToCSV, exportToPDF, sanitize } from "../../utils/exports";
 import DateRangePicker, { DateRange } from "@/apps/EMC/Components/inputs/DateRangePicker.vue";
 import DatePicker from "@/apps/EMC/Components/inputs/DatePicker.vue";
+import { infoActionSheet } from "@/utils/ActionSheets";
 
 export default defineComponent({
   name: "BaseReportTable",
@@ -132,6 +133,10 @@ export default defineComponent({
     canExportPDF: {
       type: Boolean,
       default: true,
+    },
+    useSecureExport: {
+      type: Boolean,
+      default: false,
     },
     showRefreshButton: {
       type: Boolean,
@@ -277,6 +282,28 @@ export default defineComponent({
         label: "PDF",
         color: "primary",
         action: async (_a, rows, filters, columns) => {
+          let safeMode = false;
+          if(props.useSecureExport) {
+            const option = await infoActionSheet(
+              'Security warning',
+              'PDF may contain private data that will require a password to unlock',
+              'To access private data choose Secure PDF over Regular PDF',
+              [
+                { 
+                  name: "Secure PDF",
+                  slot: "start",
+                  color: "success"
+                },
+                { 
+                  name: "Regular PDF",
+                  slot: "start",
+                  color: "success"
+                }
+              ],
+              'his-danger-color'
+            )
+            safeMode = option === "Secure PDF";
+          }
           exportToPDF({
             rows, 
             filters,
@@ -284,6 +311,7 @@ export default defineComponent({
             quarter,
             period,
             filename,
+            safeMode,           
           })
         }
       }

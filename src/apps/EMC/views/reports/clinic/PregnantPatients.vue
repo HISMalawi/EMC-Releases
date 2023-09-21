@@ -8,6 +8,7 @@
     :period="period"
     :rowActionButtons="rowActionBtns"
     useDateRangeFilter
+    useSecureExport
     @custom-filter=" getData"
   />
 </template>

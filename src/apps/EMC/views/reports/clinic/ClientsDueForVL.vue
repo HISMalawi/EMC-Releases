@@ -7,6 +7,7 @@
     :rows="rows"
     :period="period"
     :rowActionButtons="rowActionBtns"
+    useSecureExport
     useDateRangeFilter
     @custom-filter="getData"
     @regenerate="getData"

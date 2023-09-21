@@ -7,7 +7,7 @@ import {
 import { get } from 'lodash';
 import { Service } from '@/services/service';
 import dayjs from 'dayjs';
-import jsPDF from 'jspdf';
+import jsPDF, { EncryptionOptions } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 export function sanitize(str: string) {
@@ -31,17 +31,32 @@ interface ExportOptions {
   quarter?: string;
   period?: string;
   filters?: TableFilterInterface;
-  encryption?: object;
   canHorizontalPageBreak?: boolean;
+  safeMode?: boolean;
 }
 
-function getExportableHeadings(columns: Array<TableColumnInterface>): Array<string> {
-  return columns.filter(c => c.exportable !== false).map(c => c.label);
+function getEncryptionHeader(): Record<"encryption", EncryptionOptions> {
+  const password = Service.getUserName()
+  return {
+    encryption: {
+      userPassword: password,
+      ownerPassword: password,
+      userPermissions: ["print"]
+    }
+  }
 }
 
-function getExportableRows(columns: Array<TableColumnInterface>, rows: Array<any>): Array<Array<string>> {
+function isExportable(column: TableColumnInterface, safeMode: boolean) {
+  return safeMode || column.exportable !== false;
+}
+
+function getExportableHeadings(columns: Array<TableColumnInterface>, safeMode = false) {
+  return columns.filter(column => isExportable(column, safeMode)).map(column => column.label);
+}
+
+function getExportableRows(columns: Array<TableColumnInterface>, rows: Array<any>, safeMode = false){
   return rows.map(row => {
-    return columns.filter(column => column.exportable !== false)
+    return columns.filter(column => isExportable(column, safeMode))
       .map(column => {
         let value = get(row, column.path);
         if (typeof column.formatter === 'function' && value) value = column.formatter(value, row)
@@ -51,9 +66,9 @@ function getExportableRows(columns: Array<TableColumnInterface>, rows: Array<any
 }
 
 function toCsvString(opts: ExportOptions) {
-  const {columns, rows, quarter, period, filters} = opts;
-  const exportableColumns = getExportableHeadings(columns);
-  const exportableRows = getExportableRows(columns, sortRows(rows, filters?.sort || []));
+  const { columns, rows, quarter, period, filters, safeMode } = opts;
+  const exportableColumns = getExportableHeadings(columns, safeMode);
+  const exportableRows = getExportableRows(columns, sortRows(rows, filters?.sort || []), safeMode);
   let str = exportableColumns.join(",") + "\n"
   str += exportableRows.map(row => row.join(",")).join("\n");
   str += "\n" + `Date Created:  ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}`;
@@ -76,9 +91,10 @@ export function exportToCSV(opts: ExportOptions) {
 }
 
 export function exportToPDF(opts: ExportOptions) {
-  const {filename, encryption, canHorizontalPageBreak, columns, rows, filters } = opts
-  const tableColumns: Array<Array<string>> = [ getExportableHeadings(columns) ];
-  const tableRows: Array<Array<string>> = getExportableRows(columns, sortRows(rows, filters?.sort || []));
+  const {filename, canHorizontalPageBreak, columns, rows, filters, safeMode } = opts
+  const tableColumns: Array<Array<string>> = [ getExportableHeadings(columns, safeMode) ];
+  const tableRows: Array<Array<string>> = getExportableRows(columns, sortRows(rows, filters?.sort || []), safeMode);
+  const encryption = safeMode ? getEncryptionHeader() : {};
   const doc = new jsPDF({...encryption})
   const title = doc.splitTextToSize(sanitize(filename), 180)
   const tableMarginStartY = title.length <= 1 ? 20 : title.length * 10

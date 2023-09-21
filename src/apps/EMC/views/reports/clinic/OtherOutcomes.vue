@@ -8,6 +8,7 @@
     :rows="rows"
     :rowActionButtons="rowActionBtns"
     :custom-filters="filters"
+    useSecureExport
     useDateRangeFilter
     @regenerate="regenerateReport"
     @custom-filter="fetchData"
