@@ -1,7 +1,14 @@
-import { sortRows, TableColumnInterface, TableFilterInterface } from '@uniquedj95/vtable';
+import { 
+  sortRows, 
+  TableColumnInterface, 
+  TableFilterInterface, 
+  ActionButtonInterface 
+} from '@uniquedj95/vtable';
 import { get } from 'lodash';
 import { Service } from '@/services/service';
 import dayjs from 'dayjs';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export function sanitize(str: string) {
   try {
@@ -66,4 +73,27 @@ export function exportToCSV(opts: ExportOptions) {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+export function exportToPDF(opts: ExportOptions) {
+  const {filename, encryption, canHorizontalPageBreak, columns, rows, filters } = opts
+  const tableColumns: Array<Array<string>> = [ getExportableHeadings(columns) ];
+  const tableRows: Array<Array<string>> = getExportableRows(columns, sortRows(rows, filters?.sort || []));
+  const doc = new jsPDF({...encryption})
+  const title = doc.splitTextToSize(filename, 180)
+  const tableMarginStartY = title.length <= 1 ? 20 : title.length * 10
+  doc.text(title, 14, 10)
+  const config: any = {
+    startY: tableMarginStartY,
+    head: tableColumns,
+    body: tableRows
+  }
+  if (canHorizontalPageBreak) {
+    config.tableWidth = 'wrap'
+    config.horizontalPageBreak = true
+    config.horizontalPageBreakRepeat = 0
+  }
+  autoTable(doc, config)
+  const path = `${filename}.pdf`
+  doc.save(path)
 }
