@@ -61,13 +61,13 @@ export default defineComponent({
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.normal_reading)
                 },
                 {
-                    label: "Mild 141-159/91-99",
+                    label: "Mild 140-159/90-99",
                     ref: "mild_reading",
                     value: (data: any) => data.mild_reading.length,
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.mild_reading)
                 },
                 {
-                    label: "Moderate 160-179/100-109",
+                    label: "Moderate 160-180/100-110",
                     ref: "moderate_reading",
                     value: (data: any) => data.moderate_reading.length,
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.moderate_reading)
