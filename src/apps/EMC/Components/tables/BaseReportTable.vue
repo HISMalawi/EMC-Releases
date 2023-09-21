@@ -59,8 +59,8 @@ import {
   TableColumnInterface 
 } from '@uniquedj95/vtable'
 import { toastWarning } from "@/utils/Alerts";
-import { isEmpty, replace } from "lodash";
-import { exportToCSV, sanitize } from "../../utils/exports";
+import { isEmpty } from "lodash";
+import { exportToCSV, exportToPDF, sanitize } from "../../utils/exports";
 import DateRangePicker, { DateRange } from "@/apps/EMC/Components/inputs/DateRangePicker.vue";
 import DatePicker from "@/apps/EMC/Components/inputs/DatePicker.vue";
 
@@ -177,28 +177,11 @@ export default defineComponent({
       ${ props.period ? props.period : props.date }
     `);
 
-
     const actionBtns = computed<ActionButtonInterface[]>(() => {
       const btns = [...props.actionButtons];
-
-      if(props.showRefreshButton){
-        btns.push({ label: "Refresh/Rebuild", color: 'success', action: () => emit("regenerate") });
-      }
-
-      if (props.canExportCsv) {
-        btns.push({
-          label: "CSV",
-          color: "primary",
-          action: async (_a, rows, filters, columns) => exportToCSV({
-            rows, 
-            filters,
-            columns, 
-            quarter: props.quarter?.label,
-            period: props.period,
-            filename: filename.value
-          })
-        })
-      }
+      if(props.showRefreshButton) btns.push(getRefreshBtn());
+      if (props.canExportCsv) btns.push(getCsvExportBtn(filename.value, props.quarter?.label, props.period));
+      if (props.canExportPDF) btns.push(getPdfExportBtn(filename.value, props.quarter?.label, props.period));
       return btns;
     })
 
@@ -262,6 +245,48 @@ export default defineComponent({
 
     const onDrilldown = (data: {column: TableColumnInterface; row: any}) => {
       emit("drilldown", data);
+    }
+
+    const getRefreshBtn = (): ActionButtonInterface => {
+      return { 
+        label: "Refresh/Rebuild", 
+        color: 'success', 
+        action: () => emit("regenerate") 
+      }
+    }
+
+    const getCsvExportBtn = (filename: string, quarter?: string, period?: string): ActionButtonInterface => {
+      return {
+        label: "CSV",
+        color: "primary",
+        action: async (_a, rows, filters, columns) => {
+          exportToCSV({
+            rows, 
+            filters,
+            columns, 
+            quarter,
+            period,
+            filename,
+          })
+        }
+      }
+    }
+
+    const getPdfExportBtn = (filename: string, quarter?: string, period?: string): ActionButtonInterface => {
+      return {
+        label: "PDF",
+        color: "primary",
+        action: async (_a, rows, filters, columns) => {
+          exportToPDF({
+            rows, 
+            filters,
+            columns, 
+            quarter,
+            period,
+            filename,
+          })
+        }
+      }
     }
 
     return {

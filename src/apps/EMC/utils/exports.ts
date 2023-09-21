@@ -80,7 +80,7 @@ export function exportToPDF(opts: ExportOptions) {
   const tableColumns: Array<Array<string>> = [ getExportableHeadings(columns) ];
   const tableRows: Array<Array<string>> = getExportableRows(columns, sortRows(rows, filters?.sort || []));
   const doc = new jsPDF({...encryption})
-  const title = doc.splitTextToSize(filename, 180)
+  const title = doc.splitTextToSize(sanitize(filename), 180)
   const tableMarginStartY = title.length <= 1 ? 20 : title.length * 10
   doc.text(title, 14, 10)
   const config: any = {
