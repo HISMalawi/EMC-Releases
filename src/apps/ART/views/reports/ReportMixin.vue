@@ -15,6 +15,8 @@ import table from "@/components/DataViews/tables/ReportDataTable"
 import { isArray } from "lodash"
 import Store from "@/composables/ApiStore"
 import App from "@/apps/app_lib"
+import { formatGender as fmtGender } from "@/utils/Strs";
+
 
 export default defineComponent({
     data: () => ({
@@ -31,17 +33,7 @@ export default defineComponent({
     }),
     methods: {
         formatGender(gender: string) {
-            const upCaseGender = `${gender}`.toUpperCase()
-            if (upCaseGender === 'M' || upCaseGender === 'MALE') {
-                return 'Male'
-            }
-            if (upCaseGender === 'F' || upCaseGender === 'FEMALE') {
-                return 'Female'
-            }
-            if (/fbf|fnp|fp/i.test(gender)) {
-                return upCaseGender
-            }
-            return gender
+            return fmtGender(gender)
         },
         toDate(date: string) {
             return HisDate.toStandardHisDisplayFormat(date)

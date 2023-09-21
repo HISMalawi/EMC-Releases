@@ -60,3 +60,17 @@ export function toNumString(num: number | string) {
 export function toSentenceCase (str: string) {
     return str.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase())
 }
+
+export function formatGender(gender: string) {
+    const upCaseGender = `${gender}`.toUpperCase()
+    if (upCaseGender === 'M' || upCaseGender === 'MALE') {
+        return 'Male'
+    }
+    if (upCaseGender === 'F' || upCaseGender === 'FEMALE') {
+        return 'Female'
+    }
+    if (/fbf|fnp|fp/i.test(gender)) {
+        return upCaseGender
+    }
+    return gender
+}
