@@ -27,7 +27,8 @@ import ApiStore from '@/composables/ApiStore';
 import EventBus from '@/utils/EventBus';
 import { EmcEvents } from '../interfaces/emc_event';
 import { toGenderString } from '@/utils/Strs';
-import { OrderService } from '@/services/order_service';
+import { modal } from '@/utils/modal';
+import VLResultTrail from './modals/VLResultTrail.vue';
 
 interface InfoItem {
   label: string;
@@ -192,7 +193,11 @@ export default defineComponent({
       { label: "Breastfeeding at Initiation", value: breastFeedingAtInitiation.value, other: {
         onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
       }},
-      { label: "Latest VL Result and Result Date", value:  latestVLResult.value },
+      { label: "Latest VL Result and Result Date", value:  latestVLResult.value, other: {
+        onClickHandler: () => modal.show(VLResultTrail, {
+          patient: props.patient
+        })
+      }},
       { label: "TI", value: receivedART.value, other: {
         onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
       }},
