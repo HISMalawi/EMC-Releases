@@ -108,6 +108,10 @@ export default defineComponent({
       });
     }
 
+    const updateStagingInfo = () => {
+      router.push(`/emc/registration/${props.patient.getID()}/false`)
+    }
+
     const patientInfo = computed(() => [
       { label: "ARV Number", value: props.patient.getArvNumber(), other: {
         onClickHandler: () => emit('updateARVNumber')
@@ -158,40 +162,37 @@ export default defineComponent({
       {
         label: "Guardian",
         value: props.guardians ? props.guardians : "add",
-        other: {
-          ...(isEmpty(props.guardians) 
-            ? {
-                onClickHandler: () => {
-                  emit('addGuardian')
-                }
-              } 
-            : {}
-          ),
-        },
+        other: isEmpty(props.guardians) 
+          ? {
+              onClickHandler: () => {
+                emit('addGuardian')
+              }
+            } 
+          : undefined
       },
       { label: "Agrees to follow up", value: agreesToFollowUp.value, other: {
-        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+        onClickHandler: updateStagingInfo
       }},
       { label: "Date of starting first line ARV Regimen", value: props.artStartDate, other: {
-        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+        onClickHandler: updateStagingInfo
       }},
       { label: "Initial Weight (KG)", value: initWeight.value, other: {
-        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+        onClickHandler: updateStagingInfo
       }},
       { label: "Initial Height (CM)", value: initHeight.value, other: {
-        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+        onClickHandler: updateStagingInfo
       }},
       { label: "Initial BMI", value: initBmi.value, other: {
-        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+        onClickHandler: updateStagingInfo
       }},
       { label: "Initial TB Status", value: initTBStatus.value, other: {
-        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+        onClickHandler: updateStagingInfo
       }},
       { label: "Pregnant at Initiation", value: pregnantAtInitiation.value, other: {
-        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+        onClickHandler: updateStagingInfo
       }},
       { label: "Breastfeeding at Initiation", value: breastFeedingAtInitiation.value, other: {
-        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+        onClickHandler: updateStagingInfo
       }},
       { label: "Latest VL Result and Result Date", value:  latestVLResult.value, other: {
         onClickHandler: () => modal.show(VLResultTrail, {
@@ -199,22 +200,22 @@ export default defineComponent({
         })
       }},
       { label: "TI", value: receivedART.value, other: {
-        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+        onClickHandler: updateStagingInfo
       }},
       { label: "HIV test place", value: hivTestPlace.value, other: {
-        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+        onClickHandler: updateStagingInfo
       }},
       {  label: "HIV test date", value: hivTestDate.value, other: {
-        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+        onClickHandler: updateStagingInfo
       }},
       { label: "WHO stage", value: whoSTage.value, other: {
-        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+        onClickHandler: updateStagingInfo
       }},
       { label: "Reason for starting ART", value: reasonForStartingART.value, other: {
-        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+        onClickHandler: updateStagingInfo
       }},
       { label: "Staging codition", value: stagingCondition.value, other: {
-        onClickHandler: () => router.push(`/emc/registration/${props.patient.getID()}/false`)
+        onClickHandler: updateStagingInfo
       }},
     ])
 
