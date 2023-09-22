@@ -73,51 +73,72 @@ export default defineComponent({
          */
          const configure = () => MultiStepPopupForm([
             {
-                id: 'year',
-                helpText: 'Select Year',
-                type: FieldType.TT_NUMBER,
-                computedValue: (v: Option) => v.value,
-                validation: (v: Option) => {
-                    const year = isPlainObject(v) ? v.value : -1
-                    return Validation.validateSeries([
-                        () => Validation.required(v),
-                        () => {
-                            if (isNaN(parseInt(`${year}`))) {
-                                return ['Invalid year']
-                            }
-                            return null
-                        },
-                        () => Validation.rangeOf(v, 2000, HisDate.getYear(Service.getSessionDate()))
-                    ])
-                }
+                id: "start_date",
+                helpText: "Start Date",
+                type: FieldType.TT_FULL_DATE,
+                validation: (val: Option) => Validation.required(val),
+                computedValue: (v: Option) => v.value
             },
             {
-                id: 'month',
-                helpText: 'Select Month',
-                type: FieldType.TT_SELECT,
-                validation: (v: Option) => Validation.required(v),
-                computedValue: (v: Option) => v.value,
-                options: () => {
-                    return [
-                        {label: 'January', value: '01'},
-                        {label: 'February', value: '02'},
-                        {label: 'March', value: '03'},
-                        {label: 'April', value: '04'},
-                        {label: 'May', value: '05'},
-                        {label: 'June', value: '06'},
-                        {label: 'July', value: '07'},
-                        {label: 'August', value: '08'},
-                        {label: 'September', value: '09'},
-                        {label: 'October', value: '10'},
-                        {label: 'November', value: '11'},
-                        {label: 'December', value: '12'}
-                    ]
-                }
-            }
+                id: "end_date",
+                helpText: "End Date",
+                type: FieldType.TT_FULL_DATE,
+                validation: (val: Option) => Validation.required(val),
+                computedValue: (v: Option) => v.value
+            },
+            {
+                id: "multiple_select",
+                helpText: "Select Age Group(s)",
+                type: FieldType.TT_MULTIPLE_SELECT,
+                config: {
+                    showKeyboard: false
+                },
+                validation(value: any): null | Array<string> {
+                    return !value ? ["Value is required"] : null;
+                },
+                options:()=> ([
+                    {
+                        label: "< 6 months",
+                        value: "< 6 months"
+                    },
+                    {
+                        label: "6 months to < 1 yr",
+                        value: "6 months to < 1 yr"
+                    },
+                    {
+                        label: "1 to < 5",
+                        value: "1 to < 5"
+                    },
+                    {
+                        label: "5 to 14",
+                        value: "5 to 14",
+                    },
+                    {
+                        label: "> 14 to < 20",
+                        value: "> 14 to < 20",
+                    },
+                    {
+                        label: "20 to 30",
+                        value: "20 to 30",
+                    },
+                    {
+                        label: ">30 to <40",
+                        value: ">30 to <40",
+                    },
+                    {
+                        label: "40 to <50",
+                        value: "40 to <50",
+                    },
+                    {
+                        label: "ALL",
+                        value: "all",
+                    },
+                ]),
+            },    
         ], 
-        (f: any) => {
-            startDate.value = `${f.year.value}-${f.month.value}-01`
-            endDate.value = dayjs(new Date(startDate.value).toISOString()).endOf("month").format("YYYY-MM-DD")
+        (f: any, c: any) => {
+            startDate.value = c.start_date
+            endDate.value = c.end_date
             period.value = `Period (${toDate(startDate.value)} to ${toDate(endDate.value)})`
             modalController.dismiss()
             csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`
