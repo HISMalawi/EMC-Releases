@@ -362,6 +362,20 @@ export default defineComponent({
                 startDate.value = startDateValue;
                 endDate.value = endDateValue; // Set endDate.value with endDateValue
             }
+            if(f.report_range.value === 'Week' && f.report_range_week.value === 'All Dates'){
+                // Calculate the start date (January 1st of the current year)
+                const currentDate = new Date();
+                const currentYear = currentDate.getFullYear();
+                const startDateValue = `${currentYear}-01-01`;
+
+                // Calculate the end date (current date)
+                const currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
+                const currentDay = String(currentDate.getDate()).padStart(2, '0');
+                const endDateValue = `${currentYear}-${currentMonth}-${currentDay}`;
+
+                startDate.value = startDateValue;
+                endDate.value = endDateValue;
+            }
             if(f.report_range.value === 'Quarter'){
                 const quarterYear = c.report_range_quaters.split(' ');
                 const quarter = parseInt(quarterYear[0].slice(1), 10); // Extract and parse the numeric quarter
