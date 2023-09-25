@@ -332,6 +332,19 @@ export default defineComponent({
                 startDate.value = startDateValue;
                 endDate.value = endDateValue; // Set endDate.value with endDateValue
             }
+            if(f.report_range.value === 'Week' && f.report_range_week.value === 'This Month'){
+                // Calculate the start and end dates for the current month
+                const currentDate = new Date();
+                const currentYear = currentDate.getFullYear();
+                const currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
+
+                const startDateValue = `${currentYear}-${currentMonth}-01`;
+                const lastDayOfMonth = new Date(currentYear, currentDate.getMonth() + 1, 0); // Last day of the current month
+                const endDateValue = `${currentYear}-${currentMonth}-${String(lastDayOfMonth.getDate()).padStart(2, '0')}`;
+
+                startDate.value = startDateValue;
+                endDate.value = endDateValue; // Set endDate.value with endDateValue
+            }
             if(f.report_range.value === 'Quarter'){
                 const quarterYear = c.report_range_quaters.split(' ');
                 const quarter = parseInt(quarterYear[0].slice(1), 10); // Extract and parse the numeric quarter
