@@ -309,6 +309,29 @@ export default defineComponent({
                 startDate.value = startDateValue;
                 endDate.value = endDateValue; // Set endDate.value with endDateValue
             }
+            if(f.report_range.value === 'Week' && f.report_range_week.value === 'Last Week'){
+                // Calculate the start and end dates for the last week (Sunday to Saturday)
+                const currentDate = new Date();
+                currentDate.setDate(currentDate.getDate() - 7); // Go back 7 days to the previous week
+
+                const currentYear = currentDate.getFullYear();
+                const currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
+                const currentDay = String(currentDate.getDate()).padStart(2, '0');
+
+                // Calculate the first day (Sunday) of the last week
+                const firstDayOfLastWeek = new Date(currentDate);
+                firstDayOfLastWeek.setDate(currentDate.getDate() - currentDate.getDay());
+
+                // Calculate the last day (Saturday) of the last week
+                const lastDayOfLastWeek = new Date(currentDate);
+                lastDayOfLastWeek.setDate(currentDate.getDate() + (6 - currentDate.getDay()));
+
+                const startDateValue = `${currentYear}-${currentMonth}-${String(firstDayOfLastWeek.getDate()).padStart(2, '0')}`;
+                const endDateValue = `${currentYear}-${currentMonth}-${String(lastDayOfLastWeek.getDate()).padStart(2, '0')}`;
+
+                startDate.value = startDateValue;
+                endDate.value = endDateValue; // Set endDate.value with endDateValue
+            }
             if(f.report_range.value === 'Quarter'){
                 const quarterYear = c.report_range_quaters.split(' ');
                 const quarter = parseInt(quarterYear[0].slice(1), 10); // Extract and parse the numeric quarter
