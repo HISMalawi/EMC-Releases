@@ -18,7 +18,7 @@ export default defineComponent({
   mixins: [ReportMixin],
   data: () => ({
     title: 'Booked Clients',
-    rows: [] as RowInterface[],
+    rows: [] as RowInterface[][],
     reportService: {} as any,
     columns: [
       [
@@ -44,7 +44,7 @@ export default defineComponent({
       this.rows = this.buildRows(data)
 
     },
-    buildRows(data: any): RowInterface[] {
+    buildRows(data: any): RowInterface[][] {
      return data.map((d: any) => ([
         table.td(d['identifier']),
         table.td(d['given_name']),
