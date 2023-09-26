@@ -2,7 +2,6 @@ import {
   sortRows, 
   TableColumnInterface, 
   TableFilterInterface, 
-  ActionButtonInterface 
 } from '@uniquedj95/vtable';
 import { get } from 'lodash';
 import { Service } from '@/services/service';
