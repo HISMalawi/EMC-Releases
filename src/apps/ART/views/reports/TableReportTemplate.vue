@@ -299,7 +299,8 @@ export default defineComponent({
       this.activeRows = rows
     },
     getFileName() {
-      return this.customFileName || `${this.reportPrefix} ${Service.getLocationName()} ${removeTags(this.title)} ${this.period}`
+      return this.customFileName || 
+        `${this.reportPrefix} ${Service.getLocationName()} ${removeTags(this.title).replace(this.reportPrefix, "")} ${this.period ?? this.date}`
     },
     /**
      * Loads report without depending on Field configurations
