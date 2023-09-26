@@ -125,14 +125,14 @@ export default defineComponent({
       default: false
     },
     validationErrors: {
-      type: Array,
+      type: Array as PropType<Array<any>>,
       default: () => []
     },
     config: {
       type: Object
     },
     headerInfoList: {
-      type: Array,
+      type: Array as PropType<Array<any>>,
       default: () => []
     },
     reportPrefix: {
@@ -158,7 +158,8 @@ export default defineComponent({
       default: false
     },
     fields: {
-      type: Object as PropType<Field[]>
+      type: Array as PropType<Field[]>,
+      default: () => []
     },
     columns: {
       type: Object as PropType<Array<ColumnInterface[]>>,
@@ -169,7 +170,7 @@ export default defineComponent({
       required: true
     },
     customBtns: {
-      type: Array,
+      type: Array as PropType<Array<any>>,
       default: () => []
     },
     hasServerSideCaching: {
@@ -234,6 +235,8 @@ export default defineComponent({
               b.visible = true
             } 
           })
+        } else {
+          this.onFinish({}, {});
         }
       },
       immediate: true
