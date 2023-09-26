@@ -1,13 +1,13 @@
 <template>
   <ion-page>
-    <report-template :title="title" :rows="rows" :fields="fields" :columns="columns" :period="period" :canExportPDf="false" :canExportCsv="false"
+    <report-template :title="title" :rows="rows" :fields="fields" :columns="columns" :period="period" canExportPDf canExportCsv encryptPDF
       :onReportConfiguration="init"></report-template>
   </ion-page>
 </template>
 
 <script lang='ts'>
 import { defineComponent } from 'vue'
-import ReportTemplate from "@/views/reports/BaseTableReport.vue"
+import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 import ReportMixin from '@/apps/ART/views/reports/ReportMixin.vue'
 import { IonPage } from "@ionic/vue";
@@ -22,13 +22,13 @@ export default defineComponent({
     reportService: {} as any,
     columns: [
       [
-        table.thTxt(''),
-        table.thTxt('First Name'), 
-        table.thTxt('Last Name'),
+        table.thTxt('Identifier'),
+        table.thTxt('First Name', { csvExportable: false, pdfExportable: true }), 
+        table.thTxt('Last Name', { csvExportable: false, pdfExportable: true }),
         table.thTxt('Birthdate'),
-        table.thTxt('Booked'),
+        table.thTxt('Booked date'),
         table.thTxt('Seen'),
-        table.thTxt('Action')
+        table.thTxt('Action', { csvExportable: false, pdfExportable: true  })
       ]
     ] as ColumnInterface[][],
   }),
@@ -50,7 +50,7 @@ export default defineComponent({
         table.td(d['given_name']),
         table.td(d['family_name']),
         table.tdDate(d['dob']),
-        table.td(d['gender']),
+        table.td(d['booked_date']),
         table.td(d['seen']),
         table.tdBtn('View', () => this.$router.push(`/patient/dashboard/${d['person_id']}`))
       ]))
