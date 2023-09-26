@@ -74,3 +74,9 @@ export function formatGender(gender: string) {
     }
     return gender
 }
+
+export function removeNonDateCharacters(dates: string) {
+    const datePattern = /(\d{2}\/[A-Za-z]{3}\/\d{4})/g;  // DD/MMM/YYYY
+    const dateMatches = dates.match(datePattern);  
+    return dateMatches ? dateMatches.join(' ') : '';
+}
