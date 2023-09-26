@@ -9,6 +9,7 @@
             :rowsPerPage="20"
             :onConfigure="configure"
             :onRefresh="() => generate()"
+            reportPrefix="PEPFAR"
         />
     </ion-page>
 </template>

@@ -9,6 +9,7 @@
             :rowsPerPage="20"
             :onConfigure="configure"
             :onRefresh="() => generate()"
+            report-prefix="Clinic"
         />
     </ion-page>
 </template>

@@ -11,6 +11,7 @@
                 showIndex: false
             }"
             :encryptPDF="true"
+            reportPrefix="Clinic"
             :onReportConfiguration="onPeriod"> 
         </report-template>
     </ion-page>

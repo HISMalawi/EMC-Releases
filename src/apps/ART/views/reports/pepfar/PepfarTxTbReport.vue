@@ -9,7 +9,7 @@
             :config="{
                 showIndex: true
             }"
-            reportPrefix="Pepfar"
+            reportPrefix="PEPFAR"
             :hasServerSideCaching="true"
             :onReportConfiguration="onPeriod">
         </report-template>
