@@ -59,7 +59,7 @@ import {
   TableColumnInterface 
 } from '@uniquedj95/vtable'
 import { toastWarning } from "@/utils/Alerts";
-import { isEmpty, replace } from "lodash";
+import { isEmpty } from "lodash";
 import { exportToCSV, sanitize } from "../../utils/exports";
 import DateRangePicker, { DateRange } from "@/apps/EMC/Components/inputs/DateRangePicker.vue";
 import DatePicker from "@/apps/EMC/Components/inputs/DatePicker.vue";
