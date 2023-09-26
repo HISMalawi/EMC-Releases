@@ -22,7 +22,7 @@ import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews
 import { useRouter } from 'vue-router';
 import { DateSelection } from '@/utils/ReportDateSelectionPrompt';
 import { toastDanger, toastWarning } from '@/utils/Alerts';
-import { toDate } from "@/utils/Strs";
+import { formatGender, toDate } from "@/utils/Strs";
 
 export default defineComponent({
     components: { 
@@ -54,7 +54,8 @@ export default defineComponent({
                 },
                 {
                     label: "Gender",
-                    ref: 'gender'
+                    ref: 'gender',
+                    value: (data) => formatGender(data.gender)
                 },
                 {
                     label: "DOB",
