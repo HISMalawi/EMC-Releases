@@ -138,16 +138,7 @@ export default defineComponent({
                         casing: 'uppercase',
                         customKeyboard: [CHARACTERS_AND_NUMBERS_LO, [['Delete']]],
                     }
-                },
-                {
-                    id: 'patient_pregnant',
-                    helpText: 'Patient pregnant',
-                    type: FieldType.TT_SELECT,
-                    validation: (value: any) => Validation.required(value),
-                    computedValue: ({value}: Option) => ({obs: this.registrationService.buildValueCoded('PATIENT PREGNANT', value)}),
-                    condition: () => this.patient.isChildBearing(),
-                    options: () => this.yesNoUnknownOptions(),
-                },
+                }
             ]
         }
     }

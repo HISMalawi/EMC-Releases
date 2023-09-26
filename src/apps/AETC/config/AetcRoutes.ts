@@ -50,5 +50,10 @@ export default [
         name: 'aetc_dhis2_report',
         path: '/aetc/reports/clinic/dhis2',
         component: () => import('@/apps/AETC/views/reports/clinic/DHIS2.vue')
-    }
+    },
+    {
+        name: "AETC social history",
+        path: "/aetc/encounters/social/:patient_id",
+        component: () => import('@/apps/AETC/views/encounters/SocialHistory.vue')
+      },
 ]
