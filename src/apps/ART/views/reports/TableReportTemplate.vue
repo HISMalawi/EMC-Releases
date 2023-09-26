@@ -230,13 +230,15 @@ export default defineComponent({
     fields: {
       handler(fields: Array<any>) {
         if (!isEmpty(fields)) {
+          this.canShowReport = false;
           this.btns.forEach(b => {
             if (b.name === 'Back') {
               b.visible = true
             } 
           })
         } else {
-          this.onFinish({}, {});
+          this.canShowReport = true;
+          this.refreshTimeStamp();
         }
       },
       immediate: true
