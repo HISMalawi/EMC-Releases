@@ -132,6 +132,7 @@ import { toCsv, toTablePDF } from "@/utils/Export"
 import { Service } from "@/services/service";
 import { useRouter } from "vue-router";
 import dayjs from "dayjs";
+import { removeNonDateCharacters, removeTags } from "@/utils/Strs";
 
 export default defineComponent({
     components: {
@@ -182,6 +183,10 @@ export default defineComponent({
         },
         csvQuarter: {
             type: String
+        },
+        reportPrefix: {
+            type: String,
+            default: ""
         }
     },
     setup(props) {
@@ -332,7 +337,8 @@ export default defineComponent({
                 return [...allRows, row]
             }, [])
 
-            const filename = `${Service.getLocationName()||'Unknown site'}-${props.title}-${props.subtitle}-${Service.getSessionDate()}`
+            const filename = `${props.reportPrefix} ${Service.getLocationName() ?? ""} ${removeTags(props.title).replace(props.reportPrefix, "")} ${removeNonDateCharacters(props.csvQuarter ?? props.subtitle ?? "")}`
+
             return {
                 headers,
                 rows,
