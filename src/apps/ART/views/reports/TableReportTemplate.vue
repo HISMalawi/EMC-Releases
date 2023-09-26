@@ -137,7 +137,7 @@ export default defineComponent({
     },
     reportPrefix: {
       type: String,
-      default: 'HIS-Core'
+      default: ''
     },
     reportLogo: {
       type: String,
