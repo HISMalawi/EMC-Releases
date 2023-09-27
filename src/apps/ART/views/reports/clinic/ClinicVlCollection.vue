@@ -15,7 +15,7 @@
 
 <script lang='ts'>
 import { IonPage, IonLoading } from "@ionic/vue"
-import { defineComponent, onMounted, ref } from 'vue'
+import { computed, defineComponent, onMounted, ref } from 'vue'
 import  v2Datatable from "@/components/DataViews/tables/v2PocDatatable/TableView.vue"
 import { ViralLoadReportService } from "@/apps/ART/services/reports/viral_load_report";
 import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
@@ -23,6 +23,7 @@ import { useRouter } from 'vue-router';
 import { DateSelection } from '@/utils/ReportDateSelectionPrompt';
 import { toastDanger, toastWarning } from '@/utils/Alerts';
 import { toDate } from "@/utils/Strs";
+import ApiStore from "@/composables/ApiStore";
 
 export default defineComponent({
     components: { 
@@ -36,45 +37,44 @@ export default defineComponent({
         const period = ref('')
         const isLoading = ref(false)
         const report = new ViralLoadReportService()
-        const columns: Array<v2ColumnInterface[]> = [
-            [
-                {
-                    label: "ARV#",
-                    ref: 'identifier',
-                },
-                {
-                    label: "First name",
-                    ref: 'given_name',
-                    exportable: false
-                },
-                {
-                    label: "Last name",
-                    ref: 'family_name',
-                    exportable: false
-                },
-                {
-                    label: "Gender",
-                    ref: 'gender'
-                },
-                {
-                    label: "DOB",
-                    ref: 'birthdate',
-                    value: (data) => toDate(data.birthdate)
-                },
-                {
-                    label: "Date of VL Order",
-                    ref: 'order_date',
-                    value: (data) => toDate(data.order_date)
-                },
-                {
-                    label: 'Action',
-                    ref: 'patient_id',
-                    exportable: false,
-                    tdClick: ({data}: v2ColumnDataInterface) => router.push({ path: `/patient/dashboard/${data.patient_id}`}) ,
-                    value: () => 'View client'
-                }
-            ]
-        ]
+        const filingNumberEnabled = ref(false);
+        const columns = computed<Array<Array<v2ColumnInterface>>>(() => [[
+            {
+                label: filingNumberEnabled.value ? "Filing#" : "ARV#",
+                ref: 'identifier',
+            },
+            {
+                label: "First name",
+                ref: 'given_name',
+                exportable: false
+            },
+            {
+                label: "Last name",
+                ref: 'family_name',
+                exportable: false
+            },
+            {
+                label: "Gender",
+                ref: 'gender'
+            },
+            {
+                label: "DOB",
+                ref: 'birthdate',
+                value: (data) => toDate(data.birthdate)
+            },
+            {
+                label: "Date of VL Order",
+                ref: 'order_date',
+                value: (data) => toDate(data.order_date)
+            },
+            {
+                label: 'Action',
+                ref: 'patient_id',
+                exportable: false,
+                tdClick: ({data}: v2ColumnDataInterface) => router.push({ path: `/patient/dashboard/${data.patient_id}`}) ,
+                value: () => 'View client'
+            }
+        ]])
         
         /**
          * Generates report by start date and end date
@@ -108,7 +108,12 @@ export default defineComponent({
         /**
          * Initialization code when the report is empty!
         */
-        onMounted(() => !reportData.value.length && configure())
+        onMounted(() => {
+            ApiStore.get("IS_ART_FILING_NUMBER_ENABLED")
+                    .then(isEnabled => filingNumberEnabled.value = isEnabled)
+                    
+            !reportData.value.length && configure()
+        })
 
         return {
             reportData,
