@@ -2,35 +2,35 @@ import { TaskInterface } from "@/apps/interfaces/TaskInterface";
 
 export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
-    id: 'patient registration',
-    name: 'Patient registration',
+    id: 'AETC patient registration',
+    name: 'AETC Patient registration',
     icon: 'attributes.png'
   },
   {
-    id: 'vitals',
-    name: 'Vitals',
+    id: 'AETC vitals',
+    name: 'AETC vitals',
     icon: 'vitals.png'
   },
   {
-    id: 'presenting complaints',
-    name: 'Presenting complaints',
+    id: 'AETC presenting complaints',
+    name: 'AETC presenting complaints',
     icon: 'complaints.png'
   },
   {
-    id: 'hiv status',
-    name: 'HIV STatus',
+    id: 'AETC hiv status',
+    name: 'AETC hiv status',
     icon: 'aids.png',
     encounterTypeName: 'update hiv status',
     availableOnActivitySelection: false
   },
   {
-    id: 'outpatient diagnosis',
-    name: 'Outpatient diagnosis',
+    id: 'AETC outpatient diagnosis',
+    name: 'AETC outpatient diagnosis',
     icon: 'diagnosis.png'
   },
   {
-    id: 'outcome status',
-    name: 'Outcome status',
+    id: 'AETC outcome status',
+    name: 'AETC outcome status',
     icon: 'outcomes.png',
     availableOnActivitySelection: false
   },
@@ -53,20 +53,19 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     },
   },
   {
-    id: 'OPD social history',
-    name: 'OPD social history',
-    icon: 'medical-report.png',
-    availableOnActivitySelection: false
+    id: 'AETC social history',
+    name: 'AETC social history',
+    icon: 'medical-report.png'
   },
   {
-    id: 'prescription',
-    name: 'Prescription',
+    id: 'AETC prescription',
+    name: 'AETC prescription',
     encounterTypeName: 'Treatment',
     icon: 'drugs-given.png'
   },
   {
-    id: 'dispensation',
-    name: 'Dispensation',
+    id: 'AETC dispensation',
+    name: 'AETC dispensation',
     workflowID:"Dispensing",
     icon: 'dispensing.png',
     availableOnActivitySelection: false
@@ -75,8 +74,8 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
 
 export const SECONDARY_ACTIVITIES: TaskInterface[] = [
   {
-    id: 'radiology examination',
-    name: 'radiology examination',
+    id: 'AETC radiology examination',
+    name: 'AETC radiology examination',
     icon: 'radiology_types.png'
   },
 ]

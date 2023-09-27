@@ -14,7 +14,7 @@ import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import EncounterMixinVue from '@/views/EncounterMixin.vue';
 import { PatientComplaintsService } from "@/apps/AETC/services/patient_complaints_service";
 import LabOrderModal from "@/components/DataViews/LabOrderModal.vue"
-import radiology from "@/apps/OPD/views/encounters/modals/radiology.vue"
+import radiology from "@/apps/AETC/views/encounters/modals/radiology.vue"
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';

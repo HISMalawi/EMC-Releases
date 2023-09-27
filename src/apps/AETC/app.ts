@@ -1,6 +1,6 @@
 import { AppInterface, GeneralDataInterface } from '@/apps/interfaces/AppInterface';
 import HomeOverview from "@/apps/AETC/components/HomeOverview.vue";
-import { PRIMARY_ACTIVITIES, SECONDARY_ACTIVITIES } from '@/apps/OPD/config/programActivities';
+import { PRIMARY_ACTIVITIES, SECONDARY_ACTIVITIES } from '@/apps/AETC/config/programActivities';
 import { REPORTS } from '@/apps/AETC/config/programReports';
 import aetcRoutes from '@/apps/AETC/config/AetcRoutes';
 import { PatientProgramService } from '@/services/patient_program_service';

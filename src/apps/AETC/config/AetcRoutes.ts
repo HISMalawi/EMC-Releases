@@ -2,14 +2,59 @@ import { AETC_GLOBAL_PROP } from "../aetc_global_props"
 
 export default [
     {
-        name: "patient registration",
+        name: "AETC patient registration",
         path: "/aetc/encounters/registration/:patient_id",
         component: () => import('@/apps/AETC/views/encounters/Registration.vue')
     },
     {
-        name: "vitals",
-        path: "/opd/encounters/vitals/:patient_id",
+        name: "AETC hiv status",
+        path: "/aetc/encounters/hiv-status/:patient_id",
+        component: () => import('@/apps/AETC/views/encounters/HIVStatus.vue')
+    },
+    {
+        name: "AETC vitals",
+        path: "/aetc/encounters/vitals/:patient_id",
         component: () => import('@/apps/ART/views/encounters/Vitals.vue')
+    },
+    {
+        name: "AETC outpatient diagnosis",
+        path: "/aetc/encounters/diagnosis/:patient_id",
+        component: () => import('@/apps/AETC/views/encounters/Diagnosis.vue')
+    },
+    {
+        name: "AETC outcome status",
+        path: "/aetc/encounters/outcome-status/:patient_id",
+        component: () => import('@/apps/AETC/views/encounters/OutcomeStatus.vue')
+    },
+    {
+        name: "AETC social history",
+        path: "/aetc/encounters/social/:patient_id",
+        component: () => import('@/apps/AETC/views/encounters/SocialHistory.vue')
+    },
+    {
+        name: "AETC presenting complaints",
+        path: "/aetc/encounters/complaints/:patient_id",
+        component: () => import('@/apps/AETC/views/encounters/Complaints.vue')
+    },
+    {
+        name: "AETC presenting complaints",
+        path: "/aetc/encounters/complaints/:patient_id",
+        component: () => import('@/apps/AETC/views/encounters/Complaints.vue')
+    },
+    {
+        name: "AETC prescription",
+        path: "/aetc/encounters/prescription/:patient_id",
+        component: () => import('@/apps/AETC/views/encounters/Prescription.vue')
+    },
+    {
+        name: "AETC dispensation",
+        path: "/aetc/encounters/dispensing/:patient_id",
+        component: () => import('@/apps/AETC/views/encounters/Dispensing.vue')
+    },
+    {
+        name: "AETC radiology examination",
+        path: "/aetc/encounters/radiology/:patient_id",
+        component: () => import('@/apps/AETC/views/encounters/radiology.vue')
     },
     {
         name: AETC_GLOBAL_PROP.SET_TOP_10_DIAGNOSIS,
@@ -56,9 +101,4 @@ export default [
         path: '/aetc/reports/clinic/dhis2',
         component: () => import('@/apps/AETC/views/reports/clinic/DHIS2.vue')
     },
-    {
-        name: "AETC social history",
-        path: "/aetc/encounters/social/:patient_id",
-        component: () => import('@/apps/AETC/views/encounters/SocialHistory.vue')
-      },
 ]
