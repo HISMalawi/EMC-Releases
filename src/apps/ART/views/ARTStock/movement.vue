@@ -194,16 +194,21 @@ export default defineComponent({
         },
       ];
     },
-    async getDrugs(checked: Option[], date: string) {
+    async getDrugs(checked: Option[], date: string): Promise<Array<Option>> {
       const drugs = await this.stockService.getItems();
       return  drugs.map((drug: any) => {
         const name = drug?.drug_name ?? drug?.drug_legacy_name ?? 'N/A';
         const expireAt = HisDate.toStandardHisDisplayFormat(drug.expiry_date);
         const isChecked = checked.filter(c => c.label === name).length >= 1 
         return {
-          label: `${name} - Product Code: ${drug.product_code} - Expiry date: ${expireAt} - Batch: ${drug.batch_number} - Pack Size: ${drug.pack_size}`,
+          label: name,
           value: drug.drug_id,
           isChecked,
+          description: {
+            color: "primary",
+            show: "always",
+            text: `Product Code: ${drug.product_code} - Batch Number: ${drug.batch_number} - Pack Size: ${drug.pack_size} - Expiry date: ${expireAt}`
+          },
           other: {
             ...drug,
             tins: null,
