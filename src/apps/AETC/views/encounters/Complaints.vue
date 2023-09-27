@@ -22,7 +22,7 @@ import { modalController, IonPage } from '@ionic/vue';
 import { ObservationService } from "@/services/observation_service"
 import { EncounterService } from '@/services/encounter_service'
 import HisDate from "@/utils/Date"
-import OPD_GLOBAL_PROP from "@/apps/OPD/opd_global_props";
+import AETC_GLOBAL_PROP from "@/apps/AETC/aetc_global_props";
 
 export default defineComponent({
   components: { HisStandardForm, IonPage },
@@ -40,7 +40,7 @@ export default defineComponent({
       async handler(isReady: boolean) {
         if(isReady){
           this.complaintsService = new PatientComplaintsService(this.patientID, this.providerID)
-          this.isPacsEnabled = (await OPD_GLOBAL_PROP.isPACsEnabled())
+          this.isPacsEnabled = (await AETC_GLOBAL_PROP.isPACsEnabled())
           this.hasTriageComplaints = await this.getTriagePresentingComplaints()
           this.fields = this.getFields()
         }

@@ -17,7 +17,8 @@ export enum AETC_GLOBAL_PROP {
     SHOW_TASKS_BUTTON_ON_PATIENT_DASHBOARD = 'aetc.show_tasks_button_on_patient_dashboard',
     SHOW_COLUMN_PRESCRIPTION_INTERFACE = 'aetc.show_column_prescription_interface',
     SET_TOP_10_DIAGNOSIS = 'aetc.set_top_10_diagnosis',
-    SET_TOP_10_DRUGS = 'aetc.set_top_10_drugs'
+    SET_TOP_10_DRUGS = 'aetc.set_top_10_drugs',
+    PACS_ENABLED = 'enable_pacs'
 }
 
 function malariaFeatureEnabled(){
@@ -71,6 +72,13 @@ function topTenDiagnosis() {
 function topTenDrugs() {
     return GlobalPropertyService.get(AETC_GLOBAL_PROP.SET_TOP_10_DRUGS)
 }
+function enablePACs(isTrue: boolean){
+    return GlobalPropertyService.set(OPD_GLOBAL_PROP.PACS_ENABLED, `${isTrue}`)
+}
+
+function isPACsEnabled(){
+    return GlobalPropertyService.isProp(`${OPD_GLOBAL_PROP.PACS_ENABLED}=true`)
+}
 
 export default {
     malariaFeatureEnabled,
@@ -89,5 +97,7 @@ export default {
     setTopTenDiagnosis,
     setTopTenDrugs,
     topTenDiagnosis,
-    topTenDrugs
+    topTenDrugs,
+    enablePACs,
+    isPACsEnabled
 }

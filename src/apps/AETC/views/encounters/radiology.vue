@@ -29,7 +29,7 @@ import { defineComponent } from 'vue'
 import EncounterMixinVue from '@/views/EncounterMixin.vue';
 import { PatientRadiologyService } from "@/apps/AETC/services/patient_radiology_service";
 import HisRadiologyPicker from '@/components/FormElements/HisRadiologyPicker.vue'
-import OPD_GLOBAL_PROP from "@/apps/OPD/opd_global_props";
+import AETC_GLOBAL_PROP from "@/apps/AETC/aetc_global_props";
 import { isEmpty } from "lodash";
 
 export default defineComponent({
@@ -54,7 +54,7 @@ export default defineComponent({
       async handler(isReady: boolean) {
         if(isReady){
           this.radiologyService = new PatientRadiologyService(this.patientID, this.providerID)
-          this.isPacsEnabled = (await OPD_GLOBAL_PROP.isPACsEnabled())
+          this.isPacsEnabled = (await AETC_GLOBAL_PROP.isPACsEnabled())
         }
       },
       immediate: true,
