@@ -94,7 +94,7 @@ export default defineComponent({
                     id: 'life_threatening_condition',
                     helpText: 'Life threatening condition',
                     type: FieldType.TT_SELECT,
-                    computedValue: (value: Option) => ({obs: this.registrationService.buildValueCoded('Life threatening condition', value)}),
+                    computedValue: (value: Option) => ({obs: this.registrationService.buildValueCoded('Life threatening condition', value.value)}),
                     validation: (val: any) => Validation.required(val),
                     options: () => this.mapToOption([
                                 'Airway',

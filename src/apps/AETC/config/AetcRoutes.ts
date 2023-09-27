@@ -3,8 +3,13 @@ import { AETC_GLOBAL_PROP } from "../aetc_global_props"
 export default [
     {
         name: "patient registration",
-        path: "/opd/encounters/registration/:patient_id",
+        path: "/aetc/encounters/registration/:patient_id",
         component: () => import('@/apps/AETC/views/encounters/Registration.vue')
+    },
+    {
+        name: "vitals",
+        path: "/opd/encounters/vitals/:patient_id",
+        component: () => import('@/apps/ART/views/encounters/Vitals.vue')
     },
     {
         name: AETC_GLOBAL_PROP.SET_TOP_10_DIAGNOSIS,
