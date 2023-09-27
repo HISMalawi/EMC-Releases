@@ -201,7 +201,7 @@ export default defineComponent({
         const expireAt = HisDate.toStandardHisDisplayFormat(drug.expiry_date);
         const isChecked = checked.filter(c => c.label === name).length >= 1 
         return {
-          label: `${name} (${drug.product_code}) Expiry date: ${expireAt} Batch (${drug.batch_number})`,
+          label: `${name} - Product Code: ${drug.product_code} - Expiry date: ${expireAt} - Batch: ${drug.batch_number} - Pack Size: ${drug.pack_size}`,
           value: drug.drug_id,
           isChecked,
           other: {
