@@ -50,8 +50,9 @@
                 <table width="100%">
                     <tbody>
                         <tr>
-                            <td style="font-style: italic;" align="center">
-                                No
+                            <td style="font-style: italic; display: flex; justify-content: space-around;">
+                                <b>Y</b>
+                                <b>N</b>
                             </td>
                         </tr>
                     </tbody>
