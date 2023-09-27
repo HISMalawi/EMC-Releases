@@ -73,11 +73,10 @@ function topTenDrugs() {
     return GlobalPropertyService.get(AETC_GLOBAL_PROP.SET_TOP_10_DRUGS)
 }
 function enablePACs(isTrue: boolean){
-    return GlobalPropertyService.set(OPD_GLOBAL_PROP.PACS_ENABLED, `${isTrue}`)
+    return GlobalPropertyService.set(AETC_GLOBAL_PROP.PACS_ENABLED, `${isTrue}`)
 }
-
 function isPACsEnabled(){
-    return GlobalPropertyService.isProp(`${OPD_GLOBAL_PROP.PACS_ENABLED}=true`)
+    return GlobalPropertyService.isProp(`${AETC_GLOBAL_PROP.PACS_ENABLED}=true`)
 }
 
 export default {
