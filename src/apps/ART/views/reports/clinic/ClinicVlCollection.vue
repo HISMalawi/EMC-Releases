@@ -9,6 +9,7 @@
             :rowsPerPage="20"
             :onConfigure="configure"
             :onRefresh="() => generate()"
+            report-prefix="Clinic"
         />
     </ion-page>
 </template>
@@ -22,7 +23,7 @@ import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews
 import { useRouter } from 'vue-router';
 import { DateSelection } from '@/utils/ReportDateSelectionPrompt';
 import { toastDanger, toastWarning } from '@/utils/Alerts';
-import { toDate } from "@/utils/Strs";
+import { formatGender, toDate } from "@/utils/Strs";
 import ApiStore from "@/composables/ApiStore";
 
 export default defineComponent({
@@ -55,7 +56,8 @@ export default defineComponent({
             },
             {
                 label: "Gender",
-                ref: 'gender'
+                ref: 'gender',
+                value: (data) => formatGender(data.gender)
             },
             {
                 label: "DOB",

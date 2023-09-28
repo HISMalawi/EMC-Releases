@@ -31,6 +31,7 @@ export default defineComponent({
         columns: [
             [
                 table.thTxt('Medication'),
+                table.thTxt('Pack Size'),
                 table.thTxt('Opening Stock (Tins/Pallets)'),
                 table.thTxt('Quantity Dispensed (Tins/Pallets)'),
                 table.thTxt('Stock on hand (Tins/Pallets)')
@@ -51,6 +52,7 @@ export default defineComponent({
             data.forEach((s: any) => {
                 this.rows.push([
                     table.td(s.drug_name),
+                    table.td(s.pack_size),
                     table.td(toNumString(s.opening_balance)),
                     table.td(toNumString(s.dispensed_quantity || 0)),
                     table.td(toNumString(s.closing_balance))

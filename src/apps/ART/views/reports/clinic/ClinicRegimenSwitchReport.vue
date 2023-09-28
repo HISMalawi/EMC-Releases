@@ -6,6 +6,7 @@
         :fields="fields"
         :columns="columns"
         :onReportConfiguration="onPeriod"
+        report-prefix="Clinic"
         > 
     </report-template>
 </template>

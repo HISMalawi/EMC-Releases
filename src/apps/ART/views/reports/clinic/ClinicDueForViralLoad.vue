@@ -9,8 +9,8 @@
             :showtitleOnly="true"
             :canExportPDf="true"
             :encryptPDF="true"
-            :customFileName="exportedReportTitle"
             :onReportConfiguration="onPeriod"
+            report-prefix="Clinic"
             > 
         </report-template>
     </ion-page>
@@ -32,7 +32,6 @@ export default defineComponent({
     components: { ReportTemplate, IonPage },
     data: () => ({
         title: 'Clinic Clients due for VL <small>(clients with appointments in specified period)</small>',
-        exportedReportTitle: '' as string,
         rows: [] as Array<any>,
         columns: [] as Array<any>
     }),
@@ -63,7 +62,6 @@ export default defineComponent({
             this.report.setOccupation(config.occupation)
             this.period = this.report.getDateIntervalPeriod()
             const data = await this.report.getClientsDueForVl()
-            this.exportedReportTitle = `${PatientReportService.getLocationName()} Clinic Clients due for VL (clients with appointments in specified period) ${this.period}`
             this.setRows(data)
         },
         async setRows(data: Array<any>) {
