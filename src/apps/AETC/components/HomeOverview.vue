@@ -14,14 +14,16 @@
   <ion-card class="custom-card">
     <ion-grid class="no-padding">
       <ion-row class="table-header">
-        <ion-col size="4" class="table-cell">Task Type</ion-col>
-        <ion-col size="4" class="table-cell">User Name</ion-col>
-        <ion-col size="4" class="table-cell">Today</ion-col>
+        <ion-col size="3" class="table-cell">Task Type</ion-col>
+        <ion-col size="3" class="table-cell">Me</ion-col>
+        <ion-col size="3" class="table-cell">Facility</ion-col>
+        <ion-col size="3" class="table-cell">Today</ion-col>
       </ion-row>
       <ion-row v-for="(row, index) in tableData" :key="index" :class="index % 2 === 0 ? 'even-row' : 'odd-row'">
-        <ion-col size="4" class="table-cell">{{ row[0] }}</ion-col>
-        <ion-col size="4" class="table-cell">{{ row[1] }}</ion-col>
-        <ion-col size="4" class="table-cell">{{ row[2] }}</ion-col>
+        <ion-col size="3" class="table-cell">{{ row[0] }}</ion-col>
+        <ion-col size="3" class="table-cell">{{ row[1] }}</ion-col>
+        <ion-col size="3" class="table-cell">{{ row[2] }}</ion-col>
+        <ion-col size="3" class="table-cell">{{ row[3] }}</ion-col>
       </ion-row>
     </ion-grid>
   </ion-card>
@@ -82,10 +84,10 @@ export default defineComponent({
       },
       series: [] as any,
       tableData: [
-        ["Outpatient reception", "0", "0"],
-        ["Vitals", "0", "0"],
-        ["Outpatient Diagnosis", "0", "0"],
-        ["Treatment", "0", "0"],
+        ["Outpatient reception", "0", "0", "0"],
+        ["Vitals", "0", "0", "0"],
+        ["Outpatient Diagnosis", "0", "0", "0"],
+        ["Treatment", "0", "0", "0"],
       ],
     };
   },
