@@ -1,7 +1,16 @@
 <template>
   <ion-page>
     <ion-loading :is-open="isLoading" message="Please wait..." />
-    <v2Datatable title="Clinic Discrepancy Report" :subtitle="period" :columns="columns" :columnData="reportData" :rowsPerPage="20" :onConfigure="configure" :onRefresh="() => generate()" />
+    <v2Datatable 
+      title="Clinic Discrepancy Report" 
+      report-prefix="Clinic"
+      :subtitle="period" 
+      :columns="columns" 
+      :columnData="reportData" 
+      :rowsPerPage="20" 
+      :onConfigure="configure" 
+      :onRefresh="generate" 
+    />
   </ion-page>
 </template>
 

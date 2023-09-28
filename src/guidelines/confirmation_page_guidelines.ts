@@ -371,7 +371,7 @@ export const CONFIRMATION_PAGE_GUIDELINES: Record<string, GuideLineInterface> = 
                 const action = await infoActionSheet(
                     'Purpose of visit',
                     `Patient type: ${patientType} | State: ${currentOutcome}`,
-                    'Please select purspose of the visit',
+                    'Please select purpose of the visit',
                     [
                         ...contextualBtn,
                         {

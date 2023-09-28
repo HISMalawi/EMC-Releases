@@ -24,7 +24,7 @@ import ANC_PROP from "@/apps/ANC/anc_global_props"
 import { alertConfirmation } from '@/utils/Alerts'
 import { find } from 'lodash'
 import { FLOAT_KEYPAD } from "@/components/Keyboard/KbLayouts"
-import { infoActionSheet } from '@/utils/ActionSheets'
+import dayjs from 'dayjs'
 
 export default defineComponent({
   components: { IonPage },
@@ -37,7 +37,8 @@ export default defineComponent({
     arvStartDate: '' as string,
     recencyEssayActivated: false as boolean,
     riskOfPreclampsia: null as boolean | null,
-    service: {} as any
+    service: {} as any,
+    previousHivDate: '' as string
   }),
   watch: {
     ready: {
@@ -132,6 +133,10 @@ export default defineComponent({
                 id: 'prev_hiv_test_date',
                 helpText: 'Previous HIV test',
                 required: true,
+                beforeNext: (date: string) => {
+                    this.previousHivDate = date
+                    return true
+                },
                 minDate: () => this.patient.getBirthdate(),
                 maxDate: () => this.service.getDate(),
                 estimation: {
@@ -181,17 +186,8 @@ export default defineComponent({
                     id: 'available_test_results',
                     helpText: 'Available Lab Tests',
                     type: FieldType.TT_MULTIPLE_SELECT,
-                    init: async (f: any) => {
+                    init: async () => {
                         await this.service.loadTimeSinceLastHivTest()
-                        hivTestIsMandatory = (this.service.lastHivTestInMonths <= -1 || this.service.lastHivTestInMonths >= 3)
-                        if (isEligibleForHivTest(f) && this.service.lastHivTestInMonths >= 3) {
-                            await infoActionSheet(
-                                "Re-test for HIV",
-                                "",
-                                `It's been ${this.service.lastHivTestInMonths} months since the last HIV test. Please arrange a new test`,
-                                [{ name: "Ok", slot: "start" }]
-                            );
-                        }
                         return true
                     },
                     validation: (v: Option) => Validation.required(v),
@@ -214,11 +210,30 @@ export default defineComponent({
                     },
                     options: async (f: any) => {
                         const options: Option[] = []
-                        if (isEligibleForHivTest(f)) options.push({
-                            ...this.toOption('HIV'),
-                            isChecked: hivTestIsMandatory,
-                            disabled: hivTestIsMandatory
-                        })
+                        if (isEligibleForHivTest(f)) {
+                            let monthsSinceLastTest = this.service.lastHivTestInMonths
+                            if (f.prev_hiv_test_result) {
+                                monthsSinceLastTest = dayjs(this.service.date).diff(this.previousHivDate, 'months')
+                                hivTestIsMandatory = (f.prev_hiv_test_result?.value != 'Positive' && monthsSinceLastTest >= 3)
+                            } else {
+                                // Last recorded HIV test in the EMR
+                                hivTestIsMandatory = (this.service.lastHivTestInMonths <= -1 || this.service.lastHivTestInMonths >= 3)
+                            }
+                            options.push({
+                                ...this.toOption('HIV'),
+                                isChecked: hivTestIsMandatory,
+                                description: {
+                                    color: "danger",
+                                    text: `${ 
+                                        monthsSinceLastTest <= -1
+                                        ? "Consider HIV test because status is not known"
+                                        : monthsSinceLastTest >= 3
+                                        ? `Consider HIV test (${monthsSinceLastTest} months since last visit)`
+                                        : ''
+                                    }`
+                                }
+                            })
+                        } 
                         options.push(this.toOption('HB'))
                         options.push(this.toOption('Syphilis'))
                         options.push(this.toOption('Malaria'))
@@ -242,11 +257,7 @@ export default defineComponent({
                             }
                         }
                         const finalOptions = [...options, urine]
-                        if (hivTestIsMandatory) return finalOptions
                         return [...finalOptions, this.toOption('None')]
-                    },
-                    config: {
-                        hiddenFooterBtns: ['Clear']
                     },
                     exitsForm: (f: any) => find(f.available_test_results, {label: 'None'}),
                 }   
@@ -278,7 +289,8 @@ export default defineComponent({
                     return this.mapStrToOptions([
                         'Negative',
                         'Positive',
-                        'Inconclusive'
+                        'Inconclusive',
+                        'Not done'
                     ])
                 }
             },

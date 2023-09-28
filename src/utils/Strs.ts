@@ -60,3 +60,23 @@ export function toNumString(num: number | string) {
 export function toSentenceCase (str: string) {
     return str.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase())
 }
+
+export function formatGender(gender: string) {
+    const upCaseGender = `${gender}`.toUpperCase()
+    if (upCaseGender === 'M' || upCaseGender === 'MALE') {
+        return 'Male'
+    }
+    if (upCaseGender === 'F' || upCaseGender === 'FEMALE') {
+        return 'Female'
+    }
+    if (/fbf|fnp|fp/i.test(gender)) {
+        return upCaseGender
+    }
+    return gender
+}
+
+export function removeNonDateCharacters(dates: string) {
+    const datePattern = /(\d{2}\/[A-Za-z]{3}\/\d{4})/g;  // DD/MMM/YYYY
+    const dateMatches = dates.match(datePattern);  
+    return dateMatches ? dateMatches.join(' ') : '';
+}

@@ -9,6 +9,7 @@
         :isLoading="isLoading"
         :encryptPDF="true"
         :onReportConfiguration="onPeriod"
+        report-prefix="Clinic"
         > 
     </report-template>
 </template>
@@ -34,7 +35,7 @@ export default defineComponent({
                 table.thTxt('ARV#'),
                 table.thTxt('First name', { csvExportable : false, pdfExportable: true }),
                 table.thTxt('Last name' , { csvExportable: false, pdfExportable: true }),
-                table.thTxt('birthdate')
+                table.thTxt('Birthdate')
             ]
         ]
     }),
