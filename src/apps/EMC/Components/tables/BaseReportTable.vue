@@ -60,9 +60,10 @@ import {
 } from '@uniquedj95/vtable'
 import { toastWarning } from "@/utils/Alerts";
 import { isEmpty } from "lodash";
-import { exportToCSV, sanitize } from "../../utils/exports";
+import { exportToCSV, exportToPDF, sanitize } from "../../utils/exports";
 import DateRangePicker, { DateRange } from "@/apps/EMC/Components/inputs/DateRangePicker.vue";
 import DatePicker from "@/apps/EMC/Components/inputs/DatePicker.vue";
+import { infoActionSheet } from "@/utils/ActionSheets";
 
 export default defineComponent({
   name: "BaseReportTable",
@@ -133,6 +134,10 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    useSecureExport: {
+      type: Boolean,
+      default: false,
+    },
     showRefreshButton: {
       type: Boolean,
       default: true,
@@ -177,28 +182,11 @@ export default defineComponent({
       ${ props.period ? props.period : props.date }
     `);
 
-
     const actionBtns = computed<ActionButtonInterface[]>(() => {
       const btns = [...props.actionButtons];
-
-      if(props.showRefreshButton){
-        btns.push({ label: "Refresh/Rebuild", color: 'success', action: () => emit("regenerate") });
-      }
-
-      if (props.canExportCsv) {
-        btns.push({
-          label: "CSV",
-          color: "primary",
-          action: async (_a, rows, filters, columns) => exportToCSV({
-            rows, 
-            filters,
-            columns, 
-            quarter: props.quarter?.label,
-            period: props.period,
-            filename: filename.value
-          })
-        })
-      }
+      if(props.showRefreshButton) btns.push(getRefreshBtn());
+      if (props.canExportCsv) btns.push(getCsvExportBtn(filename.value, props.quarter?.label, props.period));
+      if (props.canExportPDF) btns.push(getPdfExportBtn(filename.value, props.quarter?.label, props.period));
       return btns;
     })
 
@@ -262,6 +250,71 @@ export default defineComponent({
 
     const onDrilldown = (data: {column: TableColumnInterface; row: any}) => {
       emit("drilldown", data);
+    }
+
+    const getRefreshBtn = (): ActionButtonInterface => {
+      return { 
+        label: "Refresh/Rebuild", 
+        color: 'success', 
+        action: () => emit("regenerate") 
+      }
+    }
+
+    const getCsvExportBtn = (filename: string, quarter?: string, period?: string): ActionButtonInterface => {
+      return {
+        label: "CSV",
+        color: "primary",
+        action: async (_a, rows, filters, columns) => {
+          exportToCSV({
+            rows, 
+            filters,
+            columns, 
+            quarter,
+            period,
+            filename,
+          })
+        }
+      }
+    }
+
+    const getPdfExportBtn = (filename: string, quarter?: string, period?: string): ActionButtonInterface => {
+      return {
+        label: "PDF",
+        color: "primary",
+        action: async (_a, rows, filters, columns) => {
+          let safeMode = false;
+          if(props.useSecureExport) {
+            const option = await infoActionSheet(
+              'Security warning',
+              'PDF may contain private data that will require a password to unlock',
+              'To access private data choose Secure PDF over Regular PDF',
+              [
+                { 
+                  name: "Secure PDF",
+                  slot: "start",
+                  color: "success"
+                },
+                { 
+                  name: "Regular PDF",
+                  slot: "start",
+                  color: "success"
+                }
+              ],
+              'his-danger-color'
+            )
+            safeMode = option === "Secure PDF";
+          }
+          exportToPDF({
+            rows, 
+            filters,
+            columns, 
+            quarter,
+            period,
+            filename,
+            safeMode,           
+          })
+        }
+      }
     }
 
     return {

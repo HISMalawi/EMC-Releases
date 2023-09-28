@@ -7,6 +7,7 @@
     :rows="rows"
     :date="date"
     useDateFilter
+    useSecureExport
     :rowActionButtons="rowActionBtns"
     @custom-filter="getData"
   />

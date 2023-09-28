@@ -6,6 +6,7 @@
     :columns="columns"
     :rows="rows"
     :period="period"
+    useSecureExport
     useDateRangeFilter
     @custom-filter="getData"
   />
