@@ -14,7 +14,7 @@
     <ion-content>
       <div id="report-content">
         <idsr-h :key="componentKey" :reportName="reportName" :rangeLabel="rangeLabel" :range="range" ref="header" :periodLabel="periodLabel" :periodDates="periodDates" :clinicName="clinicName" :totalOPDVisits="TotalOPDVisits" ></idsr-h>
-        <weekly :key="componentKey" :onDrillDown="onDrillDown" :params="idsr" :epiweek="range" ref="rep"> </weekly>
+        <weekly :key="componentKey" :onDrillDown="onDrillDown" :params="idsr" :periodDates="periodDates" :epiweek="range" ref="rep"> </weekly>
       </div>
     </ion-content>
     <his-footer :btns="btns"></his-footer>
@@ -33,6 +33,7 @@ import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
 import IdsrH from "@/apps/OPD/views/reports/moh/MOHReportHeader.vue"
 import Weekly from "@/apps/OPD/views/reports/moh/IDSR/IDSRTableTemplate.vue"
 import HisDate from "@/utils/Date"
+import { Service } from "@/services/service"
 
 export default defineComponent({
   mixins: [ReportMixinVue],
@@ -50,6 +51,7 @@ export default defineComponent({
     periodDates: '' as string,
     reportName: 'WEEKLY DISEASE SURVEILLANCE REPORT',
     rangeLabel: 'Week Number',
+    reportTitle: '',
     range: '' as string,
     TotalOPDVisits: 0 as number,
     clinicName: IDSRReportService.getLocationName(),
@@ -75,6 +77,7 @@ export default defineComponent({
       this.report.setEndDate(HisDate.toStandardHisFormat(form.epiweek.other.end))
       this.periodDates = this.report.getReportPeriod()
       this.range = form.epiweek.label.split(" ")[0]
+      this.reportTitle = `MOH ${Service.getLocationName()} Weekly IDSR Report ${this.periodDates}`
       try {
         const idsr = await this.report.requestIDSRWeekly()
         const visits = await this.report.getAttendance()
@@ -99,7 +102,7 @@ export default defineComponent({
           visible: true,
           onClick: async () => {
             const rep = this.$refs.rep as any
-            rep.onDownload()
+            rep.onDownload(this.reportTitle)
           }
         },
         {
@@ -108,7 +111,7 @@ export default defineComponent({
           slot: "start",
           color: "primary",
           visible: true,
-          onClick: () => this.exportToCustomPDF('Print IDSR Weelky Report')
+          onClick: () => this.exportToCustomPDF(this.reportTitle)
         },
         {
           name: "Back",

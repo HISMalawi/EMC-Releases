@@ -6,6 +6,7 @@
       :fields="fields"
       :columns="columns"
       :period="period"
+      :reportType="'Clinic'"
       :customInfo="customInfo"
       :onReportConfiguration="init"
     ></report-template>

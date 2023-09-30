@@ -7,6 +7,7 @@
       :columns="columns"
       :itemsPerPage="12"
       :period="period"
+      :reportType="'Clinic'"
       :onReportConfiguration="init"
       paginated
     ></report-template>

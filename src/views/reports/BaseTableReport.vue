@@ -124,6 +124,10 @@ export default defineComponent({
       type: String,
       default: '',
     },
+    reportType: {
+      type: String,
+      default: '',
+    },
     encryptPDF: {
       type: Boolean,
       default: false
@@ -224,7 +228,7 @@ export default defineComponent({
   }),
   methods: {
     getFileName() {
-      return `${Service.getLocationName()} ${this.title} ${this.period}`
+      return `${this.reportType} ${Service.getLocationName()} ${this.title} ${this.period}`
     },
     pdfEncryptionData(): Record<"encryption", EncryptionOptions> {
       const password = Service.getUserName()
