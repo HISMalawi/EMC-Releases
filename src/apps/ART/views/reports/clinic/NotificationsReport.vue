@@ -8,7 +8,9 @@
             :on-finish="onFinish"
             :on-refresh="generate"
             :on-configure="configure"
-            :rowsPerPage="20" />
+            :rowsPerPage="20" 
+            report-prefix="Clinic"
+        />
     </ion-page>
 </template>
 <script lang="ts">

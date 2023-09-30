@@ -6,7 +6,7 @@
       :fields="fields"
       :columns="columns"
       :period="period"
-      :reportType="'Clinic'"
+      :reportPrefix="'Clinic'"
       :onReportConfiguration="init"
     ></report-template>
   </ion-page>

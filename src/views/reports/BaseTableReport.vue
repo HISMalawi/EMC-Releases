@@ -96,6 +96,7 @@ import Pagination from "@/components/Pagination.vue"
 import { toastDanger } from "@/utils/Alerts";
 import { EncryptionOptions } from "jspdf";
 import { infoActionSheet } from "@/utils/ActionSheets";
+import { removeTags } from "@/utils/Strs";
 
 export default defineComponent({
   components: { 
@@ -121,10 +122,6 @@ export default defineComponent({
       type: Function
     },
     period: {
-      type: String,
-      default: '',
-    },
-    reportType: {
       type: String,
       default: '',
     },
@@ -202,7 +199,12 @@ export default defineComponent({
     },
     customInfo: {
       type: Object as PropType<Option>
+    },
+    reportPrefix: {
+      type: String,
+      default: ""
     }
+
   },
   data: () => ({
     formData: {} as any,
@@ -228,7 +230,7 @@ export default defineComponent({
   }),
   methods: {
     getFileName() {
-      return `${this.reportType} ${Service.getLocationName()} ${this.title} ${this.period}`
+      return `${this.reportPrefix ?? ""} ${Service.getLocationName()} ${removeTags(this.title).replace(this.reportPrefix, "")} ${this.period ?? this.date}`
     },
     pdfEncryptionData(): Record<"encryption", EncryptionOptions> {
       const password = Service.getUserName()

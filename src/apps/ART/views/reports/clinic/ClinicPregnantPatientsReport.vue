@@ -9,6 +9,7 @@
         :isLoading="isLoading"
         :encryptPDF="true"
         :onReportConfiguration="onPeriod"
+        report-prefix="Clinic"
         > 
     </report-template>
 </template>

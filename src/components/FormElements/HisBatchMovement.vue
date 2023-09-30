@@ -10,7 +10,7 @@
               :color="index === selectedDrug ? 'secondary' : ''"
               @click="selectDrug(index)"
             >
-              {{ `${drug.other.drug_name ?? drug.other.drug_legacy_name}` }}
+              {{ drug.label }}
             </ion-item>
           </ion-list>
         </ion-col>
@@ -19,7 +19,7 @@
             <ion-row> 
               <ion-col size="12" class=" ion-margin-bottom"> 
                 <ion-item>
-                  <ion-label position="floating">Available Tins/Pallets:</ion-label>
+                  <ion-label position="floating">Available Tins/Pallets (pack size: {{ drugs[selectedDrug].other?.pack_size }}):</ion-label>
                   <ion-input readonly disabled :value="fmtNumber(drugs[selectedDrug].other?.quantity)" />
                 </ion-item>
               </ion-col>
@@ -154,7 +154,9 @@ export default defineComponent({
   computed: {
     fullSelectedDrugName(): string {
       try {
-        return this.drugs[this.selectedDrug].label
+        const [code, batch, , expire] = this.drugs[this.selectedDrug]?.description?.text.split("-") ?? "";
+        const name = this.drugs[this.selectedDrug].label;
+        return `${name} (${code}-${batch}-${expire})`
       } catch (e) {
         return 'N/A'
       }
