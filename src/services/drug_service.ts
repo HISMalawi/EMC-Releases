@@ -9,4 +9,8 @@ export class DrugService extends Service {
     static getDrugs(params={} as Record<string, string | number>) {
         return super.getJson('/drugs', params)
     }
+
+    static getOPDDrugs(params={} as Record<string, string | number>) {
+        return super.getJson('OPD_drugslist', params)
+    }
 }
