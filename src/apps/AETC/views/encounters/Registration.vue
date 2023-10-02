@@ -138,6 +138,18 @@ export default defineComponent({
                         casing: 'uppercase',
                         customKeyboard: [CHARACTERS_AND_NUMBERS_LO, [['Delete']]],
                     }
+                },
+                {
+                    id: 'triage',
+                    helpText: 'Select Triage Category',
+                    type: FieldType.TT_SELECT,
+                    computedValue: (value: Option) => ({obs: this.registrationService.buildValueCoded('Triage category', value.value)}),
+                    validation: (val: any) => Validation.required(val),
+                    options: () => this.mapToOption([
+                                'Emergency',
+                                'Priority',
+                                'Queue'
+                            ])
                 }
             ]
         }
