@@ -38,6 +38,7 @@ const endDate = ref('')
 const period = ref('')
 const isLoading = ref(false)
 const csvQuarter = ref('')
+const ageGroup = ref('')
 
 export default defineComponent({ 
     components: { 
@@ -51,6 +52,18 @@ export default defineComponent({
          * Generates report by start date and end date
          */
          const generate = async () => {
+            const report = new AETCReportService()
+            report.startDate = startDate.value
+            report.endDate = endDate.value
+            report.ageGroup = ageGroup.value
+
+            try {
+                const rawReport = (await report.getClinicReport())
+                console.log("Report Data Raw", rawReport)
+            }catch (e){
+                console.log(e)
+            }
+            
             return null
          }
 
@@ -87,12 +100,13 @@ export default defineComponent({
                 computedValue: (v: Option) => v.value
             },
             {
-                id: "multiple_select",
+                id: "age_group",
                 helpText: "Select Age Group(s)",
                 type: FieldType.TT_MULTIPLE_SELECT,
                 config: {
                     showKeyboard: false
                 },
+                computedValue: (v: Option[]) => v.map(d => d.value),
                 validation(value: any): null | Array<string> {
                     return !value ? ["Value is required"] : null;
                 },
@@ -139,9 +153,12 @@ export default defineComponent({
         (f: any, c: any) => {
             startDate.value = c.start_date
             endDate.value = c.end_date
+            //convert to passable string
+            ageGroup.value = `[${c.age_group.map((option: any) => `"${option}"`).join(', ')}]`;
             period.value = `Period (${toDate(startDate.value)} to ${toDate(endDate.value)})`
             modalController.dismiss()
-            csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`
+            csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`            
+
             generate()
         })
 

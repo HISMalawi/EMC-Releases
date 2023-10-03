@@ -15,17 +15,20 @@ export class AETCReportService extends Service {
     endDate: string;
     date: string;
     epiweek: string;
+    ageGroup: string;
+
     constructor() {
         super()
         this.endDate = ''
         this.startDate = ''
         this.epiweek = ''
+        this.ageGroup = ''
         this.date = Service.getSessionDate()
         this.programID = Service.getProgramID()
     }
 
-    getClinicReport(reportName: string) {
-        return this.getReport('clinic_aetc', {'report_name': reportName})
+    getClinicReport() {
+        return this.getReport(`programs/${this.programID}/reports/diagnosis_report`)
     }
 
     getMOHReport(reportName: string) {
@@ -44,6 +47,9 @@ export class AETCReportService extends Service {
         }
         if (this.epiweek) {
             payload['epiweek'] = this.epiweek
+        }
+        if (this.ageGroup) {
+            payload['age_group'] = this.ageGroup
         }
         return { ...payload, ...config }
     }
