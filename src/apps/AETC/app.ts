@@ -121,7 +121,7 @@ function confirmationSummary(patient: any, program: any) {
 }
 
 const AETC: AppInterface = {
-  programID: 14, //Designated Program ID (30) for AETC Concept ID 10690
+  programID: 30, //Designated Program ID (30) for AETC Concept ID 10690
   applicationName: 'AETC',
   applicationIcon: 'registration.png',
   applicationDescription: 'AETC module',

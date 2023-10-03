@@ -102,6 +102,7 @@ export default defineComponent({
     this.sessionDate = ProgramService.getSessionDate()
     this.getPatientSummary();
     this.getSyndromic();
+    this.getHomeDashboardStats();
   },
   methods: {
     getSyndromic: async function(){
@@ -113,6 +114,41 @@ export default defineComponent({
         this.buildGraphData(data.down,'syndromicGraph')
       }
     },
+    getHomeDashboardStats: async function(){
+      const response = await ApiClient.get(
+        `dashboard_stats?date=${this.sessionDate}&program_id=30`
+      );
+
+      if(response && response.status == 200) {
+        const data = await response.json();
+        const convertedArray = this.transformData(data);
+        //assign to table data
+        this.tableData = convertedArray
+      }
+    },
+
+    // Method to transform the initial data into the desired format
+    transformData(data: Array<any>): Array<Array<string>> {
+    return data.map(item => [
+      item.name,
+      item.me.toString(),
+      item.facility.toString(),
+      item.total.toString(),
+    ]);
+  },
+  transformArray(inputArray: Array<any>) {
+    //const transformedArray: Array<Array<string | number>> = [];
+    // Iterate over the original array and transform it into the desired format
+    const transformedArray = inputArray.map(item => [
+      item.name.replace(/_/g, ' '), // Replace underscores with spaces
+      item.me,
+      item.facility,
+      item.total
+    ]);
+
+    return transformedArray
+  },
+
     getPatientSummary: async function(){
       const response = await ApiClient.get(
         `dashboard_stats?date=${this.sessionDate}&program_id=14`
