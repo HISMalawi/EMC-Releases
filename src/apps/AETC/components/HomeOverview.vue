@@ -34,8 +34,6 @@ import { IonGrid, IonRow, IonCol, IonCard } from "@ionic/vue";
 import { defineComponent } from "vue";
 import ApiClient from "@/services/api_client";
 import dayjs from "dayjs";
-import ApexChart from "vue3-apexcharts";
-import PatientVisitsService from '@/apps/OPD/services/patient_visits_service';
 import OpdStatCard from '@/apps/AETC/components/OpdStatCard.vue';
 import { ProgramService } from "@/services/program_service"
 
@@ -83,12 +81,7 @@ export default defineComponent({
       }
       },
       series: [] as any,
-      tableData: [
-        ["Outpatient reception", "0", "0", "0"],
-        ["Vitals", "0", "0", "0"],
-        ["Outpatient Diagnosis", "0", "0", "0"],
-        ["Treatment", "0", "0", "0"],
-      ],
+      tableData: [] as any,
     };
   },
   components: {
@@ -100,20 +93,9 @@ export default defineComponent({
   },
   mounted() {
     this.sessionDate = ProgramService.getSessionDate()
-    this.getPatientSummary();
-    this.getSyndromic();
     this.getHomeDashboardStats();
   },
   methods: {
-    getSyndromic: async function(){
-      const response = await ApiClient.get(
-        `dashboard_stats_for_syndromic_statistics?date=${this.sessionDate}&program_id=14`
-      );
-      if(response && response.status == 200) {
-        const data = await response.json();
-        this.buildGraphData(data.down,'syndromicGraph')
-      }
-    },
     getHomeDashboardStats: async function(){
       const response = await ApiClient.get(
         `dashboard_stats?date=${this.sessionDate}&program_id=30`
@@ -127,79 +109,22 @@ export default defineComponent({
       }
     },
 
-    // Method to transform the initial data into the desired format
+    // Method to change data structure to desired format
     transformData(data: Array<any>): Array<Array<string>> {
-    return data.map(item => [
-      item.name,
-      item.me.toString(),
-      item.facility.toString(),
-      item.total.toString(),
-    ]);
-  },
-  transformArray(inputArray: Array<any>) {
-    //const transformedArray: Array<Array<string | number>> = [];
-    // Iterate over the original array and transform it into the desired format
-    const transformedArray = inputArray.map(item => [
-      item.name.replace(/_/g, ' '), // Replace underscores with spaces
-      item.me,
-      item.facility,
-      item.total
-    ]);
-
-    return transformedArray
-  },
-
-    getPatientSummary: async function(){
-      const response = await ApiClient.get(
-        `dashboard_stats?date=${this.sessionDate}&program_id=14`
-      );
-      if(response && response.status == 200) {
-        const data = await response.json();
-        this.patientSummaryStats =PatientVisitsService.getTodaysPatientVisits(data.top)
-        this.buildGraphData(data.down,'visitGraph')
-      }
+      return data.map(item => [
+        item.name,
+        item.me.toString(),
+        item.facility.toString(),
+        item.total.toString(),
+      ]);
     },
-    buildGraphData: async function(data: any,graphType: any){
-      for(const name in data){
-        const x = data[name]
-        const startDates = Object.keys(x).map(key => { return  dayjs(x[key].start_date).format("MMM/YYYY")});
-        const count = Object.keys(x).map(key => { return  x[key].count });
-        const obj = {
-          'name': name,
-          'data': count,
-        }
-        if(graphType == 'visitGraph'){
-          this.seriesVisits.push(obj)
-          this.optionsVisits = {
-            ...this.options,
-            ...{
-              xaxis: {
-                categories: [...startDates],
-              },
-            },
-          };
-        }
-        else
-        if(graphType == 'syndromicGraph'){
-          this.seriesSyndromic.push(obj)
-          this.optionsSyndromic = {
-            ...this.options,
-            ...{
-              xaxis: {
-                categories: [...startDates],
-              },
-            },
-          };
-        }
-      }
-    }
   },
 });
 </script>
 
 <style scoped>
 .table-cell {
-  font-size: 16px; /* Adjust the font size as desired */
+  font-size: 12px; /* Adjust the font size as desired */
   padding: 12px 16px; /* Adjust the padding as desired */
 }
 .no-padding {
