@@ -20,17 +20,13 @@ import { IonPage, IonLoading, modalController } from "@ionic/vue"
 import  v2Datatable from "@/apps/AETC/views/reports/clinic/TableView.vue"
 import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
 import { AETCReportService } from "@/apps/AETC/services/aetc_report_service"
-import { toastDanger, toastWarning } from '@/utils/Alerts';
+import { toastWarning } from '@/utils/Alerts';
 import DrillPatientIds from '../../../../../components/DrillPatientIds.vue';
 import { toDate } from '@/utils/Strs';
 import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import { Option } from '@/components/Forms/FieldInterface'
-import { isPlainObject } from "lodash";
 import Validation from "@/components/Forms/validations/StandardValidations"
-import { Service } from "@/services/service"
-import HisDate from "@/utils/Date"
-import dayjs from "dayjs";
 
 const reportData = ref<any>([])
 const startDate = ref('')
@@ -59,7 +55,8 @@ export default defineComponent({
 
             try {
                 const rawReport = (await report.getClinicReport())
-                console.log("Report Data Raw", rawReport)
+                reportData.value = rawReport;
+                //console.log("Report Data Raw", rawReport)
             }catch (e){
                 console.log(e)
             }
@@ -67,16 +64,36 @@ export default defineComponent({
             return null
          }
 
+         const drilldown = async (title: string, patientIdentifiers: number[]) => {
+            (await modalController.create({
+                component: DrillPatientIds,
+                backdropDismiss: false,
+                cssClass: 'large-modal',
+                componentProps: {
+                    title,
+                    subtitle: period,
+                    patientIdentifiers,
+                    onFinish: () => modalController.getTop().then(v => v && modalController.dismiss())
+                }
+            })).present()
+        }
+
          //table headers and data mapping
          const columns: Array<v2ColumnInterface[]> = [
             [
                 {
-                    label: "Diagnosis",
-                    ref: ""
+                    label: "Diagnosis:",
+                    ref: "data.diagnosis",
+                    value: (data: any) => data.diagnosis
                 },
                 {
                     label: "Total",
-                    ref: ""
+                    ref: "data.data.length",
+                    secondaryLabel: "Number of clients",
+                    value: (data: any) => data.data.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${data.diagnosis} ${column.secondaryLabel}`, data.data
+                    )
                 },
             ]
         ]

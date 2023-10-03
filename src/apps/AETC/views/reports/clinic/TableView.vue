@@ -43,7 +43,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    
+                    <tr v-for="(data, i) in sectionOne" :key="i">
+                        <td v-for="(info, k) in data.row || []" :key="k"
+                            @click="() => onClickTablecell(info)"
+                            :class="{
+                                'clickable-cell': info?.column?.tdClick
+                            }"
+                            >
+                            <b class="his-sm-text">
+                                {{ info.value }}
+                            </b>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -160,6 +171,8 @@ export default defineComponent({
             /**
              * Used to retrieve element of the array (1st time scfeened)
              */
+
+             console.log("In the TEMPLATE ", props.columnData)
             
             const temp: Array<any> = [] 
             props.columnData[0]?.forEach((record: any)=> {
