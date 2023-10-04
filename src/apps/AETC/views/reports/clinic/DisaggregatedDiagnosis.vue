@@ -51,7 +51,19 @@ export default defineComponent({
          * Generates report by start date and end date
          */
          const generate = async () => {
-            return null
+            const report = new AETCReportService()
+            report.startDate = startDate.value
+            report.endDate = endDate.value
+            try {
+                const rawReport = (await report.getClinicReport("DISAGGREGATED_DIAGNOSIS"))
+                reportData.value = rawReport;
+
+                let transformed = transformObject(reportData.value)
+
+                //console.log("HERE is the report", transformed)
+            }catch (e){
+                console.log(e)
+            }
          }
 
          //table headers and data mapping
@@ -148,8 +160,100 @@ export default defineComponent({
                     label: "F",
                     ref: ""
                 },
+            ],
+            [
+            {
+                    label: "Diagnosis",
+                    ref: "data.diagnosis",
+                    value: (data: any) => data.address
+                },
+                {
+                    label: "< 6 months M",
+                    ref: "data.< 6 months.M.length",
+                    secondaryLabel: "< 6 months Male diagnosed with",
+                    value: (data: any) => data.patient_ids.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${column.secondaryLabel} ${data.address} `, data.patient_ids
+                    )
+                },
+                {
+                    label: "<6 months F",
+                    ref: "data.<6 months.F.length",
+                    secondaryLabel: "<6 months Female diagnosed with",
+                    value: (data: any) => data.patient_ids.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${column.secondaryLabel} ${data.address} `, data.patient_ids
+                    )
+                },
             ]
         ]
+
+        const transformObject = (arr: { [key: string]: any }[]): { [key: string]: any }[] => {
+            
+            for(const item of arr){
+                const replaced = replaceSpacesWithUnderscores(item)
+                console.log("Here is the point >>>>>", replaced)
+
+            }
+            
+            
+            return arr.map((obj) => {
+                const transformedObj: { [key: string]: any } = {};
+
+
+                //console.log("Here is the point", obj)
+
+
+                for (const key in obj) {
+                if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+                    transformedObj[key] = transformObject([obj[key]]);
+                } else {
+                    let transformedKey = key.replace(/</g, 'less_than').replace(/>/g, 'greater_than');
+                    if (!/".*?"/.test(transformedKey)) {
+                    transformedKey = transformedKey.replace(/\s/g, '_');
+                    }
+                    transformedObj[transformedKey] = obj[key];
+                }
+                }
+
+                return transformedObj;
+            });
+        };
+
+
+        const replaceSpacesWithUnderscores = (obj: any) => {
+            const newObj: any = {};
+
+            for (const key in obj) {
+                if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                const newKey = key.replace(/ /g, '_');
+                const value = obj[key];
+
+                if (typeof value === 'object' && !Array.isArray(value)) {
+                    newObj[newKey] = replaceSpacesWithUnderscores(value);
+                } else {
+                    newObj[newKey] = value;
+                }
+                }
+            }
+
+            return newObj;
+        };
+
+
+        const drilldown = async (title: string, patientIdentifiers: number[]) => {
+            (await modalController.create({
+                component: DrillPatientIds,
+                backdropDismiss: false,
+                cssClass: 'large-modal',
+                componentProps: {
+                    title,
+                    subtitle: period,
+                    patientIdentifiers,
+                    onFinish: () => modalController.getTop().then(v => v && modalController.dismiss())
+                }
+            })).present()
+        }
 
         /**
          * Loads a dialogue to allow users to configure start and end date

@@ -59,7 +59,6 @@ export default defineComponent({
             try {
                 const rawReport = (await report.getClinicReport("diagnosis_specific_report"))
                 reportData.value = rawReport;
-                console.log("Report Data Raw", rawReport)
             }catch (e){
                 console.log(e)
             }
