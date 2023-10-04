@@ -49,7 +49,7 @@ export default defineComponent({
     ] as ColumnInterface[][],
     }
   },
-  props: ['params', 'epiweek', 'quarter','onDrillDown'],
+  props: ['params', 'periodDates', 'quarter','onDrillDown'],
   methods: {
    renderResults() {
      const report = new IDSRReportService()
@@ -59,20 +59,19 @@ export default defineComponent({
       this.rows = this.buildRows(Conditions)
      }
    },
-   onDownload() {
+   onDownload(reportTitle='') {
      const report = new IDSRReportService()
      let {CSVString} = report.getCSVString(this.conditions)
      CSVString += `
           Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}
           His-Core Version: ${Service.getCoreVersion()}
           API Version: ${Service.getApiVersion()}
-          Report Period: ${this.epiweek}
+          Report Period: ${this.periodDates}
           Site: ${Service.getLocationName()}
           Site UUID: ${Service.getSiteUUID()}`
           ;
       const csvData = new Blob([CSVString], { type: "text/csv;charset=utf-8;" });
       //IE11 & Edge
-      const reportTitle = `${Service.getLocationName()} Weekly IDSR report ${this.quarter}`;
       if (navigator.msSaveBlob) {
         navigator.msSaveBlob(csvData, 'exportFilename');
       } else {

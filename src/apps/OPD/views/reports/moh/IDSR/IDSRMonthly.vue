@@ -7,7 +7,7 @@
     <ion-content>
       <div id="report-content">
         <idsr-h :key="componentKey" :reportName="reportName" :rangeLabel="rangeLabel" :range="range" ref="header" :periodLabel="periodLabel" :periodDates="periodDates" :clinicName="clinicName" :totalOPDVisits="TotalOPDVisits"></idsr-h>
-        <monthly :key="componentKey" :onDrillDown="onDrillDown" :params="idsr" :month="range" ref="rep"> </monthly>
+        <monthly :key="componentKey" :onDrillDown="onDrillDown" :periodDates="periodDates" :params="idsr" :month="range" ref="rep"> </monthly>
       </div>
     </ion-content>
     <his-footer :btns="btns"></his-footer>
@@ -26,6 +26,7 @@ import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
 import IdsrH from "@/apps/OPD/views/reports/moh/MOHReportHeader.vue"
 import Monthly from "@/apps/OPD/views/reports/moh/IDSR/IDSRTableTemplate.vue"
 import HisDate from "@/utils/Date"
+import { Service } from "@/services/service"
 
 export default defineComponent({
   mixins: [ReportMixinVue],
@@ -40,6 +41,7 @@ export default defineComponent({
     fields: [] as Array<Field>,
     reportID: -1 as any,
     periodLabel: 'Month Dates',
+    reportTitle: '',
     periodDates: '' as string,
     reportName: 'MONTHLY DISEASE SURVEILLANCE REPORT',
     rangeLabel: 'Month',
@@ -66,6 +68,7 @@ export default defineComponent({
       this.report.setEndDate(HisDate.toStandardHisFormat(form.idsrmonth.other.end))
       this.periodDates = this.report.getReportPeriod()
       this.range = form.idsrmonth.label.split(" ")[0]
+      this.reportTitle = `MOH ${Service.getLocationName()} Monthly IDSR ${this.periodDates}`
       try {
         const idsr = await this.report.requestIDSRMonthly()
         const visits = await this.report.getAttendance()
@@ -90,7 +93,7 @@ export default defineComponent({
           visible: true,
           onClick: async () => {
             const rep = this.$refs.rep as any
-            rep.onDownload()
+            rep.onDownload(this.reportTitle)
           }
         },
         {
@@ -99,7 +102,7 @@ export default defineComponent({
           slot: "start",
           color: "primary",
           visible: true,
-          onClick: () => this.exportToCustomPDF('Print IDSR Monthly Report')
+          onClick: () => this.exportToCustomPDF(this.reportTitle)
         },
         {
           name: "Back",

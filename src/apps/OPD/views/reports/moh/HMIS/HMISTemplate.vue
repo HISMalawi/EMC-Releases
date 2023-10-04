@@ -44,7 +44,7 @@ export default defineComponent({
        this.rows = this.buildRows(Conditions)
      } 
    },
-   onDownload() {
+   onDownload(reportTitle ="") {
      const report = new HMISReportService()
      let {CSVString} = report.getCSVString(this.conditions)
      CSVString += `
@@ -58,7 +58,6 @@ export default defineComponent({
       // }
       const csvData = new Blob([CSVString], { type: "text/csv;charset=utf-8;" });
       //IE11 & Edge
-      const reportTitle = `${Service.getLocationName()} ${this.reportName} ${this.quarter}`;
       
       if (navigator.msSaveBlob) {
         navigator.msSaveBlob(csvData, 'exportFilename');
