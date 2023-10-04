@@ -82,17 +82,17 @@ export default defineComponent({
          const columns: Array<v2ColumnInterface[]> = [
             [
                 {
-                    label: "Diagnosis:",
+                    label: "Diagnosis",
                     ref: "data.diagnosis",
                     value: (data: any) => data.diagnosis
                 },
                 {
                     label: "Total",
                     ref: "data.data.length",
-                    secondaryLabel: "Number of clients",
+                    secondaryLabel: "Clients diagnosed with",
                     value: (data: any) => data.data.length,
                     tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${data.diagnosis} ${column.secondaryLabel}`, data.data
+                        `${column.secondaryLabel} ${data.diagnosis} `, data.data
                     )
                 },
             ]

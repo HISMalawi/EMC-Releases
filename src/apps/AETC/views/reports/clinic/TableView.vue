@@ -43,7 +43,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(data, i) in sectionOne" :key="i">
+                    <tr v-for="(data, i) in reportBody" :key="i">
                         <td v-for="(info, k) in data.row || []" :key="k"
                             @click="() => onClickTablecell(info)"
                             :class="{
@@ -167,16 +167,10 @@ export default defineComponent({
         const sortOrder = ref<'asc'|'desc'>('desc')
         const columnsMinusOne = computed(() => props.columns.slice(0, 2))
 
-        const sectionOne = computed(() => {
-            /**
-             * Used to retrieve element of the array (1st time scfeened)
-             */
-
-             console.log("In the TEMPLATE ", props.columnData)
-            
+        const reportBody = computed(() => {
             const temp: Array<any> = [] 
-            props.columnData[0]?.forEach((record: any)=> {
-                    const row = props.columns[1].map((column: v2ColumnInterface) => {
+            props.columnData?.forEach((record: any)=> {
+                    const row = props.columns[0].map((column: v2ColumnInterface) => {
                         let value = ''
                         try {
                             if (isEmpty(record)) {
@@ -516,7 +510,7 @@ export default defineComponent({
             document,
             calendar,
             sortOrder,
-            sectionOne,
+            reportBody,
             sectionTwo,
             sectionThree,
             sectionTotals,
