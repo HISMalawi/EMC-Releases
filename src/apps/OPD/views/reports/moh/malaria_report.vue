@@ -476,11 +476,12 @@
     },
     exportToCsv() {
       const headers = ['Indicator', 'Value']
-      const rows = Object.keys(this.malariaData).map(k => {
-        console.log(this.malariaData[k])
-      return k == 'total_OPD_attendance' ? [k, this.malariaData[k]['total_patient_more_5yrs'].length + 
-      this.malariaData[k]['total_patient_less_5yrs'].length] : [k, this.malariaData[k].length]
+      const rows = Object.entries(this.malariaData).map(([key, value]: any) => {
+        return key == 'total_OPD_attendance' 
+          ? [key, (value['total_patient_more_5yrs']?.length + value['total_patient_less_5yrs']?.length) || 0] 
+          : [key, value?.length || 0]
       })
+      
       toCsv([headers], [
         ...rows,
         ['',''],
