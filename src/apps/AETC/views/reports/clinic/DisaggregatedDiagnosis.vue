@@ -56,11 +56,8 @@ export default defineComponent({
             report.endDate = endDate.value
             try {
                 const rawReport = (await report.getClinicReport("DISAGGREGATED_DIAGNOSIS"))
-                reportData.value = rawReport;
-
-                let transformed = transformObject(reportData.value)
-
-                //console.log("HERE is the report", transformed)
+                reportData.value = transformObject(rawReport)
+                //console.log("HERE is the report", reportData.value)
             }catch (e){
                 console.log(e)
             }
@@ -189,57 +186,52 @@ export default defineComponent({
         ]
 
         const transformObject = (arr: { [key: string]: any }[]): { [key: string]: any }[] => {
-            
+            const formatedArray = []
             for(const item of arr){
-                const replaced = replaceSpacesWithUnderscores(item)
-                console.log("Here is the point >>>>>", replaced)
-
+                const replaced = replaceSpacesWithUnderscoresAndAddI(item)
+                formatedArray.push(replaced)
+                console.log("Here is the point >>>>><<<>>>>>>>>>>>", replaced.i6_months_to_ls_5)
             }
-            
-            
-            return arr.map((obj) => {
-                const transformedObj: { [key: string]: any } = {};
-
-
-                //console.log("Here is the point", obj)
-
-
-                for (const key in obj) {
-                if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
-                    transformedObj[key] = transformObject([obj[key]]);
-                } else {
-                    let transformedKey = key.replace(/</g, 'less_than').replace(/>/g, 'greater_than');
-                    if (!/".*?"/.test(transformedKey)) {
-                    transformedKey = transformedKey.replace(/\s/g, '_');
-                    }
-                    transformedObj[transformedKey] = obj[key];
-                }
-                }
-
-                return transformedObj;
-            });
+            return formatedArray
         };
 
 
-        const replaceSpacesWithUnderscores = (obj: any) => {
+        const replaceSpacesWithUnderscoresAndAddI = (obj: any) => {
             const newObj: any = {};
 
             for (const key in obj) {
                 if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                const newKey = key.replace(/ /g, '_');
-                const value = obj[key];
+                    let newKey = key.replace(/ /g, '_');
+                    const value = obj[key];
 
-                if (typeof value === 'object' && !Array.isArray(value)) {
-                    newObj[newKey] = replaceSpacesWithUnderscores(value);
-                } else {
-                    newObj[newKey] = value;
-                }
+                    // Check if the newKey starts with a number and if so, add 'i' at the beginning
+                    if (/^\d/.test(newKey)) {
+                        newKey = 'i' + newKey;
+                    }
+
+                    // Replace symbols within the newKey
+                    newKey = newKey.replace(/[<>&]/g, (match) => {
+                        switch (match) {
+                            case '<':
+                                return 'ls';
+                            case '>':
+                                return 'gt';
+                            case '&':
+                                return 'amp';
+                            // Add more cases for other symbols as needed
+                            default:
+                                return match;
+                        }
+                    });
+
+                    newObj[newKey] = typeof value === 'object' && !Array.isArray(value)
+                        ? replaceSpacesWithUnderscoresAndAddI(value)
+                        : value;
                 }
             }
 
             return newObj;
         };
-
 
         const drilldown = async (title: string, patientIdentifiers: number[]) => {
             (await modalController.create({
