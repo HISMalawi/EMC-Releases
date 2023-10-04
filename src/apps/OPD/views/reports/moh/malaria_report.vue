@@ -425,6 +425,7 @@
  import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
  import ReportMixinVue from "../ReportMixin.vue";
  import IdsrH from "@/apps/OPD/views/reports/moh/MOHReportHeader.vue"
+ import { toCsv } from "@/utils/Export"
  
  export default defineComponent({
    mixins: [ReportMixinVue],
@@ -452,6 +453,7 @@
        periodLabel: 'Month Dates',
        periodDates: '' as string,
        reportName: 'MALARIA HEALTH FACILITY MONTHLY REPORT',
+       reportTitle: '',
        rangeLabel: 'Month',
        range: '' as string,
        TotalOPDVisits: 0 as number,
@@ -472,31 +474,24 @@
        this.show = false
       }
     },
-    onDownload() {
-      const report = new IDSRReportService()
-      let {CSVString} = report.getCSVString(this.conditions)
-      CSVString += `
-           Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}
-           His-Core Version: ${Service.getCoreVersion()}
-           API Version: ${Service.getApiVersion()}
-           Report Period: ${this.epiweek}
-           Site: ${Service.getLocationName()}
-           Site UUID: ${Service.getSiteUUID()}`
-           ;
-       const csvData = new Blob([CSVString], { type: "text/csv;charset=utf-8;" });
-       //IE11 & Edge
-       const reportTitle = `${Service.getLocationName()} Weekly IDSR report ${this.quarter}`;
-       if (navigator.msSaveBlob) {
-         navigator.msSaveBlob(csvData, 'exportFilename');
-       } else {
-         //In FF link must be added to DOM to be clicked
-         const link = document.createElement("a");
-         link.href = window.URL.createObjectURL(csvData);
-         link.setAttribute("download", `${reportTitle}.csv`);
-         document.body.appendChild(link);
-         link.click();
-         document.body.removeChild(link);
-       }
+    exportToCsv() {
+      const headers = ['Indicator', 'Value']
+      const rows = Object.entries(this.malariaData).map(([key, value]: any) => {
+        return key == 'total_OPD_attendance' 
+          ? [key, (value['total_patient_more_5yrs']?.length + value['total_patient_less_5yrs']?.length) || 0] 
+          : [key, value?.length || 0]
+      })
+      
+      toCsv([headers], [
+        ...rows,
+        ['',''],
+        [`Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}`],
+        [`HIS-Core Version: ${Service.getCoreVersion()}`],
+        [`Report Period: ${this.period}`],
+        [`API Version: ${Service.getApiVersion()}`],
+        [`Site: ${Service.getLocationName()}`],
+        [`Site UUID: ${Service.getSiteUUID()}`]
+      ], this.reportTitle)
     },
     async onPeriod(form: any) {
      try {
@@ -509,6 +504,7 @@
        this.malariaData = await this.reportService.getMalariaReport()
        this.periodDates = this.reportService.getReportPeriod()
        this.range = form.idsrmonth.label.split(" ")[0]
+       this.reportTitle = `MOH ${Service.getLocationName()} Malaria report ${this.period}`
  
        if(this.malariaData.total_OPD_attendance.total_patient_less_5yrs)
          this.TotalOPDVisits = this.malariaData.total_OPD_attendance.total_patient_less_5yrs.length
@@ -530,10 +526,7 @@
            slot: "start",
            color: "primary",
            visible: true,
-           onClick: async () => {
-             const rep = this.$refs.rep as any
-             rep.onDownload()
-           }
+           onClick: () => this.exportToCsv()
          },
          {
            name: "PDF",
@@ -541,7 +534,7 @@
            slot: "start",
            color: "primary",
            visible: true,
-           onClick: () => this.exportToCustomPDF('Print Malaria Monthly Report')
+           onClick: () => this.exportToCustomPDF(this.reportTitle)
          },
          {
            name: "Back",
