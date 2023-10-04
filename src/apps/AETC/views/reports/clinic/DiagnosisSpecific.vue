@@ -19,20 +19,15 @@ import { defineComponent, ref, onMounted } from 'vue';
 import { IonPage, IonLoading, modalController } from "@ionic/vue"
 import  v2Datatable from "@/apps/AETC/views/reports/clinic/TableView.vue"
 import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
-import { AETCReportService } from "@/apps/AETC/services/aetc_report_service"
-import { toastDanger, toastWarning } from '@/utils/Alerts';
-import DrillPatientIds from '../../../../../components/DrillPatientIds.vue';
 import { toDate } from '@/utils/Strs';
 import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import { Option } from '@/components/Forms/FieldInterface'
-import { isPlainObject } from "lodash";
 import Validation from "@/components/Forms/validations/StandardValidations"
-import { Service } from "@/services/service"
-import HisDate from "@/utils/Date"
-import dayjs from "dayjs";
 import { PatientDiagnosisService } from "@/apps/OPD/services/patient_diagnosis_service"
-import { isEmpty } from "lodash"
+import { AETCReportService } from '@/apps/AETC/services/aetc_report_service';
+import DrillPatientIds from '../../../../../components/DrillPatientIds.vue';
+
 
 
 
@@ -42,6 +37,7 @@ const endDate = ref('')
 const period = ref('')
 const isLoading = ref(false)
 const csvQuarter = ref('')
+const multipleDiagnosis = ref('')
 
 export default defineComponent({ 
     components: { 
@@ -55,11 +51,36 @@ export default defineComponent({
          * Generates report by start date and end date
          */
          const generate = async () => {
-            return null
+            const report = new AETCReportService()
+            report.startDate = startDate.value
+            report.endDate = endDate.value
+            report.multipleDiagnosis = multipleDiagnosis.value
+
+            try {
+                const rawReport = (await report.getClinicReport("diagnosis_specific_report"))
+                reportData.value = rawReport;
+                console.log("Report Data Raw", rawReport)
+            }catch (e){
+                console.log(e)
+            }
          }
 
         const mapToOption = (listOptions: Array<string>): Array<Option> => {
             return listOptions.map((item: any) => ({ label: item.name, value: item.name })) 
+        }
+
+        const drilldown = async (title: string, patientIdentifiers: number[]) => {
+            (await modalController.create({
+                component: DrillPatientIds,
+                backdropDismiss: false,
+                cssClass: 'large-modal',
+                componentProps: {
+                    title,
+                    subtitle: period,
+                    patientIdentifiers,
+                    onFinish: () => modalController.getTop().then(v => v && modalController.dismiss())
+                }
+            })).present()
         }
 
         //table headers and data mapping
@@ -67,11 +88,17 @@ export default defineComponent({
             [
                 {
                     label: "Address",
-                    ref: ""
+                    ref: "data.address",
+                    value: (data: any) => data.address
                 },
                 {
                     label: "Total",
-                    ref: ""
+                    ref: "data.patient_ids.length",
+                    secondaryLabel: "Clients diagnosed with",
+                    value: (data: any) => data.patient_ids.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${column.secondaryLabel} ${data.address} `, data.patient_ids
+                    )
                 },
             ]
         ]
@@ -81,14 +108,14 @@ export default defineComponent({
          */
          const configure = () => MultiStepPopupForm([
             {
-                id: 'primary_diagnosis',
+                id: 'multiple_diagnosis',
                 helpText: 'Select diagnosis',
                 type: FieldType.TT_INFINITE_SCROLL_MULTIPLE_SELECT,
                 validation: (data: any) => Validation.required(data),
                 options: async (_:any, filter='', page=1, limit=10) => mapToOption(
                     await PatientDiagnosisService.getDiagnosis(filter, page, limit)
                 ),
-                computedValue: (v: Option[]) => v,
+                computedValue: (v: Option[]) => v.map(d => d.value),
                 config: {
                     isFilterDataViaApi: true,
                     showKeyboard: true,
@@ -112,6 +139,11 @@ export default defineComponent({
         (f: any, c: any) => {
             startDate.value = c.start_date
             endDate.value = c.end_date
+            //convert to passable string
+            multipleDiagnosis.value = `[${c.multiple_diagnosis.map((option: any) => `"${option}"`).join(', ')}]`;
+
+            console.log("Here we are", multipleDiagnosis.value)
+
             period.value = `Period (${toDate(startDate.value)} to ${toDate(endDate.value)})`
             modalController.dismiss()
             csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`

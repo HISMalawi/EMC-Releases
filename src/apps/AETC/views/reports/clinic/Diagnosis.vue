@@ -54,9 +54,8 @@ export default defineComponent({
             report.ageGroup = ageGroup.value
 
             try {
-                const rawReport = (await report.getClinicReport())
+                const rawReport = (await report.getClinicReport("diagnosis_report"))
                 reportData.value = rawReport;
-                //console.log("Report Data Raw", rawReport)
             }catch (e){
                 console.log(e)
             }
