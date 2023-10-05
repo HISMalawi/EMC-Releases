@@ -17,7 +17,7 @@
 <script lang='ts'>
 import { defineComponent, ref, onMounted } from 'vue';
 import { IonPage, IonLoading, modalController } from "@ionic/vue"
-import  v2Datatable from "@/apps/AETC/views/reports/clinic/TableView.vue"
+import  v2Datatable from "@/apps/AETC/views/reports/clinic/CustomTableView.vue"
 import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
 import { AETCReportService } from "@/apps/AETC/services/aetc_report_service"
 import { toastDanger, toastWarning } from '@/utils/Alerts';
@@ -57,7 +57,7 @@ export default defineComponent({
             try {
                 const rawReport = (await report.getClinicReport("DISAGGREGATED_DIAGNOSIS"))
                 reportData.value = transformObject(rawReport)
-                //console.log("HERE is the report", reportData.value)
+                console.log("HERE is the report", reportData.value)
             }catch (e){
                 console.log(e)
             }
@@ -159,28 +159,105 @@ export default defineComponent({
                 },
             ],
             [
-            {
+                {
                     label: "Diagnosis",
                     ref: "data.diagnosis",
-                    value: (data: any) => data.address
+                    value: (data: any) => data.diagnosis
                 },
                 {
                     label: "< 6 months M",
                     ref: "data.< 6 months.M.length",
                     secondaryLabel: "< 6 months Male diagnosed with",
-                    value: (data: any) => data.patient_ids.length,
+                    value: (data: any) => data.ls_6_months.M.length,
                     tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${column.secondaryLabel} ${data.address} `, data.patient_ids
+                        `${column.secondaryLabel} ${data.diagnosis} `, data.ls_6_months.M
                     )
                 },
                 {
                     label: "<6 months F",
-                    ref: "data.<6 months.F.length",
-                    secondaryLabel: "<6 months Female diagnosed with",
-                    value: (data: any) => data.patient_ids.length,
+                    ref: "data.ls_6_months.F.length",
+                    secondaryLabel: "< 6 months Female diagnosed with",
+                    value: (data: any) => data.ls_6_months.F.length,
                     tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${column.secondaryLabel} ${data.address} `, data.patient_ids
+                        `${column.secondaryLabel} ${data.diagnosis} `, data.ls_6_months.F
                     )
+                },
+                {
+                    label: "6 months to < 5",
+                    ref: "data.i6_months_to_ls_5.M.length",
+                    secondaryLabel: "6 months to < 5 Males with",
+                    value: (data: any) => data.i6_months_to_ls_5.M.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${column.secondaryLabel} ${data.diagnosis} `, data.i6_months_to_ls_5.M
+                    )
+                },
+                {
+                    label: "6 months to < 5",
+                    ref: "data.i6_months_to_ls_5.F.length",
+                    secondaryLabel: "6 months to < 5 Females with",
+                    value: (data: any) => data.i6_months_to_ls_5.F.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${column.secondaryLabel} ${data.diagnosis} `, data.i6_months_to_ls_5.F
+                    )
+                },
+                {
+                    label: "5 to 14",
+                    ref: "data.i5_to_14.M.length",
+                    secondaryLabel: "5 to 14 Males with",
+                    value: (data: any) => data.i5_to_14.M.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${column.secondaryLabel} ${data.diagnosis} `, data.i5_to_14.M
+                    )
+                },
+                {
+                    label: "5 to 14",
+                    ref: "data.i5_to_14.F.length",
+                    secondaryLabel: "5 to 14 Females with",
+                    value: (data: any) => data.i5_to_14.F.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${column.secondaryLabel} ${data.diagnosis} `, data.i5_to_14.F
+                    )
+                },
+                {
+                    label: ">14",
+                    ref: "data.gt_14.M.length",
+                    secondaryLabel: "Greater than 14 males with",
+                    value: (data: any) => data.gt_14.M.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${column.secondaryLabel} ${data.diagnosis} `, data.gt_14.M
+                    )
+                },
+                {
+                    label: ">14",
+                    ref: "data.gt_14.F.length",
+                    secondaryLabel: "Greater than 14 females with",
+                    value: (data: any) => data.gt_14.F.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${column.secondaryLabel} ${data.diagnosis} `, data.gt_14.F
+                    )
+                },
+                {
+                    label: "Total by gender",
+                    ref: "data.total_by_gender.M.length",
+                    secondaryLabel: "Total by gender males",
+                    value: (data: any) => data.total_by_gender.M.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${column.secondaryLabel} `, data.total_by_gender.M
+                    )
+                },
+                {
+                    label: "5 to 14",
+                    ref: "data.total_by_gender.F.length",
+                    secondaryLabel: "Total by gender females",
+                    value: (data: any) => data.total_by_gender.F.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${column.secondaryLabel} `, data.total_by_gender.F
+                    )
+                },
+                {
+                    label: "Total",
+                    ref: "Total",
+                    value: (data: any) => 0
                 },
             ]
         ]
@@ -190,7 +267,6 @@ export default defineComponent({
             for(const item of arr){
                 const replaced = replaceSpacesWithUnderscoresAndAddI(item)
                 formatedArray.push(replaced)
-                console.log("Here is the point >>>>><<<>>>>>>>>>>>", replaced.i6_months_to_ls_5)
             }
             return formatedArray
         };
