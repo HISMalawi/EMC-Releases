@@ -406,30 +406,35 @@ export default defineComponent({
         };
 
         // A method to replace objects with their values
-         const replaceObjectsWithValues=(obj: any [])=> {
-            
-            const newObj: any[] = []; // Create a new array to store modified elements
+        const replaceObjectsWithValues=(obj: any [])=> {
+            const newObj = []; // Create a new array to store modified elements
 
             for (const item of obj) {
-            const tempArray: any[] = [];
+                const tempArray = [];
 
-            for (let i = 0; i < item.length; i++) {
+                for (let i = 0; i < item.length; i++) {
                 if (typeof item[i] === 'object') {
-                tempArray.push(item[i].M);
-                tempArray.push(item[i].F);
+                    tempArray.push(item[i].M);
+                    tempArray.push(item[i].F);
                 } else {
-                tempArray.push(item[i]);
+                    tempArray.push(item[i]);
                 }
-            }
+                }
 
-            newObj.push(tempArray); // Push the modified element to the new array
+                // Calculate the sum of the last two digits
+                const lastDigitSum = tempArray.slice(-2).reduce((acc, val) => acc + (typeof val === 'number' ? val : 0), 0);
+
+                // Insert the sum as the last value in the array element/item
+                tempArray.push(lastDigitSum);
+
+                newObj.push(tempArray); // Push the modified element to the new array
             }
 
             // Replace the original 'obj' array with the new 'newObj' array
             obj.length = 0;
             obj.push(...newObj);
 
-            console.log("New array: ------>>>> ", obj);
+            return obj;
         }
 
 
@@ -445,7 +450,7 @@ export default defineComponent({
 
                 const newerArray = replaceObjectsWithValues(newModifiedArry)
 
-                //console.log("HERE IS THE CONSOLE ----->  ", newModifiedArry)
+                console.log("HERE IS THE CONSOLE ----->  ", newerArray)
 
                 // data.forEach((entry: (string | any[])[]) => {
                 //     if (Array.isArray(entry[5])) {
