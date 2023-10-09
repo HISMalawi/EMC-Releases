@@ -76,7 +76,7 @@ export default defineComponent({
             '>14 M',
             '>14 F',
             'Total by gender M',
-            'Total by gender M',
+            'Total by gender F',
             'Total'
         ];
 

@@ -417,6 +417,7 @@ export default defineComponent({
                     tempArray.push(item[i].M);
                     tempArray.push(item[i].F);
                 } else {
+                    if(i > 0)
                     tempArray.push(item[i]);
                 }
                 }
@@ -450,31 +451,10 @@ export default defineComponent({
 
                 const newerArray = replaceObjectsWithValues(newModifiedArry)
 
-                console.log("HERE IS THE CONSOLE ----->  ", newerArray)
-
-                // data.forEach((entry: (string | any[])[]) => {
-                //     if (Array.isArray(entry[5])) {
-                //     entry[5] = "" + entry[5].length;
-                //     }
-                // }
-
-                // const result = data.map((subList: any[]) => {
-                //     return subList
-                //         .map((obj: { [key: string]: any }) => {
-                //             return props.order.map(key => {
-                //                 const value = obj[key as unknown as keyof typeof obj];
-                             
-                //                 return value.length;
-                //             }).filter((value) => value !== undefined);
-                //         })
-                //         .filter((arr) => arr.length > 0);
-                // }).filter((subList) => subList.length > 0);
-
-                return [];
+                return newerArray;
             };
 
-            const convertedData = convertDataToIntegerArray(props.columnData)
-            const rows = convertedData.flat(); 
+            const rows = convertDataToIntegerArray(props.columnData)
             
             console.log("CSV ARRAY  ", rows)
             
