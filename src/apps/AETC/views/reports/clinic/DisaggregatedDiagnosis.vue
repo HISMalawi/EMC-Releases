@@ -9,6 +9,7 @@
             :rowsPerPage="25"
             :onConfigure="configure"
             :csvQuarter="csvQuarter"
+            :headers="csvheaders"
             :onRefresh="() => generate()"
         />
     </ion-page>
@@ -62,6 +63,22 @@ export default defineComponent({
                 console.log(e)
             }
          }
+
+         //csv headers
+        const csvheaders = [
+            'Diagnosis', 
+            '<6 Months> M', 
+            '<6 Months> F', 
+            '6 Months to < 5 M', 
+            '6 Months to < 5 F', 
+            '5 to 14 F',
+            '5 to 14 M',
+            '>14 M',
+            '>14 F',
+            'Total by gender M',
+            'Total by gender M',
+            'Total'
+        ];
 
          let tempTotalArray: number[] = []
 
@@ -385,6 +402,7 @@ export default defineComponent({
             reportData,
             period,
             csvQuarter,
+            csvheaders,
             generate,
             configure
          }

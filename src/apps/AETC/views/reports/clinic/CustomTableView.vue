@@ -102,6 +102,8 @@ import { toCsv, toPDFfromHTML } from "@/utils/Export"
 import { Service } from "@/services/service";
 import { useRouter } from "vue-router";
 import dayjs from "dayjs";
+import Vue from 'vue';
+
 
 export default defineComponent({
     components: {
@@ -145,7 +147,7 @@ export default defineComponent({
             type: String
         },
         headers: {
-            type: Array as PropType<Array<Array<any>>>,
+            type: Array as PropType<Array<any>>,
             default: () => []
         },
         order: {
@@ -372,72 +374,111 @@ export default defineComponent({
             `)
         }
 
+        const replaceArraysWithLengths = (obj: Record<string, any>) => {
+        for (const key in obj) {
+            if (Array.isArray(obj[key])) {
+            // Replace the array with its length as an integer
+            obj[key] = obj[key].length;
+            } else if (typeof obj[key] === 'object') {
+            // Recursively traverse nested objects
+            replaceArraysWithLengths(obj[key]);
+            }
+        }
+        };
+
+        const removeKeysAndConvertToInt = (data: any[]) => {
+            const result = [];
+
+            for (const diagnosis in data) {
+                if (Object.prototype.hasOwnProperty.call(data, diagnosis)) {
+                const rowData = [diagnosis];
+                const values = Object.values(data[diagnosis]);
+                
+                for (const value of values) {
+                    rowData.push(value as string);
+                }
+
+                result.push(rowData);
+                }
+            }
+
+            return result;
+        };
+
+        // A method to replace objects with their values
+         const replaceObjectsWithValues=(obj: any [])=> {
+            
+            const newObj: any[] = []; // Create a new array to store modified elements
+
+            for (const item of obj) {
+            const tempArray: any[] = [];
+
+            for (let i = 0; i < item.length; i++) {
+                if (typeof item[i] === 'object') {
+                tempArray.push(item[i].M);
+                tempArray.push(item[i].F);
+                } else {
+                tempArray.push(item[i]);
+                }
+            }
+
+            newObj.push(tempArray); // Push the modified element to the new array
+            }
+
+            // Replace the original 'obj' array with the new 'newObj' array
+            obj.length = 0;
+            obj.push(...newObj);
+
+            console.log("New array: ------>>>> ", obj);
+        }
+
+
         const toCSV = () => {
+            
             const convertDataToIntegerArray = (data: any[]) => {
-        
+                //const modifiedArray = [...data]; // Create a copy of the existing array
+                const modifiedArray = JSON.parse(JSON.stringify(data));
 
-                const result = data.map((subList: any[]) => {
-                    return subList
-                        .map((obj: { [key: string]: any }) => {
-                            return props.order.map(key => {
-                                const value = obj[key as unknown as keyof typeof obj];
-                                if (Array.isArray(value)) {
-                                    return value.length;
-                                }
-                                return value;
-                            }).filter((value) => value !== undefined);
-                        })
-                        .filter((arr) => arr.length > 0);
-                }).filter((subList) => subList.length > 0);
+                replaceArraysWithLengths(modifiedArray)
 
-                return result;
+                const newModifiedArry = removeKeysAndConvertToInt(modifiedArray)
+
+                const newerArray = replaceObjectsWithValues(newModifiedArry)
+
+                //console.log("HERE IS THE CONSOLE ----->  ", newModifiedArry)
+
+                // data.forEach((entry: (string | any[])[]) => {
+                //     if (Array.isArray(entry[5])) {
+                //     entry[5] = "" + entry[5].length;
+                //     }
+                // }
+
+                // const result = data.map((subList: any[]) => {
+                //     return subList
+                //         .map((obj: { [key: string]: any }) => {
+                //             return props.order.map(key => {
+                //                 const value = obj[key as unknown as keyof typeof obj];
+                             
+                //                 return value.length;
+                //             }).filter((value) => value !== undefined);
+                //         })
+                //         .filter((arr) => arr.length > 0);
+                // }).filter((subList) => subList.length > 0);
+
+                return [];
             };
-
-            const convertTotalToArray = (totals: any[]): any => {
-                return totals.map((totalObj) => {
-                    const [key] = Object.keys(totalObj);
-                    const value = totalObj[key];
-                    const count = Array.isArray(value) ? value.length : 0;
-                    const tuple = [key, count];
-                    for (let i = 0; i < 5; i++) {
-                    tuple.push("");
-                    }
-                    return tuple;
-                });
-            };
-
-
 
             const convertedData = convertDataToIntegerArray(props.columnData)
-            const convertedTotals = convertTotalToArray(props.columnData[3])
             const rows = convertedData.flat(); 
             
-            convertedTotals.forEach((tuple: any) => {
-                rows.push(tuple)
-            });
-
+            console.log("CSV ARRAY  ", rows)
+            
             const filename = `${Service.getLocationName()||'Unknown site'}-${props.title}-${props.subtitle}-${Service.getSessionDate()}`
-
-            const addSubHeaders = () => {
-                const modifiedArray = [...rows]; // Create a copy of the existing array
-
-                const subHeaderRows = [0, 9, 18, 27]; // Rows where subheaders should be inserted
-                const subHeadersLength = props.csvSubHeader.length;
-
-                subHeaderRows.forEach((rowIndex, index) => {
-                    const subHeaderRow = props.csvSubHeader[index % subHeadersLength];
-
-                    // Insert subheader row at the specified index
-                    modifiedArray.splice(rowIndex, 0, [...subHeaderRow]);
-                });
-
-                return modifiedArray;
-            };
 
             toCsv(
                 [props.headers],
                 [
-                    ...addSubHeaders(),
+                    ...rows,
                     [`Date Created: ${dayjs().format('DD/MMM/YYYY HH:MM:ss')}`],
                     [`Quarter: ${props.csvQuarter || props.subtitle}`],
                     [`HIS-Core Version: ${Service.getCoreVersion()}`],
