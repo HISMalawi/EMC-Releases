@@ -261,28 +261,25 @@ export default defineComponent({
             `)
         }
 
-        // const replaceArraysWithLengths = (obj: Record<string, any>) => {
-        //     for (const key in obj) {
-        //         if (Array.isArray(obj[key])) {
-        //             // Replace the array with its length as an integer
-        //             obj[key] = obj[key].length;
-        //         }
-        //     }
-        // };
-
         const replaceArraysWithLengths = (data: any) => {
-            const modifiedData = data.map((item: any) => {
-                const { location, patients } = item;
-                const patientsLength = patients.length;
-                return { location, patientsLength };
+            const modifiedData = data.map((item: { [s: string]: unknown; } | ArrayLike<unknown>) => {
+                const valuesArray = Object.values(item);
+                // Replace arrays with their lengths
+                const sanitizedValuesArray = valuesArray.map((value) => {
+                if (Array.isArray(value)) {
+                    return value.length;
+                }
+                return value;
+                });
+                return sanitizedValuesArray;
             });
             return modifiedData;
         }
 
         const convertObjectsToArrays = (data: any) => {
-            const modifiedData = data.map((item: any) => {
-                const { location, patientsLength } = item;
-                return [location, patientsLength];
+            const modifiedData = data.map((item: ArrayLike<unknown> | { [s: string]: unknown; }) => {
+                const valuesArray = Object.values(item);
+                return valuesArray;
             });
             return modifiedData;
         }
@@ -292,8 +289,12 @@ export default defineComponent({
         
                 const modifiedArray = JSON.parse(JSON.stringify(data));
 
+                console.log("CSV RAW ", modifiedArray)
+
                 const lengthArray = replaceArraysWithLengths(modifiedArray)
                 
+                console.log("CSV LENGTH ", lengthArray)
+
                 const csvArray = convertObjectsToArrays(lengthArray)
 
                 return csvArray;

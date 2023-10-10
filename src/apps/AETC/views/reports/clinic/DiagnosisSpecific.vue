@@ -9,6 +9,7 @@
             :rowsPerPage="25"
             :onConfigure="configure"
             :csvQuarter="csvQuarter"
+            :headers="csvheaders"
             :onRefresh="() => generate()"
         />
     </ion-page>
@@ -81,6 +82,12 @@ export default defineComponent({
                 }
             })).present()
         }
+
+        //csv headers
+        const csvheaders = [
+            'Address',
+            'Total'
+        ];
 
         //table headers and data mapping
         const columns: Array<v2ColumnInterface[]> = [
@@ -162,6 +169,7 @@ export default defineComponent({
             reportData,
             period,
             csvQuarter,
+            csvheaders,
             generate,
             configure
          }
