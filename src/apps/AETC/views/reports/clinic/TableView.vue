@@ -289,12 +289,8 @@ export default defineComponent({
         
                 const modifiedArray = JSON.parse(JSON.stringify(data));
 
-                console.log("CSV RAW ", modifiedArray)
-
                 const lengthArray = replaceArraysWithLengths(modifiedArray)
                 
-                console.log("CSV LENGTH ", lengthArray)
-
                 const csvArray = convertObjectsToArrays(lengthArray)
 
                 return csvArray;
