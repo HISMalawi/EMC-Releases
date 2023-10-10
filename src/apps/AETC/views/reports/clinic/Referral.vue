@@ -9,6 +9,7 @@
             :rowsPerPage="25"
             :onConfigure="configure"
             :csvQuarter="csvQuarter"
+            :headers="csvheaders"
             :onRefresh="() => generate()"
         />
     </ion-page>
@@ -18,13 +19,16 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { IonPage, IonLoading, modalController } from "@ionic/vue"
 import  v2Datatable from "@/apps/AETC/views/reports/clinic/TableView.vue"
-import { v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
+import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
 import { toastDanger, toastWarning } from '@/utils/Alerts';
 import { toDate } from '@/utils/Strs';
 import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
+import { AETCReportService } from "@/apps/AETC/services/aetc_report_service"
+import DrillPatientIds from '../../../../../components/DrillPatientIds.vue';
+
 
 const reportData = ref<any>([])
 const startDate = ref('')
@@ -45,22 +49,56 @@ export default defineComponent({
          * Generates report by start date and end date
          */
          const generate = async () => {
-            return null
+            const report = new AETCReportService()
+            report.startDate = startDate.value
+            report.endDate = endDate.value
+            try {
+                const rawReport = (await report.getClinicReport("REFERRAL_REPORT"))
+                reportData.value = rawReport;
+            }catch (e){
+                console.log(e)
+            }
          }
+
+        //csv headers
+        const csvheaders = [
+            'Diagnosis',
+            'Total'
+        ];
 
          //table headers and data mapping
          const columns: Array<v2ColumnInterface[]> = [
             [
                 {
-                    label: "Facility",
-                    ref: ""
+                    label: "Diagnosis",
+                    ref: "data.location",
+                    value: (data: any) => data.location
                 },
                 {
-                    label: "Total Referrals",
-                    ref: ""
+                    label: "Total",
+                    ref: "data.patients.length",
+                    secondaryLabel: "Referred Clients",
+                    value: (data: any) => data.patients.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${column.secondaryLabel} ${data.diagnosis} `, data.patients
+                    )
                 },
             ]
         ]
+
+        const drilldown = async (title: string, patientIdentifiers: number[]) => {
+            (await modalController.create({
+                component: DrillPatientIds,
+                backdropDismiss: false,
+                cssClass: 'large-modal',
+                componentProps: {
+                    title,
+                    subtitle: period,
+                    patientIdentifiers,
+                    onFinish: () => modalController.getTop().then(v => v && modalController.dismiss())
+                }
+            })).present()
+        }
 
         /**
          * Loads a dialogue to allow users to configure start and end date
@@ -103,6 +141,7 @@ export default defineComponent({
             reportData,
             period,
             csvQuarter,
+            csvheaders,
             generate,
             configure
          }
