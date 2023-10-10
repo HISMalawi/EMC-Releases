@@ -18,19 +18,13 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { IonPage, IonLoading, modalController } from "@ionic/vue"
 import  v2Datatable from "@/apps/AETC/views/reports/clinic/TableView.vue"
-import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
-import { AETCReportService } from "@/apps/AETC/services/aetc_report_service"
+import { v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
 import { toastDanger, toastWarning } from '@/utils/Alerts';
-import DrillPatientIds from '../../../../../components/DrillPatientIds.vue';
 import { toDate } from '@/utils/Strs';
 import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import { Option } from '@/components/Forms/FieldInterface'
-import { isPlainObject } from "lodash";
 import Validation from "@/components/Forms/validations/StandardValidations"
-import { Service } from "@/services/service"
-import HisDate from "@/utils/Date"
-import dayjs from "dayjs";
 
 const reportData = ref<any>([])
 const startDate = ref('')

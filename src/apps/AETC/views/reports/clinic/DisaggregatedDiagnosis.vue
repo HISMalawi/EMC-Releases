@@ -27,11 +27,7 @@ import { toDate } from '@/utils/Strs';
 import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import { Option } from '@/components/Forms/FieldInterface'
-import { isPlainObject } from "lodash";
 import Validation from "@/components/Forms/validations/StandardValidations"
-import { Service } from "@/services/service"
-import HisDate from "@/utils/Date"
-import dayjs from "dayjs";
 
 const reportData = ref<any>([])
 const startDate = ref('')
@@ -58,7 +54,6 @@ export default defineComponent({
             try {
                 const rawReport = (await report.getClinicReport("DISAGGREGATED_DIAGNOSIS"))
                 reportData.value = transformObject(rawReport)
-                console.log("HERE is the report", reportData.value)
             }catch (e){
                 console.log(e)
             }
