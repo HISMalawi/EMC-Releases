@@ -60,8 +60,6 @@ export default defineComponent({
             }catch (e){
                 console.log(e)
             }
-            
-            return null
          }
 
          const drilldown = async (title: string, patientIdentifiers: number[]) => {
