@@ -19,7 +19,7 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { IonPage, IonLoading, modalController } from "@ionic/vue"
 import  v2Datatable from "@/apps/AETC/views/reports/clinic/TableView.vue"
-import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
+import { v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
 import { toDate } from '@/utils/Strs';
 import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
 import { FieldType } from "@/components/Forms/BaseFormElements";
