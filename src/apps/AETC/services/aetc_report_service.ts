@@ -17,6 +17,9 @@ export class AETCReportService extends Service {
     epiweek: string;
     ageGroup: string;
     multipleDiagnosis: string;
+    reportType: string;
+    startAge: string;
+    endAge: string;
 
     constructor() {
         super()
@@ -25,6 +28,9 @@ export class AETCReportService extends Service {
         this.epiweek = ''
         this.ageGroup = ''
         this.multipleDiagnosis = ''
+        this.reportType = ''
+        this.startAge = ''
+        this.endAge = ''
         this.date = Service.getSessionDate()
         this.programID = Service.getProgramID()
     }
@@ -55,6 +61,15 @@ export class AETCReportService extends Service {
         }
         if (this.multipleDiagnosis) {
             payload['diagnosis'] = this.multipleDiagnosis
+        }
+        if (this.startAge) {
+            payload['start_age'] = this.startAge
+        }
+        if (this.endAge) {
+            payload['end_age'] = this.endAge
+        }
+        if (this.reportType) {
+            payload['report_type'] = this.reportType
         }
         return { ...payload, ...config }
     }
