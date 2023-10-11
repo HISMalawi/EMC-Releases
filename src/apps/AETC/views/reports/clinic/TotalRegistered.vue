@@ -9,6 +9,7 @@
             :rowsPerPage="25"
             :onConfigure="configure"
             :csvQuarter="csvQuarter"
+            :headers="csvheaders"
             :onRefresh="() => generate()"
         />
     </ion-page>
@@ -19,19 +20,16 @@ import { defineComponent, ref, onMounted } from 'vue';
 import { IonPage, IonLoading, modalController } from "@ionic/vue"
 import  v2Datatable from "@/apps/AETC/views/reports/clinic/TableView.vue"
 import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
-import { AETCReportService } from "@/apps/AETC/services/aetc_report_service"
-import { toastDanger, toastWarning } from '@/utils/Alerts';
-import DrillPatientIds from '../../../../../components/DrillPatientIds.vue';
 import { toDate } from '@/utils/Strs';
 import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import { Option } from '@/components/Forms/FieldInterface'
-import { isPlainObject } from "lodash";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Service } from "@/services/service"
-import HisDate from "@/utils/Date"
-import dayjs from "dayjs";
-import { generateDateFields } from "@/utils/HisFormHelpers/MultiFieldDateHelper"
+import { AETCReportService } from '@/apps/AETC/services/aetc_report_service';
+import HisDate from "@/utils/Date";
+import { formatGender } from "@/utils/Strs"
+
 
 const reportData = ref<any>([])
 const startDate = ref('')
@@ -39,7 +37,7 @@ const endDate = ref('')
 const period = ref('')
 const isLoading = ref(false)
 const csvQuarter = ref('')
-let tempEndDate = ""
+const ageGroup = ref('')
 
 export default defineComponent({ 
     components: { 
@@ -55,35 +53,76 @@ export default defineComponent({
          * Generates report by start date and end date
          */
          const generate = async () => {
-            return null
+            const report = new AETCReportService()
+            report.startDate = startDate.value
+            report.endDate = endDate.value
+            report.ageGroup = ageGroup.value
+
+            try {
+                const rawReport = (await report.getClinicReport("TOTAL_REGISTERED"))
+                reportData.value = patientsWithModifiedData(rawReport)
+            }catch (e){
+                console.log(e)
+            }
          }
+        
+        //This method transforms the data partially (patient name, gender & registration_date) it also aids in ordering the data so that it matches with the headers in the CSV
+        const patientsWithModifiedData =(raw: any)=> {
+            return raw.map((patient: any) => {
+                const { age_in_months, given_name, family_name, patient_id, registration_date, gender, ...rest } = patient;
+                return {
+                    name: `${given_name} ${family_name}`,
+                    birthdate: patient.birthdate,
+                    gender: formatGender(gender),
+                    registration_date: HisDate.toStandardHisDisplayFormat(registration_date),
+                    address: patient.address,
+                    ta: patient.ta,
+                };
+            });
+        }
+
+        //csv headers
+        const csvheaders = [
+            'Name',
+            'Birthdate',
+            'Gender',
+            'Date Registered',
+            'Address',
+            'T.A'
+        ];
 
          //table headers and data mapping
          const columns: Array<v2ColumnInterface[]> = [
             [
                 {
                     label: "Name",
-                    ref: ""
+                    ref: "",
+                    value: (data: any) => data.name
                 },
                 {
                     label: "Birthdate",
-                    ref: ""
+                    ref: "",
+                    value: (data: any) => data.birthdate
                 },
                 {
                     label: "Gender",
-                    ref: ""
+                    ref: "",
+                    value: (data: any) => data.gender
                 },
                 {
                     label: "Date Registered",
-                    ref: ""
+                    ref: "",
+                    value: (data: any) => data.registration_date
                 },
                 {
                     label: "Address",
-                    ref: ""
+                    ref: "",
+                    value: (data: any) => data.address
                 },
                 {
                     label: "T.A",
-                    ref: ""
+                    ref: "",
+                    value: (data: any) => data.ta
                 },
             ]
         ]
@@ -107,12 +146,13 @@ export default defineComponent({
                 computedValue: (v: Option) => v.value
             },
             {
-                id: "multiple_select",
+                id: "age_group",
                 helpText: "Select Age Group(s)",
                 type: FieldType.TT_MULTIPLE_SELECT,
                 config: {
                     showKeyboard: false
                 },
+                computedValue: (v: Option[]) => v.map(d => d.value),
                 validation(value: any): null | Array<string> {
                     return !value ? ["Value is required"] : null;
                 },
@@ -154,11 +194,13 @@ export default defineComponent({
                         value: "all",
                     },
                 ]),
-            },    
+            },
         ], 
         (f: any, c: any)  => {
             startDate.value = c.start_date
             endDate.value = c.end_date
+            //convert to passable string
+            ageGroup.value = `[${c.age_group.map((option: any) => `"${option}"`).join(', ')}]`;
             period.value = `Period (${toDate(startDate.value)} to ${toDate(endDate.value)})`
             modalController.dismiss()
             csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`
@@ -178,6 +220,7 @@ export default defineComponent({
             reportData,
             period,
             csvQuarter,
+            csvheaders,
             generate,
             configure
          }
