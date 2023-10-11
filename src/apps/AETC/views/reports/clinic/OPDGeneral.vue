@@ -38,6 +38,9 @@ const endDate = ref('')
 const period = ref('')
 const isLoading = ref(false)
 const csvQuarter = ref('')
+const startAge = ref('')
+const endAge = ref('')
+const reportType = ref('')
 
 export default defineComponent({ 
     components: { 
@@ -133,6 +136,7 @@ export default defineComponent({
                 id: 'report_type',
                 helpText: 'Report type',
                 type: FieldType.TT_SELECT,
+                computedValue: (v: Option) => v.value,
                 options: () => [
                     {
                         label: 'General Outpatient',
@@ -189,7 +193,10 @@ export default defineComponent({
                 helpText: 'Select Year',
                 type: FieldType.TT_SELECT,
                 condition: (f: any) => f.report_range.value === 'Year' || f.report_range.value === 'Month' || f.report_range.value === 'Week',
-                computedValue: (v: Option) => v.value,
+                computedValue: (v: Option) => {
+                    console.log("Here ", v)
+                    return v.label
+                },
                 options: () => {
                     const years: string[] = generateYears();
                     return[
@@ -249,6 +256,7 @@ export default defineComponent({
                 type: FieldType.TT_SELECT,
                 condition: (f: any) => {
                     const currentYear = new Date().getFullYear() + "";
+                    console.log("YEAR SELECTED ", f.report_range_year.value)
                     return f.report_range.value === 'Week' && f.report_range_year.value === currentYear
                 },
                 options: () => [
@@ -276,19 +284,19 @@ export default defineComponent({
             },
         ], 
         (f: any, c: any) => {
-            if(f.report_range.value === 'Month'){
+            if(f.report_range?.value === 'Month'){
                 startDate.value = `${c.report_range_year}-${c.report_range_month}-01`
                 endDate.value = dayjs(new Date(startDate.value).toISOString()).endOf("month").format("YYYY-MM-DD")
             }
-            if(f.report_range.value === 'Select-Range'){
+            if(f.report_range?.value === 'Select-Range'){
                 startDate.value = `${f.year.value}-${f.month.value}-01`
                 endDate.value = dayjs(new Date(startDate.value).toISOString()).endOf("month").format("YYYY-MM-DD")
             }
-            if(f.report_range.value === 'Year'){
+            if(f.report_range?.value === 'Year'){
                 startDate.value = `${c.report_range_year}-01-01`; // January 1st of the selected year
                 endDate.value = `${c.report_range_year}-12-31`; // December 31st of the selected year
             }
-            if(f.report_range.value === 'Week' && f.report_range_week.value === 'This Week'){
+            if(f.report_range?.value === 'Week' && f.report_range_week?.value === 'This Week'){
                 // Calculate the start and end dates for the current week (Sunday to Saturday)
                 const currentDate = new Date();
                 const currentYear = currentDate.getFullYear();
@@ -309,7 +317,7 @@ export default defineComponent({
                 startDate.value = startDateValue;
                 endDate.value = endDateValue; // Set endDate.value with endDateValue
             }
-            if(f.report_range.value === 'Week' && f.report_range_week.value === 'Last Week'){
+            if(f.report_range?.value === 'Week' && f.report_range_week?.value === 'Last Week'){
                 // Calculate the start and end dates for the last week (Sunday to Saturday)
                 const currentDate = new Date();
                 currentDate.setDate(currentDate.getDate() - 7); // Go back 7 days to the previous week
@@ -332,7 +340,7 @@ export default defineComponent({
                 startDate.value = startDateValue;
                 endDate.value = endDateValue; // Set endDate.value with endDateValue
             }
-            if(f.report_range.value === 'Week' && f.report_range_week.value === 'This Month'){
+            if(f.report_range?.value === 'Week' && f.report_range_week?.value === 'This Month'){
                 // Calculate the start and end dates for the current month
                 const currentDate = new Date();
                 const currentYear = currentDate.getFullYear();
@@ -345,7 +353,7 @@ export default defineComponent({
                 startDate.value = startDateValue;
                 endDate.value = endDateValue; // Set endDate.value with endDateValue
             }
-            if(f.report_range.value === 'Week' && f.report_range_week.value === 'Last Month'){
+            if(f.report_range?.value === 'Week' && f.report_range_week?.value === 'Last Month'){
                 // Calculate the start and end dates for the last month
                 const currentDate = new Date();
                 const currentYear = currentDate.getFullYear();
@@ -362,7 +370,7 @@ export default defineComponent({
                 startDate.value = startDateValue;
                 endDate.value = endDateValue; // Set endDate.value with endDateValue
             }
-            if(f.report_range.value === 'Week' && f.report_range_week.value === 'All Dates'){
+            if(f.report_range?.value === 'Week' && f.report_range_week?.value === 'All Dates'){
                 // Calculate the start date (January 1st of the current year)
                 const currentDate = new Date();
                 const currentYear = currentDate.getFullYear();
@@ -376,7 +384,7 @@ export default defineComponent({
                 startDate.value = startDateValue;
                 endDate.value = endDateValue;
             }
-            if(f.report_range.value === 'Quarter'){
+            if(f.report_range?.value === 'Quarter'){
                 const quarterYear = c.report_range_quaters.split(' ');
                 const quarter = parseInt(quarterYear[0].slice(1), 10); // Extract and parse the numeric quarter
                 const year = parseInt(quarterYear[1], 10); // Extract and parse the year
@@ -398,7 +406,15 @@ export default defineComponent({
                 startDate.value = quarterStartDates[quarter];
                 endDate.value = quarterEndDates[quarter];
             }
+            if(f.report_range?.value === 'Week' && f.report_range_year?.value < new Date().getFullYear()){
+                startDate.value = `${f.report_range_year.value}-01-01`;
+                endDate.value = `${f.report_range_year.value}-12-31`;
+            }
 
+            //getting other parameters
+            startAge.value = c.start_age
+            endAge.value = c.end_age
+            reportType.value = c.report_type
             period.value = `Period (${toDate(startDate.value)} to ${toDate(endDate.value)})`
             modalController.dismiss()
             csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`
