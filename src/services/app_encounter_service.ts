@@ -73,7 +73,7 @@ export class AppEncounterService extends ObservationService {
     }
 
     buildGroupValueCoded(conceptName: string, parentValue: string, childValue: string) {
-        return AppEncounterService.buildGroupValueCoded(conceptName, parentValue, childValue)
+        return AppEncounterService.buildGroupValueCoded(conceptName, parentValue, childValue, this.date);
     }
 
     buildValueCodedFromConceptId(conceptName: string, value: number) {

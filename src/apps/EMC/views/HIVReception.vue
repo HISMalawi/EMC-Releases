@@ -95,9 +95,6 @@ export default defineComponent({
           }
         }
 
-        // set session date
-        await ClinicRegistrationService.setSessionDate(formData.initialVisitDate)
-
         // ARV Number
         if(arvNumberEditable && formData.arvNumber) {
           await patient.value.createArvNumber(`${sitePrefix.value}-ARV-${formData.arvNumber}`)
