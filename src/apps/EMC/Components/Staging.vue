@@ -74,7 +74,6 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
-
     observations: {
       type: Object as PropType<Record<string, any>>,
       default: () => ({})
@@ -209,6 +208,7 @@ export default defineComponent({
     }
 
     const onSubmit = async () => {
+      stagingService.setDate(props.initialVisitDate);
       await submitForm(form, async (formData, computedData) => {
         emit("onValue", {
           type: "staging",

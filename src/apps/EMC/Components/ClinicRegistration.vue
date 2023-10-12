@@ -485,6 +485,7 @@ export default defineComponent({
     }
 
     const onSubmit = async () => {
+      await RegimenService.setSessionDate(form.initialVisitDate.value);
       patientTypeService.setDate(form.initialVisitDate.value)
       registrationService.setDate(form.initialVisitDate.value)
       vitalsService.setDate(form.initialVisitDate.value)
