@@ -58,8 +58,8 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     },
   },
   {
-    id: 'OPD social history',
-    name: 'OPD social history',
+    id: 'SPINE social history',
+    name: 'SPINE social history',
     icon: 'medical-report.png',
     availableOnActivitySelection: false
   },
