@@ -122,7 +122,7 @@ function confirmationSummary(patient: any, program: any) {
 const SPINE: AppInterface = {
   programID: 14,
   applicationName: 'SPINE',
-  applicationIcon: 'opd.png',
+  applicationIcon: 'spine_logo.png',
   applicationDescription: 'In-patient Program',
   appRoutes: opdRoutes,
   programReports: REPORTS,
