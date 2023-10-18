@@ -9,6 +9,8 @@ import { REPORTS } from "@/apps/CxCa/config/CxCaProgramReports"
 import { 
     onRegisterPatient,
 } from "@/apps/CxCa/config/CxCaAppScripts"
+import {PROPERTIES} from "@/apps/CxCa/config/CxCaGlobalPropertySettings"
+
 const CXCA: AppInterface = {
     programID: 24,
     applicationName: 'CxCa',
@@ -17,7 +19,7 @@ const CXCA: AppInterface = {
     appRoutes: Routes,
     primaryPatientActivites: PRIMARY_ACTIVITIES,
     secondaryPatientActivites: [],
-    globalPropertySettings: [],
+    globalPropertySettings: PROPERTIES,
     onRegisterPatient,
     homeOverviewComponent,
     confirmationSummary: (patient: any, program: any) => ({
