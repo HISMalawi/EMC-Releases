@@ -237,7 +237,7 @@ export default defineComponent({
                 if (!(date in group)) group[date] = []
 
                 const values = Object.entries(data[date])
-                    .filter(([_, v]: any) => comparator(
+                    .filter(([, v]: any) => comparator(
                         v.patient_present,
                         v.guardian_present
                     ))
