@@ -1,5 +1,5 @@
 import { Patientservice } from "@/services/patient_service";
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import Store from '@/composables/ApiStore';
 import { ProgramService } from "@/services/program_service";
 import isEmpty from "lodash/isEmpty";
@@ -28,12 +28,14 @@ const providers = ref<Array<any>>([]);
 const isReady = ref(false);
 const router = useRouter();
 
+const patientDashboardUrl = computed(() => `/patient/dashboard/${patient.getID()}`);
+
 async function setPatient(patientID: string) {
   patient = await Store.get('ACTIVE_PATIENT', { patientID });
 }
 
 function goToPatientDashboard() {
-  return router.push(`/patient/dashboard/${patient.getID()}`)
+  return router.push(patientDashboardUrl.value);
 }
 
 function getProvidersNames() {
@@ -124,6 +126,7 @@ export default function useEncounter() {
     provider,
     providers,
     facts,
+    patientDashboardUrl,
     goToPatientDashboard,
     gotToNextTask,
   }
