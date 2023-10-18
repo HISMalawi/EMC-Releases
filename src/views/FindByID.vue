@@ -12,7 +12,7 @@ import { FieldType } from "@/components/Forms/BaseFormElements"
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { Patientservice } from "@/services/patient_service"
 import { toastWarning } from "@/utils/Alerts"
-import { AppInterface, ProgramIdentifierInterface } from "@/apps/interfaces/AppInterface";
+import { AppInterface } from "@/apps/interfaces/AppInterface";
 import { Field, Option } from "@/components/Forms/FieldInterface"
 import Validation from "@/components/Forms/validations/StandardValidations"
 import HisApp from "@/apps/app_lib"
@@ -148,7 +148,7 @@ export default defineComponent({
           return value
         },
         validation: (val: any) => Validation.required(val),
-        condition: (f: any) => this.fieldComponent === 'arv_number' && this.assignNewARVNumber,
+        condition: () => this.fieldComponent === 'arv_number' && this.assignNewARVNumber,
         defaultValue: () => this.suggestedARVNumber,
         config: {
           initialKb: '0-9',

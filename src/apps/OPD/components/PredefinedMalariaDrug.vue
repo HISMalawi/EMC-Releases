@@ -28,13 +28,12 @@
     IonFooter
   } from "@ionic/vue";
   import { defineComponent, PropType } from "vue";
-  import HisDate from "@/utils/Date";
   
   export default defineComponent({
     name: "Modal",
     props: {
       items: {
-        type: Object as any,
+        type: Object as PropType<Record<string, any>>,
         required: true
       },
       submitData:{

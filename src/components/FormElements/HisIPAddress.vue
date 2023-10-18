@@ -3,7 +3,7 @@
         <ion-grid>
             <ion-row>
                 <ion-col 
-                    v-for="(address, index) in addressInputs"
+                    v-for="index of Object.keys(addressInputs)"
                     :key="index"
                     > 
                     <ion-input
@@ -16,7 +16,7 @@
                             'highlighted-input' : index === activeIndex
                         }"
                         v-model="addressInputs[index]"
-                        @ionFocus="onAddressClick(index)"
+                        @ionFocus="onAddressClick(index as ActiveIndexI)"
                         :style="{ textAlign: 'center' }"
                         placeholder="0"
                         class="input_display"
@@ -25,18 +25,13 @@
             </ion-row>
         </ion-grid>
     </view-port>   
-    <his-keyboard 
-        v-if="showKeyboard"
-        :onKeyPress="keypress" 
-        :kbConfig="numbers" 
-        > 
-    </his-keyboard>
+    <his-keyboard :onKeyPress="keypress" :kbConfig="numbers" />
 </template>
 
 <script lang="ts">
-import { defineComponent, onActivated, onMounted, ref, watch } from 'vue'
+import { defineComponent, onActivated, ref, watch } from 'vue'
 import HisKeyboard from "@/components/Keyboard/HisKeyboard.vue"
-import { NUMBER_PAD_LO } from "@/components/Keyboard/KbLayouts"
+import { NUMBER_ARROW_PAD_LO } from "@/components/Keyboard/KbLayouts"
 import ViewPort from "@/components/DataViews/ViewPort.vue"
 import FieldMixinVue from './FieldMixin.vue'
 import handleVirtualInput from "@/components/Keyboard/KbHandler"
@@ -48,6 +43,9 @@ import {
 } from "@ionic/vue"
 import { isEmpty } from 'lodash'
 import Platform from "@/composables/usePlatform"
+import { onMounted } from 'vue'
+
+type ActiveIndexI = 'first' | 'second' | 'third' | 'fourth';
 
 export default defineComponent({
     components: { 
@@ -72,8 +70,7 @@ export default defineComponent({
     setup(props, {emit}) {
         const  { activePlatformProfile } = Platform()
         onActivated(() => emit('onFieldActivated', this))
-        const showKeyboard = ref(false)
-        const activeIndex = ref('')
+        const activeIndex = ref<ActiveIndexI>('first');
         // Track IP Address parts
         const addressInputs = ref({
             first:  '',
@@ -82,42 +79,32 @@ export default defineComponent({
             fourth: ''
         }) as any
 
+        const transitionMap = {
+            'first': 'second',
+            'second': 'third',
+            'third': 'fourth',
+            'fourth': 'third'
+        };
+
+        const onAddressClick = (index: ActiveIndexI) => activeIndex.value = index;
+        const goToNext = () => activeIndex.value = transitionMap[activeIndex.value] as ActiveIndexI || activeIndex.value;
+        const goToPrevious = () => activeIndex.value = Object.keys(transitionMap)
+            .find(key => transitionMap[key as ActiveIndexI] === activeIndex.value) as ActiveIndexI || activeIndex.value;
+
+ 
         function keypress(input: string) {
-            if (!activeIndex.value) {
-                return
-            } 
+            if (/→/i.test(input)) return goToNext();
+            if (/←/i.test(input)) return goToPrevious(); 
             const index = activeIndex.value
             const value = handleVirtualInput(
                 input, addressInputs.value[index]
             )
             // Tab to next IP Address part if value exceeds 3
-            if (value.length > 3) {
-                switch(activeIndex.value) {
-                    case 'first':
-                        activeIndex.value = 'second'
-                        break
-                    case 'second':
-                        activeIndex.value = 'third'
-                        break
-                    case 'third':
-                        activeIndex.value = 'fourth'
-                        break
-                    case 'fourth':
-                        activeIndex.value = ''
-                }
-            } else {
-                // Do a check here to prevent the first letter being 
-                // a zero for that IP Address
-                addressInputs.value[index] = 
-                    value.charAt(0) === '0' && value.length > 1
-                    ? value.substring(1)
-                    : value
-            }
-        }
-
-        function onAddressClick(index: string) {
-            activeIndex.value = index
-            showKeyboard.value = true
+            if (value.length > 3) return goToNext();
+            addressInputs.value[index] = value.charAt(0) === '0' && value.length > 1
+                ? value.substring(1)
+                : value
+            
         }
 
         watch(addressInputs, (address) => {
@@ -143,10 +130,9 @@ export default defineComponent({
             keypress,
             activeIndex,
             onAddressClick,
-            showKeyboard,
             addressInputs,
             numbers: [
-                NUMBER_PAD_LO,
+                NUMBER_ARROW_PAD_LO,
                 [
                    ['Delete'],
                    [ 'Clear' ]

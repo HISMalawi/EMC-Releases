@@ -2,7 +2,7 @@ import { Service } from '@/services/service'
 import { getFullName } from '@/interfaces/name'
 import { Relationship } from '@/interfaces/relationship'
 import { getPersonAttribute } from '@/interfaces/personAttribute';
-import { get, isEmpty } from 'lodash';
+import { get } from 'lodash';
 export class RelationshipService extends Service {
 	constructor() {
 		super()

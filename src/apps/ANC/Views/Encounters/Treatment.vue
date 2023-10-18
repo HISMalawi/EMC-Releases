@@ -120,7 +120,7 @@ import {
     IonButton,
     modalController
 } from "@ionic/vue"
-import { Field, Option } from '@/components/Forms/FieldInterface'
+import { Field, Option, SingleFieldFormOnFinishAction } from '@/components/Forms/FieldInterface'
 import TouchField from "@/components/Forms/SIngleTouchField.vue"
 import EncounterMixinVue from '@/views/EncounterMixin.vue'
 import { AncTreatmentService, AncTreatmentDrugObject, DRUG_FREQUENCIES } from '../../Services/anc_treatment_service'
@@ -319,7 +319,7 @@ export default defineComponent({
                 this.activeDrugs = [this.defaultDrugObj()]
             }
         },
-        async launchEditor(field: Field, callback: Function) {
+        async launchEditor(field: Field, callback: SingleFieldFormOnFinishAction) {
             const modal = await modalController.create({
                 component: TouchField,
                 backdropDismiss: false,

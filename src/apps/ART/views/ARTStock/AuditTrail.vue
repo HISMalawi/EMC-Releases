@@ -31,14 +31,6 @@ const thNumStyling = {
     paddingRight: ".5rem" 
 };
 
-interface Drug {
-    "drug_inventory_id": number;
-    "name": string;
-    "short_name": string;
-    "pack_size": number;
-    "id": number;
-}
-
 export default defineComponent({
     mixins: [ReportMixin],
     components: { ReportTemplate },

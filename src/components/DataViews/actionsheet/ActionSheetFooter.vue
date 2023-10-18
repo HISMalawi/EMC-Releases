@@ -13,7 +13,7 @@ export default defineComponent({
     components: { DynamicNav },
     props: {
         buttons: {
-            type: Object as PropType<NavBtnInterface[]>,
+            type: Array as PropType<NavBtnInterface[]>,
             default: () => []
         }
     },

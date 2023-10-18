@@ -11,7 +11,7 @@ import { ArtReportService } from "@/apps/ART/services/reports/art_report_service
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
-import table from "@/components/DataViews/tables/ReportDataTable"
+import table, { AsyncTableRowHandler } from "@/components/DataViews/tables/ReportDataTable"
 import { isArray } from "lodash"
 import Store from "@/composables/ApiStore"
 import App from "@/apps/app_lib"
@@ -48,7 +48,7 @@ export default defineComponent({
         },
         getArvInt(arv: string) {
             if (typeof arv === 'string') {
-                const [prfx, art, arvNumStr] = arv.split('-')
+                const arvNumStr = arv.split('-')[2]
                 const arvNumInt = parseInt(arvNumStr)
                 return typeof arvNumInt === 'number' ? arvNumInt : 0 
             }
@@ -60,7 +60,7 @@ export default defineComponent({
         confirmPatient(patient: number) {
             return this.$router.push(`/patients/confirm?person_id=${patient}`)
         },
-        async drilldownAsyncRows(title: string, columns: Array<any>, asyncRows: Function, canExport=true) {
+        async drilldownAsyncRows(title: string, columns: Array<any>, asyncRows: AsyncTableRowHandler, canExport=true) {
             const modal = await modalController.create({
                 component: DrilldownTable,
                 cssClass: 'large-modal',
@@ -116,8 +116,7 @@ export default defineComponent({
                         const [num, key ] = defaultRow
                         index = num
                         if (key in this.drillDownCache) {
-                            const [oldIndex, ...rest] = this.drillDownCache[key]
-                            return [index, ...rest] // Assign new index number and maintain patient record
+                            return [index, ...this.drillDownCache[key].slice(1)]
                         }
                     } else {
                         id = defaultRow

@@ -37,7 +37,7 @@ import dayjs from "dayjs";
 import { cloneDeep } from 'lodash';
 
 
-const reportData = ref<any>([])
+const reportData = ref([] as Array<any>);
 const startDate = ref('')
 const endDate = ref('')
 const period = ref('')
@@ -53,8 +53,6 @@ export default defineComponent({
         v2Datatable,
     },
     setup() {
-        const totals = ref<any[]>([])
-
         /**
          * Ordering rows
          */
@@ -156,25 +154,6 @@ export default defineComponent({
                 }
             });
             return sortedData;
-        };
-
-        // Define the flattened object array type
-        interface FlattenedObject {
-        category: string;
-        value: number;
-        }
-        // Flatten the object into an array
-        const flattenedArray: FlattenedObject[] = [];
-        const flattenObject = (obj: Record<string, any>, category: any) => {
-            for (const key in obj) {
-                const value = obj[key];
-
-                if (typeof value === 'object' && !Array.isArray(value)) {
-                flattenObject(value, category ? `${category} - ${key}` : key);
-                } else {
-                flattenedArray.push({ category, value });
-                }
-            }
         };
 
         const drilldown = async (title: string, patientIdentifiers: number[]) => {
@@ -325,7 +304,7 @@ export default defineComponent({
                             return data.valueOne
                         }
                     },
-                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                    tdClick: ({ data }: v2ColumnDataInterface) => drilldown(
                         `${data.indicatorOne} ${data.nameOfIndicatorOne}`, data.valueOne
                     )
                 }, 
@@ -368,7 +347,7 @@ export default defineComponent({
                             return data.valueTwo
                         }
                     },
-                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                    tdClick: ({ data }: v2ColumnDataInterface) => drilldown(
                         `${data.indicatorTwo} ${data.nameOfIndicatorTwo}`, data.valueTwo
                     )
                 },   

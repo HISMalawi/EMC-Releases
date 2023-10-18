@@ -1,5 +1,4 @@
 import { Service } from "./service";
-import ART from "@/apps/ART/app"
 
 export interface DuplicateIdentifiersInterface {
     count: number;

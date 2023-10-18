@@ -729,7 +729,7 @@ export default defineComponent({
           estimation: {
             allowUnknown: false
           }
-        }, this.consultation.getDate()),
+        }),
         {
           id: 'previous_arvs_received',
           helpText: 'Last ARV drugs dispensed',
