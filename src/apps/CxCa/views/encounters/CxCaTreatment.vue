@@ -209,6 +209,9 @@ export default defineComponent({
         {
           id: "histology_results_after_lletz",
           helpText: "Histology Results After LLETZ",
+          dynamicHelpText: (f: any) => {
+              return `Histology Results After ${f.type_of_sample_collected.value}`
+            },
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
           condition: (f: any) => f.are_histological_results_after_lletz_available.value === 'Yes' && this.isNotSameDayTreatment(),
@@ -223,6 +226,7 @@ export default defineComponent({
               'CIN 3',
               'Carcinoma in Situ',
               'Invasive cancer of cervix',
+              'Benign warts',
             ]),
             computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Sample', value.label)
