@@ -43,7 +43,6 @@ import {
 } from "@ionic/vue"
 import { isEmpty } from 'lodash'
 import Platform from "@/composables/usePlatform"
-import { onMounted } from 'vue'
 
 type ActiveIndexI = 'first' | 'second' | 'third' | 'fourth';
 
@@ -67,7 +66,7 @@ export default defineComponent({
             } 
         }
     },
-    setup(props, {emit}) {
+    setup(_props, {emit}) {
         const  { activePlatformProfile } = Platform()
         onActivated(() => emit('onFieldActivated', this))
         const activeIndex = ref<ActiveIndexI>('first');
