@@ -1,8 +1,8 @@
 import { AppInterface, GeneralDataInterface } from '@/apps/interfaces/AppInterface';
-import HomeOverview from "@/apps/OPD/components/HomeOverview.vue";
-import { PRIMARY_ACTIVITIES, SECONDARY_ACTIVITIES } from '@/apps/OPD/config/programActivities';
-import { REPORTS } from '@/apps/OPD/config/programReports';
-import opdRoutes from '@/apps/OPD/config/routes';
+import HomeOverview from "@/apps/SPINE/components/HomeOverview.vue";
+import { PRIMARY_ACTIVITIES, SECONDARY_ACTIVITIES } from '@/apps/SPINE/config/programActivities';
+import { REPORTS } from '@/apps/SPINE/config/programReports';
+import routes from '@/apps/SPINE/config/routes';
 import { PatientProgramService } from '@/services/patient_program_service';
 import { AppEncounterService } from "@/services/app_encounter_service"
 import PatientAlerts from "@/services/patient_alerts"
@@ -10,7 +10,7 @@ import { Observation } from '@/interfaces/observation';
 import { OrderService } from '@/services/order_service';
 import { RelationshipService } from '@/services/relationship_service';
 import { Order } from '@/interfaces/order';
-import {PROPERTIES} from "@/apps/OPD/config/globalPropertySettings"
+import {PROPERTIES} from "@/apps/SPINE/config/globalPropertySettings"
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { ObservationService } from '@/services/observation_service';
 import Store from "@/composables/ApiStore"
@@ -124,7 +124,7 @@ const SPINE: AppInterface = {
   applicationName: 'SPINE',
   applicationIcon: 'spine_logo.png',
   applicationDescription: 'In-patient Program',
-  appRoutes: opdRoutes,
+  appRoutes: routes,
   programReports: REPORTS,
   primaryPatientActivites: PRIMARY_ACTIVITIES,
   secondaryPatientActivites: SECONDARY_ACTIVITIES,
