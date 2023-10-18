@@ -266,6 +266,8 @@ export default defineComponent({
               'Chemotherapy',
               'Palliative Care',
               'LLETZ/LEEP',
+              'Treatment with antibiotic',
+              'Anti-parasitic medication',
             ]),
           computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Treatment', value.label)
