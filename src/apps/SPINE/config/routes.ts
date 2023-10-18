@@ -10,11 +10,6 @@ export default [
     component: () => import('@/apps/OPD/views/encounters/HIVStatus.vue')
   },
   {
-    name: "vitals",
-    path: "/opd/encounters/vitals/:patient_id",
-    component: () => import('@/apps/ART/views/encounters/Vitals.vue')
-  },
-  {
     name: "outpatient diagnosis",
     path: "/opd/encounters/diagnosis/:patient_id",
     component: () => import('@/apps/OPD/views/encounters/Diagnosis.vue')

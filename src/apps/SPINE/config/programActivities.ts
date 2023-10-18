@@ -7,11 +7,6 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     icon: 'attributes.png'
   },
   {
-    id: 'vitals',
-    name: 'Vitals',
-    icon: 'vitals.png'
-  },
-  {
     id: 'admit patient',
     name: 'Admin Patient',
     icon: 'complaints.png'
