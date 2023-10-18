@@ -194,7 +194,10 @@ export default defineComponent({
         },
         {
             id: 'are_histological_results_after_lletz_available',
-            helpText: 'Are Histological results after LLETZ available?',
+            helpText: ``,
+            dynamicHelpText: (f: any) => {
+              return `Are Histology results after ${f.type_of_sample_collected.value} available`
+            },
             type: FieldType.TT_SELECT,
             validation: (val: any) => Validation.required(val),
             condition: () => this.isNotSameDayTreatment(),
