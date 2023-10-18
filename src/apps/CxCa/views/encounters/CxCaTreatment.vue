@@ -256,6 +256,23 @@ export default defineComponent({
           })
         },
         {
+          id: "recommended_care_after_lletz_histology",
+          helpText: "Recommended Care After LLETZ Histology",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          condition: () => this.isNotSameDayTreatment(),
+          options: () =>
+            this.mapOptions([
+              'Hysterectomy',
+              'Trachelectomy',
+              'Discharged',
+              'Continue follow-up',
+            ]),
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Recommended Care After LLETZ Histology', value.label)
+          })
+        },
+        {
           id: "treatment_provided",
           helpText: "Treatment Provided",
           type: FieldType.TT_SELECT,
@@ -271,23 +288,6 @@ export default defineComponent({
             ]),
           computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Treatment', value.label)
-          })
-        },
-        {
-          id: "recommended_care_after_lletz_histology",
-          helpText: "Recommended Care After LLETZ Histology",
-          type: FieldType.TT_SELECT,
-          validation: (val: any) => Validation.required(val),
-          condition: () => this.isNotSameDayTreatment(),
-          options: () =>
-            this.mapOptions([
-              'Hysterectomy',
-              'Trachelectomy',
-              'Discharged',
-              'Continue follow-up',
-            ]),
-            computedValue: (value: any) => ({
-            obs: this.reception.buildValueCoded('Recommended Care After LLETZ Histology', value.label)
           })
         },
         {
