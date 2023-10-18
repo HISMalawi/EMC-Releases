@@ -7,6 +7,8 @@ import { RouteRecordRaw } from 'vue-router';
 import RADIOLOGY from '@/apps/RADIOLOGY/app';
 import Registration from '@/apps/Registration/app';
 import CRVS from '@/apps/CRVS/app';
+import SPINE from './SPINE/app';
+
 /**
  * Register Program Applications here that conform to the AppInterface
 */
@@ -16,6 +18,7 @@ const APPS = [
     OPD,
     ANC,
     CXCA,
+    SPINE,
     RADIOLOGY,
     CRVS,
     Registration
