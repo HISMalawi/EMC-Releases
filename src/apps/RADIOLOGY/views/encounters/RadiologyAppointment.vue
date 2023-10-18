@@ -13,7 +13,6 @@ import { Field, Option } from "@/components/Forms/FieldInterface"
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations";
-import { toastWarning, toastSuccess } from "@/utils/Alerts"
 import EncounterMixinVue from '../../../../views/EncounterMixin.vue';
 import {AppointmentService} from '@/apps/ART/services/appointment_service'
 import dayjs from "dayjs";

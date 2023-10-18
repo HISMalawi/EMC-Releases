@@ -3,7 +3,6 @@ import { AppEncounterService } from "@/services/app_encounter_service";
 import { ObservationService } from "@/services/observation_service";
 import dayjs from "dayjs";
 import { isEmpty } from "lodash";
-import { DrugOrderService } from "@/services/drug_order_service"
 
 export class ConsultationService extends AppEncounterService {
   constructor(patientID: number, providerID: number) {

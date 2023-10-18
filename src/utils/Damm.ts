@@ -48,7 +48,7 @@ export function dammCheckDigit(input: string) {
     }
     let row = 0;
     for(let i = 0; i < input.length; i++) {
-        let col: any = input.charAt(i);
+        const col: any = input.charAt(i);
         row = DAMM_LOOKUP_TABLE[row][col];
     }
     return `${row}`

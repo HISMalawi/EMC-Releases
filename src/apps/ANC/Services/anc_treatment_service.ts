@@ -1,6 +1,6 @@
 import { AppEncounterService } from "@/services/app_encounter_service";
 import { DrugOrderService } from "@/services/drug_order_service";
-import { find, isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 import HisDate from "@/utils/Date"
 
 export interface AncTreatmentDrugObject {

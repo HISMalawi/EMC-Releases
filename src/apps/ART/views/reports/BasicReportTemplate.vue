@@ -62,7 +62,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import HisFooter from "@/components/HisDynamicNavFooter.vue";
-import { toExportableFormat, ColumnInterface, RowInterface} from "@/components/DataViews/tables/ReportDataTable" 
+import { toExportableFormat, ColumnInterface, RowInterface, AsyncTableRowHandler, TableRowParser} from "@/components/DataViews/tables/ReportDataTable" 
 import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
 import { IonCol, IonRow, IonPage,IonHeader, IonContent, IonToolbar, IonChip, IonFooter } from "@ionic/vue"
 import { toCsv, toTablePDF } from "@/utils/Export"
@@ -94,7 +94,7 @@ export default defineComponent({
       required: true,
     },
     columns: {
-      type: Object as PropType<Array<ColumnInterface[]>>,
+      type: Array as PropType<Array<Array<ColumnInterface>>>,
       required: true
     },
     encryptPDF: {
@@ -102,10 +102,11 @@ export default defineComponent({
       default: false
     },
     rows: {
-      type: Object as PropType<Array<RowInterface[]>>
+      type: Array as PropType<Array<Array<RowInterface>>>,
+      default: () => []
     },
     rowParser: {
-      type: Function
+      type: Function as PropType<TableRowParser>
     },
     showFilters: {
       type: Boolean,
@@ -115,7 +116,7 @@ export default defineComponent({
       type: Number
     },
     asyncRows: {
-      type: Function
+      type: Function as PropType<AsyncTableRowHandler>
     },
     paginated: {
       type: Boolean,
@@ -142,7 +143,7 @@ export default defineComponent({
       default: true
     },
     onFinish: {
-      type: Function
+      type: Function as PropType<() => Promise<any> | any>
     }
   },
   data: () => ({

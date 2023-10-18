@@ -86,7 +86,7 @@ export default defineComponent({
           helpText: 'Previous Radiology Examinations',
           condition: () => this.previousRadiologyExaminations,
           type: FieldType.TT_TABLE_VIEWER,
-          options: (d: any) => this.getTableData(),
+          options: () => this.getTableData(),
           config: {
             hiddenFooterBtns: ["Clear"],
           },

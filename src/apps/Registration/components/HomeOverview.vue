@@ -14,7 +14,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue'
 import ReportTable from "@/components/DataViews/tables/ReportDataTable.vue"
-import { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable" 
+import { ColumnInterface } from "@/components/DataViews/tables/ReportDataTable" 
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { RegistrationReportService } from "@/apps/Registration/services/registration_report_service"
 import { toastDanger } from '@/utils/Alerts'

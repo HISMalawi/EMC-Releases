@@ -118,7 +118,7 @@ export default defineComponent({
           id: "enter_batches",
           helpText: "Batch entry",
           type: FieldType.TT_BATCH_MOVEMENT,
-          beforeNext: (_: any, _f: any, _c: any, {currentFieldContext}: any) => {
+          beforeNext: (v: any, f: any, c: any, {currentFieldContext}: any) => {
             const drugsToStr = (drugs: any) => drugs.map((b: any) => `${b.label}`).join(' & ')
             const partialEntries = currentFieldContext.drugs.filter((drug: Option) => !drug.other.tins || !drug.other.reason);
             if (!isEmpty(partialEntries)) {

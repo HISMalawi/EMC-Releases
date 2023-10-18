@@ -129,7 +129,7 @@ export default defineComponent({
           type: FieldType.TT_BATCH_ENTRY,
           options: () => this.selectedDrugs,
           beforeNext: (_: any, f: any, c: any, {currentFieldContext}: any) => {
-            const drugsToStr = (drugs: any) => drugs.map((b: any, i: number) => `${b.label}`).join(' & ')
+            const drugsToStr = (drugs: any) => drugs.map((b: any) => `${b.label}`).join(' & ')
             const drugsWithoutBatches = currentFieldContext.drugs.filter((drug: any) =>
               drug.entries.map((d: any) => !d.tins && !d.expiry && !d.batchNumber && !d.tabs).every(Boolean)
             )

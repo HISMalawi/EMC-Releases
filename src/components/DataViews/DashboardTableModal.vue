@@ -42,12 +42,12 @@ export default defineComponent({
       required: true
     },
     columns: {
-      type: Object as PropType<string[]>,
+      type: Array as PropType<string[]>,
       required: true
     },
     rows: {
-      type: Object as PropType<string[]>,
-      default: true
+      type: Array as PropType<string[]>,
+      default: () => []
     }
   },
   methods: {

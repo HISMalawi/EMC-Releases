@@ -136,7 +136,7 @@
 import { defineComponent } from "vue";
 import ViewPort from "@/components/DataViews/ViewPort.vue";
 import { FieldType } from "@/components/Forms/BaseFormElements"
-import { Field } from '@/components/Forms/FieldInterface'
+import { Field, SingleFieldFormOnFinishAction } from '@/components/Forms/FieldInterface'
 import TouchField from "@/components/Forms/SIngleTouchField.vue"
 
 import {
@@ -210,7 +210,7 @@ export default defineComponent({
       }
       return false
     },
-    removeNote(d: any, i: any, ind: any) {
+    removeNote(d: any, ind: any) {
       this.drugs[d].notes.splice(ind, 1);
     },
     launchNotePad(drugIndex: any) {
@@ -258,7 +258,7 @@ export default defineComponent({
       sessionStorage.setItem(HTN_SESSION_KEY.Prescription, JSON.stringify(data))
       this.$router.push(`/art/encounters/prescriptions/${this.patientID}`)
     },
-    async showModal(currentField: Field, onFinish: Function) {
+    async showModal(currentField: Field, onFinish: SingleFieldFormOnFinishAction) {
       const modal = await modalController.create({
         component: TouchField,
         backdropDismiss: false,
