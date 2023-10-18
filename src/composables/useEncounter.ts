@@ -21,7 +21,7 @@ export interface EncounterFacts {
   outcomeStartDate: string;
 };
 
-const patient = ref({} as Patientservice);
+let patient = reactive({} as Patientservice);
 const facts = reactive({} as EncounterFacts);
 const provider = ref(-1);
 const providers = ref<Array<any>>([]);
@@ -29,11 +29,11 @@ const isReady = ref(false);
 const router = useRouter();
 
 async function setPatient(patientID: string) {
-  patient.value = await Store.get('ACTIVE_PATIENT', { patientID });
+  patient = await Store.get('ACTIVE_PATIENT', { patientID });
 }
 
 function goToPatientDashboard() {
-  return router.push(`/patient/dashboard/${patient.value.getID()}`)
+  return router.push(`/patient/dashboard/${patient.getID()}`)
 }
 
 function getProvidersNames() {
@@ -50,7 +50,7 @@ function getProvidersNames() {
 
 async function setEncounterFacts(encounterName = "N/A") {
   try {
-    const program = await Store.get('PATIENT_PROGRAM', { patientID: patient.value.getID() })
+    const program = await Store.get('PATIENT_PROGRAM', { patientID: patient.getID() })
     facts.outcome = program.outcome
     facts.outcomeStartDate = program.startDate
   } catch (error) {
@@ -59,7 +59,7 @@ async function setEncounterFacts(encounterName = "N/A") {
   facts.sessionDate = ProgramService.getSessionDate();
   facts.apiDate = ProgramService.getCachedApiDate() as string;
   facts.isBdeMode = ProgramService.isBDE() as boolean;
-  facts.birthdate = patient.value.getBirthdate();
+  facts.birthdate = patient.getBirthdate();
   facts.encounterName = encounterName.toUpperCase();
   if (ProgramService.isBDE()) {
     providers.value = await Store.get('PROVIDERS');
@@ -75,11 +75,11 @@ function runflowState(state: FlowState, params = null) {
     return FlowState.CONTINUE
   }
   states[FlowState.CHANGE_SESSION_DATE] = () => {
-    router.push(`/session/date?patient_dashboard_redirection_id=${patient.value.getID()}`)
+    router.push(`/session/date?patient_dashboard_redirection_id=${patient.getID()}`)
     return FlowState.EXIT
   }
   states[FlowState.CHANGE_PATIENT_OUTCOME] = () => {
-    router.push(`/patient/programs/${patient.value.getID()}`)
+    router.push(`/patient/programs/${patient.getID()}`)
     return FlowState.EXIT
   }
   states[FlowState.GO_TO_PATIENT_DASHBOARD] = () => {
@@ -107,7 +107,7 @@ async function checkEncounterGuidelines() {
 }
 
 function gotToNextTask() {
-  return nextTask(patient.value.getID(), router);
+  return nextTask(patient.getID(), router);
 }
 
 export default function useEncounter() {
