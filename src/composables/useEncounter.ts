@@ -108,7 +108,7 @@ async function checkEncounterGuidelines() {
   }
 }
 
-function gotToNextTask() {
+function goToNextTask() {
   return nextTask(patient.getID(), router);
 }
 
@@ -128,6 +128,6 @@ export default function useEncounter() {
     facts,
     patientDashboardUrl,
     goToPatientDashboard,
-    gotToNextTask,
+    goToNextTask,
   }
 }
