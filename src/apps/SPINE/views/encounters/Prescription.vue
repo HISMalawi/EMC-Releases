@@ -55,7 +55,7 @@
       <ion-content style="width: 100%;" class="ion-padding-bottom">
         <div class="ion-content-scroll-host" :class="{'ion-margin-bottom ion-padding-bottom': disableScroll}">
           <ion-list class='view-port-content' :class="{'ion-margin-bottom': disableScroll}">
-            <ion-item v-for="(entry, index) in listData" :key="index" :color="entry.isChecked ? 'lightblue':''" :lines="entry.isChecked ? 'none':''">
+            <ion-item v-for="(entry, index) in listData" :key="index" :color="entry.isChecked ? 'lightblue':''" :lines="entry.isChecked ? 'none':'full'">
               <ion-label> 
                 <ion-text class="his-md-text">{{ entry.label }} </ion-text>
                 <ion-text :color="entry.description?.color" v-if="entry.description && entry.isChecked"> 
@@ -338,7 +338,7 @@ export default defineComponent({
       });
       modal.present();
     },
-    onSelect(entry: Option, event: Event) {
+    onSelect(entry: Option) {
       this.$nextTick(async () => {
         if (entry.isChecked) {
           if((this.checkedItems.findIndex(item => item.value === entry.value)) === -1) {
@@ -385,13 +385,13 @@ export default defineComponent({
         const frequency = DRUG_FREQUENCIES.find(f => f.label === drug.other.frequency)
         return {
           'drug_inventory_id': drug.other.drug_id,
-          'equivalent_daily_dose': drug.other.dosage=='Unknown'?0 : drug.other.dosage * frequency!.value,
+          'equivalent_daily_dose': drug.other.dosage=='Unknown'?0 : drug.other.dosage * (frequency?.value || 1),
           'start_date': startDate,
           'auto_expire_date': this.calculateExpireDate(startDate, drug.other.duration), 
           'units': drug.other.units,
-          'instructions': `${drug.label}: ${drug.other.dosage} ${drug.other.units} ${frequency!.code} for ${drug.other.duration} days`,
+          'instructions': `${drug.label}: ${drug.other.dosage} ${drug.other.units} ${frequency?.code} for ${drug.other.duration} days`,
           'dose': drug.other.dosage,
-          'frequency': frequency!.code,
+          'frequency': frequency?.code,
         }
       })
     },

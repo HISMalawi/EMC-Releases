@@ -5,7 +5,7 @@ import { ProgramService } from "@/services/program_service";
 import isEmpty from "lodash/isEmpty";
 import sortBy from "lodash/sortBy";
 import find from "lodash/find";
-import { RouteRecordRaw, useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { ENCOUNTER_GUIDELINES, FlowState } from "@/guidelines/encounter_guidelines";
 import { matchToGuidelines } from "@/utils/GuidelineEngine";
 import { nextTask } from '@/utils/WorkflowTaskHelper';
@@ -19,7 +19,7 @@ export interface EncounterFacts {
   outcome: string;
   providers: Array<string>;
   outcomeStartDate: string;
-};
+}
 
 let patient = reactive({} as Patientservice);
 const facts = reactive({} as EncounterFacts);
@@ -51,13 +51,9 @@ function getProvidersNames() {
 }
 
 async function setEncounterFacts(encounterName = "N/A") {
-  try {
-    const program = await Store.get('PATIENT_PROGRAM', { patientID: patient.getID() })
-    facts.outcome = program.outcome
-    facts.outcomeStartDate = program.startDate
-  } catch (error) {
-    throw error;
-  }
+  const program = await Store.get('PATIENT_PROGRAM', { patientID: patient.getID() })
+  facts.outcome = program.outcome
+  facts.outcomeStartDate = program.startDate
   facts.sessionDate = ProgramService.getSessionDate();
   facts.apiDate = ProgramService.getCachedApiDate() as string;
   facts.isBdeMode = ProgramService.isBDE() as boolean;
