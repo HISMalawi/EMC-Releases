@@ -1,11 +1,17 @@
 <template>
-    <his-standard-form :cancelDestinationPath="cancelDestination" :fields="fields" :onFinishAction="onSubmit"/>
+  <ion-page>
+    <his-standard-form 
+      :cancelDestinationPath="patientDashboardUrl" 
+      :fields="fields" 
+      :onFinishAction="onSubmit"
+      skipSummary
+    />
+  </ion-page>
 </template>
 
-<script lang="ts">
-import { defineComponent} from 'vue'
+<script lang="ts" setup>
+import { ref, watch} from 'vue'
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
-import EncounterMixinVue from '@/views/EncounterMixin.vue';
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
@@ -13,96 +19,134 @@ import { getFacilities } from '@/utils/HisFormHelpers/LocationFieldOptions';
 import { EstimationFieldType, generateDateFields } from '@/utils/HisFormHelpers/MultiFieldDateHelper';
 import { toastWarning } from '@/utils/Alerts';
 import { HIVStatusService } from '../../services/hiv_status_service';
+import useEncounter from '@/composables/useEncounter';
+import { mapStrToOptions, resolveObs, yesNoOptions } from '@/utils/HisFormHelpers/commons';
+import { IonPage } from '@ionic/vue';
 
-export default defineComponent({
-    components: { HisStandardForm },
-    mixins: [EncounterMixinVue],
-    data: () => ({
-        hivService: {} as any
-    }),
-    watch: {
-        ready: {
-            async handler(isReady: boolean) {
-                if(isReady){
-                    this.hivService = new HIVStatusService(this.patient.getID(), this.providerID)
-                    this.fields = this.getFields()
-                }
-            },
-            immediate: true,
-            deep: true
-        }
-    },
-    methods: {
-        async onSubmit(formData: any, computedData: any){
-            const encounter = await this.hivService.createEncounter()
-            if (!encounter) return toastWarning('Unable to create encounter') 
-            const data = await this.resolveObs({...computedData})
-            const obs = await this.hivService.saveObservationList(data)
-            if (!obs) return toastWarning('Unable to save observations')
-            this.nextTask()        
-        },
-        buildDateObs(conceptName: string, date: string, isEstimate: boolean) {
-            let obs = {}
-            if (date.match(/unknown/i)) {
-                obs = this.hivService.buildValueText(conceptName, 'Unknown')
-            } else if (isEstimate) {
-                obs = this.hivService.buildValueDateEstimated(conceptName, date)
-            } else {
-                obs = this.hivService.buildValueDate(conceptName, date)
-            }
-            return obs
-        },
-        getFields(): Array<Field>{
-            return [
-                {
-                    id: 'hiv_status',
-                    helpText: 'HIV status',
-                    type: FieldType.TT_SELECT,
-                    validation: (value: any) => Validation.required(value),
-                    computedValue: ({ value }: Option) => ({
-                        obs: this.hivService.buildValueText('HIV status', value)
-                    }),
-                    options: () => ([
-                        { label: 'Positive not ART', value: 'Positive not ART' },
-                        { label: 'Posititve on ART', value: 'Positive on ART' },
-                        { label: 'Previous negative', value: 'Previous negative' },
-                        { label: 'New positive', value: 'New positive' },
-                        { label: 'New negative', value: 'New negative' },
-                        { label: 'Never tested', value: 'Never tested' },
-                    ])
-                },
-                ...generateDateFields({
-                    id: 'hiv_test_date',
-                    helpText: 'HIV Test',
-                    required: true,
-                    minDate: () => this.patient.getBirthdate(),
-                    maxDate: () => HIVStatusService.getSessionDate(),
-                    condition: (fields: any) => fields.hiv_status.value !== 'Never tested',
-                    summaryLabel: 'HIV test date',
-                    estimation: {
-                        allowUnknown: true,
-                        estimationFieldType: EstimationFieldType.MONTH_ESTIMATE_FIELD
-                    },
-                    computeValue: (date: string, isEstimate: boolean) => this.buildDateObs('HIV test date', date, isEstimate)
-                    
-                }),
-                {
-                    id: 'test_location',
-                    helpText: 'HIV test location',
-                    type: FieldType.TT_SELECT,
-                    validation: (value: any) => Validation.required(value),
-                    defaultValue: () => HIVStatusService.getLocationName(),
-                    computedValue: ({ label }: Option) => ({obs: this.hivService.buildValueText('HIV test location', label)}),
-                    condition: (fields: any) => fields.hiv_status.value !== 'Never tested',
-                    options: (_: any, filter='') => getFacilities(filter),
-                    config: {
-                        showKeyboard: true,
-                        isFilterDataViaApi: true
-                    }
-                }
-            ]
-        }
-    }
+let hivService: HIVStatusService;
+const fields = ref<Array<Field>>([]);
+const {
+  isReady,
+  patient,
+  provider,
+  patientDashboardUrl,
+  goToNextTask
+} = useEncounter();
+
+watch(isReady, (ready) => {
+  if(ready) {
+    hivService = new HIVStatusService(patient.value.getID(), provider.value);
+    fields.value = [
+      getHIVStatusField(),
+      ...getHivTestDateField(),
+      getTestLocationField(),
+      getOnARTField(),
+      ...getArtStartDateField(),
+      getCurrentArtLocationField()
+    ];
+  }
 })
+
+async function onSubmit(_formData: any, computedData: any){
+  const encounter = await hivService.createEncounter()
+  if (!encounter) return toastWarning('Unable to create encounter') 
+  const data = await resolveObs({...computedData})
+  const obs = await hivService.saveObservationList(data)
+  if (!obs) return toastWarning('Unable to save observations')
+  goToNextTask()     
+}
+
+function getCurrentArtLocationField(): Field {
+  return {
+    id: 'art_clinic_location',
+    helpText: 'ART clinic location',
+    type: FieldType.TT_SELECT,
+    computedValue: (v: Option) => ({ obs: hivService.buildValueText('ART clinic location', v.label) }),
+    validation: (val: any) => Validation.required(val),
+    condition: (f: any) => f.received_arvs.value === 'Yes',
+    options: (_: any, filter='') => getFacilities(filter),
+    config: {
+        showKeyboard: true,
+        isFilterDataViaApi: true
+    }
+  }
+}
+
+function getArtStartDateField(): Array<Field> {
+  return generateDateFields({
+    id: 'date_started_art',
+    helpText: 'Started ART',
+    required: true,
+    condition: (f: any) => f.received_arvs.value === 'Yes',
+    minDate: () => `${patient.value?.getBirthdate() ?? ''}`,
+    maxDate: () => hivService.getDate(),
+    estimation: {
+        allowUnknown: true,
+        estimationFieldType: EstimationFieldType.MONTH_ESTIMATE_FIELD
+    },
+    computeValue: (date: string, isEstimate: boolean) => hivService.buildDateObs('Date ART started', date, isEstimate) 
+  })
+}
+
+function getOnARTField(): Field {
+  return {
+    id: 'received_arvs',
+    helpText: 'Started ART?',
+    type: FieldType.TT_SELECT,
+    computedValue: ({value}: Option) => ({ obs: hivService.buildValueCoded('ART Started', value) }),
+    validation: (v: any) => Validation.required(v),
+    options: () => yesNoOptions(),
+    condition: (f: any) => f.hiv_status.value === "Reactive"
+  }
+}
+
+function getHIVStatusField(): Field {
+  return {
+    id: 'hiv_status',
+    helpText: 'HIV status',
+    type: FieldType.TT_SELECT,
+    validation: (value: any) => Validation.required(value),
+    computedValue: (v: Option) => ({ obs: hivService.buildValueText('HIV status', v.label) }),
+    options: () => mapStrToOptions([
+      "Reactive",
+      "Non-reactive",
+      "Unknown"
+    ])
+  }
+}
+
+function getHivTestDateField() {
+  return generateDateFields({
+    id: 'hiv_test_date',
+    helpText: 'HIV Test',
+    required: true,
+    minDate: () => `${patient.value?.getBirthdate() ?? ''}`,
+    maxDate: () => HIVStatusService.getSessionDate(),
+    condition: (fields: any) => fields.hiv_status.value !== 'Unknown',
+    summaryLabel: 'HIV test date',
+    estimation: {
+      allowUnknown: true,
+      estimationFieldType: EstimationFieldType.MONTH_ESTIMATE_FIELD
+    },
+    computeValue: (date: string, isEstimate: boolean) => hivService.buildDateObs('HIV test date', date, isEstimate)
+  })
+}
+
+function getTestLocationField(): Field {
+  return {
+    id: 'test_location',
+    helpText: 'HIV test location',
+    type: FieldType.TT_SELECT,
+    validation: (value: any) => Validation.required(value),
+    defaultValue: () => HIVStatusService.getLocationName(),
+    computedValue: ({ label }: Option) => ({ obs: hivService.buildValueText('HIV test location', label) }),
+    condition: (fields: any) => fields.hiv_status.value !== 'Unknown',
+    options: (_: any, filter='') => getFacilities(filter),
+    config: {
+      showKeyboard: true,
+      isFilterDataViaApi: true
+    }
+  }
+}
 </script>
 
