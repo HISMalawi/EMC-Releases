@@ -1,5 +1,5 @@
 import { Patientservice } from "@/services/patient_service";
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import Store from '@/composables/ApiStore';
 import { ProgramService } from "@/services/program_service";
 import isEmpty from "lodash/isEmpty";
@@ -15,106 +15,104 @@ export interface EncounterFacts {
   apiDate: string;
   encounterName: string;
   isBdeMode: boolean;
-  birthdate: Date;
+  birthDate: Date;
   outcome: string;
   providers: Array<string>;
   outcomeStartDate: string;
 }
 
-let patient = reactive({} as Patientservice);
-const facts = reactive({} as EncounterFacts);
-const provider = ref(-1);
-const providers = ref<Array<any>>([]);
-const isReady = ref(false);
-const router = useRouter();
-
-const patientDashboardUrl = computed(() => `/patient/dashboard/${patient.getID()}`);
-
-async function setPatient(patientID: string) {
-  patient = await Store.get('ACTIVE_PATIENT', { patientID });
-}
-
-function goToPatientDashboard() {
-  return router.push(patientDashboardUrl.value);
-}
-
-function getProvidersNames() {
-  return sortBy(providers.value, ({ username }) => username)
-    .map((p: any) => {
-      let name = `${p.username}`
-      if (!isEmpty(p?.person?.names)) {
-        const [latestName] = p.person?.names || []
-        name += ` (${latestName.given_name} ${latestName.family_name})`
-      }
-      return name
-    })
-}
-
-async function setEncounterFacts(encounterName = "N/A") {
-  const program = await Store.get('PATIENT_PROGRAM', { patientID: patient.getID() })
-  facts.outcome = program.outcome
-  facts.outcomeStartDate = program.startDate
-  facts.sessionDate = ProgramService.getSessionDate();
-  facts.apiDate = ProgramService.getCachedApiDate() as string;
-  facts.isBdeMode = ProgramService.isBDE() as boolean;
-  facts.birthdate = patient.getBirthdate();
-  facts.encounterName = encounterName.toUpperCase();
-  if (ProgramService.isBDE()) {
-    providers.value = await Store.get('PROVIDERS');
-    facts.providers = getProvidersNames();
-  }
-}
-
-function runflowState(state: FlowState, params = null) {
-  const states: any = {}
-  states[FlowState.SET_PROVIDER] = (selection: any) => {
-    const [username] = selection.split(' ');
-    provider.value = find(providers.value, { username })?.person_id ?? -1;
-    return FlowState.CONTINUE
-  }
-  states[FlowState.CHANGE_SESSION_DATE] = () => {
-    router.push(`/session/date?patient_dashboard_redirection_id=${patient.getID()}`)
-    return FlowState.EXIT
-  }
-  states[FlowState.CHANGE_PATIENT_OUTCOME] = () => {
-    router.push(`/patient/programs/${patient.getID()}`)
-    return FlowState.EXIT
-  }
-  states[FlowState.GO_TO_PATIENT_DASHBOARD] = () => {
-    goToPatientDashboard();
-    return FlowState.EXIT
-  }
-  if (state in states) {
-    return states[state](params)
-  }
-}
-
-async function checkEncounterGuidelines() {
-  const findings = matchToGuidelines(facts, ENCOUNTER_GUIDELINES)
-  for (const index in findings) {
-    const finding = findings[index]
-    if (finding?.actions?.alert) {
-      const status = runflowState((await finding?.actions?.alert(facts)))
-      if (status === FlowState.EXIT) return
-    }
-    if (finding?.actions?.selection) {
-      const selection = await finding?.actions?.selection(facts)
-      runflowState(selection.flowState, selection.value)
-    }
-  }
-}
-
-function goToNextTask() {
-  return nextTask(patient.getID(), router);
-}
-
 export default function useEncounter() {
   const route = useRoute();
-  setPatient(route.params.patient_id as string).then(() =>
-    setEncounterFacts(route.name as string).then(() =>
-      checkEncounterGuidelines().then(() => isReady.value = true)
-    )
-  );
+  const patient = ref({} as Patientservice);
+  const facts = reactive({} as EncounterFacts);
+  const provider = ref(-1);
+  const providers = ref<Array<any>>([]);
+  const isReady = ref(false);
+  const router = useRouter();
+  const patientDashboardUrl = ref('');
+
+  const goToNextTask = () => nextTask(patient.value?.getID(), router);
+  const goToPatientDashboard = () => router.push(patientDashboardUrl.value);
+
+  const getProvidersNames = () => {
+    return sortBy(providers.value, ({ username }) => username)
+      .map((p: any) => {
+        let name = `${p.username}`
+        if (!isEmpty(p?.person?.names)) {
+          const [latestName] = p.person?.names || []
+          name += ` (${latestName.given_name} ${latestName.family_name})`
+        }
+        return name
+      });
+  }
+
+  const setEncounterFacts = async (encounterName = "N/A") => {
+    const program = await Store.get('PATIENT_PROGRAM', { patientID: patient.value?.getID() })
+    facts.outcome = program.outcome
+    facts.outcomeStartDate = program.startDate
+    facts.sessionDate = ProgramService.getSessionDate();
+    facts.apiDate = ProgramService.getCachedApiDate() as string;
+    facts.isBdeMode = ProgramService.isBDE() as boolean;
+    facts.birthDate = patient.value?.getBirthdate();
+    facts.encounterName = encounterName.toUpperCase();
+    if (ProgramService.isBDE()) {
+      providers.value = await Store.get('PROVIDERS');
+      facts.providers = getProvidersNames();
+    }
+  }
+
+  const runflowState = (state: FlowState, params = null) => {
+    const states: any = {}
+    states[FlowState.SET_PROVIDER] = (selection: any) => {
+      const [username] = selection.split(' ');
+      provider.value = find(providers.value, { username })?.person_id ?? -1;
+      return FlowState.CONTINUE
+    }
+    states[FlowState.CHANGE_SESSION_DATE] = () => {
+      router.push(`/session/date?patient_dashboard_redirection_id=${patient.value.getID()}`)
+      return FlowState.EXIT
+    }
+    states[FlowState.CHANGE_PATIENT_OUTCOME] = () => {
+      router.push(`/patient/programs/${patient.value.getID()}`)
+      return FlowState.EXIT
+    }
+    states[FlowState.GO_TO_PATIENT_DASHBOARD] = () => {
+      goToPatientDashboard();
+      return FlowState.EXIT
+    }
+    if (state in states) {
+      return states[state](params)
+    }
+  }
+
+  const checkEncounterGuidelines = async (facts: EncounterFacts) => {
+    const findings = matchToGuidelines(facts, ENCOUNTER_GUIDELINES)
+    for (const index in findings) {
+      const finding = findings[index]
+      if (finding?.actions?.alert) {
+        const status = runflowState((await finding?.actions?.alert(facts)))
+        if (status === FlowState.EXIT) return
+      }
+      if (finding?.actions?.selection) {
+        const selection = await finding?.actions?.selection(facts)
+        runflowState(selection.flowState, selection.value)
+      }
+    }
+  }
+
+  onMounted(async () => {
+    try {
+      const patientID = route.params.patient_id as string;
+      patientDashboardUrl.value = `/patient/dashboard/${ patientID }`;
+      console.log(patientID, patientDashboardUrl.value);
+      patient.value = await Store.get('ACTIVE_PATIENT', { patientID });
+      await setEncounterFacts(route.name as string);
+      await checkEncounterGuidelines(facts);
+      isReady.value = true;
+    } catch (error) {
+      console.error('Error in useEncounter hook:', error);
+    }
+  });
 
   return {
     patient,
@@ -125,5 +123,5 @@ export default function useEncounter() {
     patientDashboardUrl,
     goToPatientDashboard,
     goToNextTask,
-  }
+  };
 }
