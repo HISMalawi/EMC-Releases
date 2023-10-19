@@ -1,5 +1,5 @@
 import { Patientservice } from "@/services/patient_service";
-import { computed, onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import Store from '@/composables/ApiStore';
 import { ProgramService } from "@/services/program_service";
 import isEmpty from "lodash/isEmpty";
