@@ -19,17 +19,17 @@ import { IonPage } from '@ionic/vue';
 import { reactive } from 'vue';
 import useEncounter from "@/composables/useEncounter";
 import { PatientAdmitService } from "../../services/patient_admit_service";
-import { resolveObs } from '@/utils/HisFormHelpers/commons';
-import { getFacilityWards } from '@/utils/HisFormHelpers/LocationFieldOptions';
+import { getFacilities } from '@/utils/HisFormHelpers/LocationFieldOptions';
 
 const fields = ref<Array<Field>>([]);
 let admitService = reactive({} as PatientAdmitService);
 const { isReady, patient, provider, goToNextTask, patientDashboardUrl } = useEncounter();
 
-async function onSubmit(_fdata: any, cdata: any) {
+async function onSubmit(fdata: any) {
   await admitService.createEncounter();
-  const obs = await resolveObs(cdata);
-  await admitService.saveObservationList(obs);
+  const ward = fdata.otherWards?.value ?? fdata.wards.label;
+  const obs = await admitService.buildValueText('Admit to ward', ward);
+  await admitService.saveObservationList([ obs ]);
   goToNextTask();
 }
 
@@ -38,15 +38,22 @@ function getWardsField(): Field {
     id: 'wards',
     helpText: "Admit to ward",
     type: FieldType.TT_SELECT,
-    options: (_fdata: any, filter = '') => getFacilityWards(filter),
+    options: (_fdata: any, filter = '') => getFacilities(filter),
     validation: (v: Option) => Validation.required(v),
-    computedValue: (v: Option) => ({
-      obs: admitService.buildValueText('Admit to ward', v.label)
-    }),
     config: {
       showKeyboard: true,
-      isFilterDataViaApi: true
+      isFilterDataViaApi: true,
     },
+  }
+}
+
+function getOtherWardsField(): Field {
+  return {
+    id: "otherWards",
+    helpText: "Enter custom ward",
+    type: FieldType.TT_TEXT,
+    validation: (v: Option) => Validation.required(v),
+    condition: (f: any) => /other/i.test(f.wards.label),
   }
 }
 
@@ -54,6 +61,7 @@ watch(isReady, (ready) => {
   if (ready) {
     admitService = new PatientAdmitService(patient.value.getID(), provider.value);
     fields.value.push(getWardsField());
+    fields.value.push(getOtherWardsField());
   }
 }, {
   immediate: true,
