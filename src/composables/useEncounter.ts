@@ -104,7 +104,6 @@ export default function useEncounter() {
     try {
       const patientID = route.params.patient_id as string;
       patientDashboardUrl.value = `/patient/dashboard/${ patientID }`;
-      console.log(patientID, patientDashboardUrl.value);
       patient.value = await Store.get('ACTIVE_PATIENT', { patientID });
       await setEncounterFacts(route.name as string);
       await checkEncounterGuidelines(facts);
