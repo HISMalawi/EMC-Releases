@@ -15,17 +15,17 @@ export default [
     component: () => import('@/apps/SPINE/views/encounters/HIVStatus.vue')
   },
   {
-    name: "outpatient diagnosis",
+    name: "patient diagnosis",
     path: "/SPINE/encounters/diagnosis/:patient_id",
     component: () => import('@/apps/SPINE/views/encounters/Diagnosis.vue')
   },
   {
-    name: "outcome status",
+    name: "discharge patient",
     path: "/SPINE/encounters/outcome-status/:patient_id",
-    component: () => import('@/apps/SPINE/views/encounters/OutcomeStatus.vue')
+    component: () => import('@/apps/SPINE/views/encounters/DischargePatient.vue')
   },
   {
-    name: "SPINE social history",
+    name: "social history",
     path: "/SPINE/encounters/social/:patient_id",
     component: () => import('@/apps/SPINE/views/encounters/SocialHistory.vue')
   },
@@ -39,10 +39,5 @@ export default [
     path: "/SPINE/encounters/dispensing/:patient_id",
     component: () => import('@/apps/SPINE/views/encounters/Dispensing.vue')
   },
-  {
-    name: "radiology examination",
-    path: "/SPINE/encounters/radiology/:patient_id",
-    component: () => import('@/apps/SPINE/views/encounters/radiology.vue')
-  }
 ]
 

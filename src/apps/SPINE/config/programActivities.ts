@@ -9,35 +9,18 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: 'admit patient',
     name: 'Admin Patient',
-    icon: 'complaints.png'
-  },
-  {
-    id: 'discharge patient',
-    name: 'Discharge Patient',
-    icon: 'complaints.png'
+    icon: 'consultation.png'
   },
   {
     id: 'hiv status',
-    name: 'HIV STatus',
+    name: 'HIV Status',
     icon: 'aids.png',
     encounterTypeName: 'update hiv status',
-    availableOnActivitySelection: false
   },
   {
     id: 'Influeza',
     name: 'influeza',
     icon: 'attributes.png'
-  },
-  {
-    id: 'outpatient diagnosis',
-    name: 'Outpatient diagnosis',
-    icon: 'diagnosis.png'
-  },
-  {
-    id: 'outcome status',
-    name: 'Outcome status',
-    icon: 'outcomes.png',
-    availableOnActivitySelection: false
   },
   {
     id: 'lab orders',
@@ -58,10 +41,15 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     },
   },
   {
-    id: 'SPINE social history',
-    name: 'SPINE social history',
+    id: 'social history',
+    name: 'social history',
     icon: 'medical-report.png',
     availableOnActivitySelection: false
+  },
+  {
+    id: 'patient diagnosis',
+    name: 'Diagnosis',
+    icon: 'diagnosis.png'
   },
   {
     id: 'prescription',
@@ -76,12 +64,11 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     icon: 'dispensing.png',
     availableOnActivitySelection: false
   },
-]
-
-export const SECONDARY_ACTIVITIES: TaskInterface[] = [
   {
-    id: 'radiology examination',
-    name: 'radiology examination',
-    icon: 'radiology_types.png'
+    id: 'discharge patient',
+    name: 'Discharge Patient',
+    icon: 'outcomes.png',
   },
-]
+];
+
+export const SECONDARY_ACTIVITIES: TaskInterface[] = [];
