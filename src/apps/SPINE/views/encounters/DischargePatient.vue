@@ -1,5 +1,12 @@
 <template>
-    <his-standard-form :cancelDestinationPath="patientDashboardUrl" :fields="fields" :onFinishAction="onSubmit"/>
+  <IonPage>
+    <his-standard-form 
+      :cancelDestinationPath="patientDashboardUrl" 
+      :fields="fields" 
+      :onFinishAction="onSubmit"
+      skipSummary
+    />
+  </IonPage>
 </template>
 
 <script lang="ts" setup>
@@ -8,12 +15,15 @@ import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
-import { getFacilities, getSpecialistClinics } from '@/utils/HisFormHelpers/LocationFieldOptions';
+import { getFacilities } from '@/utils/HisFormHelpers/LocationFieldOptions';
 import { PatientReferralService } from '@/apps/SPINE/services/patient_referral_service'
 import { PatientDischargeService } from '@/apps/SPINE/services/patient_discharge_service';
+import { LocationService } from "@/services/location_service";
 import { resolveObs } from '@/utils/HisFormHelpers/commons';
 import useEncounter from '@/composables/useEncounter';
 import { isEmpty } from 'lodash';
+import { alertConfirmation, toastDanger, toastWarning } from '@/utils/Alerts';
+import { IonPage } from '@ionic/vue';
 
 let referralService: PatientReferralService;
 let dischargeService: PatientDischargeService;
@@ -28,7 +38,7 @@ watch(isReady, ready => {
     fields.value = [
       getOutcomeField(),
       getFacilityField(),
-      getSpecialistClinicField()
+      getInternalSectionsField()
     ];
   }
 });
@@ -47,7 +57,7 @@ async function onSubmit(_fdata: any, cdata: any) {
 
 function getOutcomeField (): Field {
   return {
-    id: 'outcome',
+    id: 'outcome_status',
     helpText: 'Select Discharge Outcome',
     type: FieldType.TT_SELECT,
     validation: (value: any) => Validation.required(value),
@@ -56,7 +66,7 @@ function getOutcomeField (): Field {
       obs: dischargeService.buildValueCoded("outcome", v.value)
     }),
     options: () => [
-      { label: "Referred (Within the Facility)", value: "Patient transferred(within  facility)"},
+      { label: "Referred (Within the Facility)", value: "Patient transferred internally"},
       { label: "Dead", value: "Died in treatment"},
       { label: "Abscorded", value: "Absconded"},
       { label: "Alive (Discharged home)", value: "Discharged home"},
@@ -75,7 +85,7 @@ function getFacilityField (): Field {
       tag: 'referral',
       obs: referralService.buildValueText('Referred', v.label)
     }),
-    condition: (f: any) => /Transferred/i.test(f.outcome.value),
+    condition: (f: any) => f.outcome_status.value === "Discharged to another facility",
     options: (_: any, filter='') => getFacilities(filter),
     config: {
         showKeyboard: true,
@@ -84,19 +94,43 @@ function getFacilityField (): Field {
   }
 }
 
-function getSpecialistClinicField(): Field {
+function getInternalSectionsField(): Field {
   return {
-    id: 'specialist_clinic',
-    helpText: 'Select clinic',
+    id: 'internal_sections',
+    helpText: 'Select Ward/internal section',
     type: FieldType.TT_SELECT,
     validation: (value: any) => Validation.required(value),
-    computedValue: ({ other }: Option) => ({
+    computedValue: (v: Option) => ({
       tag: 'referral',
-      obs: referralService.buildValueCodedFromConceptId('Specialist clinic', other.concept_id)
+      obs: referralService.buildValueText('Specialist clinic', v.label)
     }),
-    condition: (f: any) => /Referred/i.test(f.opd_outcome.value),
-    options: () => getSpecialistClinics(),
-    config: { showKeyboard: true }
+    condition: (f: any) =>f.outcome_status.value === "Patient transferred internally",
+    options: () => LocationService.getInternalSections(),
+    config: { 
+      showKeyboard: true,
+      footerBtns: [{
+        name: 'Add Section',
+        slot: 'end',
+        color: 'success',
+        onClick: async (f: any, c: any, field: any) => {
+            if (typeof field.filter != 'string' || field.filter.length < 3) {
+                return toastWarning(`Please enter a valid section name`)
+            }
+            if (field.filtered.some((i: Option) => i.label.toLowerCase() === field.filter.toLowerCase())) {
+                return toastWarning(`Section already existing`)
+            }
+            if ((await alertConfirmation(`Do you want to add internal section?`))) {
+                const data = await LocationService.createInternalSection(field.filter.toUpperCase())
+                if (data) {
+                    field.filter = data.name
+                    field.listData = [{label: data.name, value: data.id}, ...field.listData]
+                } else {
+                    toastDanger(`Unable to add ${field.filter}`)
+                }
+            }
+        }
+      }]
+    }
   }
 }
 </script>
