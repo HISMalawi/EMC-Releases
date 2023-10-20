@@ -157,12 +157,12 @@ export default defineComponent({
             this.skipToTreatment = f.returning_client_referral_question.value === 'No' //assign true to skip to treatment
             return f.returning_client_referral_question.value === 'No' && this.isNotSameDayTreatment() && this.isReferralSiteEnabled
           },
-          options: () =>
-            this.mapOptions([
-              'Provider unavailable',
-              'Transport lacking',
-              'Other',
-            ]),
+          options: () => {
+            return [
+              { label: 'Provider unavailable', value: 'Provider NOT available' },
+              { label: 'Transport lacking', value: 'Transport problems' },
+              { label: 'Other', value: 'Other (Specify)' }
+            ]},
             computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('FIGO staging of cervical cancer', value.label)
           })
@@ -173,7 +173,7 @@ export default defineComponent({
             type: FieldType.TT_TEXT,
             validation: (val: any) => Validation.required(val),
             computedValue: (value: any) => ({
-              obs: this.reception.buildValueCoded('Treatment', value.label)
+              obs: this.reception.buildValueCoded('Other reason for not seeking services', value.label)
             }),
             condition: (f: any) => f.possible_reasons_why.value === 'Other'
         },
@@ -362,7 +362,7 @@ export default defineComponent({
               'other',
             ]),
           computedValue: (value: any) => ({
-            obs: this.reception.buildValueCoded('Treatment', value.label)
+            obs: this.reception.buildValueCoded('Other reason for not seeking services', value.label)
           })
         },
         {
@@ -371,7 +371,7 @@ export default defineComponent({
             type: FieldType.TT_TEXT,
             validation: (val: any) => Validation.required(val),
             computedValue: (value: any) => ({
-              obs: this.reception.buildValueCoded('Treatment', value.label)
+              obs: this.reception.buildValueCoded('Other reason for not seeking services', value.label)
             }),
             condition: (f: any) => f.none_treatment_reasons.value === 'other'
         },
