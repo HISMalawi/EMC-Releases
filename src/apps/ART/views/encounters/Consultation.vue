@@ -1148,7 +1148,7 @@ export default defineComponent({
             console.log("HERE IS THE CONSOLE LOG FOR THE COMPARISON < ", HisDate.dateDiffInDays(this.CxCaAppointDate, this.consultation.date))
             console.log("HERE IS THE CONSOLE LOG FOR THE COMPARISON > ", HisDate.dateDiffInDays(this.consultation.date, this.CxCaAppointDate))
 
-            return ONE_MONTH < HisDate.dateDiffInDays(this.CxCaAppointDate, this.consultation.date)
+            return ONE_MONTH > HisDate.dateDiffInDays(this.CxCaAppointDate, this.consultation.date)
           },
           options: () => this.mapStrToOptions([
             `Patient is due for Cervical Cancer Screening on ${HisDate.toStandardHisDisplayFormat(this.CxCaAppointDate.appointment_date)}`
