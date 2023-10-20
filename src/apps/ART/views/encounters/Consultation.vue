@@ -1144,7 +1144,7 @@ export default defineComponent({
           },
           condition: () => {
             const ONE_MONTH = 30;
-            return ONE_MONTH < HisDate.dateDiffInDays(this.consultation.date, this.CxCaAppointDate)
+            return ONE_MONTH < HisDate.dateDiffInDays(this.CxCaAppointDate, this.consultation.date)
           },
           options: () => this.mapStrToOptions([
             `Patient is due for Cervical Cancer Screening on ${HisDate.toStandardHisDisplayFormat(this.CxCaAppointDate.appointment_date)}`

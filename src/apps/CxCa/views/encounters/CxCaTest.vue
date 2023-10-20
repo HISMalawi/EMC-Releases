@@ -42,7 +42,7 @@ export default defineComponent({
 
         this.consultation = new ConsultationService(
           this.patientID, 
-          this.providerID
+          this.providerID 
         );
 
         //test here 
