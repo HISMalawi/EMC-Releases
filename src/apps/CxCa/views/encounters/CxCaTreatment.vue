@@ -21,6 +21,7 @@ import { ProgramService } from "@/services/program_service";
 import { ProgramWorkflow } from "@/interfaces/program_workflow";
 import table from "@/components/DataViews/tables/ReportDataTable";
 import { ConceptService } from "@/services/concept_service";
+import CXCA_GLOBAL_PROP from "@/apps/CxCa/cxca_global_props";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -28,13 +29,16 @@ export default defineComponent({
   data: () => ({
     reception: {} as any,
     summaryData: {} as any,
-    referralReason: ""
+    referralReason: "",
+    isReferralSiteEnabled: false,
+    skipToTreatment: false,
   }),
   watch: {
     patient: {
       async handler() {
         this.reception = new TreatmentService(this.patientID, this.providerID);
         this.summaryData = await this.reception.getSummary();
+        this.isReferralSiteEnabled = (await CXCA_GLOBAL_PROP.isReferralCiteEnabled())
         await this.setReason();
         this.fields = this.getFields();
       },
@@ -118,7 +122,7 @@ export default defineComponent({
           helpText: "Type of referral visit",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.isNotSameDayTreatment(),
+          condition: () => this.isNotSameDayTreatment() && !this.isReferralSiteEnabled,
           options: () => {
             return [
               { label: 'Initial/1st visit to referral facility', value: 'Initial visit' },
@@ -128,12 +132,47 @@ export default defineComponent({
             obs: this.reception.buildValueCoded('Referral reason', value.value)
           })
         },
+        /*the following fields are only visible if the location isn't a referral site
+         *they will be tagged with a minor description of `non-referral site field`*/
+        //non-referral site field
+        {
+            id: 'returning_client_referral_question',
+            helpText: 'Did the returning patient visit the referral facility ?',
+            type: FieldType.TT_SELECT,
+            validation: (val: any) => Validation.required(val),
+            condition: () => this.isNotSameDayTreatment() && this.isReferralSiteEnabled,
+            options: () => this.yesNoOptions(),
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Are Histological results after LLETZ available', value.label)
+          })
+        },
+        //non-referral site field
+        //after completing this field skip to Treatment Field
+        {
+          id: "possible_reasons_why",
+          helpText: "Possible reasons why client didn't visit",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          condition: (f: any) => {
+            this.skipToTreatment = f.returning_client_referral_question.value === 'No' //assign true to skip to treatment
+            return f.returning_client_referral_question.value === 'No' && this.isNotSameDayTreatment() && this.isReferralSiteEnabled
+          },
+          options: () =>
+            this.mapOptions([
+              'Provider unavailable',
+              'Transport lacking',
+              'Other',
+            ]),
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('FIGO staging of cervical cancer', value.label)
+          })
+        },
         {
           id: "cervix_screening_assessment",
           helpText: "Cervix Screening Assessment",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.isNotSameDayTreatment(),
+          condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment,
           options: () =>{
             return [
                   { label: 'STI Infection', value: 'STI Infection' },
@@ -153,7 +192,7 @@ export default defineComponent({
             helpText: 'Are FIGO staging results available?',
             type: FieldType.TT_SELECT,
             validation: (val: any) => Validation.required(val),
-            condition: () => this.isNotSameDayTreatment(),
+            condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment,
             options: () => this.yesNoOptions(),
             computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Are FIGO staging results available', value.value) //Please build this observation using the buildValueCoded method
@@ -164,7 +203,7 @@ export default defineComponent({
           helpText: "FIGO staging results",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: (f: any) => f.are_figo_staging_results_available.value === 'Yes' && this.isNotSameDayTreatment(),
+          condition: (f: any) => f.are_figo_staging_results_available.value === 'Yes' && this.isNotSameDayTreatment() && !this.skipToTreatment,
           options: () =>
             this.mapOptions([
               'Cervical stage 1',
@@ -181,7 +220,7 @@ export default defineComponent({
           helpText: "Type of sample collected",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.isNotSameDayTreatment(),
+          condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment,
           options: () =>
             this.mapOptions([
               'Punch Biopsy',
@@ -200,7 +239,7 @@ export default defineComponent({
             },
             type: FieldType.TT_SELECT,
             validation: (val: any) => Validation.required(val),
-            condition: () => this.isNotSameDayTreatment(),
+            condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment,
             options: () => this.yesNoOptions(),
             computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Are Histological results after LLETZ available', value.label)
@@ -214,7 +253,7 @@ export default defineComponent({
             },
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: (f: any) => f.are_histological_results_after_lletz_available.value === 'Yes' && this.isNotSameDayTreatment(),
+          condition: (f: any) => f.are_histological_results_after_lletz_available.value === 'Yes' && this.isNotSameDayTreatment() && !this.skipToTreatment,
           options: () =>
             this.mapOptions([
               'Normal',
@@ -232,12 +271,13 @@ export default defineComponent({
             obs: this.reception.buildValueCoded('Sample', value.label)
           })
         },
+        //Complication fields will not be visible if the site isn't a referral site
         {
           id: "complications_during_lletz_leep_biopsy",
           helpText: "Complications During LLETZ/LEEP Biopsy",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.isNotSameDayTreatment(),
+          condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment && !this.isReferralSiteEnabled,
           options: () => {
             return [
                 { label: 'None (N/A)', value: 'None' },
@@ -252,7 +292,7 @@ export default defineComponent({
           helpText: "Complications After LLETZ/LEEP Biopsy",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.isNotSameDayTreatment(),
+          condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment && !this.isReferralSiteEnabled,
           options: () => {
             return [
                   { label: 'None (N/A)', value: 'None' },
@@ -267,7 +307,7 @@ export default defineComponent({
           helpText: "Recommended Care After LLETZ Histology",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.isNotSameDayTreatment(),
+          condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment,
           options: () =>
             this.mapOptions([
               'Hysterectomy',
