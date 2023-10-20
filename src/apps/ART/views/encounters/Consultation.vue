@@ -1144,6 +1144,10 @@ export default defineComponent({
           },
           condition: () => {
             const ONE_MONTH = 30;
+
+            console.log("HERE IS THE CONSOLE LOG FOR THE COMPARISON < ", HisDate.dateDiffInDays(this.CxCaAppointDate, this.consultation.date))
+            console.log("HERE IS THE CONSOLE LOG FOR THE COMPARISON > ", HisDate.dateDiffInDays(this.consultation.date, this.CxCaAppointDate))
+
             return ONE_MONTH < HisDate.dateDiffInDays(this.CxCaAppointDate, this.consultation.date)
           },
           options: () => this.mapStrToOptions([
