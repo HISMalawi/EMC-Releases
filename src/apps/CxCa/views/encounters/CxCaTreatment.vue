@@ -168,6 +168,16 @@ export default defineComponent({
           })
         },
         {
+            id: 'other_reason',
+            helpText: 'Other reason',
+            type: FieldType.TT_TEXT,
+            validation: (val: any) => Validation.required(val),
+            computedValue: (value: any) => ({
+              obs: this.reception.buildValueCoded('Treatment', value.label)
+            }),
+            condition: (f: any) => f.possible_reasons_why.value === 'Other'
+        },
+        {
           id: "cervix_screening_assessment",
           helpText: "Cervix Screening Assessment",
           type: FieldType.TT_SELECT,
