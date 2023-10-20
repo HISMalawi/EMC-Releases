@@ -343,8 +343,8 @@ export default defineComponent({
                 { label: 'Palliative Care', value: 'Palliative Care' },
                 { label: 'LLETZ/LEEP', value: 'LLETZ/LEEP' },
                 { label: 'Treatment with antibiotic', value: 'Antibiotics' },
-                { label: 'Anti-parasitic medication', value: '' },
-                { label: 'none', value: 'None' },
+                { label: 'Anti-parasitic medication', value: 'Antiparasitic' },
+                { label: 'none', value: 'None' }
               ]},
             computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Treatment', value.value)
@@ -359,7 +359,7 @@ export default defineComponent({
           options: () => {
             return [
                   { label: 'Patient refused treatment', value: 'Patient refused' },
-                  { label: 'Provider not available', value: 'Provider NOT available' }
+                  { label: 'Provider not available', value: 'Provider NOT available' },
                   { label: 'other', value: 'Other' }
               ]},
             computedValue: (value: any) => ({
