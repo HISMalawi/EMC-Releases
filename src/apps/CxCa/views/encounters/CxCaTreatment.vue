@@ -335,18 +335,19 @@ export default defineComponent({
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
           condition: () => !this.skipToTreatment,
-          options: () =>
-            this.mapOptions([
-              'Hysterectomy',
-              'Chemotherapy',
-              'Palliative Care',
-              'LLETZ/LEEP',
-              'Treatment with antibiotic',
-              'Anti-parasitic medication',
-              'none',
-            ]),
-          computedValue: (value: any) => ({
-            obs: this.reception.buildValueCoded('Treatment', value.label)
+          
+          options: () => {
+            return [
+                { label: 'Hysterectomy', value: 'Hysterectomy' },
+                { label: 'Chemotherapy', value: 'Chemotherapy' },
+                { label: 'Palliative Care', value: 'Palliative Care' },
+                { label: 'LLETZ/LEEP', value: 'LLETZ/LEEP' },
+                { label: 'Treatment with antibiotic', value: 'Antibiotics' },
+                { label: 'Anti-parasitic medication', value: '' },
+                { label: 'none', value: 'None' },
+              ]},
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Treatment', value.value)
           })
         },
         {
@@ -355,14 +356,14 @@ export default defineComponent({
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
           condition: (f: any) => f.treatment_provided.value === 'none',
-          options: () =>
-            this.mapOptions([
-              'Patient refused treatment',
-              'Provider not available',
-              'other',
-            ]),
-          computedValue: (value: any) => ({
-            obs: this.reception.buildValueCoded('Other reason for not seeking services', value.label)
+          options: () => {
+            return [
+                  { label: 'Patient refused treatment', value: 'Patient refused' },
+                  { label: 'Provider not available', value: 'Provider NOT available' }
+                  { label: 'other', value: 'Other' }
+              ]},
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Other reason for not seeking services', value.value)
           })
         },
         {
