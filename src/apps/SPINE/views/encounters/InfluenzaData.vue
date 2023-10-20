@@ -12,75 +12,138 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
-import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { IonPage } from '@ionic/vue';
-import { reactive } from 'vue';
 import useEncounter from "@/composables/useEncounter";
-import { PatientAdmitService } from "../../services/patient_admit_service";
+import { mapToYesNoOptions, resolveObs } from '@/utils/HisFormHelpers/commons';
+import { InfluenzaDataService } from '../../services/influenza_service';
+import { isEmpty } from 'lodash';
 
 const fields = ref<Array<Field>>([]);
-let admitService = reactive({} as PatientAdmitService);
+let influenzaService: InfluenzaDataService;
 const { isReady, patient, provider, goToNextTask, patientDashboardUrl } = useEncounter();
 
 watch(isReady, (ready) => {
   if (ready) {
-    admitService = new PatientAdmitService(patient.value.getID(), provider.value);
-    fields.value.push(getInfluenzaSysmptomsField());
-    fields.value.push(getOtherInfluenzaSymptomsField());
+    influenzaService = new InfluenzaDataService(patient.value.getID(), provider.value);
+    fields.value = [
+      getBackgroundInformationField(),
+      getSymptomField(),
+      getFluLikeIllnessField(),
+      getAdmissionCriteriaField(),
+      getRecruitmentField(),
+    ]
   }
 }, {
   immediate: true,
 })
 
-async function onSubmit(fdata: any) {
-  await admitService.createEncounter();
-  const ward = fdata.otherWards?.value ?? fdata.wards.label;
-  const obs = await admitService.buildValueText('Admit to ward', ward);
-  await admitService.saveObservationList([ obs ]);
+async function onSubmit(_fdata: any, cdata: any) {
+  await influenzaService.createEncounter();
+  const obs = await resolveObs(cdata);
+  await influenzaService.saveObservationList(obs);
   goToNextTask();
 }
 
-function getInfluenzaSysmptomsField(): Field {
+function getBackgroundInformationField(): Field {
   return {
-    id: "symptoms",
-    helpText: "Influenza Symptoms",
+    id: 'background_information',
+    helpText: "Background Information",
     type: FieldType.TT_MULTIPLE_YES_NO,
-    validation: (data: any) => Validation.validateSeries([
-      () => Validation.required(data),
-      () => Validation.anyEmpty(data),
-    ]),
-    // computedValue: (v: Option[]) => ({
-    //   obs: v.map(async (d) => ({
-    //     ...(await this.consultation.buildValueCoded('Malawi ART side effects', d.label)),
-    //     child: [await this.consultation.buildValueCoded(d.label, d.value)]
-    //   }))
-    // }),
-    // beforeNext: (data: Option[]) => this.buildSideEffectObs(data, 'malawiSideEffectReasonObs'),
-    options: (_: any, checked: Array<Option>) => []
+    computedValue: (options: Array<Option>) => buildObs('Background information', options),
+    options: (_fdata: any, checkedOptions: Array<Option>) => mapToYesNoOptions(
+      [
+        "Influenza vaccine in the last 1 year",
+        "Currently (or in the last week) taking antibiotics",
+        "Current Smoker",
+        "Were you a smoker 3 months ago",
+        "Pregnant?",
+        "RDT or blood smear positive for malaria"
+      ],
+      checkedOptions,
+    )
   }
 }
 
-function getOtherInfluenzaSymptomsField(): Field {
+function getSymptomField(): Field {
   return {
-    id: "other_ssymptoms",
-    helpText: "Other Symptoms",
+    id: 'symptoms',
+    helpText: "Symptoms",
     type: FieldType.TT_MULTIPLE_YES_NO,
-    validation: (data: any) => Validation.validateSeries([
-      () => Validation.required(data),
-      () => Validation.anyEmpty(data),
-    ]),
-    // computedValue: (v: Option[]) => ({
-    //   tag: 'consultation',
-    //   obs: v.filter(d => d.label != 'Other (Specify)')
-    //     .map(async (d) => ({
-    //     ...(await this.consultation.buildValueCoded('Other side effect', d.label)),
-    //     child: [await this.consultation.buildValueCoded(d.label, d.value)]
-    //   }))
-    // }),
-    // beforeNext: (data: Option[]) => this.buildSideEffectObs(data, 'otherSideEffectReasonObs'),
-    options: (_: any, checked: Array<Option>) => [],
+    options: (_fdata: any, checkedOptions: Array<Option>) => mapToYesNoOptions(["Fever greater than 38 degrees celsius"], checkedOptions),
+    computedValue: (options: Array<Option>) => buildObs('Symptom', options)
   }
+}
+
+function getFluLikeIllnessField(): Field {
+  return {
+    id: 'flulike_illness',
+    helpText: "Flu-like Illness",
+    type: FieldType.TT_MULTIPLE_YES_NO,
+    computedValue: (options: Array<Option>) => buildObs('Flu-like illness', options),
+    options: (_fdata: any, checkedOptions: Array<Option>) => mapToYesNoOptions(
+      [
+        "Cough",
+        "Sore throat",
+        "Headache",
+        "Rhinorrhea",
+        "Limb or joint-pain",
+        "Vomiting or diarrhoea"
+      ],
+      checkedOptions
+    ),
+  }
+}
+
+function getAdmissionCriteriaField(): Field {
+  return {
+    id: 'admission_criteria',
+    helpText: "Admission Criteria",
+    type: FieldType.TT_MULTIPLE_YES_NO,
+    computedValue: (options: Array<Option>) => buildObs('Admission Criteria', options),
+    options: (_fdata: any, checkedOptions: Array<Option>) => mapToYesNoOptions(
+      [
+        "Patient confused (newly disoriented in place, person or time)",
+        "Respiratory rate greater than or equal to 30",
+        "Oxygen saturation less than or equal to 90 percent",
+        "Blood pressure systolic less than 90 MMHG",
+        "Heart rate greater than 120 per minute",
+        "Inability to Stand"
+      ],
+      checkedOptions
+    )
+  }
+}
+
+function getRecruitmentField(): Field {
+  return {
+    id: 'recruitment',
+    helpText: "Influenza recruitment",
+    type: FieldType.TT_MULTIPLE_YES_NO,
+    options: (_fdata: any, checkedOptions: Array<Option>) => mapToYesNoOptions(
+      [
+        "Influenza like illness",
+        "Severe Acute Respiratory Infection"
+      ],
+      checkedOptions
+    ),
+    condition: (f: any) => canRecruitPatient(f),
+    computedValue: (options: Array<Option>) => buildObs('Influenza', options) 
+  }
+}
+
+function buildObs(concept: string, options: Array<Option>) {
+  if(isEmpty(options)) return null;
+  return {
+    obs: options.map(async (option) => ({
+      ...(await influenzaService.buildValueCoded(concept, option.label)),
+      child: [await influenzaService.buildValueCoded(option.label, option.value)]
+    }))
+  }
+}
+
+function canRecruitPatient(formData: Record<string, any>) {
+  return Object.values(formData).some(Boolean);
 }
 </script>
