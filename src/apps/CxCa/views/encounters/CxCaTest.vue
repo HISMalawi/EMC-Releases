@@ -19,6 +19,7 @@ import { generateDateFields, EstimationFieldType } from "@/utils/HisFormHelpers/
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { ConceptService } from "@/services/concept_service";
 import { ProgramService } from "@/services/program_service";
+import { ConsultationService } from "@/apps/ART/services/consultation_service";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -29,6 +30,7 @@ export default defineComponent({
     showHIVQuestions: true,
     alreadyEnrolled: false,
     offerCxCa: false,
+    consultation: {} as ConsultationService,
   }),
   watch: {
     patient: {
@@ -38,6 +40,10 @@ export default defineComponent({
           this.providerID
         );
 
+        this.consultation = new ConsultationService(
+          this.patientID, 
+          this.providerID
+        );
 
         //test here 
         const program = await ProgramService.getProgramInformation(this.patientID)
@@ -336,12 +342,14 @@ export default defineComponent({
         },
         /*added new fields for family planning
         */
+        
         {
           id: 'offer_family_planning',
           helpText: 'Offer Family Planning ?',
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
           options: () => this.yesNoOptions(),
+          condition: async () => !(await this.consultation.patientHitMenopause()),
           computedValue: (value: any) => ({
           obs: this.assessment.buildValueCoded('Family planning', value.label)
           })
