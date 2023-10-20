@@ -332,10 +332,37 @@ export default defineComponent({
               'LLETZ/LEEP',
               'Treatment with antibiotic',
               'Anti-parasitic medication',
+              'none',
             ]),
           computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Treatment', value.label)
           })
+        },
+        {
+          id: "none_treatment_reasons",
+          helpText: "Reasons why treatment was refused",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          condition: (f: any) => f.treatment_provided.value === 'none',
+          options: () =>
+            this.mapOptions([
+              'Patient refused treatment',
+              'Provider not available',
+              'other',
+            ]),
+          computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Treatment', value.label)
+          })
+        },
+        {
+            id: 'other_reason',
+            helpText: 'Other reason',
+            type: FieldType.TT_TEXT,
+            validation: (val: any) => Validation.required(val),
+            computedValue: (value: any) => ({
+              obs: this.reception.buildValueCoded('Treatment', value.label)
+            }),
+            condition: (f: any) => f.none_treatment_reasons.value === 'other'
         },
         {
           id: "patient_outcome",
