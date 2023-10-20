@@ -1,4 +1,5 @@
 import { Option } from "@/components/Forms/FieldInterface"
+import { find } from "lodash"
 
 export function resolveObs(obs: any, tag = '') {
   const values: any = Object.values(obs)
@@ -19,6 +20,19 @@ export function resolveObs(obs: any, tag = '') {
 
 export function mapStrToOptions(options: Array<string>): Array<Option> {
   return options.map(option => ({ label: option, value: option }));
+}
+
+export function mapToYesNoOptions(options: Array<string>, checkedOptions: Array<Option>, hasUnknown = false) {
+  return options.map(label => {
+    const checkedValue = find(checkedOptions, { label });
+    return {
+      label,
+      value: checkedValue?.value ?? "",
+      other: {
+        values: hasUnknown ? yesNoUnknownOptions() : yesNoOptions()
+      }
+    }
+  });
 }
 
 export function yesNoUnknownOptions() {
