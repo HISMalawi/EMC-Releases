@@ -164,7 +164,7 @@ export default defineComponent({
               { label: 'Other', value: 'Other (Specify)' }
             ]},
             computedValue: (value: any) => ({
-            obs: this.reception.buildValueCoded('FIGO staging of cervical cancer', value.label)
+            obs: this.reception.buildValueCoded('Reason for no result', value.value)
           })
         },
         {
