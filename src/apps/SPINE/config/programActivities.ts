@@ -18,9 +18,9 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     encounterTypeName: 'update hiv status',
   },
   {
-    id: 'Influeza',
-    name: 'influeza',
-    icon: 'attributes.png'
+    id: 'influenza data',
+    name: 'Influenza Data',
+    icon: 'influenza.jpg'
   },
   {
     id: 'lab orders',

@@ -39,5 +39,10 @@ export default [
     path: "/SPINE/encounters/dispensing/:patient_id",
     component: () => import('@/apps/SPINE/views/encounters/Dispensing.vue')
   },
+  {
+    name: "influenza data",
+    path: "/SPINE/encounters/influenza/:patient_id",
+    component: () => import("@/apps/SPINE/views/encounters/InfluenzaData.vue")
+  }
 ]
 
