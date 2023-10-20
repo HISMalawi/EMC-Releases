@@ -334,6 +334,7 @@ export default defineComponent({
           helpText: "Treatment Provided",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
+          condition: () => !this.skipToTreatment,
           options: () =>
             this.mapOptions([
               'Hysterectomy',
