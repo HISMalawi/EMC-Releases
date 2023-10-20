@@ -19,52 +19,62 @@ import { IonPage } from '@ionic/vue';
 import { reactive } from 'vue';
 import useEncounter from "@/composables/useEncounter";
 import { PatientAdmitService } from "../../services/patient_admit_service";
-import { getFacilities } from '@/utils/HisFormHelpers/LocationFieldOptions';
+import { LocationService } from '@/services/location_service';
+import { alertConfirmation, toastDanger, toastWarning } from '@/utils/Alerts';
 
 const fields = ref<Array<Field>>([]);
 let admitService = reactive({} as PatientAdmitService);
 const { isReady, patient, provider, goToNextTask, patientDashboardUrl } = useEncounter();
 
-async function onSubmit(fdata: any) {
-  await admitService.createEncounter();
-  const ward = fdata.otherWards?.value ?? fdata.wards.label;
-  const obs = await admitService.buildValueText('Admit to ward', ward);
-  await admitService.saveObservationList([ obs ]);
-  goToNextTask();
-}
-
-function getWardsField(): Field {
-  return {
-    id: 'wards',
-    helpText: "Admit to ward",
-    type: FieldType.TT_SELECT,
-    options: (_fdata: any, filter = '') => getFacilities(filter),
-    validation: (v: Option) => Validation.required(v),
-    config: {
-      showKeyboard: true,
-      isFilterDataViaApi: true,
-    },
-  }
-}
-
-function getOtherWardsField(): Field {
-  return {
-    id: "otherWards",
-    helpText: "Enter custom ward",
-    type: FieldType.TT_TEXT,
-    validation: (v: Option) => Validation.required(v),
-    condition: (f: any) => /other/i.test(f.wards.label),
-  }
-}
-
 watch(isReady, (ready) => {
   if (ready) {
     admitService = new PatientAdmitService(patient.value.getID(), provider.value);
-    fields.value.push(getWardsField());
-    fields.value.push(getOtherWardsField());
+    fields.value.push(getInternalSectionsField());
   }
 }, {
   immediate: true,
-  deep: true
 })
+
+async function onSubmit(_fdata: any, cdata: any) {
+  const obs = await Promise.all([cdata.internal_sections]);
+  await admitService.createEncounter();
+  await admitService.saveObservationList(obs);
+  goToNextTask();
+}
+
+function getInternalSectionsField(): Field {
+  return {
+    id: 'internal_sections',
+    helpText: 'Select Ward/internal section',
+    type: FieldType.TT_SELECT,
+    validation: (value: any) => Validation.required(value),
+    computedValue: (v: Option) => admitService.buildValueText('Admit to ward', v.label),
+    options: () => LocationService.getInternalSections(),
+    config: { 
+      showKeyboard: true,
+      footerBtns: [{
+        name: 'Add Section',
+        slot: 'end',
+        color: 'success',
+        onClick: async (f: any, c: any, field: any) => {
+          if (typeof field.filter != 'string' || field.filter.length < 3) {
+            return toastWarning(`Please enter a valid section name`)
+          }
+          if (field.filtered.some((i: Option) => i.label.toLowerCase() === field.filter.toLowerCase())) {
+            return toastWarning(`Section already existing`)
+          }
+          if ((await alertConfirmation(`Do you want to add internal section?`))) {
+            const data = await LocationService.createInternalSection(field.filter.toUpperCase())
+            if (data) {
+              field.filter = data.name
+              field.listData = [{label: data.name, value: data.id}, ...field.listData]
+            } else {
+              toastDanger(`Unable to add ${field.filter}`)
+            }
+          }
+        }
+      }]
+    }
+  }
+}
 </script>
