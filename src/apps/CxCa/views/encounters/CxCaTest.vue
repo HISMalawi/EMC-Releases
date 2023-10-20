@@ -71,6 +71,10 @@ export default defineComponent({
     },
   },
   methods: {
+    async isPreviousClient(){
+      return (await this.consultation.patientHitMenopause())
+    },
+
     async onFinish(_formData: any, computed: any) {
       
       const encounter = await this.assessment.createEncounter();
@@ -90,6 +94,7 @@ export default defineComponent({
 
       this.nextTask();
     },
+    
     async setOfferCxCa() {
       const data = await this.assessment.getFirstValueCoded("Offer CxCa");
       this.offerCxCa = data && data === "Yes";
@@ -119,6 +124,7 @@ export default defineComponent({
           }
         }))
     },
+
     getFields(): any {
       return [
         {
@@ -213,12 +219,15 @@ export default defineComponent({
             },
           }
         ),
+        /**
+         * the following fields below will not be visible if the client was screened on a previous date
+        */
         {
           id: "ever_had_cxca",
           helpText: "Ever had CxCa screening",
           type: FieldType.TT_SELECT,
           condition: (formData: any) =>
-            formData.reason_for_visit.value !== "Initial screening" && this.alreadyEnrolled == false,
+            formData.reason_for_visit.value !== "Initial screening" && this.alreadyEnrolled == false && !this.isPreviousClient(),
           options: () => this.yesNoOptions(),
           validation: (val: any) => Validation.required(val),
           computedValue: (value: any) => ({
@@ -232,7 +241,7 @@ export default defineComponent({
           validation: (val: any) => Validation.required(val),
           
           condition: (formData: any) =>
-            formData.reason_for_visit.value !== "Initial screening" && formData.ever_had_cxca.value !== "No",
+            formData.reason_for_visit.value !== "Initial screening" && formData.ever_had_cxca.value !== "No"  && !this.isPreviousClient(),
           options: () => this.yesNoOptions(),
           computedValue: (value: any) => ({
             obs: this.assessment.buildValueCoded("CxCa test results", value.value)
@@ -248,7 +257,7 @@ export default defineComponent({
             showKeyboard: true,
             isFilterDataViaApi: true,
           },
-          condition: (formData: any) => this.enterPreviousCxCaData(formData),
+          condition: (formData: any) => this.enterPreviousCxCaData(formData)  && !this.isPreviousClient(),
           computedValue: (value: any) => ({
             obs: this.assessment.buildValueText("Previous CxCa location", value.value)
           })
@@ -263,7 +272,7 @@ export default defineComponent({
             estimation: {
               allowUnknown: false,
             },
-            condition: (formData: any) => this.enterPreviousCxCaData(formData),
+            condition: (formData: any) => this.enterPreviousCxCaData(formData) && !this.isPreviousClient(),
             computeValue: (date: string, isEstimate: boolean) => {
               return {
                 date,
@@ -279,7 +288,7 @@ export default defineComponent({
           helpText: "Previous screening method",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: (formData: any) => this.enterPreviousCxCaData(formData),
+          condition: (formData: any) => this.enterPreviousCxCaData(formData) && !this.isPreviousClient(),
           options: () => [
             {
               label: "VIA",

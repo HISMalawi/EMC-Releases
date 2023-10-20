@@ -50,6 +50,14 @@ export class ConsultationService extends AppEncounterService {
     return AppEncounterService.getFirstValueCoded(this.patientID, 'Patient present');
   }
 
+  async clientLastScreened(){
+    const req: any = await AppEncounterService.getJson(`last_cxca_screening_details`, {
+      id: this.patientID, date: this.date
+    })
+    if (!isEmpty(req)) {return true}
+    return false
+  }
+
   async clientDueForCxCa() {
     const req: any = await AppEncounterService.getJson(`last_cxca_screening_details`, {
       id: this.patientID, date: this.date
