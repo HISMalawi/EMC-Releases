@@ -17,7 +17,7 @@ import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { getFacilities } from '@/utils/HisFormHelpers/LocationFieldOptions';
 import { PatientReferralService } from '@/apps/SPINE/services/patient_referral_service'
-import { PatientDischargeService } from '@/apps/SPINE/services/patient_discharge_service';
+import { PatientOutcomeService } from '@/apps/SPINE/services/patient_outcome_service';
 import { LocationService } from "@/services/location_service";
 import { resolveObs } from '@/utils/HisFormHelpers/commons';
 import useEncounter from '@/composables/useEncounter';
@@ -26,14 +26,14 @@ import { alertConfirmation, toastDanger, toastWarning } from '@/utils/Alerts';
 import { IonPage } from '@ionic/vue';
 
 let referralService: PatientReferralService;
-let dischargeService: PatientDischargeService;
+let dischargeService: PatientOutcomeService;
 const fields = ref<Array<Field>>([]);
 
 const {isReady, patient, provider, goToNextTask, patientDashboardUrl } = useEncounter();
 
 watch(isReady, ready => {
   if(ready) {
-    dischargeService = new PatientDischargeService(patient.value.getID(), provider.value);
+    dischargeService = new PatientOutcomeService(patient.value.getID(), provider.value);
     referralService = new PatientReferralService(patient.value.getID(), provider.value)
     fields.value = [
       getOutcomeField(),
@@ -135,3 +135,4 @@ function getInternalSectionsField(): Field {
 }
 </script>
 
+@/apps/SPINE/services/patient_outcome_service
