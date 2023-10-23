@@ -109,7 +109,7 @@ function getArtDefaultDateField(): Array<Field> {
     id: 'date_defualted_art',
     helpText: 'ART Default',
     required: true,
-    condition: (f: any) => f.received_arvs.value === 'Defaulted',
+    condition: (f: any) => f.received_arvs.value === 'Defaulter',
     minDate: () => `${patient.value?.getBirthdate() ?? ''}`,
     maxDate: () => hivService.getDate(),
     estimation: {
