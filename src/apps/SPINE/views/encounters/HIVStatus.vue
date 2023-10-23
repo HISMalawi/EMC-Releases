@@ -43,6 +43,7 @@ watch(isReady, (ready) => {
       getCPTStartedField(),
       getOnARTField(),
       ...getArtStartDateField(),
+      ...getArtDefaultDateField(),
       getCurrentArtLocationField()
     ];
   }
@@ -64,7 +65,7 @@ function getCurrentArtLocationField(): Field {
     type: FieldType.TT_SELECT,
     computedValue: (v: Option) => ({ obs: hivService.buildValueText('ART clinic location', v.label) }),
     validation: (val: any) => Validation.required(val),
-    condition: (f: any) => f.received_arvs.value === 'Yes',
+    condition: (f: any) => /Yes|Defaulter/i.test(f.received_arvs.value),
     options: (_: any, filter='') => getFacilities(filter),
     config: {
         showKeyboard: true,
@@ -89,6 +90,22 @@ function getArtStartDateField(): Array<Field> {
   })
 }
 
+function getArtDefaultDateField(): Array<Field> {
+  return generateDateFields({
+    id: 'date_defualted_art',
+    helpText: 'ART Default',
+    required: true,
+    condition: (f: any) => f.received_arvs.value === 'Defaulted',
+    minDate: () => `${patient.value?.getBirthdate() ?? ''}`,
+    maxDate: () => hivService.getDate(),
+    estimation: {
+        allowUnknown: true,
+        estimationFieldType: EstimationFieldType.MONTH_ESTIMATE_FIELD
+    },
+    computeValue: (date: string, isEstimate: boolean) => hivService.buildDateObs('ART default date', date, isEstimate) 
+  })
+}
+
 function getCPTStartedField(): Field {
   return {
     id: "cpt_started",
@@ -109,7 +126,12 @@ function getOnARTField(): Field {
     type: FieldType.TT_SELECT,
     computedValue: ({value}: Option) => ({ obs: hivService.buildValueCoded('ART Started', value) }),
     validation: (v: any) => Validation.required(v),
-    options: () => yesNoOptions(),
+    options: () => mapStrToOptions([
+      "Yes",
+      "No",
+      "Defaulter",
+      "Unknown"
+    ]),
     condition: (f: any) => f.hiv_status.value === "Reactive"
   }
 }
