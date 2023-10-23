@@ -16,7 +16,6 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-// import ActionSheetMixin from "@/components/DataViews/actionsheet/ActionSheetMixin.vue"
 import { 
     IonList, 
     IonItem,
@@ -32,7 +31,6 @@ export default defineComponent({
         IonRadio,
         IonRadioGroup 
     },
-    // mixins: [ActionSheetMixin],
     data: () => ({
         activeLabel: '' as string
     }),

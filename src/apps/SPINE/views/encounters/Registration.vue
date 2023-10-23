@@ -6,7 +6,7 @@
 import { defineComponent} from 'vue'
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import EncounterMixinVue from '@/views/EncounterMixin.vue';
-import { PatientVisitRegistrationService } from "@/apps/OPD/services/patient_registration_service"
+import { PatientVisitRegistrationService } from "@/apps/SPINE/services/patient_registration_service"
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';

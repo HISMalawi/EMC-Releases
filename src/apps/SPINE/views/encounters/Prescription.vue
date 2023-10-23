@@ -65,7 +65,7 @@
               <ion-checkbox
                 slot="start"
                 v-model="entry.isChecked"
-                @ionChange="onSelect(entry, $event)"
+                @ionChange="onSelect(entry)"
                 :disabled="entry.disabled"
               />
             </ion-item>
@@ -111,13 +111,13 @@ import { QWERTY } from "../../../../components/Keyboard/HisKbConfigurations";
 import ViewPort from "../../../../components/DataViews/ViewPort.vue";
 import handleVirtualInput from "@/components/Keyboard/KbHandler"
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
-import PredefinedMalariaDrugModal from "@/apps/OPD/components/PredefinedMalariaDrug.vue";
+import PredefinedMalariaDrugModal from "@/apps/SPINE/components/PredefinedMalariaDrug.vue";
 import FieldMixinVue from '../../../../components/FormElements/FieldMixin.vue';
 import HisKeyboard from "@/components/Keyboard/HisKeyboard.vue"
 import { trash } from "ionicons/icons";
-import PrescriptionFrequency from "@/apps/OPD/components/PrescriptionFrequency.vue"
-import PrescriptionKeypad from "@/apps/OPD/components/PrescriptionKeypad.vue";
-import { DRUG_FREQUENCIES ,ANTI_MALARIA_DRUGS} from "@/apps/OPD/services/drug_prescription_service";
+import PrescriptionFrequency from "@/apps/SPINE/components/PrescriptionFrequency.vue"
+import PrescriptionKeypad from "@/apps/SPINE/components/PrescriptionKeypad.vue";
+import { DRUG_FREQUENCIES ,ANTI_MALARIA_DRUGS} from "@/apps/SPINE/services/drug_prescription_service";
 import EncounterMixinVue from '@/views/EncounterMixin.vue'
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { modalController } from "@ionic/vue";

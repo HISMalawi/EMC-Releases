@@ -6,7 +6,7 @@ import { defineComponent } from 'vue'
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import { Field, Option } from "@/components/Forms/FieldInterface"
 import { toastWarning, alertConfirmation } from "@/utils/Alerts"
-import { DispensationService } from "@/apps/OPD/services/dispensation_service"
+import { DispensationService } from "@/apps/SPINE/services/dispensation_service"
 import EncounterMixinVue from '@/views/EncounterMixin.vue'
 import HisDate from "@/utils/Date"
 
