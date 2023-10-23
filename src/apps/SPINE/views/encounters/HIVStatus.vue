@@ -20,7 +20,7 @@ import { EstimationFieldType, generateDateFields } from '@/utils/HisFormHelpers/
 import { toastWarning } from '@/utils/Alerts';
 import { HIVStatusService } from '../../services/hiv_status_service';
 import useEncounter from '@/composables/useEncounter';
-import { mapStrToOptions, resolveObs, yesNoOptions } from '@/utils/HisFormHelpers/commons';
+import { mapStrToOptions, resolveObs, yesNoOptions, yesNoUnknownOptions } from '@/utils/HisFormHelpers/commons';
 import { IonPage } from '@ionic/vue';
 
 let hivService: HIVStatusService;
@@ -40,6 +40,7 @@ watch(isReady, (ready) => {
       getHIVStatusField(),
       ...getHivTestDateField(),
       getTestLocationField(),
+      getCPTStartedField(),
       getOnARTField(),
       ...getArtStartDateField(),
       getCurrentArtLocationField()
@@ -86,6 +87,19 @@ function getArtStartDateField(): Array<Field> {
     },
     computeValue: (date: string, isEstimate: boolean) => hivService.buildDateObs('Date ART started', date, isEstimate) 
   })
+}
+
+function getCPTStartedField(): Field {
+  return {
+    id: "cpt_started",
+    helpText: "CPT Started",
+    type: FieldType.TT_SELECT,
+    options: yesNoUnknownOptions,
+    condition: (f: any) => f.hiv_status.value === "Reactive",
+    computedValue: (o: Option) => ({
+      obs: hivService.buildValueCoded("CPT Started", o.value)
+    })
+  }
 }
 
 function getOnARTField(): Field {
