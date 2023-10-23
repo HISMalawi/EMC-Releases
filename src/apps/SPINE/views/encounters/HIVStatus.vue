@@ -44,7 +44,8 @@ watch(isReady, (ready) => {
       getOnARTField(),
       ...getArtStartDateField(),
       ...getArtDefaultDateField(),
-      getCurrentArtLocationField()
+      getCurrentArtLocationField(),
+      getARTAdviceField(),
     ];
   }
 })
@@ -56,6 +57,19 @@ async function onSubmit(_formData: any, computedData: any){
   const obs = await hivService.saveObservationList(data)
   if (!obs) return toastWarning('Unable to save observations')
   goToNextTask()     
+}
+
+function getARTAdviceField(): Field {
+  return {
+    id: "advised_to_visit_art",
+    helpText: "Advised to visit ART",
+    type: FieldType.TT_SELECT,
+    options: yesNoUnknownOptions,
+    condition: (f: any) => f.received_arvs.value !== "Yes",
+    computedValue: (o: Option) => ({
+      obs: hivService.buildValueCoded("Advised to visit ART", o.value)
+    })
+  }
 }
 
 function getCurrentArtLocationField(): Field {
