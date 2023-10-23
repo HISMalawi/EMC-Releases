@@ -175,7 +175,7 @@ export default defineComponent({
             computedValue: (value: any) => ({
               obs: this.reception.buildValueCoded('Other reason for not seeking services', value.label)
             }),
-            condition: (f: any) => f.possible_reasons_why.value === 'Other'
+            condition: (f: any) => f.possible_reasons_why.value === 'Other (Specify)'
         },
         {
           id: "cervix_screening_assessment",
@@ -318,15 +318,19 @@ export default defineComponent({
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
           condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment,
-          options: () =>
-            this.mapOptions([
-              'Hysterectomy',
-              'Trachelectomy',
-              'Discharged',
-              'Continue follow-up',
-            ]),
+          options: () => {
+            return [
+                { label: 'Hysterectomy', value: 'Hysterectomy' },
+                { label: 'Chemotherapy', value: 'Chemotherapy' },
+                { label: 'Palliative Care', value: 'Palliative Care' },
+                { label: 'LLETZ/LEEP', value: 'LLETZ/LEEP' },
+                { label: 'Treatment with antibiotic', value: 'Antibiotics' },
+                { label: 'Anti-parasitic medication', value: 'Antiparasitic' },
+                { label: 'Conisation', value: 'Conisation' },
+                { label: 'none', value: 'None' }
+              ]},
             computedValue: (value: any) => ({
-            obs: this.reception.buildValueCoded('Recommended Care After LLETZ Histology', value.label)
+            obs: this.reception.buildValueCoded('Treatment', value.value)
           })
         },
         {
@@ -344,6 +348,7 @@ export default defineComponent({
                 { label: 'LLETZ/LEEP', value: 'LLETZ/LEEP' },
                 { label: 'Treatment with antibiotic', value: 'Antibiotics' },
                 { label: 'Anti-parasitic medication', value: 'Antiparasitic' },
+                { label: 'Conisation', value: 'Conisation' },
                 { label: 'none', value: 'None' }
               ]},
             computedValue: (value: any) => ({
@@ -360,7 +365,7 @@ export default defineComponent({
             return [
                   { label: 'Patient refused treatment', value: 'Patient refused' },
                   { label: 'Provider not available', value: 'Provider NOT available' },
-                  { label: 'other', value: 'Other' }
+                  { label: 'other', value: 'Other (Specify)' }
               ]},
             computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Other reason for not seeking services', value.value)
@@ -374,19 +379,34 @@ export default defineComponent({
             computedValue: (value: any) => ({
               obs: this.reception.buildValueCoded('Other reason for not seeking services', value.label)
             }),
-            condition: (f: any) => f.none_treatment_reasons.value === 'other'
+            condition: (f: any) => f.none_treatment_reasons.value === 'Other (Specify)'
+        },
+        {
+          id: "patient_denial_outcome",
+          helpText: "Patient outcome",
+          type: FieldType.TT_SELECT,
+          condition: (f: any) => this.isNotSameDayTreatment() && f.returning_client_referral_question.value === 'No',
+          validation: (val: any) => Validation.required(val),
+          options: () =>
+            this.mapOptions([
+              'Death',
+              'On going follow-up',
+              'Denied consultation',
+            ]),
         },
         {
           id: "patient_outcome",
           helpText: "Patient outcome",
           type: FieldType.TT_SELECT,
-          condition: () => this.isNotSameDayTreatment(),
+          condition: (f: any) => this.isNotSameDayTreatment() && f.returning_client_referral_question.value === 'Yes',
           validation: (val: any) => Validation.required(val),
           options: () =>
             this.mapOptions([
               'On-going Palliative Care',
               'No Dysplasia/Cancer',
               'Death',
+              'On going follow-up',
+              'Denied consultation',
             ]),
         },
       ];

@@ -1144,6 +1144,9 @@ export default defineComponent({
           },
           condition: () => {
             const ONE_MONTH = 30;
+
+            console.log("HERE WE ARE with the comparison ------->  ", HisDate.dateDiffInDays(this.CxCaAppointDate, this.consultation.date))
+
             return ONE_MONTH > HisDate.dateDiffInDays(this.CxCaAppointDate, this.consultation.date)
           },
           options: () => this.mapStrToOptions([
