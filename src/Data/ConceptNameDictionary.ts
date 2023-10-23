@@ -9,6 +9,10 @@ export default [
       "name": "HIV"
    },
    {
+      "concept_id": 58,
+      "name": "TB"
+   },
+   {
       "categories": [],
       "concept_id": 7759,
       "name": "Workstation location"
