@@ -88,5 +88,10 @@ export default [
         name: 'cc_cxca_scrn',
         path: '/CxCa/views/reports/pepfar/cc_cxca_scrn',
         component: () => import('@/apps/CxCa/views/reports/pepfar/CXCA_SCRN_Report.vue')
-    }
+    },
+    {
+        name: 'cc_clinic_scrn',
+        path: '/CxCa/views/reports/clinic/clinic_cxca_scrn_report',
+        component: () => import('@/apps/CxCa/views/reports/clinic/Clinic_CXCA_SCRN_Report.vue')
+    },
 ]

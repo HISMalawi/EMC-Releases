@@ -37,6 +37,10 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'Monthly Screen',
                 pathName: 'cc_monthly_screen'
+            },
+            {
+                name: 'CxCa SCRN',
+                pathName: 'cc_clinic_scrn'
             }
         ]
     },
