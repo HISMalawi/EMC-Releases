@@ -5,6 +5,10 @@ export default [
       "name": "Sore throat"
    },
    {
+      "concept_id": 884,
+      "name": "HIV"
+   },
+   {
       "categories": [],
       "concept_id": 7759,
       "name": "Workstation location"
