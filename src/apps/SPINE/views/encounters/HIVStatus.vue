@@ -20,7 +20,7 @@ import { EstimationFieldType, generateDateFields } from '@/utils/HisFormHelpers/
 import { toastWarning } from '@/utils/Alerts';
 import { HIVStatusService } from '../../services/hiv_status_service';
 import useEncounter from '@/composables/useEncounter';
-import { mapStrToOptions, resolveObs, yesNoOptions, yesNoUnknownOptions } from '@/utils/HisFormHelpers/commons';
+import { mapStrToOptions, resolveObs, yesNoUnknownOptions } from '@/utils/HisFormHelpers/commons';
 import { IonPage } from '@ionic/vue';
 
 let hivService: HIVStatusService;
