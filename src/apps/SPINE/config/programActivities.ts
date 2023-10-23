@@ -47,6 +47,11 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     availableOnActivitySelection: false
   },
   {
+    id: 'chronic conditions',
+    name: 'Chronic Conditions',
+    icon: 'attributes.png'
+  },
+  {
     id: 'patient diagnosis',
     name: 'Diagnosis',
     icon: 'diagnosis.png'

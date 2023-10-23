@@ -43,6 +43,11 @@ export default [
     name: "influenza data",
     path: "/SPINE/encounters/influenza/:patient_id",
     component: () => import("@/apps/SPINE/views/encounters/InfluenzaData.vue")
+  },
+  {
+    name: "chronic conditions",
+    path: "/SPINE/encounters/chronic-conditions/:patient_id",
+    component: () => import("@/apps/SPINE/views/encounters/ChronicConditions.vue")
   }
 ]
 
