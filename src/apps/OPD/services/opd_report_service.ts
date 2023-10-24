@@ -100,12 +100,13 @@ export class OpdReportService extends Service {
         return this.getReport(`programs/${this.programID}/reports/attendance`)
     }
 
-    getDrugsGivenWithoutPrescription() {
-        return this.getReport('drugs_given_without_prescription')
-    }
-
-    getDrugsGivenWithPrescription() {
-        return this.getReport('drugs_given_with_prescription')
+    getDrugs() {
+        const url = `programs/${this.programID}/reports/drug`
+        return Service.getJson(url, {
+            'start_date': this.startDate,
+            'end_date': this.endDate,
+            'date': this.date
+        })
     }
 
     getDiagnosis(){
