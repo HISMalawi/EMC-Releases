@@ -20,13 +20,22 @@
         />
       </ion-col>
       <ion-col>
-        <ApexChart
-        width="100%"
-        height="350px"
-        type="area" 
-        :options="optionsSyndromic" 
-        :series="seriesSyndromic"
-        />
+        <table class="his-sm-text">
+          <tr>
+            <th></th>
+            <th>Female</th>
+            <th>Male</th>
+            <th>Me</th>
+            <th>Facility</th>
+          </tr>
+          <tr v-for="(data, index) in rows" :key="index">
+            <td class="encounter-td">{{ data.encounter }}</td>
+            <td class="other-td">{{ data.female }}</td>
+            <td class="other-td">{{ data.male }}</td>
+            <td class="other-td">{{ data.me }}</td>
+            <td class="other-td">{{ data.facility }}</td>
+          </tr>
+        </table>
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -47,6 +56,16 @@ export default defineComponent({
     return {
       dayjs,
       sessionDate: "",
+      rows: [
+        { encounter: "Patient Registration", female: 0, male: 0, me: 0, facility: 0 },
+        { encounter: "HIV tests", female: 0, male: 0, me: 0, facility: 0 },
+        { encounter: "Influeza data", female: 0, male: 0, me: 0, facility: 0},
+        { encounter: "Chronic conditions", female: 0, male: 0, me: 0, facility: 0 },
+        { encounter: "Patient Diagnosis", female: 0, male: 0, me: 0, facility: 0 },
+        { encounter: "Prescriptions", female: 0, male: 0, me: 0, facility: 0 },
+        { encounter: "Dispensations", female: 0, male: 0, me: 0, facility: 0 },
+        { encounter: "Discharges", female: 0, male: 0, me: 0, facility: 0 },
+      ] as any,
       patientSummaryStats: [
         { label: 'Registered today', value: -1, color: 'lightyellow' },
         { label: 'Returning today', value: -1, color: 'lightyellow' },
