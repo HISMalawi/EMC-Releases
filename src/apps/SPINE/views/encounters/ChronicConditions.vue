@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
@@ -22,21 +22,16 @@ import isEmpty from 'lodash/isEmpty';
 
 const fields = ref<Array<Field>>([]);
 let conditionsService: ChronicConditionsService;
-const { isReady, patient, provider, goToNextTask, patientDashboardUrl } = useEncounter();
 
-watch(isReady, (ready) => {
-  if (ready) {
-    conditionsService = new ChronicConditionsService(patient.value.getID(), provider.value);
-    fields.value = [
-      getConditionsField(),
-      getAdditionalConditionsField(),
-      getBMIField(),
-      getOtherConditionsField(),
-    ]
-  }
-}, {
-  immediate: true,
-})
+const { goToNextTask, patientDashboardUrl } = useEncounter((patientId, providerId) => {
+  conditionsService = new ChronicConditionsService(patientId, providerId);
+  fields.value = [
+    getConditionsField(),
+    getAdditionalConditionsField(),
+    getBMIField(),
+    getOtherConditionsField(),
+  ]
+});
 
 async function onSubmit(_fdata: any, cdata: any) {
   await conditionsService.createEncounter();

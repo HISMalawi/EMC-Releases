@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch} from 'vue'
+import { ref } from 'vue'
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
@@ -25,30 +25,21 @@ import { IonPage } from '@ionic/vue';
 
 let hivService: HIVStatusService;
 const fields = ref<Array<Field>>([]);
-const {
-  isReady,
-  patient,
-  provider,
-  patientDashboardUrl,
-  goToNextTask
-} = useEncounter();
 
-watch(isReady, (ready) => {
-  if(ready) {
-    hivService = new HIVStatusService(patient.value.getID(), provider.value);
-    fields.value = [
-      getHIVStatusField(),
-      ...getHivTestDateField(),
-      getTestLocationField(),
-      getCPTStartedField(),
-      getOnARTField(),
-      ...getArtStartDateField(),
-      ...getArtDefaultDateField(),
-      getCurrentArtLocationField(),
-      getARTAdviceField(),
-    ];
-  }
-})
+const { patient, patientDashboardUrl, goToNextTask } = useEncounter((patientId, providerId) => {
+  hivService = new HIVStatusService(patientId, providerId);
+  fields.value = [
+    getHIVStatusField(),
+    ...getHivTestDateField(),
+    getTestLocationField(),
+    getCPTStartedField(),
+    getOnARTField(),
+    ...getArtStartDateField(),
+    ...getArtDefaultDateField(),
+    getCurrentArtLocationField(),
+    getARTAdviceField(),
+  ];
+});
 
 async function onSubmit(_formData: any, computedData: any){
   const encounter = await hivService.createEncounter()

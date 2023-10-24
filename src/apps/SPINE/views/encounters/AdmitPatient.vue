@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
@@ -24,16 +24,11 @@ import { alertConfirmation, toastDanger, toastWarning } from '@/utils/Alerts';
 
 const fields = ref<Array<Field>>([]);
 let admitService = reactive({} as PatientAdmitService);
-const { isReady, patient, provider, goToNextTask, patientDashboardUrl } = useEncounter();
 
-watch(isReady, (ready) => {
-  if (ready) {
-    admitService = new PatientAdmitService(patient.value.getID(), provider.value);
-    fields.value.push(getInternalSectionsField());
-  }
-}, {
-  immediate: true,
-})
+const { goToNextTask, patientDashboardUrl } = useEncounter((patientId, providerId) => {
+  admitService = new PatientAdmitService(patientId, providerId);
+  fields.value.push(getInternalSectionsField());
+});
 
 async function onSubmit(_fdata: any, cdata: any) {
   const obs = await Promise.all([cdata.internal_sections]);

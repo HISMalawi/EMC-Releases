@@ -22,22 +22,17 @@ import { isEmpty } from 'lodash';
 
 const fields = ref<Array<Field>>([]);
 let influenzaService: InfluenzaDataService;
-const { isReady, patient, provider, goToNextTask, patientDashboardUrl } = useEncounter();
 
-watch(isReady, (ready) => {
-  if (ready) {
-    influenzaService = new InfluenzaDataService(patient.value.getID(), provider.value);
-    fields.value = [
-      getBackgroundInformationField(),
-      getSymptomField(),
-      getFluLikeIllnessField(),
-      getAdmissionCriteriaField(),
-      getRecruitmentField(),
-    ]
-  }
-}, {
-  immediate: true,
-})
+const { goToNextTask, patientDashboardUrl } = useEncounter((patientId, providerId) => {
+  influenzaService = new InfluenzaDataService(patientId, providerId);
+  fields.value = [
+    getBackgroundInformationField(),
+    getSymptomField(),
+    getFluLikeIllnessField(),
+    getAdmissionCriteriaField(),
+    getRecruitmentField(),
+  ]
+});
 
 async function onSubmit(_fdata: any, cdata: any) {
   await influenzaService.createEncounter();

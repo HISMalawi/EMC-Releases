@@ -21,13 +21,14 @@ export interface EncounterFacts {
   outcomeStartDate: string;
 }
 
-export default function useEncounter() {
+export type OnReadyHandler = (patientId: number, providerId: number) => void;
+
+export default function useEncounter(onReadyHandler?: OnReadyHandler) {
   const route = useRoute();
   const patient = ref({} as Patientservice);
   const facts = reactive({} as EncounterFacts);
   const provider = ref(-1);
   const providers = ref<Array<any>>([]);
-  const isReady = ref(false);
   const router = useRouter();
   const patientDashboardUrl = ref('');
 
@@ -107,7 +108,7 @@ export default function useEncounter() {
       patient.value = await Store.get('ACTIVE_PATIENT', { patientID });
       await setEncounterFacts(route.name as string);
       await checkEncounterGuidelines(facts);
-      isReady.value = true;
+      if(typeof onReadyHandler === "function") onReadyHandler(parseInt(patientID), provider.value);
     } catch (error) {
       console.error('Error in useEncounter hook:', error);
     }
@@ -115,7 +116,6 @@ export default function useEncounter() {
 
   return {
     patient,
-    isReady,
     provider,
     providers,
     facts,
