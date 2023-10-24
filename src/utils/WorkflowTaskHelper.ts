@@ -72,13 +72,15 @@ export async function nextTask(patientID: number, router: any, curRoute: any = {
             // Get reference configuration for current workflow task name
             const activeApp = Apps.getActiveApp()
             if (activeApp) {
-                const task = activeApp.primaryPatientActivites.filter(
-                    (task) => task.name.toLowerCase() === taskName
+                const task = activeApp.primaryPatientActivites.find(
+                    (task) => {
+                        return task?.workflowID === taskName || task.name.toLowerCase() === taskName
+                    }
                 )
                 // Check workflow task config for any default actions defined
                 // and run them instead of default redirection action
-                if (task.length && typeof task[0].action === 'function') {
-                    return task[0].action({ patientID, router })
+                if (task && typeof task.action === 'function') {
+                    return task.action({ patientID, router })
                 }
             }
             // Default workflow task action

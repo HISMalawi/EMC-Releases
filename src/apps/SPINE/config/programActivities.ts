@@ -1,4 +1,5 @@
 import { TaskInterface } from "@/apps/interfaces/TaskInterface";
+import router from "@/router";
 
 export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
@@ -16,6 +17,10 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     name: 'HIV Status',
     icon: 'aids.png',
     encounterTypeName: 'update hiv status',
+    workflowID: "update hiv status",
+    action: ({patientID}: any) => {
+      router.push({ path: `/SPINE/encounters/hiv-status/${patientID}`})
+    }
   },
   {
     id: 'influenza data',
