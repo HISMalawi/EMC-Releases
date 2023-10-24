@@ -10,7 +10,7 @@ import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { toastWarning } from '@/utils/Alerts';
-import { SocialHistoryService } from '@/apps/ART/services/social_history_service';
+import { SocialHistoryService } from '@/apps/SPINE/services/social_history_services';
 
 export default defineComponent({
   components: { HisStandardForm },

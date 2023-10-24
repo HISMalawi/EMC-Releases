@@ -11,8 +11,8 @@
 
 <script lang="ts">
 import { computed, defineComponent } from 'vue'
-import Strings from '../utils/Strings'
 import { IonCard, IonCardContent, IonCardSubtitle } from "@ionic/vue";
+import { capitalizeFirstLetter } from '@/utils/Strs';
 
 export default defineComponent({
   props: {
@@ -27,7 +27,7 @@ export default defineComponent({
   },
   components: { IonCard, IonCardContent, IonCardSubtitle },
   setup(props) {
-    const cardTitle = computed(() => Strings.capitalizeFirstLetter(props.title))
+    const cardTitle = computed(() => capitalizeFirstLetter(props.title))
     const icon = computed(() => `/assets/images/prescription/${props.title}.png`)
 
     return {

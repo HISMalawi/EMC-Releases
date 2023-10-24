@@ -31,7 +31,6 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: 'lab orders',
     name: 'Lab orders',
     icon: 'clinical-notes.png',
-    availableOnActivitySelection: false,
     action: ({patient}: any, router: any) => {
       router.push(`/los/forms/order/${patient.patient_id}?type=DRAW_SAMPLES`)
     }
@@ -40,7 +39,6 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: 'lab results',
     name: 'Lab results',
     icon: 'enter.png',
-    availableOnActivitySelection: false,
     action: ({ patient }: any, router: any) => {
       router.push({ path: `/lab/results/${patient.patient_id}`})
     },
@@ -49,7 +47,6 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: 'social history',
     name: 'social history',
     icon: 'medical-report.png',
-    availableOnActivitySelection: false
   },
   {
     id: 'chronic conditions',
@@ -72,7 +69,6 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     name: 'Dispensation',
     workflowID:"Dispensing",
     icon: 'dispensing.png',
-    availableOnActivitySelection: false
   },
   {
     id: 'discharge patient',
