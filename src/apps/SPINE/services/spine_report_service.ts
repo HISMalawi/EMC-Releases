@@ -25,7 +25,7 @@ export class SpineReportService extends Service {
   }
 
   buildRequest(config: Record<string, any> = {}) {
-    const payload: any = { 'date': this.date }
+    const payload: any = { 'date': this.date, program_id: this.programID }
     if (this.startDate && this.endDate) {
       payload['start_date'] = this.startDate
       payload['end_date'] = this.endDate
@@ -39,5 +39,9 @@ export class SpineReportService extends Service {
 
   getAttendance() {
     return this.getReport(`programs/${this.programID}/reports/attendance`)
+  }
+
+  getOutcomesReport(): Promise<Array<any>> {
+    return new Promise(resolve => resolve([]))
   }
 }

@@ -50,9 +50,14 @@ export default [
     component: () => import("@/apps/SPINE/views/encounters/ChronicConditions.vue")
   },
   {
-    name: "Clinic Diagnosis Report",
+    name: "Spine Clinic Diagnosis Report",
     path: "/spine/reports/clinic/diagnosis",
     component: () => import("@/apps/SPINE/views/reports/clinic/ClinicDiagnosis.vue")
+  },
+  {
+    name: "Spine Clinic Outcomes Report",
+    path: "/spine/reports/clinic/outcomes",
+    component: () => import("@/apps/SPINE/views/reports/clinic/ClinicOutcomes.vue")
   },
 ]
 

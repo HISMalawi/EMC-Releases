@@ -8,7 +8,11 @@ export const REPORTS: FolderInterface[] = [
     files: [
         {
             name: 'Diagnosis Report',
-            pathName: 'Clinic Diagnosis Report'
+            pathName: 'Spine Clinic Diagnosis Report'
+        },
+        {
+            name: 'Patient Outcomes',
+            pathName: 'Spine Clinic Outcomes Report'
         },
     ]
 },
