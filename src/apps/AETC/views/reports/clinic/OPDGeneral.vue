@@ -153,10 +153,6 @@ export default defineComponent({
                     {
                         label: 'Pediatrics Diagnosis',
                         value: 'Pediatrics Diagnosis',
-                    },
-                    {
-                        label: 'Adults Diagnosis',
-                        value: 'Adults Diagnosis',
                     }
                 ]
             },
