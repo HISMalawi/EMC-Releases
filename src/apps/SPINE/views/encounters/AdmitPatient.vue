@@ -16,17 +16,16 @@ import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
 import { IonPage } from '@ionic/vue';
-import { reactive } from 'vue';
 import useEncounter from "@/composables/useEncounter";
 import { PatientAdmitService } from "../../services/patient_admit_service";
 import { LocationService } from '@/services/location_service';
 import { alertConfirmation, toastDanger, toastWarning } from '@/utils/Alerts';
 
 const fields = ref<Array<Field>>([]);
-let admitService = reactive({} as PatientAdmitService);
+let admitService: PatientAdmitService;
 
-const { goToNextTask, patientDashboardUrl } = useEncounter((patientId, providerId) => {
-  admitService = new PatientAdmitService(patientId, providerId);
+const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, patient) => {
+  admitService = new PatientAdmitService(patient.getID(), providerId);
   fields.value.push(getInternalSectionsField());
 });
 

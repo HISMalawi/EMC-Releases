@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { Field, Option } from '@/components/Forms/FieldInterface';
 import { FieldType } from '@/components/Forms/BaseFormElements';
@@ -23,8 +23,8 @@ import { isEmpty } from 'lodash';
 const fields = ref<Array<Field>>([]);
 let influenzaService: InfluenzaDataService;
 
-const { goToNextTask, patientDashboardUrl } = useEncounter((patientId, providerId) => {
-  influenzaService = new InfluenzaDataService(patientId, providerId);
+const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, patient) => {
+  influenzaService = new InfluenzaDataService(patient.getID(), providerId);
   fields.value = [
     getBackgroundInformationField(),
     getSymptomField(),

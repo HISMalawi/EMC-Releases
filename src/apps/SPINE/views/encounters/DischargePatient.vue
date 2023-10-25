@@ -29,7 +29,8 @@ let referralService: PatientReferralService;
 let dischargeService: PatientOutcomeService;
 const fields = ref<Array<Field>>([]);
 
-const { goToNextTask, patientDashboardUrl } = useEncounter((patientId, providerId) => {
+const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, patient) => {
+  const patientId = patient.getID();
   dischargeService = new PatientOutcomeService(patientId, providerId);
   referralService = new PatientReferralService(patientId, providerId)
   fields.value = [

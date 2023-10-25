@@ -23,8 +23,8 @@ import isEmpty from 'lodash/isEmpty';
 const fields = ref<Array<Field>>([]);
 let conditionsService: ChronicConditionsService;
 
-const { goToNextTask, patientDashboardUrl } = useEncounter((patientId, providerId) => {
-  conditionsService = new ChronicConditionsService(patientId, providerId);
+const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, patient) => {
+  conditionsService = new ChronicConditionsService(patient.getID(), providerId);
   fields.value = [
     getConditionsField(),
     getAdditionalConditionsField(),
@@ -99,7 +99,10 @@ function getOtherConditionsField(): Field {
     id: 'other',
     helpText: "Other (Specify)",
     type: FieldType.TT_TEXT,
-    computedValue: (o: Option) => ({ obs: conditionsService.buildValueText("Other (specify)", o.label) }),
+    computedValue: (v: Option) => {
+      if(isEmpty(v)) return null;
+      return { obs: conditionsService.buildValueText("Other (specify)", v.label) }
+    },
   }
 }
 

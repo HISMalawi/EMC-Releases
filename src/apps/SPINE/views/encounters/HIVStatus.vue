@@ -22,12 +22,15 @@ import { HIVStatusService } from '../../services/hiv_status_service';
 import useEncounter from '@/composables/useEncounter';
 import { mapStrToOptions, resolveObs, yesNoUnknownOptions } from '@/utils/HisFormHelpers/commons';
 import { IonPage } from '@ionic/vue';
+import { Patientservice } from '@/services/patient_service';
 
 let hivService: HIVStatusService;
+let patient: Patientservice;
 const fields = ref<Array<Field>>([]);
 
-const { patient, patientDashboardUrl, goToNextTask } = useEncounter((patientId, providerId) => {
-  hivService = new HIVStatusService(patientId, providerId);
+const { patientDashboardUrl, goToNextTask } = useEncounter((providerId, p) => {
+  hivService = new HIVStatusService(p.getID(), providerId);
+  patient = p;
   fields.value = [
     getHIVStatusField(),
     ...getHivTestDateField(),
@@ -85,7 +88,7 @@ function getArtStartDateField(): Array<Field> {
     helpText: 'Started ART',
     required: true,
     condition: (f: any) => f.received_arvs.value === 'Yes',
-    minDate: () => `${patient.value?.getBirthdate() ?? ''}`,
+    minDate: () => `${patient?.getBirthdate() ?? ''}`,
     maxDate: () => hivService.getDate(),
     estimation: {
         allowUnknown: true,
@@ -101,7 +104,7 @@ function getArtDefaultDateField(): Array<Field> {
     helpText: 'ART Default',
     required: true,
     condition: (f: any) => f.received_arvs.value === 'Defaulter',
-    minDate: () => `${patient.value?.getBirthdate() ?? ''}`,
+    minDate: () => `${patient?.getBirthdate() ?? ''}`,
     maxDate: () => hivService.getDate(),
     estimation: {
         allowUnknown: true,
@@ -161,7 +164,7 @@ function getHivTestDateField() {
     id: 'hiv_test_date',
     helpText: 'HIV Test',
     required: true,
-    minDate: () => `${patient.value?.getBirthdate() ?? ''}`,
+    minDate: () => `${patient?.getBirthdate() ?? ''}`,
     maxDate: () => HIVStatusService.getSessionDate(),
     condition: (fields: any) => fields.hiv_status.value !== 'Unknown',
     summaryLabel: 'HIV test date',
