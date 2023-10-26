@@ -17,7 +17,7 @@ let socialService: SocialHistoryService;
 const fields = ref<Array<Field>>([]);
 
 const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, patient) => {
-  socialService = new SocialHistoryService(patient.getID(), providerId);
+  socialService = new SocialHistoryService(patient, providerId);
   fields.value = [
     getSocialActivitiesField(),
     getMaritalStatusField(),

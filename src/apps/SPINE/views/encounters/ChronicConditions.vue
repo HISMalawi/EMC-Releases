@@ -23,8 +23,8 @@ import isEmpty from 'lodash/isEmpty';
 const fields = ref<Array<Field>>([]);
 let conditionsService: ChronicConditionsService;
 
-const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, patient) => {
-  conditionsService = new ChronicConditionsService(patient.getID(), providerId);
+const { goToNextTask, patientDashboardUrl } = useEncounter((provider, patient) => {
+  conditionsService = new ChronicConditionsService(patient, provider);
   fields.value = [
     getConditionsField(),
     getAdditionalConditionsField(),

@@ -22,16 +22,16 @@ let registrationService: PatientVisitRegistrationService;
 let patient: Patientservice;
 const fields = ref([] as Array<Field>);
 
-const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, p) => {
-  registrationService = new PatientVisitRegistrationService(p.getID(), providerId);
+const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, patientId, p) => {
   patient = p
+  registrationService = new PatientVisitRegistrationService(patientId, providerId);
   fields.value = [
     getVisitTypeField(),
     getReferringFacilityField(),
     getNationalIdAvalailableField(),
     getNationalIdField(),
     getPregnantStatusField(),
-  ];
+  ]
 });
 
 async function onSubmit(formData: any, computedData: any) {

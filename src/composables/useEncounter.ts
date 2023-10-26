@@ -21,11 +21,12 @@ export interface EncounterFacts {
   outcomeStartDate: string;
 }
 
-export type OnReadyHandler = (providerId: number, patient: Patientservice) => void;
+export type OnReadyHandler = (providerId: number, patientId: number, patient: Patientservice) => void;
 
 export default function useEncounter(onReadyHandler?: OnReadyHandler) {
   const route = useRoute();
   let patient = reactive({} as Patientservice);
+  const patientId = ref(-1); 
   const facts = reactive({} as EncounterFacts);
   const provider = ref(-1);
   const providers = ref<Array<any>>([]);
@@ -103,13 +104,13 @@ export default function useEncounter(onReadyHandler?: OnReadyHandler) {
 
   onMounted(async () => {
     try {
-      const patientID = route.params.patient_id as string;
-      patientDashboardUrl.value = `/patient/dashboard/${ patientID }`;
-      patient = await Store.get('ACTIVE_PATIENT', { patientID });
+      patientId.value = parseInt(route.params.patient_id as string);
+      patientDashboardUrl.value = `/patient/dashboard/${ patientId.value }`;
+      patient = await Store.get('ACTIVE_PATIENT', { patientID: patientId.value });
       await setEncounterFacts(route.name as string);
       await checkEncounterGuidelines(facts);
       if(typeof onReadyHandler === "function") {
-        onReadyHandler(provider.value, patient as Patientservice);
+        onReadyHandler(provider.value, patientId.value, patient as Patientservice);
       }
     } catch (error) {
       console.error('Error in useEncounter hook:', error);
@@ -118,6 +119,7 @@ export default function useEncounter(onReadyHandler?: OnReadyHandler) {
 
   return {
     patient,
+    patientId,
     provider,
     providers,
     facts,

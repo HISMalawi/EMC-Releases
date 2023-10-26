@@ -24,7 +24,7 @@ const fields = ref<Array<Field>>([]);
 let influenzaService: InfluenzaDataService;
 
 const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, patient) => {
-  influenzaService = new InfluenzaDataService(patient.getID(), providerId);
+  influenzaService = new InfluenzaDataService(patient, providerId);
   fields.value = [
     getBackgroundInformationField(),
     getSymptomField(),

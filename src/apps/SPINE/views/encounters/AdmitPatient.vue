@@ -24,8 +24,8 @@ import { alertConfirmation, toastDanger, toastWarning } from '@/utils/Alerts';
 const fields = ref<Array<Field>>([]);
 let admitService: PatientAdmitService;
 
-const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, patient) => {
-  admitService = new PatientAdmitService(patient.getID(), providerId);
+const { goToNextTask, patientDashboardUrl } = useEncounter((provider, patient) => {
+  admitService = new PatientAdmitService(patient, provider);
   fields.value.push(getInternalSectionsField());
 });
 

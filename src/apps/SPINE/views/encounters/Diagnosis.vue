@@ -25,8 +25,7 @@ let diagnosisService: PatientDiagnosisService;
 const malariaTestResult = ref("No");
 const fields = ref<Array<Field>>([]);
 
-const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, patient) => {
-  const patientId = patient.getID();
+const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, patientId) => {
   OrderService.getLatestMalariaTestResult(patientId).then(result => malariaTestResult.value = result);
   notesService = new ClinicalNotesService(patientId, providerId)
   diagnosisService = new PatientDiagnosisService(patientId, providerId)

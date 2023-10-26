@@ -25,20 +25,18 @@ import { IonPage } from '@ionic/vue';
 import { Patientservice } from '@/services/patient_service';
 
 let hivService: HIVStatusService;
-let patient: Patientservice;
 const fields = ref<Array<Field>>([]);
 
-const { patientDashboardUrl, goToNextTask } = useEncounter((providerId, p) => {
-  hivService = new HIVStatusService(p.getID(), providerId);
-  patient = p;
+const { patientDashboardUrl, goToNextTask } = useEncounter((providerId, patientId, patient) => {
+  hivService = new HIVStatusService(patientId, providerId);
   fields.value = [
     getHIVStatusField(),
-    ...getHivTestDateField(),
+    ...getHivTestDateField(patient),
     getTestLocationField(),
     getCPTStartedField(),
     getOnARTField(),
-    ...getArtStartDateField(),
-    ...getArtDefaultDateField(),
+    ...getArtStartDateField(patient),
+    ...getArtDefaultDateField(patient),
     getCurrentArtLocationField(),
     getARTAdviceField(),
   ];
@@ -82,7 +80,7 @@ function getCurrentArtLocationField(): Field {
   }
 }
 
-function getArtStartDateField(): Array<Field> {
+function getArtStartDateField(patient: Patientservice): Array<Field> {
   return generateDateFields({
     id: 'date_started_art',
     helpText: 'Started ART',
@@ -98,7 +96,7 @@ function getArtStartDateField(): Array<Field> {
   })
 }
 
-function getArtDefaultDateField(): Array<Field> {
+function getArtDefaultDateField(patient: Patientservice): Array<Field> {
   return generateDateFields({
     id: 'date_defualted_art',
     helpText: 'ART Default',
@@ -159,7 +157,7 @@ function getHIVStatusField(): Field {
   }
 }
 
-function getHivTestDateField() {
+function getHivTestDateField(patient: Patientservice) {
   return generateDateFields({
     id: 'hiv_test_date',
     helpText: 'HIV Test',

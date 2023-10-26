@@ -18,8 +18,8 @@ import { Patientservice } from "@/services/patient_service";
 let dispensation: DispensationService;
 const fields = ref<Array<Field>>([]);
 
-const { goToPatientDashboard, patientDashboardUrl } = useEncounter(async (providerId, patient) => {
-  dispensation = new DispensationService(patient.getID(), providerId)
+const { goToPatientDashboard, patientDashboardUrl } = useEncounter(async (providerId, patientId, patient) => {
+  dispensation = new DispensationService(patientId, providerId)
   await dispensation.loadCurrentDrugOrder()
   await dispensation.loadDrugHistory()
   fields.value.push(getDispensationField(patient));
