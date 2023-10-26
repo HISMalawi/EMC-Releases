@@ -1,15 +1,6 @@
 <template>
   <ion-page>
-    <report-template
-      :title="title"
-      :rows="rows"
-      :fields="fields"
-      :columns="columns"
-      :period="period"
-      :reportPrefix="'Clinic'"
-      :customInfo="customInfo"
-      :onReportConfiguration="init"
-    ></report-template>
+    <report-template :title="title" :rows="rows" :fields="fields" :columns="columns" :period="period" :reportPrefix="'Clinic'" :customInfo="customInfo" :onReportConfiguration="init"></report-template>
   </ion-page>
 </template>
 
@@ -22,6 +13,8 @@ import { get, isEmpty } from 'lodash'
 import { IonPage } from "@ionic/vue";
 import { SpineReportService } from '@/apps/SPINE/services/spine_report_service'
 import { Patientservice } from '@/services/patient_service'
+import { toastDanger } from '@/utils/Alerts'
+import { Option } from '@/components/Forms/FieldInterface'
 
 export default defineComponent({
   components: { ReportTemplate, IonPage },
@@ -32,44 +25,44 @@ export default defineComponent({
     reportService: {} as SpineReportService,
     customInfo: {
       label: "Total Visits",
-      value: 0
-    },
+      value: 0,
+    } as Option,
     columns: [
       [
         table.thTxt('Age Groups', {
           sortable: false,
-          exportable: false 
+          exportable: false
         }),
         table.thTxt('<6 months', {
           colspan: 2,
           sortable: false,
-          exportable: false 
+          exportable: false
         }),
         table.thTxt('6 months < 5 yrs', {
           colspan: 2,
           sortable: false,
-          exportable: false 
+          exportable: false
         }),
         table.thTxt('5 yrs < 14 yrs', {
           colspan: 2,
           sortable: false,
-          exportable: false 
+          exportable: false
         }),
         table.thTxt('> 14 yrs', {
           colspan: 2,
           sortable: false,
-          exportable: false 
+          exportable: false
         }),
         table.thTxt('', {
           sortable: false,
-          exportable: false 
+          exportable: false
         }),
       ],
       [
         table.thTxt('Diagnosis'),
         table.thTxt('F', { value: 'Females <6 months' }),
         table.thTxt('M', { value: 'Males <6 months' }),
-        table.thTxt('F', { value: 'Females 6 months < 5 yrs'}),
+        table.thTxt('F', { value: 'Females 6 months < 5 yrs' }),
         table.thTxt('M', { value: 'Males 6 months < 5 yrs' }),
         table.thTxt('F', { value: 'Females 5 yrs < 14 yrs' }),
         table.thTxt('M', { value: 'Males 5 yrs < 14 yrs' }),
@@ -79,26 +72,31 @@ export default defineComponent({
       ]
     ] as ColumnInterface[][],
   }),
-  created(){
+  created() {
     this.fields = this.getDateDurationFields()
   },
   methods: {
-    async init(_: any, config: any){
+    async init(_: any, config: any) {
       this.reportService = new SpineReportService();
       this.reportService.startDate = config.start_date
       this.reportService.endDate = config.end_date
       this.period = this.reportService.getReportPeriod();
-      this.rows = this.buildRows((await this.reportService.getDiagnosisReport()))
-      const visits = await this.reportService.getAttendance()
-      this.customInfo.value = visits.length
-      
+      try {
+        this.rows = this.buildRows((await this.reportService.getDiagnosisReport()))
+        const visits = await this.reportService.getAttendance()
+        this.customInfo.value = visits.length
+        this.customInfo.other = {
+          click: () => this.drill(visits, "Total Patients Visits")
+        };
+      } catch (error) {
+        toastDanger(`${error}`)
+      }
     },
     totalDiagnosis(diagnosis: Record<string, number>) {
       return Object.values(diagnosis).reduce((a, b) => a + b, 0)
     },
     getDrillDownColumns() {
       return [[
-        table.thTxt("Patient ID"),
         table.thTxt("First Name"),
         table.thTxt("Last Name"),
         table.thTxt("Gender"),
@@ -106,20 +104,16 @@ export default defineComponent({
         table.thTxt("Address")
       ]]
     },
-    buildColumn(patients: Array<string>, title='Drilldown Data') {
-      if(isEmpty(patients)) {
-        return table.td(0)
-      }
-      return table.tdLink(patients.length, async () => this.drilldownData(
+    drill(data: Array<string>, title: string) {
+      return this.drilldownData(
         title,
         this.getDrillDownColumns(),
-        patients,
+        data,
         async (tableRows: number[]) => {
-          return await Promise.all(tableRows.map( async (patientId) => {
+          return await Promise.all(tableRows.map(async (patientId) => {
             const p = await Patientservice.findByID(patientId)
             const patient = new Patientservice(p)
             return [
-              table.td(patientId),
               table.td(patient.getGivenName()),
               table.td(patient.getFamilyName()),
               table.td(patient.getGender()),
@@ -128,10 +122,16 @@ export default defineComponent({
             ]
           }))
         }
-      ))
+      )
+    },
+    buildColumn(patients: Array<string>, title = 'Drilldown Data') {
+      if (isEmpty(patients)) {
+        return table.td(0)
+      }
+      return table.tdLink(patients.length, () => this.drill(patients, title))
     },
     buildRows(data: Record<string, any>): RowInterface[][] {
-      if(isEmpty(data)) return []
+      if (isEmpty(data)) return []
       const rows: RowInterface[][] = []
       Object.keys(data).forEach(diagnosis => {
         const underSixFemales: Array<string> = get(data[diagnosis], "F.0-5 months", [])
@@ -144,7 +144,7 @@ export default defineComponent({
         const overFourteenMales: Array<string> = get(data[diagnosis], 'M.>= 14 years', [])
 
         rows.push([
-          table.td(diagnosis, {style: {textAlign: 'left'}}),
+          table.td(diagnosis, { style: { textAlign: 'left' } }),
           this.buildColumn(underSixFemales, `under 6 months females diagnosed with ${diagnosis}`),
           this.buildColumn(underSixMales, `under 6 months males diagnosed with ${diagnosis}`),
           this.buildColumn(underFiveFemales, `under 5 years females diagnosed with ${diagnosis}`),
@@ -167,8 +167,8 @@ export default defineComponent({
       })
 
       return rows.sort((a, b) => {
-        if(a[0].td < b[0].td) return -1
-        if(a[0].td > b[0].td) return 1
+        if (a[0].td < b[0].td) return -1
+        if (a[0].td > b[0].td) return 1
         return 0
       })
     },

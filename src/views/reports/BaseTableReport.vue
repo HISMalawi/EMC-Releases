@@ -15,7 +15,20 @@
           <ul class="header-text-list"> 
             <li>Title <b>{{ title }}</b></li>
             <li>Period <b>{{ period }}</b></li>
-            <li v-if="customInfo">{{customInfo.label}} <b>{{customInfo.value}}</b></li>
+            <li v-if="customInfo">
+              {{customInfo.label}} 
+              <b>
+                <a href="#" 
+                  v-if="typeof customInfo?.other?.click === 'function'"
+                  @click.prevent="customInfo.other.click()"
+                >
+                  {{customInfo.value}}
+                </a>
+                <template v-else>{{customInfo.value}}</template>
+              </b>
+            </li>
+            <template >
+            </template>
           </ul>
         </ion-label>
         <report-filter
