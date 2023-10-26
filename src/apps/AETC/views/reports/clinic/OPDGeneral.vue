@@ -54,7 +54,21 @@ export default defineComponent({
          * Generates report by start date and end date
          */
          const generate = async () => {
-            return null
+            const report = new AETCReportService()
+            // report.startDate = startDate.value
+            report.startDate = '2021-10-02'
+            // report.endDate = endDate.value
+            report.endDate = '2021-10-03'
+            report.startAge = startAge.value
+            report.endAge = endAge.value
+            report.reportType = reportType.value
+
+            try {
+                const rawReport = (await report.getClinicReport("OPD GENERAL"))
+                reportData.value = rawReport;
+            }catch (e){
+                console.log(e)
+            }
          }
          const generateYears = () => {
             let years: string[] = [];
