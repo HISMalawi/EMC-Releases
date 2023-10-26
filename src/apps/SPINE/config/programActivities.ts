@@ -59,7 +59,10 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     name: 'Diagnosis',
     encounterTypeName: "outpatient diagnosis",
     workflowID: "outpatient diagnosis",
-    icon: 'diagnosis.png'
+    icon: 'diagnosis.png',
+    action: ({patientID}: any) => {
+      router.push({ path: `/SPINE/encounters/diagnosis/${patientID}` })
+    }
   },
   {
     id: 'prescription',
@@ -76,6 +79,9 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     name: 'Dispensation',
     workflowID:"Dispensing",
     icon: 'dispensing.png',
+    action: ({patientID}: any) => {
+      router.push({ path: `/SPINE/encounters/dispensing/${patientID}` })
+    }
   },
   {
     id: 'discharge patient',
