@@ -10,6 +10,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: 'admit patient',
     name: 'Admin Patient',
+    encounterTypeName: 'admit patient',
     icon: 'consultation.png'
   },
   {
