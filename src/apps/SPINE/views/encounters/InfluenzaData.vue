@@ -23,10 +23,10 @@ import { isEmpty } from 'lodash';
 const fields = ref<Array<Field>>([]);
 let influenzaService: InfluenzaDataService;
 
-const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, patient) => {
-  influenzaService = new InfluenzaDataService(patient, providerId);
+const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, patientId, patient) => {
+  influenzaService = new InfluenzaDataService(patientId, providerId);
   fields.value = [
-    getBackgroundInformationField(),
+    getBackgroundInformationField(patient.isChildBearing()),
     getSymptomField(),
     getFluLikeIllnessField(),
     getAdmissionCriteriaField(),
@@ -41,23 +41,23 @@ async function onSubmit(_fdata: any, cdata: any) {
   goToNextTask();
 }
 
-function getBackgroundInformationField(): Field {
+function getBackgroundInformationField(isChildBearing: boolean): Field {
   return {
     id: 'background_information',
     helpText: "Background Information",
     type: FieldType.TT_MULTIPLE_YES_NO,
     computedValue: (options: Array<Option>) => buildObs('Background information', options),
-    options: (_fdata: any, checkedOptions: Array<Option>) => mapToYesNoOptions(
-      [
+    options: (_fdata: any, checkedOptions: Array<Option>) => {
+      const options = [
         "Influenza vaccine in the last 1 year",
         "Currently (or in the last week) taking antibiotics",
         "Current Smoker",
         "Were you a smoker 3 months ago",
-        "Pregnant?",
         "RDT or blood smear positive for malaria"
-      ],
-      checkedOptions,
-    )
+      ];        
+      if(isChildBearing) options.push("Pregnant?")
+      return mapToYesNoOptions(options, checkedOptions )
+    }
   }
 }
 
