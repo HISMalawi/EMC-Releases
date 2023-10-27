@@ -38,7 +38,7 @@ export default defineComponent({
       async handler() {
         this.reception = new TreatmentService(this.patientID, this.providerID);
         this.summaryData = await this.reception.getSummary();
-        this.isReferralSiteEnabled = (await CXCA_GLOBAL_PROP.isReferralCiteEnabled())
+        this.isReferralSiteEnabled = (await CXCA_GLOBAL_PROP.isReferralSiteEnabled())
         await this.setReason();
         this.fields = this.getFields();
       },

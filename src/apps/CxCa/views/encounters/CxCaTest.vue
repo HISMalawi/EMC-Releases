@@ -31,6 +31,7 @@ export default defineComponent({
     alreadyEnrolled: false,
     offerCxCa: false,
     consultation: {} as ConsultationService,
+    patientHitMenopause: false
   }),
   watch: {
     patient: {
@@ -47,6 +48,8 @@ export default defineComponent({
 
         //test here 
         const program = await ProgramService.getProgramInformation(this.patientID)
+
+        this.patientHitMenopause = await this.consultation.patientHitMenopause()
 
         if(program.current_outcome === 'Continue follow-up'){
           this.alreadyEnrolled = true;
@@ -358,7 +361,7 @@ export default defineComponent({
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
           options: () => this.yesNoOptions(),
-          condition: async () => !(await this.consultation.patientHitMenopause()),
+          condition: async () => !this.patientHitMenopause,
           computedValue: (value: any) => ({
           obs: this.assessment.buildValueCoded('Family planning', value.label)
           })
