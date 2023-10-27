@@ -54,8 +54,7 @@ export class ConsultationService extends AppEncounterService {
     const req: any = await AppEncounterService.getJson(`last_cxca_screening_details`, {
       id: this.patientID, date: this.date
     })
-    if (!isEmpty(req)) {return true}
-    return false
+    return !isEmpty(req)
   }
 
   async clientDueForCxCa() {
