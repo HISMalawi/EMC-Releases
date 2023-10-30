@@ -8,8 +8,9 @@
             :columns="columns"
             :showtitleOnly="true"
             :canExportPDf="true"
-            :customFileName="exportedReportTitle"
+            :encryptPDF="true"
             :onReportConfiguration="onPeriod"
+            report-prefix="Clinic"
             > 
         </report-template>
     </ion-page>
@@ -23,13 +24,14 @@ import ReportTemplate from "@/apps/ART/views/reports/TableReportTemplate.vue"
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { IonPage } from "@ionic/vue"
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props" 
+import dayjs from 'dayjs'
+import { Service } from '@/services/service'
 
 export default defineComponent({
     mixins: [ReportMixin],
     components: { ReportTemplate, IonPage },
     data: () => ({
         title: 'Clinic Clients due for VL <small>(clients with appointments in specified period)</small>',
-        exportedReportTitle: '' as string,
         rows: [] as Array<any>,
         columns: [] as Array<any>
     }),
@@ -37,6 +39,10 @@ export default defineComponent({
         const isFn = await ART_GLOBAL_PROP.filingNumbersEnabled()
         this.columns.push([
             table.thTxt(isFn ? 'Filing #' : 'ARV#'),
+            table.thTxt('First name', { csvExportable: false, pdfExportable: true }),
+            table.thTxt('Last name', { csvExportable: false, pdfExportable: true }),
+            table.thTxt('Gender'),
+            table.thTxt('Age'),
             table.thTxt('App.'),
             table.thTxt('ART started'),
             table.thTxt('Months on ART'), 
@@ -53,15 +59,19 @@ export default defineComponent({
             this.report = new PatientReportService()
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
+            this.report.setOccupation(config.occupation)
             this.period = this.report.getDateIntervalPeriod()
             const data = await this.report.getClientsDueForVl()
-            this.exportedReportTitle = `${PatientReportService.getLocationName()} Clinic Clients due for VL (clients with appointments in specified period) ${this.period}`
             this.setRows(data)
         },
         async setRows(data: Array<any>) {
             data.forEach((d: any) => {
                 this.rows.push([
                     table.tdLink(d.arv_number, () => this.confirmPatient(d.patient_id)),
+                    table.td(d.given_name),
+                    table.td(d.family_name),
+                    table.td(this.formatGender(d.gender)),
+                    table.td(d.birthdate ? dayjs(Service.getSessionDate()).diff(d.birthdate, 'years') : 'N/A' ),
                     table.tdDate(d.appointment_date),
                     table.tdDate(d.start_date),
                     table.td(d.months_on_art),

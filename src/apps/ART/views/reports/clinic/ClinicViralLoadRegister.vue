@@ -12,6 +12,7 @@
         :customBtns="customBtns"
         :showPerPageFilter="false"
         showVLFilter
+        report-prefix="Clinic"
       ></report-template>
     </ion-page>
   </template>

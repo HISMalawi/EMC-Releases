@@ -88,7 +88,7 @@ async function switchAppWorkflow(
     appName: string,
     patientID: number,
     router: any,
-    beforeNextTask=undefined as Function | undefined
+    beforeNextTask?: () => Promise<any>
     ) {
     const app: AppInterface | undefined = find(Apps, { applicationName: appName })
     if (app) {

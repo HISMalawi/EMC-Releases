@@ -182,8 +182,16 @@ export default defineComponent({
                 {
                     id: 'hts_serial_number',
                     helpText: 'HTS Linkage Number',
-                    type: FieldType.TT_TEXT,
-                    validation: (v: Option) => Validation.required(v),
+                    type: FieldType.TT_LINKAGE_CODE,
+                    validation: (v: Option) => Validation.validateSeries([
+                        () => Validation.required(v),
+                        () => {
+                            if (!v?.other?.isValidLinkageCode) {
+                                return ['Invalid Scanform linkage code']
+                            }
+                            return null
+                        }
+                    ]),
                     condition: (f: any) => f.has_linkage_code === 'Yes',
                     computedValue: (v: Option) => {
                         return {
@@ -223,7 +231,7 @@ export default defineComponent({
                             obs: this.buildDateObs('Date ART last taken', date, isEstimate) 
                         }
                     }
-                }, this.registration.getDate()),
+                }),
                 {
                     id: 'taken_art_in_last_two_months',
                     helpText: 'Taken ARVs in the last two months?',
@@ -340,7 +348,7 @@ export default defineComponent({
                             obs: this.buildDateObs('Date ART started', date, isEstimate) 
                         }
                     },
-                }, this.registration.getDate()),
+                }),
                 {
                     id: 'previous_art_number',
                     helpText: 'ART number at previous location',
@@ -566,7 +574,7 @@ export default defineComponent({
                             obs: this.buildDateObs('Confirmatory HIV test date', date, isEstimate) 
                         }
                     },
-                }, this.registration.getDate()),
+                }),
                 this.getStagingSummaryField('Staging summary')
             ]
         }

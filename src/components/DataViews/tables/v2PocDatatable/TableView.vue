@@ -9,7 +9,7 @@
             <ion-buttons slot="end">
                 <ion-button v-if="typeof onConfigure === 'function'"
                     @click="onConfigure">
-                    <ion-icon size="large" :icon="document"></ion-icon>
+                    <ion-icon size="large" :icon="funnelOutline"></ion-icon>
                 </ion-button>
                 <ion-chip
                     v-if="searchTerm"
@@ -117,7 +117,7 @@ import {
     close, 
     arrowUp, 
     arrowDown, 
-    document
+    funnelOutline,
 } from "ionicons/icons"
 import { Option } from "@/components/Forms/FieldInterface"
 import { computed, defineComponent, PropType, ref, watch } from "vue";
@@ -132,6 +132,7 @@ import { toCsv, toTablePDF } from "@/utils/Export"
 import { Service } from "@/services/service";
 import { useRouter } from "vue-router";
 import dayjs from "dayjs";
+import { removeNonDateCharacters, removeTags } from "@/utils/Strs";
 
 export default defineComponent({
     components: {
@@ -182,6 +183,10 @@ export default defineComponent({
         },
         csvQuarter: {
             type: String
+        },
+        reportPrefix: {
+            type: String,
+            default: ""
         }
     },
     setup(props) {
@@ -332,7 +337,8 @@ export default defineComponent({
                 return [...allRows, row]
             }, [])
 
-            const filename = `${Service.getLocationName()||'Unknown site'}-${props.title}-${props.subtitle}-${Service.getSessionDate()}`
+            const filename = `${props.reportPrefix} ${Service.getLocationName() ?? ""} ${removeTags(props.title).replace(props.reportPrefix, "")} ${removeNonDateCharacters(props.csvQuarter ?? props.subtitle ?? "")}`
+
             return {
                 headers,
                 rows,
@@ -430,7 +436,7 @@ export default defineComponent({
             close, 
             arrowUp, 
             arrowDown, 
-            document,
+            funnelOutline,
             page,
             canNext,
             searchTerm,

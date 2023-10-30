@@ -24,6 +24,7 @@ import ANC_PROP from "@/apps/ANC/anc_global_props"
 import { alertConfirmation } from '@/utils/Alerts'
 import { find } from 'lodash'
 import { FLOAT_KEYPAD } from "@/components/Keyboard/KbLayouts"
+import dayjs from 'dayjs'
 
 export default defineComponent({
   components: { IonPage },
@@ -36,7 +37,8 @@ export default defineComponent({
     arvStartDate: '' as string,
     recencyEssayActivated: false as boolean,
     riskOfPreclampsia: null as boolean | null,
-    service: {} as any
+    service: {} as any,
+    previousHivDate: '' as string
   }),
   watch: {
     ready: {
@@ -131,6 +133,10 @@ export default defineComponent({
                 id: 'prev_hiv_test_date',
                 helpText: 'Previous HIV test',
                 required: true,
+                beforeNext: (date: string) => {
+                    this.previousHivDate = date
+                    return true
+                },
                 minDate: () => this.patient.getBirthdate(),
                 maxDate: () => this.service.getDate(),
                 estimation: {
@@ -171,75 +177,106 @@ export default defineComponent({
                     ]
                 }
             },
-            {
-                id: 'available_test_results',
-                helpText: 'Available Lab Tests',
-                type: FieldType.TT_MULTIPLE_SELECT,
-                validation: (v: Option) => Validation.required(v),
-                computedValue: (v: Option[]) => {
-                    if (find(v, { label: 'None'})) {
-                        return this.service.buildValueCoded('Lab test done', 'No')
-                    }
-                    return null
-                },
-                onValueUpdate(listData: Option[], value: Option) {
-                    return listData.map(l => {
-                        if (value.value === 'None' && l.value !='None') {
-                            l.isChecked = false
+            (() => {
+                const isEligibleForHivTest = (f: any) => {
+                    return !this.service.isHivPositive() && f.prev_hiv_test_result?.value != 'Positive'
+                }
+                let hivTestIsMandatory = false
+                return {
+                    id: 'available_test_results',
+                    helpText: 'Available Lab Tests',
+                    type: FieldType.TT_MULTIPLE_SELECT,
+                    init: async () => {
+                        await this.service.loadTimeSinceLastHivTest()
+                        return true
+                    },
+                    validation: (v: Option) => Validation.required(v),
+                    computedValue: (v: Option[]) => {
+                        if (find(v, { label: 'None'})) {
+                            return this.service.buildValueCoded('Lab test done', 'No')
                         }
-                        if (value.value != 'None' && value.isChecked && l.value === 'None') {
-                            l.isChecked = false
-                        }
-                        return l
-                    })
-                },
-                options: async (f: any) => {
-                    const options: Option[] = []
-                    const hivPos = !this.service.isHivPositive() ? f.prev_hiv_test_result?.value === 'Positive' : true
-                    if (!hivPos) {
-                        options.push(this.toOption('HIV'))
-                    }
-                    options.push(this.toOption('HB'))
-                    options.push(this.toOption('Syphilis'))
-                    options.push(this.toOption('Malaria'))
-                    options.push(this.toOption('Blood Group'))
-                    const urine: Option = {
-                        label: 'Urine',
-                        value: 'Urine',
-                        isChecked: false
-                    }
-                    if (this.riskOfPreclampsia === null) {
-                        this.riskOfPreclampsia = await this.service.isAtRiskOfPreEclampsia()
-                        if (this.riskOfPreclampsia) {
-                            const ok: boolean = await alertConfirmation(
-                                'Select urine test to conduct urine protein test', {
-                                header: 'Client is at risk of pre-eclampsia.',
-                                cancelBtnLabel: 'Remind later',
-                                confirmBtnLabel: 'Select Urine Test'
-                            })
-                            urine.isChecked = ok
-                        }
-                    }
-                    return [...options, urine, this.toOption('None')]
-                },
-                config: {
-                    footerBtns: [
-                        {
-                            name: "None",
-                            slot: "end",
-                            onClickComponentEvents: {
-                                refreshOptions: (_: any, listData: Option[]) => {
-                                    return listData.map(o => {
-                                        o.isChecked = o.label === 'None'
-                                        return o
-                                    })
+                        return null
+                    },
+                    onValueUpdate(listData: Option[], value: Option) {
+                        return listData.map(l => {
+                            if (value.value === 'None' && l.value !='None') {
+                                l.isChecked = false
+                            }
+                            if (value.value != 'None' && value.isChecked && l.value === 'None') {
+                                l.isChecked = false
+                            }
+                            return l
+                        })
+                    },
+                    options: async (f: any) => {
+                        const options: Option[] = []
+                        if (isEligibleForHivTest(f)) {
+                            let monthsSinceLastTest = this.service.lastHivTestInMonths
+                            if (f.prev_hiv_test_result) {
+                                monthsSinceLastTest = dayjs(this.service.date).diff(this.previousHivDate, 'months')
+                                hivTestIsMandatory = (f.prev_hiv_test_result?.value != 'Positive' && monthsSinceLastTest >= 3)
+                            } else {
+                                // Last recorded HIV test in the EMR
+                                hivTestIsMandatory = (this.service.lastHivTestInMonths <= -1 || this.service.lastHivTestInMonths >= 3)
+                            }
+                            options.push({
+                                ...this.toOption('HIV'),
+                                isChecked: hivTestIsMandatory,
+                                description: {
+                                    color: "danger",
+                                    text: `${ 
+                                        monthsSinceLastTest <= -1
+                                        ? "Consider HIV test because status is not known"
+                                        : monthsSinceLastTest >= 3
+                                        ? `Consider HIV test (${monthsSinceLastTest} months since last visit)`
+                                        : ''
+                                    }`
                                 }
-                            },
-                            onClick: () => 'None'
+                            })
+                        } 
+                        options.push(this.toOption('HB'))
+                        options.push(this.toOption('Syphilis'))
+                        options.push(this.toOption('Malaria'))
+                        options.push(this.toOption('Hepatitis B'))
+                        options.push(this.toOption('Blood Group'))
+                        const urine: Option = {
+                            label: 'Urine',
+                            value: 'Urine',
+                            isChecked: false
                         }
-                    ]
+                        if (this.riskOfPreclampsia === null) {
+                            this.riskOfPreclampsia = await this.service.isAtRiskOfPreEclampsia()
+                            if (this.riskOfPreclampsia) {
+                                const ok: boolean = await alertConfirmation(
+                                    'Select urine test to conduct urine protein test', {
+                                    header: 'Client is at risk of pre-eclampsia.',
+                                    cancelBtnLabel: 'Remind later',
+                                    confirmBtnLabel: 'Select Urine Test'
+                                })
+                                urine.isChecked = ok
+                            }
+                        }
+                        const finalOptions = [...options, urine]
+                        return [...finalOptions, this.toOption('None')]
+                    },
+                    exitsForm: (f: any) => find(f.available_test_results, {label: 'None'}),
+                }   
+            }) (),
+            {
+                id: "hepatitis_b",
+                type: FieldType.TT_SELECT,
+                helpText: "Hepatitis B test results",
+                validation: (v: Option) => Validation.required(v), 
+                condition: (f: any) => f.available_test_results.map((v: Option) => v.value).includes('Hepatitis B'),
+                computedValue: (v: Option) => {
+                    return this.service.buildValueCoded('Hepatitis B Test Result', v.value)
                 },
-                exitsForm: (f: any) => find(f.available_test_results, {label: 'None'}),
+                options: () => {
+                    return this.mapStrToOptions([
+                        'Negative',
+                        'Positive'
+                    ])
+                }
             },
             {
                 id: 'hiv_status',
@@ -252,7 +289,8 @@ export default defineComponent({
                     return this.mapStrToOptions([
                         'Negative',
                         'Positive',
-                        'Inconclusive'
+                        'Inconclusive',
+                        'Not done'
                     ])
                 }
             },

@@ -10,6 +10,7 @@
             :showtitleOnly="true"
             :customFileName="customFileName"
             :onReportConfiguration="onPeriod"
+            report-prefix="Clinic"
             > 
         </report-template>
     </ion-page>
@@ -45,7 +46,10 @@ export default defineComponent({
                 table.thTxt('Result'),
                 table.thTxt('Released'),
                 table.thTxt('Curr. Regimen'),
-                table.thTxt('Action')
+                table.thTxt('Action', {
+                    csvExportable: false,
+                    pdfExportable: false
+                })
             ]
         ]
     }),
@@ -81,9 +85,10 @@ export default defineComponent({
             this.report = new PatientReportService()
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
+            this.report.setOccupation(config.occupation)
             this.period = this.report.getDateIntervalPeriod()
             this.title = `${resultType.label} Report <small><b>(between the period of (${this.period})</b></small>`
-            this.customFileName = `${PatientReportService.getLocationName()} ${resultType.label} ${this.period}`
+            this.customFileName = `Clinic ${PatientReportService.getLocationName()} ${resultType.label} ${this.period}`
             this.setRows((await this.report.getViralLoadResults(resultType.value.toLowerCase())))
         },
         async setRows(data: Array<any>) {

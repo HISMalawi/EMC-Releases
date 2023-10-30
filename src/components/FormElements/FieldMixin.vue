@@ -1,5 +1,4 @@
 <script lang="ts">
-import { isPlatform } from '@ionic/core'
 import { defineComponent } from 'vue'
 
 export default defineComponent({

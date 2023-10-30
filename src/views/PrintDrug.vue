@@ -11,7 +11,6 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import { PrintoutService} from "@/services/printout_service"
 import { StockService } from '@/apps/ART/views/ARTStock/stock_service';
 import { isEmpty } from 'lodash';
-import { options } from 'ionicons/icons';
 
 export default defineComponent({
     components: { HisStandardForm },

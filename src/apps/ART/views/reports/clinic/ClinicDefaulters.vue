@@ -9,6 +9,7 @@
             :showtitleOnly="true"
             :onReportConfiguration="onPeriod"
             :encryptPDF="true"
+            reportPrefix="Clinic"
             > 
         </report-template>
     </ion-page>
@@ -49,6 +50,7 @@ export default defineComponent({
             this.rows = []
             this.report = new DefaulterReportService()
             this.report.setIsPepfar(false)
+            this.report.setOccupation(config.occupation)
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()

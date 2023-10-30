@@ -1,21 +1,26 @@
 import HisDate from "@/utils/Date"
 import { removeTags, toNumString } from "@/utils/Strs";
 import { sort } from 'fast-sort';
-import { isEmpty, slice } from "lodash";
+import { isEmpty } from "lodash";
 
 export interface TableInterface {
     showIndex?: boolean;
     skeletonTextRows?: number;
     tableCssTheme?: string;
 }
+
+export type AsyncTableRowHandler = () => Promise<Array<any>> | Array<any>
+export type TableRowParser = (data: any) => Promise<Array<any>> | Array<any>
+export type ArraySortFunction = (arr: Array<any>) => Array<any>
+export type TableEventHandler = () => Promise<any> | any
 export interface ColumnInterface {
     th: string | number | Date;
     type: 'string' | 'date' | 'number';
     value?: string;
     colspan?: number;
     sortable?: boolean;
-    ascSort?: Function;
-    descSort?: Function;
+    ascSort?: ArraySortFunction;
+    descSort?: ArraySortFunction;
     csvExportable?: boolean;
     pdfExportable?: boolean;
     exportable?: boolean;
@@ -25,7 +30,7 @@ export interface ColumnInterface {
 export interface EventInterface {
     obj: 'button' | 'link' | 'cell';
     color?: string;
-    click: Function;
+    click: TableEventHandler;
 }
 export interface RowInterface {
     td: string | number | Date;
@@ -188,7 +193,7 @@ function td(td: string | number | Date, params={}): RowInterface {
     return  { td, ...params }
 }
 
-function tdLink(td: string | number | Date, click: Function, params={}): RowInterface {
+function tdLink(td: string | number | Date, click: TableEventHandler, params={}): RowInterface {
     return {
         td,
         event: {
@@ -199,7 +204,7 @@ function tdLink(td: string | number | Date, click: Function, params={}): RowInte
     }
 }
 
-function tdBtn(td: string | number | Date, click: Function, params={} as any, color=''): RowInterface {
+function tdBtn(td: string | number | Date, click: TableEventHandler, params={} as any, color=''): RowInterface {
     const data = {
         td,
         event: {

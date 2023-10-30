@@ -2,6 +2,7 @@ import { AppEncounterService } from "@/services/app_encounter_service";
 import { Service } from "@/services/service";
 import { PrintoutService } from "@/services/printout_service";
 import dayjs from "dayjs";
+import { STANDARD_DATE_FORMAT } from "@/utils/Date";
 
 export class AncLabResultService extends AppEncounterService {
     hivStatus: string;
@@ -10,8 +11,10 @@ export class AncLabResultService extends AppEncounterService {
     arvStartDate: string;
     isSubsequentVisit: boolean;
     isPregnancyTestDone: boolean;
+    lastHivTestInMonths: number;
     constructor(patientID: number, providerID: number){
         super(patientID, 32, providerID)
+        this.lastHivTestInMonths = -1
         this.hivStatus = ''
         this.artStatus = ''
         this.arvNumber = ''
@@ -39,11 +42,18 @@ export class AncLabResultService extends AppEncounterService {
     isHivPositive() {
         return this.hivStatus.match(/positive/i) ? true : false
     }
-
+    
     async isAtRiskOfPreEclampsia() {
         const sys = await AppEncounterService.getFirstValueNumber(this.patientID, 'Systolic blood pressure')
         const ds = await AppEncounterService.getFirstValueNumber(this.patientID, 'Diastolic blood pressure')
         return sys && ds && sys >= 140 && ds >= 90
+    }
+
+    async loadTimeSinceLastHivTest() {
+        const obs = await AppEncounterService.getFirstObs(this.patientID, 'HIV status')
+        if (!obs) return
+        const obsdate = dayjs(obs.obs_datetime).format(STANDARD_DATE_FORMAT)
+        this.lastHivTestInMonths = dayjs(this.date).diff(obsdate, 'months')
     }
 
     async loadSubsequentVisit() {

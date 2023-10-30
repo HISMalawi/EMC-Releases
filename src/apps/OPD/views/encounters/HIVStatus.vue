@@ -85,7 +85,7 @@ export default defineComponent({
                     },
                     computeValue: (date: string, isEstimate: boolean) => this.buildDateObs('HIV test date', date, isEstimate)
                     
-                }, this.hivService.getDate()),
+                }),
                 {
                     id: 'test_location',
                     helpText: 'HIV test location',

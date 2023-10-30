@@ -16,7 +16,6 @@ import { defineComponent } from 'vue'
 import ReportTemplate from "@/views/reports/BaseTableReport.vue"
 import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tables/ReportDataTable"
 import ReportMixin from '@/apps/ART/views/reports/ReportMixin.vue'
-import { border } from '@/apps/OPD/utils/table'
 import { IonPage } from "@ionic/vue";
 import { CxCaReportService } from '@/apps/CxCa/services/reports/cxca_report_service'
 export default defineComponent({

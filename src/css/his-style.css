@@ -214,12 +214,12 @@ body {
     align-items: center;
 }
 
-.small-modal .modal-wrapper {
+.small-modal::part(content) {
     width: 65%;
     height: 45%;
 }
 
-.keypad-modal .modal-wrapper {
+.keypad-modal::part(content) {
     width: 340px;
     height: 500px;
 }
@@ -229,27 +229,27 @@ body {
     padding: 0.3em;
 }
 
-.custom-modal .modal-wrapper {
+.custom-modal::part(content) {
     width: 90%;
     height: 80%;
 }
 
-.large-modal .modal-wrapper {
+.large-modal::part(content) {
     width: 94.9%;
     height: 95.9%;
 }
 
-.full-modal .modal-wrapper {
+.full-modal::part(content) {
     width: 100%;
     height: 100%;
 }
 
-.action-sheet-modal .modal-wrapper {
+.action-sheet-modal::part(content) {
     width: 80%;
     height: 94%;
 }
 
-.void-modal .modal-wrapper {
+.void-modal::part(content) {
     width: 75%;
     height: 45%;
 }
@@ -283,8 +283,9 @@ ion-radio {
 ion-item, ion-label {
     padding: 0;
 }
+
 @media (max-width: 1024px) {
-    .keypad-modal .modal-wrapper {
+    .keypad-modal::part(content) {
         width: 340px;
         height: 450px;
     }

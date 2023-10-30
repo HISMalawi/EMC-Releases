@@ -53,6 +53,13 @@ export const NUMBER_PAD_LO = [
     ['',  '0', '']
 ]
 
+export const NUMBER_ARROW_PAD_LO = [
+    ['1', '2', '3'],
+    ['4', '5', '6'],
+    ['7', '8', '9'],
+    ['←',  '0', '→']
+]
+
 export const MONTHLY_DAYS_LO = [
     ['1', '2', '3', '4', '5', '6', '7'],
     ['8', '9', '10', '11', '12', '13', '14'],

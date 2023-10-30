@@ -41,19 +41,27 @@ export class MohCohortReportService extends ArtReportService {
     }
 
     qaurterRequestParams() {
-        return { 
-            name: this.quarter, 
+        const data: any =  { 
+            name: this.quarter,
             regenerate: this.regenerate 
         }
+        if (this.occupation) {
+            data['occupation'] = this.occupation
+        }
+        return data
     }
 
     datePeriodRequestParams() {
-        return {
+        const data: any = {
             name: `Cohort-${this.startDate}-${this.endDate}`,
             'start_date': this.startDate,
             'end_date': this.endDate,
             regenerate: this.regenerate
         }
+        if (this.occupation) {
+            data['occupation'] = this.occupation
+        }
+        return data
     }
 
     getCachedCohortValues() {
@@ -79,7 +87,7 @@ export class MohCohortReportService extends ArtReportService {
         }))
     }
 
-    validateIndicators(validations: Record<string, CohortValidationInterface>, callback: Function) {
+    validateIndicators(validations: Record<string, CohortValidationInterface>, callback: (errors: Array<any>) => any) {
         const cachedValues = this.getCachedCohortValues()
         if (cachedValues) {
             const errors = Object.keys(validations)

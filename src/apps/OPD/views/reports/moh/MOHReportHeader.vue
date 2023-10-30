@@ -68,7 +68,7 @@ export default defineComponent({
       this.initTable()
     },
     watch: {
-       totalOPDVisits(newValue, oldValue) {
+       totalOPDVisits() {
          this.initTable()
        }
     },

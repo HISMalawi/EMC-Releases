@@ -51,6 +51,7 @@ export default defineComponent({
             this.rows = []
             this.aggregations = []
             this.report = new TxReportService()
+            this.report.setOccupation(config.occupation)
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()
@@ -130,7 +131,8 @@ export default defineComponent({
             ])
         },
         setRows(gender: string) {
-            const sortData = (ls: Array<any>, comparator: Function) => {
+            type Comparator = (months: number) => boolean; 
+            const sortData = (ls: Array<any>, comparator: Comparator) => {
                 return ls.filter(i => comparator(i.months))
                     .map(i => i.patient_id)
             }
@@ -139,7 +141,7 @@ export default defineComponent({
                 const fullGender = this.formatGender(gender);
                 if (group in this.cohort) {
                     const cohortData = this.cohort[group][gender]
-                    const s = (comparator: Function) => sortData(cohortData, comparator)
+                    const s = (comparator: Comparator) => sortData(cohortData, comparator)
                     const lessThanThreeMonths = s((months: number) => months < 3)
                     const threeToFiveMonths = s((months: number) => months >= 3 && months <= 5)
                     const sixPlusMonths = s((months: number) => months >= 6)

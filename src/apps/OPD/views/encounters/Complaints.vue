@@ -117,7 +117,7 @@ export default defineComponent({
           helpText: "Triaging Complaints",
           condition: () => this.hasTriageComplaints,
           type: FieldType.TT_TABLE_VIEWER,
-          options: (d: any) => this.buildResults(),
+          options: () => this.buildResults(),
           config: {
             hiddenFooterBtns: ["Clear"],
           },
@@ -166,7 +166,7 @@ export default defineComponent({
           helpText: "Summary",
           condition: () => this.presentingComplaints.length > 0,
           type: FieldType.TT_SUMMARY,
-          options: (d: any, b: any) => this.buildSummaryResults(d),
+          options: (d: any) => this.buildSummaryResults(d),
           config: {
             hiddenFooterBtns: ["Clear"],
           },

@@ -72,7 +72,7 @@ export const REPORTS: FolderInterface[] = [
                 pathName: 'clinic_due_viral_load_report'
             },
             {
-                name: 'External and Drug Refill clients',
+                name: 'External and Emergency supply clients',
                 pathName: 'clinic_external_consultation_report'
             },
             {
@@ -109,6 +109,11 @@ export const REPORTS: FolderInterface[] = [
                 condition: () => Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED')
             },
             {
+                name: 'Discrepancy Report',
+                pathUrl: '/art/clinic_discrepancy_report',
+                condition: () => Store.get('IS_ART_DRUG_MANAGEMENT_ENABLED')
+            },
+            {
                 name: 'TX RTT',
                 pathUrl: '/art/report/clinic_tx_rtt'
             },
@@ -123,6 +128,10 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'Vl collection',
                 pathUrl: '/art/clinic_vl_collection_report'
+            },
+            {
+                name: "Hypertension Report",
+                pathUrl: "/art/hypertension_report"
             }
         ]
     },
@@ -170,6 +179,10 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'SC_ARV_DISP',
                 pathName: 'sc_arv'
+            },
+            {
+                name: "Sc curr report",
+                pathUrl: "/art/sc_curr"
             },
             {
                 name: 'TX_TB',

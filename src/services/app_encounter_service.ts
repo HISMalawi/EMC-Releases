@@ -141,6 +141,7 @@ export class AppEncounterService extends ObservationService {
         const encounter = await EncounterService.create(payload)
         if (encounter) {
             this.encounterID = encounter.encounter_id
+            await this.saveValueTextObs('Workstation location', ObservationService.getUserLocation()||'Unknown')
             return encounter
         } 
     }

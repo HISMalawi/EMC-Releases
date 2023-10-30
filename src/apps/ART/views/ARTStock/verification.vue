@@ -15,7 +15,7 @@ import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations";
 import HisDate from "@/utils/Date";
 import  { StockService } from "./stock_service";
-import { toastDanger, toastSuccess } from "@/utils/Alerts";
+import { toastDanger, toastSuccess, toastWarning } from "@/utils/Alerts";
 import { toNumString } from "@/utils/Strs";
 
 export default defineComponent({
@@ -24,9 +24,7 @@ export default defineComponent({
     activeField: "",
     fields: [] as any,
     drugs: [] as any,
-    selectedDrugs: [] as any,
-    barcode: "",
-    stockService: {} as any
+    stockService: {} as StockService
   }),
 
   methods: {
@@ -46,6 +44,24 @@ export default defineComponent({
         console.error(e)
       }
     },
+    mapDrugsToOptions(drugs: Array<any>) {
+      const options: Map<number, Option> = new Map();
+      drugs.forEach(drug => {
+        if(!drug.pack_size) drug.pack_size = StockService.getPackSize(drug.drug_id)
+        drug.original_quantity = Math.trunc(drug['current_quantity'] / (drug.pack_size || 1));
+        drug.current_quantity = drug.original_quantity
+        if(options.has(drug.drug_id)) {
+          options.get(drug.drug_id)?.other.push(drug);
+        } else {
+          options.set(drug.drug_id, {
+            label: `${ drug?.drug_name || drug?.drug_legacy_name } (${drug.product_code})`,
+            value: drug.drug_id,
+            other: [drug]
+          })
+        }
+      });
+      return Array.from(options.values())
+    },
     getFields(): Array<Field> {
       return [
         {
@@ -60,6 +76,17 @@ export default defineComponent({
           type: FieldType.TT_BATCH_VERIFICATION,
           options: () => this.drugs,
           validation: (val: Option) => Validation.required(val),
+          init: async () => {
+            try {
+              const _drugs: Array<any> = await this.stockService.getItems()
+              this.drugs = this.mapDrugsToOptions(_drugs);
+              return true
+            } catch (error) {
+              console.error(error);
+              toastWarning("Unable to load drugs");
+              return false
+            }
+          } 
         },
         {
           id: "reason",
@@ -102,18 +129,17 @@ export default defineComponent({
     },
     buildResults(drugs: any) {
       const columns = [
-        "Drug",
+        "Drug Name (BatchNumber)",
         "Tins/Pallets",
         "Reason for Modification",
         "Expiry date",
       ];
-      const rows = drugs.map((j: any) => {
-        const d = j.value;
+      const rows = drugs.map((drug: any) => {
         return [
-          d.shortName,
-          toNumString(d['current_quantity']),
-          d.reason,
-          HisDate.toStandardHisDisplayFormat(d.expiry_date),
+          `${drug.value.drug_name} (${drug.value.batch_number})`,
+          toNumString(drug.value.current_quantity),
+          drug.value.reason,
+          HisDate.toStandardHisDisplayFormat(drug.value.expiry_date),
         ];
       });
       return [
@@ -132,29 +158,14 @@ export default defineComponent({
         "pack_size": element.value.pack_size,
         'expiry_date': element.value.expiry_date,
         'delivery_date': element.value.delivery_date,
+        'batch_number': element.value.batch_number,
         "reason": element.value.reason,
       }));
-    },
-    selectAll(listData: Array<Option>) {
-      return listData.map((l) => {
-        l.isChecked = true;
-        return l;
-      });
-    },
-    getFormattedDrugs() {
-      return this.stockService.getItems()
-        .then((drugs: Array<any>) => {
-          return drugs.map((drug: any) => ({
-            label: drug?.drug_name||drug?.drug_legacy_name||'N/A',
-            value: drug, 
-          }))
-        });
     },
   },
   async created() {
     this.stockService = new StockService();
     this.fields = this.getFields();
-    this.drugs = await this.getFormattedDrugs();
   },
 });
 </script> 

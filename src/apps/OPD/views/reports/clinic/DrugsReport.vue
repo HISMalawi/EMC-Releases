@@ -7,6 +7,7 @@
       :columns="columns"
       :itemsPerPage="12"
       :period="period"
+      :reportPrefix="'Clinic'"
       :onReportConfiguration="init"
       paginated
     ></report-template>
@@ -21,20 +22,23 @@ import table, { ColumnInterface, RowInterface } from "@/components/DataViews/tab
 import HisDate from '@/utils/Date'
 import ReportMixin from '@/apps/ART/views/reports/ReportMixin.vue'
 import { IonPage } from "@ionic/vue";
+import { Service } from "@/services/service";
 
 export default defineComponent({
   components: { ReportTemplate, IonPage },
   mixins: [ReportMixin],
   data: () => ({
-    title: 'OPD medication given (without prescription)',
+    title: 'Drugs report',
     rows: [] as RowInterface[][],
     columns: [[
       table.thTxt('First Name'),
       table.thTxt('Last Name'),
       table.thTxt('Gender'),
-      table.thTxt('DOB'),
+      table.thTxt('Age'),
       table.thTxt('Drug'),
-      table.thTxt('Quantity'),
+      table.thTxt('Prescribe Quantity'),
+      table.thTxt('Dispense Quantity'),
+      table.thTxt('Diagnosis'),
       table.thTxt('Date'),
     ]] as ColumnInterface[][]
   }),
@@ -47,7 +51,7 @@ export default defineComponent({
       reportService.setStartDate(config.start_date)
       reportService.setEndDate(config.end_date)
       this.period = reportService.getDateIntervalPeriod()
-      this.rows = this.buildRows((await reportService.getDrugsGivenWithoutPrescription()))
+      this.rows = this.buildRows((await reportService.getDrugs()))
     },
     buildRows(data: any[]): RowInterface[][] {
       if(!data.length) return []
@@ -55,9 +59,11 @@ export default defineComponent({
         table.td(record.given_name),
         table.td(record.family_name),
         table.td(record.gender),
-        table.td(HisDate.toStandardHisDisplayFormat(record.birthdate)),
+        table.td(HisDate.calculateAge(record.birthdate, Service.getSessionDate())),
         table.td(record.drug_name),
-        table.td(record.quantity),
+        table.td(record.prescribe_quantity),
+        table.td(record.dispense_quantity),
+        table.td(record.diagnosis),
         table.td(HisDate.toStandardHisDisplayFormat(record.date)),
       ])
     }

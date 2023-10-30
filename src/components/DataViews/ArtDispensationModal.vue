@@ -27,7 +27,7 @@
                 <tr v-for="(list, rIndex) in listData" :key="rIndex">
                     <td v-for="(amount, cIndex) in list" :key="cIndex" 
                         :class="cIndex >= 2 ? 'input-field' : 'his-md-text'"> 
-                        {{ amount }}
+                        {{ fmtNumber(amount) }}
                     </td>
                     <td> 
                         <ul class='btn-list'> 
@@ -44,7 +44,6 @@
         <ion-button @click="onClose" color="danger" size="large" slot="end"> Close </ion-button>
         <ion-button 
             @click="onDispense(dispensedValues)" 
-            :disabled="totalTabs <= 0"
             color="success" 
             size="large" 
             slot="end"> 
@@ -56,6 +55,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { modalController } from "@ionic/vue"
+import { toNumString } from '@/utils/Strs'
 
 export default defineComponent({
     data: () => ({
@@ -105,20 +105,24 @@ export default defineComponent({
             await modalController.dismiss({})
         },
         incrementAmount(rIndex: number) {
-            const [packSize, _, totalTabs, totalPacks ] = this.listData[rIndex]
+            const [packSize,, totalTabs, totalPacks ] = this.listData[rIndex]
             const tabsAmount = packSize + totalTabs
             const packAmount = totalPacks + 1
             this.listData[rIndex][2] = tabsAmount
             this.listData[rIndex][3] = packAmount
         },
         decrementAmount(rIndex: number) {
-            const [packSize, _, totalTabs, totalPacks ] = this.listData[rIndex]
+            const [packSize,, totalTabs, totalPacks ] = this.listData[rIndex]
             const packAmount = totalPacks - 1
             if (packAmount >= 0) {
                 const tabsAmount = totalTabs - packSize
                 this.listData[rIndex][2] = tabsAmount
                 this.listData[rIndex][3] = packAmount
             }
+        },
+        fmtNumber(value: string) {
+            if(/-/i.test(value)) return value;
+            return toNumString(value);
         }
     }
 })

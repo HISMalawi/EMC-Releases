@@ -90,7 +90,8 @@ export default defineComponent({
                         label: query.quarter,
                         other: {
                             start: query.start_date,
-                            end: query.end_date
+                            end: query.end_date,
+                            occupation: query.occupation
                         }
                     }
                 },{})
@@ -118,16 +119,20 @@ export default defineComponent({
             this.report = new DisaggregatedReportService()
             this.mohCohort = new MohCohortReportService()
             if (form.quarter) {
+                this.mohCohort.setOccupation(form.quarter.other.occupation)
                 this.mohCohort.setQuarter(form.quarter.label)
                 this.mohCohort.setStartDate(form.quarter.other.start)
                 this.mohCohort.setEndDate(form.quarter.other.end)
                 this.report.setQuarter(form.quarter.label)
+                this.report.setOccupation(form.quarter.other.occupation)
                 this.report.setStartDate(form.quarter.other.start)
                 this.report.setEndDate(form.quarter.other.end)
                 this.period = form.quarter.label === 'Custom'
                     ? this.report.getDateIntervalPeriod()
                     : form.quarter.label
             } else {
+                this.report.setOccupation(config.occupation)
+                this.mohCohort.setOccupation(config.occupation)
                 this.mohCohort.setStartDate(config.start_date)
                 this.mohCohort.setEndDate(config.end_date)
                 this.report.setStartDate(config.start_date)
@@ -153,7 +158,7 @@ export default defineComponent({
         getColumnLabel(col: string) {
             return col in this.dataRefLabels ? this.dataRefLabels[col] : col
         },
-        getTotals(compareFunction: Function){
+        getTotals(compareFunction: (value: any) => boolean){
             return this.aggregations
                 .filter((i: any) => compareFunction(i))
                 .reduce((accum: any, cur: any) => accum.concat(cur.data), [])

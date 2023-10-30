@@ -6,6 +6,7 @@
         :fields="fields"
         :columns="columns"
         :onReportConfiguration="onPeriod"
+        report-prefix="Clinic"
         > 
     </report-template>
 </template>
@@ -62,6 +63,7 @@ export default defineComponent({
             this.report = new RegimenReportService()
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
+            this.report.setOccupation(config.occupation)
             this.period = this.report.getDateIntervalPeriod()
             const formulationValue = formulation.value
             const regimenValue = regimen.value

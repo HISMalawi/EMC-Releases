@@ -25,6 +25,8 @@ export interface v2ColumnInterface {
      * If exportable, the column will appear when exported in any format such as PDF or CSV
      */
     exportable?: boolean;
+    colSpan?: (data: any) => number;
+    dataStyle?: (data: any) => Record<string, string|number>;
     /**
      * Define column or rowspan
      */

@@ -28,7 +28,6 @@ import table from "@/components/DataViews/tables/ReportDataTable"
 import { Option } from '@/components/Forms/FieldInterface'
 import { IonPage } from "@ionic/vue"
 import { MohCohortReportService } from "@/apps/ART/services/reports/moh_cohort_service"
-import { isEmpty } from "lodash"
 import { AGE_GROUPS } from "@/apps/ART/services/reports/patient_report_service"
 
 export default defineComponent({
@@ -72,7 +71,9 @@ export default defineComponent({
             this.mohCohort = new MohCohortReportService()
             this.mohCohort.setStartDate(config.start_date)
             this.mohCohort.setEndDate(config.end_date)
+            this.mohCohort.setOccupation(config.occupation)
             this.report.setOrg('moh')
+            this.report.setOccupation(config.occupation)
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()

@@ -9,7 +9,7 @@
             :config="{
                 showIndex: true
             }"
-            reportPrefix="Pepfar"
+            reportPrefix="PEPFAR"
             :hasServerSideCaching="true"
             :onReportConfiguration="onPeriod">
         </report-template>
@@ -58,6 +58,7 @@ export default defineComponent({
             this.rows = []
             this.aggregations = []
             this.report = new TBReportService()
+            this.report.setOccupation(config.occupation)
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()

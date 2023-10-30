@@ -220,7 +220,7 @@ export default defineComponent({
                     estimationFieldType: EstimationFieldType.MONTH_ESTIMATE_FIELD
                 },
                 computeValue: (date: string) => this.patientProgram.setStateDate(date)
-            }, this.patientProgram.getProgramDate() || ProgramService.getSessionDate())
+            })
         },
         getTransferOutFacilityFields(): Field {
             return {
@@ -308,7 +308,7 @@ export default defineComponent({
                     estimationFieldType: EstimationFieldType.MONTH_ESTIMATE_FIELD
                 },
                 computeValue: (date: string) => this.patientProgram.setProgramDate(date)
-            }, ProgramService.getSessionDate())
+            })
         },
         getProgramSelectionField(): Field {
             const btnVisibilityCondition = (form: any) => {

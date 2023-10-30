@@ -60,9 +60,8 @@ export class Service {
     }
 
     static getJsonSWR(url: string, params = {} as Record<string, any>, swrOptions = {} as IConfig){
-        const transformedUrl = `${url}?${Url.parameterizeObjToString(params)}`
-        const { data } = useSWRV(transformedUrl, this.getJson, swrOptions)
-        return data
+        const transformedUrl = `${url}?${Url.parameterizeObjToString(params)}`;
+        return useSWRV(transformedUrl, key => this.getJson(key), swrOptions).data
     }
 
     static async getJson(url: string, params = {} as Record<string, any>) {
@@ -132,8 +131,8 @@ export class Service {
         return sessionStorage.getItem('APIVersion') || '-'
     }
 
-    static getActiveApp(): AppInterface | {} { 
-        return HisApp.getActiveApp() || {}
+    static getActiveApp(): AppInterface { 
+        return HisApp.getActiveApp() || {} as AppInterface
     }
 
     static getUserID(): null | number {

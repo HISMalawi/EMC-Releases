@@ -7,6 +7,7 @@
         :columns="columns"
         :encryptPDF="true"
         :onReportConfiguration="onPeriod"
+        report-prefix="Clinic"
         > 
     </report-template>
 </template>
@@ -117,6 +118,7 @@ export default defineComponent({
             this.rows = []
             this.columns = outcome.other.columns
             this.report = new PatientReportService()
+            this.report.setOccupation(config.occupation)
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.outcome  = outcome.value.toString()

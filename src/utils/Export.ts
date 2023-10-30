@@ -4,7 +4,7 @@ import { Filesystem, Directory, Encoding } from "@capacitor/filesystem"
 import platform, { FileExportType } from "@/composables/usePlatform"
 import { toastDanger, toastSuccess, toastWarning } from "./Alerts"
 import writeBlob from "capacitor-blob-writer"; 
-import { PDFGenerator } from '@ionic-native/pdf-generator'
+import { PDFGenerator } from "@awesome-cordova-plugins/pdf-generator"
 import { Service } from "@/services/service"
 
 function convertToCsv(list: Array<any>) {
@@ -35,7 +35,7 @@ function exportMobile(file: string, data: any, type: 'blob' | 'text') {
   }
   if (promiseObj != null) { 
     promiseObj.then(() => toastSuccess(`File exported to "Documents/${path}"!`, 3000))
-      .catch((e: any) => toastDanger(e))
+      .catch((e: any) => toastDanger(`${e}`))
   }
 }
 
@@ -45,7 +45,7 @@ export function toPDFfromHTML(html: string) {
     PDFGenerator.fromData(html, {
       documentSize: 'a4',
       type: 'share'
-    }).catch((e) => toastDanger(e))
+    }).catch((e: any) => toastDanger(`${e}`))
   } else if (activePlatformProfile.value.fileExport === FileExportType.WEB) {
     const printW = open('', '', 'width:1024px, height:768px')
     if (printW) {
@@ -58,6 +58,7 @@ export function toPDFfromHTML(html: string) {
 }
 
 export function toCsv(header: Array<any>, rows: Array<any>, fileName='document') {
+  rows = replaceHTMLContent(rows)
   const csvContent = convertToCsv(header.concat(rows))
   const { activePlatformProfile } = platform()
   const fileWithExt = `${fileName}.csv`
@@ -85,6 +86,7 @@ export function toTablePDF(
   fileName='document',
   canHorizontalPageBreak=false,
   encryption={}) {
+    tableRows = replaceHTMLContent(tableRows)
     const doc = new jsPDF({...encryption})
     const title = doc.splitTextToSize(fileName, 180)
     const tableMarginStartY = title.length <= 1 ? 20 : title.length * 10
@@ -111,4 +113,16 @@ export function toTablePDF(
     } else {
       toastDanger('Platform not supported') 
     }
+}
+
+function replaceHTMLContent(tableRows: any) {
+  const updatedTableRows = tableRows.map((row: any) => {
+    return row.map((item: any) => {
+      if (typeof item === 'string') {
+        return item.replace(/&lt;/g, '<');
+      }
+      return item;
+    });
+  });
+  return updatedTableRows
 }

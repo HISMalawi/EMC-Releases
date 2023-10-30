@@ -48,7 +48,6 @@ export class DHAVerificationService {
 	isValidDHACode(code: any) {
 		try {
 			const decimalCode = this.convertToDecimal(code).toString();
-			const checkDigit = Number.parseInt(decimalCode[0], 10);
 			const computedCheckDigit = DHAVerificationService.calculateLuhnCheckDigit(Number.parseInt(decimalCode, 10) * 10);
 			return computedCheckDigit === 0;
 		} catch (exception) {

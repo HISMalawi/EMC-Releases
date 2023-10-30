@@ -50,8 +50,8 @@
             @click="onFtButtonClicked(btn)"
             :color="btn.color || 'primary'"
             :size="btn.size || 'large'"
-            :disabled="onDisabledBtnState(btn, 'disabled', false)"
-            v-show="onVisibleBtnState(btn, 'visible')"
+            :disabled="onDisabledBtnState(btn)"
+            v-show="onVisibleBtnState(btn)"
           >
             {{ btn.name }}
           </ion-button>
@@ -68,7 +68,9 @@ import {
   Field, 
   Option,
   FormFooterBtns,
-  FooterBtnEvent
+  FooterBtnEvent,
+FormOnFinishAction,
+FormOnCancelAction
 } from "./FieldInterface";
 import {
   IonPage,
@@ -130,7 +132,7 @@ export default defineComponent({
   ],
   props: {
     onFinish: {
-      type: Function
+      type: Function as PropType<FormOnFinishAction>
     },
     skipSummary: {
       type: Boolean,
@@ -150,7 +152,7 @@ export default defineComponent({
       type: Boolean
     },
     cancelAction: {
-      type: Function
+      type: Function as PropType<FormOnCancelAction>
     }
   },
   data: () => ({
@@ -344,7 +346,7 @@ export default defineComponent({
         name: override?.name || "Next",
         color: override?.color || "success",
         slot: "end",
-        state: {
+        state: override?.state || {
           disabled: {
             onsubmit: () => true,
             default(field: Field) {

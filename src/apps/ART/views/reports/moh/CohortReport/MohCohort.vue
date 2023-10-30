@@ -88,6 +88,7 @@ export default defineComponent({
         this.startDate = HisDate.toStandardHisFormat(form.quarter.other.start)
         this.endDate = HisDate.toStandardHisFormat(form.quarter.other.end)
       }
+      this.report.setOccupation(config.occupation)
       this.report.setQuarter(this.quarter)
       this.report.setStartDate(this.startDate)
       this.report.setEndDate(this.endDate)
@@ -102,7 +103,8 @@ export default defineComponent({
       this.disaggregatedReportParams = Url.parameterizeObjToString({ 
         'start_date': this.startDate,
         'end_date': this.endDate,
-        'quarter': this.quarter
+        'quarter': this.quarter,
+        'occupation': config.occupation
       })
       const request = await this.report.requestCohort(data)
       if (request.ok) {

@@ -9,6 +9,7 @@
         :isLoading="isLoading"
         :encryptPDF="true"
         :onReportConfiguration="onPeriod"
+        report-prefix="Clinic"
         > 
     </report-template>
 </template>
@@ -34,7 +35,7 @@ export default defineComponent({
                 table.thTxt('ARV#'),
                 table.thTxt('First name', { csvExportable : false, pdfExportable: true }),
                 table.thTxt('Last name' , { csvExportable: false, pdfExportable: true }),
-                table.thTxt('birthdate')
+                table.thTxt('Birthdate')
             ]
         ]
     }),
@@ -47,6 +48,7 @@ export default defineComponent({
             this.report = new PatientReportService()
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
+            this.report.setOccupation(config.occupation)
             this.period = this.report.getDateIntervalPeriod()
             this.setRows((await this.report.getPregnantWomen()))
         },

@@ -30,7 +30,7 @@ export default defineComponent({
     mixins: [ReportMixin],
     components: { ReportTemplate, IonPage },
     data: () => ({
-        title: 'PEPFAR Curr Ml Report',
+        title: 'PEPFAR Tx ML Report',
         rows: [] as Array<any>,
         drillData: {} as any,
         columns: [
@@ -62,6 +62,7 @@ export default defineComponent({
         async onPeriod(_: any, config: any) {
             this.rows = []
             this.report = new TxReportService()
+            this.report.setOccupation(config.occupation)
             this.report.setStartDate(config.start_date)
             this.report.setEndDate(config.end_date)
             this.period = this.report.getDateIntervalPeriod()

@@ -83,10 +83,11 @@ export default defineComponent({
         ]
     },
     methods: {
-        async onPeriod({ quarter, group }: any, _: any, shouldRebuildCache=false) {
+        async onPeriod({ quarter, group }: any, config: any, shouldRebuildCache=false) {
             this.rows = []
             this.period = quarter.label
             this.report = new SurvivalAnalysisReportService()
+            this.report.setOccupation(config.occupation)
             this.report.setRegenerate(shouldRebuildCache)
             this.report.setQuarter(quarter.label)
             this.report.setAgeGroup(group.value)
@@ -98,8 +99,8 @@ export default defineComponent({
             return Object.keys(data)
                 .filter((d: string) => !isEmpty(data[d]))
                 .sort((a: any, b: any) => {
-                    const [b_, yearA] = a.split(' ')
-                    const [a_, yearB] = b.split(' ')
+                    const yearA = a.split(' ')[1]
+                    const yearB = b.split(' ')[1]
                     return parseInt(yearA) - parseInt(yearB)
                 })
                 .map((quarter: string) => {
