@@ -16,7 +16,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import Form from "@/components/Forms/DesktopForms/DesktopForm.vue"
-import { DtFieldInterface, DtFormSections } from '@/components/Forms/DesktopForms/DTFieldInterface'
+import { DtFormSections } from '@/components/Forms/DesktopForms/DTFieldInterface'
 import { DTFieldType } from '@/components/Forms/DesktopForms/DTFormElements'
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Option } from '@/components/Forms/FieldInterface'

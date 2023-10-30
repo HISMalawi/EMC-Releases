@@ -12,7 +12,8 @@ export interface TableInterface {
 export type AsyncTableRowHandler = () => Promise<Array<any>> | Array<any>
 export type TableRowParser = (data: any) => Promise<Array<any>> | Array<any>
 export type ArraySortFunction = (arr: Array<any>) => Array<any>
-export type TableEventHandler = () => Promise<any> | any
+export type TableLinkEventHandler = () => Promise<any> | any
+export type TableBtnEventHandler = (rowIndex: number, activeRows: Array<any>, tableRows: Array<any>) => Promise<any> | any
 export interface ColumnInterface {
     th: string | number | Date;
     type: 'string' | 'date' | 'number';
@@ -30,7 +31,7 @@ export interface ColumnInterface {
 export interface EventInterface {
     obj: 'button' | 'link' | 'cell';
     color?: string;
-    click: TableEventHandler;
+    click: TableBtnEventHandler | TableLinkEventHandler;
 }
 export interface RowInterface {
     td: string | number | Date;
@@ -193,7 +194,7 @@ function td(td: string | number | Date, params={}): RowInterface {
     return  { td, ...params }
 }
 
-function tdLink(td: string | number | Date, click: TableEventHandler, params={}): RowInterface {
+function tdLink(td: string | number | Date, click: TableLinkEventHandler, params={}): RowInterface {
     return {
         td,
         event: {
@@ -204,7 +205,7 @@ function tdLink(td: string | number | Date, click: TableEventHandler, params={})
     }
 }
 
-function tdBtn(td: string | number | Date, click: TableEventHandler, params={} as any, color=''): RowInterface {
+function tdBtn(td: string | number | Date, click: TableBtnEventHandler, params={} as any, color=''): RowInterface {
     const data = {
         td,
         event: {

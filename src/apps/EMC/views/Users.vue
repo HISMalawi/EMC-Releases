@@ -100,7 +100,7 @@ export default defineComponent({
       const users: User[] = await UserService.getAllUsers({paginate: false})
       const authUser = await UserService.getCurrentUser();
       rows.value = users
-        .filter(user => user['person_id'] !== authUser!['person_id'])
+        .filter(user => user.person_id !== authUser?.person_id)
         .map(user => toSummaryDetails(user))
     })
 

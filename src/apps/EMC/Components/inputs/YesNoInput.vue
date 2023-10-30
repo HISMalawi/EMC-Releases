@@ -1,7 +1,7 @@
 <template>
   <ion-grid class="ion-no-margin ion-no-padding">
     <ion-row>
-      <ion-col :size="12">
+      <ion-col size="12">
         <ion-label class="ion-margin-end"><b>
           <span>{{ model.label }}:</span>
           <span v-if="model.required" class="text-danger">*</span>
@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, PropType } from "vue";
-import { IonRadioGroup, IonRadio, IonGrid, IonRow, IonCol, IonItem, IonLabel } from "@ionic/vue";
+import { IonRadioGroup, IonRadio, IonGrid, IonRow, IonCol, IonLabel } from "@ionic/vue";
 import { DTFormField } from "../../interfaces/dt_form_field";
 
 export default defineComponent({

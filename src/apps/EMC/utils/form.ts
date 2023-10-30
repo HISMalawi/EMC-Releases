@@ -6,39 +6,36 @@ import { isEmpty } from "lodash";
 import { loader } from "@/utils/loader";
 import { toastWarning } from '@/utils/Alerts';
 
-export async function isValidForm (form: DTForm) {
+export async function isValidForm(form: DTForm) {
   for (const key in form) {
-    if (form[key].required && isEmpty(form[key].value)) {
+    const { required, value, validation } = form[key];
+    if (required && isEmpty(value)) {
       form[key].error = "This field is required";
       continue;
     }
-    if(typeof form[key].validation !== 'function') {
-      form[key].error = ''
-      continue
+    if (typeof validation === 'function') {
+      const payload = typeof value === 'object' ? value : { label: value, value };
+      const errs = await validation(payload as Option, form);
+      form[key].error = isEmpty(errs) ? "" : (errs as Array<string>).join();
     }
-    const payload = typeof form[key].value === 'object'
-        ? form[key].value
-        : { label: form[key].value, value: form[key].value }
-
-    const errs = await form[key].validation!(payload as Option, form)
-    if(errs && errs.length > 0) {
-      form[key].error = errs.toString()
-    } else {
-      form[key].error = ''
-    }       
+    else {
+      form[key].error = '';
+    }
   }
-  return Object.values(form).every(({ error }) => !error)
+  return Object.values(form).every(({ error }) => !error);
 }
+
 
 export function resolveFormValues(form: DTForm, underscoreKeys = false) {
   const formData: any = {}
   const computedFormData: any = {}
   for (const key in form) {
-    if(form[key].value) {
+    const { value, computedValue } = form[key];
+    if(value) {
       const fKey = underscoreKeys ? toUnderscores(key) : key
-      formData[fKey] = form[key].value
-      if(typeof form[key].computedValue === 'function') {
-        computedFormData[fKey] = form[key].computedValue!(form[key].value, form)
+      formData[fKey] = value
+      if(typeof computedValue === 'function') {
+        computedFormData[fKey] = computedValue(form[key].value, form)
       }
     }
   }

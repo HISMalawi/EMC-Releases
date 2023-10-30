@@ -25,9 +25,9 @@
     "@popperjs/core": "^2.11.7",
     "@types/lodash": "^4.14.170",
     "@uniquedj95/vtable": "^1.5.1",
-    "capacitor-blob-writer": "^1.1.4",
     "apexcharts": "^3.40.0",
     "caniuse-lite": "^1.0.30001518",
+    "capacitor-blob-writer": "^1.1.4",
     "cordova-pdf-generator": "^2.1.1",
     "cordova-plugin-bluetooth-serial": "^0.4.7",
     "core-js": "^3.6.5",
@@ -45,9 +45,9 @@
     "swrv": "^1.0.0-beta.8",
     "tiny-emitter": "^2.1.0",
     "v-calendar": "^3.0.0-alpha.8",
+    "vue": "^3.3.4",
     "vue-router": "^4.1.6",
-    "vue3-apexcharts": "^1.4.1",
-    "vue": "^3.3.4"
+    "vue3-apexcharts": "^1.4.1"
   },
   "devDependencies": {
     "@capacitor/cli": "^5.0.0",

@@ -194,7 +194,7 @@ export default defineComponent({
             table.td(nextAppointment || ''),
             table.td(data.outcome.match(/Unk/i) ? "" : data.outcome),
             table.td(vlResult),
-            table.tdBtn('X', (index: number, activeRows: any[]) => removeEncounters(date, index, activeRows), {}, 'danger')
+            table.tdBtn('X', (index, activeRows) => removeEncounters(date, index, activeRows), {}, 'danger')
           ])
         }
       });

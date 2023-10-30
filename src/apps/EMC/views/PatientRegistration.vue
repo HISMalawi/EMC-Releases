@@ -83,7 +83,7 @@ import TextInput from "../Components/inputs/TextInput.vue";
 import DateInput from "../Components/inputs/DateInput.vue";
 import SelectInput from "../Components/inputs/SelectInput.vue";
 import { getLandmarks, getVillagesByName } from "@/utils/HisFormHelpers/LocationFieldOptions";
-import { isValidForm, resolveFormValues, submitForm } from "../utils/form";
+import { isValidForm, resolveFormValues } from "../utils/form";
 import { toUnderscores } from "@/utils/Strs";
 import { loader } from "@/utils/loader";
 import EventBus from "@/utils/EventBus";
@@ -236,7 +236,7 @@ export default defineComponent({
     const resolveAddress = async (village?: Option) => {  
       const TA = (isEmpty(village) || !village?.other?.traditional_authority_id)
         ? null
-        : await LocationService.getTraditionalAuthorityById(village!.other.traditional_authority_id)
+        : await LocationService.getTraditionalAuthorityById(village.other.traditional_authority_id)
       
       const district = isEmpty(TA) 
         ? null
