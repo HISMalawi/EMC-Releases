@@ -119,7 +119,7 @@ export default defineComponent({
         //csv headers
         const csvheaders = [
             'Data Element',
-            'Total'
+            'Value'
         ];
 
          //table headers and data mapping
