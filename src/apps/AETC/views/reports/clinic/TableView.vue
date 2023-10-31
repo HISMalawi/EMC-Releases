@@ -169,14 +169,14 @@ export default defineComponent({
 
         const reportBody = computed(() => {
             const temp: Array<any> = [] 
-            props.columnData?.forEach((record: any)=> {
+            props.columnData?.forEach((record: any, index: number)=> {
                     const row = props.columns[0].map((column: v2ColumnInterface) => {
                         let value = ''
                         try {
                             if (isEmpty(record)) {
                                 value = "..."
                             }else if (typeof column.value === 'function') {
-                                value = column.value(record) as string
+                                value = column.value(record, index) as string
                             } else {
                                 // Use the ref to map to a value inside the record
                                 value = record[column.ref] || ''
@@ -323,14 +323,14 @@ export default defineComponent({
          * @param data 
          */
         const mapcolumnValues = (data: any) => {
-            data.forEach((record: any)=> {
+            data.forEach((record: any, index: number)=> {
                 const row = getExpandedColumns().map((column: v2ColumnInterface) => {
                     let value = ''
                     try {
                         if (isEmpty(record)) {
                             value = "..."
                         }else if (typeof column.value === 'function') {
-                            value = column.value(record) as string
+                            value = column.value(record, index) as string
                         } else {
                             // Use the ref to map to a value inside the record
                             value = record[column.ref] || ''

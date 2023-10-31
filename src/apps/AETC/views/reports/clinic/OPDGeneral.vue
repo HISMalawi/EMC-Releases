@@ -9,6 +9,7 @@
             :rowsPerPage="25"
             :onConfigure="configure"
             :csvQuarter="csvQuarter"
+            :headers="csvheaders"
             :onRefresh="() => generate()"
         />
     </ion-page>
@@ -28,8 +29,6 @@ import { FieldType } from "@/components/Forms/BaseFormElements";
 import { Option } from '@/components/Forms/FieldInterface'
 import { isPlainObject } from "lodash";
 import Validation from "@/components/Forms/validations/StandardValidations"
-import { Service } from "@/services/service"
-import HisDate from "@/utils/Date"
 import dayjs from "dayjs";
 
 const reportData = ref<any>([])
@@ -55,10 +54,10 @@ export default defineComponent({
          */
          const generate = async () => {
             const report = new AETCReportService()
-            // report.startDate = startDate.value
-            report.startDate = '2021-10-02'
-            // report.endDate = endDate.value
-            report.endDate = '2021-10-03'
+            report.startDate = startDate.value
+            //report.startDate = '2021-10-02'
+            report.endDate = endDate.value
+            //report.endDate = '2021-10-03'
             report.startAge = startAge.value
             report.endAge = endAge.value
             report.reportType = reportType.value
@@ -70,6 +69,21 @@ export default defineComponent({
                 console.log(e)
             }
          }
+
+         const drilldown = async (title: string, patientIdentifiers: number[]) => {
+            (await modalController.create({
+                component: DrillPatientIds,
+                backdropDismiss: false,
+                cssClass: 'large-modal',
+                componentProps: {
+                    title,
+                    subtitle: period,
+                    patientIdentifiers,
+                    onFinish: () => modalController.getTop().then(v => v && modalController.dismiss())
+                }
+            })).present()
+        }
+
          const generateYears = () => {
             let years: string[] = [];
             const currentYear = new Date().getFullYear();
@@ -102,28 +116,35 @@ export default defineComponent({
             });
          }
 
+        //csv headers
+        const csvheaders = [
+            'Data Element',
+            'Total'
+        ];
+
          //table headers and data mapping
          const columns: Array<v2ColumnInterface[]> = [
             [
                 {
                     label: "No",
-                    ref: ""
+                    ref: "",
+                    value: (data, index) => {
+                        return ++(index as number)
+                    }
                 },
                 {
                     label: "Data Element",
-                    ref: ""
-                },
-                {
-                    label: "Normal Range",
-                    ref: ""
+                    ref: "",
+                    value: (data: any) => data.diagnosis
+                    
                 },
                 {
                     label: "Value",
-                    ref: ""
-                },
-                {
-                    label: "Comment",
-                    ref: ""
+                    ref: "",
+                    value: (data: any) => data.patients.length,
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
+                        `${column.secondaryLabel} ${data.diagnosis} `, data.patients
+                    )
                 },
             ]
         ]
@@ -204,7 +225,6 @@ export default defineComponent({
                 type: FieldType.TT_SELECT,
                 condition: (f: any) => f.report_range.value === 'Year' || f.report_range.value === 'Month' || f.report_range.value === 'Week',
                 computedValue: (v: Option) => {
-                    console.log("Here ", v)
                     return v.label
                 },
                 options: () => {
@@ -266,7 +286,6 @@ export default defineComponent({
                 type: FieldType.TT_SELECT,
                 condition: (f: any) => {
                     const currentYear = new Date().getFullYear() + "";
-                    console.log("YEAR SELECTED ", f.report_range_year.value)
                     return f.report_range.value === 'Week' && f.report_range_year.value === currentYear
                 },
                 options: () => [
@@ -443,6 +462,7 @@ export default defineComponent({
             reportData,
             period,
             csvQuarter,
+            csvheaders,
             generate,
             configure
          }
