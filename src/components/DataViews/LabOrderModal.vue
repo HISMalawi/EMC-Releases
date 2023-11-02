@@ -1,7 +1,25 @@
 <template>
   <ion-header>
     <ion-toolbar>
-      <ion-title class="his-lg-text">Lab orders</ion-title>
+      <ion-title class="his-lg-text">
+        Lab orders
+      </ion-title>
+      <ion-icon 
+        size="large"
+        slot="end"
+        :icon="searchIcon"
+        :color="searchColor"
+      />
+      <ion-input 
+        :readonly="true"
+        :value="searchFilter" 
+        :disabled="activeIndex && !isOrderComplete"
+        :color="searchColor"
+        @click="() => showKeyboard=showKeyboard ? false : true"
+        placeholder="Search for tests" 
+        style="text-align: left;" 
+        class="input_display" 
+        slot="end"/>
     </ion-toolbar>
   </ion-header>
   <ion-content style="overflow:hidden;background:grey;height:70vh;">
@@ -11,17 +29,16 @@
           <ion-list :style="{overflowY: 'auto', height:'75vh'}"> 
             <ion-item 
               class="his-sm-text"
-              v-for="(data, index) in testTypes" 
-              :key="data"
-              :disabled="activeIndex !== null && activeIndex !== index && !isOrderComplete" 
+              v-for="(data) in testTypesOnDisplay" 
+              :key="data.id"
+              :disabled="activeIndex != null && activeIndex !== data.id && !isOrderComplete" 
               detail
             > 
               <ion-label text-wrap> {{ data.name }} </ion-label>
               <ion-checkbox 
-                v-model="data.isChecked" 
-                slot="start" 
-                @ionChange="(e) => onSelectTest(data.name, index, e)"
-              />
+                slot="start"
+                :checked="data.isChecked"
+                @ionChange="(e) => onSelectTest(data.name, data.id, e)" />
             </ion-item>
           </ion-list>
         </ion-col>
@@ -71,7 +88,7 @@
                   <td>{{data.name}}</td>
                   <td>{{data.specimen || 'N/A'}}</td>
                   <td>{{data.reason}}</td>
-                  <td><ion-button @click="removeOrder(data.currentIndex)" slot="end" color="danger">X</ion-button></td>
+                  <td><ion-button @click="removeOrder(data.id)" slot="end" color="danger">X</ion-button></td>
                 </tr>
               </tbody>
             </table>
@@ -79,6 +96,7 @@
         </ion-col>
       </ion-row>
     </ion-grid> 
+    <his-keyboard v-if="showKeyboard" :kbConfig="keyboardLayout" :onKeyPress="onFilter" :disabled="false"/>
   </ion-content>
   <ion-footer>
     <ion-toolbar> 
@@ -91,6 +109,7 @@
 import {
   IonContent,
   IonButton,
+  IonInput,
   IonHeader,
   IonTitle,
   IonToolbar,
@@ -101,8 +120,10 @@ import {
   IonCheckbox,
   IonRadioGroup,
   IonRow,
-loadingController,
+  IonIcon,
+  loadingController,
 } from "@ionic/vue";
+import { search } from "ionicons/icons"
 import { defineComponent, PropType } from "vue";
 import { alertConfirmation, toastDanger, toastWarning } from "@/utils/Alerts"
 import { ActivityInterface } from "@/apps/interfaces/AppInterface"
@@ -111,8 +132,12 @@ import { LabOrderService } from "@/apps/ART/services/lab_order_service";
 import { PrintoutService } from "@/services/printout_service";
 import ART_GLOBAL_PROP from "@/apps/ART/art_global_props"
 import Store from "@/composables/ApiStore"
+import { QWERTY } from "@/components/Keyboard/HisKbConfigurations"
 import { findIndex } from "lodash";
 import BarcodeInput from "@/components/BarcodeInput.vue"
+import HisKeyboard from "@/components/Keyboard/HisKeyboard.vue"
+import handleVirtualInput from "@/components/Keyboard/KbHandler"
+import Fuse from "fuse.js";
 
 export default defineComponent({
   name: "Modal",
@@ -145,6 +170,9 @@ export default defineComponent({
     this.canScanDBS = await ART_GLOBAL_PROP.canScanDBS()
   },
   methods: {
+    onFilter(text: any) {
+      this.searchFilter = handleVirtualInput(text, this.searchFilter)
+    },
     async onScanEIDbarcode(barcode: string) {
       this.verifyingBarcode = !this.verifyingBarcode;
       if (this.verifyingBarcode) return
@@ -174,16 +202,15 @@ export default defineComponent({
       loadingController.getTop().then(v => v && loadingController.dismiss())
     },
     async onSelectTest(testName: string, index: number, event: any) {
-      this.$nextTick(async () => {
-        this.testTypes[index]['isChecked'] = event.target.checked;
-        if(this.testTypes[index]['isChecked']){
-          this.specimens = await OrderService.getSpecimens(testName);
-          this.testTypes[index]['currentIndex'] = index;
+      this.searchFilter = ''
+      this.showKeyboard = false
+      this.testTypes[index]['isChecked'] = event.target.checked;
+      if(this.testTypes[index]['isChecked']){
           this.activeIndex = index;
-        } else {
+          this.specimens = await OrderService.getSpecimens(testName);
+      } else {
           this.removeOrder(index)
-        }
-      })
+      }
     },
     async getActivities() {
       const tests: Array<any> = await OrderService.getTestTypes();
@@ -191,7 +218,7 @@ export default defineComponent({
       const viralLoad = vlIndex !== -1 ? tests.splice(vlIndex, 1) : null;
       const sorted = tests.sort((a: any, b: any) => `${a.name}`.toUpperCase() > `${b.name}`.toUpperCase() ? 1: -1)
         .filter((t: any) => Array.isArray(this.testFilters) ? this.testFilters.includes(t.name) : true)
-      this.testTypes = viralLoad ? [...viralLoad, ...sorted] : sorted
+      this.testTypes = (viralLoad ? [...viralLoad, ...sorted] : sorted).map((test, id) => ({...test, id}))
     },
     removeOrder(index: number) {
       this.testTypes[index]['isChecked'] = false;
@@ -238,6 +265,23 @@ export default defineComponent({
     },
   },
   computed: {
+    searchIcon() {
+      return search
+    },
+    searchColor(): string {
+      return this.showKeyboard ? 'primary' : 'dark'
+    },
+    testTypesOnDisplay(): any[] {
+      if (this.searchFilter) {
+        const fuse = new Fuse(this.testTypes, {
+            threshold: 0.3,
+            keys: ['name'],
+            useExtendedSearch: true
+        })
+        return fuse.search(this.searchFilter).map((i: any) => i.item)
+      }
+      return this.testTypes
+    },
     isOrderComplete(): boolean {
       if (typeof this.activeIndex != 'number') {
         return false
@@ -250,7 +294,7 @@ export default defineComponent({
         return !!this.testTypes[this.activeIndex]['reason'] 
       }
       return (this.testTypes[this.activeIndex]['specimenConcept'] || this.testTypes[this.activeIndex]['specimen']) 
-        && this.testTypes[this.activeIndex]['reason'] 
+        && this.testTypes[this.activeIndex]['reason']
     },
     selectedOrders(): any {
       return this.testTypes.filter((data: any) => data.isChecked === true);
@@ -278,6 +322,9 @@ export default defineComponent({
   },
   data() {
     return {
+      searchFilter: '',
+      showKeyboard: false,
+      keyboardLayout: QWERTY,
       canScanDBS: false,
       verifyingBarcode: false,
       content: "Content",
@@ -294,6 +341,7 @@ export default defineComponent({
     IonContent,
     IonHeader,
     IonTitle,
+    IonInput,
     IonToolbar,
     IonLabel,
     IonList,
@@ -302,6 +350,8 @@ export default defineComponent({
     IonCheckbox,
     IonRadioGroup,
     IonRow,
+    HisKeyboard,
+    IonIcon
   },
 });
 </script>
