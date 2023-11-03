@@ -15,6 +15,7 @@ import { SpineReportService } from '@/apps/SPINE/services/spine_report_service'
 import { Patientservice } from '@/services/patient_service'
 import { toastDanger } from '@/utils/Alerts'
 import { Option } from '@/components/Forms/FieldInterface'
+import { formatGender } from "@/utils/Strs";
 
 export default defineComponent({
   components: { ReportTemplate, IonPage },
@@ -60,14 +61,14 @@ export default defineComponent({
       ],
       [
         table.thTxt('Diagnosis'),
-        table.thTxt('F', { value: 'Females <6 months' }),
-        table.thTxt('M', { value: 'Males <6 months' }),
-        table.thTxt('F', { value: 'Females 6 months < 5 yrs' }),
-        table.thTxt('M', { value: 'Males 6 months < 5 yrs' }),
-        table.thTxt('F', { value: 'Females 5 yrs < 14 yrs' }),
-        table.thTxt('M', { value: 'Males 5 yrs < 14 yrs' }),
-        table.thTxt('F', { value: 'Females > 14 yrs' }),
-        table.thTxt('M', { value: 'Males > 14 yrs' }),
+        table.thTxt('Female', { value: 'Females <6 months' }),
+        table.thTxt('Male', { value: 'Males <6 months' }),
+        table.thTxt('Female', { value: 'Females 6 months < 5 yrs' }),
+        table.thTxt('Male', { value: 'Males 6 months < 5 yrs' }),
+        table.thTxt('Female', { value: 'Females 5 yrs < 14 yrs' }),
+        table.thTxt('Male', { value: 'Males 5 yrs < 14 yrs' }),
+        table.thTxt('Female', { value: 'Females > 14 yrs' }),
+        table.thTxt('Male', { value: 'Males > 14 yrs' }),
         table.thTxt('Total'),
       ]
     ] as ColumnInterface[][],
@@ -116,7 +117,7 @@ export default defineComponent({
             return [
               table.td(patient.getGivenName()),
               table.td(patient.getFamilyName()),
-              table.td(patient.getGender()),
+              table.td(formatGender(patient.getGender())),
               table.td(patient.getPhoneNumber()),
               table.td(`${patient.getCurrentDistrict()}, ${patient.getCurrentVillage()}, ${patient.getClosestLandmark()}`)
             ]
