@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch} from 'vue'
+import { ref } from 'vue'
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
@@ -22,33 +22,25 @@ import { HIVStatusService } from '../../services/hiv_status_service';
 import useEncounter from '@/composables/useEncounter';
 import { mapStrToOptions, resolveObs, yesNoUnknownOptions } from '@/utils/HisFormHelpers/commons';
 import { IonPage } from '@ionic/vue';
+import { Patientservice } from '@/services/patient_service';
 
 let hivService: HIVStatusService;
 const fields = ref<Array<Field>>([]);
-const {
-  isReady,
-  patient,
-  provider,
-  patientDashboardUrl,
-  goToNextTask
-} = useEncounter();
 
-watch(isReady, (ready) => {
-  if(ready) {
-    hivService = new HIVStatusService(patient.value.getID(), provider.value);
-    fields.value = [
-      getHIVStatusField(),
-      ...getHivTestDateField(),
-      getTestLocationField(),
-      getCPTStartedField(),
-      getOnARTField(),
-      ...getArtStartDateField(),
-      ...getArtDefaultDateField(),
-      getCurrentArtLocationField(),
-      getARTAdviceField(),
-    ];
-  }
-})
+const { patientDashboardUrl, goToNextTask } = useEncounter((providerId, patientId, patient) => {
+  hivService = new HIVStatusService(patientId, providerId);
+  fields.value = [
+    getHIVStatusField(),
+    ...getHivTestDateField(patient),
+    getTestLocationField(),
+    getCPTStartedField(),
+    getOnARTField(),
+    ...getArtStartDateField(patient),
+    ...getArtDefaultDateField(patient),
+    getCurrentArtLocationField(),
+    getARTAdviceField(),
+  ];
+});
 
 async function onSubmit(_formData: any, computedData: any){
   const encounter = await hivService.createEncounter()
@@ -88,13 +80,13 @@ function getCurrentArtLocationField(): Field {
   }
 }
 
-function getArtStartDateField(): Array<Field> {
+function getArtStartDateField(patient: Patientservice): Array<Field> {
   return generateDateFields({
     id: 'date_started_art',
     helpText: 'Started ART',
     required: true,
     condition: (f: any) => f.received_arvs.value === 'Yes',
-    minDate: () => `${patient.value?.getBirthdate() ?? ''}`,
+    minDate: () => `${patient?.getBirthdate() ?? ''}`,
     maxDate: () => hivService.getDate(),
     estimation: {
         allowUnknown: true,
@@ -104,13 +96,13 @@ function getArtStartDateField(): Array<Field> {
   })
 }
 
-function getArtDefaultDateField(): Array<Field> {
+function getArtDefaultDateField(patient: Patientservice): Array<Field> {
   return generateDateFields({
     id: 'date_defualted_art',
     helpText: 'ART Default',
     required: true,
     condition: (f: any) => f.received_arvs.value === 'Defaulter',
-    minDate: () => `${patient.value?.getBirthdate() ?? ''}`,
+    minDate: () => `${patient?.getBirthdate() ?? ''}`,
     maxDate: () => hivService.getDate(),
     estimation: {
         allowUnknown: true,
@@ -165,12 +157,12 @@ function getHIVStatusField(): Field {
   }
 }
 
-function getHivTestDateField() {
+function getHivTestDateField(patient: Patientservice) {
   return generateDateFields({
     id: 'hiv_test_date',
     helpText: 'HIV Test',
     required: true,
-    minDate: () => `${patient.value?.getBirthdate() ?? ''}`,
+    minDate: () => `${patient?.getBirthdate() ?? ''}`,
     maxDate: () => HIVStatusService.getSessionDate(),
     condition: (fields: any) => fields.hiv_status.value !== 'Unknown',
     summaryLabel: 'HIV test date',

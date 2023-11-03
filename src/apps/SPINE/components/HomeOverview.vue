@@ -2,7 +2,7 @@
   <ion-grid>
     <ion-row>
       <ion-col v-for="stat in patientSummaryStats" :key="stat.label">
-        <opd-stat-card
+        <stat-card
           :label="stat.label"
           :value="stat.value"
           :color="stat.color ?? ''"
@@ -44,12 +44,9 @@
 <script lang="ts">
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { defineComponent } from "vue";
-import ApiClient from "@/services/api_client";
 import dayjs from "dayjs";
 import ApexChart from "vue3-apexcharts";
-import PatientVisitsService from '@/apps/OPD/services/patient_visits_service'
-import OpdStatCard from '@/apps/OPD/components/OpdStatCard.vue'
-import { ProgramService } from "@/services/program_service"
+import StatCard from '@/apps/SPINE/components/StatCard.vue'
 
 export default defineComponent({
   data: function () {
@@ -112,67 +109,9 @@ export default defineComponent({
     IonRow,
     IonCol,
     ApexChart,
-    OpdStatCard
-  },
-  mounted() {
-    this.sessionDate = ProgramService.getSessionDate()
-    this.getPatientSummary();
-    this.getSyndromic();
+    StatCard
   },
   methods: {
-    getSyndromic: async function(){
-      const response = await ApiClient.get(
-        `dashboard_stats_for_syndromic_statistics?date=${this.sessionDate}&program_id=14`
-      );
-      if(response && response.status == 200) {
-        const data = await response.json();
-        this.buildGraphData(data.down,'syndromicGraph')
-      }
-    },
-    getPatientSummary: async function(){
-      const response = await ApiClient.get(
-        `dashboard_stats?date=${this.sessionDate}&program_id=14`
-      );
-      if(response && response.status == 200) {
-        const data = await response.json();
-        this.patientSummaryStats =PatientVisitsService.getTodaysPatientVisits(data.top)
-        this.buildGraphData(data.down,'visitGraph')
-      }
-    },
-    buildGraphData: async function(data: any,graphType: any){
-      for(const name in data){
-        const x = data[name]
-        const startDates = Object.keys(x).map(key => { return  dayjs(x[key].start_date).format("MMM/YYYY")});
-        const count = Object.keys(x).map(key => { return  x[key].count });
-        const obj = {
-          'name': name,
-          'data': count,
-        }
-        if(graphType == 'visitGraph'){
-          this.seriesVisits.push(obj)
-          this.optionsVisits = {
-            ...this.options,
-            ...{
-              xaxis: {
-                categories: [...startDates],
-              },
-            },
-          };
-        }
-        else
-        if(graphType == 'syndromicGraph'){
-          this.seriesSyndromic.push(obj)
-          this.optionsSyndromic = {
-            ...this.options,
-            ...{
-              xaxis: {
-                categories: [...startDates],
-              },
-            },
-          };
-        }
-      }
-    }
   },
 });
 </script>

@@ -1,4 +1,5 @@
 import { TaskInterface } from "@/apps/interfaces/TaskInterface";
+import router from "@/router";
 
 export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
@@ -9,6 +10,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: 'admit patient',
     name: 'Admin Patient',
+    encounterTypeName: 'admit patient',
     icon: 'consultation.png'
   },
   {
@@ -16,6 +18,10 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     name: 'HIV Status',
     icon: 'aids.png',
     encounterTypeName: 'update hiv status',
+    workflowID: "update hiv status",
+    action: ({patientID}: any) => {
+      router.push({ path: `/SPINE/encounters/hiv-status/${patientID}`})
+    }
   },
   {
     id: 'influenza data',
@@ -26,7 +32,6 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: 'lab orders',
     name: 'Lab orders',
     icon: 'clinical-notes.png',
-    availableOnActivitySelection: false,
     action: ({patient}: any, router: any) => {
       router.push(`/los/forms/order/${patient.patient_id}?type=DRAW_SAMPLES`)
     }
@@ -35,7 +40,6 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: 'lab results',
     name: 'Lab results',
     icon: 'enter.png',
-    availableOnActivitySelection: false,
     action: ({ patient }: any, router: any) => {
       router.push({ path: `/lab/results/${patient.patient_id}`})
     },
@@ -44,7 +48,6 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: 'social history',
     name: 'social history',
     icon: 'medical-report.png',
-    availableOnActivitySelection: false
   },
   {
     id: 'chronic conditions',
@@ -54,20 +57,31 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: 'patient diagnosis',
     name: 'Diagnosis',
-    icon: 'diagnosis.png'
+    encounterTypeName: "outpatient diagnosis",
+    workflowID: "outpatient diagnosis",
+    icon: 'diagnosis.png',
+    action: ({patientID}: any) => {
+      router.push({ path: `/SPINE/encounters/diagnosis/${patientID}` })
+    }
   },
   {
     id: 'prescription',
     name: 'Prescription',
     encounterTypeName: 'Treatment',
-    icon: 'drugs-given.png'
+    workflowID: "treatment",
+    icon: 'drugs-given.png',
+    action: ({patientID}: any) => {
+      router.push({ path: `/SPINE/encounters/prescription/${patientID}` })
+    }
   },
   {
     id: 'dispensation',
     name: 'Dispensation',
     workflowID:"Dispensing",
     icon: 'dispensing.png',
-    availableOnActivitySelection: false
+    action: ({patientID}: any) => {
+      router.push({ path: `/SPINE/encounters/dispensing/${patientID}` })
+    }
   },
   {
     id: 'discharge patient',

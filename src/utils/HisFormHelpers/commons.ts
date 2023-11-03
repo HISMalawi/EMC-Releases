@@ -22,7 +22,11 @@ export function mapStrToOptions(options: Array<string>): Array<Option> {
   return options.map(option => ({ label: option, value: option }));
 }
 
-export function mapToYesNoOptions(options: Array<string>, checkedOptions: Array<Option>, hasUnknown = false) {
+export function mapObjToOptions(options: Array<Record<string, any>>, label = "name", value = "name"): Array<Option> {
+  return options.map(option => ({ label: option[label], value: option[value], other: option }));
+}
+
+export function mapToYesNoOptions(options: Array<string>, checkedOptions?: Array<Option>, hasUnknown = false) {
   return options.map(label => {
     const checkedValue = find(checkedOptions, { label });
     return {

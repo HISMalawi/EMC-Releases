@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { watch, ref } from 'vue'
+import { ref } from 'vue'
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from '@/components/Forms/validations/StandardValidations';
 import { Field, Option } from '@/components/Forms/FieldInterface';
@@ -29,19 +29,16 @@ let referralService: PatientReferralService;
 let dischargeService: PatientOutcomeService;
 const fields = ref<Array<Field>>([]);
 
-const {isReady, patient, provider, goToNextTask, patientDashboardUrl } = useEncounter();
-
-watch(isReady, ready => {
-  if(ready) {
-    dischargeService = new PatientOutcomeService(patient.value.getID(), provider.value);
-    referralService = new PatientReferralService(patient.value.getID(), provider.value)
-    fields.value = [
-      getOutcomeField(),
-      getFacilityField(),
-      getInternalSectionsField()
-    ];
-  }
+const { goToNextTask, patientDashboardUrl } = useEncounter((providerId, patientId) => {
+  dischargeService = new PatientOutcomeService(patientId, providerId);
+  referralService = new PatientReferralService(patientId, providerId)
+  fields.value = [
+    getOutcomeField(),
+    getFacilityField(),
+    getInternalSectionsField()
+  ];
 });
+
 
 async function onSubmit(_fdata: any, cdata: any) {
   await dischargeService.createEncounter();
@@ -134,5 +131,3 @@ function getInternalSectionsField(): Field {
   }
 }
 </script>
-
-@/apps/SPINE/services/patient_outcome_service
