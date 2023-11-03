@@ -15,7 +15,7 @@
           width="100%"
           height="350px"
           type="bar"
-          :options="optionsVisits"
+          :options="options"
           :series="seriesVisits"
         />
       </ion-col>
@@ -28,7 +28,7 @@
             <th>Me</th>
             <th>Facility</th>
           </tr>
-          <tr v-for="(data, index) in rows" :key="index">
+          <tr v-for="(data, index) in tableRows" :key="index">
             <td class="encounter-td">{{ data.encounter }}</td>
             <td class="other-td">{{ data.female }}</td>
             <td class="other-td">{{ data.male }}</td>
@@ -41,79 +41,62 @@
   </ion-grid>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
-import { defineComponent } from "vue";
+import { ref } from "vue";
 import dayjs from "dayjs";
 import ApexChart from "vue3-apexcharts";
 import StatCard from '@/apps/SPINE/components/StatCard.vue'
 
-export default defineComponent({
-  data: function () {
-    return {
-      dayjs,
-      sessionDate: "",
-      rows: [
-        { encounter: "Patient Registration", female: 0, male: 0, me: 0, facility: 0 },
-        { encounter: "HIV tests", female: 0, male: 0, me: 0, facility: 0 },
-        { encounter: "Influeza data", female: 0, male: 0, me: 0, facility: 0},
-        { encounter: "Chronic conditions", female: 0, male: 0, me: 0, facility: 0 },
-        { encounter: "Patient Diagnosis", female: 0, male: 0, me: 0, facility: 0 },
-        { encounter: "Prescriptions", female: 0, male: 0, me: 0, facility: 0 },
-        { encounter: "Dispensations", female: 0, male: 0, me: 0, facility: 0 },
-        { encounter: "Discharges", female: 0, male: 0, me: 0, facility: 0 },
-      ] as any,
-      patientSummaryStats: [
-        { label: 'Registered today', value: -1, color: 'lightyellow' },
-        { label: 'Returning today', value: -1, color: 'lightyellow' },
-        { label: 'Referred today', value: -1, color: 'lightyellow' },
-        { label: 'Total', value: -1, color: 'yellowgreen' },
-      ],
-      seriesVisits: [] as any,
-      optionsVisits: {} as any,
-      optionsSyndromic: {} as any,
-      seriesSyndromic: [] as any,
+const sessionDate = ref("");
+const tableRows = ref([
+  { encounter: "Patient Registration", female: 0, male: 0, me: 0, facility: 0 },
+  { encounter: "HIV tests", female: 0, male: 0, me: 0, facility: 0 },
+  { encounter: "Influeza data", female: 0, male: 0, me: 0, facility: 0},
+  { encounter: "Chronic conditions", female: 0, male: 0, me: 0, facility: 0 },
+  { encounter: "Patient Diagnosis", female: 0, male: 0, me: 0, facility: 0 },
+  { encounter: "Prescriptions", female: 0, male: 0, me: 0, facility: 0 },
+  { encounter: "Dispensations", female: 0, male: 0, me: 0, facility: 0 },
+  { encounter: "Discharges", female: 0, male: 0, me: 0, facility: 0 },
+]);
 
-      options: {
-        chart: {
-          id: "vuechart-example",
-        },
-        xaxis: {
-          categories: ["", "", "", "", ""],
-        },
-        yaxis: {
-        min: 0,
-        forceNiceScale: true,
-        title: {
-          text: 'Number of clients'
-        }
-      },
-      noData: {  
-        text: "Loading data. Please wait...",  
-        align: 'center',  
-        verticalAlign: 'middle',  
-        offsetX: 0,  
-        offsetY: 0,  
-        style: {  
-          color: "#000000",  
-          fontSize: '30px',  
-          fontFamily: "Helvetica"
-        }  
-      }
-      },
-      series: [] as any,
-    };
+    
+const patientSummaryStats = ref([
+  { label: 'Registered today', value: -1, color: 'lightyellow' },
+  { label: 'Returning today', value: -1, color: 'lightyellow' },
+  { label: 'Referred today', value: -1, color: 'lightyellow' },
+  { label: 'Total', value: -1, color: 'yellowgreen' },
+]);
+
+const seriesVisits = ref<Array<any>>([]);
+
+const options = {
+  chart: {
+    id: "vuechart-example",
   },
-  components: {
-    IonGrid,
-    IonRow,
-    IonCol,
-    ApexChart,
-    StatCard
+  xaxis: {
+    categories: ["", "", "", "", ""],
   },
-  methods: {
+  yaxis: {
+    min: 0,
+    forceNiceScale: true,
+    title: {
+      text: 'Number of clients'
+    }
   },
-});
+  noData: {  
+    text: "Loading data. Please wait...",  
+    align: 'center',  
+    verticalAlign: 'middle',  
+    offsetX: 0,  
+    offsetY: 0,  
+    style: {  
+      color: "#000000",  
+      fontSize: '30px',  
+      fontFamily: "Helvetica"
+    }  
+  }
+}
 </script>
 
 <style scoped>
