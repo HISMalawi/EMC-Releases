@@ -12,7 +12,8 @@ export const REPORTS: FolderInterface[] = [
         },
         {
             name: 'Patient Outcomes',
-            pathName: 'Spine Clinic Outcomes Report'
+            pathName: 'Spine Clinic Outcomes Report',
+            condition: () => false
         },
     ]
 },
