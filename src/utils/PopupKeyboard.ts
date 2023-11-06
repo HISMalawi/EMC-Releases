@@ -1,10 +1,10 @@
-import { Field } from "@/components/Forms/FieldInterface";
+import { Field, FormOnCancelAction, FormOnFinishAction } from "@/components/Forms/FieldInterface";
 import { modalController } from "@ionic/vue";
 import TouchField from "@/components/Forms/SIngleTouchField.vue"
 import TouchScreenForm from "@/components/Forms/TouchScreenForm.vue";
 import Keypad from "@/components/Keyboard/HisKeypad.vue"
 
-export async function MultiStepPopupForm(fields: Field[], onFinish: Function, onCancel: Function | null =null) {
+export async function MultiStepPopupForm(fields: Field[], onFinish: FormOnFinishAction, onCancel: FormOnCancelAction | null =null) {
     (await modalController.create({
         component: TouchScreenForm,
         backdropDismiss: false,

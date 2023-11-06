@@ -19,7 +19,7 @@ import { useRouter } from "vue-router"
 import { chunk } from 'lodash';
 import { delayPromise } from '@/utils/Timers';
 import { Patientservice } from '@/services/patient_service';
-import { toDate } from '@/utils/Strs';
+import { formatGender, toDate } from '@/utils/Strs';
 
 const ITEMS_PER_PAGE = 20
 export default defineComponent({ 
@@ -77,8 +77,9 @@ export default defineComponent({
                     try {
                         const patient = new Patientservice((await Patientservice.findByID(id)))
                         reportData.value.push({
-                            'patient_id': patient.getArvNumber(),
-                            'gender': patient.getGender(),
+                            'arv_number': patient.getArvNumber(),
+                            'patient_id': patient.getID(),
+                            'gender': formatGender(patient.getGender()),
                             'birthdate': toDate(patient.getBirthdate())
                         })
                     } catch (e) {

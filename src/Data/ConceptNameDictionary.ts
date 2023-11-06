@@ -851,7 +851,7 @@ export default [
       "categories": ['art_patient_type'],
       "order": 2,
       "concept_id": 10522,
-      "name": "Drug Refill"
+      "name": "Emergency supply"
    },
    {
       "categories": ['risk factors', 'anc_medical_history'],

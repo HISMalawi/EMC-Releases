@@ -1,5 +1,4 @@
 import {Service} from "@/services/service"
-import { SuspenseProps } from "vue";
 
 export interface NewEncounter {
     encounter_type_id: number;

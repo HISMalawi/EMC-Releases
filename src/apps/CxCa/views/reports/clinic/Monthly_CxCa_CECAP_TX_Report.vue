@@ -50,8 +50,6 @@ export default defineComponent({
         v2Datatable,
     },
     setup() {
-        const totals = ref<any[]>([])
-
         const convertToArray = (data: any, totals: any) => {
             const convertedData = [
                 convertGroupToArray(data.first_time_screened),

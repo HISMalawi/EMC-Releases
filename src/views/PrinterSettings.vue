@@ -13,7 +13,7 @@ import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { PrintoutService } from "@/services/printout_service";
 import { isEmpty } from "lodash";
 import { loadingController } from "@ionic/core";
-import { toastDanger, toastSuccess, toastWarning } from "@/utils/Alerts";
+import { toastDanger, toastWarning } from "@/utils/Alerts";
 import { PrinterDevice } from "@/plugins/LabelPrinter";
 
 export default defineComponent({

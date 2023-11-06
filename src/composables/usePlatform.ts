@@ -1,6 +1,6 @@
 import { isPlatform } from "@ionic/vue";
 import { isEmpty } from "lodash";
-import { onMounted, ref, watch } from "vue";
+import { ref, watch } from "vue";
 
 export enum PLATFORM_SESSION_KEY {
   ACTIVE_PLOFILE = 'active_profile',

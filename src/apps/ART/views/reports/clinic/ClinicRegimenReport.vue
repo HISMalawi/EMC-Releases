@@ -9,6 +9,7 @@
         :config="{
                 showIndex: false
         }"
+        report-prefix="Clinic"
         > 
     </report-template>
 </template>

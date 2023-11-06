@@ -61,8 +61,7 @@ export default defineComponent({
               allowUnknown: false
             },
             computeValue: (date: string) =>  ObservationService.buildValueDate("Hypertension diagnosis date", date)
-          },
-          ConsultationService.getSessionDate()
+          }
         )
       ]
     }

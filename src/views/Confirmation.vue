@@ -700,7 +700,7 @@ export default defineComponent({
         return FlowState.FORCE_EXIT
       }
       states[FlowState.ADD_AS_DRUG_REFILL] = async () => {
-        await this.createPatientType('Drug Refill')
+        await this.createPatientType('Emergency supply')
         return FlowState.CONTINUE
       }
       states[FlowState.ADD_AS_NEW_PATIENT] = async () => {
@@ -731,7 +731,7 @@ export default defineComponent({
       }
       return state
     },
-    async createPatientType(newPatientType: 'Drug Refill' | 'External consultation' | 'New patient') {
+    async createPatientType(newPatientType: 'Emergency supply' | 'External consultation' | 'New patient') {
       if (newPatientType != this.facts.patientType && this.facts.patientTypeLastUpdated === Patientservice.getSessionDate()) {
         if (!(await alertConfirmation(`This client was flagged today as "${this.facts.patientType}", altering patient type to "${newPatientType}" may affect record integrity, do you want to affect change?`))) {
           return

@@ -36,9 +36,15 @@ export interface FormFooterBtns {
     slot?: 'start' | 'end';
     color?: 'success' | 'primary' | 'warning' | 'secondary' | 'danger';
     state?: BtnStates;
+    styleClass?: string;
     onClickComponentEvents?: ComponentActionsInterface;
     onClick: (formData: any, computedData: any, fieldContext: any) => any;
 }
+
+export type FormOnFinishAction = (formdata: any, computedData: any) => void | Promise<void>
+export type FormOnCancelAction = () => void | Promise<void>
+export type SingleFieldFormOnFinishAction = (value: any) => void | Promise<void>
+
 export interface Option {
     label: string;
     value: string | number;

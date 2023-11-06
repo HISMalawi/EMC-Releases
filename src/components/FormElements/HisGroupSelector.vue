@@ -86,8 +86,7 @@ export default defineComponent({
         IonLabel
     },
     data: () => ({
-
-        selected: {} as Option | {}, 
+        selected: {} as Option, 
         listData: [] as Option[]
     }),
     watch: {
@@ -101,7 +100,7 @@ export default defineComponent({
             deep: true
         },
         clear()  {
-            this.selected = {}
+            this.selected = {} as Option
             this.initiateList()
         }
     },

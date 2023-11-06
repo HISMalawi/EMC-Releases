@@ -9,6 +9,7 @@
             :rowsPerPage="30" 
             :onConfigure="configure"
             :onRefresh="() => generate()"
+            report-prefix="Clinic"
         />
     </ion-page>
 </template>
@@ -21,7 +22,7 @@ import { v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/
 import { DateSelection } from '@/utils/ReportDateSelectionPrompt';
 import { toastDanger, toastWarning } from '@/utils/Alerts';
 import { ClinicReportService } from "@/apps/ART/services/reports/clinic_report_service";
-import ArtDrilldown from "@/apps/ART/Components/ArtDrilldown.vue";
+import HypertensionDrilldown from "@/apps/ART/Components/HypertensionDrilldown.vue";
 
 export default defineComponent({
     components: { 
@@ -49,30 +50,34 @@ export default defineComponent({
                     ref: 'gender'
                 },
                 {
-                    label: "Screened",
+                    label: "Screened for HP",
                     ref: "screened",
                     value: (data: any) => data.screened.length,
-                    tdClick: ({ column, data }) => drilldown(
-                        `${column.label}`, data.screened
-                    )
+                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.screened)
                 },
                 {
-                    label: "Normal reading",
+                    label: "Normal <140/<90",
                     ref: "normal_reading",
                     value: (data: any) => data.normal_reading.length,
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.normal_reading)
                 },
                 {
-                    label: "Mild reading",
+                    label: "Mild 140-159/90-99",
                     ref: "mild_reading",
                     value: (data: any) => data.mild_reading.length,
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.mild_reading)
                 },
                 {
-                    label: "Moderate reading",
+                    label: "Moderate 160-180/100-110",
                     ref: "moderate_reading",
                     value: (data: any) => data.moderate_reading.length,
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.moderate_reading)
+                },
+                {
+                    label: "Severe >180/>110",
+                    ref: "severe_reading",
+                    value: (data: any) => data.severe_reading.length,
+                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.severe_reading)
                 },
                 {
                     label: "Hydrochlorothiazide 25mg",
@@ -87,13 +92,13 @@ export default defineComponent({
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.amlodipine_5mg)
                 },
                 {
-                    label: "Amlodipine 10mg",
+                    label: "Amlodipine 10 mg",
                     ref: "amlodipine_10mg",
                     value: (data: any) => data.amlodipine_10mg.length,
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.amlodipine_10mg)
                 },
                 {
-                    label: "Enalapril 5mg",
+                    label: "Enalapril 5 mg",
                     ref: "enalapril_5mg",
                     value: (data: any) => data.enalapril_5mg.length,
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.enalapril_5mg)
@@ -105,19 +110,19 @@ export default defineComponent({
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.enalapril_10mg)
                 },
                 {
-                    label: "Atenolol 5mg",
-                    ref: "atenolol_5mg",
-                    value: (data: any) => data.atenolol_5mg.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.atenolol_5mg)
+                    label: "Atenolol 50mg ",
+                    ref: "atenolol_50mg",
+                    value: (data: any) => data.atenolol_50mg.length,
+                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.atenolol_50mg)
                 },
                 {
-                    label: "Atenolol 10mg",
-                    ref: "atenolol_10mg",
-                    value: (data: any) => data.atenolol_10mg.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.atenolol_10mg)
+                    label: "Atenolol 100mg ",
+                    ref: "atenolol_100mg",
+                    value: (data: any) => data.atenolol_100mg.length,
+                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.atenolol_100mg)
                 },
                 {
-                    label: "Total Regimen",
+                    label: "Total (regimen)",
                     ref: "total_regimen",
                     value: (data: any) => data.total_regimen.length,
                     tdClick: ({ column, data }) => drilldown(`${column.label}`, data.total_regimen)
@@ -125,18 +130,20 @@ export default defineComponent({
             ]
         ]
 
-        const drilldown = async (title: string, patientIdentifiers: number[]) => {
-            (await modalController.create({
-                component: ArtDrilldown,
-                backdropDismiss: false,
-                cssClass: 'large-modal',
-                componentProps: {
-                    title,
-                    subtitle: period,
-                    patientIdentifiers,
-                    onFinish: () => modalController.getTop().then(v => v && modalController.dismiss())
-                }
-            })).present()
+        const drilldown = async (title: string, patients: Array<any>) => {
+            if(patients.length) {
+                (await modalController.create({
+                    component: HypertensionDrilldown,
+                    backdropDismiss: false,
+                    cssClass: 'large-modal',
+                    componentProps: {
+                        title,
+                        subtitle: period,
+                        patients,
+                        onFinish: () => modalController.getTop().then(v => v && modalController.dismiss())
+                    }
+                })).present();
+            }
         }
         /**
          * Generates report by start date and end date

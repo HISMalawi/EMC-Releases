@@ -46,11 +46,9 @@ import { MohCohortReportService } from "@/apps/ART/services/reports/moh_cohort_s
 import MOHCXCAMonthlyReportBody from "@/apps/CxCa/views/reports/moh/MOHCXCAMonthlyReportBody.vue"
 import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
 import { FieldType } from "@/components/Forms/BaseFormElements";
-import { MohCxCaMonthlyService } from '@/apps/CxCa/services/reports/MOHCXCAMonthly_service'
-import { CxCaReportService } from '@/apps/CxCa/services/reports/cxca_report_service'
 import { toCsv, toPDFfromHTML } from "@/utils/Export"
 import dayjs from "dayjs";
-import { find, isPlainObject } from "lodash";
+import { isPlainObject } from "lodash";
 import { toDate } from "@/utils/Strs";
 import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
@@ -611,14 +609,13 @@ export default defineComponent({
             return returnArray;
         },
         loadSectionTwo(data: any): any {
-        let age_groups: [string, any[]][] = [
-            ['Positive on ART', []],
-            ['Positive NOT on ART', []],
-            ['Negative', []],
-            ['Unknown', []]
-        ];
+            let age_groups: [string, any[]][] = [
+                ['Positive on ART', []],
+                ['Positive NOT on ART', []],
+                ['Negative', []],
+                ['Unknown', []]
+            ];
 
-        let count = 1;
             for (const group_cont of age_groups){
                 for (const record of data) {
                     const hiv_status = record.hiv_status;
@@ -785,7 +782,6 @@ export default defineComponent({
             let totalIndicators = (indicatorsArray.length as number) - 1 
             
             for(let i = 0; i < indicatorsArray.length; i++){
-                let reverseIndex = totalIndicators - i
                 let normalIndex = (totalIndicators / 2) + i
                 //split the list in two
                 if(i <= (totalIndicators/2)){

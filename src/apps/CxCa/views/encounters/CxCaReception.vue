@@ -42,7 +42,7 @@ export default defineComponent({
       const data = formData['reason_for_visit'];
       const receptionObs = await this.reception.buildValueCoded('Reason for visit', data.value);
 
-      const obs = await this.reception.saveObs(receptionObs)
+      await this.reception.saveObs(receptionObs)
       toastSuccess("Observations and encounter created!");
       this.nextTask();
     },

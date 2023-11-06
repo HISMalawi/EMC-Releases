@@ -7,6 +7,7 @@
         :columns="columns"
         :encryptPDF="true"
         :onReportConfiguration="onPeriod"
+        report-prefix="Clinic"
         > 
     </report-template>
 </template>

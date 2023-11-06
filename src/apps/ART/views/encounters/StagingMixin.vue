@@ -478,7 +478,7 @@ export default defineComponent({
                             obs: this.staging.buildValueDate('Cd4 count datetime', date) 
                         }
                     }
-                }, this.staging.getDate()),
+                }),
                 {
                     id: 'location',
                     helpText: 'CD4 Location',

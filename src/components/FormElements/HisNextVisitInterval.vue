@@ -17,14 +17,14 @@
                     </ion-col>
                     <ion-col size="8">
                         <ion-card :style="{height: '65vh'}">
-                            <ion-card-content v-if="active.label">
-                                <span class="his-md-text"> {{ active.other.label }} </span>
+                            <ion-card-content v-if="active?.label">
+                                <span class="his-md-text"> {{ active?.other?.label }} </span>
                                 <ion-item class="his-sm-text">
-                                   <ion-label> {{ active.other.value }} </ion-label>
+                                   <ion-label> {{ active?.other?.value }} </ion-label>
                                 </ion-item>
-                                <span class="his-md-text"> {{ active.other.other.label }} </span>
+                                <span class="his-md-text"> {{ active?.other?.other?.label }} </span>
                                 <ion-list>
-                                    <ion-item class="his-sm-text" v-for="(item, index) in active.other.other.value" :key="index"> 
+                                    <ion-item class="his-sm-text" v-for="(item, index) in active?.other?.other?.value" :key="index"> 
                                        <ion-label> {{ item.label }} </ion-label>
                                        <ion-chip class="his-md-text" color="primary" slot="end"> {{ item.value }} </ion-chip>
                                     </ion-item>
@@ -59,11 +59,11 @@ export default defineComponent({
     },
     mixins: [SelectMixin],
     data: ()=>({
-        active: {} as Option | {}
+        active: {} as Option
     }),
     watch: {
         clear(){
-            this.active = {}
+            this.active = {} as Option
             this.clearSelection() 
         }
     },
@@ -77,7 +77,7 @@ export default defineComponent({
         async init() {
             this.$emit('onFieldActivated', this)
             if (this.activationState === 'next') {
-                this.active = {}
+                this.active = {} as Option
                 this.clearSelection()
             }
             const options = await this.options(this.fdata)

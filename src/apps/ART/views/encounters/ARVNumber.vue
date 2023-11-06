@@ -87,7 +87,7 @@ export default defineComponent({
                 name: "Void ARV Number",
                 slot: "end",
                 color: 'danger',
-                onClick: async (formData: any) => {
+                onClick: async () => {
                   await this.patient.updateARVNumber("Unknown")
                   this.$router.back()
                 }

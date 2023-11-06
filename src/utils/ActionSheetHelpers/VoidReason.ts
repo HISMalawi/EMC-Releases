@@ -1,6 +1,8 @@
 import { optionsActionSheet } from '@/utils/ActionSheets'
 
-export default async function popVoidReason(callback: Function, size = 'action-sheet-modal') {
+export type PopVoidResoanCallback = (selection: string) => Promise<void>
+
+export default async function popVoidReason(callback: PopVoidResoanCallback, size = 'action-sheet-modal') {
     const modal = await optionsActionSheet(
         'Are you sure you want to void record?',
         'Please specify reason for voiding this record',

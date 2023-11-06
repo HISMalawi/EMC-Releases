@@ -30,7 +30,7 @@ export class PatientTypeService extends AppEncounterService {
 
   static async isDrugRefillPatient(patientID: number) {
     const patientType = await AppEncounterService.getFirstValueCoded(patientID, 'Type of patient')
-    return patientType && patientType === 'Drug Refill'
+    return patientType && patientType === 'Emergency supply'
   }
 
   async loadPatientType() {
@@ -43,7 +43,7 @@ export class PatientTypeService extends AppEncounterService {
     await this.savePatientType(this.patientType)
     if (this.locationName && [
       'External consultation', 
-      'Drug Refill']
+      'Emergency supply']
       .includes(this.patientType)) {
       await this.saveLocationClinic(this.locationName)
     }

@@ -99,8 +99,8 @@ export default defineComponent({
             return Object.keys(data)
                 .filter((d: string) => !isEmpty(data[d]))
                 .sort((a: any, b: any) => {
-                    const [b_, yearA] = a.split(' ')
-                    const [a_, yearB] = b.split(' ')
+                    const yearA = a.split(' ')[1]
+                    const yearB = b.split(' ')[1]
                     return parseInt(yearA) - parseInt(yearB)
                 })
                 .map((quarter: string) => {
