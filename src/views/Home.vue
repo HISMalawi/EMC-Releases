@@ -33,28 +33,28 @@
     </ion-header>
 
     <ion-toolbar> 
-      <ion-segment scrollable :value="activeTab" class="ion-justify-content-center">
-        <ion-segment-button :value="1" @click="onSegmentClick(1)">
+      <ion-segment scrollable :value="activeTab.toString()" class="ion-justify-content-center">
+        <ion-segment-button :value="'1'" @click="onSegmentClick(1)">
           <ion-icon :icon="statsChart"> </ion-icon>
           <ion-label class="his-sm-text">
             Overview
           </ion-label>
         </ion-segment-button>
-        <ion-segment-button v-if="canReport" :value="2" @click="onSegmentClick(2)">
+        <ion-segment-button v-if="canReport" :value="'2'" @click="onSegmentClick(2)">
           <ion-icon :icon="pieChart"> </ion-icon>
           <ion-label class="his-sm-text">
             <ion-icon v-if="showSegmentBackArrow && activeTab === 2" :icon="arrowBack"/>
             Reports
           </ion-label>
         </ion-segment-button>
-        <ion-segment-button :value="3" @click="onSegmentClick(3)">
+        <ion-segment-button :value="'3'" @click="onSegmentClick(3)">
           <ion-icon :icon="settings"> </ion-icon>
           <ion-label class="his-sm-text">
             <ion-icon v-if="showSegmentBackArrow && activeTab === 3" :icon="arrowBack"/>
             Administration
           </ion-label>
         </ion-segment-button>
-        <ion-segment-button :value="4" @click="onSegmentClick(4)">
+        <ion-segment-button :value="'4'" @click="onSegmentClick(4)">
           <ion-icon :color="hasUnreadNotifications ? 'danger' : ''" :icon="notifications"/>
           <ion-label :color="hasUnreadNotifications ? 'danger' : ''" class="his-sm-text">
             Alerts <b v-if="hasUnreadNotifications">({{notificationCount}})</b>
@@ -78,7 +78,7 @@
         <div v-show="activeTab == 3"> 
           <home-folder
             @onSublist="showSegmentBackArrow=true"
-            :items="app.globalPropertySettings"
+            :items="(app.globalPropertySettings as Array<FolderInterface>)"
             :resetList="resetAdmin">
           </home-folder>
         </div>
@@ -138,7 +138,7 @@
 
 <script lang="ts">
 import HisApp from "@/apps/app_lib"
-import { defineAsyncComponent, defineComponent, watch } from "vue";
+import { defineAsyncComponent, defineComponent } from "vue";
 import HisDate from "@/utils/Date"
 import { AppInterface, FolderInterface } from "@/apps/interfaces/AppInterface";
 import { Service } from "@/services/service"

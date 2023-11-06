@@ -70,7 +70,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { arrowUp, arrowDown, caretBack, caretForward } from "ionicons/icons";
-import table from "@/components/DataViews/tables/ReportDataTable"
+import table, { AsyncTableRowHandler, TableRowParser } from "@/components/DataViews/tables/ReportDataTable"
 import { isEmpty } from "lodash";
 import { chunk } from "lodash"
 import { delayPromise } from "@/utils/Timers"
@@ -98,7 +98,7 @@ export default defineComponent({
         default: () => ({})
     },
     columns: {
-      type: Object as PropType<Array<ColumnInterface[]>>,
+      type: Array as PropType<Array<ColumnInterface[]>>,
       required: true
     },
     rows: {
@@ -112,13 +112,13 @@ export default defineComponent({
         type: Number
     },
     asyncRows: {
-        type: Function as PropType<() => Promise<Array<any[]>>>
+        type: Function as PropType<AsyncTableRowHandler>
     },
     asyncRowParser: {
-        type: Function as PropType<(data: any) => Promise<Array<any[]>>>
+        type: Function as PropType<TableRowParser>
     },
     rowParser: {
-        type: Function as PropType<(data: any) => Array<any[]>>
+        type: Function as PropType<TableRowParser>
     },
     searchFilter: {
         type: String

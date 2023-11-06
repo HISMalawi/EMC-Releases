@@ -106,7 +106,7 @@ export default defineComponent({
     img(name: string) {
       return Img(name)
     },
-    isDisabled(disabled: Function | undefined) {
+    isDisabled(disabled: ((tasksParams?: Record<string, any>) => any) | undefined) {
       if (typeof disabled === 'function') {
         return disabled(this.taskParams)
       }

@@ -48,7 +48,7 @@
                 <ion-input 
                   :disabled="drug.current_quantity == drug.original_quantity"
                   placeholder="0"
-                  :value="drug.reason || 'N/A'"
+                  :value="drug.reason ?? 'N/A'"
                   @click="selectReason(ind)"
                   >
                 </ion-input>
@@ -80,8 +80,8 @@ import { Option } from "../Forms/FieldInterface";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { FieldType } from "../Forms/BaseFormElements";
 import HisTextInput from "@/components/FormElements/BaseTextInput.vue";
-import { isEmpty } from "lodash";
-import { toDate, toNumString } from "@/utils/Strs";
+import isEmpty from "lodash/isEmpty";
+import { toNumString } from "@/utils/Strs";
 import { chevronDown } from "ionicons/icons";
 import popupKeyboard from "@/utils/PopupKeyboard";
 
@@ -117,9 +117,6 @@ export default defineComponent({
     },
     fmtNumber(num: number | string) {
       return toNumString(num)
-    },
-    fmtDate(date: string) {
-      return toDate(date)
     },
     getModalTitle(context: string) {
       return `${context} (${this.drugs[this.selectedDrug].label})`
@@ -171,22 +168,24 @@ export default defineComponent({
     },
     async selectDrug(index: any) {
       this.selectedDrug = index;
-    }
-  },
-  computed: {
-    noStockForDrug(): boolean {
-      try {
-        return !this.drugs[this.selectedDrug].other || this.drugs[this.selectedDrug].other.length <= 0
-      }catch(e) {
-        return false
-      }
     },
-    enteredDrugs(): any {
+    isBatchUpdated(drug: any) {
+      return drug.current_quantity !== drug.original_quantity &&
+      !!drug.reason
+    },
+    isModificationComplete(): boolean {
+      return this.drugs.every(drug => drug.other?.every((e: any) => {
+        if (e.current_quantity === e.original_quantity) return true;
+        return !!e.reason;
+      }));
+    },
+    getUpdatedDrugs(): any {
       const updatedDrugs: any = [];
-      this.drugs.forEach((drug: any) => {
-        drug.other?.filter((e: any) => e.current_quantity != e.original_quantity)
-          .forEach((e: any) => updatedDrugs.push({ label: drug.drug_name, value: { ...drug, ...e } }));
-      });
+      this.drugs.forEach(drug => {
+        const updatedBatches = drug.other?.filter((e: any) => this.isBatchUpdated(e));
+        updatedDrugs.push(...updatedBatches);
+      }
+      );
       return updatedDrugs;
     },
   },
@@ -203,7 +202,10 @@ export default defineComponent({
     },
     drugs: {
       async handler() {
-        this.$emit("onValue", this.enteredDrugs);
+        if(this.isModificationComplete()){
+          return this.$emit("onValue", this.getUpdatedDrugs());
+        }
+        this.$emit("onValue", null);
       },
       immediate: true,
       deep: true,

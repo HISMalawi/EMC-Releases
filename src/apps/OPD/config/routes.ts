@@ -57,12 +57,7 @@ export default [
   {
     name: 'clinic_drugs_given',
     path: "/opd/reports/clinic/clinic_drugs_given",
-    component: () => import('@/apps/OPD/views/reports/clinic/DrugsGiven.vue')
-  },
-  {
-    name: 'clinic_drugs',
-    path: "/opd/reports/clinic/clinic_drugs",
-    component: () => import('@/apps/OPD/views/reports/clinic/DrugsGivenWithPrescription.vue')
+    component: () => import('@/apps/OPD/views/reports/clinic/DrugsReport.vue')
   },
   {
     name: 'clinic_registration',

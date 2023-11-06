@@ -114,7 +114,7 @@ export default defineComponent({
         const reportTemplates: Record<string, {
             title: string;
             cssFile: string; 
-            generate: Function;
+            generate: () => Promise<any>;
         }> = {
             'CohortTemplate': {
                 title: 'Cohort',

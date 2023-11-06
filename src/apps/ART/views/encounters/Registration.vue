@@ -231,7 +231,7 @@ export default defineComponent({
                             obs: this.buildDateObs('Date ART last taken', date, isEstimate) 
                         }
                     }
-                }, this.registration.getDate()),
+                }),
                 {
                     id: 'taken_art_in_last_two_months',
                     helpText: 'Taken ARVs in the last two months?',
@@ -348,7 +348,7 @@ export default defineComponent({
                             obs: this.buildDateObs('Date ART started', date, isEstimate) 
                         }
                     },
-                }, this.registration.getDate()),
+                }),
                 {
                     id: 'previous_art_number',
                     helpText: 'ART number at previous location',
@@ -574,7 +574,7 @@ export default defineComponent({
                             obs: this.buildDateObs('Confirmatory HIV test date', date, isEstimate) 
                         }
                     },
-                }, this.registration.getDate()),
+                }),
                 this.getStagingSummaryField('Staging summary')
             ]
         }

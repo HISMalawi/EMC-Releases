@@ -1,5 +1,4 @@
 import { Service } from '@/services/service';
-import dayjs from 'dayjs';
 import Strings from '../utils/Strings';
 
 export default class PatientVisitsService extends Service {

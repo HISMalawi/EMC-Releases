@@ -26,7 +26,7 @@
 import { defineComponent } from 'vue'
 import ViewPort from '../DataViews/ViewPort.vue'
 import { modalController } from '@ionic/vue'
-import { Field, Option } from '@/components/Forms/FieldInterface'
+import { Field, Option, SingleFieldFormOnFinishAction } from '@/components/Forms/FieldInterface'
 import FieldMixinVue from './FieldMixin.vue'
 import TouchField from "@/components/Forms/SIngleTouchField.vue"
 import Validation from "@/components/Forms/validations/StandardValidations"
@@ -80,7 +80,7 @@ export default defineComponent({
         this.$emit('onFieldActivated', this)
         this.listData = await this.options(this.fdata, this.cdata, this.listData)
     },
-    async launchEditor(field: Field, callback: Function) {
+    async launchEditor(field: Field, callback: SingleFieldFormOnFinishAction) {
         const modal = await modalController.create({
             component: TouchField,
             backdropDismiss: false,

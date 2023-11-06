@@ -7,6 +7,7 @@
       :columns="columns"
       :itemsPerPage="10"
       :period="period"
+      :reportPrefix="'Clinic'"
       :onReportConfiguration="init"
       :customBtns="customBtns"
       paginated

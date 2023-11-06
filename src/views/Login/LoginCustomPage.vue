@@ -70,7 +70,6 @@ import { toastWarning, toastDanger } from "@/utils/Alerts";
 import { defineComponent } from 'vue';
 import { AuthService, InvalidCredentialsError } from "@/services/auth_service"
 import { LOGIN_KEYBOARD } from "@/components/Keyboard/KbLayouts"
-import usePlatform from "@/composables/usePlatform";
 
 export default defineComponent({
   props: {

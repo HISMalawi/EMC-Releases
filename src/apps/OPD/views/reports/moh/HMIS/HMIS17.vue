@@ -33,6 +33,7 @@ import { HMISReportService } from "@/apps/OPD/services/hmis_report_service"
 import HmisHeader from "@/apps/OPD/views/reports/moh/MOHReportHeader.vue"
 import HmisTemplate from "@/apps/OPD/views/reports/moh/HMIS/HMISTemplate.vue"
 import HisDate from "@/utils/Date"
+import { Service } from "@/services/service"
 
 export default defineComponent({
   mixins: [ReportMixinVue],
@@ -52,6 +53,7 @@ export default defineComponent({
     TotalOPDVisits: 0 as number,
     clinicName: HMISReportService.getLocationName(),
     reportReady: false as boolean,
+    reportTitle: ''
   }),
   created() {
     this.btns = this.getBtns()
@@ -69,6 +71,7 @@ export default defineComponent({
       this.report.setStartDate(HisDate.toStandardHisFormat(config.start_date))
       this.report.setEndDate(HisDate.toStandardHisFormat(config.end_date))
       this.periodDates = this.report.getReportPeriod()
+      this.reportTitle = `MOH ${Service.getLocationName()} HMIS 17 Report ${this.periodDates}`
       try {
         const hmis = await this.report.requestHMIS17()
         const visits = await this.report.getAttendance()
@@ -93,7 +96,7 @@ export default defineComponent({
           visible: true,
           onClick: async () => {
             const rep = this.$refs.rep as any
-            rep.onDownload()
+            rep.onDownload(this.reportTitle)
           }
         },
         {
@@ -102,7 +105,7 @@ export default defineComponent({
           slot: "start",
           color: "primary",
           visible: true,
-          onClick: () => this.exportToCustomPDF(this.reportName)
+          onClick: () => this.exportToCustomPDF(this.reportTitle)
         },
         {
           name: "Back",

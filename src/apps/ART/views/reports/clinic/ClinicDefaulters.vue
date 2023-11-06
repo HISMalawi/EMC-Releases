@@ -9,6 +9,7 @@
             :showtitleOnly="true"
             :onReportConfiguration="onPeriod"
             :encryptPDF="true"
+            reportPrefix="Clinic"
             > 
         </report-template>
     </ion-page>

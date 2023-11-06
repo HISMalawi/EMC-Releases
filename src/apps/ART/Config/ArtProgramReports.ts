@@ -72,7 +72,7 @@ export const REPORTS: FolderInterface[] = [
                 pathName: 'clinic_due_viral_load_report'
             },
             {
-                name: 'External and Drug Refill clients',
+                name: 'External and Emergency supply clients',
                 pathName: 'clinic_external_consultation_report'
             },
             {

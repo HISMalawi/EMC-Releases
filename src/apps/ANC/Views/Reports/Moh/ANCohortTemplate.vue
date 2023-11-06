@@ -50,8 +50,9 @@
                 <table width="100%">
                     <tbody>
                         <tr>
-                            <td style="font-style: italic;" align="center">
-                                No
+                            <td style="font-style: italic; display: flex; justify-content: space-around;">
+                                <b>Y</b>
+                                <b>N</b>
                             </td>
                         </tr>
                     </tbody>
@@ -906,8 +907,8 @@
                         </tr>
                         <tr>
                             <td></td>
-                            <td style="font-style:italic;">
-                            TotalHIV+ (24+26)
+                            <td style="font-style:italic; font-size: 14px;">
+                            TotalHIV+ (26+28)
                             </td>
                             <td class="valueCell" style="border-top: 0px;">
                             <a id="a-c-total-hiv-positive" href="#" @click.prevent="drill('c_total_hiv_positive')">
@@ -920,7 +921,7 @@
                             &nbsp;
                             </td>
                             <td colspan="2" style="font-weight: bold;">
-                            CPT <span style="font-weight: normal; text-align: right;">out of HIV+</span>
+                            On CPT <span style="font-weight: normal; float: right;">out of HIV+</span>
                             </td>
                         </tr>
                         
@@ -959,7 +960,7 @@
                             &nbsp;
                             </td>
                             <td colspan="2" style="font-weight: bold;">
-                            NVP syrup given <span style="font-weight: normal; text-align: right;">out of HIV+</span>
+                            NVP syrup given <span style="font-weight: normal; float: right;">out of HIV+</span>
                             </td>
                         </tr>
 
@@ -997,7 +998,7 @@
                             &nbsp;
                             </td>
                             <td colspan="2" style="font-weight: bold; padding-top: 12px;">
-                            ART status final <span style="font-weight: normal; text-align: right;">out of HIV+</span>
+                            ART status final <span style="font-weight: normal; float: right;">out of HIV+</span>
                             </td>
                         </tr>
                         <tr>
@@ -1055,11 +1056,13 @@
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="2" style="font-weight: bold;">
+                            <td></td>
+                            <td colspan="3" style="font-weight: bold;">
                             Report filled
                             </td>
                         </tr>
                         <tr>
+                            <td></td>
                             <td style="border-top: 1px solid #999; border-left: 1px solid #999;">
                             Date
                             </td>
@@ -1068,6 +1071,7 @@
                             </td>
                         </tr>
                         <tr>
+                            <td></td>
                             <td style="border-left: 1px solid #999;">
                             Name
                             </td>
@@ -1076,6 +1080,7 @@
                             </td>
                         </tr>
                         <tr>
+                            <td></td>
                             <td style="border-left: 1px solid #999; border-bottom: 1px solid #999;">
                             Phone
                             </td>
@@ -1084,16 +1089,19 @@
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="2" style="font-weight: bold; height: 300px;" valign="top">
+                            <td></td>
+                            <td colspan="2" style="font-weight: bold; height: 200px; border: 1px solid #999;" valign="top">
                             Notes
                             </td>
                         </tr>
                         <tr>
+                            <td></td>
                             <td colspan="2" style="font-weight: bold;">
                             Report Received
                             </td>
                         </tr>
                         <tr>
+                            <td></td>
                             <td style="border-top: 1px solid #999; border-left: 1px solid #999;">
                             Date
                             </td>
@@ -1102,6 +1110,7 @@
                             </td>
                         </tr>
                         <tr>
+                            <td></td>
                             <td style="border-left: 1px solid #999; border-bottom: 1px solid #999;">
                             Name
                             </td>

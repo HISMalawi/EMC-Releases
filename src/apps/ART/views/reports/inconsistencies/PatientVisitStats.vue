@@ -68,6 +68,7 @@ import { uniq } from 'lodash';
 import ApexChart from "vue3-apexcharts";
 import table from "@/components/DataViews/tables/ReportDataTable"
 import { Patientservice } from '@/services/patient_service';
+
 export default defineComponent({
     components: {
         ApexChart,
@@ -162,6 +163,13 @@ export default defineComponent({
                 backdropDismiss: false
             })).present()
         },
+        async getCachedPatient(patiendId: number) {
+            if(!(patiendId in this.patients)) {
+                const patient = await Patientservice.findByID(patiendId);
+                this.patients[patiendId] = new Patientservice(patient);
+            }
+            return this.patients[patiendId];
+        },
         async drillPatients(title: string, patients: any[]) {
             const columns = [
                 [
@@ -175,20 +183,13 @@ export default defineComponent({
             ]
             const rowParser = async (row: any) => {
                 const data = row.map(async (col: any) => {
-                    let patient: Patientservice|null = null
-                    if (this.patients[col.patient_id]) {
-                        patient = this.patients[col.patient_id] as any
-                    } else {
-                        const d = await Patientservice.findByID(col.patient_id)
-                        patient = new Patientservice(d)
-                        this.patients[col.patient_id] = patient
-                    }
+                    const patient = await this.getCachedPatient(col.patient_id);
                     try {
                         return [
-                            this.tdARV(patient!.getArvNumber()),
-                            table.td(patient!.getGivenName()),
-                            table.td(patient!.getFamilyName()),
-                            table.td(this.formatGender(patient!.getGender())),
+                            this.tdARV(patient.getArvNumber()),
+                            table.td(patient.getGivenName()),
+                            table.td(patient.getFamilyName()),
+                            table.td(this.formatGender(patient.getGender())),
                             table.tdDate(col.date),
                             table.tdBtn('Show', async () => {
                                 await modalController.dismiss({})
@@ -236,7 +237,7 @@ export default defineComponent({
                 if (!(date in group)) group[date] = []
 
                 const values = Object.entries(data[date])
-                    .filter(([_, v]: any) => comparator(
+                    .filter(([, v]: any) => comparator(
                         v.patient_present,
                         v.guardian_present
                     ))

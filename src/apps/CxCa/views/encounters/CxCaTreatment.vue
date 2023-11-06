@@ -16,7 +16,7 @@ import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import Validation from "@/components/Forms/validations/StandardValidations";
 import EncounterMixinVue from "../../../../views/EncounterMixin.vue";
 import { TreatmentService } from "@/apps/CxCa/services/CxCaTreatmentService";
-import { toastSuccess, toastWarning } from "@/utils/Alerts";
+import { toastWarning } from "@/utils/Alerts";
 import { ProgramService } from "@/services/program_service";
 import { ProgramWorkflow } from "@/interfaces/program_workflow";
 import table from "@/components/DataViews/tables/ReportDataTable";

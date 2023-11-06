@@ -87,8 +87,8 @@ export default defineComponent({
       required: true
     },
     drugs: {
-      type: Array as any, 
-      default: []
+      type: Array as PropType<Array<any>>, 
+      default: () => []
     },
   },
   methods: {

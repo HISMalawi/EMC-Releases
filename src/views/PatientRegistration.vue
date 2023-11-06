@@ -367,7 +367,7 @@ export default defineComponent({
     facilityLocationField(): Field {
        const facility: Field = PersonField.getFacilityLocationField()
        facility.condition = (form: any) => [
-           'Drug Refill',
+           'Emergency supply',
            'External consultation'
        ].includes(form.patient_type.value)
        return facility
@@ -845,7 +845,7 @@ export default defineComponent({
         }
     },
     buildRegistrationSummary(data: any){
-        data = Object.keys(data).map(function(key, index) {
+        data = Object.keys(data).map(function(key) {
             if(data[key] != null){
                 return {
                 'label': key.replace(/_/g,' ').replace(/(^\w|\s\w)/g, m => m.toUpperCase()),

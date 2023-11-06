@@ -4,7 +4,8 @@ import { Filesystem, Directory, Encoding } from "@capacitor/filesystem"
 import platform, { FileExportType } from "@/composables/usePlatform"
 import { toastDanger, toastSuccess, toastWarning } from "./Alerts"
 import writeBlob from "capacitor-blob-writer"; 
-import { PDFGenerator } from '@ionic-native/pdf-generator'
+// import { PDFGenerator } from '@ionic-native/pdf-generator'
+import { PDFGenerator } from "@awesome-cordova-plugins/pdf-generator"
 
 function convertToCsv(list: Array<any>) {
   return list.reduce((accum: string, row: Array<any>) => {

@@ -30,7 +30,7 @@ export default defineComponent({
     mixins: [ReportMixin],
     components: { ReportTemplate, IonPage },
     data: () => ({
-        title: 'PEPFAR Curr Ml Report',
+        title: 'PEPFAR Tx ML Report',
         rows: [] as Array<any>,
         drillData: {} as any,
         columns: [

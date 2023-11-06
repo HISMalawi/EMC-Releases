@@ -1,10 +1,11 @@
 <template>
     <his-standard-form :skipSummary="true" :cancelDestinationPath="cancelDestination" :fields="fields" :onFinishAction="onSubmit"/>
 </template>
+
 <script lang="ts">
 import { defineComponent } from 'vue'
 import StagingMixin from "@/apps/ART/views/encounters/StagingMixin.vue"
-import { toastWarning, toastSuccess } from "@/utils/Alerts"
+import { toastSuccess } from "@/utils/Alerts"
 
 export default defineComponent({
     mixins: [StagingMixin],
