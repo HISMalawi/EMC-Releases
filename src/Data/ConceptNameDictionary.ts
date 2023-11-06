@@ -1,6 +1,19 @@
 export default [
    {
       "categories": [],
+      "concept_id": 865,
+      "name": "Sore throat"
+   },
+   {
+      "concept_id": 884,
+      "name": "HIV"
+   },
+   {
+      "concept_id": 58,
+      "name": "TB"
+   },
+   {
+      "categories": [],
       "concept_id": 7759,
       "name": "Workstation location"
    },
