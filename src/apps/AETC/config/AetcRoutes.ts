@@ -101,4 +101,9 @@ export default [
         path: '/aetc/reports/clinic/dhis2',
         component: () => import('@/apps/AETC/views/reports/clinic/DHIS2.vue')
     },
+    {
+        name: 'aetc_malaria_report',
+        path: '/aetc/reports/moh/malaria_report',
+        component: () => import('@/apps/AETC/views/reports/moh/malaria_report.vue')
+    },
 ]

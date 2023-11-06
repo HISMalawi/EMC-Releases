@@ -43,8 +43,28 @@ export class AETCReportService extends Service {
         return this.getReport('moh_aetc', {'report_name': reportName})
     }
 
+    getMalariaReport(){
+        const url = `programs/${this.programID}/reports/AETC MALARIA REPORT`
+        return Service.getJson(url, {
+            'start_date': this.startDate,
+            'end_date': this.endDate,
+            'date': this.date,
+            'report_type': 'MALARIA_REPORT'
+        })
+    }
+
     getReport(url: string, params={}) {
         return Service.getJson(url, this.buildRequest(params))
+    }
+
+    getDateIntervalPeriod() {
+        return `${HisDate.toStandardHisDisplayFormat(this.startDate)} - ${HisDate.toStandardHisDisplayFormat(this.endDate)}`
+    }
+
+    getReportPeriod() {
+        return this.startDate && this.endDate
+         ? `${HisDate.toStandardHisDisplayFormat(this.startDate)} - ${HisDate.toStandardHisDisplayFormat(this.endDate)}`
+         : '-'
     }
 
     buildRequest(config: Record<string, any> = {}) {
@@ -52,6 +72,7 @@ export class AETCReportService extends Service {
         if (this.startDate && this.endDate) {
             payload['start_date'] = this.startDate
             payload['end_date'] = this.endDate
+            payload['date'] = this.date
         }
         if (this.epiweek) {
             payload['epiweek'] = this.epiweek

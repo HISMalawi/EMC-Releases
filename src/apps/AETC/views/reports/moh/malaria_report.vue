@@ -415,7 +415,7 @@
  <script lang="ts">
  import { defineComponent } from 'vue'
  import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
- import { OpdReportService } from "@/apps/OPD/services/opd_report_service"
+ import { AETCReportService } from "@/apps/AETC/services/aetc_report_service"
  import { Service } from "@/services/service"
  import dayjs from 'dayjs';
  
@@ -502,10 +502,11 @@
      try {
        this.reportReady = true
        this.isLoading = false
-       this.reportService = new OpdReportService()
-       this.reportService.setStartDate(form.idsrmonth.other.start)
-       this.reportService.setEndDate(form.idsrmonth.other.end)
+       this.reportService = new AETCReportService()
+       this.reportService.startDate = form.idsrmonth.other.start.trim()
+       this.reportService.endDate = form.idsrmonth.other.end
        this.period = this.reportService.getDateIntervalPeriod()
+      //  this.malariaData = await this.reportService.getClinicReport("MALARIA_REPORT")
        this.malariaData = await this.reportService.getMalariaReport()
        this.periodDates = this.reportService.getReportPeriod()
        this.range = form.idsrmonth.label.split(" ")[0]

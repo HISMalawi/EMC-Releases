@@ -26,7 +26,7 @@ export const REPORTS: FolderInterface[] = [
         files: [
             {
                 name: 'Malaria Report',
-                pathName: 'clinic_la'
+                pathName: 'aetc_malaria_report'
             },
         ]
     },
