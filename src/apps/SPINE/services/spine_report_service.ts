@@ -20,8 +20,8 @@ export class SpineReportService extends Service {
       : '-'
   }
 
-  getReport(url: string, params = {}) {
-    return Service.getJson(url, this.buildRequest(params))
+  getReport(name: string, params = {}) {
+    return Service.getJson(`programs/${this.programID}/reports/${name}`, this.buildRequest(params))
   }
 
   buildRequest(config: Record<string, any> = {}) {
@@ -34,11 +34,11 @@ export class SpineReportService extends Service {
   }
 
   getDiagnosisReport() {
-    return this.getReport(`programs/${this.programID}/reports/diagnosis`);
+    return this.getReport("diagnosis");
   }
 
   getAttendance() {
-    return this.getReport(`programs/${this.programID}/reports/attendance`)
+    return this.getReport(`attendance`)
   }
 
   getOutcomesReport(): Promise<Array<any>> {
