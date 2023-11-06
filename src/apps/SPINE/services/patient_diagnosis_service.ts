@@ -3,7 +3,7 @@ import { ConceptService } from '@/services/concept_service';
 
 export class PatientDiagnosisService extends AppEncounterService {
     constructor(patientID: number, providerID: number) {
-        super(patientID, 8, providerID) 
+        super(patientID, 41, providerID) 
     }
 
     static async getDiagnosis(filter='', page=1, limit=10) {

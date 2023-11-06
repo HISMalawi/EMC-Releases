@@ -57,8 +57,8 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: 'patient diagnosis',
     name: 'Diagnosis',
-    encounterTypeName: "outpatient diagnosis",
-    workflowID: "outpatient diagnosis",
+    encounterTypeName: "diagnosis",
+    workflowID: "diagnosis",
     icon: 'diagnosis.png',
     action: ({patientID}: any) => {
       router.push({ path: `/SPINE/encounters/diagnosis/${patientID}` })
