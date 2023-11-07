@@ -75,8 +75,6 @@ export default defineComponent({
             'Total'
         ];
 
-         let tempTotalArray: number[] = []
-
          //table headers and data mapping
          const columns: Array<v2ColumnInterface[]> = [
             [
@@ -272,7 +270,23 @@ export default defineComponent({
                     label: "Total",
                     ref: "Total",
                     value: (data: any) => {
-                        tempTotalArray = [
+                        return [
+                            ...data.ls_6_months.M,
+                            ...data.ls_6_months.F,
+                            ...data.i6_months_to_ls_5.M,
+                            ...data.i6_months_to_ls_5.F,
+                            ...data.i6_months_to_ls_5.M,
+                            ...data.i6_months_to_ls_5.F,
+                            ...data.i6_months_to_ls_5.M,
+                            ...data.i6_months_to_ls_5.F,
+                            ...data.i5_to_14.M,
+                            ...data.i5_to_14.F,
+                            ...data.gt_14.M,
+                            ...data.gt_14.F
+                        ].length
+                    },
+                    tdClick: ({ column, data }: v2ColumnDataInterface) => {
+                        const tempTotalArray = [
                             ...data.ls_6_months.M,
                             ...data.ls_6_months.F,
                             ...data.i6_months_to_ls_5.M,
@@ -286,11 +300,8 @@ export default defineComponent({
                             ...data.gt_14.M,
                             ...data.gt_14.F
                         ]
-                        return tempTotalArray.length
-                    },
-                    tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                        `${column.label} `, tempTotalArray
-                    )
+                        drilldown(`${column.label} `, tempTotalArray)
+                    }
                 },
             ]
         ]
