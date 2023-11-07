@@ -32,6 +32,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: 'AETC outcome status',
     name: 'outcome status',
     icon: 'outcomes.png',
+    encounterTypeName: 'referral',
     availableOnActivitySelection: false
   },
   {
@@ -46,6 +47,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
   {
     id: 'lab results',
     name: 'Lab results',
+    encounterTypeName: 'lab orders',
     icon: 'enter.png',
     availableOnActivitySelection: false,
     action: ({ patient }: any, router: any) => {
@@ -67,6 +69,7 @@ export const PRIMARY_ACTIVITIES: TaskInterface[] = [
     id: 'AETC dispensation',
     name: 'dispensation',
     workflowID:"Dispensing",
+    encounterTypeName: 'Dispensing',
     icon: 'dispensing.png',
     availableOnActivitySelection: false
   },
