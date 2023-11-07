@@ -11,7 +11,7 @@
     </ion-page>
 </template>
 <script lang="ts" setup>
-import { ref, defineProps } from 'vue';
+import { ref } from 'vue';
 import { IonPage } from "@ionic/vue"
 import  v2Datatable from "@/components/DataViews/tables/v2PocDatatable/TableView.vue"
 import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';

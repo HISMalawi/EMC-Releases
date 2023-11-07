@@ -6,6 +6,19 @@ export class LocationService extends Service {
         super()
     }
 
+    static async getInternalSections() {
+        const sections: Array<any> = await super.getJson('internal_sections');
+        return sections.map((s: any) => ({
+            value: s.id,
+            label: `${s?.name}`.toUpperCase(),
+            other: s
+        }));
+    }
+
+    static createInternalSection(name: string) {
+        return super.postJson('internal_sections', { name })
+    }
+
     static getLocation(locationID: number) {
         return this.getJson(`locations/${locationID}`)
     }
