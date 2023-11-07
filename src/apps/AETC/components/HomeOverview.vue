@@ -103,10 +103,40 @@ export default defineComponent({
 
       if(response && response.status == 200) {
         const data = await response.json();
-        const convertedArray = this.transformData(data);
+        const convertedArray = this.transformData(data.bottom);
         //assign to table data
         this.tableData = convertedArray
+        // getting top dashboard details
+        this.patientSummaryStats = this.getTodaysPatientVisits(data.top)
       }
+    },
+
+    getTodaysPatientVisits(data: any) {
+      const keys = Object.keys(data)
+      let total = 0
+      const visits: Array<any> = []
+
+      keys.forEach(key => {
+        visits.push({
+          label: this.capitalizeFirstLetter(key.replace('_', ' ')),
+          value: data[key],
+          color: 'lightyellow'
+        })
+
+        total += data[key]
+      })
+
+      visits.push({
+        label: 'Total',
+        value: total,
+        color: 'yellowgreen'
+      })
+
+      return visits
+    },
+
+    capitalizeFirstLetter(str: string) {
+      return str.charAt(0).toUpperCase() + str.slice(1)
     },
 
     // Method to change data structure to desired format
