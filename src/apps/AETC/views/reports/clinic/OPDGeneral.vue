@@ -71,6 +71,7 @@ export default defineComponent({
          }
 
          const drilldown = async (title: string, patientIdentifiers: number[]) => {
+            if (patientIdentifiers.length <= 0) {return;}
             (await modalController.create({
                 component: DrillPatientIds,
                 backdropDismiss: false,
