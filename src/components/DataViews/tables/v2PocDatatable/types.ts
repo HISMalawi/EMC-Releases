@@ -20,7 +20,7 @@ export interface v2ColumnInterface {
     /**
      * Use this function to return value that appears on a value cell of the template
      */
-    value?: (data: any) => string | number;
+    value?: (data: any, rowIndex?: number) => string | number;
     /**
      * If exportable, the column will appear when exported in any format such as PDF or CSV
      */

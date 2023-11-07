@@ -3,6 +3,7 @@ import LOS from '@/apps/LOS/app';
 import OPD from '@/apps/OPD/app';
 import ANC from '@/apps/ANC/app'
 import CXCA from '@/apps/CxCa/app';
+import AETC from '@/apps/AETC/app';
 import { RouteRecordRaw } from 'vue-router';
 import RADIOLOGY from '@/apps/RADIOLOGY/app';
 import Registration from '@/apps/Registration/app';
@@ -18,6 +19,7 @@ const APPS = [
     OPD,
     ANC,
     CXCA,
+    AETC,
     SPINE,
     RADIOLOGY,
     CRVS,
