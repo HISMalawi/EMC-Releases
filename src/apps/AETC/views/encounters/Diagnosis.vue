@@ -119,7 +119,7 @@ export default defineComponent({
         {
           id: 'clinical_notes',
           helpText: 'Clinical notes',
-          type: FieldType.TT_TEXT,
+          type: FieldType.TT_NOTE,
           computedValue: (v: Option) => v && ({
             tag: 'notes',
             obs: this.notesService.buildValueText('Clinical notes construct', v.value)
