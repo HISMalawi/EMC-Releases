@@ -19,7 +19,6 @@ import { generateDateFields, EstimationFieldType } from "@/utils/HisFormHelpers/
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { ConceptService } from "@/services/concept_service";
 import { ProgramService } from "@/services/program_service";
-import { ConsultationService } from "@/apps/ART/services/consultation_service";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -30,9 +29,6 @@ export default defineComponent({
     showHIVQuestions: true,
     alreadyEnrolled: false,
     offerCxCa: false,
-    consultation: {} as ConsultationService,
-    patientHitMenopause: false,
-    isPreviousClient: false as boolean
   }),
   watch: {
     patient: {
@@ -42,17 +38,9 @@ export default defineComponent({
           this.providerID
         );
 
-        this.consultation = new ConsultationService(
-          this.patientID, 
-          this.providerID 
-        );
 
         //test here 
         const program = await ProgramService.getProgramInformation(this.patientID)
-
-        this.patientHitMenopause = await this.consultation.patientHitMenopause()
-
-        this.isPreviousClient = await this.consultation.clientLastScreened()
 
         if(program.current_outcome === 'Continue follow-up'){
           this.alreadyEnrolled = true;
@@ -96,7 +84,6 @@ export default defineComponent({
 
       this.nextTask();
     },
-    
     async setOfferCxCa() {
       const data = await this.assessment.getFirstValueCoded("Offer CxCa");
       this.offerCxCa = data && data === "Yes";
@@ -126,7 +113,6 @@ export default defineComponent({
           }
         }))
     },
-
     getFields(): any {
       return [
         {
@@ -221,15 +207,12 @@ export default defineComponent({
             },
           }
         ),
-        /**
-         * the following fields below will not be visible if the client was screened on a previous date
-        */
         {
           id: "ever_had_cxca",
           helpText: "Ever had CxCa screening",
           type: FieldType.TT_SELECT,
           condition: (formData: any) =>
-            formData.reason_for_visit.value !== "Initial screening" && this.alreadyEnrolled == false && !this.isPreviousClient,
+            formData.reason_for_visit.value !== "Initial screening" && this.alreadyEnrolled == false,
           options: () => this.yesNoOptions(),
           validation: (val: any) => Validation.required(val),
           computedValue: (value: any) => ({
@@ -243,7 +226,7 @@ export default defineComponent({
           validation: (val: any) => Validation.required(val),
           
           condition: (formData: any) =>
-            formData.reason_for_visit.value !== "Initial screening" && formData.ever_had_cxca.value !== "No"  && !this.isPreviousClient,
+            formData.reason_for_visit.value !== "Initial screening" && formData.ever_had_cxca.value !== "No",
           options: () => this.yesNoOptions(),
           computedValue: (value: any) => ({
             obs: this.assessment.buildValueCoded("CxCa test results", value.value)
@@ -259,7 +242,7 @@ export default defineComponent({
             showKeyboard: true,
             isFilterDataViaApi: true,
           },
-          condition: (formData: any) => this.enterPreviousCxCaData(formData)  && !this.isPreviousClient,
+          condition: (formData: any) => this.enterPreviousCxCaData(formData),
           computedValue: (value: any) => ({
             obs: this.assessment.buildValueText("Previous CxCa location", value.value)
           })
@@ -274,7 +257,7 @@ export default defineComponent({
             estimation: {
               allowUnknown: false,
             },
-            condition: (formData: any) => this.enterPreviousCxCaData(formData) && !this.isPreviousClient,
+            condition: (formData: any) => this.enterPreviousCxCaData(formData),
             computeValue: (date: string, isEstimate: boolean) => {
               return {
                 date,
@@ -290,7 +273,7 @@ export default defineComponent({
           helpText: "Previous screening method",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: (formData: any) => this.enterPreviousCxCaData(formData) && !this.isPreviousClient,
+          condition: (formData: any) => this.enterPreviousCxCaData(formData),
           options: () => [
             {
               label: "VIA",
@@ -353,14 +336,12 @@ export default defineComponent({
         },
         /*added new fields for family planning
         */
-        
         {
           id: 'offer_family_planning',
           helpText: 'Offer Family Planning ?',
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
           options: () => this.yesNoOptions(),
-          condition: async () => !this.patientHitMenopause,
           computedValue: (value: any) => ({
           obs: this.assessment.buildValueCoded('Family planning', value.label)
           })
