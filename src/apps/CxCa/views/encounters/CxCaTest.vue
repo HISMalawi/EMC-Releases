@@ -28,7 +28,7 @@ export default defineComponent({
     assessment: {} as any,
     obs: [] as any,
     showHIVQuestions: true,
-    alreadyEnrolled: false,
+    alreadyOnTreatment: false,
     offerCxCa: false,
     patientPreviousTreatment: "",
     patientPreviousVisitHIVStatus: "",
@@ -49,9 +49,7 @@ export default defineComponent({
         const program = await ProgramService.getProgramInformation(this.patientID)
 
         // patient already enrolled
-        this.alreadyEnrolled = this.patientAlreadyEnrolled()
-
-        console.log("Patient already enrolled >>> ", this.alreadyEnrolled)
+        this.alreadyOnTreatment = this.patientAlreadyOnTreatment()
 
         ConceptService.getConceptsByCategory("reason_for_no_cxca")
 
@@ -75,15 +73,25 @@ export default defineComponent({
     // Used to skip treatment field for a client on any of the three below
     skipTreatmentSelection(): boolean {
       const medicalProcedures = ["Chemotherapy", "Hysterectomy", "Palliative Care"];
-      return medicalProcedures.includes(this.patientPreviousTreatment.toLowerCase());
+      if (this.patientPreviousTreatment) {
+        const normalizedTreatment = this.patientPreviousTreatment;
+        return medicalProcedures.includes(normalizedTreatment);
+      }else{
+        return false;
+      }
     },
     // Used to HIV Status field for a client who's positive
     skipHIVStatusSelection(): boolean {
-      const medicalProcedures = ["Positive on ART", "Positive Not on ART"];
-      return medicalProcedures.includes(this.patientPreviousVisitHIVStatus.toLowerCase());
+      const medicalProcedures = ["positive on art", "positive not on art"];
+      if (this.patientPreviousVisitHIVStatus) {
+        const normalizedPatientHIVStatus = this.patientPreviousVisitHIVStatus.toLowerCase();
+        return medicalProcedures.includes(normalizedPatientHIVStatus.toLowerCase());
+      } else {
+        return false;
+      }
     },
     
-    patientAlreadyEnrolled(){
+    patientAlreadyOnTreatment(){
       return !(this.isNullOrUndefined(this.patientPreviousTreatment))
     },
     isNullOrUndefined(str: string | null | undefined): boolean {
@@ -179,7 +187,7 @@ export default defineComponent({
           id: "hiv_status",
           helpText: "HIV status",
           type: FieldType.TT_SELECT,
-          condition: () => this.showHIVQuestions && this.skipHIVStatusSelection(),
+          condition: () => this.showHIVQuestions && !this.skipHIVStatusSelection(),
           validation: (val: any) => Validation.required(val),
           options: () => [
             {
@@ -237,7 +245,7 @@ export default defineComponent({
           helpText: "Ever had CxCa screening",
           type: FieldType.TT_SELECT,
           condition: (formData: any) =>
-            formData.reason_for_visit.value !== "Initial screening" && !this.alreadyEnrolled,
+            formData.reason_for_visit.value !== "Initial screening" && !this.alreadyOnTreatment,
           options: () => this.yesNoOptions(),
           validation: (val: any) => Validation.required(val),
           computedValue: (value: any) => ({
@@ -325,7 +333,7 @@ export default defineComponent({
           id: "offer_CxCa",
           helpText: "Offer CxCa screening today",
           type: FieldType.TT_SELECT,
-          condition: this.skipTreatmentSelection,
+          condition: this.skipTreatmentSelection(),
           validation: (val: any) => Validation.required(val),
           options: () => this.yesNoOptions(),
           computedValue: (value: any) => ({
