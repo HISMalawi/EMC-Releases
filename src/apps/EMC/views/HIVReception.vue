@@ -186,7 +186,9 @@ export default defineComponent({
         } 
       }
       isReady.value = true;
-      EventBus.on(EmcEvents.ON_INITIAL_VISIT_DATE, (date: string) => initialVisitDate.value = date)
+      EventBus.on(EmcEvents.ON_INITIAL_VISIT_DATE, (date: string) => {
+        initialVisitDate.value = date
+      })
     })
 
     return {
