@@ -80,7 +80,7 @@ export default defineComponent({
         return false;
       }
     },
-    // Used to HIV Status field for a client who's positive
+    // Used to skip HIV Status field for a client who's positive
     skipHIVStatusSelection(): boolean {
       const medicalProcedures = ["positive on art", "positive not on art"];
       if (this.patientPreviousVisitHIVStatus) {
