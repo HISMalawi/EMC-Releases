@@ -46,7 +46,7 @@ export default defineComponent({
       const encounter = await this.screeningResult.createEncounter();
       if (!encounter) return toastWarning("Unable to create encounter");
       if(formData.treatment_option && formData.treatment_option.value === "Referral") {
-        this.obs.push(this.screeningResult.buildValueText('Referral location', formData['location'].label))
+        this.obs.push(this.screeningResult.buildValueText('Referral location', ScreeningResultService.getLocationName()))
       }
       const vals: any = [];
       Object.keys(computed).forEach(element => {
@@ -233,40 +233,6 @@ export default defineComponent({
           },
           computedValue: (value: any) => ({
             obs: this.screeningResult.buildValueCoded('Referral reason', value.value)
-          })
-        },
-        {
-          id: "location",
-          helpText: "Location reffered from",
-          onload: (fieldContext: any) => {
-            this.fieldContext = fieldContext
-          },
-          type: FieldType.TT_SELECT,
-          validation: (val: any) => Validation.required(val),
-          options: (_: any, filter = "") => this.getFacilities(filter),
-          config: {
-            showKeyboard: true,
-            isFilterDataViaApi: true,
-            footerBtns: [
-              {
-                name: "Here",
-                size: "large",
-                slot: "end",
-                color: "primary",
-                visible: true,
-                onClick: async () => {
-                  if (!isEmpty(this.fieldContext)) {
-                    this.fieldContext.selected = ScreeningResultService.getLocationName();
-                  }
-                }
-              }
-            ]
-          },
-          condition(formData: any) {
-            return formData.treatment_option.value === "Referral";
-          },
-          computedValue: (value: any) => ({
-            obs: this.screeningResult.buildValueText('Referral location', value.label)
           })
         },
       ];
