@@ -169,16 +169,21 @@ export default defineComponent({
       patient.value = await Store.get("ACTIVE_PATIENT", { patientID: patientId });
       Store.get('SITE_PREFIX').then(prefix => sitePrefix.value = prefix);      
       if(!isNewPatient) {
-        const enc = await EncounterService.getEncounters(patientId, {"encounter_type_id": 9})
+        const enc: Encounter[] = await EncounterService.getEncounters(patientId, {"encounter_type_id": 9})
         if(isEmpty(enc)) return isReady.value = true;
         initialVisitDate.value = get(enc, '[0].encounter_datetime', '')
         if(initialVisitDate.value) {
+          await parseObs(enc[0].observations);
           const encounters: Encounter[] = await  EncounterService.getEncounters(patientId, { date: initialVisitDate.value });
           for (const enc of encounters){
-            if([9, 53, 6, 5, 52].includes(enc.encounter_type))
+            let encounterTypes = [5, 52];
+            if('Ever registered at ART clinic' in observations && /yes/i.test(observations['Ever registered at ART clinic'])){
+              encounterTypes = [...encounterTypes, 53, 6]
+            }
+            if(encounterTypes.includes(enc.encounter_type))
               await parseObs(enc.observations)
           }
-        }
+        } 
       }
       isReady.value = true;
       EventBus.on(EmcEvents.ON_INITIAL_VISIT_DATE, (date: string) => initialVisitDate.value = date)
