@@ -19,7 +19,7 @@ import { generateDateFields, EstimationFieldType } from "@/utils/HisFormHelpers/
 import { getFacilities } from "@/utils/HisFormHelpers/LocationFieldOptions";
 import { ConceptService } from "@/services/concept_service";
 import { ProgramService } from "@/services/program_service";
-import { PatientProgramService } from "@/services/patient_program_service";
+import { ObservationService } from '@/services/observation_service';
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -41,15 +41,17 @@ export default defineComponent({
           this.providerID
         );
         // Retrieving previous treatment if available
-        this.patientPreviousTreatment = await this.assessment.getFirstValueCoded('Treatment')
+        this.patientPreviousTreatment = await ObservationService.getFirstValueCoded(this.patientID, 'Treatment')
         // Retrieving HIV Status if available
-        this.patientPreviousVisitHIVStatus = await this.assessment.getFirstValueCoded('HIV status')
+        this.patientPreviousVisitHIVStatus = await ObservationService.getFirstValueCoded(this.patientID, 'HIV status')
 
         //test here 
         const program = await ProgramService.getProgramInformation(this.patientID)
 
-        // assigns boolean value to alreadyEnrolled
-        await this.patientAlreadyEnrolled()
+        // patient already enrolled
+        this.alreadyEnrolled = this.patientAlreadyEnrolled()
+
+        console.log("Patient already enrolled >>> ", this.alreadyEnrolled)
 
         ConceptService.getConceptsByCategory("reason_for_no_cxca")
 
@@ -80,16 +82,10 @@ export default defineComponent({
       const medicalProcedures = ["Positive on ART", "Positive Not on ART"];
       return medicalProcedures.includes(this.patientPreviousVisitHIVStatus.toLowerCase());
     },
-
-    async patientAlreadyEnrolled(){
-      const program_service = new PatientProgramService(this.patientID)
-      const programs = await program_service.getPrograms();
-      this.alreadyEnrolled = programs.some((p: any) => /CxCa program/i.test(p.program.name));
-    },
     
-    // patientAlreadyEnrolled(){
-    //   return !(this.isNullOrUndefined(this.patientPreviousTreatment))
-    // },
+    patientAlreadyEnrolled(){
+      return !(this.isNullOrUndefined(this.patientPreviousTreatment))
+    },
     isNullOrUndefined(str: string | null | undefined): boolean {
       return typeof str === 'undefined' || str === null;
     },
