@@ -173,7 +173,7 @@ export default defineComponent({
             type: FieldType.TT_TEXT,
             validation: (val: any) => Validation.required(val),
             computedValue: (value: any) => ({
-              obs: this.reception.buildValueCoded('Other reason for not seeking services', value.label)
+              obs: this.reception.buildValueText('Other reason for not seeking services', value.label)
             }),
             condition: (f: any) => f.possible_reasons_why.value === 'Other (Specify)'
         },
