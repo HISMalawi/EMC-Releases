@@ -177,14 +177,16 @@ export default defineComponent({
         },
         // Adding free text field for further details when "Other conditions" is selected
         {
-            id: 'other_conditions',
-            helpText: 'Other conditions',
+            id: 'further_details',
+            helpText: 'Further details',
             type: FieldType.TT_TEXT,
             validation: (val: any) => Validation.required(val),
             computedValue: (value: any) => ({
               obs: this.screeningResult.buildValueText('Other reason for not seeking services', value.label)
             }),
-            condition: (f: any) => f.possible_reasons_why.value === 'Other conditions'
+            condition: (f: any) => {
+              return f.possible_reasons_why.value === 'Other conditions' || f.possible_reasons_why.value === 'Treatment not available' 
+            }
         },
         {
           id: "treatment_option",
