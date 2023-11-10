@@ -67,6 +67,7 @@ export default defineComponent({
         clear() {
             this.filter = ''
             this.listOptions.forEach((option: Option) => option.isChecked = false)
+            this.updateValue()
         }
     },
     computed: {
@@ -87,6 +88,11 @@ export default defineComponent({
             this.$emit('onFieldActivated', this)
             this.options(this.fdata).then((data: any) => this.indexData(data))
         },
+        updateValue() {
+          this.$nextTick(() => {
+            this.$emit('onValue', this.listOptions.filter(option => option.isChecked))
+          })
+        },
         indexData(rawData: Option[]) {
             const indexes = this.listOptions.map((option) => option.label)
             rawData.forEach((option: Option) => {
@@ -104,12 +110,10 @@ export default defineComponent({
         onSelect(selected: Option) {
             this.listOptions.forEach((option) => {
                 if (option.label === selected.label) {
-                    option.isChecked = option.isChecked
-                        ? false
-                        : true
+                    option.isChecked = option.isChecked ? false : true
                 }
             })
-            this.$emit('onValue', this.listOptions.filter(option => option.isChecked))
+            this.updateValue()
         },
         keypress(text: string) {
             this.onFilter(handleVirtualInput(text, this.filter))
