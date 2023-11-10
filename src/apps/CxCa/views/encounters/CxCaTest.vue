@@ -374,6 +374,7 @@ export default defineComponent({
           id: 'offer_family_planning',
           helpText: 'Offer Family Planning ?',
           type: FieldType.TT_SELECT,
+          condition: (formData: any) => formData.offer_CxCa.value !== "No",
           validation: (val: any) => Validation.required(val),
           options: () => this.yesNoOptions(),
           computedValue: (value: any) => ({
