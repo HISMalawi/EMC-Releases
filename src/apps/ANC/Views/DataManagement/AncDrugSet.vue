@@ -19,7 +19,6 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import {
     IonPage
 } from "@ionic/vue"
-import { isEmpty } from 'lodash';
 import { DrugService } from '@/services/drug_service';
 import { DRUG_FREQUENCIES } from "@/apps/ANC/Services/anc_treatment_service";
 import { NewDrugSet, AncDrugSetService } from "@/apps/ANC/Services/anc_drug_set";
