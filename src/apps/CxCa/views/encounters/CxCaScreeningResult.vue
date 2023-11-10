@@ -175,7 +175,7 @@ export default defineComponent({
             obs: this.screeningResult.buildValueCoded('Other reason for not seeking services', value.value)
           })
         },
-        // Adding free text field for further details when "Other conditions" is selected
+        // Adding free text field for further details when "Other conditions" & "Treatment not available" are selected
         {
             id: 'further_details',
             helpText: 'Further details',
