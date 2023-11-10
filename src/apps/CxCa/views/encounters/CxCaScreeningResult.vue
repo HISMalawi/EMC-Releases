@@ -177,8 +177,8 @@ export default defineComponent({
         },
         // Adding free text field for further details when "Other conditions" is selected
         {
-            id: 'other_reason',
-            helpText: 'Other reason',
+            id: 'other_conditions',
+            helpText: 'Other conditions',
             type: FieldType.TT_TEXT,
             validation: (val: any) => Validation.required(val),
             computedValue: (value: any) => ({
