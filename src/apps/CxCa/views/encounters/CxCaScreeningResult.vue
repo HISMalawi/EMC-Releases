@@ -175,6 +175,17 @@ export default defineComponent({
             obs: this.screeningResult.buildValueCoded('Other reason for not seeking services', value.value)
           })
         },
+        // Adding free text field for further details when "Other conditions" is selected
+        {
+            id: 'other_reason',
+            helpText: 'Other reason',
+            type: FieldType.TT_TEXT,
+            validation: (val: any) => Validation.required(val),
+            computedValue: (value: any) => ({
+              obs: this.screeningResult.buildValueText('Other reason for not seeking services', value.label)
+            }),
+            condition: (f: any) => f.possible_reasons_why.value === 'Other conditions'
+        },
         {
           id: "treatment_option",
           helpText: "Enter treatment option",
