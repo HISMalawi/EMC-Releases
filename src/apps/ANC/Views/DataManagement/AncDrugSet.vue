@@ -76,19 +76,10 @@ export default defineComponent({
                             : null
                     ]) 
                 },
-                {
-                    id: 'drug_selection',
-                    helpText: 'Select drugs to add',
-                    type: FieldType.TT_MULTIPLE_SELECT,
-                    validation: (v: Option[]) => Validation.required(v),
-                    config: {
-                        showKeyboard: true
-                    },
-                    options: async () => {
-                        if (isEmpty(this.allDrugs)) {
-                            this.allDrugs = (await DrugService.getDrugs({
-                                'page_size': 1000
-                            })).map((d: any) => ({
+                (() => {
+                    const getDrugs = async (params={}) => {
+                        return (await DrugService.getDrugs({page_size: 20, ...params}))
+                            .map((d: any) => ({
                                 label: d.name,
                                 value: d.id,
                                 other: {
@@ -97,10 +88,18 @@ export default defineComponent({
                                     'frequency': '',
                                 }
                             }))
-                        }
-                        return this.allDrugs as Option[]
+                    } 
+                    return {
+                        id: 'drug_selection',
+                        helpText: 'Select drugs to add',
+                        type: FieldType.TT_ASYNC_MULTI_SELECT,
+                        config: {
+                            apiFilter: (name: string) => getDrugs({ name })
+                        },
+                        options: () => getDrugs(),
+                        validation: (v: Option[]) => Validation.required(v)
                     }
-                },
+                })(),
                 {
                     id: 'drugs',
                     helpText: 'Set drugs',
