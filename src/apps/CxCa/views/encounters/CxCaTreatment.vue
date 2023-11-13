@@ -46,6 +46,21 @@ export default defineComponent({
     },
   },
   methods: {
+    // Update treatment options basing on same day treatment
+    updateTreatmentOptions(condition: boolean, options: any[]): any[] {
+      const disabledOptionLabels = [
+        'Hysterectomy',
+        'LLETZ/LEEP',
+        'Treatment with antibiotic',
+        'Anti-parasitic medication',
+        'Conisation'
+      ];
+
+      return options.map((option) => ({
+        ...option,
+        disabled: condition && disabledOptionLabels.includes(option.label),
+      }));
+    },
     isNotSameDayTreatment(){
       return this.summaryData?.['Treatment Type'] !== "Same day treatment";
     },
@@ -339,22 +354,29 @@ export default defineComponent({
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
           condition: () => !this.skipToTreatment,
-          
           options: () => {
-            return [
-                { label: 'Hysterectomy', value: 'Hysterectomy' },
-                { label: 'Chemotherapy', value: 'Chemotherapy' },
-                { label: 'Palliative Care', value: 'Palliative Care' },
-                { label: 'LLETZ/LEEP', value: 'LLETZ/LEEP' },
-                { label: 'Treatment with antibiotic', value: 'Antibiotics' },
-                { label: 'Anti-parasitic medication', value: 'Antiparasitic' },
-                { label: 'Conisation', value: 'Conisation' },
-                { label: 'none', value: 'None' }
-              ]},
+            const treatmentOptions = [
+              { label: 'Hysterectomy', value: 'Hysterectomy' },
+              { label: 'Chemotherapy', value: 'Chemotherapy' },
+              { label: 'Thermocoagulation', value: 'Thermocoagulation' },
+              { label: 'Cryotherapy', value: 'Cryotherapy' },
+              { label: 'Palliative Care', value: 'Palliative Care' },
+              { label: 'LLETZ/LEEP', value: 'LLETZ/LEEP' },
+              { label: 'Treatment with antibiotic', value: 'Antibiotics' },
+              { label: 'Anti-parasitic medication', value: 'Antiparasitic' },
+              { label: 'Conisation', value: 'Conisation' },
+              { label: 'none', value: 'None' }
+            ]
+            // Disable other treatment options for same day treatment
+            return this.updateTreatmentOptions(!this.isNotSameDayTreatment(), treatmentOptions);
+            
+            },
             computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Treatment', value.value)
           })
         },
+        // New treatment field for same day treatment
+
         {
           id: "none_treatment_reasons",
           helpText: "Reasons why treatment was refused",
