@@ -248,6 +248,19 @@ export default defineComponent({
             obs: this.screeningResult.buildValueCoded('Referral reason', value.value)
           })
         },
+        // Adding free text field for further details when "Unable to treat client" & "Other conditions" are selected
+        {
+            id: 'further_details',
+            helpText: 'Further details',
+            type: FieldType.TT_TEXT,
+            validation: (val: any) => Validation.required(val),
+            computedValue: (value: any) => ({
+              obs: this.screeningResult.buildValueText('Referral reason', value.label)
+            }),
+            condition: (f: any) => {
+              return f.possible_reasons_why.value === 'Other conditions' || f.possible_reasons_why.value === 'Unable to treat client' 
+            }
+        },
       ];
     },
   },
