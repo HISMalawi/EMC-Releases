@@ -56,7 +56,24 @@
               report.startDate = startDate.value
               report.endDate = endDate.value
               // waiting for the endpoint  
+              try {
+                const rawReport = (await report.getClinicReport("REASON FOR NOT SCREENING REPORT"))
+                
+                console.log("HERE IS THE REPORT SAMPLE >> ", rawReport)
+                const newObject = transformToObjectArray(rawReport)
+                console.log("HERE IS THE REPORT SAMPLE >> ", newObject)
+                reportData.value = newObject;
+                }catch (e){
+                    console.log(e)
+                }
            }
+
+           const transformToObjectArray = (originalObject: any) => {
+            return Object.keys(originalObject).map((reason) => ({
+                reason,
+                patients: originalObject[reason],
+            }));
+            }
   
           const mapToOption = (listOptions: Array<string>): Array<Option> => {
               return listOptions.map((item: any) => ({ label: item.name, value: item.name })) 
@@ -79,7 +96,7 @@
   
           //csv headers
           const csvheaders = [
-              'Address',
+              'Reason',
               'Total'
           ];
   
@@ -88,16 +105,16 @@
               [
                   {
                       label: "Reason",
-                      ref: "data.address",
-                      value: (data: any) => data.address
+                      ref: "data.reason",
+                      value: (data: any) => data.reason
                   },
                   {
                       label: "Total",
-                      ref: "data.patient_ids.length",
+                      ref: "data.patients.length",
                       secondaryLabel: "Clients diagnosed with",
-                      value: (data: any) => data.patient_ids.length,
+                      value: (data: any) => data.patients.length,
                       tdClick: ({ column, data }: v2ColumnDataInterface) => drilldown(
-                          `${column.secondaryLabel} ${data.address} `, data.patient_ids
+                          `${column.secondaryLabel} ${data.reason} `, data.patients
                       )
                   },
               ]
