@@ -44,7 +44,7 @@ export const REPORTS: FolderInterface[] = [
             },
             {
                 name: 'CxCa Denial Reasons',
-                pathName: 'cc_clinic_rsn_4_dnl'
+                pathName: 'cc_clinic_rsn_dnl'
             }
         ]
     },

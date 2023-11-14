@@ -2,7 +2,7 @@
     <ion-page>
           <ion-loading :is-open="isLoading" message="Please wait..."/>
           <v2Datatable
-              title="Denial Reasons Report"
+              title="Denial Reason"
               :subtitle="period"
               :columns="columns"
               :columnData="reportData"
@@ -18,7 +18,7 @@
   <script lang='ts'>
   import { defineComponent, ref, onMounted } from 'vue';
   import { IonPage, IonLoading, modalController } from "@ionic/vue"
-  import  v2Datatable from "@/apps/CxCa/views/reports/clinic/TableView.vue"
+  import  v2Datatable from "@/apps/AETC/views/reports/clinic/TableView.vue"
   import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
   import { toDate } from '@/utils/Strs';
   import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
@@ -108,20 +108,6 @@
            */
            const configure = () => MultiStepPopupForm([
               {
-                  id: 'multiple_diagnosis',
-                  helpText: 'Select diagnosis',
-                  type: FieldType.TT_INFINITE_SCROLL_MULTIPLE_SELECT,
-                  validation: (data: any) => Validation.required(data),
-                  options: async (_:any, filter='', page=1, limit=10) => mapToOption(
-                      await PatientDiagnosisService.getDiagnosis(filter, page, limit)
-                  ),
-                  computedValue: (v: Option[]) => v.map(d => d.value),
-                  config: {
-                      isFilterDataViaApi: true,
-                      showKeyboard: true,
-                  }
-              },
-              {
                   id: "start_date",
                   helpText: "Start Date",
                   type: FieldType.TT_FULL_DATE,
@@ -139,11 +125,6 @@
           (f: any, c: any) => {
               startDate.value = c.start_date
               endDate.value = c.end_date
-              //convert to passable string
-              multipleDiagnosis.value = `[${c.multiple_diagnosis.map((option: any) => `"${option}"`).join(', ')}]`;
-  
-              console.log("Here we are", multipleDiagnosis.value)
-  
               period.value = `Period (${toDate(startDate.value)} to ${toDate(endDate.value)})`
               modalController.dismiss()
               csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`
