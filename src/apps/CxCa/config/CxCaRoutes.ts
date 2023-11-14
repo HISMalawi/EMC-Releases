@@ -94,4 +94,9 @@ export default [
         path: '/CxCa/views/reports/clinic/clinic_cxca_scrn_report',
         component: () => import('@/apps/CxCa/views/reports/clinic/Clinic_CXCA_SCRN_Report.vue')
     },
+    {
+        name: 'cc_clinic_rsn_4_dnl',
+        path: '/CxCa/views/reports/clinic/clinic_cxca_scrn_report',
+        component: () => import('@/apps/CxCa/views/reports/clinic/Reason_for_denial.vue')
+    },
 ]
