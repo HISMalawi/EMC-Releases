@@ -58,10 +58,8 @@
               // waiting for the endpoint  
               try {
                 const rawReport = (await report.getClinicReport("REASON FOR NOT SCREENING REPORT"))
-                
-                console.log("HERE IS THE REPORT SAMPLE >> ", rawReport)
+                // mapping the response object to the desired template structure
                 const newObject = transformToObjectArray(rawReport)
-                console.log("HERE IS THE REPORT SAMPLE >> ", newObject)
                 reportData.value = newObject;
                 }catch (e){
                     console.log(e)
