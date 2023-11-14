@@ -437,6 +437,7 @@ export default defineComponent({
           "drug_id": 1046,
           "drug_name": "Unknown ARV",
           "am": 1,
+          "pm": 0,
           "units": "",
           "frequency":	"Daily (QOD)"
         }]
