@@ -50,7 +50,8 @@ export default defineComponent({
     updateTreatmentOptions(condition: boolean, options: any[]): any[] {
       const disabledOptionLabels = [
         'Hysterectomy',
-        'LLETZ/LEEP',
+        'Chemotherapy',
+        'Palliative Care',
         'Treatment with antibiotic',
         'Anti-parasitic medication',
         'Conisation'
@@ -342,7 +343,7 @@ export default defineComponent({
                 { label: 'Treatment with antibiotic', value: 'Antibiotics' },
                 { label: 'Anti-parasitic medication', value: 'Antiparasitic' },
                 { label: 'Conisation', value: 'Conisation' },
-                { label: 'none', value: 'None' }
+                { label: 'Other', value: 'Other (Specify)' }
               ]},
             computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Treatment', value.value)
@@ -365,7 +366,7 @@ export default defineComponent({
               { label: 'Treatment with antibiotic', value: 'Antibiotics' },
               { label: 'Anti-parasitic medication', value: 'Antiparasitic' },
               { label: 'Conisation', value: 'Conisation' },
-              { label: 'none', value: 'None' }
+              { label: 'Other', value: 'Other (Specify)' }
             ]
             // Disable other treatment options for same day treatment
             return this.updateTreatmentOptions(!this.isNotSameDayTreatment(), treatmentOptions);
@@ -382,7 +383,7 @@ export default defineComponent({
           helpText: "Reasons why treatment was refused",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: (f: any) => f.treatment_provided.value === 'none',
+          condition: (f: any) => f.treatment_provided.value === 'Other (Specify)',
           options: () => {
             return [
                   { label: 'Patient refused treatment', value: 'Patient refused' },
@@ -399,7 +400,7 @@ export default defineComponent({
             type: FieldType.TT_TEXT,
             validation: (val: any) => Validation.required(val),
             computedValue: (value: any) => ({
-              obs: this.reception.buildValueCoded('Other reason for not seeking services', value.label)
+              obs: this.reception.buildValueCoded('Other reason for not seeking services', value.value)
             }),
             condition: (f: any) => f.none_treatment_reasons.value === 'Other (Specify)'
         },
