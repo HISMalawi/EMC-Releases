@@ -296,7 +296,7 @@ export default defineComponent({
          * Event handler when TD on HTML report is clicked
          * @param cell 
          */
-        const onClickTablecell = (cell: v2ColumnDataInterface) => {
+        const onClickTablecell = (cell: any) => {
             try {
                 if (typeof cell.column?.tdClick === 'function') {
                     cell.column?.tdClick(cell)
@@ -387,10 +387,13 @@ export default defineComponent({
             data.forEach((record: any)=> {
                 const row = getExpandedColumns().map((column: v2ColumnInterface) => {
                     let value = ''
+                    const refData = record[column.ref]
                     try {
                         if (isEmpty(record)) {
                             value = "..."
-                        }else if (typeof column.value === 'function') {
+                        } else if (typeof column.toValue === 'function') {
+                            value = `${column.toValue(refData)}`
+                        } else if (typeof column.value === 'function') {
                             value = column.value(record) as string
                         } else {
                             // Use the ref to map to a value inside the record
@@ -402,9 +405,9 @@ export default defineComponent({
                     }
                     return {
                         column,
-                        data: record,
-                        value: value,
-                        [column.ref || 'nada']: value
+                        refData,
+                        value,
+                        data: record
                     }
                 })
                 reportData.value.push({ 
@@ -437,7 +440,6 @@ export default defineComponent({
             prev,
             selectPage,
             sortColumn,
-            showSearchKeyboard,
             onClickTablecell,
             toPDF,
             toCSV,
@@ -457,7 +459,8 @@ export default defineComponent({
             canPrev,
             currentPage,
             columnSorted,
-            QWERTY
+            QWERTY,
+            showSearchKeyboard
         }
     }
 })
