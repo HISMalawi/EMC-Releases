@@ -70,6 +70,7 @@ import { toastWarning, toastDanger } from "@/utils/Alerts";
 import { defineComponent } from 'vue';
 import { AuthService, InvalidCredentialsError } from "@/services/auth_service"
 import { LOGIN_KEYBOARD } from "@/components/Keyboard/KbLayouts"
+import Screentimeout from "@/composables/Screentimeout"
 import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import Validation from "@/components/Forms/validations/StandardValidations"
@@ -107,6 +108,7 @@ export default defineComponent({
   }, 
   created() {
     this.auth = new AuthService()
+    Screentimeout.clearScreenTimeout()
   },
   methods: {
     renderKeyBoard(e: any) {

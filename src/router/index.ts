@@ -12,6 +12,11 @@ const routes: Array<RouteRecordRaw> = [
     component: Home
   },
   {
+    path: "/settings/screen_timeout",
+    name: "Screen timeout settings",
+    component: () => import('@/views/ScreenTimeoutSetting.vue')
+  },
+  {
     path: '/password_policy',
     name: 'Password policy',
     component: () => import("@/views/PasswordPolicy.vue")

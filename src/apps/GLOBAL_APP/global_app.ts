@@ -97,6 +97,11 @@ export default {
           condition: () => UserService.isAdmin()
         },
         {
+          name: 'User screen timeout',
+          pathUrl: '/settings/screen_timeout',
+          condition: () => UserService.isAdmin()
+        },
+        {
           name: "Manage ART User Activities",
           pathUrl: '/art/user_activity_settings',
           condition: () => UserService.isAdmin() && App.getActiveApp()?.applicationName === 'ART'

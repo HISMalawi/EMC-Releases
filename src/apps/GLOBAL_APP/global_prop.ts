@@ -14,7 +14,8 @@ export enum GLOBAL_PROP {
     PORTAL_ENABLED = 'portal.enabled',
     PORTAL_PROPERTIES = 'portal.properties',
     DDE_ENABLED = 'dde_enabled',
-    MALAWI_NATIONAL_ID_SCANNER_ENABLED = 'malawi.nationalID.scanner.enabled'
+    MALAWI_NATIONAL_ID_SCANNER_ENABLED = 'malawi.nationalID.scanner.enabled',
+    INACTIVITY_TIMEOUT = 'inactivity_timeout',
 }
 
 function ddeEnabled() {
