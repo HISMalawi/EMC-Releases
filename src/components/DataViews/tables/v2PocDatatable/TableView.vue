@@ -19,7 +19,7 @@
                     @click="() => { searchTerm = ''; showSearchKeyboard = false}" 
                     class="his-md-text"
                     color="primary">
-                    <ion-label>{{ searchTerm }}</ion-label>
+                    <ion-label>{{ searchTerm ? `Search: ${searchTerm}` : '' }}</ion-label>
                     <ion-icon :icon="close"></ion-icon>
                 </ion-chip>
                 <ion-button 
