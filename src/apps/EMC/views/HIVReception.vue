@@ -9,6 +9,7 @@
               :isNewPatient="isNewPatient"
               :sitePrefix="sitePrefix"
               :initialVisitDate="initialVisitDate"
+              :artStartDate="artStartDate"
               :observations="observations"
               @onValue="onValue"
               @onNext="onNext"
@@ -66,6 +67,7 @@ export default defineComponent({
     const isRegistration = computed(() => activeForm.value === 'Staging');
     const patient = ref({} as Patientservice)
     const initialVisitDate = ref('')
+    const artStartDate = ref('');
     const firstVisitEncounters = ref([] as number[])
     const observations = reactive({} as Record<string, any>)
     const isEnrolled = ref(false);
@@ -182,6 +184,7 @@ export default defineComponent({
       }
       isReady.value = true;
       EventBus.on(EmcEvents.ON_INITIAL_VISIT_DATE, (date: string) => initialVisitDate.value = date)
+      EventBus.on(EmcEvents.ON_ART_START_DATE, (date: string) => artStartDate.value = date)
     })
 
     return {
@@ -194,6 +197,7 @@ export default defineComponent({
       isReady,
       initialVisitDate,
       observations,
+      artStartDate,
       onValue,
       onFinish,
       onNext,
