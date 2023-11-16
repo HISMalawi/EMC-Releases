@@ -3,8 +3,8 @@
         <ion-toolbar>
             <ion-title class="his-md-text">
                 {{ title }} 
-                    <br v-if="subtitle"/>
-                    <span class="his-sm-text">{{subtitle}}</span>
+                <br v-if="subtitle"/>
+                <span class="his-sm-text">{{subtitle}}</span>
             </ion-title>
             <ion-buttons slot="end">
                 <ion-button v-if="typeof onConfigure === 'function'"
@@ -13,16 +13,16 @@
                 </ion-button>
                 <ion-chip
                     v-if="searchTerm"
-                    @click="searchTerm = ''" 
+                    @click="() => { searchTerm = ''; showSearchKeyboard = false}" 
                     class="his-md-text"
                     color="primary">
                     <ion-label>{{ searchTerm }}</ion-label>
                     <ion-icon :icon="close"></ion-icon>
                 </ion-chip>
-                <ion-button @click="searchTable" size="large">
+                <ion-button @click="() => showSearchKeyboard = showSearchKeyboard ? false : true" size="large">
                     <ion-icon size="large" :icon="search"></ion-icon>
                 </ion-button>
-                <ion-button 
+                <ion-button
                     v-if="typeof onRefresh === 'function'" 
                     @click="onRefresh"
                     color="success" size="large">
@@ -69,6 +69,11 @@
         </table>
     </ion-content>
     <ion-footer>
+        <his-keyboard
+            v-if="showSearchKeyboard" 
+            :kbConfig="QWERTY" 
+            :onKeyPress="filterTable"
+        />
         <ion-toolbar color="dark">
             <ion-button @click="toCSV()" size="large">
                 CSV
@@ -119,13 +124,10 @@ import {
     arrowDown, 
     funnelOutline,
 } from "ionicons/icons"
-import { Option } from "@/components/Forms/FieldInterface"
 import { computed, defineComponent, PropType, ref, watch } from "vue";
-import keyboard from "@/utils/PopupKeyboard"
 import { chunk, isEmpty } from "lodash";
 import { sort } from "fast-sort";
 import { numericKeypad } from "@/utils/PopupKeyboard";
-import { FieldType } from "@/components/Forms/BaseFormElements";
 import Fuse from "fuse.js"
 import { v2ColumnDataInterface, v2ColumnInterface } from "./types";
 import { toCsv, toTablePDF } from "@/utils/Export"
@@ -133,6 +135,9 @@ import { Service } from "@/services/service";
 import { useRouter } from "vue-router";
 import dayjs from "dayjs";
 import { removeNonDateCharacters, removeTags } from "@/utils/Strs";
+import HisKeyboard from "@/components/Keyboard/HisKeyboard.vue"
+import { QWERTY } from "@/components/Keyboard/HisKbConfigurations"
+import handleVirtualInput from "@/components/Keyboard/KbHandler"
 
 export default defineComponent({
     components: {
@@ -146,7 +151,8 @@ export default defineComponent({
         IonFooter,
         IonContent,
         IonButtons,
-        IonChip
+        IonChip,
+        HisKeyboard
     },
     props: {
         title: {
@@ -196,6 +202,8 @@ export default defineComponent({
         const searchTerm = ref<string>('')
         const columnSorted = ref<string>('')
         const sortOrder = ref<'asc'|'desc'>('desc')
+        const showSearchKeyboard = ref(false)
+
         /**
          * This computed object exist to allow for transformation
          * of "reportData" without mutations when doing
@@ -244,23 +252,8 @@ export default defineComponent({
             const num = parseInt(v)
             if (parseInt(v) <= totalPages.value) currentPage.value = num
         }, { title: 'Select page'})
-        /**
-         * Launches search input to filter page
-         */
-        const searchTable = () => {
-            keyboard({
-                id: "search",
-                helpText: "Find",
-                type: FieldType.TT_TEXT,
-            }, 
-            (v: Option) => {
-                // This has been wrapped in a slight delay to improve responsiveness of the page
-                setTimeout(() => {
-                    searchTerm.value = v ? v.value as string : ''
-                    currentPage.value = 0
-                }, 3)
-            })
-        }
+        
+
         /**
          * Reset current page to initial
          */
@@ -368,6 +361,11 @@ export default defineComponent({
             )
         }
 
+        const filterTable = (text: string) => {
+            searchTerm.value = handleVirtualInput(text, searchTerm.value)
+            currentPage.value = 0
+        }
+
         /**
          * Create a table header and cell mapping
          * @param data 
@@ -426,11 +424,12 @@ export default defineComponent({
             prev,
             selectPage,
             sortColumn,
-            searchTable,
+            showSearchKeyboard,
             onClickTablecell,
             toPDF,
             toCSV,
             finish,
+            filterTable,
             sync, 
             search, 
             close, 
@@ -444,7 +443,8 @@ export default defineComponent({
             sortOrder,
             canPrev,
             currentPage,
-            columnSorted
+            columnSorted,
+            QWERTY
         }
     }
 })
@@ -475,5 +475,8 @@ export default defineComponent({
         color: #0645AD;
         font-weight: 600;
         font-size: 1em;
+    }
+    .his-floating-keyboard {
+        bottom: 70px!important;
     }
 </style>
