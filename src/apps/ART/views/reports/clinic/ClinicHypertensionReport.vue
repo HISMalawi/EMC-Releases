@@ -3,6 +3,7 @@
         <ion-loading :is-open="isLoading" message="Please wait..."/>
         <v2Datatable
             title="Hypertension Report"
+            :icon-url="logo"
             :subtitle="period"
             :columns="columns"
             :columnData="reportData"
@@ -23,6 +24,7 @@ import { DateSelection } from '@/utils/ReportDateSelectionPrompt';
 import { toastDanger, toastWarning } from '@/utils/Alerts';
 import { ClinicReportService } from "@/apps/ART/services/reports/clinic_report_service";
 import HypertensionDrilldown from "@/apps/ART/Components/HypertensionDrilldown.vue";
+import Img from "@/utils/Img";
 
 export default defineComponent({
     components: { 
@@ -31,6 +33,7 @@ export default defineComponent({
         v2Datatable
     },
     setup() {
+        const logo = Img('reports.png')
         const reportData = ref([])
         const period = ref('')
         const isLoading = ref(false)
@@ -199,6 +202,7 @@ export default defineComponent({
         onMounted(() => !reportData.value.length && configure())
 
         return {
+            logo,
             reportData,
             isLoading,
             configure,

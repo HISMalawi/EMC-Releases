@@ -1,7 +1,10 @@
 <template>
     <ion-header>
         <ion-toolbar>
-            <ion-title class="his-md-text">
+            <ion-thumbnail v-if="iconUrl" slot="start">
+                <ion-img :src="iconUrl"></ion-img>
+            </ion-thumbnail>
+            <ion-title slot="start" class="his-md-text">
                 {{ title }} 
                 <br v-if="subtitle"/>
                 <span class="his-sm-text">{{subtitle}}</span>
@@ -108,6 +111,7 @@
 <script lang="ts">
 import {
   IonLabel,
+  IonImg,
   IonIcon,
   IonItem,
   IonTitle,
@@ -117,7 +121,8 @@ import {
   IonButton,
   IonFooter,
   IonContent,
-  IonButtons
+  IonButtons,
+  IonThumbnail
 } from "@ionic/vue"
 import { 
     sync,
@@ -155,12 +160,17 @@ export default defineComponent({
         IonContent,
         IonButtons,
         IonChip,
-        HisKeyboard
+        HisKeyboard,
+        IonThumbnail,
+        IonImg
     },
     props: {
         title: {
             type: String,
             default: 'Report'
+        },
+        iconUrl: {
+            type: String
         },
         subtitle: {
             type: String,
