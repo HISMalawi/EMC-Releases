@@ -12,6 +12,11 @@ const routes: Array<RouteRecordRaw> = [
     component: Home
   },
   {
+    path: '/password_policy',
+    name: 'Password policy',
+    component: () => import("@/views/PasswordPolicy.vue")
+  },
+  {
     path: '/npid/duplicates/:npid',
     name: 'NPID Duplicates',
     component: () => import("@/views/NpidDuplicates.vue")

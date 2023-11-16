@@ -2,6 +2,10 @@ import { Role } from "@/interfaces/role"
 import ApiClient from "./api_client"
 import HisDate from "@/utils/Date"
 import PACK_CONF from "../../package.json"
+import { GlobalPropertyService } from "./global_property_service"
+import { GLOBAL_PROP, USER_PROP } from "@/apps/GLOBAL_APP/global_prop"
+import dayjs from "dayjs"
+import { NotFoundError } from "./service"
 
 export class InvalidAPIVersionError extends Error {
     message: string
@@ -81,9 +85,39 @@ export class AuthService {
         localStorage.setItem(AuthVariable.CORE_VERSION, this.coreVersion)
     }
 
-    clearSession() {
-        sessionStorage.clear()
+    passwordPolicyEnabled() {
+        return GlobalPropertyService.isProp(`${GLOBAL_PROP.PASSWORD_POLICY_ENABLED}=true`)
     }
+
+    async passwordExpired() {
+        const changeIntervalInDays = await GlobalPropertyService.get(GLOBAL_PROP.PASSWORD_RESET_INTERVAL)
+        if (!changeIntervalInDays) return false
+        try {
+            const lastUpdate = await GlobalPropertyService.getJson('user_properties', {
+                property: USER_PROP.LAST_PASSWORD_RESET
+            })
+            if (lastUpdate && lastUpdate.property_value) {
+                const daysGone = dayjs(this.sessionDate).diff(lastUpdate.property_value, "days")
+                return daysGone >= changeIntervalInDays
+            }
+        } catch (e) {
+            if (e instanceof NotFoundError) {
+                return true
+            } else {
+                console.error(e)
+            }
+        }
+        return true
+    }
+
+    resetUserPasswordChangeCheck() {
+        return GlobalPropertyService.postJson('user_properties', {
+            property: USER_PROP.LAST_PASSWORD_RESET,
+            property_value: this.sessionDate
+        })
+    }
+
+    clearSession() { sessionStorage.clear() }
 
     requestLogin(password: string) {
         return this.postLogin(`auth/login`, {

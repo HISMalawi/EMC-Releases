@@ -73,6 +73,11 @@ export default {
       icon: 'edit-user.png',
       files: [
         {
+          name: "Password policy",
+          pathUrl: "/password_policy",
+          condition: () => UserService.isAdmin()
+        },
+        {
           name: "New user",
           condition: () => UserService.isAdmin(),
           pathUrl: "/user?activity=add",

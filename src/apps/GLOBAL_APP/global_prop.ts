@@ -1,6 +1,12 @@
 import { GlobalPropertyService } from "@/services/global_property_service";
 
+export enum USER_PROP {
+    LAST_PASSWORD_RESET = 'last_password_reset'
+}
+
 export enum GLOBAL_PROP {
+    PASSWORD_POLICY_ENABLED = 'password_policy_enabled',
+    PASSWORD_RESET_INTERVAL = 'password_reset_interval',
     MILITARY_SITE = 'military_site',
     HEALTH_CENTER_ID = 'current_health_center_id',
     SITE_PREFIX = 'site_prefix',

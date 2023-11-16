@@ -70,6 +70,11 @@ import { toastWarning, toastDanger } from "@/utils/Alerts";
 import { defineComponent } from 'vue';
 import { AuthService, InvalidCredentialsError } from "@/services/auth_service"
 import { LOGIN_KEYBOARD } from "@/components/Keyboard/KbLayouts"
+import { MultiStepPopupForm } from "@/utils/PopupKeyboard";
+import { FieldType } from "@/components/Forms/BaseFormElements";
+import Validation from "@/components/Forms/validations/StandardValidations"
+import { Option } from "@/components/Forms/FieldInterface"
+import { UserService } from "@/services/user_service";
 
 export default defineComponent({
   props: {
@@ -168,9 +173,68 @@ export default defineComponent({
           }
           await this.auth.login(this.userInput.password)
           this.auth.startSession()
+          const passwordChangeQualifications = await Promise.all([
+            this.auth.passwordPolicyEnabled(), 
+            this.auth.passwordExpired()
+          ])
+          if (passwordChangeQualifications.every(Boolean)) {
+            const toLcase = (val: Option) => `${val.value}`.toLowerCase()
+            return MultiStepPopupForm([
+              {
+                id: 'new_password',
+                proxyID: "password",
+                helpText: "Change your password",
+                type: FieldType.TT_TEXT,
+                init: () => {
+                  setTimeout(() => {
+                    toastWarning("Your password has expired! please change it now!", 8000)
+                  }, 500);
+                  return true
+                },
+                computedValue: (val: Option) => toLcase(val),
+                validation: (val: any) => Validation.validateSeries([
+                  () => Validation.required(val),
+                  () => Validation.hasLengthRangeOf(val, 4, 15),
+                  () => {
+                    if (`${this.userInput.password}`.toLowerCase() === toLcase(val)) {
+                      return ['New password should not match old password']
+                    }
+                  }
+                ]),
+                config: {
+                  inputType: 'password'
+                }
+              },
+              {
+                id: 'verify_password',
+                proxyID: "password",
+                helpText: "Confirm Password",
+                type: FieldType.TT_TEXT,
+                computedValue: (val: Option) => toLcase(val),
+                validation: (val: any, f: any) => Validation.validateSeries([
+                  () => Validation.required(val),
+                  () => {
+                    if (toLcase(f.verify_password) != toLcase(f.new_password))
+                      return ['New password does not match current password']
+                  }
+                ]),
+                config: {
+                  inputType: 'password'
+                }
+              }
+            ],
+            async (_: any, changes: any) => {
+              if ((await UserService.updateUser(this.auth.userID, changes))) {
+                await this.auth.resetUserPasswordChangeCheck()
+                this.$router.push("/select_hc_location");
+              } else {
+                toastWarning("Unable to update user")
+              }
+            })
+          }
           this.$router.push("/select_hc_location");
         } catch (e) {
-          if (e instanceof InvalidCredentialsError ) {
+          if (e instanceof InvalidCredentialsError) {
             toastWarning("Invalid username or password");
           } else {
             toastDanger(`${e}`, 50000)

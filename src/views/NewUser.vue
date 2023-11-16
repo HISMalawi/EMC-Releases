@@ -21,6 +21,7 @@ import { RecordConflictError } from "@/services/service";
 import { isEmpty } from "lodash";
 import { find } from "lodash";
 import Store from "@/composables/ApiStore"
+import { AuthService } from "@/services/auth_service"
 
 export default defineComponent({
   components: { HisStandardForm },
@@ -77,6 +78,9 @@ export default defineComponent({
                 case 'edit':
                     await this.update(computeValues)
                     if (this.isSessionPasswordChange) {
+                        const auth = new AuthService()
+                        auth.sessionDate = await UserService.getApiDate()
+                        await auth.resetUserPasswordChangeCheck()
                         this.$router.push('/')
                     }
                     break;
