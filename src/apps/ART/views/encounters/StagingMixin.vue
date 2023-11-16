@@ -200,7 +200,7 @@ export default defineComponent({
                     this.setReasonForArt()
                     this.setWhoStage()
                 },
-                options: () => [
+                options: () =>  [
                     { 
                         label: 'WHO Stage', 
                         value: this.stagingFacts.whoStage,
@@ -215,6 +215,18 @@ export default defineComponent({
                             type: 'title-section'
                         } 
                     },
+                    ...(() => {
+                        if (this.stagingFacts.cd4 > -1) {
+                            return [{
+                                label: "CD4 Result",
+                                value: `${this.stagingFacts.cd4Modifier}${this.stagingFacts.cd4}`,
+                                other: {
+                                    type: 'title-section'
+                                }
+                            }]
+                        }
+                        return []
+                    })(),
                     ...this.stagingFacts.selectedConditions.map((i: string) => ({ label: i, value: i }))
                 ],
                 config: {
