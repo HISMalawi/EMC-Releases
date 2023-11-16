@@ -19,7 +19,10 @@
                     <ion-label>{{ searchTerm }}</ion-label>
                     <ion-icon :icon="close"></ion-icon>
                 </ion-chip>
-                <ion-button @click="() => showSearchKeyboard = showSearchKeyboard ? false : true" size="large">
+                <ion-button 
+                    :color="showSearchKeyboard ? 'primary' : 'dark'"
+                    @click="() => showSearchKeyboard = showSearchKeyboard ? false : true" 
+                    size="large">
                     <ion-icon size="large" :icon="search"></ion-icon>
                 </ion-button>
                 <ion-button
