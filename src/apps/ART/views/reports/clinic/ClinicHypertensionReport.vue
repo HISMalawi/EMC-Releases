@@ -38,98 +38,32 @@ export default defineComponent({
         const period = ref('')
         const isLoading = ref(false)
         const report = new ClinicReportService()
+        const toDrillColumn = (label: string, ref: string) => {
+            return {
+                label,
+                ref,
+                toValue: (data: any) => data.length,
+                tdClick: (row: any) => drilldown(`${row.column.label}`, row.refData)
+            }
+        }
         const columns: Array<v2ColumnInterface[]> = [
             [
-                {
-                    label: "#",
-                    ref: "index"
-                },
-                {
-                    label: "Age group",
-                    ref: 'age_group'
-                },
-                {
-                    label: "Gender",
-                    ref: 'gender'
-                },
-                {
-                    label: "Screened for HP",
-                    ref: "screened",
-                    toValue: (data: any) => data.length,
-                    tdClick: ({ column, refData }) => drilldown(`${column.label}`, refData)
-                },
-                {
-                    label: "Normal <140/<90",
-                    ref: "normal_reading",
-                    toValue: (data: any) => data.length,
-                    tdClick: ({ column, refData }) => drilldown(`${column.label}`, refData)
-                },
-                {
-                    label: "Mild 140-159/90-99",
-                    ref: "mild_reading",
-                    toValue: (data: any) => data.length,
-                    tdClick: ({ column, refData }) => drilldown(`${column.label}`, refData)
-                },
-                {
-                    label: "Moderate 160-180/100-110",
-                    ref: "moderate_reading",
-                    toValue: (data: any) => data.length,
-                    tdClick: ({ column, refData }) => drilldown(`${column.label}`, refData)
-                },
-                {
-                    label: "Severe >180/>110",
-                    ref: "severe_reading",
-                    toValue: (data: any) => data.length,
-                    tdClick: ({ column, refData }) => drilldown(`${column.label}`, refData)
-                },
-                {
-                    label: "Hydrochlorothiazide 25mg",
-                    ref: "hydrochlorothiazide_25mg",
-                    toValue: (data: any) => data.length,
-                    tdClick: ({ column, refData }) => drilldown(`${column.label}`, refData)
-                },
-                {
-                    label: "Amlodipine 5mg",
-                    ref: "amlodipine_5mg",
-                    toValue: (data: any) => data.length,
-                    tdClick: ({ column, refData }) => drilldown(`${column.label}`, refData)
-                },
-                {
-                    label: "Amlodipine 10 mg",
-                    ref: "amlodipine_10mg",
-                    toValue: (data: any) => data.length,
-                    tdClick: ({ column, refData }) => drilldown(`${column.label}`, refData)
-                },
-                {
-                    label: "Enalapril 5 mg",
-                    ref: "enalapril_5mg",
-                    toValue: (data: any) => data.length,
-                    tdClick: ({ column, refData }) => drilldown(`${column.label}`, refData)
-                },
-                {
-                    label: "Enalapril 10mg",
-                    ref: "enalapril_10mg",
-                    toValue: (data: any) => data.length,
-                    tdClick: ({ column, refData }) => drilldown(`${column.label}`, refData)
-                },
-                {
-                    label: "Atenolol 50mg ",
-                    ref: "atenolol_50mg",
-                    toValue: (data: any) => data.length,
-                    tdClick: ({ column, refData }) => drilldown(`${column.label}`, refData)
-                },
-                {
-                    label: "Atenolol 100mg ",
-                    ref: "atenolol_100mg",
-                    toValue: (data: any) => data.length,
-                    tdClick: ({ column, refData }) => drilldown(`${column.label}`, refData)
-                },
-                {
-                    label: "Total (regimen)",
-                    ref: "total_regimen",
-                    toValue: (data: any) => data.length,
-                    tdClick: ({ column, refData }) => drilldown(`${column.label}`, refData)
-                }
+                { label: "#", ref: "index" },
+                { label: "Age group", ref: 'age_group' },
+                { label: "Gender", ref: 'gender' },
+                toDrillColumn("Screened for HP", "screened"),
+                toDrillColumn("Normal <140/<90", "normal_reading"),
+                toDrillColumn("Mild 140-159/90-99", "mild_reading"),
+                toDrillColumn("Moderate 160-180/100-110", "moderate_reading"),
+                toDrillColumn("Severe >180/>110", "severe_reading"),
+                toDrillColumn("Hydrochlorothiazide 25mg", "hydrochlorothiazide_25mg"),
+                toDrillColumn("Amlodipine 5mg", "amlodipine_5mg"),
+                toDrillColumn("Amlodipine 10 mg", "amlodipine_10mg"),
+                toDrillColumn("Enalapril 5 mg", "enalapril_5mg"),
+                toDrillColumn("Enalapril 10mg", "enalapril_10mg"),
+                toDrillColumn("Atenolol 50mg", "atenolol_50mg"),
+                toDrillColumn("Atenolol 100mg", "atenolol_100mg"),
+                toDrillColumn("Total (regimen)", "total_regimen")
             ]
         ]
 
@@ -199,7 +133,7 @@ export default defineComponent({
         /**
          * Initialization code when the report is empty!
         */
-        onMounted(() => !reportData.value.length && configure())
+        onMounted(() => configure())
 
         return {
             logo,
