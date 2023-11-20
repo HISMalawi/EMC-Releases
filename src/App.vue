@@ -25,6 +25,7 @@ import nprogress from 'nprogress'
 import router from '@/router/index';
 import { loadingController } from "@ionic/vue"
 import { AuthService } from './services/auth_service';
+import Screentimeout from "@/composables/Screentimeout"
 
 export default defineComponent({
   name: 'App',
@@ -48,6 +49,8 @@ export default defineComponent({
 
     // synchronize date every 1 hour
     auth.initDateSync(3600000)
+
+    Screentimeout.initiateSystemIdleMonitor()
 
     if (typeof auth.getAppConf('promptFullScreenDialog') === 'boolean') {
       checkFullScreen.value = auth.getAppConf('promptFullScreenDialog')
