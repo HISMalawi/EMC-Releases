@@ -19,7 +19,8 @@ export class RelationshipService extends Service {
 				return {
 					name: names ? getFullName(names) : "",
 					relationshipType: get(element, "type.b_is_to_a", ''),
-					phoneNumber: getPersonAttribute(get(element, "relation.person_attributes", []), 12)
+					phoneNumber: getPersonAttribute(get(element, "relation.person_attributes", []), 12),
+					names
 				}
 			});
 		});

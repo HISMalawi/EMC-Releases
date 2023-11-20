@@ -1,3 +1,4 @@
+import { Name } from "./name";
 import { Person } from "./person";
 import { RelationshipType } from "./relationshipType";
 
@@ -15,4 +16,11 @@ export interface Relationship {
     uuid:            string;
     type:            RelationshipType;
     relation:        Person;
+}
+
+export interface GuardianDetails {
+    name: string;
+    relationshipType: string;
+    phoneNumber: string;
+    names: Name;
 }

@@ -10,6 +10,7 @@
           @updateARVNumber="updateARVNumber"
           @addGuardian="addGuardian"
           @updatePatient="updateDemographics"
+          @editGuardian="editGuardian"
         />
       </ion-col>
     </ion-row>
@@ -40,6 +41,8 @@ import EventBus from "@/utils/EventBus";
 import { EmcEvents } from "../interfaces/emc_event";
 import { modal } from "@/utils/modal";
 import { isEmpty } from "lodash";
+import { GuardianDetails } from "@/interfaces/relationship"
+import GuardianDemographicsEditVue from "../Components/modals/GuardianDemographicsEdit.vue";
 
 export default defineComponent({
   components: {
@@ -51,7 +54,7 @@ export default defineComponent({
     const patientId = parseInt(route.params.patientId.toString()) || 0;
     const patient = ref<PatientObservationService>();
     const artStartDate = ref<string>("");
-    const guardians = ref<string>("");
+    const guardians = ref<Array<GuardianDetails>>([]);
     const isReady = computed(() => !isEmpty(patient.value))
 
     const setPatient = async () => {
@@ -64,8 +67,7 @@ export default defineComponent({
     };
 
     const setPatientGuardian = async () => {
-      const relationship = await RelationshipService.getGuardianDetails(patientId);
-      guardians.value = relationship.map((r: any) => ` ${r.name} (${r.relationshipType})`).join(", ");
+      guardians.value = await RelationshipService.getGuardianDetails(patientId);
     }
 
     const updateDemographics = async (attribute: string) => {
@@ -78,6 +80,12 @@ export default defineComponent({
     const addGuardian = async () => {
       await modal.show(GuardianDemographicsVue, {
         patientId,
+      });
+    }
+
+    const editGuardian = async () => {
+      await modal.show(GuardianDemographicsEditVue, {
+        guardians: guardians.value
       });
     }
 
@@ -108,6 +116,7 @@ export default defineComponent({
       isReady,
       updateDemographics,
       addGuardian,
+      editGuardian,
       updateARVNumber,
     };
   },
