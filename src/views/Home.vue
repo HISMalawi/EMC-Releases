@@ -26,7 +26,7 @@
             </div>
           </ion-col>
           <ion-col size="3">
-            <program-icon :icon="appLogo" :version="appVersion"> </program-icon>
+            <program-icon :app="app" :icon="appLogo" :version="appVersion"> </program-icon>
           </ion-col>
         </ion-row>
       </ion-toolbar>
