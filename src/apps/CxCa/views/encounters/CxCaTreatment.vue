@@ -21,6 +21,7 @@ import { ProgramService } from "@/services/program_service";
 import { ProgramWorkflow } from "@/interfaces/program_workflow";
 import table from "@/components/DataViews/tables/ReportDataTable";
 import { ConceptService } from "@/services/concept_service";
+import CXCA_GLOBAL_PROP from "@/apps/CxCa/cxca_global_props";
 
 export default defineComponent({
   mixins: [EncounterMixinVue],
@@ -28,13 +29,16 @@ export default defineComponent({
   data: () => ({
     reception: {} as any,
     summaryData: {} as any,
-    referralReason: ""
+    referralReason: "",
+    isReferralSiteEnabled: false,
+    skipToTreatment: false,
   }),
   watch: {
     patient: {
       async handler() {
         this.reception = new TreatmentService(this.patientID, this.providerID);
         this.summaryData = await this.reception.getSummary();
+        this.isReferralSiteEnabled = (await CXCA_GLOBAL_PROP.isReferralSiteEnabled())
         await this.setReason();
         this.fields = this.getFields();
       },
@@ -42,6 +46,22 @@ export default defineComponent({
     },
   },
   methods: {
+    // Update treatment options basing on same day treatment
+    updateTreatmentOptions(condition: boolean, options: any[]): any[] {
+      const disabledOptionLabels = [
+        'Hysterectomy',
+        'Chemotherapy',
+        'Palliative Care',
+        'Treatment with antibiotic',
+        'Anti-parasitic medication',
+        'Conisation'
+      ];
+
+      return options.map((option) => ({
+        ...option,
+        disabled: condition && disabledOptionLabels.includes(option.label),
+      }));
+    },
     isNotSameDayTreatment(){
       return this.summaryData?.['Treatment Type'] !== "Same day treatment";
     },
@@ -118,7 +138,7 @@ export default defineComponent({
           helpText: "Type of referral visit",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.isNotSameDayTreatment(),
+          condition: () => this.isNotSameDayTreatment() && !this.isReferralSiteEnabled,
           options: () => {
             return [
               { label: 'Initial/1st visit to referral facility', value: 'Initial visit' },
@@ -128,12 +148,57 @@ export default defineComponent({
             obs: this.reception.buildValueCoded('Referral reason', value.value)
           })
         },
+        /*the following fields are only visible if the location isn't a referral site
+         *they will be tagged with a minor description of `non-referral site field`*/
+        //non-referral site field
+        {
+            id: 'returning_client_referral_question',
+            helpText: 'Did the returning patient visit the referral facility ?',
+            type: FieldType.TT_SELECT,
+            validation: (val: any) => Validation.required(val),
+            condition: () => this.isNotSameDayTreatment() && this.isReferralSiteEnabled,
+            options: () => this.yesNoOptions(),
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Are Histological results after LLETZ available', value.label)
+          })
+        },
+        //non-referral site field
+        //after completing this field skip to Treatment Field
+        {
+          id: "possible_reasons_why",
+          helpText: "Possible reasons why client didn't visit",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          condition: (f: any) => {
+            this.skipToTreatment = f.returning_client_referral_question.value === 'No' //assign true to skip to treatment
+            return f.returning_client_referral_question.value === 'No' && this.isNotSameDayTreatment() && this.isReferralSiteEnabled
+          },
+          options: () => {
+            return [
+              { label: 'Provider unavailable', value: 'Provider NOT available' },
+              { label: 'Transport lacking', value: 'Transport problems' },
+              { label: 'Other', value: 'Other (Specify)' }
+            ]},
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Reason for no result', value.value)
+          })
+        },
+        {
+            id: 'other_reason',
+            helpText: 'Other reason',
+            type: FieldType.TT_TEXT,
+            validation: (val: any) => Validation.required(val),
+            computedValue: (value: any) => ({
+              obs: this.reception.buildValueText('Other reason for not seeking services', value.label)
+            }),
+            condition: (f: any) => f.possible_reasons_why.value === 'Other (Specify)'
+        },
         {
           id: "cervix_screening_assessment",
           helpText: "Cervix Screening Assessment",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.isNotSameDayTreatment(),
+          condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment,
           options: () =>{
             return [
                   { label: 'STI Infection', value: 'STI Infection' },
@@ -153,7 +218,7 @@ export default defineComponent({
             helpText: 'Are FIGO staging results available?',
             type: FieldType.TT_SELECT,
             validation: (val: any) => Validation.required(val),
-            condition: () => this.isNotSameDayTreatment(),
+            condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment,
             options: () => this.yesNoOptions(),
             computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Are FIGO staging results available', value.value) //Please build this observation using the buildValueCoded method
@@ -164,7 +229,7 @@ export default defineComponent({
           helpText: "FIGO staging results",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: (f: any) => f.are_figo_staging_results_available.value === 'Yes' && this.isNotSameDayTreatment(),
+          condition: (f: any) => f.are_figo_staging_results_available.value === 'Yes' && this.isNotSameDayTreatment() && !this.skipToTreatment,
           options: () =>
             this.mapOptions([
               'Cervical stage 1',
@@ -181,7 +246,7 @@ export default defineComponent({
           helpText: "Type of sample collected",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.isNotSameDayTreatment(),
+          condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment,
           options: () =>
             this.mapOptions([
               'Punch Biopsy',
@@ -194,10 +259,13 @@ export default defineComponent({
         },
         {
             id: 'are_histological_results_after_lletz_available',
-            helpText: 'Are Histological results after LLETZ available?',
+            helpText: ``,
+            dynamicHelpText: (f: any) => {
+              return `Are Histology results after ${f.type_of_sample_collected.value} available`
+            },
             type: FieldType.TT_SELECT,
             validation: (val: any) => Validation.required(val),
-            condition: () => this.isNotSameDayTreatment(),
+            condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment,
             options: () => this.yesNoOptions(),
             computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Are Histological results after LLETZ available', value.label)
@@ -206,9 +274,12 @@ export default defineComponent({
         {
           id: "histology_results_after_lletz",
           helpText: "Histology Results After LLETZ",
+          dynamicHelpText: (f: any) => {
+              return `Histology Results After ${f.type_of_sample_collected.value}`
+            },
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: (f: any) => f.are_histological_results_after_lletz_available.value === 'Yes' && this.isNotSameDayTreatment(),
+          condition: (f: any) => f.are_histological_results_after_lletz_available.value === 'Yes' && this.isNotSameDayTreatment() && !this.skipToTreatment,
           options: () =>
             this.mapOptions([
               'Normal',
@@ -220,17 +291,19 @@ export default defineComponent({
               'CIN 3',
               'Carcinoma in Situ',
               'Invasive cancer of cervix',
+              'Benign warts',
             ]),
             computedValue: (value: any) => ({
             obs: this.reception.buildValueCoded('Sample', value.label)
           })
         },
+        //Complication fields will not be visible if the site isn't a referral site
         {
           id: "complications_during_lletz_leep_biopsy",
           helpText: "Complications During LLETZ/LEEP Biopsy",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.isNotSameDayTreatment(),
+          condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment && !this.isReferralSiteEnabled,
           options: () => {
             return [
                 { label: 'None (N/A)', value: 'None' },
@@ -245,7 +318,7 @@ export default defineComponent({
           helpText: "Complications After LLETZ/LEEP Biopsy",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.isNotSameDayTreatment(),
+          condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment && !this.isReferralSiteEnabled,
           options: () => {
             return [
                   { label: 'None (N/A)', value: 'None' },
@@ -256,49 +329,107 @@ export default defineComponent({
           })
         },
         {
-          id: "treatment_provided",
-          helpText: "Treatment Provided",
-          type: FieldType.TT_SELECT,
-          validation: (val: any) => Validation.required(val),
-          options: () =>
-            this.mapOptions([
-              'Hysterectomy',
-              'Chemotherapy',
-              'Palliative Care',
-              'LLETZ/LEEP',
-            ]),
-          computedValue: (value: any) => ({
-            obs: this.reception.buildValueCoded('Treatment', value.label)
-          })
-        },
-        {
           id: "recommended_care_after_lletz_histology",
           helpText: "Recommended Care After LLETZ Histology",
           type: FieldType.TT_SELECT,
           validation: (val: any) => Validation.required(val),
-          condition: () => this.isNotSameDayTreatment(),
+          condition: () => this.isNotSameDayTreatment() && !this.skipToTreatment,
+          options: () => {
+            return [
+                { label: 'Hysterectomy', value: 'Hysterectomy' },
+                { label: 'Chemotherapy', value: 'Chemotherapy' },
+                { label: 'Palliative Care', value: 'Palliative Care' },
+                { label: 'LLETZ/LEEP', value: 'LLETZ/LEEP' },
+                { label: 'Treatment with antibiotic', value: 'Antibiotics' },
+                { label: 'Anti-parasitic medication', value: 'Antiparasitic' },
+                { label: 'Conisation', value: 'Conisation' },
+                { label: 'Other', value: 'Other (Specify)' }
+              ]},
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Treatment', value.value)
+          })
+        },
+        {
+          id: "treatment_provided",
+          helpText: "Treatment Provided",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          condition: () => !this.skipToTreatment,
+          options: () => {
+            const treatmentOptions = [
+              { label: 'Hysterectomy', value: 'Hysterectomy' },
+              { label: 'Chemotherapy', value: 'Chemotherapy' },
+              { label: 'Thermocoagulation', value: 'Thermocoagulation' },
+              { label: 'Cryotherapy', value: 'Cryotherapy' },
+              { label: 'Palliative Care', value: 'Palliative Care' },
+              { label: 'LLETZ/LEEP', value: 'LLETZ/LEEP' },
+              { label: 'Treatment with antibiotic', value: 'Antibiotics' },
+              { label: 'Anti-parasitic medication', value: 'Antiparasitic' },
+              { label: 'Conisation', value: 'Conisation' },
+              { label: 'Other', value: 'Other (Specify)' }
+            ]
+            // Disable other treatment options for same day treatment
+            return this.updateTreatmentOptions(!this.isNotSameDayTreatment(), treatmentOptions);
+            
+            },
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Treatment', value.value)
+          })
+        },
+        // New treatment field for same day treatment
+
+        {
+          id: "none_treatment_reasons",
+          helpText: "Reasons why treatment was refused",
+          type: FieldType.TT_SELECT,
+          validation: (val: any) => Validation.required(val),
+          condition: (f: any) => f.treatment_provided.value === 'Other (Specify)',
+          options: () => {
+            return [
+                  { label: 'Patient refused treatment', value: 'Patient refused' },
+                  { label: 'Provider not available', value: 'Provider NOT available' },
+                  { label: 'other', value: 'Other (Specify)' }
+              ]},
+            computedValue: (value: any) => ({
+            obs: this.reception.buildValueCoded('Other reason for not seeking services', value.value)
+          })
+        },
+        {
+            id: 'other_reason',
+            helpText: 'Other reason',
+            type: FieldType.TT_TEXT,
+            validation: (val: any) => Validation.required(val),
+            computedValue: (value: any) => ({
+              obs: this.reception.buildValueCoded('Other reason for not seeking services', value.value)
+            }),
+            condition: (f: any) => f.none_treatment_reasons.value === 'Other (Specify)'
+        },
+        {
+          id: "patient_denial_outcome",
+          helpText: "Patient outcome",
+          type: FieldType.TT_SELECT,
+          condition: (f: any) => this.isNotSameDayTreatment() && f.returning_client_referral_question.value === 'No',
+          validation: (val: any) => Validation.required(val),
           options: () =>
             this.mapOptions([
-              'Hysterectomy',
-              'Trachelectomy',
-              'Discharged',
-              'Continue follow-up',
+              'Death',
+              'On going follow-up',
+              'Denied consultation',
             ]),
-            computedValue: (value: any) => ({
-            obs: this.reception.buildValueCoded('Recommended Care After LLETZ Histology', value.label)
-          })
         },
         {
           id: "patient_outcome",
           helpText: "Patient outcome",
           type: FieldType.TT_SELECT,
-          condition: () => this.isNotSameDayTreatment(),
+          condition: (f: any) => this.isNotSameDayTreatment() && f.returning_client_referral_question.value === 'Yes',
           validation: (val: any) => Validation.required(val),
           options: () =>
             this.mapOptions([
               'On-going Palliative Care',
               'No Dysplasia/Cancer',
               'Death',
+              'On going follow-up',
+              'Denied consultation',
             ]),
         },
       ];

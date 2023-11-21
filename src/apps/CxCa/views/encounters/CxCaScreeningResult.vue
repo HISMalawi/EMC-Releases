@@ -46,7 +46,7 @@ export default defineComponent({
       const encounter = await this.screeningResult.createEncounter();
       if (!encounter) return toastWarning("Unable to create encounter");
       if(formData.treatment_option && formData.treatment_option.value === "Referral") {
-        this.obs.push(this.screeningResult.buildValueText('Referral location', formData['location'].label))
+        this.obs.push(this.screeningResult.buildValueText('Referral location', ScreeningResultService.getLocationName()))
       }
       const vals: any = [];
       Object.keys(computed).forEach(element => {
@@ -175,6 +175,19 @@ export default defineComponent({
             obs: this.screeningResult.buildValueCoded('Other reason for not seeking services', value.value)
           })
         },
+        // Adding free text field for further details when "Other conditions" & "Treatment not available" are selected
+        {
+            id: 'further_details',
+            helpText: 'Further details',
+            type: FieldType.TT_TEXT,
+            validation: (val: any) => Validation.required(val),
+            computedValue: (value: any) => ({
+              obs: this.screeningResult.buildValueText('Other reason for not seeking services', value.label)
+            }),
+            condition: (f: any) => {
+              return f.possible_reasons_why.value === 'Other conditions' || f.possible_reasons_why.value === 'Treatment not available' 
+            }
+        },
         {
           id: "treatment_option",
           helpText: "Enter treatment option",
@@ -235,39 +248,18 @@ export default defineComponent({
             obs: this.screeningResult.buildValueCoded('Referral reason', value.value)
           })
         },
+        // Adding free text field for further details when "Unable to treat client" & "Other conditions" are selected
         {
-          id: "location",
-          helpText: "Location reffered from",
-          onload: (fieldContext: any) => {
-            this.fieldContext = fieldContext
-          },
-          type: FieldType.TT_SELECT,
-          validation: (val: any) => Validation.required(val),
-          options: (_: any, filter = "") => this.getFacilities(filter),
-          config: {
-            showKeyboard: true,
-            isFilterDataViaApi: true,
-            footerBtns: [
-              {
-                name: "Here",
-                size: "large",
-                slot: "end",
-                color: "primary",
-                visible: true,
-                onClick: async () => {
-                  if (!isEmpty(this.fieldContext)) {
-                    this.fieldContext.selected = ScreeningResultService.getLocationName();
-                  }
-                }
-              }
-            ]
-          },
-          condition(formData: any) {
-            return formData.treatment_option.value === "Referral";
-          },
-          computedValue: (value: any) => ({
-            obs: this.screeningResult.buildValueText('Referral location', value.label)
-          })
+            id: 'further_details',
+            helpText: 'Further details',
+            type: FieldType.TT_TEXT,
+            validation: (val: any) => Validation.required(val),
+            computedValue: (value: any) => ({
+              obs: this.screeningResult.buildValueText('Referral reason', value.label)
+            }),
+            condition: (f: any) => {
+              return f.possible_reasons_why.value === 'Other conditions' || f.possible_reasons_why.value === 'Unable to treat client' 
+            }
         },
       ];
     },

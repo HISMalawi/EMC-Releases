@@ -19,7 +19,6 @@ import Validation from "@/components/Forms/validations/StandardValidations"
 import {
     IonPage
 } from "@ionic/vue"
-import { isEmpty } from 'lodash';
 import { DrugService } from '@/services/drug_service';
 import { DRUG_FREQUENCIES } from "@/apps/ANC/Services/anc_treatment_service";
 import { NewDrugSet, AncDrugSetService } from "@/apps/ANC/Services/anc_drug_set";
@@ -79,16 +78,10 @@ export default defineComponent({
                 {
                     id: 'drug_selection',
                     helpText: 'Select drugs to add',
-                    type: FieldType.TT_MULTIPLE_SELECT,
-                    validation: (v: Option[]) => Validation.required(v),
-                    config: {
-                        showKeyboard: true
-                    },
-                    options: async () => {
-                        if (isEmpty(this.allDrugs)) {
-                            this.allDrugs = (await DrugService.getDrugs({
-                                'page_size': 1000
-                            })).map((d: any) => ({
+                    type: FieldType.TT_ASYNC_MULTI_SELECT,
+                    options: async (_: any, name="") => {
+                        return (await DrugService.getDrugs({ page_size: 20, name }))
+                            .map((d: any) => ({
                                 label: d.name,
                                 value: d.id,
                                 other: {
@@ -97,9 +90,8 @@ export default defineComponent({
                                     'frequency': '',
                                 }
                             }))
-                        }
-                        return this.allDrugs as Option[]
-                    }
+                    },
+                    validation: (v: Option[]) => Validation.required(v)
                 },
                 {
                     id: 'drugs',

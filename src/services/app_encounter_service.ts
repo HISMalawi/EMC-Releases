@@ -87,6 +87,12 @@ export class AppEncounterService extends ObservationService {
         })
     }
 
+    buildDateObs(conceptName: string, date: string, isEstimate: boolean) {
+        if(/unknown/i.test(date)) return this.buildValueText(conceptName, 'Unknown');
+        if(isEstimate) return this.buildValueDateEstimated(conceptName, date);
+        return this.buildValueDate(conceptName, date);
+    }
+
     async saveObservationList(obs: Array<ObsValue>) {
         return ObservationService.saveObsArray(this.encounterID, obs)
     }

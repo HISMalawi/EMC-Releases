@@ -1,6 +1,12 @@
 import { GlobalPropertyService } from "@/services/global_property_service";
 
+export enum USER_PROP {
+    LAST_PASSWORD_RESET = 'last_password_reset'
+}
+
 export enum GLOBAL_PROP {
+    PASSWORD_POLICY_ENABLED = 'password_policy_enabled',
+    PASSWORD_RESET_INTERVAL = 'password_reset_interval',
     MILITARY_SITE = 'military_site',
     HEALTH_CENTER_ID = 'current_health_center_id',
     SITE_PREFIX = 'site_prefix',
@@ -8,7 +14,8 @@ export enum GLOBAL_PROP {
     PORTAL_ENABLED = 'portal.enabled',
     PORTAL_PROPERTIES = 'portal.properties',
     DDE_ENABLED = 'dde_enabled',
-    MALAWI_NATIONAL_ID_SCANNER_ENABLED = 'malawi.nationalID.scanner.enabled'
+    MALAWI_NATIONAL_ID_SCANNER_ENABLED = 'malawi.nationalID.scanner.enabled',
+    INACTIVITY_TIMEOUT = 'inactivity_timeout',
 }
 
 function ddeEnabled() {

@@ -18,8 +18,4 @@ export class AncVisitTypeService extends AppEncounterService {
             ]
         }
     }
-
-    saveVisitNumber(visitNumber: number) {
-        return this.saveValueNumericObs('Type of visit', visitNumber)
-    }
 }

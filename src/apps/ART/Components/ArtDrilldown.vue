@@ -5,7 +5,7 @@
             :subtitle="subtitle"
             :columnData="reportData"
             :columns="columns"
-            :on-finish="onFinish"
+            :on-finish="runFinishAction"
             :rowsPerPage="ITEMS_PER_PAGE"
         />
     </ion-page>
@@ -21,7 +21,11 @@ import { delayPromise } from '@/utils/Timers';
 import { Patientservice } from '@/services/patient_service';
 import { formatGender, toDate } from '@/utils/Strs';
 
-const ITEMS_PER_PAGE = 20
+const ITEMS_PER_PAGE = 25
+const CACHE_LIFE = 3600000
+const PATIENT_CACHE: Record<number, any> = {}
+let cacheTimeoutInterval: any = null
+
 export default defineComponent({ 
     props: {
         title: {
@@ -40,23 +44,15 @@ export default defineComponent({
         v2Datatable
     },
     setup(props) {
+        const canLoadData = ref(true)
         const subtitle = ref('-')
         const reportData = ref<any>([])
         const router = useRouter()
         const columns: Array<v2ColumnInterface[]> = [
             [
-                {
-                    label: 'ARV Number',
-                    ref: 'arv_number'
-                },
-                {
-                    label: 'Gender',
-                    ref: 'gender'
-                },
-                {
-                    label: 'Birthdate',
-                    ref: 'birthdate'
-                },
+                { label: 'ARV Number', ref: 'arv_number' },
+                { label: 'Gender', ref: 'gender' },
+                { label: 'Birthdate', ref: 'birthdate' },
                 {
                     label: 'Action',
                     ref: 'patient_id',
@@ -67,28 +63,42 @@ export default defineComponent({
             ]
         ]
         
+        function runFinishAction() {
+            canLoadData.value = false;
+            if (typeof props.onFinish === 'function') props.onFinish()
+        }
+
         watch(() => props.patientIdentifiers, async (data) => {
             reportData.value = []
             subtitle.value = `Total: 0`
             if (!(data && data.length)) return
             const backlog = chunk(data, ITEMS_PER_PAGE)
+            if (!cacheTimeoutInterval) {
+                cacheTimeoutInterval = setInterval(() => {
+                    Object.keys(PATIENT_CACHE).forEach((key: any) => delete PATIENT_CACHE[key]);
+                }, CACHE_LIFE)
+            }
             for(const log of backlog) {
                 for (const id of log) {
+                    if (!canLoadData.value) break;
                     try {
-                        const patient = new Patientservice((await Patientservice.findByID(id)))
-                        reportData.value.push({
-                            'arv_number': patient.getArvNumber(),
-                            'patient_id': patient.getID(),
-                            'gender': formatGender(patient.getGender()),
-                            'birthdate': toDate(patient.getBirthdate())
-                        })
+                        if (!PATIENT_CACHE[id]) {
+                            const patient = new Patientservice((await Patientservice.findByID(id)))
+                            PATIENT_CACHE[id] = {
+                                'arv_number': patient.getArvNumber(),
+                                'patient_id': patient.getID(),
+                                'gender': formatGender(patient.getGender()),
+                                'birthdate': toDate(patient.getBirthdate())
+                            }
+                        }
+                        reportData.value.push(PATIENT_CACHE[id])
                     } catch (e) {
                         console.error(e)
                         reportData.value.push({})
                     }
                     subtitle.value = `Total: ${reportData.value.length} of ${(data||[]).length}`
                 }
-                await delayPromise(500)
+                await delayPromise(250)
             }
         }, { immediate: true })
 
@@ -96,7 +106,9 @@ export default defineComponent({
             columns,
             subtitle,
             reportData,
-            ITEMS_PER_PAGE
+            canLoadData,
+            ITEMS_PER_PAGE,
+            runFinishAction
         }
     }
 })

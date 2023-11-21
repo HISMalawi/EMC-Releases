@@ -1,10 +1,13 @@
 <template>
     <ion-header>
         <ion-toolbar>
-            <ion-title class="his-md-text">
+            <ion-thumbnail v-if="iconUrl" slot="start">
+                <ion-img :src="iconUrl"></ion-img>
+            </ion-thumbnail>
+            <ion-title slot="start" class="his-md-text">
                 {{ title }} 
-                    <br v-if="subtitle"/>
-                    <span class="his-sm-text">{{subtitle}}</span>
+                <br v-if="subtitle"/>
+                <span class="his-sm-text">{{subtitle}}</span>
             </ion-title>
             <ion-buttons slot="end">
                 <ion-button v-if="typeof onConfigure === 'function'"
@@ -13,16 +16,19 @@
                 </ion-button>
                 <ion-chip
                     v-if="searchTerm"
-                    @click="searchTerm = ''" 
+                    @click="() => { searchTerm = ''; showSearchKeyboard = false}" 
                     class="his-md-text"
                     color="primary">
-                    <ion-label>{{ searchTerm }}</ion-label>
+                    <ion-label>{{ searchTerm ? `Search: ${searchTerm}` : '' }}</ion-label>
                     <ion-icon :icon="close"></ion-icon>
                 </ion-chip>
-                <ion-button @click="searchTable" size="large">
+                <ion-button 
+                    :color="showSearchKeyboard ? 'primary' : 'dark'"
+                    @click="() => showSearchKeyboard = showSearchKeyboard ? false : true" 
+                    size="large">
                     <ion-icon size="large" :icon="search"></ion-icon>
                 </ion-button>
-                <ion-button 
+                <ion-button
                     v-if="typeof onRefresh === 'function'" 
                     @click="onRefresh"
                     color="success" size="large">
@@ -69,6 +75,11 @@
         </table>
     </ion-content>
     <ion-footer>
+        <his-keyboard
+            v-if="showSearchKeyboard" 
+            :kbConfig="QWERTY" 
+            :onKeyPress="filterTable"
+        />
         <ion-toolbar color="dark">
             <ion-button @click="toCSV()" size="large">
                 CSV
@@ -100,6 +111,7 @@
 <script lang="ts">
 import {
   IonLabel,
+  IonImg,
   IonIcon,
   IonItem,
   IonTitle,
@@ -109,7 +121,8 @@ import {
   IonButton,
   IonFooter,
   IonContent,
-  IonButtons
+  IonButtons,
+  IonThumbnail
 } from "@ionic/vue"
 import { 
     sync,
@@ -119,13 +132,10 @@ import {
     arrowDown, 
     funnelOutline,
 } from "ionicons/icons"
-import { Option } from "@/components/Forms/FieldInterface"
 import { computed, defineComponent, PropType, ref, watch } from "vue";
-import keyboard from "@/utils/PopupKeyboard"
 import { chunk, isEmpty } from "lodash";
 import { sort } from "fast-sort";
 import { numericKeypad } from "@/utils/PopupKeyboard";
-import { FieldType } from "@/components/Forms/BaseFormElements";
 import Fuse from "fuse.js"
 import { v2ColumnDataInterface, v2ColumnInterface } from "./types";
 import { toCsv, toTablePDF } from "@/utils/Export"
@@ -133,6 +143,9 @@ import { Service } from "@/services/service";
 import { useRouter } from "vue-router";
 import dayjs from "dayjs";
 import { removeNonDateCharacters, removeTags } from "@/utils/Strs";
+import HisKeyboard from "@/components/Keyboard/HisKeyboard.vue"
+import { QWERTY } from "@/components/Keyboard/HisKbConfigurations"
+import handleVirtualInput from "@/components/Keyboard/KbHandler"
 
 export default defineComponent({
     components: {
@@ -146,12 +159,18 @@ export default defineComponent({
         IonFooter,
         IonContent,
         IonButtons,
-        IonChip
+        IonChip,
+        HisKeyboard,
+        IonThumbnail,
+        IonImg
     },
     props: {
         title: {
             type: String,
             default: 'Report'
+        },
+        iconUrl: {
+            type: String
         },
         subtitle: {
             type: String,
@@ -196,6 +215,8 @@ export default defineComponent({
         const searchTerm = ref<string>('')
         const columnSorted = ref<string>('')
         const sortOrder = ref<'asc'|'desc'>('desc')
+        const showSearchKeyboard = ref(false)
+
         /**
          * This computed object exist to allow for transformation
          * of "reportData" without mutations when doing
@@ -244,23 +265,8 @@ export default defineComponent({
             const num = parseInt(v)
             if (parseInt(v) <= totalPages.value) currentPage.value = num
         }, { title: 'Select page'})
-        /**
-         * Launches search input to filter page
-         */
-        const searchTable = () => {
-            keyboard({
-                id: "search",
-                helpText: "Find",
-                type: FieldType.TT_TEXT,
-            }, 
-            (v: Option) => {
-                // This has been wrapped in a slight delay to improve responsiveness of the page
-                setTimeout(() => {
-                    searchTerm.value = v ? v.value as string : ''
-                    currentPage.value = 0
-                }, 3)
-            })
-        }
+        
+
         /**
          * Reset current page to initial
          */
@@ -290,7 +296,7 @@ export default defineComponent({
          * Event handler when TD on HTML report is clicked
          * @param cell 
          */
-        const onClickTablecell = (cell: v2ColumnDataInterface) => {
+        const onClickTablecell = (cell: any) => {
             try {
                 if (typeof cell.column?.tdClick === 'function') {
                     cell.column?.tdClick(cell)
@@ -368,6 +374,11 @@ export default defineComponent({
             )
         }
 
+        const filterTable = (text: string) => {
+            searchTerm.value = handleVirtualInput(text, searchTerm.value)
+            currentPage.value = 0
+        }
+
         /**
          * Create a table header and cell mapping
          * @param data 
@@ -376,10 +387,13 @@ export default defineComponent({
             data.forEach((record: any)=> {
                 const row = getExpandedColumns().map((column: v2ColumnInterface) => {
                     let value = ''
+                    const refData = record[column.ref]
                     try {
                         if (isEmpty(record)) {
                             value = "..."
-                        }else if (typeof column.value === 'function') {
+                        } else if (typeof column.toValue === 'function') {
+                            value = `${column.toValue(refData)}`
+                        } else if (typeof column.value === 'function') {
                             value = column.value(record) as string
                         } else {
                             // Use the ref to map to a value inside the record
@@ -391,9 +405,9 @@ export default defineComponent({
                     }
                     return {
                         column,
-                        data: record,
-                        value: value,
-                        [column.ref || 'nada']: value
+                        refData,
+                        value,
+                        data: record
                     }
                 })
                 reportData.value.push({ 
@@ -426,11 +440,11 @@ export default defineComponent({
             prev,
             selectPage,
             sortColumn,
-            searchTable,
             onClickTablecell,
             toPDF,
             toCSV,
             finish,
+            filterTable,
             sync, 
             search, 
             close, 
@@ -444,7 +458,9 @@ export default defineComponent({
             sortOrder,
             canPrev,
             currentPage,
-            columnSorted
+            columnSorted,
+            QWERTY,
+            showSearchKeyboard
         }
     }
 })
@@ -475,5 +491,8 @@ export default defineComponent({
         color: #0645AD;
         font-weight: 600;
         font-size: 1em;
+    }
+    .his-floating-keyboard {
+        bottom: 70px!important;
     }
 </style>

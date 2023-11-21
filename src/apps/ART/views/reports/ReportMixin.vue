@@ -15,7 +15,7 @@ import table, { AsyncTableRowHandler } from "@/components/DataViews/tables/Repor
 import { isArray } from "lodash"
 import Store from "@/composables/ApiStore"
 import App from "@/apps/app_lib"
-import { formatGender as fmtGender } from "@/utils/Strs";
+import { formatGender as fmtGender } from "@/utils/Strs"
 
 
 export default defineComponent({
@@ -33,7 +33,7 @@ export default defineComponent({
     }),
     methods: {
         formatGender(gender: string) {
-            return fmtGender(gender)
+            return fmtGender(gender);
         },
         toDate(date: string) {
             return HisDate.toStandardHisDisplayFormat(date)

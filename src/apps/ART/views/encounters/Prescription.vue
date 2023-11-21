@@ -138,7 +138,7 @@ export default defineComponent({
             this.facts.isChildBearing = patient.isChildBearing()
             this.facts.tptStatus = await new ConsultationService(this.patientID, this.providerID).getTptTreatmentStatus()
         },
-        async onSubmit(form: any) {
+        async onSubmit(form: any, computedData: any) {
             const encounter = await this.prescription.createEncounter()
 
             this.prescription.setNextVisitInterval(form[Target.INTERVAL_SELECTION].value)
@@ -158,6 +158,11 @@ export default defineComponent({
             if (this.facts.hangingPillsStatus) {
                 await this.prescription.createHangingPillsObs(this.facts.hangingPillsStatus)
             }
+
+            if (Object.keys(computedData).length) {
+                await this.prescription.saveObservationList((await this.resolveObs(computedData)))
+            }
+
             toastSuccess('Drug order has been created')
             Store.invalidate('PATIENT_PROGRAM')
             this.nextTask()
@@ -570,6 +575,21 @@ export default defineComponent({
                     beforeNext: () => this.onEvent(Target.INTERVAL_SELECTION, TargetEvent.BEFORE_NEXT), 
                     config: {
                         showRegimenCardTitle: false
+                    }
+                },
+                {
+                    id: "reason_for_longer_duration",
+                    helpText: "Specify reason for prescribing medication over 6 months",
+                    type: FieldType.TT_NOTE,
+                    condition: (f: any) => f[Target.INTERVAL_SELECTION].value > 168,
+                    validation: (val: Option) => Validation.required(val),
+                    computedValue: (val: Option) => {
+                        return {
+                            obs: this.prescription.buildValueText(
+                                "Why prescribe medication for more than 6 months?",
+                                `${val.value}`
+                            )
+                        }
                     }
                 }
             ]
