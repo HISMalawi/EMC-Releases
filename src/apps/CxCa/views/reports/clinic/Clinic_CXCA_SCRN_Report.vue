@@ -17,7 +17,6 @@ import { IonPage, IonLoading, modalController } from "@ionic/vue"
 import v2Datatable from "@/components/DataViews/tables/v2PocDatatable/TableView.vue"
 import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
 import { CxCaReportService } from "@/apps/CxCa/services/reports/cxca_report_service"
-import { DateSelection } from "@/utils/ReportDateSelectionPrompt"
 import { toastDanger, toastWarning } from '@/utils/Alerts';
 import DrillPatientIds from '../../../../../components/DrillPatientIds.vue';
 import { toDate } from '@/utils/Strs';
