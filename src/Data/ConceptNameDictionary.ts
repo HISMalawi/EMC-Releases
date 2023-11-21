@@ -391,6 +391,11 @@ export default [
       "name": "Oophorectomy"
    },
    {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 10772,
+      "name": "Laparotomy due to ectopic pregnancy"
+   },
+   {
       "categories": [],
       "concept_id": 7124,
       "name": "Tetanus Diphtheria"
