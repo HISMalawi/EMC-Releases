@@ -27,14 +27,6 @@
         </ion-col>
         <ion-col :style="{overflowY: 'auto', height:'79vh'}" v-if="activeIndex != null && selectedOrders.length > 0">
           <div class="ion-margin-bottom">
-            <div v-if="canScanDBS && /hiv viral load/i.test(testTypes[activeIndex].name)">
-              <div class="his-md-text side-title">
-                Barcode ID:  <ion-text :color="testTypes[activeIndex].accessionNumber ? 'success' : 'dark'">
-                  <b>{{ testTypes[activeIndex].accessionNumber || 'None' }}</b>
-                </ion-text>
-              </div>
-              <BarcodeInput size="small" @onScan="(barcode) => onScanEIDbarcode(barcode)"/>
-            </div>
             <ion-list v-if="!extendedLabsEnabled">   
               <ion-radio-group v-model="testTypes[activeIndex]['specimen']">
                 <div class="his-md-text side-title">
@@ -46,6 +38,14 @@
                 </ion-item>
               </ion-radio-group>
             </ion-list>
+            <div v-if="dbsBarcodeActivated">
+              <div class="his-md-text side-title">
+                Barcode ID:  <ion-text :color="testTypes[activeIndex].accessionNumber ? 'success' : 'dark'">
+                  <b>{{ testTypes[activeIndex].accessionNumber || 'None' }}</b>
+                </ion-text>
+              </div>
+              <BarcodeInput size="small" @onScan="(barcode) => onScanEIDbarcode(barcode)"/>
+            </div>
             <ion-radio-group v-model="testTypes[activeIndex]['reason']">
               <div class="his-md-text side-title">
                 Main test(s) reason
@@ -238,13 +238,17 @@ export default defineComponent({
     },
   },
   computed: {
+    dbsBarcodeActivated(): boolean {
+      return this.canScanDBS && 
+        /dbs/i.test(`${this.testTypes[this.activeIndex]?.specimen}`) &&
+        /hiv viral load/i.test(`${this.testTypes[this.activeIndex]?.name}`)
+    },
     isOrderComplete(): boolean {
       if (typeof this.activeIndex != 'number') {
         return false
       }
-      if (this.canScanDBS && /hiv viral load/i.test(this.testTypes[this.activeIndex]['name']) && 
-        !this.testTypes[this.activeIndex]['accessionNumber']) {
-          return false
+      if (this.dbsBarcodeActivated && !this.testTypes[this.activeIndex]['accessionNumber']) {
+        return false
       }
       if(this.extendedLabsEnabled){
         return !!this.testTypes[this.activeIndex]['reason'] 
@@ -257,7 +261,7 @@ export default defineComponent({
     },
     finalOrders(): any {
       return this.selectedOrders.filter((data: any) => {
-        if (this.canScanDBS && /hiv viral load/i.test(data.name) && !data.accessionNumber) {
+        if (this.dbsBarcodeActivated && !data.accessionNumber) {
           return false
         }
         return data.reason && (data.specimen && !this.extendedLabsEnabled 
