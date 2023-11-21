@@ -719,6 +719,11 @@ export default [
    },
    {
       "categories": ["reason_for_no_cxca"],
+      "concept_id": 44,
+      "name": "Pregnancy"
+   },
+   {
+      "categories": ["reason_for_no_cxca"],
       "concept_id": 10007,
       "name": "Client preferred counseling",
    },
