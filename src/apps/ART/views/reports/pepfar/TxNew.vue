@@ -25,6 +25,8 @@ import { TxReportService } from "@/apps/ART/services/reports/tx_report_service";
 import v2Datatable from "@/components/DataViews/tables/v2PocDatatable/TableView.vue"
 import ArtDrilldown from "@/apps/ART/Components/ArtDrilldown.vue";
 import Img from "@/utils/Img";
+import { uniq } from "lodash";
+
 export default defineComponent({
     components: { 
         IonPage,
@@ -32,7 +34,7 @@ export default defineComponent({
         v2Datatable
     },
     setup() {
-        const reportData = ref([])
+        const reportData = ref<any>([])
         const period = ref('')
         const isLoading = ref(false)
         const report = new TxReportService()
@@ -70,14 +72,54 @@ export default defineComponent({
         ]
 
          const generate = async () => {
-            if (!(report.startDate && report.endDate))  {
-                return toastWarning('Start date and end date required!')
-            }
+            if (!(report.startDate && report.endDate)) return toastWarning(
+                'Start date and end date required!'
+            )
             isLoading.value = true
             reportData.value = []
             try {
-                reportData.value = (await report.getTxNewReport())
-                    .map((d: any, i: any) => ({index: i+1, ...d}))
+                const res = await report.getTxNewReport()
+                const GENDER_MAP: any = { F: "Female", M: "Male" }
+                const disaggregated = res.reduce((a: any, c: any) => {
+                    if (c.age_group ==='Unknown') return a
+                    a[c.gender].rows.push({ ...c, gender: GENDER_MAP[c.gender as any] })
+                    a[c.gender].aggregate = Object.keys(c).reduce((a: any, k: any) => {
+                        if(Array.isArray(c[k])) {
+                            return { ...a, [k] : [...a[k]||[], ...c[k]]}
+                        }
+                        return a
+                    }, a[c.gender].aggregate)
+                    return a
+                },
+                { 
+                    M: { rows: [], aggregate: {} },
+                    F: { rows: [], aggregate: {} }
+                })
+
+                reportData.value = [
+                    ...disaggregated.F.rows, 
+                    ...disaggregated.M.rows,
+                    { age_group: 'All', gender: 'Male', ...disaggregated.M.aggregate }
+                ]
+            
+                const allFemale: any = Object.values(disaggregated.F.aggregate).reduce((a: any, c: any) => a.concat(c), [])
+                const mStatus = await report.getMaternalStatus(uniq(allFemale))
+                const allFp = mStatus.FBf.concat(mStatus.FP);
+
+                (['FP', 'FNP', 'FBf']).forEach((gender: string) => {
+                    reportData.value.push(
+                        Object.keys(disaggregated.F.aggregate).reduce((a: any, k: any) => {
+                            return {
+                                ...a, [k]: disaggregated.F.aggregate[k].filter(
+                                    (id: number) => gender === 'FNP' 
+                                        ? !allFp.includes(id)
+                                        : mStatus[gender].includes(id)
+                                )
+                            }
+                        }, { age_group: "All", gender })
+                    )
+                })
+                reportData.value = reportData.value.map((d:any, i: number) => ({index: i+1, ...d}))
             } catch (e) {
                 toastDanger("Unable to generate report!")
                 console.error(e)
@@ -87,7 +129,7 @@ export default defineComponent({
 
         const configure = () => DateSelection({
             onFinish: (sDate: string, eDate: string, periodstr: string) => {
-                period.value = `Period (${periodstr})`
+                period.value = `Period: ${periodstr}`
                 report.startDate = sDate
                 report.endDate = eDate
                 generate()
