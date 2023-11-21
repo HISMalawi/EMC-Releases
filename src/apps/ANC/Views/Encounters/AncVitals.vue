@@ -3,201 +3,235 @@
     :fields="fields"
     :onFinishAction="onFinish"
     :skipSummary="true"
-    :cancelDestinationPath="cancelDestination"
+    :cancelDestinationPath="patientDashboardUrl"
   >
   </his-standard-form>
 </template> 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script lang="ts" setup>
 import { Field, Option } from "@/components/Forms/FieldInterface";
 import { FieldType } from "@/components/Forms/BaseFormElements";
 import HisStandardForm from "@/components/Forms/HisStandardForm.vue";
 import { VitalsService } from "@/apps/ART/services/vitals_service";
-import EncounterMixinVue from "../../../../views/EncounterMixin.vue";
-import { ProgramService } from "@/services/program_service";
-import { find } from "lodash";
+import { find, isEmpty } from "lodash";
+import { Patientservice } from "@/services/patient_service";
+import { infoActionSheet } from "@/utils/ActionSheets";
+import { alertConfirmation } from "@/utils/Alerts";
+import { computed, ref } from "vue";
+import useEncounter from "@/composables/useEncounter";
 
-export default defineComponent({
-  mixins: [EncounterMixinVue],
-  components: { HisStandardForm },
-  data: () => ({
-    age: null as any,
-    gender: null as any,
-    recentHeight: null,
-    vitals: {} as any,
-    weightForHeight: {} as any,
-    medianWeightandHeight: {} as any
-  }),
-  watch: {
-    ready: {
-      async handler(ready) {
-        if (ready) await this.init(this.patient)
-      },
-      immediate: true
-    }
+const age = ref(0);
+const recentHeight = ref(-1);
+const recentWeight = ref(-1);
+const recentWeightObsID = ref(-1);
+const fields = ref<Array<Field>>([]);
+let vitalsService: VitalsService;
+
+const { patientDashboardUrl, goToNextTask } = useEncounter(onConfigure);
+
+const weightOption: Option = {
+  label: "Weight",
+  value: "",
+  other: {
+    modifier: "KG",
+    icon: "weight",
+    required: true,
   },
-  methods: {
-    async init(patient: any) {
-        this.vitals = new VitalsService(patient.getID(), this.providerID);
-        this.age = patient.getAge();
-        this.gender = patient.getGender();
-        const lastHeight = await patient.getRecentHeight();
-        this.recentHeight = lastHeight == -1 ? null : lastHeight;
-        if (this.age <= 14) {
-            this.medianWeightandHeight = await patient.getMedianWeightHeight();
-            this.weightForHeight = await ProgramService.getWeightForHeightValues();
-        }
-        this.fields = this.getFields();
-    },
-    async onFinish(_: any, computedData: any) {
-      await this.vitals.createEncounter()
-      await this.vitals.saveObservationList(
-        (await this.resolveObs(computedData))
-      )
-      this.nextTask();
-    },
-    validateVitals(vitals: any) {
-      const l = this.checkRequiredVitals(vitals);
-      if (l.length > 0) {
-        return l.map((val) => {
-          return [`${val.label} can not be empty`];
-        });
-      }
-      const v = this.sanitizeVitals(vitals);
-      return this.vitals.validateAll(v);
-    },
-    sanitizeVitals(vitals: Array<Option>) {
-      return vitals.filter((element) => {
-        if (element.label === "Height" && element.other.required == false) {
-          return false;
-        }
-        return element.value !== "" && element.label !== "Age";
-      })
-    },
-    checkRequiredVitals(vitals: Array<Option>) {
-      return vitals.filter((element) => {
-        return element.value === "" && element.other.required === true;
-      });
-    },
-    getFields(): Array<Field> {
-      return [
-        {
-          id: "vitals",
-          helpText: "Vitals entry",
-          type: FieldType.TT_VITALS_ENTRY,
-          validation: (value: any) => this.validateVitals(value),
-          computedValue: (value: Option[]) => {
-            let obs: any = []
-            const data = value.filter(v => !v.other.doNotSave)
-            data.forEach((d: Option) => {
-                if (!d.value) {
-                    return
-                }
-                if (typeof d.other?.computed === 'function') {
-                    obs = obs.concat(d.other.computed(d.value))
-                } else {
-                    obs.push(this.vitals.buildValueNumber(d.label, d.value))
-                }
-            })
-            return obs
-          },
-          config: {
-            hiddenFooterBtns : [
-              'Clear'
-            ],
-            onUpdateAlertStatus: (params: Option[]) => {
-                const bp = find(params, { label: 'BP' })
-                if (bp && bp.value != '') {
-                    const [sys, dis] = `${bp.value}`.split('/').map(v => parseInt(v))
-                    if (sys >= 140 && dis >= 90) {
-                        return {
-                            status: 'Client is at risk of pre-eclampsia, refer for urine protein test.',
-                            color: 'brown'
-                        }
-                    }
-                    if (sys < 120 || sys > 140) {
-                        return {
-                            status: 'Systolic reading is out of normal range',
-                            color: 'brown'
-                        }
-                    }
-                    if (dis < 80 || dis > 90) {
-                        return {
-                            status: 'Diastolic reading is out of normal range',
-                            color: 'brown'
-                        }
-                    }
-                    if ((sys >= 130 && sys <= 139) && (dis >= 80 && dis <= 89)) {
-                        return {
-                            status: 'Prehypertension',
-                            color: 'brown'
-                        }
-                    }
-                }
-                return { status: '', color: ''}
-            },
-            onChangeOption: (activeItem: any) => {
-              if (!activeItem.value && activeItem.other.required) {
-                throw `Value for ${activeItem.label} is required`
-              }else if (activeItem.value) {
-                const errs = this.vitals.validator(activeItem)
-                if(errs && errs.length) throw errs
-              }
-            }
-          },
-          options: () => {
-            const recentHeight = this.recentHeight && this.age > 18? this.recentHeight : "";
-            const showHeight = !(recentHeight && this.age > 18);
-            return [
-                {
-                    label: "Weight",
-                    value: "",
-                    other: {
-                        modifier: "KG",
-                        icon: "weight",
-                        required: true,
-                    },
-                },
-                {
-                    label: "Height",
-                    value: `${recentHeight}`,
-                    other: {
-                        modifier: "CM",
-                        icon: "height",
-                        recentHeight: this.recentHeight,
-                        visible: showHeight
-                    }
-                },
-                { 
-                    label: "BP", 
-                    value: "", 
-                    other: {
-                        computed: (bp: string) => {
-                            const  [sys, dia] = bp.split("/");
-                            return [
-                                this.vitals.buildValueNumber("Systolic", sys),
-                                this.vitals.buildValueNumber("Diastolic", dia)
-                            ]
-                        },
-                        modifier: "mmHG", 
-                        icon: "bp"
-                    } 
-                },
-                {
-                    label: "Age",
-                    value: this.age,
-                    other: {
-                        doNotSave: true,
-                        modifier: "Years old", 
-                        icon: "", 
-                        visible: false 
-                    }
-                }
-            ]
-          }
-        }
-      ]
+}
+
+const bpOption: Option = {
+  label: "BP", 
+  value: "", 
+  other: {
+    modifier: "mmHG", 
+    icon: "bp"
+  } 
+}
+
+const ageOption = computed(() => ({
+  label: "Age",
+  value: age.value,
+  other: {
+    doNotSave: true,
+    modifier: "Years old", 
+    icon: "", 
+    visible: false 
+  }
+}));
+
+const heightOption = computed(() => {
+  const disableHeight = recentHeight.value > 0 && age.value > 18;
+  return {
+    label: "Height",
+    value: `${disableHeight ? recentHeight.value : ''}`,
+    other: {
+      modifier: "CM",
+      icon: "height",
+      recentHeight: recentHeight.value,
+      visible: !disableHeight
     }
   }
-})
+});
+
+async function onConfigure (providerId: number, patientId: number, patient: Patientservice) {
+  vitalsService = new VitalsService(patientId, providerId);
+  const lastWeight = await VitalsService.getFirstObs(patientId, "Weight");
+  recentWeight.value = parseFloat(`${ lastWeight?.value_numeric ?? 0}`);
+  recentWeightObsID.value = parseInt(`${ lastWeight?.obs_id ?? -1 }`)
+  age.value = patient.getAge();
+  recentHeight.value = await patient.getRecentHeight();
+  fields.value.push(getVitalsField())
+}
+
+function validateVitals(vitals: any) {
+  const l = checkRequiredVitals(vitals);
+  if (l.length > 0) {
+    return l.map((val) => {
+      return [`${val.label} can not be empty`];
+    });
+  }
+  const v = sanitizeVitals(vitals);
+  return vitalsService.validateAll(v);
+}
+    
+function sanitizeVitals(vitals: Array<Option>) {
+  return vitals.filter((element) => {
+    if (element.label === "Height" && element.other.required == false) {
+      return false;
+    }
+    return element.value !== "" && element.label !== "Age";
+  })
+}
+
+function checkRequiredVitals(vitals: Array<Option>) {
+  return vitals.filter((element) => {
+    return element.value === "" && element.other.required === true;
+  });
+}
+
+function onUpdateAlertStatus (params: Option[]) {
+  const bp = find(params, { label: 'BP' })
+  if (bp && bp.value != '') {
+    const [sys, dis] = `${bp.value}`.split('/').map(v => parseInt(v))
+    if (sys >= 140 && dis >= 90) {
+      return {
+        status: 'Client is at risk of pre-eclampsia, refer for urine protein test.',
+        color: 'brown'
+      }
+    }
+    if (sys < 120 || sys > 140) {
+      return {
+        status: 'Systolic reading is out of normal range',
+        color: 'brown'
+      }
+    }
+    if (dis < 80 || dis > 90) {
+      return {
+        status: 'Diastolic reading is out of normal range',
+        color: 'brown'
+      }
+    }
+    if ((sys >= 130 && sys <= 139) && (dis >= 80 && dis <= 89)) {
+      return {
+        status: 'Prehypertension',
+        color: 'brown'
+      }
+    }
+  }
+  return { status: '', color: ''}
+}
+
+async function getFinalWeight(weightOption: Option): Promise<number> {
+  const enteredWeight = parseFloat(`${weightOption.value || 0}`);
+  const weightChange = enteredWeight - recentWeight.value;
+  const changePercentage = (Math.abs(weightChange) / recentWeight.value || 1) * 100;
+
+  if (changePercentage > 30) {
+    const prevWeightBtnTxt = `Use ${recentWeight.value} Kg`
+    const newWeightBtnTxt = `Use ${enteredWeight} Kg`
+    const action = await infoActionSheet(
+      `Abnormal Weight Change`,
+      `Previous Weight "${recentWeight.value} Kg". Current Weight "${enteredWeight} Kg"`,
+      `Weight Reading has been ${ weightChange > 0 ? 'increased' : 'decresed'} by more than 30%. Please SELECT the correct Weight.)`,
+      [
+        {
+          name: prevWeightBtnTxt,
+          slot: 'start',
+          color: 'success'
+        },
+        {
+          name: newWeightBtnTxt,
+          slot: 'end',
+          color: 'danger'
+        }
+      ]
+    )
+    if (action === newWeightBtnTxt && recentWeightObsID) {
+      if ((await alertConfirmation(`Do you want to void Weight observation for ${recentWeight.value}`))) {
+        await VitalsService.voidObs(recentWeightObsID.value)
+      }
+    } else {
+      return recentWeight.value
+    }
+  }
+  return enteredWeight
+}
+
+async function onChangeOption (activeItem: Option) {
+  if (!activeItem.value && activeItem.other.required) {
+    throw `Value for ${activeItem.label} is required`
+  }else if (activeItem.value) {
+    const errs = vitalsService.validator(activeItem)
+    if(errs && errs.length) throw errs
+  }
+  if(activeItem.label === "Weight" && recentWeight.value > 0) {
+    activeItem.value = await getFinalWeight(activeItem);
+  } 
+}
+
+function getVitalsField(): Field {
+  return {
+    id: "vitals",
+    helpText: "Vitals entry",
+    type: FieldType.TT_VITALS_ENTRY,
+    validation: validateVitals,
+    options: () => [
+      weightOption,
+      heightOption.value,
+      bpOption,
+      ageOption.value
+    ],
+    config: {
+      onUpdateAlertStatus,
+      onChangeOption,
+      hiddenFooterBtns : ['Clear']
+    }
+  }
+}
+
+async function buildBpObs(bp: string) {
+  const  [sys, dia] = bp.split("/");
+  return [
+    await vitalsService.buildValueNumber("Systolic", parseInt(sys)),
+    await vitalsService.buildValueNumber("Diastolic", parseInt(dia))
+  ]
+}
+
+async function buildVitalsObs(vitals: Array<Option>) {
+  const obs = await Promise.all(vitals.filter(vital => !(vital.other?.doNotSave || isEmpty(vital.value)))
+    .map(async (vital) => {
+      if(vital.label === "BP") return buildBpObs(vital.value as string);
+      if(vital.label === "Weight" && recentWeight.value > 0) {
+        vital.value = await getFinalWeight(vital)
+      }
+      return vitalsService.buildValueNumber(vital.label, vital.value as number);
+    }))
+  return obs.flat();
+}
+
+async function onFinish(formData: any) {
+  await vitalsService.createEncounter();
+  const vitalObs = await buildVitalsObs(formData.vitals);
+  await vitalsService.saveObservationList(vitalObs);
+  goToNextTask();
+}
 </script>
