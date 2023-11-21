@@ -391,6 +391,11 @@ export default [
       "name": "Oophorectomy"
    },
    {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 10772,
+      "name": "Laparotomy due to ectopic pregnancy"
+   },
+   {
       "categories": [],
       "concept_id": 7124,
       "name": "Tetanus Diphtheria"
@@ -716,6 +721,11 @@ export default [
       "categories": ["reason_for_no_cxca"],
       "concept_id": 8387,
       "name": "Not due for screening"
+   },
+   {
+      "categories": ["reason_for_no_cxca"],
+      "concept_id": 44,
+      "name": "Pregnancy"
    },
    {
       "categories": ["reason_for_no_cxca"],

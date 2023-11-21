@@ -2,7 +2,7 @@
     <ion-page>
         <ion-loading :is-open="isLoading" message="Please wait..." />
         <v2Datatable 
-            title="CXCA SCRN Report" 
+            title="CLINIC SCRN Report" 
             :csvQuarter="csvQuarter"
             :subtitle="period" 
             :columns="columns" 
@@ -17,10 +17,13 @@ import { IonPage, IonLoading, modalController } from "@ionic/vue"
 import v2Datatable from "@/components/DataViews/tables/v2PocDatatable/TableView.vue"
 import { v2ColumnDataInterface, v2ColumnInterface } from '@/components/DataViews/tables/v2PocDatatable/types';
 import { CxCaReportService } from "@/apps/CxCa/services/reports/cxca_report_service"
-import { DateSelection } from "@/utils/ReportDateSelectionPrompt"
 import { toastDanger, toastWarning } from '@/utils/Alerts';
 import DrillPatientIds from '../../../../../components/DrillPatientIds.vue';
 import { toDate } from '@/utils/Strs';
+import { MultiStepPopupForm } from '@/utils/PopupKeyboard';
+import { FieldType } from '@/components/Forms/BaseFormElements';
+import { Option } from '@/components/Forms/FieldInterface'
+import Validation from "@/components/Forms/validations/StandardValidations"
 
 const reportData = ref<any>([])
 const startDate = ref('')
@@ -197,7 +200,7 @@ export default defineComponent({
             report.startDate = startDate.value
             report.endDate = endDate.value
             try {
-                reportData.value = (await report.getClinicReport('CXCA SCRN'))                    
+                reportData.value = (await report.getClinicReport('CLINIC CXCA SCRN'))                    
                     .slice(5)
                     .map((data: any, index: any) => {
                         data.index = index + 1
@@ -237,14 +240,30 @@ export default defineComponent({
         /**
          * Loads a dialogue to allow users to configure start and end date
          */
-        const configure = () => DateSelection({
-            onFinish: (sDate: string, eDate: string, periodstr: string) => {
-                startDate.value = sDate
-                endDate.value = eDate
-                period.value = `Period (${periodstr})`
-                csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`
-                generate()
-            }
+        const configure = () => MultiStepPopupForm([
+        {
+                id: "start_date",
+                helpText: "Start Date",
+                type: FieldType.TT_FULL_DATE,
+                validation: (val: Option) => Validation.required(val),
+                computedValue: (v: Option) => v.value
+            },
+            {
+                id: "end_date",
+                helpText: "End Date",
+                type: FieldType.TT_FULL_DATE,
+                validation: (val: Option) => Validation.required(val),
+                computedValue: (v: Option) => v.value
+            },
+        ],
+        (f: any, c: any) => {
+            startDate.value = c.start_date
+            endDate.value = c.end_date
+            //convert to passable string
+            period.value = `Period (${toDate(startDate.value)} to ${toDate(endDate.value)})`
+            modalController.dismiss()
+            csvQuarter.value = `${toDate(startDate.value)} to ${toDate(endDate.value)}`            
+            generate()
         })
 
         /**

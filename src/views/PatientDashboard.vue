@@ -136,6 +136,7 @@
     <!-- LARGE SCREEN BREAKPOINT -->
     <ion-page v-if="screenBreakPoint === 'lg'"> 
         <full-toolbar
+            :app="app"
             :appVersion="appVersion"
             :appIcon="app.applicationIcon"
             :patientCardInfo="patientCardInfo"

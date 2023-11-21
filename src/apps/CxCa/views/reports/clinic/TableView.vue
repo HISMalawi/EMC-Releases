@@ -221,11 +221,11 @@ export default defineComponent({
             type: String
         },
         headers: {
-            type: Array as PropType<Array<Array<any>>>,
+            type: Array as PropType<Array<any>>,
             default: () => []
         },
         order: {
-            type: Array as PropType<Array<Array<any>>>,
+            type: Array as PropType<Array<any>>,
             default: () => []
         },
         csvSpacing: {
