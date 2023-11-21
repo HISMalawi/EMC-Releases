@@ -10,7 +10,7 @@
               :onConfigure="configure"
               :csvQuarter="csvQuarter"
               :headers="csvheaders"
-              :onRefresh="() => generate()"
+              :onRefresh="generate"
           />
       </ion-page>
   </template>
@@ -25,7 +25,6 @@
   import { FieldType } from "@/components/Forms/BaseFormElements";
   import { Option } from '@/components/Forms/FieldInterface'
   import Validation from "@/components/Forms/validations/StandardValidations"
-  import { PatientDiagnosisService } from "@/apps/OPD/services/patient_diagnosis_service"
   import { CxCaReportService } from '@/apps/CxCa/services/reports/cxca_report_service'
   import DrillPatientIds from '../../../../../components/DrillPatientIds.vue';
   
@@ -38,7 +37,6 @@
   const period = ref('')
   const isLoading = ref(false)
   const csvQuarter = ref('')
-  const multipleDiagnosis = ref('')
   
   export default defineComponent({ 
       components: { 
@@ -72,10 +70,6 @@
                 patients: originalObject[reason],
             }));
             }
-  
-          const mapToOption = (listOptions: Array<string>): Array<Option> => {
-              return listOptions.map((item: any) => ({ label: item.name, value: item.name })) 
-          }
   
           const drilldown = async (title: string, patientIdentifiers: number[]) => {
               if (patientIdentifiers.length <= 0) {return;}
