@@ -1,7 +1,7 @@
 {
   "name": "HIS-Core",
   "version": "1.13.0-alpha",
-  "min-api-version": "4.19.2",
+  "min-api-version": "4.19.5",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
