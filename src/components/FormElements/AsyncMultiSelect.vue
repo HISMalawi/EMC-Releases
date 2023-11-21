@@ -103,9 +103,7 @@ export default defineComponent({
         },
         onFilter(filter: string) {
             this.filter = filter
-            if (typeof this.config?.apiFilter === 'function') {
-                this.config?.apiFilter(filter).then(this.indexData)
-            }
+            this.options(this.fdata, this.filter).then(this.indexData)
         },
         onSelect(selected: Option) {
             this.listOptions.forEach((option) => {
