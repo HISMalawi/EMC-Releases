@@ -13,17 +13,19 @@
     <ion-grid>
       <ion-row>
         <ion-col size="12" class="ion-margin-top ion-margin-bottom">
-          <SelectInput v-model="guardian.givenName" :options="guardianOptions" />
+          <SelectInput v-model="activeGuardian" :options="guardianOptions" />
         </ion-col>
-        <ion-col size="12" class="ion-margin-top ion-margin-bottom">
-          <TextInput v-model="guardian.givenName" />
-        </ion-col>
-        <ion-col size="12" class="ion-margin-top ion-margin-bottom">
-          <TextInput v-model="guardian.familyName" />
-        </ion-col>
-        <ion-col size="12" class="ion-margin-top ion-margin-bottom">
-          <TextInput v-model="guardian.cellPhoneNumber" allowUnknown />
-        </ion-col>
+        <template v-if="activeGuardian.value">
+          <ion-col size="12" class="ion-margin-top ion-margin-bottom">
+            <TextInput v-model="guardian.givenName" />
+          </ion-col>
+          <ion-col size="12" class="ion-margin-top ion-margin-bottom">
+            <TextInput v-model="guardian.familyName" />
+          </ion-col>
+          <ion-col size="12" class="ion-margin-top ion-margin-bottom">
+            <TextInput v-model="guardian.cellPhoneNumber" allowUnknown />
+          </ion-col>
+        </template>
       </ion-row>
     </ion-grid>
   </ion-content>
@@ -36,7 +38,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, defineProps } from "vue";
+import { reactive, defineProps, computed, watch } from "vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Option } from "@/components/Forms/FieldInterface";
@@ -50,6 +52,7 @@ import { modal } from "@/utils/modal";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
 import { GuardianDetails } from "@/interfaces/relationship";
 import SelectInput from "../inputs/SelectInput.vue";
+import { isEmpty } from "lodash";
 
 const props = defineProps<{guardians: Array<GuardianDetails>}>();
 
@@ -88,19 +91,31 @@ const guardian = reactive<DTForm>({
       return phone.value !== 'Unknown' && Validation.isMWPhoneNumber(phone)
     }
   },
-})
+});
 
-const onFinish = async () => submitForm(guardian, async (formData) => {
-  const person: Record<string, any> = {
-    ...formData
-  };
-  const registrationService = new PatientRegistrationService()
-  registrationService.setPersonID(activeGuardian.value.names.person_id); 
-  await registrationService.updatePerson(person);
+watch(() => activeGuardian.value, (g: Option) => {
+  guardian.givenName.value = g?.other?.names.given_name ?? "";
+  guardian.familyName.value = g?.other?.names.family_name ?? "";
+  guardian.cellPhoneNumber.value = g?.other?.phoneNumber ?? "";
+}, {
+  deep: true,
+  immediate: true
+});
+
+const onFinish = async () => submitForm(guardian, async (newGuardian) => {
+  const person: Record<string, any> = {};
+  const oldGuardian = activeGuardian.value.other as GuardianDetails;
+
+  if(oldGuardian.names.given_name !== newGuardian.givenName) person["given_name"] = newGuardian.givenName;
+  if(oldGuardian.names.family_name !== newGuardian.familyName) person["family_name"] = newGuardian.familyName;
+  if(oldGuardian.phoneNumber !== newGuardian.cellPhoneNumber) person["cell_phone_number"] = newGuardian.cellPhoneNumber;
+  
+  if(!isEmpty(person)) {
+    const registrationService = new PatientRegistrationService()
+    registrationService.setPersonID(oldGuardian.names.person_id); 
+    await registrationService.updatePerson(person);
+  }
   await modal.hide()
   EventBus.emit(EmcEvents.RELOAD_GUARDIAN_DATA)
-}, 
-{ 
-  underscoreKeys: true 
 })
 </script>
