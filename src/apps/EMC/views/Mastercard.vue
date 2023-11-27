@@ -8,9 +8,8 @@
           :guardians="guardians"
           :artStartDate="artStartDate"
           @updateARVNumber="updateARVNumber"
-          @addGuardian="addGuardian"
+          @updateGuardian="updateGuardian"
           @updatePatient="updateDemographics"
-          @editGuardian="editGuardian"
         />
       </ion-col>
     </ion-row>
@@ -42,7 +41,6 @@ import { EmcEvents } from "../interfaces/emc_event";
 import { modal } from "@/utils/modal";
 import { isEmpty } from "lodash";
 import { GuardianDetails } from "@/interfaces/relationship"
-import GuardianDemographicsEditVue from "../Components/modals/GuardianDemographicsEdit.vue";
 
 export default defineComponent({
   components: {
@@ -77,15 +75,10 @@ export default defineComponent({
       });
     }
 
-    const addGuardian = async () => {
+    const updateGuardian = async () => {
       await modal.show(GuardianDemographicsVue, {
         patientId,
-      });
-    }
-
-    const editGuardian = async () => {
-      await modal.show(GuardianDemographicsEditVue, {
-        guardians: guardians.value
+        guardians: guardians.value,
       });
     }
 
@@ -115,8 +108,7 @@ export default defineComponent({
       guardians,
       isReady,
       updateDemographics,
-      addGuardian,
-      editGuardian,
+      updateGuardian,
       updateARVNumber,
     };
   },

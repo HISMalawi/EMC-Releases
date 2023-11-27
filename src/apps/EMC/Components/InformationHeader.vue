@@ -57,7 +57,7 @@ export default defineComponent({
       default: () => [],
     }
   },
-  emits: ['updatePatient','updateARVNumber', 'addGuardian', 'editGuardian'],
+  emits: ['updatePatient','updateARVNumber', 'updateGuardian'],
   setup(props, { emit }) {
     const initWeight = ref(0)
     const initHeight = ref(0)
@@ -175,10 +175,7 @@ export default defineComponent({
         label: "Guardian",
         value: formattedRelations(),
         other: {
-          onClickHandler: () => {
-            if(hasGuardians.value) emit("editGuardian")
-            else emit('addGuardian')
-          }
+          onClickHandler: () => emit("updateGuardian")
         } 
       },
       { label: "Agrees to follow up", value: agreesToFollowUp.value, other: {
