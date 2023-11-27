@@ -17,6 +17,7 @@ export class RelationshipService extends Service {
 			return relation.map((element: Relationship) => {
 				const names = get(element, "relation.names[0]");
 				return {
+					id: element.relationship_id,
 					name: names ? getFullName(names) : "",
 					relationshipType: get(element, "type.b_is_to_a", ''),
 					phoneNumber: getPersonAttribute(get(element, "relation.person_attributes", []), 12),

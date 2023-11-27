@@ -19,6 +19,7 @@ export interface Relationship {
 }
 
 export interface GuardianDetails {
+    id: number;
     name: string;
     relationshipType: string;
     phoneNumber: string;

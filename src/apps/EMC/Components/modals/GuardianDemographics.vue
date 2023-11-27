@@ -25,6 +25,9 @@
           <ion-col size="12" class="ion-margin-top ion-margin-bottom">
             <TextInput v-model="guardian.cellPhoneNumber" allowUnknown />
           </ion-col>
+          <ion-col size="12" class="ion-margin-top ion-margin-bottom" v-if="!isNew">
+            <SelectInput v-model="guardian.relation" :options="relationTypes" />
+          </ion-col>
         </template>
       </ion-row>
     </ion-grid>
@@ -39,7 +42,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, defineProps, watch, ref, computed } from "vue";
+import { reactive, defineProps, watch, ref, computed, onMounted } from "vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import Validation from "@/components/Forms/validations/StandardValidations"
 import { Option } from "@/components/Forms/FieldInterface";
@@ -53,7 +56,7 @@ import { modal } from "@/utils/modal";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
 import { GuardianDetails } from "@/interfaces/relationship";
 import SelectInput from "../inputs/SelectInput.vue";
-import { isEmpty } from "lodash";
+import { find, isEmpty } from "lodash";
 import { RelationsService } from "@/services/relations_service";
 
 const registrationService = new PatientRegistrationService();
@@ -67,6 +70,7 @@ const props = defineProps<PropInterface>();
 const isNew = ref(isEmpty(props.guardians));
 const title = computed(() => `${isNew.value ? 'Add' : 'Edit' } Guardian Demographics`);
 const btnLabel = computed(() => `${isNew.value ? 'Edit' : 'Add' } Guardian`);
+const relationTypes = ref<Array<Option>>([]);
 const guardianOptions = props.guardians?.map(g => ({
   label: `${g.name} (${g.relationshipType})`,
   value: g.name,
@@ -102,12 +106,18 @@ const guardian = reactive<DTForm>({
       return phone.value !== 'Unknown' && Validation.isMWPhoneNumber(phone)
     }
   },
+  relation: {
+    label: "Select Relationship",
+    placeholder: "Select the relationship between guardian and patient",
+    value: ""
+  }
 });
 
 watch(() => activeGuardian.value, (g: Option) => {
   guardian.givenName.value = g?.other?.names.given_name ?? "";
   guardian.familyName.value = g?.other?.names.family_name ?? "";
   guardian.cellPhoneNumber.value = g?.other?.phoneNumber ?? "";
+  guardian.relation.value = g?.other?.relationshipType?? ""
 }, {
   deep: true,
   immediate: true
@@ -141,11 +151,12 @@ async function registerGuardian(data: Record<string, any>) {
   await RelationsService.createRelation(
     props.patientId, 
     registrationService.getPersonID(), 
-    13 // Other relationship type
+    data.relation.value
   );
 }
 
 async function updateGuardian(newGuardian: Record<string, any>, oldGuardian: GuardianDetails) {
+  const guardianId = oldGuardian.names.person_id;
   const person: Record<string, any> = {};
   if(oldGuardian.names.given_name !== newGuardian.given_name) person["given_name"] = newGuardian.given_name;
   if(oldGuardian.names.family_name !== newGuardian.family_name) person["family_name"] = newGuardian.family_name;
@@ -153,8 +164,17 @@ async function updateGuardian(newGuardian: Record<string, any>, oldGuardian: Gua
   
   if(!isEmpty(person)) {
     const registrationService = new PatientRegistrationService()
-    registrationService.setPersonID(oldGuardian.names.person_id); 
+    registrationService.setPersonID(guardianId); 
     await registrationService.updatePerson(person);
+  }
+
+  if(oldGuardian.relationshipType !== newGuardian.relation.label) {
+    await RelationsService.amendRelation(
+      props.patientId, 
+      guardianId, 
+      oldGuardian.id, 
+      newGuardian.relation.value
+    );
   }
 }
 
@@ -169,5 +189,14 @@ const onFinish = async () => submitForm(guardian, async (formData) => {
 }, 
 {
   underscoreKeys: true,
+});
+
+onMounted(async () => {
+  const relations  = await RelationsService.getRelations();
+  relationTypes.value = relations.map((r: any) => ({
+    label: r.b_is_to_a,
+    value: r.relationship_type_id,
+    other: r
+  }))
 })
 </script>
