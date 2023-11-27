@@ -350,7 +350,10 @@ export default defineComponent({
             id: 'last_fmf',
             helpText: 'Last fetal movement felt (in Weeks)',
             type: FieldType.TT_NUMBER,
-            validation: (v: Option) => Validation.required(v),
+            validation: (v: Option) => Validation.validateSeries([
+                () => Validation.required(v),
+                () => Validation.rangeOf(v, 0, 42)
+            ]),
             condition: (f: any) => f.fetal_movement_felt.value != 'Unknown',
             computedValue: (v: Option) => {
                 return v.value != 'Unknown'

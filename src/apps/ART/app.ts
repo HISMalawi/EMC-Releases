@@ -14,7 +14,6 @@ import {
     getPatientDashboardLabOrderCardItems,
     downloadAppNotifications
 } from "@/apps/ART/Config/ArtAppScripts"
-
 import Store from "@/composables/ApiStore"
 
 const ART: AppInterface = {

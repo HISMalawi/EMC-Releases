@@ -1,4 +1,8 @@
 <script lang="ts">
+/**
+ * @deprecated moved to useEncounter composable
+ * 
+ */
 import { defineComponent } from 'vue'
 import { Field, Option } from '@/components/Forms/FieldInterface'
 import { ProgramService } from "@/services/program_service"

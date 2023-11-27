@@ -1,6 +1,19 @@
 export default [
    {
       "categories": [],
+      "concept_id": 865,
+      "name": "Sore throat"
+   },
+   {
+      "concept_id": 884,
+      "name": "HIV"
+   },
+   {
+      "concept_id": 58,
+      "name": "TB"
+   },
+   {
+      "categories": [],
       "concept_id": 7759,
       "name": "Workstation location"
    },
@@ -392,6 +405,11 @@ export default [
       "name": "Oophorectomy"
    },
    {
+      "categories": ["anc_surgical_history"],
+      "concept_id": 10772,
+      "name": "Laparotomy due to ectopic pregnancy"
+   },
+   {
       "categories": [],
       "concept_id": 7124,
       "name": "Tetanus Diphtheria"
@@ -761,6 +779,11 @@ export default [
       "categories": ["reason_for_no_cxca"],
       "concept_id": 8387,
       "name": "Not due for screening"
+   },
+   {
+      "categories": ["reason_for_no_cxca"],
+      "concept_id": 44,
+      "name": "Pregnancy"
    },
    {
       "categories": ["reason_for_no_cxca"],

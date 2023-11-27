@@ -26,7 +26,7 @@
             </div>
           </ion-col>
           <ion-col size="3">
-            <program-icon :icon="appLogo" :version="appVersion"> </program-icon>
+            <program-icon :app="app" :icon="appLogo" :version="appVersion"> </program-icon>
           </ion-col>
         </ion-row>
       </ion-toolbar>
@@ -170,7 +170,7 @@ import HisDate from "@/utils/Date"
 import { AppInterface, FolderInterface } from "@/apps/interfaces/AppInterface";
 import { Service } from "@/services/service"
 import { AuthService } from "@/services/auth_service"
-import GLOBAL_PROP from "@/apps/GLOBAL_APP/global_prop"
+import GlobalSetting, { GLOBAL_PROP } from "@/apps/GLOBAL_APP/global_prop"
 import { Notification } from "@/composables/notifications" 
 import Img from "@/utils/Img"
 import { 
@@ -210,6 +210,8 @@ import { Patientservice } from "@/services/patient_service";
 import { MALAWI_NATIONAL_ID_TYPE } from "@/constants";
 import { isEmpty } from "lodash";
 import { parseMalawiNationalIDQRCode } from "@/utils/scanner";
+import { GlobalPropertyService } from "@/services/global_property_service";
+import Screentimeout from "@/composables/Screentimeout"
 
 export default defineComponent({
   name: "Home",
@@ -237,7 +239,12 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const { activePlatformProfile } = usePlatform()
-
+    // Reads global property setting for inactivity timeout 
+    GlobalPropertyService.get(GLOBAL_PROP.INACTIVITY_TIMEOUT).then((prop) => {
+      const timeout = parseInt(prop||'0')
+      Screentimeout.configureTimeout(timeout)
+      Screentimeout.resetInactivityTimer()
+    })
     const onBarcode = async (code: string) => {
       if (code.length > 30 && (await Store.get('IS_MW_NATIONAL_ID_SCANNER_ENABLED'))) {
         const nid = parseMalawiNationalIDQRCode(code)
@@ -370,8 +377,8 @@ export default defineComponent({
       const auth = new AuthService()
       try {
         Store.invalidateAll()
-        if((await GLOBAL_PROP.portalEnabled())) {
-          const portalLocation = await GLOBAL_PROP.portalProperties();
+        if((await GlobalSetting.portalEnabled())) {
+          const portalLocation = await GlobalSetting.portalProperties();
           window.location = portalLocation;
         }else {
           this.$router.push('/login')
@@ -379,6 +386,7 @@ export default defineComponent({
       } catch (e) {
         console.warn(`${e}`)
       }
+      Screentimeout.clearScreenTimeout()
       auth.clearSession()
     },
   },

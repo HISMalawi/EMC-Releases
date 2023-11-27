@@ -12,7 +12,7 @@
       </ion-title>
     </ion-toolbar>
   </ion-header>
-  <ion-content fullscreen="false">
+  <ion-content :fullscreen="false">
     <div class="main" ref="main">
       <div class="rows">
         <div class="cells">
@@ -95,6 +95,7 @@ import {
   IonTitle,
   IonLabel,
 } from "@ionic/vue";
+import Screentimeout from "@/composables/Screentimeout"
 
 export default defineComponent({
   name: "TSLoginForm",
@@ -144,6 +145,9 @@ export default defineComponent({
         return usePlatform().activePlatformProfile.value.keyboard === KeyboardType.HIS_KEYBOARD_ONLY
       })
     }
+  },
+  created() {
+    Screentimeout.clearScreenTimeout()
   },
   emits: ["login"],
   methods: {

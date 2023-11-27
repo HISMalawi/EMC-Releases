@@ -3,6 +3,7 @@
         <ion-loading :is-open="isLoading" message="Please wait..."/>
         <v2Datatable
             title="Hypertension Report"
+            :icon-url="logo"
             :subtitle="period"
             :columns="columns"
             :columnData="reportData"
@@ -23,6 +24,7 @@ import { DateSelection } from '@/utils/ReportDateSelectionPrompt';
 import { toastDanger, toastWarning } from '@/utils/Alerts';
 import { ClinicReportService } from "@/apps/ART/services/reports/clinic_report_service";
 import HypertensionDrilldown from "@/apps/ART/Components/HypertensionDrilldown.vue";
+import Img from "@/utils/Img";
 
 export default defineComponent({
     components: { 
@@ -31,102 +33,37 @@ export default defineComponent({
         v2Datatable
     },
     setup() {
+        const logo = Img('reports.png')
         const reportData = ref([])
         const period = ref('')
         const isLoading = ref(false)
         const report = new ClinicReportService()
+        const toDrillColumn = (label: string, ref: string) => {
+            return {
+                label,
+                ref,
+                toValue: (data: any) => data.length,
+                tdClick: (row: any) => drilldown(`${row.column.label}`, row.refData)
+            }
+        }
         const columns: Array<v2ColumnInterface[]> = [
             [
-                {
-                    label: "#",
-                    ref: "index"
-                },
-                {
-                    label: "Age group",
-                    ref: 'age_group'
-                },
-                {
-                    label: "Gender",
-                    ref: 'gender'
-                },
-                {
-                    label: "Screened for HP",
-                    ref: "screened",
-                    value: (data: any) => data.screened.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.screened)
-                },
-                {
-                    label: "Normal <140/<90",
-                    ref: "normal_reading",
-                    value: (data: any) => data.normal_reading.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.normal_reading)
-                },
-                {
-                    label: "Mild 140-159/90-99",
-                    ref: "mild_reading",
-                    value: (data: any) => data.mild_reading.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.mild_reading)
-                },
-                {
-                    label: "Moderate 160-180/100-110",
-                    ref: "moderate_reading",
-                    value: (data: any) => data.moderate_reading.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.moderate_reading)
-                },
-                {
-                    label: "Severe >180/>110",
-                    ref: "severe_reading",
-                    value: (data: any) => data.severe_reading.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.severe_reading)
-                },
-                {
-                    label: "Hydrochlorothiazide 25mg",
-                    ref: "hydrochlorothiazide_25mg",
-                    value: (data: any) => data.hydrochlorothiazide_25mg.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.hydrochlorothiazide_25mg)
-                },
-                {
-                    label: "Amlodipine 5mg",
-                    ref: "amlodipine_5mg",
-                    value: (data: any) => data.amlodipine_5mg.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.amlodipine_5mg)
-                },
-                {
-                    label: "Amlodipine 10 mg",
-                    ref: "amlodipine_10mg",
-                    value: (data: any) => data.amlodipine_10mg.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.amlodipine_10mg)
-                },
-                {
-                    label: "Enalapril 5 mg",
-                    ref: "enalapril_5mg",
-                    value: (data: any) => data.enalapril_5mg.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.enalapril_5mg)
-                },
-                {
-                    label: "Enalapril 10mg",
-                    ref: "enalapril_10mg",
-                    value: (data: any) => data.enalapril_10mg.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.enalapril_10mg)
-                },
-                {
-                    label: "Atenolol 50mg ",
-                    ref: "atenolol_50mg",
-                    value: (data: any) => data.atenolol_50mg.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.atenolol_50mg)
-                },
-                {
-                    label: "Atenolol 100mg ",
-                    ref: "atenolol_100mg",
-                    value: (data: any) => data.atenolol_100mg.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.atenolol_100mg)
-                },
-                {
-                    label: "Total (regimen)",
-                    ref: "total_regimen",
-                    value: (data: any) => data.total_regimen.length,
-                    tdClick: ({ column, data }) => drilldown(`${column.label}`, data.total_regimen)
-                }
+                { label: "#", ref: "index" },
+                { label: "Age group", ref: 'age_group' },
+                { label: "Gender", ref: 'gender' },
+                toDrillColumn("Screened for HP", "screened"),
+                toDrillColumn("Normal <140/<90", "normal_reading"),
+                toDrillColumn("Mild 140-159/90-99", "mild_reading"),
+                toDrillColumn("Moderate 160-180/100-110", "moderate_reading"),
+                toDrillColumn("Severe >180/>110", "severe_reading"),
+                toDrillColumn("Hydrochlorothiazide 25mg", "hydrochlorothiazide_25mg"),
+                toDrillColumn("Amlodipine 5mg", "amlodipine_5mg"),
+                toDrillColumn("Amlodipine 10 mg", "amlodipine_10mg"),
+                toDrillColumn("Enalapril 5 mg", "enalapril_5mg"),
+                toDrillColumn("Enalapril 10mg", "enalapril_10mg"),
+                toDrillColumn("Atenolol 50mg", "atenolol_50mg"),
+                toDrillColumn("Atenolol 100mg", "atenolol_100mg"),
+                toDrillColumn("Total (regimen)", "total_regimen")
             ]
         ]
 
@@ -196,9 +133,10 @@ export default defineComponent({
         /**
          * Initialization code when the report is empty!
         */
-        onMounted(() => !reportData.value.length && configure())
+        onMounted(() => configure())
 
         return {
+            logo,
             reportData,
             isLoading,
             configure,

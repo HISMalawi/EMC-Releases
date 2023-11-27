@@ -2,6 +2,16 @@ import { ART_GLOBAL_PROP } from "../art_global_props"
 
 export default [
     {
+        name: "Pepfar Tx New Report",
+        path: "/art/pepfar_tx_new_report",
+        component: () => import('@/apps/ART/views/reports/pepfar/TxNew.vue')
+    },
+    {
+        name: "User activity settings",
+        path: "/art/user_activity_settings",
+        component: () => import('@/apps/ART/views/UserActivitySettings.vue')
+    },
+    {
         name: "Hypertension report",
         path: "/art/hypertension_report",
         component: () => import('@/apps/ART/views/reports/clinic/ClinicHypertensionReport.vue')

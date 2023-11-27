@@ -79,6 +79,10 @@ export default defineComponent({
         }
 
         const drilldown = async (title: string, patientIdentifiers: number[]) => {
+            if (patientIdentifiers.length <= 0) {
+                // The array is empty or has no elements, so don't launch the drilldown
+                return;
+            }
             (await modalController.create({
                 component: DrillPatientIds,
                 backdropDismiss: false,
