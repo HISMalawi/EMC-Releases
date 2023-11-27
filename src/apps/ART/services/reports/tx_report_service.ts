@@ -75,6 +75,10 @@ export class TxReportService extends ArtReportService {
         return this.getReport('tx_ml')
     }
 
+    getTxNewReport() {
+        return this.getReport(`programs/${this.programID}/reports/tx_new`)
+    }
+
     getTxRttReport() {
         return this.getReport('tx_rtt')
     }
