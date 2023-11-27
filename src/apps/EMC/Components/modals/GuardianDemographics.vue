@@ -25,7 +25,7 @@
           <ion-col size="12" class="ion-margin-top ion-margin-bottom">
             <TextInput v-model="guardian.cellPhoneNumber" allowUnknown />
           </ion-col>
-          <ion-col size="12" class="ion-margin-top ion-margin-bottom" v-if="!isNew">
+          <ion-col size="12" class="ion-margin-top ion-margin-bottom">
             <SelectInput v-model="guardian.relation" :options="relationTypes" />
           </ion-col>
         </template>
@@ -56,7 +56,7 @@ import { modal } from "@/utils/modal";
 import StandardValidations from "@/components/Forms/validations/StandardValidations";
 import { GuardianDetails } from "@/interfaces/relationship";
 import SelectInput from "../inputs/SelectInput.vue";
-import { find, isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 import { RelationsService } from "@/services/relations_service";
 
 const registrationService = new PatientRegistrationService();
@@ -151,7 +151,7 @@ async function registerGuardian(data: Record<string, any>) {
   await RelationsService.createRelation(
     props.patientId, 
     registrationService.getPersonID(), 
-    data.relation.value
+    data.relation?.value ?? 13 // Default to "Other" relationship type
   );
 }
 
@@ -173,7 +173,7 @@ async function updateGuardian(newGuardian: Record<string, any>, oldGuardian: Gua
       props.patientId, 
       guardianId, 
       oldGuardian.id, 
-      newGuardian.relation.value
+      newGuardian.relation?.value ?? 13 // Default to "Other" relationship type
     );
   }
 }
