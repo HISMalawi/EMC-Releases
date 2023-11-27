@@ -139,6 +139,12 @@ export const menuItems: MenuItem[] = [
             id: "emc_pepfar_tx_tb",
             img: 'reports/tb.png',
             url: '/emc_pepfar_tx_tb'
+          },
+          {
+            title: 'TX New',
+            id: "emc_pepfar_tx_new",
+            img: 'reports/px.png',
+            url: '/emc_pepfar_tx_new'
           }
         ]
       },

@@ -130,6 +130,11 @@ export default [
   },
   /** Pepfar Reports */
   {
+    name: 'emc_pepfar_tx_new',
+    path: '/emc_pepfar_tx_new',
+    component: () => import('@/apps/EMC/views/reports/pepfar/TxNew.vue'),
+  },
+  {
     name: 'emc_pepfar_tx_tb',
     path: '/emc_pepfar_tx_tb',
     component: () => import('@/apps/EMC/views/reports/pepfar/TxTB.vue'),
