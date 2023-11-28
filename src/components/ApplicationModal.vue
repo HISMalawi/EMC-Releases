@@ -20,7 +20,9 @@
             'clickable': app.hasPriviledge
           }"
           @click="setApplication(app)" 
-          :name="app.applicationName" 
+          :name="app.applicationName"
+          :version="app.version"
+          :releaseDate="app.versionReleaseDate"
           :details="app.applicationDescription" 
           :programID="app.programID" 
           :iconURL="img(app.applicationIcon)">

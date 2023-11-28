@@ -4,6 +4,7 @@ import { modalController } from "@ionic/vue";
 import { find, isEmpty } from 'lodash';
 import GlobalApp from "@/apps/GLOBAL_APP/global_app"
 import { AppInterface } from "./interfaces/AppInterface";
+import { marked } from "marked"
 import { Service } from "@/services/service";
 import { nextTask } from "@/utils/WorkflowTaskHelper"
 import { alertConfirmation } from "@/utils/Alerts";
@@ -31,6 +32,21 @@ function applyGlobalConfig(app: AppInterface) {
         ...(_app.globalPropertySettings || [])
     ]
     return _app
+}
+
+async function getReleaseNotes(appName: string) {
+    try {
+        const req = await fetch(`/ReleaseNotes/${appName}.md`)
+        const res = await req.text()
+        if (req.ok) {
+            if (/doctype html/i.test(`${res}`)) {
+                return '<h1>No release notes found!</h1>'
+            }
+            return marked(res)
+        }
+    } catch (e) {
+        console.error(e)
+    }
 }
 
 function getActiveApp(): AppInterface | undefined {
@@ -156,5 +172,6 @@ export default {
     startApplication,
     switchAppWorkflow,
     selectApplication,
+    getReleaseNotes,
     getActiveApp
 }

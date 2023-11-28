@@ -18,7 +18,7 @@ import { isEmpty } from "lodash";
 import { Order } from "@/interfaces/order";
 import { addWorkflowTask, nextTask, selectActivities } from "@/utils/WorkflowTaskHelper";
 import dayjs from "dayjs";
-import { Service } from "@/services/service";
+import { NotFoundError, Service } from "@/services/service";
 import { Patientservice } from '@/services/patient_service';
 import Store from "@/composables/ApiStore"
 import ART_PROP from "@/apps/ART/art_global_props";
@@ -27,6 +27,7 @@ import { toDate } from "@/utils/Strs";
 import { ConsultationService } from "@/apps/ART/services/consultation_service";
 import { NotificationService } from "@/services/notification_service";
 import router from "@/router/index";
+import { toastDanger } from "@/utils/Alerts";
 
 export const appStore: Record<string, StoreDef> = {
     'ASK_HANGING_PILLS':  {
@@ -122,7 +123,22 @@ function orderToString(order: Order, showDate = true) {
 }
 
 export async function init(context='') {
-    await selectActivities(PRIMARY_ACTIVITIES)
+    let userLockedToActivities = 'No'
+    try {
+        userLockedToActivities = (await ProgramService.getJson(
+            'user_properties', { property: 'lock_user_to_art_activities'}
+        )).property_value
+    } catch (e) {
+        if (e instanceof NotFoundError) {
+            userLockedToActivities = 'No'
+        } else {
+            userLockedToActivities = '_error_'
+            toastDanger("Unable to determine user activites. Workflows may not work properly", 5000)
+        }
+    }
+    if (/no/i.test(userLockedToActivities)) {
+        await selectActivities(PRIMARY_ACTIVITIES)
+    }
     if (context === 'HomePage') {
         await showStockManagementChart()
     }

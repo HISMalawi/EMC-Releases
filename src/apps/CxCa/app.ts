@@ -9,6 +9,30 @@ import { REPORTS } from "@/apps/CxCa/config/CxCaProgramReports"
 import { 
     onRegisterPatient,
 } from "@/apps/CxCa/config/CxCaAppScripts"
+import {PROPERTIES} from "@/apps/CxCa/config/CxCaGlobalPropertySettings"
+import Store from "@/composables/ApiStore"
+
+/*
+* A method to restrieve HIV status info
+*/
+function patientProgramInfoData(patientID: number) {
+    return [
+      { 
+        label: 'Malawi National ID', 
+        value: '...',
+        asyncValue: async () => {
+          const patient = await Store.get('ACTIVE_PATIENT', { patientID })
+          return patient ? patient.getMWNationalID() : 'unknown'
+        },
+      },
+      { 
+        label: 'HIV Status',
+        value: '...',
+        asyncValue: async () => (await ObservationService.getFirstValueCoded(patientID, 'HIV Status')) || 'N/A'
+      }
+    ]
+  }
+
 const CXCA: AppInterface = {
     programID: 24,
     applicationName: 'CxCa',
@@ -18,8 +42,9 @@ const CXCA: AppInterface = {
     isPocApp: true,
     primaryPatientActivites: PRIMARY_ACTIVITIES,
     secondaryPatientActivites: [],
-    globalPropertySettings: [],
+    globalPropertySettings: PROPERTIES,
     onRegisterPatient,
+    patientProgramInfoData,
     homeOverviewComponent,
     confirmationSummary: (patient: any, program: any) => ({
         'PATIENT IDENTIFIERS': () => {

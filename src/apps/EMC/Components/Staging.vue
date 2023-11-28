@@ -81,7 +81,11 @@ export default defineComponent({
     initialVisitDate: {
       type: String,
       default: ""
-    } 
+    },
+    artStartDate: {
+      type: String,
+      default: ""
+    }
   },
   emits: ["onValue", "onPrevious", "onFinish"],
   setup(props, { emit }) {
@@ -96,7 +100,7 @@ export default defineComponent({
 
     const stagingService = new StagingService(props.patient.getID(), props.patient.getAge(), -1)
     const reasonsForArt = computed(() => {
-      return stagingService.getAllReasonsForART(props.initialVisitDate, props.patient.isMale())
+      return stagingService.getAllReasonsForART(props.artStartDate || props.initialVisitDate, props.patient.isMale())
         .map(r => ({ label: r.name, value: r.name}))
     })
 

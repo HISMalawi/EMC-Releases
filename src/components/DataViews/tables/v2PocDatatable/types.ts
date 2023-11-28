@@ -4,6 +4,13 @@ export interface v2ColumnDataInterface {
     data: any;
 }
 
+// export interface TDClickParams {
+//     column: v2ColumnInterface;
+//     data: any;
+//     refData: any;
+//     value: string;
+// }
+
 export interface v2ColumnInterface {
     /**
      * Unique column identifier
@@ -19,8 +26,12 @@ export interface v2ColumnInterface {
     secondaryLabel?: string;
     /**
      * Use this function to return value that appears on a value cell of the template
-     */
-    value?: (data: any) => string | number;
+    */
+    value?: (data: any, rowIndex?: number) => string | number;
+    /**
+     * Use this function to format provided ref value from the provided table data
+    */
+    toValue?: (data: any) => string | number;
     /**
      * If exportable, the column will appear when exported in any format such as PDF or CSV
      */
@@ -53,5 +64,5 @@ export interface v2ColumnInterface {
     /**
      * Declare what happens when table data is clicked
      */
-    tdClick?: (data: v2ColumnDataInterface) => void;
+    tdClick?: (data: any) => void;
 }

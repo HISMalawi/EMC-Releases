@@ -187,6 +187,10 @@ export const REPORTS: FolderInterface[] = [
             {
                 name: 'TX_TB',
                 pathName: 'pepfar_tx_tb'
+            },
+            {
+                name: 'TX_NEW',
+                pathUrl: '/art/pepfar_tx_new_report'
             }
         ]
     }

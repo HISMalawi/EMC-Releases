@@ -36,7 +36,6 @@ import HisDate from "@/utils/Date"
 import dayjs from "dayjs";
 import { cloneDeep } from 'lodash';
 
-
 const reportData = ref([] as Array<any>);
 const startDate = ref('')
 const endDate = ref('')
@@ -157,6 +156,10 @@ export default defineComponent({
         };
 
         const drilldown = async (title: string, patientIdentifiers: number[]) => {
+            if (patientIdentifiers.length <= 0) {
+                // The array is empty or has no elements, so don't launch the drilldown
+                return;
+            }
             (await modalController.create({
                 component: DrillPatientIds,
                 backdropDismiss: false,

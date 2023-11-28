@@ -79,6 +79,10 @@ export function toSentenceCase (str: string) {
     return str.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase())
 }
 
+export function capitalizeFirstLetter(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
 export function formatGender(gender: string) {
     const upCaseGender = `${gender}`.toUpperCase()
     if (upCaseGender === 'M' || upCaseGender === 'MALE') {

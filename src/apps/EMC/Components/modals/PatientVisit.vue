@@ -482,7 +482,7 @@ export default defineComponent({
     })
 
     const calculateMinDuration = (totalGiven: number, drugs: Array<ARVDrug>) => {
-      return Math.min(...drugs.map(drug => totalGiven / (drug.am + drug.noon + drug.pm) || 1))
+      return Math.min(...drugs.map(drug => totalGiven / ((drug.am ?? 0) + (drug.noon ?? 0)  + (drug.pm ?? 0)) || 1))
     }
 
     watch([() => form.totalArvsGiven.value, () => form.pillCount.value], () => {
