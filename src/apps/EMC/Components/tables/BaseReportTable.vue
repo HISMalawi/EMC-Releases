@@ -8,7 +8,7 @@
             </ion-col>
             <ion-col>
               <h1 v-html="title"></h1>
-              <h3 v-html="subtitle" v-if="subtitle" style="color:#818181;"></h3>
+              <h5 v-html="subtitle" v-if="subtitle" style="color:#818181;"></h5>
               <h5 v-if="useDateRangeFilter"> Period: {{ period }} </h5>
               <h5 v-else-if="useQuarterFilter"> Quarter: {{ quarter.value }} </h5>
               <h5 v-else-if="useDateFilter">Date: {{ date }}</h5>
