@@ -44,6 +44,13 @@ import { Observation } from '@/interfaces/observation';
 import { ConceptService } from '@/services/concept_service';
 import EventBus from '@/utils/EventBus';
 import { EmcEvents } from '../interfaces/emc_event';
+import { 
+  HIV_CLINIC_CONSULTATION_ENCOUNTER, 
+  HIV_CLINIC_REGISTRATION_ENCOUNTER, 
+  HIV_STAGING_ENCOUNTER, 
+  REGISTRATION_ENCOUNTER, 
+  VITALS_ENCOUNTER 
+} from '@/constants';
 
 export default defineComponent({
   components: {
@@ -165,26 +172,45 @@ export default defineComponent({
         observations[concept] = value
       }
     }
+
+    const initializeFacts = async () => {
+      try {
+        const registrationEncounters: Array<Encounter> = await EncounterService.getEncounters(patientId, {
+          "encounter_type_id": HIV_CLINIC_REGISTRATION_ENCOUNTER
+        })
+        if(isEmpty(registrationEncounters)) return;
+        initialVisitDate.value = get(registrationEncounters, '[0].encounter_datetime', '');
+        if(initialVisitDate.value) {
+          await parseObs(registrationEncounters[0].observations);
+          const encounters: Encounter[] = await  EncounterService.getEncounters(patientId, { 
+            date: initialVisitDate.value 
+          });
+          for (const encounter of encounters){
+            let encounterTypes = [REGISTRATION_ENCOUNTER, HIV_STAGING_ENCOUNTER];
+            if(/yes/i.test(`${observations['Ever registered at ART clinic']}`)){
+              encounterTypes = [...encounterTypes, HIV_CLINIC_CONSULTATION_ENCOUNTER, VITALS_ENCOUNTER]
+            }
+            if(encounterTypes.includes(encounter.encounter_type))
+              await parseObs(encounter.observations)
+          }
+        } 
+      } catch (error) {
+        toastWarning("Unable to load previous observations");
+      }
+    }
     
     onMounted(async () => {
       setEnrollementStatus()
       patient.value = await Store.get("ACTIVE_PATIENT", { patientID: patientId });
       Store.get('SITE_PREFIX').then(prefix => sitePrefix.value = prefix);      
-      if(!isNewPatient) {
-        const enc = await EncounterService.getEncounters(patientId, {"encounter_type_id": 9})
-        if(isEmpty(enc)) return isReady.value = true;
-        initialVisitDate.value = get(enc, '[0].encounter_datetime', '')
-        if(initialVisitDate.value) {
-          const encounters: Encounter[] = await  EncounterService.getEncounters(patientId, { date: initialVisitDate.value });
-          for (const enc of encounters){
-            if([9, 53, 6, 5, 52].includes(enc.encounter_type))
-              await parseObs(enc.observations)
-          }
-        }
-      }
+      if(!isNewPatient) await initializeFacts();
       isReady.value = true;
-      EventBus.on(EmcEvents.ON_INITIAL_VISIT_DATE, (date: string) => initialVisitDate.value = date)
-      EventBus.on(EmcEvents.ON_ART_START_DATE, (date: string) => artStartDate.value = date)
+      EventBus.on(EmcEvents.ON_INITIAL_VISIT_DATE, (date: string) => {
+        initialVisitDate.value = date
+      });
+      EventBus.on(EmcEvents.ON_ART_START_DATE, (date: string) => {
+        artStartDate.value = date
+      });
     })
 
     return {

@@ -1,3 +1,8 @@
 export const MALAWI_NATIONAL_ID_TYPE = 28;
 export const LAB_ENCOUNTER_TYPE = 13;
 export const LAB_ORDER_TYPE_ID = 4;
+export const REGISTRATION_ENCOUNTER = 5;
+export const VITALS_ENCOUNTER = 6;
+export const HIV_CLINIC_REGISTRATION_ENCOUNTER = 9;
+export const HIV_STAGING_ENCOUNTER = 52;
+export const HIV_CLINIC_CONSULTATION_ENCOUNTER = 53;
