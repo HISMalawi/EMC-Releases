@@ -47,10 +47,7 @@ export default defineComponent({
     const columns: TableColumnInterface[] = [
       { path: "ageGroup", label: "Age Group" },
       { path: "gender", label: "Gender", formatter: toGenderString },
-      { path: "txNew", label: "Tx new (new on ART)", drillable: true },
       { path: "txCurr", label: "TX curr (receiving ART)", drillable: true },
-      { path: "txGivenIpt", label: "TX curr (received IPT)", drillable: true },
-      { path: "txScreenTB", label: "TX curr (screened for TB)", drillable: true },
       ...REGIMENS.map(r => ({ path: r, label: r, drillable: true })),
       { path: "N/A", label: "Unknown", drillable: true },
       { path: "total", label: "Total", drillable: true },
@@ -103,18 +100,13 @@ export default defineComponent({
       maternals.value.push({
         'ageGroup': "All",
         gender: "FNP",
-        txNew: fnpTD('txNew'),
         txCurr: fnpTD('txCurr'),
-        txGivenIpt: fnpTD('txGivenIpt'),
-        txScreenTB: fnpTD('txScreenTB'),
         ...fnpRegimensRow(),
         total: fnpTD('total'),
       })
     }
 
     const buildRowData = async (gender: "F" | "M" | "FP" | "FBf", ageGroup: string) => {
-      let txGivenIpt: Array<any> = [];
-      let txScreenTB: Array<any> = [];
       report.setGender(gender === "FP" ? "pregnant" : gender === "FBf" ? "breastfeeding" : toGenderString(gender));
       report.setAgeGroup(ageGroup);
 
@@ -124,16 +116,8 @@ export default defineComponent({
         cohortData[ageGroup] = !isEmpty(data) ? data[ageGroup] : {}
       }
 
-      if (!isEmpty(cohortData[ageGroup])) {
-        txGivenIpt = await report.getTxIpt();
-        txScreenTB = await report.getTxCurrTB();
-      }
-
       return {
         gender,
-        txGivenIpt,
-        txScreenTB,
-        txNew: get(cohortData, `${ageGroup}.${gender.charAt(0)}.tx_new`, []),
         txCurr: get(cohortData, `${ageGroup}.${gender.charAt(0)}.tx_curr`, []),
         ageGroup: /pregnant|breastfeeding/i.test(ageGroup) ? "All" : ageGroup,
         ...(await getRegimenRow(gender)),
