@@ -60,10 +60,7 @@ export default defineComponent({
       { path: "index", label: "#", initialSort: true, initialSortOrder: 'asc'}, 
       { path: "age_group", label: "Age Group" },
       { path: "gender", label: "Gender", formatter: toGenderString },
-      { path: "txNew", label: "Tx new (new on ART)", drillable: true },
       { path: "txCurr", label: "TX curr (receiving ART)", drillable: true },
-      { path: "txGivenIpt", label: "TX curr (received IPT)", drillable: true },
-      { path: "txScreenTB", label: "TX curr (screened for TB)", drillable: true },
       ...REGIMENS.map(r => ({ 
         path: r, label: r, drillable: true
       })),
@@ -106,10 +103,7 @@ export default defineComponent({
       sortIndexes[index] = [{
           'age_group': "All",
           gender: "Male",
-          txNew: getTotalAggregations('txNew', 'Male'),
           txCurr: getTotalAggregations('txCurr', 'Male'),
-          txGivenIpt: getTotalAggregations('txGivenIpt', 'Male'),
-          txScreenTB: getTotalAggregations('txScreenTB', 'Male'),
           ...getTotalRegimensAggregations("Male"),
           total: getTotalAggregations('regimenTotals', 'Male'),
         }]
@@ -138,10 +132,7 @@ export default defineComponent({
       sortIndexes[index] = [{
         'age_group': "All",
         gender: "FNP",
-        txNew: fnpTD('txNew'),
         txCurr: fnpTD('txCurr'),
-        txGivenIpt: fnpTD('txGivenIpt'),
-        txScreenTB: fnpTD('txScreenTB'),
         ...fnpRegimensRow(),
         total: fnpTD('regimenTotals'),
       }]
@@ -150,10 +141,7 @@ export default defineComponent({
     const buildRows = async (category: Category) => {
       report.setGender(category.altAgeGroup ? category.altAgeGroup.toLowerCase() : category.altGender.toLowerCase());
       for (const ageGroup of category.ageGroups) {
-        let txNew = []
         let txCurr = []
-        let txGivenIpt = []
-        let txScreenTB = []
         const group = category.altAgeGroup ? category.altAgeGroup : ageGroup
         report.setAgeGroup(group);
 
@@ -164,14 +152,8 @@ export default defineComponent({
         }
 
         if(!isEmpty(cohortData[group])) {
-          txNew = get(cohortData, `${group}.${category.gender}.tx_new`, [])
           txCurr = get(cohortData, `${group}.${category.gender}.tx_curr`, [])
-          txGivenIpt = await report.getTxIpt()
-          txScreenTB = await report.getTxCurrTB()
-          addAggregation('txNew', category.altGender, txNew)
           addAggregation('txCurr', category.altGender, txCurr)
-          addAggregation('txGivenIpt', category.altGender, txGivenIpt)
-          addAggregation('txScreenTB', category.altGender, txScreenTB)
         }
 
         switch(report.getGender()) {
@@ -189,10 +171,7 @@ export default defineComponent({
         sortIndexes[category.index].push({
           'age_group': ageGroup,
           gender: category.altGender,
-          txNew,
           txCurr,
-          txGivenIpt,
-          txScreenTB,
           ...await getRegimenRow(group, category.altGender),
         })
       }
