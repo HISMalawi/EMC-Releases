@@ -29,6 +29,7 @@ import { EmcEvents } from '../interfaces/emc_event';
 import { toGenderString } from '@/utils/Strs';
 import { modal } from '@/utils/modal';
 import VLResultTrail from './modals/VLResultTrail.vue';
+import { GuardianDetails } from '@/interfaces/relationship';
 
 interface InfoItem {
   label: string;
@@ -52,11 +53,11 @@ export default defineComponent({
       required: true,
     },
     guardians: {
-      type: String,
-      default: '',
+      type: Array as PropType<Array<GuardianDetails>>,
+      default: () => [],
     }
   },
-  emits: ['updatePatient','updateARVNumber', 'addGuardian'],
+  emits: ['updatePatient','updateARVNumber', 'updateGuardian'],
   setup(props, { emit }) {
     const initWeight = ref(0)
     const initHeight = ref(0)
@@ -76,6 +77,8 @@ export default defineComponent({
     const clickable = (item: InfoItem) => {
       return item.other && typeof item.other.onClickHandler === 'function';
     }
+
+    const hasGuardians = computed(() => !isEmpty(props.guardians));
 
     const onClickHandler = async (item: InfoItem) => {
       if(clickable(item)){
@@ -110,6 +113,15 @@ export default defineComponent({
 
     const updateStagingInfo = () => {
       router.push(`/emc/registration/${props.patient.getID()}/false`)
+    }
+
+    const formattedRelations = ()  => {
+      return hasGuardians.value
+        ? props.guardians.map(r => {
+            return `${r.name} (${r.relationshipType})`
+          })
+          .join(",")
+        :"Add";
     }
 
     const patientInfo = computed(() => [
@@ -161,14 +173,10 @@ export default defineComponent({
       },
       {
         label: "Guardian",
-        value: props.guardians ? props.guardians : "add",
-        other: isEmpty(props.guardians) 
-          ? {
-              onClickHandler: () => {
-                emit('addGuardian')
-              }
-            } 
-          : undefined
+        value: formattedRelations(),
+        other: {
+          onClickHandler: () => emit("updateGuardian")
+        } 
       },
       { label: "Agrees to follow up", value: agreesToFollowUp.value, other: {
         onClickHandler: updateStagingInfo
