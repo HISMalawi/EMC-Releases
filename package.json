@@ -9,7 +9,7 @@
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags && ionic build"
   },
   "dependencies": {
     "@awesome-cordova-plugins/barcode-scanner": "^5.46.0",
