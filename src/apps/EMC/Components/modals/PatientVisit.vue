@@ -244,6 +244,7 @@ export default defineComponent({
       isPregnant: {
         value: undefined as "Yes" | "No"  | undefined,
         label: 'Is the patient pregnant?',
+        required: isFemale.value,
         computedValue: (isPregnant: "Yes" | "No") => ({
           tag: 'consultation',
           obs: consultations.buildValueCoded('Is patient pregnant', isPregnant)
@@ -253,6 +254,7 @@ export default defineComponent({
       isBreastfeeding: {
         value: undefined as "Yes" | "No"  | undefined,
         label: 'Is the patient breastfeeding?',
+        required: isFemale.value,
         computedValue: (isBreastfeeding: "Yes" | "No") => ({
           tag: 'consultation',
           obs: consultations.buildValueCoded('Is patient breast feeding', isBreastfeeding)
@@ -357,7 +359,13 @@ export default defineComponent({
       totalArvsGiven: {
         value: undefined as number  | undefined,
         label: "Total ARVs Given",
-        validation: async (drugs: Option, form: any) => !isEmpty(form.regimen.value) && StandardValidations.isNumber(drugs)
+        validation: async (drugs: Option, form: any) => {
+          if(isEmpty(drugs) || isEmpty(form.regimen.value)) {
+            const confirmed = await alertConfirmation("Do you want to proceed without dispensing ARVs")
+            if(confirmed) return null;
+          }
+          return StandardValidations.isNumber(drugs)
+        }
       },
       totalPyridoxineGiven: {
         value: undefined as number  | undefined,
@@ -468,7 +476,8 @@ export default defineComponent({
     })
 
     watch([() => form.weight.value, () => form.tbStatus.value], async ([newWeight, tbStatus]) => {
-      form.regimen.value = ''
+      form.regimen.value = undefined
+      form.totalArvsGiven.value = undefined;
       const onTB = !isEmpty(tbStatus) && !tbStatus.label.match(/TB Not Suspected/i)
       if(newWeight) {
         regimens.value = await getRegimens(form.weight.value, onTB)
@@ -482,15 +491,17 @@ export default defineComponent({
     })
 
     const calculateMinDuration = (totalGiven: number, drugs: Array<ARVDrug>) => {
-      return Math.min(...drugs.map(drug => totalGiven / ((drug.am ?? 0) + (drug.noon ?? 0)  + (drug.pm ?? 0)) || 1))
+      return Math.min(...drugs.map(drug => totalGiven / ((drug.am ?? 0) + (drug.noon ?? 0)  + (drug.pm ?? 0)) || 1), 0)
     }
 
     watch([() => form.totalArvsGiven.value, () => form.pillCount.value], () => {
       const remainingDrugs = parseInt(form.pillCount.value) || 0
-      const duration = calculateMinDuration(form.totalArvsGiven.value, form.regimen.value.other)
-      drugRunOutDate.value = dayjs(form.visitDate.value).add(duration + remainingDrugs, 'days').format(STANDARD_DATE_FORMAT)
-      form.nextAppointmentDate.label = `Next Appointment Date (Drug run out date: ${dayjs(drugRunOutDate.value).format(DISPLAY_DATE_FORMAT)})`
-      form.nextAppointmentDate.value = drugRunOutDate.value
+      const duration = calculateMinDuration(form.totalArvsGiven.value ?? 1, form.regimen.value?.other ?? [])
+      if(duration) {
+        drugRunOutDate.value = dayjs(form.visitDate.value).add(duration + remainingDrugs, 'days').format(STANDARD_DATE_FORMAT)
+        form.nextAppointmentDate.label = `Next Appointment Date (Drug run out date: ${dayjs(drugRunOutDate.value).format(DISPLAY_DATE_FORMAT)})`
+        form.nextAppointmentDate.value = drugRunOutDate.value
+      }
     })
 
     watch(() => form.visitDate.value, () => checkForActiveTB())
@@ -588,7 +599,6 @@ export default defineComponent({
         if(isFemale.value) consultationObs = [...consultationObs, ...(await buildFpmObs())]
         await consultations.saveObservationList(consultationObs)
 
-        await prescription.createEncounter()
         const drugOrders: any[] = []
         let duration = 0
         if(!isEmpty(formData.regimen) && formData.totalArvsGiven) {
@@ -632,12 +642,15 @@ export default defineComponent({
           }
         }
 
-        const orders: any[] = await prescription.createDrugOrder(drugOrders)
-        const dispensations = orders.map(order => {
-          const drug = drugOrders.find(drug => drug.drug_inventory_id === order.drug_inventory_id)
-          return dispensation.buildDispensations(order.order_id, drug.qty, 1)
-        })
-        await dispensation.saveDispensations(dispensations.flat(1))
+        if(!isEmpty(drugOrders)) {
+          await prescription.createEncounter()
+          const orders: any[] = await prescription.createDrugOrder(drugOrders)
+          const dispensations = orders.map(order => {
+            const drug = drugOrders.find(drug => drug.drug_inventory_id === order.drug_inventory_id)
+            return dispensation.buildDispensations(order.order_id, drug.qty, 1)
+          })
+          await dispensation.saveDispensations(dispensations.flat(1))
+        }
 
         await reception.createEncounter()
         const receptionObs = await resolveObs(computedFormData, 'reception')

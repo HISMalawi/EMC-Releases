@@ -11,7 +11,7 @@ import { IDSRReportService } from "@/apps/OPD/services/idsr_service"
 import { FieldType } from "@/components/Forms/BaseFormElements"
 import { Option } from '@/components/Forms/FieldInterface'
 import Validation from "@/components/Forms/validations/StandardValidations"
-import table from "@/components/DataViews/tables/ReportDataTable"
+import table, { AsyncTableRowHandler } from "@/components/DataViews/tables/ReportDataTable"
 import moment from "dayjs"
 import { Service } from '@/services/service';
 import { isEmpty } from 'lodash'
@@ -83,7 +83,7 @@ export default defineComponent({
             }
             return this.drilldownData(conditionName, columns, patientIds, rowParser)
         },
-        async drilldownAsyncRows(title: string, columns: Array<any>, asyncRows: Function) {
+        async drilldownAsyncRows(title: string, columns: Array<any>, asyncRows: AsyncTableRowHandler) {
             const modal = await modalController.create({
                 component: DrilldownTable,
                 cssClass: 'large-modal',
