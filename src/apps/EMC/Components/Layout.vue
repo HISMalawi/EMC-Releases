@@ -26,9 +26,9 @@
     <ion-header class="toolbar-size">
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-menu-button auto-hide="true"></ion-menu-button>
+          <ion-menu-button auto-hide></ion-menu-button>
         </ion-buttons>
-        <ion-title>{{ facility }}</ion-title>
+        <ion-title>{{ facilityName }}</ion-title>
         <ion-buttons slot="end" size="large">
           <ion-button @click="showAuthUserMenu" style="text-transform:none" >
             <span style="font-size: 20px;">{{ user }}</span> 
@@ -69,6 +69,7 @@ import AuthUserMenuVue from "./AuthUserMenu.vue";
 import { Service } from "@/services/service";
 import MultiLevelMenu from "./MultiLevelMenu.vue";
 import Store from "@/composables/ApiStore"
+import useFacility from "@/composables/useFacility";
 
 export default defineComponent({
   name: "Layout",
@@ -90,7 +91,7 @@ export default defineComponent({
     IonRouterOutlet,
 },
   setup() {
-    const facility = ref('')
+    const { facilityName } = useFacility();
     const user = ref('')
     const app = ref(HisApp.getActiveApp())
     const logo = computed(() => Img(app.value?.applicationIcon || '' ))
@@ -108,16 +109,8 @@ export default defineComponent({
       authMenu.present();
     }
 
-    const setLocation = async () => {
-      const data = await Store.get('CURRENT_LOCATION') 
-      facility.value = data.name;
-      sessionStorage.location = data.name;
-      sessionStorage.locationName = data.name;
-      sessionStorage.siteUUID = data.uuid;
-    }
 
     onMounted(async () => {
-      await setLocation()
       user.value = await Service.getUserName();
     })
     
@@ -126,7 +119,7 @@ export default defineComponent({
       logo,
       caretDown,
       showAuthUserMenu,
-      facility,
+      facilityName,
       user,
       description,
       emcVersion,

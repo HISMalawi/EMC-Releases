@@ -19,6 +19,10 @@ export class LocationService extends Service {
         return super.postJson('internal_sections', { name })
     }
 
+    static getCurrentLocation() {
+        return this.getJson('/locations/current_facility')
+    }
+
     static getLocation(locationID: number) {
         return this.getJson(`locations/${locationID}`)
     }

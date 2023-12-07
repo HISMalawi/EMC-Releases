@@ -1,5 +1,5 @@
 <template>
-  <ion-content fullscreen="false">
+  <ion-content :fullscreen="false">
     <ion-grid style="margin: 0; padding: 0">
     <ion-row>
       <ion-col size="8">
@@ -34,6 +34,7 @@
           padding: 38px 18px;
         "
       >
+        <h5>Facility Name: {{ facilityName }} ({{ district }})</h5>
         <ion-icon :icon="avatar" style="font-size: 8vw; margin: 10vh 1px 0" />
         <h2>Welcome</h2>
         <h4>Please, log in to your account</h4>
@@ -76,6 +77,7 @@ import { defineComponent, ref } from "vue";
 import { IonButton, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonIcon, IonInput, IonItem, IonRow } from "@ionic/vue";
 import { person } from "ionicons/icons";
 import LoginFooter from "@/components/LoginFooter.vue";
+import useFacility from "@/composables/useFacility";
 
 export default defineComponent({
   name: "DTLoginForm",
@@ -106,13 +108,15 @@ export default defineComponent({
   setup(_, { emit }) {
     const username = ref('')
     const password = ref('')
-    
+    const { facilityName, district } = useFacility();
     const login = () => emit("login", {username: username.value, password: password.value})
 
     return {
       avatar: person,
       username,
       password,
+      facilityName,
+      district,
       login
     }
   }

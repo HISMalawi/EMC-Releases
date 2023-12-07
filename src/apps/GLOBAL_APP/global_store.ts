@@ -29,7 +29,7 @@ export function isCacheEnabled() {
 */
 const DEFS: Record<string, StoreDef> = {
     'CURRENT_LOCATION' : {
-        get: async () => LocationService.getLocation((await GLOBAL_PROP.healthCenterID())),
+        get: async () => LocationService.getCurrentLocation(),
         canReloadCache: data => !isCacheEnabled() || isEmpty(data.state)
     },
     'ACTIVE_HOME_TAB': {

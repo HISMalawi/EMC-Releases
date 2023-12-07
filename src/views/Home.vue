@@ -212,6 +212,7 @@ import { isEmpty } from "lodash";
 import { parseMalawiNationalIDQRCode } from "@/utils/scanner";
 import { GlobalPropertyService } from "@/services/global_property_service";
 import Screentimeout from "@/composables/Screentimeout"
+import useFacility from "@/composables/useFacility";
 
 export default defineComponent({
   name: "Home",
@@ -239,6 +240,7 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const { activePlatformProfile } = usePlatform()
+    const { facilityName } = useFacility();
     // Reads global property setting for inactivity timeout 
     GlobalPropertyService.get(GLOBAL_PROP.INACTIVITY_TIMEOUT).then((prop) => {
       const timeout = parseInt(prop||'0')
@@ -279,13 +281,13 @@ export default defineComponent({
       arrowBack,
       settings,
       activePlatformProfile,
+      facilityName,
       onBarcode,
     }
   },
   data() {
     return {
       app: {} as AppInterface,
-      facilityName: "",
       userLocation: "",
       sessionDate: "",
       userName: "",
@@ -332,16 +334,6 @@ export default defineComponent({
       this.showSegmentBackArrow = false
       Store.set('ACTIVE_HOME_TAB', this.activeTab)
     },
-    async setLocation() {
-      const data = await Store.get('CURRENT_LOCATION') 
-      this.facilityName = data.name;
-      this.createSessionLocationName(data);
-    },
-    createSessionLocationName(data: any) {
-      sessionStorage.location = data.name;
-      sessionStorage.locationName = data.name;
-      sessionStorage.siteUUID = data.uuid;
-    },
     loadNotifications() {
       Notification().loadNotifications(this.app)
     },
@@ -350,7 +342,6 @@ export default defineComponent({
       this.isBDE = Service.isBDE() === true;
       this.userLocation = sessionStorage.userLocation;
       this.userName = sessionStorage.username;
-      this.setLocation();
       this.sessionDate = HisDate.toStandardHisDisplayFormat(
         Service.getSessionDate()
       )

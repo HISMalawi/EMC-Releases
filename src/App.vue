@@ -29,6 +29,7 @@ import { AuthService } from './services/auth_service';
 import { Service } from './services/service';
 import EmcLayout from "@/apps/EMC/Components/Layout.vue"
 import Screentimeout from "@/composables/Screentimeout"
+import useFacility from './composables/useFacility';
 
 export default defineComponent({
   name: 'App',
@@ -53,6 +54,9 @@ export default defineComponent({
     const activeModal = ref('')
     // synchronize date every 1 hour
     auth.initDateSync(3600000)
+
+    // load falility data
+    useFacility().setLocation();
 
     Screentimeout.initiateSystemIdleMonitor()
 
