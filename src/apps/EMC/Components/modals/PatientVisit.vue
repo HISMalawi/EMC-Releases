@@ -491,13 +491,13 @@ export default defineComponent({
     })
 
     const calculateMinDuration = (totalGiven: number, drugs: Array<ARVDrug>) => {
-      return Math.min(...drugs.map(drug => totalGiven / ((drug.am ?? 0) + (drug.noon ?? 0)  + (drug.pm ?? 0)) || 1), 0)
+      return Math.min(...drugs.map(drug => totalGiven / ((drug.am ?? 0) + (drug.noon ?? 0)  + (drug.pm ?? 0)) || 1))
     }
 
-    watch([() => form.totalArvsGiven.value, () => form.pillCount.value], () => {
+    watch([() => form.totalArvsGiven.value, () => form.pillCount.value, () => form.visitDate.value], () => {
       const remainingDrugs = parseInt(form.pillCount.value) || 0
       const duration = calculateMinDuration(form.totalArvsGiven.value ?? 1, form.regimen.value?.other ?? [])
-      if(duration) {
+      if(duration !== Infinity) {
         drugRunOutDate.value = dayjs(form.visitDate.value).add(duration + remainingDrugs, 'days').format(STANDARD_DATE_FORMAT)
         form.nextAppointmentDate.label = `Next Appointment Date (Drug run out date: ${dayjs(drugRunOutDate.value).format(DISPLAY_DATE_FORMAT)})`
         form.nextAppointmentDate.value = drugRunOutDate.value
