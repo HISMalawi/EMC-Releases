@@ -484,7 +484,7 @@ export default defineComponent({
         regimens.value = await getRegimens(form.weight.value, onTB)
         form.patientPresent.value = "Yes"
         form.patientPresent.disabled = true
-      } else if(!newWeight) {
+      } else if(!newWeight && form.weight.required) {
         form.patientPresent.value = undefined
         form.patientPresent.disabled = false
       }
