@@ -403,11 +403,11 @@ export default defineComponent({
       tbStatus: {
         value: undefined as Option | undefined,
         label: "TB Status",
+        required: true,
         computedValue: (status: Option) => ({
           tag: 'consultation',
           obs: consultations.buildValueCoded('TB Status', status.value)
         }),
-        validation: async (state) => !isOnActiveTBTreatment.value && StandardValidations.required(state)
       },
       tbTreatmentStartDate: {
         value: "" as string | undefined,
@@ -536,6 +536,7 @@ export default defineComponent({
           isOnActiveTBTreatment.value = timeElapsed <= tbTreatmentPeriod;
         }
       }
+      form.tbStatus.required = !isOnActiveTBTreatment.value
     }
 
     const buildBmiObs = async (formData: any): Promise<ObsValue> => {
