@@ -359,12 +359,13 @@ export default defineComponent({
       totalArvsGiven: {
         value: undefined as number  | undefined,
         label: "Total ARVs Given",
-        validation: async (drugs: Option, form: any) => {
-          if(isEmpty(drugs) || isEmpty(form.regimen.value)) {
-            const confirmed = await alertConfirmation("Do you want to proceed without dispensing ARVs")
-            if(confirmed) return null;
-          }
-          return StandardValidations.isNumber(drugs)
+        validation: async (drugs: Option, form: any) =>  {
+          if (isEmpty(form.regimen.value)) return null;
+          return StandardValidations.validateSeries([
+            () => StandardValidations.required(drugs),
+            () => StandardValidations.isNumber(drugs)
+          ])
+          
         }
       },
       totalPyridoxineGiven: {
@@ -584,21 +585,6 @@ export default defineComponent({
       appointment.setDate(form.visitDate.value)
       dispensation.setDate(form.visitDate.value)
       await submitForm (form, async (formData, computedFormData) => {
-        await vitals.createEncounter()
-        const vitalsObs = await resolveObs(computedFormData, 'vitals')
-        if (!isEmpty(vitalsObs)) {
-          const bmiObs = await buildBmiObs(formData)
-          await vitals.saveObservationList([...vitalsObs, bmiObs])
-        }
-        
-        await consultations.createEncounter()
-        let consultationObs = await resolveObs(computedFormData, 'consultation')
-        consultationObs = [...consultationObs, ...(await optionsToGroupObs("Malawi ART side effects", contraIndications.value))]
-        consultationObs = [...consultationObs, ...(await getTbSymptomsObs())]
-        if(hasSideEffects.value) consultationObs = [...consultationObs, ...(await optionsToGroupObs("Other side effect", sideEffects.value))  ]
-        if(isFemale.value) consultationObs = [...consultationObs, ...(await buildFpmObs())]
-        await consultations.saveObservationList(consultationObs)
-
         const drugOrders: any[] = []
         let duration = 0
         if(!isEmpty(formData.regimen) && formData.totalArvsGiven) {
@@ -607,6 +593,9 @@ export default defineComponent({
           arvDrugs.forEach((drug: any) => drugOrders.push(
             toDrugOrder(drug, formData.totalArvsGiven, duration, formData.visitDate)
           ))
+        } else {
+          const confirmed = await alertConfirmation('Are you sure you want to continue without dispensing ART drugs?')
+          if(!confirmed) return
         }
 
         if(formData.totalCPTGiven) {
@@ -651,6 +640,21 @@ export default defineComponent({
           })
           await dispensation.saveDispensations(dispensations.flat(1))
         }
+
+        const vitalsObs = await resolveObs(computedFormData, 'vitals')
+        if (!isEmpty(vitalsObs)) {
+          await vitals.createEncounter()
+          const bmiObs = await buildBmiObs(formData)
+          await vitals.saveObservationList([...vitalsObs, bmiObs])
+        }
+        
+        await consultations.createEncounter()
+        let consultationObs = await resolveObs(computedFormData, 'consultation')
+        consultationObs = [...consultationObs, ...(await optionsToGroupObs("Malawi ART side effects", contraIndications.value))]
+        consultationObs = [...consultationObs, ...(await getTbSymptomsObs())]
+        if(hasSideEffects.value) consultationObs = [...consultationObs, ...(await optionsToGroupObs("Other side effect", sideEffects.value))  ]
+        if(isFemale.value) consultationObs = [...consultationObs, ...(await buildFpmObs())]
+        await consultations.saveObservationList(consultationObs)
 
         await reception.createEncounter()
         const receptionObs = await resolveObs(computedFormData, 'reception')
