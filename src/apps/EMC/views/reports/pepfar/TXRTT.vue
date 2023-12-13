@@ -42,7 +42,7 @@ export default defineComponent({
       { path: "age_group", label: "Age group" },
       { path: "gender", label: "Gender", formatter: toGenderString },
       { path: "cd4_less_than_200", label: "CD4 <200", drillable: true },
-      { path: "cd4_greater_than_or_equal_to_200", label: "CD4 ≥200", drillable: true },
+      { path: "cd4_greater_than_or_equal_to_200", label: "CD4 >=200", drillable: true },
       { path: "unknown_cd4_count", label: "Unknown CD4", drillable: true },
       { path: "not_eligible_for_cd4", label: "Not Eligible for CD4", drillable: true },
       { path: "returned_less_than_3_months", label: "Returned <3 mo", drillable: true },
