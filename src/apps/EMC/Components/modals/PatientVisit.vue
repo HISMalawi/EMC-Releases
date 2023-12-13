@@ -7,26 +7,15 @@
   <ion-content class=" ion-padding">
     <ion-grid style="width: 100%">
       <ion-row>
-        <ion-col size="6" class="ion-margin-vertical">
+        <ion-col size="12" class="ion-margin-vertical">
           <DateInput v-model="form.visitDate" :form="form" :minDate="birthdate" :maxDate="today"/>
         </ion-col>
         <ion-col size="6" class="ion-margin-vertical">
-          <NumberInput v-model="form.weight" :form="form" :min="1"/>
+          <yes-no-input v-model="form.patientPresent" inline :disabled="form.patientPresent.disabled" />
         </ion-col>
-        <ion-col :size="isOnActiveTBTreatment ? '12' : '6'" class="ion-margin-vertical" v-if="showHeightField">
-          <NumberInput v-model="form.height" :form="form" :min="1"/>
-        </ion-col>        
-        <ion-col class="ion-margin-vertical" :size="showHeightField ? '6' : '12'" v-if="!isOnActiveTBTreatment">
-          <SelectInput v-model="form.tbStatus" :options="tbStatuses" />
+        <ion-col size="6" class="ion-margin-vertical">
+          <yes-no-input v-model="form.guardianPresent" inline />
         </ion-col>
-        <template v-if="isOnTBTreatment">
-          <ion-col size="6" class="ion-margin-vertical">
-            <DateInput v-model="form.tbTreatmentStartDate" :form="form" :minDate="birthdate" :maxDate="today"/>
-          </ion-col>
-          <ion-col size="6" class="ion-margin-vertical">
-            <NumberInput v-model="form.tbTreatmentPeriod" :form="form" :min="1"/>
-          </ion-col>
-        </template>
         <template v-if="isFemale">
           <ion-col size="6" class="ion-margin-vertical">
             <yes-no-input v-model="form.isPregnant" inline />
@@ -44,7 +33,7 @@
             </ion-item>
           </multi-column-view>
         </ion-col>
-        <ion-col class="ion-padding-start" size="6">
+        <ion-col class="ion-margin-vertical" size="6">
           <yes-no-input v-model="form.hasSideEffects" inline />
           <multi-column-view :items="sideEffects" :numberOfColumns="2" v-slot="{ entries }" v-if="hasSideEffects">
             <ion-item lines="none" v-for="entry in entries" :key="entry.value">
@@ -53,6 +42,23 @@
             </ion-item>
           </multi-column-view>
         </ion-col>
+        <ion-col size="6" class="ion-margin-vertical">
+          <NumberInput v-model="form.weight" :form="form" :min="1"/>
+        </ion-col>
+        <ion-col size="6" class="ion-margin-vertical" v-if="showHeightField">
+          <NumberInput v-model="form.height" :form="form" :min="1"/>
+        </ion-col>        
+        <ion-col class="ion-margin-vertical" :size="showHeightField ? '12' : '6'" v-if="!isOnActiveTBTreatment">
+          <SelectInput v-model="form.tbStatus" :options="tbStatuses" />
+        </ion-col>
+        <template v-if="isOnTBTreatment">
+          <ion-col size="6" class="ion-margin-vertical">
+            <DateInput v-model="form.tbTreatmentStartDate" :form="form" :minDate="birthdate" :maxDate="today"/>
+          </ion-col>
+          <ion-col size="6" class="ion-margin-vertical">
+            <NumberInput v-model="form.tbTreatmentPeriod" :form="form" :min="1"/>
+          </ion-col>
+        </template>
         <ion-col size="6" class="ion-margin-vertical">
           <SelectInput v-model="form.regimen" :options="regimens" />
         </ion-col>
@@ -76,12 +82,6 @@
         </ion-col>
         <ion-col size="6" v-if="hasGiven3HP || hasGivenRFP || hasGiven6H">
           <NumberInput v-model="form.totalPyridoxineGiven" :form="form" :min="1"/>
-        </ion-col>
-        <ion-col size="6" class="ion-margin-vertical">
-          <yes-no-input v-model="form.patientPresent" inline :disabled="form.patientPresent.disabled" />
-        </ion-col>
-        <ion-col size="6" class="ion-margin-vertical">
-          <yes-no-input v-model="form.guardianPresent" inline />
         </ion-col>
         <ion-col size="6" class="ion-margin-vertical" v-if="prevDrugs.length > 0">
           <NumberInput v-model="form.pillCount" :form="form" :min="1"/>
