@@ -185,7 +185,8 @@ export default defineComponent({
     const reception = new ReceptionService(patientId.value, -1)
     const adherence = new AdherenceService(patientId.value, -1)
     const appointment = new AppointmentService(patientId.value, -1)
-    const prevHeight = ref<number>()
+    const prevHeight = ref<number>();
+    const prevWeight = ref<number>();
     const regimens = ref<Option[]>([])
     const contraIndications = ref<Option[]>([]);
     const sideEffects = ref<Option[]>([]);
@@ -600,13 +601,13 @@ export default defineComponent({
         }
 
         if(formData.totalCPTGiven) {
-          uniqueBy((await RegimenService.getRegimenExtras('Cotrimoxazole', formData.weight)), 'concept_name')
+          uniqueBy((await RegimenService.getRegimenExtras('Cotrimoxazole', formData.weight ?? prevWeight.value)), 'concept_name')
           .filter((drug: any) => drug.frequency === 'Daily (QOD)')
           .forEach((drug: any) => drugOrders.push(toDrugOrder(drug, formData.totalCPTGiven, duration, formData.visitDate)))
         }
 
         if(formData.tbMed?.value) {
-          const iptRegimens = uniqueBy((await RegimenService.getRegimenExtras('INH', formData.weight)), ['concept_name', 'frequency'])
+          const iptRegimens = uniqueBy((await RegimenService.getRegimenExtras('INH', formData.weight ?? prevWeight.value)), ['concept_name', 'frequency'])
           const pyridoxine = iptRegimens.find((d: any) => d['concept_name'] === 'Pyridoxine')
 
           if(pyridoxine && formData.totalPyridoxineGiven) {
@@ -622,12 +623,12 @@ export default defineComponent({
           }
 
           if(formData.totalRFPGiven && hasGivenRFP.value) {
-            const rfpRegimens = await RegimenService.getRegimenExtras('Rifapentine', formData.weight)
+            const rfpRegimens = await RegimenService.getRegimenExtras('Rifapentine', formData.weight ?? prevWeight.value)
             if(rfpRegimens.length) drugOrders.push(toDrugOrder(rfpRegimens[0], formData.totalRFPGiven, duration, formData.visitDate))
           }
 
           if(formData.total3HPGiven && hasGiven3HP.value) {
-            const threeHPRegimens = await RegimenService.getRegimenExtras('INH / RFP', formData.weight)
+            const threeHPRegimens = await RegimenService.getRegimenExtras('INH / RFP', formData.weight ?? prevWeight.value)
             drugOrders.push(toDrugOrder(threeHPRegimens[0], formData.total3HPGiven, duration, formData.visitDate))
           }
         }
@@ -701,8 +702,8 @@ export default defineComponent({
     onMounted (async () => {
       await checkForActiveTB();
       prevHeight.value = await props.patient.getRecentHeight()
-      const recentWeight = await props.patient.getRecentWeight()
-      if (recentWeight) regimens.value = await getRegimens(recentWeight)
+      prevWeight.value = await props.patient.getRecentWeight()
+      if (prevWeight.value) regimens.value = await getRegimens(prevWeight.value)
       prevDrugs.value = await DrugOrderService.getLastDrugsReceived(props.patient.getID())
       form.pillCount.required = prevDrugs.value.length > 0
       contraIndications.value = ConceptService
