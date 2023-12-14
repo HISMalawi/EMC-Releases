@@ -183,12 +183,21 @@ export default defineComponent({
     `);
 
     const actionBtns = computed<ActionButtonInterface[]>(() => {
+      // removeNewLinesAndSpaces re cleans up the file name to remove the naming bug  
+      const cleanedFileName = removeNewLinesAndSpaces(filename.value)
+
       const btns = [...props.actionButtons];
       if(props.showRefreshButton) btns.push(getRefreshBtn());
-      if (props.canExportCsv) btns.push(getCsvExportBtn(filename.value, props.quarter?.label, props.period));
-      if (props.canExportPDF) btns.push(getPdfExportBtn(filename.value, props.quarter?.label, props.period));
+      if (props.canExportCsv) btns.push(getCsvExportBtn(cleanedFileName, props.quarter?.label, props.period));
+      if (props.canExportPDF) btns.push(getPdfExportBtn(cleanedFileName, props.quarter?.label, props.period));
       return btns;
     })
+
+    const removeNewLinesAndSpaces = (inputString: string): string => {
+      const stringWithoutNewLines = inputString.replace(/(\r\n|\n|\r)/gm, '');
+      const stringWithoutExtraSpaces = stringWithoutNewLines.replace(/\s+/g, ' ');
+      return stringWithoutExtraSpaces.trim(); 
+    };
 
     const filters = computed<CustomFilterInterface[]>(() => {
       const f = [...props.customFilters];
