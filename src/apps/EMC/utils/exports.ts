@@ -12,6 +12,7 @@ import autoTable from 'jspdf-autotable';
 export function sanitize(str: string) {
   try {
     return str.replace(/<(?:.|\n)*?>/gm, " ")
+      .replace(/(\r\n|\n|\r)/gm, '')
       .replace(/\n/g, " ")
       .replace(/\t/g, " ")
       .replace(/\s{2,}/g, " ")
@@ -83,6 +84,9 @@ export function exportToCSV(opts: ExportOptions) {
   const csvData = new Blob([toCsvString(opts)], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = window.URL.createObjectURL(csvData);
+
+
+
   link.setAttribute("download", `${opts.filename}.csv`);
   document.body.appendChild(link);
   link.click();
