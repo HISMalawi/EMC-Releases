@@ -59,6 +59,14 @@
             <NumberInput v-model="form.tbTreatmentPeriod" :form="form" :min="1"/>
           </ion-col>
         </template>
+        <template v-else-if="canTestForTB">
+          <ion-col size="6" class="ion-margin-vertical">
+            <SelectInput v-model="form.tbScreeningMethod" :options="tbScreeningMethods" />
+          </ion-col>
+          <ion-col size="6" class="ion-margin-vertical">
+            <SelectInput v-model="form.tbTestResults" :options="tbResultsOptions" />
+          </ion-col>
+        </template>
         <ion-col size="6" class="ion-margin-vertical">
           <SelectInput v-model="form.regimen" :options="regimens" />
         </ion-col>
@@ -101,8 +109,8 @@
   </ion-footer>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, onMounted, PropType, reactive, ref, watch } from "vue";
+<script lang="ts" setup>
+import { computed, onMounted, PropType, reactive, ref, watch, defineProps} from "vue";
 import { 
   IonCol, 
   IonGrid, 
@@ -150,33 +158,12 @@ import { uniqueBy } from "@/utils/Arrays";
 import { DISPLAY_DATE_FORMAT, STANDARD_DATE_FORMAT } from "@/utils/Date";
 import { ARVDrug } from "@/interfaces/Drug";
 
-export default defineComponent({
-  components: {
-    IonContent,
-    IonFooter,
-    IonHeader,
-    IonTitle,
-    IonToolbar,
-    IonButton,
-    IonItem,
-    IonLabel,
-    IonGrid,
-    IonRow,
-    IonCol,
-    IonCheckbox,
-    SelectInput,
-    NumberInput,
-    DateInput,
-    YesNoInput,
-    MultiColumnView,
+const props = defineProps({
+  patient: {
+    type: Object as PropType<PatientObservationService>,
+    required: true
   },
-  props: {
-    patient: {
-      type: Object as PropType<PatientObservationService>,
-      required: true
-    },
-  },
-  setup(props) {
+}) 
     const patientId = computed(() => props.patient.getID())
     const vitals = new VitalsService(patientId.value, -1)
     const consultations = new ConsultationService(patientId.value, -1)
@@ -437,6 +424,22 @@ export default defineComponent({
           obs: consultations.buildValueNumber("TB treatment period", period)
         })
       },
+      tbScreeningMethod: {
+        value: "",
+        label: "TB Testing Method Used for Screening",
+        computedValue: (method: Option) => ({
+          tag: "consultation",
+          obs: consultations.buildValueCoded("TB Testing Method Used for Screening", method.value)
+        })
+      },
+      tbTestResults: {
+        value: "",
+        label: "TB Testing Method Results",
+        computedValue: (method: string) => ({
+          tag: "consultation",
+          obs: consultations.buildValueText("TB Testing Method Results", method)
+        })
+      }
     })
 
     const getRegimens = async (weight: number, onTB?: boolean): Promise<Option[]> => {
@@ -513,7 +516,8 @@ export default defineComponent({
     const hasGiven6H = computed(() => form.tbMed.value?.label === '6H')
     const hasContraindications = computed(() => form.hasContraindications.value === 'Yes')
     const hasSideEffects = computed(() => form.hasSideEffects.value === 'Yes')
-    const isOnTBTreatment = computed(() => /Confirmed TB on treatment/i.test(form.tbStatus.value?.label))    
+    const isOnTBTreatment = computed(() => /Confirmed TB on treatment/i.test(form.tbStatus.value?.label))   
+    const canTestForTB = computed(() => /Suspected/i.test(form.tbStatus.value?.label));
 
     const tbStatuses = toOptions([
       'Confirmed TB Not on treatment', 
@@ -522,6 +526,8 @@ export default defineComponent({
       'TB Suspected'
     ]);
 
+    const tbScreeningMethods = toOptions(["CXR chest x-ray", "mWRD (Molecular WHO Recommended Rapid Diagnostic test)"]);
+    const tbResultsOptions = toOptions(["Positive", "Negative"]);
     const tbMeds = toOptions(['6H', '3HP (RFP + INH)', '3HP (INH 300 / RFP 300)'])
 
     const checkForActiveTB = async () => {
@@ -722,32 +728,6 @@ export default defineComponent({
         }));
     });
 
-    return {
-      today,
-      form,
-      regimens,
-      contraIndications,
-      sideEffects,
-      tbStatuses,
-      tbMeds,
-      hasGiven3HP,
-      hasGivenRFP,
-      hasGiven6H,
-      showHeightField,
-      isFemale,
-      modal,
-      hasContraindications,
-      hasSideEffects,
-      prevDrugs,
-      drugRunOutDate,
-      birthdate,
-      onSubmit,
-      onClear,
-      isOnTBTreatment,
-      isOnActiveTBTreatment,
-    };
-  },
-})
 </script>
 
 <style scoped>
