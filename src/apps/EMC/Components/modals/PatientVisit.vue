@@ -526,7 +526,7 @@ const props = defineProps({
       'TB Suspected'
     ]);
 
-    const tbScreeningMethods = toOptions(["CXR chest x-ray", "mWRD (Molecular WHO Recommended Rapid Diagnostic test)"]);
+    const tbScreeningMethods = toOptions(["Chest xray", "Molecular WHO Recommended Rapid Diagnostic test"]);
     const tbResultsOptions = toOptions(["Positive", "Negative", "Unknown"]);
     const tbMeds = toOptions(['6H', '3HP (RFP + INH)', '3HP (INH 300 / RFP 300)'])
 
