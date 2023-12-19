@@ -426,18 +426,18 @@ const props = defineProps({
       },
       tbScreeningMethod: {
         value: "",
-        label: "TB Testing Method Used for Screening",
+        label: "TB screening method used",
         computedValue: (method: Option) => ({
           tag: "consultation",
-          obs: consultations.buildValueCoded("TB Testing Method Used for Screening", method.value)
+          obs: consultations.buildValueCoded("TB screening method used", method.value)
         })
       },
       tbTestResults: {
         value: "",
-        label: "TB Testing Method Results",
-        computedValue: (method: string) => ({
+        label: "TB screening result",
+        computedValue: (result: Option) => ({
           tag: "consultation",
-          obs: consultations.buildValueText("TB Testing Method Results", method)
+          obs: consultations.buildValueCoded("TB screening result", result.value)
         })
       }
     })
@@ -527,7 +527,7 @@ const props = defineProps({
     ]);
 
     const tbScreeningMethods = toOptions(["CXR chest x-ray", "mWRD (Molecular WHO Recommended Rapid Diagnostic test)"]);
-    const tbResultsOptions = toOptions(["Positive", "Negative"]);
+    const tbResultsOptions = toOptions(["Positive", "Negative", "Unknown"]);
     const tbMeds = toOptions(['6H', '3HP (RFP + INH)', '3HP (INH 300 / RFP 300)'])
 
     const checkForActiveTB = async () => {

@@ -1,6 +1,11 @@
 export default [
    {
       "categories": [],
+      "concept_id": 3386,
+      "name": "CXR chest x-ray"
+   },
+   {
+      "categories": [],
       "concept_id": 865,
       "name": "Sore throat"
    },
