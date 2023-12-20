@@ -8,10 +8,18 @@
         </b></ion-label>
         <br v-if="!inline"><br v-if="!inline">
         <ion-radio-group v-model="model.value" @ionChange="() => model.error = ''">
-          <span class="ion-margin-start">Yes</span>
-          <ion-radio class="ion-margin-start" slot="start" color="primary" value="Yes" :disabled="disabled"/>
-          <span class="ion-margin-start">No</span>
-          <ion-radio class="ion-margin-start" slot="start" color="primary" value="No" :disabled="disabled" />
+          <template v-if="customOptions?.length">
+            <template v-for="option in customOptions" :key="option.label">
+              <span class="ion-margin-start">{{ option.label }}</span>
+              <ion-radio class="ion-margin-start" slot="start" color="primary" :value="option.value" :disabled="disabled"/>
+            </template>
+          </template>
+          <template v-else>
+            <span class="ion-margin-start">Yes</span>
+            <ion-radio class="ion-margin-start" slot="start" color="primary" value="Yes" :disabled="disabled"/>
+            <span class="ion-margin-start">No</span>
+            <ion-radio class="ion-margin-start" slot="start" color="primary" value="No" :disabled="disabled" />
+          </template>
         </ion-radio-group><br>
         <ion-note v-if="model.error" color="danger">{{ model.error }}</ion-note>
       </ion-col>
@@ -23,6 +31,7 @@
 import { computed, defineComponent, PropType } from "vue";
 import { IonRadioGroup, IonRadio, IonGrid, IonRow, IonCol, IonLabel } from "@ionic/vue";
 import { DTFormField } from "../../interfaces/dt_form_field";
+import { Option } from "@/components/Forms/FieldInterface";
 
 export default defineComponent({
   name: "YesNoInput",
@@ -39,6 +48,9 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    customOptions: {
+      type: Array as PropType<Array<Option>>
+    }
   },
   components: {
     IonRadioGroup,

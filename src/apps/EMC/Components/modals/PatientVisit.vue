@@ -61,10 +61,10 @@
         </template>
         <template v-else-if="canTestForTB">
           <ion-col size="6" class="ion-margin-vertical">
-            <SelectInput v-model="form.tbScreeningMethod" :options="tbScreeningMethods" />
+            <yes-no-input v-model="form.cxrResult" :custom-options="tbResultsOptions" />
           </ion-col>
           <ion-col size="6" class="ion-margin-vertical">
-            <SelectInput v-model="form.tbTestResults" :options="tbResultsOptions" />
+            <yes-no-input v-model="form.mwrdResult" :custom-options="tbResultsOptions" />
           </ion-col>
         </template>
         <ion-col size="6" class="ion-margin-vertical">
@@ -424,20 +424,20 @@ const props = defineProps({
           obs: consultations.buildValueNumber("TB treatment period", period)
         })
       },
-      tbScreeningMethod: {
+      cxrResult: {
         value: "",
-        label: "TB screening method used",
-        computedValue: (method: Option) => ({
+        label: "CXR (Chest X-ray) Screening method Result",
+        computedValue: (result: string) => ({
           tag: "consultation",
-          obs: consultations.buildValueCoded("TB screening method used", method.value)
+          obs: consultations.buildGroupValueCoded("TB screening method used", "chest xray", result)
         })
       },
-      tbTestResults: {
+      mwrdResult: {
         value: "",
-        label: "TB screening result",
-        computedValue: (result: Option) => ({
+        label: "mWRD (Molecular WHO Recommended Rapid Diagnostic test) Screening method Result",
+        computedValue: (result: string) => ({
           tag: "consultation",
-          obs: consultations.buildValueCoded("TB screening result", result.value)
+          obs: consultations.buildGroupValueCoded("TB screening method used", "Molecular WHO Recommended Rapid Diagnostic test", result)
         })
       }
     })
@@ -519,16 +519,19 @@ const props = defineProps({
     const isOnTBTreatment = computed(() => /Confirmed TB on treatment/i.test(form.tbStatus.value?.label))   
     const canTestForTB = computed(() => /Suspected/i.test(form.tbStatus.value?.label));
 
-    const tbStatuses = toOptions([
-      'Confirmed TB Not on treatment', 
-      'Confirmed TB on treatment', 
-      'TB Not Suspected',
-      'TB Suspected'
-    ]);
-
-    const tbScreeningMethods = toOptions(["Chest xray", "Molecular WHO Recommended Rapid Diagnostic test"]);
-    const tbResultsOptions = toOptions(["Positive", "Negative", "Unknown"]);
-    const tbMeds = toOptions(['6H', '3HP (RFP + INH)', '3HP (INH 300 / RFP 300)'])
+    const tbResultsOptions = computed(() => toOptions(/Not Suspected/i.test(form.tbStatus.value?.label)  
+      ? ["Negative", "Unknown"]
+      : ["Positive", "Negative", "Unknown"] 
+    ));
+  
+  const tbMeds = toOptions(['6H', '3HP (RFP + INH)', '3HP (INH 300 / RFP 300)'])
+  
+  const tbStatuses = toOptions([
+    'Confirmed TB Not on treatment', 
+    'Confirmed TB on treatment', 
+    'TB Not Suspected',
+    'TB Suspected'
+  ]);
 
     const checkForActiveTB = async () => {
       await PatientObservationService.setSessionDate(form.visitDate.value);
