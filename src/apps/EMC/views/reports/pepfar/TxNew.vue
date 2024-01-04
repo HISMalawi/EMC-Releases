@@ -37,7 +37,7 @@ const columns: TableColumnInterface[] = [
   { path: "gender", label: "Gender", formatter: toGenderString },
   { path: "cd4_less_than_200", label: "Tx new CD4 < 200", drillable: true },
   { path: "cd4_greater_than_equal_to_200", label: "Tx new CD4 >= 200", drillable: true },
-  { path: "cd4_unknown_or_not_done", label: "Tx new CD4 Unknown / not done", drillable: true },
+  { path: "cd4_unknown_or_not_done", label: "Tx new CD4 Unknown", drillable: true },
   { path: "transfer_in", label: "Transfer-ins", drillable: true },
 ]
 
