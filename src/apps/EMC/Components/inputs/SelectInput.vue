@@ -39,7 +39,7 @@
           <ion-item 
             v-for="(option, index) of filteredOptions" 
             :key="index"
-            :lines="index + 1 === filteredOptions.length ? 'none' : ''"
+            :lines="index + 1 === filteredOptions.length ? 'none' : undefined"
             :color="option.value === focusedOption?.value ? 'light' : ''"
             @click="onSelect(option)"
           >
@@ -176,7 +176,7 @@ export default defineComponent({
         else filtered[index].isChecked = true
       })
       
-      filteredOptions.value = filtered
+      filteredOptions.value = filtered.filter(({label}) => !!label);
     }
 
     const validate = async () => {
@@ -247,7 +247,6 @@ export default defineComponent({
         case 'ArrowUp':
           focusPreviousOption(evt);
           break;
-        case ' ':
         case 'Enter':
           onSelect(focusedOption.value as Option)
           break;
