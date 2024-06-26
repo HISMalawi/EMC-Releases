@@ -1,0 +1,1 @@
+System.register(["./index-legacy-c6316dba.js"],(function(e,t){"use strict";var n,i;return{setters:[e=>{n=e.d9,i=e.g}],execute:function(){e({g:function(e="person_id",t=i()){return{label:"view client",icon:n,color:"light",action:n=>t.push(`/emc/patient/${n[e]}`)}},t:function(e){return Object.entries(e).map((([e,t])=>({path:e,label:t,drillable:!0,sortable:!1})))}})}}}));
