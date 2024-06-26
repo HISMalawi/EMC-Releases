@@ -1,1 +1,0 @@
-import{d9 as n,g as o}from"./index-a3998c4f.js";function a(e="person_id",t=o()){return{label:"view client",icon:n,color:"light",action:r=>t.push("/emc/patient/".concat(r[e]))}}function l(e){return Object.entries(e).map(([t,r])=>({path:t,label:r,drillable:!0,sortable:!1}))}export{a as g,l as t};
